@@ -22,6 +22,7 @@ package org.semanticweb.owl.align;
 import java.io.PrintStream;
 import java.io.IOException;
 
+import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
 
 import org.xml.sax.ContentHandler;
@@ -47,7 +48,7 @@ public interface Relation
     public void dump(ContentHandler h);
     public void write( PrintStream writer ) throws java.io.IOException ;
     /** Exporting */
-    public void printAsAxiom( Cell c ) throws OWLException;
+    public void printAsAxiom(  PrintStream writer, OWLOntology ontology, Cell c ) throws OWLException;
 
 }
 

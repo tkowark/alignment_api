@@ -106,7 +106,7 @@ public interface Alignment
     /** Exporting
 	The alignments are exported for other purposes.
     */
-    public void printAsAxiom() throws OWLException;
+    public void printAsAxiom( PrintStream writer ) throws OWLException;
 
 }
 

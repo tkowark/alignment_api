@@ -22,6 +22,8 @@ package fr.inrialpes.exmo.align.impl;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Cell;
 
+import org.semanticweb.owl.model.OWLOntology;
+import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
 import java.io.PrintStream;
@@ -62,15 +64,42 @@ public class BasicRelation implements Relation
 	writer.print(relation);
     }
 
-    public void printAsAxiom( Cell c ) throws OWLException {
-	if ( relation.equals("=") ){
-	    // Test if the object is a class
-	    System.out.println("  <owl:Class rdf:about=\""+c.getObject1().getURI().toString()+"\">");
-	    System.out.println("    <owl:sameClassAs rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>");
-	    System.out.println("  </owl:Class>");
-	} else {
+    public void printAsAxiom( PrintStream writer, OWLOntology ontology, Cell c ) throws OWLException {
+	URI entity1URI = c.getObject1().getURI();
+	if ( (OWLEntity)ontology.getClass( entity1URI ) != null ) { // A class
+	    writer.print("  <owl:Class rdf:about=\""+entity1URI.toString()+"\">\n");
+	    if ( relation.equals("=") ){
+		writer.print("    <owl:equivalentClass rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    } else if ( relation.equals("<") ){
+		writer.print("    <rdfs:subClassOf rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    }
+	    writer.print("  </owl:Class>\n");
+	} else if ( (OWLEntity)ontology.getDataProperty( entity1URI ) != null ) { // A Dataproperty
+	    writer.print("  <owl:DatatypeProperty rdf:about=\""+entity1URI.toString()+"\">\n");
+	    if ( relation.equals("=") ){
+		writer.print("    <owl:equivalentProperty rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    } else if ( relation.equals("<") ){
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    }
+	    writer.print("  </owl:DatatypeProperty>\n");
+	} else if ( (OWLEntity)ontology.getObjectProperty( entity1URI ) != null ) { // An ObjectProperty
+	    writer.print("  <owl:ObjectProperty rdf:about=\""+entity1URI.toString()+"\">\n");
+	    if ( relation.equals("=") ){
+		writer.print("    <owl:equivalentProperty rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    } else if ( relation.equals("<") ){
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    } else if ( relation.equals("%") ){
+		writer.print("    <owl:inverseOf rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    }
+	    writer.print("  </owl:ObjectProperty>\n");
+	} else if ( (OWLEntity)ontology.getIndividual( entity1URI ) != null ) { // An individual (but check this)
+	    writer.print("  <owl:Thing rdf:about=\""+entity1URI.toString()+"\">\n");
+	    if ( relation.equals("=") ){
+		writer.print("    <owl:sameAs rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>\n");
+	    }
+	    writer.print("  </owl:Thing>\n");
 	}
-
+	writer.print("\n");
     }
 
 }

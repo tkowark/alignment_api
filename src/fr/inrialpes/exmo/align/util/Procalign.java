@@ -255,7 +255,7 @@ public class Procalign {
 
 	    // Result printing
 	    if ( format.equals("axioms") ) {
-		result.printAsAxiom();
+		result.printAsAxiom( writer );
 	    } else result.write( writer );
 	    
 	    // File closing

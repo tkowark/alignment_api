@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -165,32 +166,28 @@ public class BasicAlignment implements Alignment
 	writer.print("</rdf:RDF>\n");
     };
 
-    /* It should be possible either:
-       - to print the possible axioms;
-       - to create them (but they will be in an ontology)
-     */
-    public void printAsAxiom() throws OWLException {
-	System.out.println("<rdf:RDF xmlns:dc=\"http://purl.org/dc/elements/1.1/\"");
-	System.out.println("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"");
-	System.out.println("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
-	System.out.println("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" ");
-	System.out.println("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"");
-	System.out.println("    xml:base=\"http://www.example.org/ontology1\"");
-	System.out.println("    xmlns=\"http://www.example.org/ontology1#\">");
+    /** This should be rewritten in order to generate the axiom ontology instead of
+       printing it! And then use ontology serialization for getting it printed.
+    **/
+    public void printAsAxiom( PrintStream writer ) throws OWLException {
+	writer.print("<rdf:RDF\n");
+	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n");
+	writer.print("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
+	writer.print("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" \n");
+	writer.print("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n\n");
 	
-	System.out.println("<owl:Ontology rdf:about=\"\">");
-	System.out.println("  <rdfs:comment>Aligned ontollogies</rdfs:comment>");
-	System.out.println("  <owl:imports rdf:resource=\""+onto1.getLogicalURI().toString()+"\"/>");
-	System.out.println("  <owl:imports rdf:resource=\""+onto2.getLogicalURI().toString()+"\"/>");
-	System.out.println("</owl:Ontology>");
+	writer.print("  <owl:Ontology rdf:about=\"\">\n");
+	writer.print("    <rdfs:comment>Aligned ontollogies</rdfs:comment>\n");
+	writer.print("    <owl:imports rdf:resource=\""+onto1.getLogicalURI().toString()+"\"/>\n");
+	writer.print("    <owl:imports rdf:resource=\""+onto2.getLogicalURI().toString()+"\"/>\n");
+	writer.print("  </owl:Ontology>\n\n");
 
 	for( Enumeration e = getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
-	    c.getRelation().printAsAxiom( c );
+	    c.getRelation().printAsAxiom( writer, onto1, c );
 	} //end for
 	
-	System.out.println("</rdf:RDF>");
-
+	writer.print("</rdf:RDF>\n");
 
     }
 

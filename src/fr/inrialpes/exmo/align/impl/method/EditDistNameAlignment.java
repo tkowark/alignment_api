@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  * Except for the Levenshtein class whose copyright is not claimed to
  * our knowledge.
