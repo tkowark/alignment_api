@@ -69,30 +69,39 @@ public class NameEqAlignment extends BasicAlignment implements AlignmentProcess
 	// For each class of onto2 whose name is found in the hash table
 	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); ){
 	    cl = (OWLClass)it.next();
-	    table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
+	    if ( cl.getURI().getFragment() != null )
+		table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
 	}
 	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); ){
 	    OWLClass cl2 = (OWLClass)it.next();
-	    cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
-	    if( cl != null ){ addAlignCell( cl, cl2 ); }
+	    if ( cl2.getURI().getFragment() != null ) {
+		cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
+		if( cl != null ){ addAlignCell( cl, cl2 ); }
+	    }
 	}
 	for ( Iterator it = onto1.getObjectProperties().iterator(); it.hasNext(); ){
 	    pr = (OWLProperty)it.next();
-	    table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
+	    if ( pr.getURI().getFragment() != null )
+		table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
 	}
 	for ( Iterator it = onto2.getObjectProperties().iterator(); it.hasNext(); ){
 	    OWLProperty pr2 = (OWLProperty)it.next();
-	    pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
-	    if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    if ( pr2.getURI().getFragment() != null ){
+		pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
+		if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    }
 	}
 	for ( Iterator it = onto1.getDataProperties().iterator(); it.hasNext(); ){
 	    pr = (OWLProperty)it.next();
-	    table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
+	    if ( pr.getURI().getFragment() != null )
+		table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
 	}
 	for ( Iterator it = onto2.getDataProperties().iterator(); it.hasNext(); ){
 	    OWLProperty pr2 = (OWLProperty)it.next();
-	    pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
-	    if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    if ( pr2.getURI().getFragment() != null ){
+		pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
+		if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    }
 	}
 	//for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); ){
 	//	id = (OWLIndividual)it.next();

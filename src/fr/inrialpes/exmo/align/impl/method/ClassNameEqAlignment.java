@@ -58,18 +58,22 @@ public class ClassNameEqAlignment extends BasicAlignment implements AlignmentPro
     public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
 	Hashtable table = new Hashtable();
 	OWLClass cl = null;
+
 	//ignore alignment;
 	// This is a stupid O(2n) algorithm:
 	// Put each class of onto1 in a hashtable indexed by its name (not qualified)
 	// For each class of onto2 whose name is found in the hash table
 	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); ){
 	    cl = (OWLClass)it.next();
-	    table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
+	    if ( cl.getURI().getFragment() != null )
+		table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
 	}
 	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); ){
 	    OWLClass cl2 = (OWLClass)it.next();
-	    cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
-	    if( cl != null ){ addAlignCell( cl, cl2 ); }
+	    if ( cl2.getURI().getFragment() != null ) {
+		cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
+		if( cl != null ){ addAlignCell( cl, cl2 ); }
+	    }
 	}
     }
 
