@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path=""/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/abstractparser.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/antlr.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/api.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/dig.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/examples.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/getopt.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/impl.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/inference.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/io.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/jgraph_ol.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/log4j.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/owl-servlet.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/owltest.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/procalign.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/rdfapi.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/rdfparser.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/validation.jar"/>
+    <classpathentry kind="lib" path="R:/stage/OLParsor/OLParsOnto/lib/validation_test.jar"/>
+    <classpathentry kind="output" path=""/>
+</classpath>
