@@ -39,7 +39,7 @@ import net.didion.jwnl.data.list.PointerTargetNodeList;
  * @author Jerome Pierson
  * @version $Id: JWNLDistances.java,v 1.0 2004/08/04 
  */
-class JWNLDistances{
+public class JWNLDistances{
 	
 /**
  * Initialize the JWNL API. Must be done one time before computing distance
