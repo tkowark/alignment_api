@@ -213,7 +213,7 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("map")) {
 		    try {
 			if ( onto2 == null ){
-			    onto2 = loadOntology( alignment.getFile2().toString() );
+			    onto2 = loadOntology( alignment.getFile2() );
 			    if ( onto2 == null ) {
 				throw new SAXException("Cannot find ontology"+alignment.getFile2());
 			    } else {
@@ -222,7 +222,7 @@ public class AlignmentParser extends DefaultHandler {
 			}
 			alignment.setOntology2( (OWLOntology)onto2 );
 			if ( onto1 == null ){
-			    onto1 = loadOntology( alignment.getFile1().toString() );
+			    onto1 = loadOntology( alignment.getFile1() );
 			    if ( onto1 == null ) {
 				throw new SAXException("Cannot find ontology"+alignment.getFile1());
 			    } else {
@@ -309,33 +309,23 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( id != null ) cell.setId( id );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
-		    try { alignment.setFile1( new URI( content ) );
-		    } catch (Exception e) {e.printStackTrace();};
+		    onto1 = (OWLOntology)ontologies.get( content );
+		    //try { alignment.setFile1( new URI( content ) );
+		    //} catch (Exception e) {e.printStackTrace();};
 		} else if (pName.equals("uri2")) {
-		    try { alignment.setFile2( new URI( content ) );
-		    } catch (Exception e) {e.printStackTrace();};
+		    onto2 = (OWLOntology)ontologies.get( content );
+		    //try { alignment.setFile2( new URI( content ) );
+		    //} catch (Exception e) {e.printStackTrace();};
 		} else if (pName.equals("onto2")) {
 		    // If the ontology is already loaded.
-		    onto2 = (OWLOntology)ontologies.get( content );
+		    //onto2 = (OWLOntology)ontologies.get( content );
 		    //JE: these are URI, I do not try to locate!
-		    //if ( onto2 == null ){
-		    //	try {
-		    //	    onto2 = loadOntology( content );
-		    //	    if ( onto2 != null ) {
-		    //		ontologies.put( content, onto2 );
-		    //	    }
-		    //	} catch (Exception e) {e.printStackTrace();}
-		    // }
+		    try { alignment.setFile2( new URI( content ) );
+		    } catch (Exception e) {e.printStackTrace();}
 		} else if (pName.equals("onto1")) {
-		    onto1 = (OWLOntology)ontologies.get( content );
-		    //if ( onto1 == null ) {
-		    //	try {
-		    //	    onto1 = loadOntology( content );
-		    //	    if ( onto1 != null ) {
-		    //		ontologies.put( content, onto1 );
-		    //	    }
-		    //	} catch (Exception e) {e.printStackTrace();}
-		    // }
+		    //onto1 = (OWLOntology)ontologies.get( content );
+		    try { alignment.setFile1( new URI( content ) );
+		    } catch (Exception e) {e.printStackTrace();}
 		} else if (pName.equals("type")) {
 		    alignment.setType( content );
 		} else if (pName.equals("level")) {
@@ -378,12 +368,5 @@ public class AlignmentParser extends DefaultHandler {
 	}
     }
  
-    private OWLOntology loadOntology( String ref ) throws SAXException, OWLException  {
-	try { return loadOntology( new URI( ref ) );
-	} catch ( URISyntaxException e ) {
-	    throw new SAXException("[AlignmentParser] Malformed URI : "+ref);
-	}
-    }
-
 }//end class
     
