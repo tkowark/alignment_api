@@ -1,0 +1,60 @@
+BODY {
+	color: Black;
+	background-color: #D3D3D3;
+	font-family: Verdana, sans-serif;
+	font-size: 12px;
+	text-align: justify;
+}
+
+A {
+	color: #0000CD;
+	text-decoration: none;
+}
+
+A:HOVER {
+	color: Navy;
+	text-decoration: none;
+}
+
+.titreSection {
+	font-size:18px;
+	padding-left:10px;
+	padding-bottom:10px;
+	padding-top:5px;
+}
+
+.titre1 {
+	font-size:16px;
+	font-weight:bold;
+	padding-left:14px;
+	padding-bottom:5px;
+	padding-top:10px;
+}
+
+.titre {
+	font-size:22px;
+	font-weight:bold;
+	padding-left:20px;
+	padding-bottom:20px;
+}
+
+.texte {
+	font-size:12px;
+	padding-left:20px;
+	padding-right:20px;
+	padding-bottom:5px;
+	padding-top:5px;
+}
+
+.code {
+	font-family: Courier, sans-serif;
+	font-size:12px;
+	padding-left:20px;
+	padding-right:20px;
+	padding-bottom:5px;
+	padding-top:5px;
+}
+
+.puce {
+	padding-bottom:5px;
+}
