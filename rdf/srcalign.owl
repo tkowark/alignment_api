@@ -1,20 +1,22 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
 <!DOCTYPE rdf:RDF SYSTEM "../dtd/align.dtd">
 
-<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
+<rdf:RDF xmlns='http://exmo.inrialpes.fr/align/1.0'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
 <Alignment>
   <xml>yes</xml>
   <type>11</type>
-  <onto1>file://localhost/Volumes/Phata/JAVA/align/rdf/onto1.owl</onto1>
-  <onto2>file://localhost/Volumes/Phata/JAVA/align/rdf/onto2.owl</onto2>
+  <uri1>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto1.owl</uri1>
+  <uri2>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto2.owl</uri2>
+  <onto1>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto1.owl</onto1>
+  <onto2>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto2.owl</onto2>
   <map>
     <Cell>
       <entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
       <entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
-      <!--measure rdf:datatype='xsd:float'>1.0</measure>
-      <relation>=</relation-->
+      <measure rdf:datatype='xsd:float'>1.0</measure>
+      <relation>=</relation>
     </Cell>
   </map>
 </Alignment>
