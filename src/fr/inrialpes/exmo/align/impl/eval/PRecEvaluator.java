@@ -72,45 +72,59 @@ public class PRecEvaluator extends BasicEvaluator {
 	// ----
 	// Signal: 
 	// Noise: 
-	public double eval(Parameters params) throws AlignmentException {
-		int nbexpected = align1.nbCells();
-		int nbfound = align2.nbCells();
-		int nbcorrect = 0; // nb of cells correctly identified
-		precision = 0.;
-		recall = 0.;
+    /**
+     *
+     * The formulas are standard:
+     * given a reference alignment A
+     * given an obtained alignment B
+     * which are sets of cells (linking one entity of ontology O to another of ontolohy O').
+     *
+     * P = |A inter B| / |A|
+     * R = |A inter B| / |B|
+     * F = 2PR/(P+R)
+     * with inter = set intersection and |.| cardinal.
+     *
+     * In the implementation |A|=nbfound, |B|=nbexpected and |A inter B|=nbcorrect.
+     */
+    public double eval(Parameters params) throws AlignmentException {
+	int nbexpected = align1.nbCells();
+	int nbfound = align2.nbCells();
+	int nbcorrect = 0; // nb of cells correctly identified
+	precision = 0.;
+	recall = 0.;
 
-		for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
-			Cell c1 = (Cell) e.nextElement();
-			try {			
-			Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());	
-			if (c2 != null) {
-					URI uri1 = ((OWLEntity) c1.getObject2()).getURI();
-					URI uri2 = ((OWLEntity) c2.getObject2()).getURI();	
-					// if (c1.getobject2 == c2.getobject2)
-					if (uri1.toString().equals(uri2.toString())) {
-						nbcorrect++;
-					}
-			}
-			} catch (Exception exc) {
-			}
+	for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
+	    Cell c1 = (Cell) e.nextElement();
+	    try {			
+		Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());	
+		if (c2 != null) {
+		    URI uri1 = ((OWLEntity) c1.getObject2()).getURI();
+		    URI uri2 = ((OWLEntity) c2.getObject2()).getURI();	
+		    // if (c1.getobject2 == c2.getobject2)
+		    if (uri1.toString().equals(uri2.toString())) {
+			nbcorrect++;
+		    }
 		}
-
-		// What is the definition if:
-		// nbfound is 0 (p, r are 0)
-		// nbexpected is 0 [=> nbcorrect is 0] (r=100, p=0[if nbfound>0, 100 otherwise])
-		// precision+recall is 0 [= nbcorrect is 0]
-		// precision is 0 [= nbcorrect is 0]
-		precision = (double) nbcorrect / (double) nbfound;
-		recall = (double) nbcorrect / (double) nbexpected;
-		fallout = (double) (nbfound - nbcorrect) / (double) nbfound;
-		fmeasure = 2 * precision * recall / (precision + recall);
-		overall = recall * (2 - (1 / precision));
-		result = recall / precision;
-		//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
-		return (result);
+	    } catch (Exception exc) {
+	    }
 	}
 
-	/**
+	// What is the definition if:
+	// nbfound is 0 (p, r are 0)
+	// nbexpected is 0 [=> nbcorrect is 0] (r=100, p=0[if nbfound>0, 100 otherwise])
+	// precision+recall is 0 [= nbcorrect is 0]
+	// precision is 0 [= nbcorrect is 0]
+	precision = (double) nbcorrect / (double) nbfound;
+	recall = (double) nbcorrect / (double) nbexpected;
+	fallout = (double) (nbfound - nbcorrect) / (double) nbfound;
+	fmeasure = 2 * precision * recall / (precision + recall);
+	overall = recall * (2 - (1 / precision));
+	result = recall / precision;
+	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
+	return (result);
+    }
+
+    /**
 	 * This now output the Lockheed format. However, the lookheed format
 	 * was intended to compare two merged ontologies instead of two alignment.
 	 * So it refered to the:
