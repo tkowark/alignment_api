@@ -44,7 +44,9 @@ import org.xml.sax.SAXException;
 /**
  * Evaluate proximity between two alignments.
  * This function implements a simple weighted symetric difference.
- * Add classification per type of objects (Ind, Class, Prop...)
+ * The highest the value the closest are the alignments:
+ * 1: the alignments are exactly the same, with the same strenghts
+ * 0: the alignments do not share a single cell
  *
  * @author Jerome Euzenat
  * @version $Id$ 
@@ -52,9 +54,6 @@ import org.xml.sax.SAXException;
 
 public class SymMeanEvaluator extends BasicEvaluator
 {
-    // NOTE(JE): It will be very easy to compute the score on:
-    // - Classes, Properties, Individuals separately
-    // And to aggregate them in the final value...
     private double classScore = 0.;
     private double propScore = 0.;
     private double indScore = 0.;
