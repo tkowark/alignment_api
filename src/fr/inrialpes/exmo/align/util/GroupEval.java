@@ -100,6 +100,7 @@ public class GroupEval {
     static String dominant = "s";
     static Vector listAlgo = null;
     static int debug = 0;
+    static String color = null;
     static Hashtable loaded = null;
 
     public static void main(String[] args) {
@@ -108,7 +109,7 @@ public class GroupEval {
     }
 
     public static void run(String[] args) throws Exception {
-	String listFile = "karlsruhe,fujitsu,umontreal,stanford";
+	String listFile = "std,ssda5,nea,edna5,sdna5,karlsruhe,karlsruhe2,fujitsu,umontreal,stanford";
 	LongOpt[] longopts = new LongOpt[8];
 	loaded = new Hashtable();
 
@@ -119,8 +120,9 @@ public class GroupEval {
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[5] = new LongOpt("sup", LongOpt.REQUIRED_ARGUMENT, null, 's');
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
+	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
 
-	Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::l:r:t:i:c::", longopts);
 	int c;
 	String arg;
 
@@ -144,6 +146,11 @@ public class GroupEval {
 	    case 's' :
 		/* Print per type or per algo */
 		dominant = g.getOptarg();
+		break;
+	    case 'c' :
+		/* Print colored lines */
+		color = "lightblue";
+		    //dominant = g.getOptarg();
 		break;
 	    case 'l' :
 		/* List of filename */
@@ -197,15 +204,12 @@ public class GroupEval {
 
     public static Vector iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
-	// JE: what an ugly 5: ---
-	Vector result = new Vector(5);
+	Vector result = new Vector();
 	result.add(0,(Object)dir.getName().toString());
 	int i = 1;
 	// for all alignments there,
 	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
-	    //    System.out.println(e.nextElement());
 	    // call eval
-	    //String algo = "fujitsu";
 	    // store the resul in a record
 	    // return the record.
 	    result.add( i, (Object)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf"));
@@ -269,9 +273,16 @@ public class GroupEval {
 	    writer.println("</tr></tbody><tbody>");
 	    // </tr>
 	    // For each directory <tr>
+	    boolean colored = false;
 	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
 		Vector test = (Vector)e.nextElement();
-		writer.println("<tr>");
+		if ( colored == true && color != null ){
+		    colored = false;
+		    writer.println("<tr bgcolor=\""+color+"\">");
+		} else {
+		    colored = true;
+		    writer.println("<tr>");
+		};
 		// Print the directory <td>bla</td>
 		writer.println("<td>"+(String)test.get(0)+"</td>");
 		// For each record print the values <td>bla</td>
@@ -299,24 +310,23 @@ public class GroupEval {
 	}
     }
 
-    // Borrowed from
+    // Borrowed and enhanced from
     // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
     // What a pity that it is not in Java...
     public static void printFormat(PrintStream w, double f){
-	int tmp = (int)(f*100);
-	//System.out.println(""+tmp);
-	
-	int dec = tmp%100;
-	if( (int)(f*1000)%10 >= 5 ) dec++;
-	//System.out.println("\n"+(int)(f*1000)%10);
-	tmp /= 100;
-	
-	w.print("" + tmp + ".");
-	if(dec < 10) w.print("0");
-	w.print("" + dec);
-	
+	// Must add the test is the value is Not a number, print NaN.
+	if ( f != f ) {
+	    w.print("NaN");
+	} else {
+	    int tmp = (int)(f*100);
+	    int dec = tmp%100;
+	    if( (int)(f*1000)%10 >= 5 ) dec++;
+	    tmp /= 100;
+	    w.print("" + tmp + ".");
+	    if(dec < 10) w.print("0");
+	    w.print("" + dec);
+	}
     }
-
 
     public static void usage() {
 	System.out.println("usage: GroupEval [options]");
@@ -326,7 +336,7 @@ public class GroupEval {
 	System.out.println("\t--format=prfm -r prfm\tSpecifies the output order (precision/recall/fallout/f-measure)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
-	System.out.println("\t--list=algo1|...|algon -l algo1|...|algon\tSequence of the filenames to consider");
+	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
     }
