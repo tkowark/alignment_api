@@ -33,6 +33,9 @@
 		<property name="debug" value="off"/>
 		<property name="WebDir" value="/Volumes/Phata/Web/html/co4/align"/>
 
+		<property name="classpath"  value="classes"/>
+		<property name="runvison"  value="ca.umontreal.iro.vison.gui.GUI"/>
+
 		<filter token="DATE" value="${date}"/>
 		<filter token="VERS" value="${version}"/>
 	
@@ -97,6 +100,22 @@
       </fileset>
       <report todir="test/reports/html/"/>
     </junitreport>
+  </target>
+
+ <target name="run VisOn" depends="init">
+   <!-- run the class -->
+   <java classname="${runvison}" fork="yes">
+         <!-- add a command line arg: <arg value="-h"/> -->
+         <classpath>
+     <!-- use the value of the ${classpath} property in the classpath -->
+        <pathelement path="${classpath}"/>
+     <!-- include all jar files  -->
+        <fileset dir="${libdir}">
+            <include name="**/*.jar"/>
+        </fileset>
+  </classpath>
+       </java>
+
   </target>
 
   <!-- tested -->
