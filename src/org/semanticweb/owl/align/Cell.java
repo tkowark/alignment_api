@@ -21,6 +21,7 @@
 package org.semanticweb.owl.align; 
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import org.xml.sax.ContentHandler;
@@ -61,6 +62,7 @@ public interface Cell
     /** Housekeeping **/
     public void dump(ContentHandler h);
     //    public void write( PrintStream writer ) throws IOException, AlignmentException;
+    //    public void write( PrintWriter writer ) throws IOException, AlignmentException;
 
 }
 

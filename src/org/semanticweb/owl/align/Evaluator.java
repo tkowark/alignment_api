@@ -20,7 +20,7 @@
 
 package org.semanticweb.owl.align; 
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 /**
@@ -48,6 +48,6 @@ public interface Evaluator
      * Outputs (in XML/RDF) a full report on the proximity of the two
      * ontologies.
      */
-    public void write( PrintStream writer ) throws java.io.IOException ;
+    public void write( PrintWriter writer ) throws java.io.IOException ;
 }
 

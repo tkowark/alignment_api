@@ -21,6 +21,7 @@
 package org.semanticweb.owl.align; 
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.net.URI;
@@ -114,9 +115,17 @@ public interface Alignment
     public Enumeration getElements();
     public int nbCells();
 
+    public void cut( String method, double threshold ) throws AlignmentException;
     public void cut( double threshold ) throws AlignmentException;
     public void harden( double threshold ) throws AlignmentException;
+
+    /**
+     * Algebra of alignment manipulation operations: compose, join, meet.
+     */
     public void inverse() throws AlignmentException;
+    public Alignment meet(Alignment align) throws AlignmentException;
+    public Alignment join(Alignment align) throws AlignmentException;
+    public Alignment compose(Alignment align) throws AlignmentException;
 
     /** Housekeeping **/
     /**
@@ -130,11 +139,12 @@ public interface Alignment
      */
     public void dump(ContentHandler h);
     //    public void write( PrintStream writer ) throws IOException, AlignmentException;
+    //public void write( PrintWriter writer ) throws IOException, AlignmentException;
 
     /** Exporting
 	The alignments are exported for other purposes.
     */
-    public void render( PrintStream writer, AlignmentVisitor renderer ) throws AlignmentException;
+    public void render( AlignmentVisitor renderer ) throws AlignmentException;
 
 }
 
