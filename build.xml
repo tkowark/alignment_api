@@ -127,7 +127,7 @@
   <target name="zip" depends="jar">
     <echo message="Ziping..."/>
     <copy todir="${WebDir}">
-      <fileset dir="html" includes="**/*.html"/>
+      <fileset dir="html" includes="**/*.html,**/*.css"/>
     </copy>
     <!--copy todir="${WebDir}">
       <fileset dir="/Users/euzenat/Papiers/Align\ paper/align.pdf"/>
