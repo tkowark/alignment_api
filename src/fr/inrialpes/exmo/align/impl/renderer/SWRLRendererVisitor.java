@@ -64,9 +64,9 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	alignment = align;
 	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");
-	writer.println("                xmlns:swrlx=\"http://www.daml.org/2003/11/swrl#\"");
+	writer.println("                xmlns:swrlx=\"http://www.w3.org/2003/11/swrlx#\"");
 	writer.println("                xmlns:owlx=\"http://www.w3.org/2003/05/owl-xml\"");
-	writer.println("                xmlns:ruleml=\"http://www.ruleml.org/inspec#\">");
+	writer.println("                xmlns:ruleml=\"http://www.w3.org/2003/11/ruleml#\">");
 	try {
 	    writer.println("  <owlx:Imports rdf:resource=\""+((OWLOntology)align.getOntology1()).getLogicalURI().toString()+"\"/>\n");
 	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
@@ -97,14 +97,14 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	try {
 	    writer.println("  <ruleml:imp>");
 	    writer.println("    <ruleml:_body>");
-	    writer.println("      <swrlx:classAtom>");
-	    writer.println("        <swrlx:Class swrlx:name=\""+((OWLEntity)cell.getObject1()).getURI().toString()+"\"/>");
+	    writer.println("      <swrl:classAtom>");
+	    writer.println("        <owllx:Class owllx:name=\""+((OWLEntity)cell.getObject1()).getURI().toString()+"\"/>");
 	    writer.println("        <ruleml:var>x</ruleml:var>");
-	    writer.println("      </swrlx:classAtom>");
+	    writer.println("      </swrl:classAtom>");
 	    writer.println("    </ruleml:_body>");
 	    writer.println("    <ruleml:_head>");
 	    writer.println("      <swrlx:classAtom>");
-	    writer.println("        <swrlx:Class swrlx:name=\""+((OWLEntity)cell.getObject2()).getURI().toString()+"\"/>");
+	    writer.println("        <owlx:Class owlx:name=\""+((OWLEntity)cell.getObject2()).getURI().toString()+"\"/>");
 	    writer.println("        <ruleml:var>x</ruleml:var>");
 	    writer.println("      </swrlx:classAtom>");
 	    writer.println("    </ruleml:_head>");
