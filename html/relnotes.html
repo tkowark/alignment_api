@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Release notes</title>
+</head>
+<body bgcolor="#ffffff">
+
+<center><h1>Alignment API, release notes</h1></center>
+
+<h2>To do</h2>
+
+<ul compact="1">
+<li>Pass debug flag through parameters (almost done, to be checked in StrucSubsDistNameAlignment);</li>
+<li>Factorize distanceAlignment, in fact the selection;</li>
+<li>Implement correctly OWL-based stuff about non 1:1 alignments</li>
+<li>Integrate WordNet proximity</li>
+</ul>
+
+<h2>Done but not released yet</h2>
+
+<h2>April 19th, 2004</h2>
+
+<p>New version featuring:
+<ul compact="1">
+<li>Corrected the problem of putting directly distances into strength
+	({get/set}Measure{1/2} are now called Strength,
+	new class DistanceAlignment which takes care of converting distances into strength);</li>
+<li>Implemented effectively SymMeanEvaluator with a dispatch per elements;</li>
+<li>Added correct 1:1 tags to all implemented OWL alignments</li>
+<li>Used Object in API: no OWL in the format (all API methods which
+  returned OWL... now returns Objects, dynamic typecheckking of the
+  basic methods: maybe not the best idea)</li>
+<li>Implemented parameters (align() and eval() take an additionnal
+	Parameters parameter, new Parameters interface and
+	BasicParameters class);</li> 
+<li>Corrected the visitor for the Renderer (now robust to subclassing);</li>
+<li>Built a renderer for RDF and use it
+	(suppression of the write method in Cell and Alignment, 
+	Procalign uses the same code for rendering);</li>
+<li>Added a StringDistance class providing substring and editstriung distances;</li>
+<li>Reviewed all catch with a printStackTraces (parser still unsatisfactory);</li>
+<li>Cleaned-up traces;</li>
+<li>Provided a full-fledged example illustrated with a paper;</li>
+<li>Corrected StrucSubsDistNameAlignment;</li>
+<li>Changed name: Evaluator.evaluate() --> Evaluator.eval();</li>
+</ul>
+T
+<h2>April 4th, 2004</h2>
+
+<p>This use the last version of the OWL API (090304).</p>
+
+<p>New version featuring:
+<ul compact="1">
+<li>Added the Evaluator interface and implementation (PRecEvaluator
+  and SymMeanEvaluator).</li>
+<li>Added a simple structural algorithm (StrucSubsDistNameAlignment).</li>
+<li>Added a number of alignment based on substring distance;</li>
+<li>Various improvements.</li>
+</ul>
+</p>
+
+<h2>January 2004</h2>
+
+<p>Put under CVS at Sophia-Antipolis</p>
+<p>New version featuring:
+<ul compact="1">
+<li>Added a number of alignment implementations (EditDistAlignment);</li>
+</ul>
+</p>
+
+<h2>December 2003</h2>
+
+<p>First release</p>
+
+<address>
+<small>
+<hr />
+<center>http://co4.inrialpes.fr/align/relnotes.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>
