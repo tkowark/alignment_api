@@ -94,10 +94,46 @@ public class PRecEvaluator extends BasicEvaluator {
 	fmeasure = 2*precision*recall / (precision+recall);
 	overall = recall*(2-(1/precision));
 	result = recall / precision;
+	//System.err.println(">>>> "+nbcorrect+" : "+nbfound+" : "+nbexpected);
 	return(result);
     }
 
+    /**
+     * This now output the Lockheed format. However, the lookheed format
+     * was intended to compare two merged ontologies instead of two alignment.
+     * So it refered to the:
+     * - input ontology A
+     * - input ontology B
+     * - alignement algorithm (used for obtaining what ????).
+     * While we compare two alignments (so the source and the reference to these
+     * algorithms should be within the alignment structure.
+     */
     public void write( PrintStream writer ) throws java.io.IOException {
+	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
+	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
+	writer.println("  <map:output rdf:about=''>");
+	// Missing items:
+	// writer.println("    <map:algorithm rdf:resource=\"\">");
+	// writer.println("    <map:intutA rdf:resource=\"\">");
+	// writer.println("    <map:inputB rdf:resource=\"\">");
+	// Other missing items (easy to get)
+	// writer.println("    <map:falseNegative>");
+	// writer.println("    <map:falsePositive>");
+	writer.print("    <map:precision>");
+ 	writer.print(precision);
+ 	writer.print("</map:precision>\n    <map:recall>");
+ 	writer.print(recall);
+ 	writer.print("</map:recall>\n    <fallout>");
+ 	writer.print(fallout);
+ 	writer.print("</fallout>\n    <map:fMeasure>");
+ 	writer.print(fmeasure);
+ 	writer.print("</map:fMeasure>\n    <map:oMeasure>");
+ 	writer.print(overall);
+ 	writer.print("</map:oMeasure>\n    <result>");
+ 	writer.print(result);
+ 	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
+    }
+    /*    public void write( PrintStream writer ) throws java.io.IOException {
 	writer.print("<rdf:RDF>\n  <Evaluation class=\"PRecEvaluator\">\n    <precision>");
  	writer.print(precision);
  	writer.print("</precision>\n    <recall>");
@@ -111,7 +147,7 @@ public class PRecEvaluator extends BasicEvaluator {
  	writer.print("</overall>\n    <result>");
  	writer.print(result);
  	writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
-    }
+	}*/
 
 }
 
