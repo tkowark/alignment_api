@@ -11,22 +11,25 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * @author jpierson
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * TODO To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Style - Code Templates
  */
-public class alignmentExtractor implements Extractor{
+public class alignmentExtractor implements Extractor {
 
-	private double threshold=0.5;
-public void threshold(String type, BasicParameters param){}
-public double getThreshold(){return (threshold);}
-public  BasicAlignment extractAlignment (String type){
- BasicAlignment Al=new BasicAlignment();
- 
- 
- 
- 
-return (Al);
+	private double threshold;
 
-}
+	public void threshold(String type, BasicParameters param) {
+	}
+
+	public double getThreshold() {
+		return (threshold);
+	}
+
+	public BasicAlignment extractAlignment(String type) {
+		BasicAlignment Al = new BasicAlignment();
+
+		return (Al);
+
+	}
 }
