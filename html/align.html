@@ -136,12 +136,14 @@ $ ant jar
 Running the program is achieved through:
 <pre>
 $ java -jar lib/procalign.jar
-Two URIs required
 usage: Procalign [options] URI1 URI2
 options are:
-        --alignment=filename -a=filename Start from an XML/RDF alignment file
-        --debug[=n] -d[=n]              Report debug info at level ,
-        --output[=filename] -o filename Output the alignment in filename
+        --impl=className -i classname           Use the given alignment implementation.
+        --renderer=className -r className       Specifies the alignment renderer
+        --output=filename -o filename   Output the alignment in filename
+        --alignment=filename -a filename Start from an XML alignment file
+        --threshold=double -t double    Filters the similarities under threshold
+        --debug[=n] -d [n]              Report debug info at level n
         --help -h                       Print this message
 </pre>
 or ($CWD is the current directory)
