@@ -41,11 +41,12 @@ import org.xml.sax.SAXException;
 
 public interface Cell
 {
-	
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
     /** Creation **/
 
+    public String getId();
+    public void setId( String id );
     public Object getObject1();
     public Object getObject2();
     public void setObject1( Object ob ) throws AlignmentException;

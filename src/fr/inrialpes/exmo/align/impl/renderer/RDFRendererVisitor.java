@@ -95,7 +95,11 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	this.cell = cell;
 	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
 	try {
-	    writer.print("    <Cell>\n      <entity1 rdf:resource='");
+	    writer.print("    <Cell");
+	    if ( cell.getId() != null ){
+		writer.print(" rdf:resource=\"#"+cell.getId()+"\"");
+	    }
+	    writer.print(">\n      <entity1 rdf:resource='");
 	    writer.print( ((OWLEntity)cell.getObject1()).getURI().toString() );
 	    writer.print("'/>\n      <entity2 rdf:resource='");
 	    writer.print( ((OWLEntity)cell.getObject2()).getURI().toString() );

@@ -52,6 +52,7 @@ public class BasicCell implements Cell
         visitor.visit( this );
     }
 
+    String id = null;
     OWLEntity object1 = null;
     OWLEntity object2 = null;
     Relation relation = null;
@@ -61,6 +62,11 @@ public class BasicCell implements Cell
     public BasicCell( Object ob1, Object ob2 ) throws AlignmentException {
 	new BasicCell( ob1, ob2, "=", 0 );
     };
+
+    public BasicCell( String id, Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
+	new BasicCell( ob1, ob2, rel, m );
+	setId( id );
+    }
 
     public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
 	try {
@@ -85,6 +91,8 @@ public class BasicCell implements Cell
 	if ( m >= 0 && m <= 1 ) strength = m;
     };
 
+    public String getId(){ return id; };
+    public void setId( String id ){ this.id = id; };
     public Object getObject1(){ return object1; };
     public Object getObject2(){ return object2; };
     public void setObject1( Object ob ) throws AlignmentException {

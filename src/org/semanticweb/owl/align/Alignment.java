@@ -96,8 +96,8 @@ public interface Alignment
     /**
      * Cells are created and indexed at once
      */
-    public void addAlignCell( Object ob1, Object ob, String relation, double measure) throws AlignmentException;
-    public void addAlignCell( Object ob1, Object ob2) throws AlignmentException;
+    public Cell addAlignCell( Object ob1, Object ob, String relation, double measure) throws AlignmentException;
+    public Cell addAlignCell( Object ob1, Object ob2) throws AlignmentException;
     public Cell getAlignCell1( Object ob ) throws AlignmentException;
     public Cell getAlignCell2( Object ob ) throws AlignmentException;
     /**

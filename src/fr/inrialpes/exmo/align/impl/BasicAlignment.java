@@ -113,7 +113,7 @@ public class BasicAlignment implements Alignment
     /* Please note that all the following methods must be changed because
 	they consider that only ONE Entity can be aligned with another !! */
     /** Cell methods **/
-    public void addAlignCell( Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
+    public Cell addAlignCell( Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
 	try {
 	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1) ||
 		 !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2) )
@@ -123,10 +123,11 @@ public class BasicAlignment implements Alignment
 	    Cell cell = (Cell)new BasicCell( (OWLEntity)ob1, (OWLEntity)ob2, relation, measure );
 	    hash1.put((Object)(((OWLEntity)ob1).getURI()),cell);
 	    hash2.put((Object)(((OWLEntity)ob2).getURI()),cell);
+	    return cell;
 	} catch (OWLException e) { throw new AlignmentException( "getURI problem", e); }
     };
-    public void addAlignCell( Object ob1, Object ob2) throws AlignmentException {
-	addAlignCell( ob1, ob2, "=", 1.);
+    public Cell addAlignCell( Object ob1, Object ob2) throws AlignmentException {
+	return addAlignCell( ob1, ob2, "=", 1.);
     };
 
     public Cell getAlignCell1( Object ob ) throws AlignmentException{
