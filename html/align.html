@@ -49,14 +49,14 @@ If you are not familiar with CVS, its is time to document yourself.
 </p>
 
 
-<h1>Distribution</h1>
+<h1>Installation</h1>
 
-<p>It comes in a zip file: <a href="align.zip">align.zip</a>.</p>
+<p>"Installing" is really straightforward.</p>
 
 <h2>Files</h2>
-<p>Everything is built on top of the OWL-API binary distribution
-  (which does not need to be recompiled).
-It is made of:
+
+<p>Whatever your mode of getting ontolign you will get an ontoalign
+  directory containing the following subdirectories:
 <ul compact="1">
   <li>src: source classes;</li>
   <li>rdf: some examples to be tested;</li>
@@ -87,6 +87,21 @@ It is made of:
   (tested in  <a href="http://java.sun.com">Java standard edition</a> 1.4.1) and the <a href="owlapi.html">OWL-API binary distribution</a> (which is
   not included in the CVS repositories). It is also very usefull to
   have <a ref="http://ant.apache.org">Ant</a>.</p>
+
+<h1>Assembling</h1>
+
+<p>A good way of setting your environment (from the CVS archive) for
+  developing is to unzip the OWL-API binary distribution and put the
+  files in the ontoalign directories:
+<pre>
+$ unzip owlapi-bin-03-10-15.zip
+$ mv owl/lib/* lib
+$ ant jar
+$ mv owl/javadoc/* javadoc
+$ ant javadoc
+$ rm -rf owl
+</pre>
+</p>
 
 <h1>Compilation and use</h1>
 
