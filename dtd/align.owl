@@ -23,8 +23,8 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-    xml:base="http://www.example.org/ontology1"
-    xmlns="http://www.example.org/ontology1#">
+    xml:base="http://knowledgeweb.semanticweb.org/heterogeneity/alignment"
+    xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment">
 
 <owl:Ontology rdf:about="">
   <owl:versionInfo>$Id$</owl:versionInfo>
@@ -38,15 +38,15 @@
   <rdf:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </owl:DatatypeProperty>
 
-<owl:DatatypeProperty rdf:ID="#Alignment">
+<owl:DatatypeProperty rdf:ID="#onto1">
   <rdfs:comment>This string is the URl at whitch the ontology can be fetched</rdfs:comment>
-  <rdfs:domain rdf:resource="onto1"/>
+  <rdfs:domain rdf:resource="Alignment"/>
   <rdf:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </owl:DatatypeProperty>
 
-<owl:DatatypeProperty rdf:ID="#Alignment">
+<owl:DatatypeProperty rdf:ID="#onto2">
   <rdfs:comment>This string is the URl at whitch the ontology can be fetched</rdfs:comment>
-  <rdfs:domain rdf:resource="onto2"/>
+  <rdfs:domain rdf:resource="Alignment"/>
   <rdf:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </owl:DatatypeProperty>
 

@@ -23,7 +23,7 @@
 <!ELEMENT rdf:RDF ANY>
 <!ATTLIST rdf:RDF
             xmlns:rdf %uri; #FIXED "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-            xmlns %uri; #FIXED "http://exmo.inrialpes.fr/align/1.0"
+            xmlns %uri; #FIXED "http://knowledgeweb.semanticweb.org/heterogeneity/alignment"
 >
 
 

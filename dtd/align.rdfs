@@ -1,15 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE rdf:RDF [
 	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
-	 <!ENTITY alignment 'http://exmo.inrialpes.fr/align/1.0'>
+	 <!ENTITY alignment 'http://knowledgeweb.semanticweb.org/heterogeneity/alignment'>
 	 <!ENTITY rdfs 'http://www.w3.org/TR/1999/PR-rdf-schema-19990303#'>
 ]>
 
 <!-- Contributed by Natasha Noy, 2004 -->
+<!-- $Id$ -->
 
 <rdf:RDF xmlns:rdf="&rdf;"
 	 xmlns:rdfs="&rdfs;"
 	 xmlns:alignment="&alignment;">
+
 <rdfs:Class rdf:about="&alignment;Alignment"
 	 rdfs:label="Alignment">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
@@ -18,6 +20,7 @@
 	 rdfs:label="Cell">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
+
 <rdf:Property rdf:about="&alignment;entity1"
 	 rdfs:label="entity1">
 	<rdfs:domain rdf:resource="&alignment;Cell"/>
@@ -33,6 +36,7 @@
 	<rdfs:domain rdf:resource="&alignment;Alignment"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
+
 <rdf:Property rdf:about="&alignment;map"
 	 rdfs:label="map">
 	<rdfs:domain rdf:resource="&alignment;Alignment"/>
@@ -78,4 +82,5 @@
 	<rdfs:domain rdf:resource="&alignment;Alignment"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
+
 </rdf:RDF>
