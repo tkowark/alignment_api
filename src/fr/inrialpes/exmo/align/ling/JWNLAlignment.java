@@ -81,7 +81,7 @@ public class JWNLAlignmentTest extends DistanceAlignment implements AlignmentPro
 	double pia2 = 0.; // relation weight for domain
 	double pia3 = 0.; // relation weight for range
 	double epsillon = 0.05; // stoping condition
-     JWNLDistances Dist = new JWNLDistances();
+     OldJWNLDistances Dist = new OldJWNLDistances();
      Dist.Initialize();
 				if ( params.getParameter("debug") != null )
 			     debug = ((Integer)params.getParameter("debug")).intValue();

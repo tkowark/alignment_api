@@ -39,9 +39,6 @@ public class StringDistances {
 	    throw new IllegalArgumentException("Strings must not be null");
 	}
 	
-	s1 = s1.toUpperCase();
-	s2 = s2.toUpperCase();
-	
 	int l1 = s1.length(); // length of s
 	int l2 = s2.length(); // length of t
 		
