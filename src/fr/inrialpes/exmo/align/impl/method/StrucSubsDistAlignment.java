@@ -116,11 +116,11 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	propmatrix = new double[nbprop1+1][nbprop2+1];
 	
 	// Create class lists
-	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); nbclass2++ ){
-	    classlist2.add( it.next() );
-	}
 	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); nbclass1++ ){
 	    classlist1.add( it.next() );
+	}
+	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); nbclass2++ ){
+	    classlist2.add( it.next() );
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
 
@@ -190,7 +190,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 		    Set correspondences = new HashSet();
 		    for ( j=0; j<nbclass2; j++ ){
 			Set properties2 = getProperties( (OWLClass)classlist2.get(j), onto2 );
-			int nba2 = properties1.size();
+			int nba2 = properties2.size();
 			double attsum = 0.;
 			// check that there is a correspondance
 			// in list of class2 atts and add their weights
@@ -236,53 +236,63 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	}
     }
     
-    public void getProperties( OWLDescription desc, OWLOntology o, Set list){
+    public void getProperties( OWLDescription desc, OWLOntology o, Set list, Set accu){
 	// I am Jerome Euzenat and I am sure that there is some problem here...
 	// DISPATCHING MANUALLY !
 	try {
 	    Method mm = null;
 	    if ( Class.forName("org.semanticweb.owl.model.OWLRestriction").isInstance(desc) ){
 		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLRestriction"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
+					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLRestriction"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set"),Class.forName("java.util.Set")});
 	    } else if (Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(desc) ) {
 		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLClass"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
+					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLClass"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set"),Class.forName("java.util.Set")});
 	    } else if (Class.forName("org.semanticweb.owl.model.OWLNaryBooleanDescription").isInstance(desc) ) {
 		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLNaryBooleanDescription"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
+					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLNaryBooleanDescription"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set"),Class.forName("java.util.Set")});
 	    }
-	    if ( mm != null ) mm.invoke(this,new Object[] {desc,o,list});
+	    if ( mm != null ) mm.invoke(this,new Object[] {desc,o,list,accu});
 	    //Method mmm[] = this.getClass().getMethods();
 	    //for ( int i = 0; i < mmm.length ; i++ ){
 	    //	if ( mmm[i].getName().equals("getProperties") ){
-	    //	    mmm[i].invoke(this,new Object[] {desc,o,list});
+	    //	    mmm[i].invoke(this,new Object[] {desc,o,list,accu});
 	    //	    i = mmm.length;
 	    //	}
 	    // }
 	} catch (Exception e) { e.printStackTrace(); };
     }
-    public void getProperties( OWLRestriction rest, OWLOntology o, Set list) throws OWLException {
-	list.add( (Object)rest.getProperty() );
-    }
-    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set list) throws OWLException {
-	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
-	    getProperties( (OWLDescription)it.next(), o, list );
+    public void getProperties( OWLRestriction rest, OWLOntology o, Set list, Set accu) throws OWLException {
+	if ( !accu.contains( (Object)rest ) ) {
+	    accu.add((Object)rest);
+	    list.add( (Object)rest.getProperty() );
 	}
     }
-    public void getProperties( OWLClass cl, OWLOntology o, Set list) throws OWLException {
-	for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
-	    OWLDescription dsc = (OWLDescription)it.next();
-	    getProperties( dsc, o, list );
+    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set list, Set accu) throws OWLException {
+	if ( !accu.contains( (Object)d ) ) {
+	    accu.add((Object)d);
+	    for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
+		getProperties( (OWLDescription)it.next(), o, list, accu );
+	    }
 	}
-	// JE: I suspect that this can be a cause for looping!!
-	for ( Iterator it = cl.getEquivalentClasses(o).iterator(); it.hasNext(); ){
-	    getProperties( (OWLDescription)it.next(), o, list );
+    }
+    public void getProperties( OWLClass cl, OWLOntology o, Set list, Set accu) throws OWLException {
+	if ( !accu.contains( (Object)cl ) ) {
+	    accu.add((Object)cl);
+	    for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
+		OWLDescription dsc = (OWLDescription)it.next();
+		getProperties( dsc, o, list, accu );
+	    }
+	    // avoid loops
+	    //for ( Iterator it = cl.getEquivalentClasses(o).iterator(); it.hasNext(); ){
+	    //    getProperties( (OWLDescription)it.next(), o, list, accu );
+	    //}
 	}
     }
 
     private Set getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
-	Set resultSet = new HashSet(); 
-	getProperties( cl, o, resultSet );
+	Set resultSet = new HashSet();
+	Set accu = new HashSet();
+	getProperties( cl, o, resultSet, accu );
 	return resultSet;
     }
 }
