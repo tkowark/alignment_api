@@ -1,14 +1,17 @@
 <html>
 <head>
 <title>Evaluating alignments</title>
+<style type="text/css">@import url(style.css);</style>
 </head>
 <body bgcolor="#ffffff">
+
+<h1 class="titre">Evaluating alignments</h1>
 
 <p>On top of the alignment API, there is an evaluation API and an
 implementation described here. It is included in the 
 <a href="align.html">Alignment toolkit</a></p>
 
-<h1>Evaluating</h1>
+<h2>Evaluating</h2>
 <p>For demonstrating the use of the API, we implement it and use it
   through a particular processor
   (<tt>fr.inrialpes.exmo.align.util.EvalAlign</tt>) which:
@@ -34,7 +37,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://local
 </pre>
 </p>
 
-<h1>Implementing and extending the API</h1>
+<h2>Implementing and extending the API</h2>
 <p>A (default) impplementation of this API can be found in
   the <tt>fr.inrialpes.exmo.align.impl</tt> package.</p>
 <p>Adding new evaluations methods amounts to create a
@@ -44,8 +47,8 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://local
   class.</p>
 <p>The <tt>BasicEvaluator</tt> has the good taste of defining the storage
   sructures for alignment, but this is all.</p>
-<p>The <tt>PRecEvaluatir</tt> class extends
-  the <tt>BasicEvaluatir</tt> by computing a very basic
+<p>The <tt>PRecEvaluator</tt> class extends
+  the <tt>BasicEvaluator</tt> by computing a very basic
   Precision/Recall rate.</p>
 </p>
 
