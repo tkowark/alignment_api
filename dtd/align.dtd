@@ -41,6 +41,8 @@
 <!ATTLIST onto1 rdf:resource %uri; #IMPLIED>
 <!ELEMENT onto2 (#PCDATA)><!-- uri -->
 <!ATTLIST onto2 rdf:resource %uri; #IMPLIED>
+<!-- For compatibility reason it is authorized to put several Cells
+     in a map element. However, the result is not RDF however -->
 <!ELEMENT map (Cell*)>
 
 <!ELEMENT Cell (entity1|entity2|measure|relation)*>
