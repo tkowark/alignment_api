@@ -312,7 +312,7 @@ private String[] GetAllSyno(String S){
 	boolean trouve=false;
 	int strcomp=0;
 	
-	nbmot=CountMaxSens(S);
+	nbmot=CountMaxSensSyno(S);
 	Syno=new String[nbmot];
 //Looking for word as a NOUN
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,S);}

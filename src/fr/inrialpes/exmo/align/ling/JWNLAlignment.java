@@ -119,14 +119,14 @@ public class JWNLAlignmentTest extends DistanceAlignment implements AlignmentPro
 	    for ( j=0; j<nbprop2; j++ ){
 		cl = (OWLProperty)proplist2.get(j);
 		if(cl.getURI().getFragment()!=null){st2 = cl.getURI().getFragment().toLowerCase() ;}
-			propmatrix[i][j] = Dist.CompleteDistance(st1,st2);
+			propmatrix[i][j] = Dist.SynonymDistance(st1,st2);
 	    }
 	}
 		if (debug > 0) System.err.println("Initializing class distances");
 	for ( i=0; i<nbclass1; i++ ){
 	    OWLClass cl = (OWLClass)classlist1.get(i);
 	    for ( j=0; j<nbclass2; j++ ){
-		classmatrix[i][j] = Dist.CompleteDistance(
+		classmatrix[i][j] = Dist.SynonymDistance(
 						    cl.getURI().getFragment().toLowerCase(),
 						    ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
 	    }
