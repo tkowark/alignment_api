@@ -75,7 +75,8 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
     where the options are:
     <pre>
-        --alignment=filename -a filename Start from an XML alignment file
+        --inverse -i              Inverse first and second ontology
+	--renderer=className -r className  Use the given class for output.
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --help -h                       Print this message
@@ -95,7 +96,11 @@ $Id$
 public class ParserPrinter {
 
     public static void main(String[] args) {
-	
+	try { run( args ); }
+	catch (Exception ex) { ex.printStackTrace(); };
+    }
+
+    public static void run(String[] args) throws Exception {
 	Alignment result = null;
 	String initName = null;
 	String filename = null;
@@ -103,14 +108,15 @@ public class ParserPrinter {
 	AlignmentVisitor renderer = null;
 	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
+	boolean inverse = false;
 	
-	// abcdefghijklmnopqrstuvwxyz?
-	// x  x    i      x x x x    x 
+	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	//longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[4] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
 	
-	Getopt g = new Getopt("", args, "ho:d::r:", longopts);
+	Getopt g = new Getopt("", args, "hio:d::r:", longopts);
 	int c;
 	String arg;
 
@@ -118,7 +124,10 @@ public class ParserPrinter {
 	    switch(c) {
 	    case 'h':
 		usage();
-		System.exit(0);
+		return;
+	    case 'i':
+		inverse = true;
+		break;
 	    case 'o':
 		/* Write warnings to stdout rather than stderr */
 		filename = g.getOptarg();
@@ -132,7 +141,7 @@ public class ParserPrinter {
 		    System.err.println("Cannot create renderer " + 
 				       renderingClass + "\n" + ex.getMessage() );
 		    usage();
-		    System.exit(0);
+		    return;
 		}
 		break;
 	    case 'd':
@@ -152,7 +161,7 @@ public class ParserPrinter {
 	} else {
 	    System.out.println("Require the alignement filename");
 	    usage();
-	    System.exit(0);
+	    return;
 	}
 
 	if ( debug > 1 ) System.err.println(" Filename"+initName);
@@ -166,6 +175,8 @@ public class ParserPrinter {
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
+
+	    if ( inverse ) result.inverse();
 	    
 	    //result.write( writer );
 	    if ( renderer == null ) renderer = new RDFRendererVisitor( writer );
@@ -181,8 +192,8 @@ public class ParserPrinter {
 	System.out.println("options are:");
 	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
-	//System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
-	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
+	System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
+	System.out.println("\t--inverse -i\t\tInverse first and second ontology");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
