@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +22,6 @@ package org.semanticweb.owl.align;
 
 import java.io.PrintStream;
 import java.io.IOException;
-import org.semanticweb.owl.model.OWLException;
 
 /**
  * Assess the closeness between two ontology alignments.
@@ -41,7 +41,7 @@ public interface Evaluator
      * Returns a double (between 0 and 1) providing an idea of the
      * proximity
      */
-    public double evaluate() throws OWLException;
+    public double eval( Parameters param ) throws AlignmentException;
 
     /** Housekeeping **/
     /**

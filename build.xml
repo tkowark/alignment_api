@@ -127,6 +127,9 @@
     <copy todir="${WebDir}">
       <fileset dir="html" includes="**/*.html"/>
     </copy>
+    <!--copy todir="${WebDir}">
+      <fileset dir="/Users/euzenat/Papiers/Align\ paper/align.pdf"/>
+    </copy-->
     <!-- zip everything from outside -->
     <zip zipfile="${WebDir}/align.zip">
       <fileset dir="." includes="**/*"/>

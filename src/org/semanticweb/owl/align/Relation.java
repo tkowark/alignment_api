@@ -22,17 +22,10 @@ package org.semanticweb.owl.align;
 import java.io.PrintStream;
 import java.io.IOException;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 /**
- * Represents an OWL ontology alignment. An ontology comprises a number of
- * collections. Each ontology has a number of classes, properties and
- * individuals, along with a number of axioms asserting information
- * about those objects.
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -42,13 +35,11 @@ import org.xml.sax.SAXException;
 public interface Relation
 {
     /** Creation **/
-    //public Relation( OWLOntology onto1, OWLOntology onto2 );
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
     /** Housekeeping **/
     public void dump(ContentHandler h);
-    public void write( PrintStream writer ) throws java.io.IOException ;
-    /** Exporting */
-    public void printAsAxiom(  PrintStream writer, OWLOntology ontology, Cell c ) throws OWLException;
+    public void write( PrintStream writer );
 
 }
 

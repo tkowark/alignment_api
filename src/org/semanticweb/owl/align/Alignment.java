@@ -23,13 +23,13 @@ package org.semanticweb.owl.align;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.net.URI;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
+//import org.semanticweb.owl.model.OWLOntology;
+//import org.semanticweb.owl.model.OWLEntity;
 
 /**
  * Represents an OWL ontology alignment.
@@ -44,15 +44,16 @@ public interface Alignment
 
     /** Alignment methods **/
 
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
     /**
      * The alignment has reference to the two aligned ontology.
      * All Alignment cells contain firts the entity from the first ontology
      * The alignment is from the first ontology to the second.
      */
-    public OWLOntology getOntology1();
-    public OWLOntology getOntology2();
-    public void setOntology1(OWLOntology ontology);
-    public void setOntology2(OWLOntology ontology);
+    public Object getOntology1();
+    public Object getOntology2();
+    public void setOntology1(Object ontology) throws AlignmentException;
+    public void setOntology2(Object ontology) throws AlignmentException;
     /**
      * Alignment type:
      * Currently defined a sa String.
@@ -70,6 +71,17 @@ public interface Alignment
     public void setType( String type );
     public String getType();
 
+    /**
+     * Alignment type:
+     * Currently defined a sa String.
+     * This string is supposed to contain two characters: among ?, 1, *, +
+     * Can be implemented otherwise
+     */
+    public void setFile1( URI type );
+    public void setFile2( URI type );
+    public URI getFile1();
+    public URI getFile2();
+
     /** Cell methods **/
     /**
      * The alignment itself is a set of Alignment cells relating one
@@ -84,23 +96,26 @@ public interface Alignment
     /**
      * Cells are created and indexed at once
      */
-    public void addAlignCell( OWLEntity ob1, OWLEntity ob, String relation, double measure) throws OWLException;
-    public void addAlignCell( OWLEntity ob1, OWLEntity ob2) throws OWLException;
-    public Cell getAlignCell1( OWLEntity ob ) throws OWLException;
-    public Cell getAlignCell2( OWLEntity ob ) throws OWLException;
+    public void addAlignCell( Object ob1, Object ob, String relation, double measure) throws AlignmentException;
+    public void addAlignCell( Object ob1, Object ob2) throws AlignmentException;
+    public Cell getAlignCell1( Object ob ) throws AlignmentException;
+    public Cell getAlignCell2( Object ob ) throws AlignmentException;
     /**
      * Each part of the cell can be queried independently.
      * There is not cell access out of the alignment objects.
      */
-    public OWLEntity getAlignedObject1( OWLEntity ob ) throws OWLException;
-    public OWLEntity getAlignedObject2( OWLEntity ob ) throws OWLException;
-    public Relation getAlignedRelation1( OWLEntity ob ) throws OWLException;
-    public Relation getAlignedRelation2( OWLEntity ob ) throws OWLException;
-    public double getAlignedMeasure1( OWLEntity ob ) throws OWLException;
-    public double getAlignedMeasure2( OWLEntity ob ) throws OWLException;
+    public Object getAlignedObject1( Object ob ) throws AlignmentException;
+    public Object getAlignedObject2( Object ob ) throws AlignmentException;
+    public Relation getAlignedRelation1( Object ob ) throws AlignmentException;
+    public Relation getAlignedRelation2( Object ob ) throws AlignmentException;
+    public double getAlignedStrength1( Object ob ) throws AlignmentException;
+    public double getAlignedStrength2( Object ob ) throws AlignmentException;
 
     public Enumeration getElements();
     public int nbCells();
+
+    public void cut( double threshold ) throws AlignmentException;
+    public void harden( double threshold ) throws AlignmentException;
 
     /** Housekeeping **/
     /**
@@ -113,12 +128,12 @@ public interface Alignment
      * for a SAXHandler provided as input 
      */
     public void dump(ContentHandler h);
-    public void write( PrintStream writer ) throws java.io.IOException, org.semanticweb.owl.model.OWLException;
+    //    public void write( PrintStream writer ) throws IOException, AlignmentException;
 
     /** Exporting
 	The alignments are exported for other purposes.
     */
-    public void printAsAxiom( PrintStream writer ) throws OWLException;
+    public void render( PrintStream writer, AlignmentVisitor renderer ) throws AlignmentException;
 
 }
 

@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2004, INRIA Rhône-Alpes
@@ -31,8 +33,11 @@ package fr.inrialpes.exmo.align.util;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
+import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import org.semanticweb.owl.util.OWLConnection;
 import org.semanticweb.owl.util.OWLManager;
@@ -41,7 +46,6 @@ import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 import org.semanticweb.owl.io.ParserException;
-import org.semanticweb.owl.io.Renderer;
 import org.semanticweb.owl.io.Parser;
 
 import java.io.PrintStream;
@@ -49,6 +53,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.Hashtable;
 import java.lang.Double;
+import java.lang.Integer;
 
 import org.xml.sax.SAXException;
 
@@ -77,7 +82,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
         --alignment=filename -a filename Start from an XML alignment file
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
-	--format=format -f format
+	--renderer=renderer -r renderer
         --help -h                       Print this message
     </pre>
 
@@ -100,7 +105,7 @@ public class Procalign {
     static OWLRDFErrorHandler handler = null;
 
     public static void main(String[] args) {
-	
+	Parameters params = null;
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
 	AlignmentProcess result = null;
@@ -108,9 +113,9 @@ public class Procalign {
 	Alignment init = null;
 	String alignmentClassName = "fr.inrialpes.exmo.align.impl.ClassNameEqAlignment";
 	String filename = null;
-	String format = "";
+	String rendererClass = "fr.inrialpes.exmo.align.impl.RDFRendererVisitor";
 	PrintStream writer = null;
-	Renderer renderer = null;
+	AlignmentVisitor renderer = null;
 	int debug = 0;
 	double threshold = 0;
 	
@@ -119,12 +124,12 @@ public class Procalign {
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-	longopts[3] = new LongOpt("format", LongOpt.REQUIRED_ARGUMENT, null, 'f');
+	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	//longopts[5] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[6] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');	longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	
-	Getopt g = new Getopt("", args, "ho:a:f:d::r:t:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
 	int c;
 	String arg;
 
@@ -138,16 +143,8 @@ public class Procalign {
 		filename = g.getOptarg();
 		break;
 	    case 'r':
-		/* Use the given class for rendernig */
-		String renderingClass = g.getOptarg();
-		try {
-		    renderer = (Renderer) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
-		} catch (Exception ex) {
-		    System.err.println("Cannot create renderer " + 
-				       renderingClass + "\n" + ex.getMessage() );
-		    usage();
-		    System.exit(0);
-		}
+		/* Use the given class for rendering */
+		rendererClass = g.getOptarg();
 		break;
 	    case 'i':
 		/* Use the given class for the alignment */
@@ -156,13 +153,6 @@ public class Procalign {
 	    case 'a':
 		/* Use the given file as a partial alignment */
 		initName = g.getOptarg();
-		break;
-	    case 'f':
-		/* Output format */
-		format = g.getOptarg();
-		if ( format.equals("xslt") ) {
-		    System.err.println("XSLT output not implemented\n");
-		}
 		break;
 	    case 't':
 		/* Threshold */
@@ -181,6 +171,9 @@ public class Procalign {
 	int i = g.getOptind();
 	
 	loadedOntologies = new Hashtable();
+	params = new BasicParameters();
+	if ( debug > 0 ) params.setParameter("debug",new Integer(debug));
+	// debug = ((Integer)params.getParameter("debug")).intValue();
 
 	try {
 	    
@@ -219,16 +212,18 @@ public class Procalign {
 		if ( initName != null ){
 		    AlignmentParser aparser = new AlignmentParser( debug );
 		    init = aparser.parse( initName, loadedOntologies );
-		    onto1 = init.getOntology1();
-		    onto2 = init.getOntology2();
+		    onto1 = (OWLOntology)init.getOntology1();
+		    onto2 = (OWLOntology)init.getOntology2();
 		    if ( debug > 0 ) System.err.println(" Init parsed");
 		}
 
 		// Create alignment object
-		Object [] params = {(Object)onto1, (Object)onto2};
+		Object [] mparams = {(Object)onto1, (Object)onto2};
 		Class alignmentClass =  Class.forName(alignmentClassName);
 		java.lang.reflect.Constructor[] alignmentConstructors = alignmentClass.getConstructors();
-                result = (AlignmentProcess)alignmentConstructors[0].newInstance(params);
+                result = (AlignmentProcess)alignmentConstructors[0].newInstance(mparams);
+		result.setFile1( uri1 );
+		result.setFile2( uri2 );
 	    } catch (Exception ex) {
 		System.err.println("Cannot create alignment " + 
 				   alignmentClassName + "\n" + ex.getMessage() );
@@ -238,7 +233,11 @@ public class Procalign {
 
 	    if ( debug > 0 ) System.err.println(" Alignment structure created");
 	    // Compute alignment
-	    result.align(init); // add opts
+	    result.align(init,params); // add opts
+
+	    // Thresholding
+	    if ( threshold != 0 ) 
+		{ ((BasicAlignment)result).cut( threshold ); };
 
 	    if ( debug > 0 ) System.err.println(" Alignment performed");
 
@@ -249,19 +248,21 @@ public class Procalign {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
 
-	    // Thresholding
-	    if ( threshold != 0 ) 
-		{ ((BasicAlignment)result).cut( threshold ); };
+	    // Result printing (to be reimplemented with a default value)
+	    try {
+		Object [] mparams = {(Object)writer};
+		java.lang.reflect.Constructor[] rendererConstructors = Class.forName(rendererClass).getConstructors();
+		renderer = (AlignmentVisitor)rendererConstructors[0].newInstance(mparams);
+	    } catch (Exception ex) {
+		System.err.println("Cannot create renderer " + 
+				   rendererClass + "\n" + ex.getMessage() );
+		usage();
+		System.exit(0);
+	    }
 
-	    // Result printing
-	    if ( format.equals("axioms") ) {
-		result.printAsAxiom( writer );
-	    } else result.write( writer );
+	    // Output
+	    result.render( writer, renderer );
 	    
-	    // File closing
-	    //writer.close();
-	    //System.out.println( writer.toString() );
-
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	}
@@ -280,13 +281,12 @@ public class Procalign {
     public static void usage() {
 	System.out.println("usage: Procalign [options] URI1 URI2");
 	System.out.println("options are:");
-	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
-	//System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
 	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.out.println("\t--format=axioms|xslt -f axioms|xslt\tSpecifies tha alignment format");
+	System.out.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
 	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
+	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
     }

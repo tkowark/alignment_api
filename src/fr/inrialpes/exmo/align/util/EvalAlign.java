@@ -48,6 +48,12 @@ import org.semanticweb.owl.io.Parser;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;
+import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.impl.BasicEvaluator;
+import fr.inrialpes.exmo.align.impl.PRecEvaluator;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -60,9 +66,6 @@ import org.apache.log4j.BasicConfigurator;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
-
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
 /** A really simple utility that loads and alignment and prints it.
     A basic class for an OWL ontology alignment processing. The processor
@@ -95,7 +98,7 @@ $Id$
 public class EvalAlign {
 
     public static void main(String[] args) {
-	
+	Parameters params = new BasicParameters();
 	Evaluator eval = null;
 	String alignName1 = null;
 	String alignName2 = null;
@@ -132,6 +135,8 @@ public class EvalAlign {
 		arg = g.getOptarg();
 		if ( arg != null ) debug = 2;
 		else debug = 4;
+		params.setParameter("debug",new Integer(debug));
+		// debug = ((Integer)params.getParameter("debug")).intValue();
 		break;
 	    }
 	}
@@ -161,20 +166,20 @@ public class EvalAlign {
 	    // Create evaluator object
 	    if ( classname != null ) {
 		try {
-		    Object [] params = {(Object)align1, (Object)align2};
+		    Object [] mparams = {(Object)align1, (Object)align2};
 		    Class evaluatorClass =  Class.forName(classname);
 		    java.lang.reflect.Constructor[] evaluatorConstructors = evaluatorClass.getConstructors();
-		    eval = (Evaluator)evaluatorConstructors[0].newInstance(params);
+		    eval = (Evaluator)evaluatorConstructors[0].newInstance(mparams);
 		} catch (Exception ex) {
 		    System.err.println("Cannot create alignment " + 
 				       classname + "\n" + ex.getMessage() );
 		    usage();
 		    System.exit(0);
 		}
-	    } else { eval = new BasicEvaluator( align1, align2 ); };
+	    } else { eval = new PRecEvaluator( align1, align2 ); };
 
 	    // Compare
-	    System.err.println( eval.evaluate() );
+	    eval.eval(params) ;
 
 	    // Print result
 	    if ( filename == null ) {
@@ -193,6 +198,9 @@ public class EvalAlign {
     public static void usage() {
 	System.out.println("usage: EvalAlign [options] file1 file2");
 	System.out.println("options are:");
+	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.out.println("\t--impl=className -i classname\t\tUse the given evaluator implementation.");
+	System.out.println("\t--output=filename -o filename\tOutput the result in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
     }

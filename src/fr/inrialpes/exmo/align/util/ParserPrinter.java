@@ -43,10 +43,12 @@ import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-import org.semanticweb.owl.io.Renderer;
 import org.semanticweb.owl.io.Parser;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentVisitor;
+
+import fr.inrialpes.exmo.align.impl.RDFRendererVisitor;
 
 import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -98,7 +100,7 @@ public class ParserPrinter {
 	String initName = null;
 	String filename = null;
 	PrintStream writer = null;
-	Renderer renderer = null;
+	AlignmentVisitor renderer = null;
 	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
 	
@@ -125,7 +127,7 @@ public class ParserPrinter {
 		/* Use the given class for rendernig */
 		String renderingClass = g.getOptarg();
 		try {
-		    renderer = (Renderer) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
+		    renderer = (AlignmentVisitor) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
 		} catch (Exception ex) {
 		    System.err.println("Cannot create renderer " + 
 				       renderingClass + "\n" + ex.getMessage() );
@@ -165,7 +167,9 @@ public class ParserPrinter {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
 	    
-	    result.write( writer );
+	    //result.write( writer );
+	    if ( renderer == null ) renderer = new RDFRendererVisitor( writer );
+	    result.render( writer, renderer );
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();

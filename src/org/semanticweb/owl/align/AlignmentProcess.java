@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -46,7 +47,7 @@ public interface AlignmentProcess extends Alignment
      * TODO: a set of parameters should better be passed to the alignment
      * method.
      */
-    public void align( Alignment alignment ) throws AlignmentException, OWLException;
+    public void align( Alignment alignment, Parameters param ) throws AlignmentException, OWLException;
 
 }
 

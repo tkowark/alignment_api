@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +26,7 @@ import java.io.IOException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
+//import org.semanticweb.owl.model.OWLEntity;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -42,21 +42,22 @@ import org.semanticweb.owl.model.OWLException;
 public interface Cell
 {
 	
-    /** Creation **/
-    //public Cell( OWLOntology onto1, OWLOntology onto2 );
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
-    public OWLEntity getObject1();
-    public OWLEntity getObject2();
-    public void setObject1( OWLEntity ob );
-    public void setObject2( OWLEntity ob );
+    /** Creation **/
+
+    public Object getObject1();
+    public Object getObject2();
+    public void setObject1( Object ob ) throws AlignmentException;
+    public void setObject2( Object ob ) throws AlignmentException;
     public Relation getRelation();
     public void setRelation( Relation r );
-    public double getMeasure();
-    public void setMeasure( double m );
+    public double getStrength();
+    public void setStrength( double m );
 
     /** Housekeeping **/
     public void dump(ContentHandler h);
-    public void write( PrintStream writer ) throws java.io.IOException, org.semanticweb.owl.model.OWLException;
+    //    public void write( PrintStream writer ) throws IOException, AlignmentException;
 
 }
 

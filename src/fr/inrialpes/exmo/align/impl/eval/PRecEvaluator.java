@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,8 +21,10 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Evaluator;
+import org.semanticweb.owl.align.Parameters;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
@@ -39,7 +42,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Evaluate proximity between two alignments.
- * This function implements Precision/Recall. The first alignment
+ * This function implements Precision/Recall/Fallout. The first alignment
  * is thus the expected one.
  *
  * @author Jerome Euzenat
@@ -47,17 +50,15 @@ import org.xml.sax.SAXException;
  */
 
 public class PRecEvaluator extends BasicEvaluator {
-    // NOTE(JE): It will be very easy to compute the score on:
-    // - Classes, Properties, Individuals separately
-    // And to aggregate them in the final value...
     private double precision = 0.;
     private double recall = 0.;
+    private double fallout = 0.;
+    private double overall = 0.;
+    private double fmeasure = 0.;
 
     /** Creation **/
     public PRecEvaluator( Alignment align1, Alignment align2 ){
 	super(align1,align2);
-    //	this.align1 = align1;
-    //	this.align2 = align2;
     }
 
     // Presision: nbfound - nbexpected / nbexpected
@@ -65,7 +66,7 @@ public class PRecEvaluator extends BasicEvaluator {
     // ----
     // Signal: 
     // Noise: 
-    public double evaluate () throws OWLException {
+    public double eval( Parameters params ) throws AlignmentException {
 	int nbexpected = align1.nbCells();
 	int nbfound = align2.nbCells();
 	int nbcorrect = 0; // nb of cells correctly identified
@@ -77,14 +78,21 @@ public class PRecEvaluator extends BasicEvaluator {
 	    Cell c2 = (Cell)align2.getAlignCell1((OWLEntity)c1.getObject1());
 	    if ( c2 != null ){
 		if ( c1.getObject2() == c2.getObject2() ) {
-		    //result = result + Math.abs(c2.getMeasure() - c1.getMeasure());
 		    nbcorrect++;
 		}
 	    }
 	}
-
-	precision = (nbfound - nbcorrect) / nbexpected;
-	recall = nbcorrect / nbexpected;
+	
+	// What is the definition if:
+	// nbfound is 0 (p, r are 0)
+	// nbexpected is 0 [=> nbcorrect is 0] (r=100, p=0[if nbfound>0, 100 otherwise])
+	// precision+recall is 0 [= nbcorrect is 0]
+	// precision is 0 [= nbcorrect is 0]
+	precision = (double)nbcorrect / (double)nbfound;
+	recall = (double)nbcorrect / (double)nbexpected;
+	fallout = (double)(nbfound - nbcorrect) / (double)nbfound;
+	fmeasure = 2*precision*recall / (precision+recall);
+	overall = recall*(2-(1/precision));
 	result = recall / precision;
 	return(result);
     }
@@ -94,7 +102,13 @@ public class PRecEvaluator extends BasicEvaluator {
  	writer.print(precision);
  	writer.print("</precision>\n    <recall>");
  	writer.print(recall);
- 	writer.print("</recall>\n    <result>");
+ 	writer.print("</recall>\n    <fallout>");
+ 	writer.print(fallout);
+ 	writer.print("</fallout>\n    <fmeasure>");
+ 	writer.print(fmeasure);
+ 	writer.print("</fmeasure>\n    <overall>");
+ 	writer.print(overall);
+ 	writer.print("</overall>\n    <result>");
  	writer.print(result);
  	writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
     }

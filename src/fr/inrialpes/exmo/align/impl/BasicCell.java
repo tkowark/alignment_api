@@ -1,7 +1,8 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
-  *
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
@@ -22,14 +23,19 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.io.PrintStream;
 import java.io.IOException;
+import java.lang.ClassNotFoundException;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.OWLEntity;
+
+import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.model.OWLException;
+
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
  * collections. Each ontology has a number of classes, properties and
@@ -42,48 +48,66 @@ import org.semanticweb.owl.model.OWLException;
 
 public class BasicCell implements Cell
 {
+    public void accept( AlignmentVisitor visitor) throws AlignmentException {
+        visitor.visit( this );
+    }
+
     OWLEntity object1 = null;
     OWLEntity object2 = null;
     Relation relation = null;
-    double measure = 0;
+    double strength = 0;
 
     /** Creation **/
-    public BasicCell( OWLEntity ob1, OWLEntity ob2 ){
+    public BasicCell( Object ob1, Object ob2 ) throws AlignmentException {
 	new BasicCell( ob1, ob2, "=", 0 );
     };
 
-    public BasicCell( OWLEntity ob1, OWLEntity ob2, String rel, double m ){
-	object1 = ob1;
-	object2 = ob2;
-	relation = new BasicRelation( rel );
+    public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
+	try {
+	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1) ||
+		 !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2) )
+		throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
+	} catch (ClassNotFoundException e) { e.printStackTrace(); }
+	object1 = (OWLEntity)ob1;
+	object2 = (OWLEntity)ob2;
+	if ( rel.equals("=") ) {
+	    relation = new EquivRelation();
+	} else if ( rel.equals("<") ) {
+	    relation = new SubsumeRelation();
+	} else if ( rel.equals("%") ) {
+	    relation = new IncompatRelation();
+	} else {
+	    // I could use the class name for relation, 
+	    // this would be more extensible...
+	    relation = new BasicRelation("=");
+	};
 	// No exception, just keep 0?
-	if ( m >= 0 && m <= 1 ) measure = m;
+	if ( m >= 0 && m <= 1 ) strength = m;
     };
 
-    public OWLEntity getObject1(){ return object1; };
-    public OWLEntity getObject2(){ return object2; };
-    public void setObject1( OWLEntity ob ){ object1 = ob; };
-    public void setObject2( OWLEntity ob ){ object2 = ob; };
+    public Object getObject1(){ return object1; };
+    public Object getObject2(){ return object2; };
+    public void setObject1( Object ob ) throws AlignmentException {
+	try { 
+	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob) )
+		throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
+	} catch (ClassNotFoundException e) { e.printStackTrace(); }
+	object1 = (OWLEntity)ob;
+    }
+    public void setObject2( Object ob ) throws AlignmentException {
+	try { 
+	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob) )
+		throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
+	} catch (ClassNotFoundException e) { e.printStackTrace(); }
+	object2 = (OWLEntity)ob;
+    };
     public Relation getRelation(){ return relation; };
     public void setRelation( Relation rel ){ relation = rel; };
-    public double getMeasure(){ return measure; };
-    public void setMeasure( double m ){ measure = m; };
+    public double getStrength(){ return strength; };
+    public void setStrength( double m ){ strength = m; };
 
     /** Housekeeping **/
     public void dump( ContentHandler h ){};
-
-    public void write( PrintStream writer ) throws java.io.IOException, org.semanticweb.owl.model.OWLException {
-
-	writer.print("    <Cell>\n      <entity1 rdf:resource='");
-	writer.print( object1.getURI().toString() );
-	writer.print("'/>\n      <entity2 rdf:resource='");
-	writer.print( object2.getURI().toString() );
-	writer.print("'/>\n      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
-	writer.print( measure );
-	writer.print("</measure>\n      <relation>");
-	relation.write( writer );
-	writer.print("</relation>\n    </Cell>\n");
-    };
 
 }
 

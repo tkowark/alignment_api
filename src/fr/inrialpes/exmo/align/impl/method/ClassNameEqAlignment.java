@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +31,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -48,28 +50,27 @@ public class ClassNameEqAlignment extends BasicAlignment implements AlignmentPro
     /** Creation **/
     public ClassNameEqAlignment( OWLOntology onto1, OWLOntology onto2 ){
     	init( onto1, onto2 );
+	setType("11");
     };
 
     /** Processing **/
     /** This is not exactly equal, this uses toLowerCase() */
-    public void align( Alignment alignment ) throws AlignmentException, OWLException {
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
 	Hashtable table = new Hashtable();
 	OWLClass cl = null;
 	//ignore alignment;
 	// This is a stupid O(2n) algorithm:
 	// Put each class of onto1 in a hashtable indexed by its name (not qualified)
 	// For each class of onto2 whose name is found in the hash table
-	try {
-	    for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); ){
-		cl = (OWLClass)it.next();
-		table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
-	    }
-	    for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); ){
-		OWLClass cl2 = (OWLClass)it.next();
-		cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
-		if( cl != null ){ addAlignCell( cl, cl2 ); }
-	    }
-	} catch (Exception e) { throw new AlignmentException ( "Problem getting URI"); }
+	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); ){
+	    cl = (OWLClass)it.next();
+	    table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
+	}
+	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); ){
+	    OWLClass cl2 = (OWLClass)it.next();
+	    cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
+	    if( cl != null ){ addAlignCell( cl, cl2 ); }
+	}
     }
 
 }
