@@ -127,11 +127,16 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	if (debug > 0) System.err.println("Initializing property distances");
 	for ( i=0; i<nbprop1; i++ ){
 	    OWLProperty cl = (OWLProperty)proplist1.get(i);
-	    String s1 = cl.getURI().getFragment().toLowerCase();
+	    String s1 = cl.getURI().getFragment();
+	    if ( s1 != null ) s1 = s1.toLowerCase();
 	    for ( j=0; j<nbprop2; j++ ){
 		cl = (OWLProperty)proplist2.get(j);
-		String s2 = cl.getURI().getFragment().toLowerCase();
-		propmatrix[i][j] = pia1 * StringDistances.subStringDistance( s1, s2 );
+		String s2 = cl.getURI().getFragment();
+		if ( s2 != null ) s2 = s2.toLowerCase();
+		if ( s1 == null || s2 == null ) { propmatrix[i][j] = pia1; }
+		else {
+		    propmatrix[i][j] = pia1 * StringDistances.subStringDistance( s1, s2 );
+		}
 	    }
 	}
 

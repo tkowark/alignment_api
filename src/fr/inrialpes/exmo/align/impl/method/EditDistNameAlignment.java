@@ -58,6 +58,7 @@ public class EditDistNameAlignment extends DistanceAlignment implements Alignmen
     };
 
     private double max( double i, double j) { if ( i>j ) return i; else return j; }
+
     /** Processing **/
     /** This is not exactly equal, this uses toLowerCase() */
     public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
@@ -115,19 +116,27 @@ public class EditDistNameAlignment extends DistanceAlignment implements Alignmen
 	    for ( j=0; j<nbclass2; j++ ){
 		l2 = ((OWLClass)classlist2.get(j)).getURI().getFragment().length();
 		clmatrix[i][j] = StringDistances.levenshteinDistance(
-						    cl.getURI().getFragment().toLowerCase(),
-						    ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase()) / max(l1,l2);
+				    cl.getURI().getFragment().toLowerCase(),
+				    ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase()) / max(l1,l2);
 	    }
 	}
 	// Compute distances on properties
 	for ( i=0; i<nbprop1; i++ ){
 	    OWLProperty pr = (OWLProperty)proplist1.get(i);
-	    l1 = pr.getURI().getFragment().length();
+	    String f1 = pr.getURI().getFragment();
+	    if ( f1 != null ) { l1 = f1.length(); }
+	    else { l1 = 0; };
 	    for ( j=0; j<nbprop2; j++ ){
-		l2 = ((OWLProperty)proplist2.get(j)).getURI().getFragment().length();
+		// Compute distances on properties
+		String f2 = ((OWLProperty)proplist2.get(j)).getURI().getFragment();
+		if ( f2 != null ) { l2 = f2.length(); }
+		else { l2 = 0; };
+		if ( (l2 == 0) || (l1 == 0) ) { prmatrix[i][j] = 1.; }
+		else {
 		prmatrix[i][j] = StringDistances.levenshteinDistance(
-						    pr.getURI().getFragment().toLowerCase(),
-						    ((OWLProperty)proplist2.get(j)).getURI().getFragment().toLowerCase()) / max(l1,l2);
+						   pr.getURI().getFragment().toLowerCase(),
+						   ((OWLProperty)proplist2.get(j)).getURI().getFragment().toLowerCase()) / max(l1,l2);
+		}
 	    }
 	}
 
