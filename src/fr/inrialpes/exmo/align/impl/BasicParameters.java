@@ -58,4 +58,21 @@ public class BasicParameters implements Parameters {
     return parameters.keys();
   }
 
+    public void write(){
+	System.out.println("<?xml version='1.0' ?>");
+	System.out.println("<Parameters>");
+	for (Enumeration e = parameters.keys(); e.hasMoreElements();) {
+	    String k = (String)e.nextElement();
+	    System.out.println("  <param name='"+k+"'>"+parameters.get(k)+"</param>");
+	}
+	System.out.println("</Parameters>");
+    }
+
+    public static Parameters read(){
+	Parameters p = new BasicParameters();
+	// open the stream
+	// parse it
+	// fill the structure
+	return p;
+    }
 }

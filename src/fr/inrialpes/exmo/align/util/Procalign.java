@@ -115,7 +115,6 @@ public class Procalign {
     }
 
     public static Alignment run(String[] args) throws Exception {
-	Parameters params = null;
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
 	AlignmentProcess result = null;
@@ -130,8 +129,9 @@ public class Procalign {
 	AlignmentVisitor renderer = null;
 	int debug = 0;
 	double threshold = 0;
+	Parameters params = new BasicParameters();
 
-	LongOpt[] longopts = new LongOpt[8];
+	LongOpt[] longopts = new LongOpt[9];
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -141,8 +141,10 @@ public class Procalign {
 	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
+	// Is there a way for that in LongOpt ???
+	longopts[8] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:a:d::r:t:T:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::r:t:T:i:D::", longopts);
 	int c;
 	String arg;
 
@@ -181,13 +183,26 @@ public class Procalign {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'D' :
+		/* Parameter definition */
+		arg = g.getOptarg();
+		int index = arg.indexOf('=');
+		if ( index != -1 ) {
+		    params.setParameter( arg.substring( 0, index), 
+					 arg.substring(index+1));
+		} else {
+		    System.err.println("Bad parameter syntax: "+g);
+		    usage();
+		    System.exit(0);
+		    
+		}
+		break;
 	    }
 	}
 	
 	int i = g.getOptind();
 
 	loadedOntologies = new Hashtable();
-	params = new BasicParameters();
 	if (debug > 0) params.setParameter("debug", new Integer(debug));
 	// debug = ((Integer)params.getParameter("debug")).intValue();
 	
@@ -202,7 +217,7 @@ public class Procalign {
 		uri1 = new URI(args[i++]);
 		uri2 = new URI(args[i]);
 	    } else if (initName == null) {
-		System.out.println("Two URIs required");
+		System.err.println("Two URIs required");
 		usage();
 		System.exit(0);
 	    }
@@ -313,6 +328,7 @@ public class Procalign {
 	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
 	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\tmethod for computing the threshold");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.out.println("\t-Dparam=value\t\t\tSet parameter");
 	System.out.println("\t--help -h\t\t\tPrint this message");
     }
 }

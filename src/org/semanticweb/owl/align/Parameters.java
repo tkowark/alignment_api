@@ -42,4 +42,6 @@ public interface Parameters {
     public Object getParameter(String name);
     public Enumeration getNames();
 
+    public void write();
+    //public static Parameters read();
 }
