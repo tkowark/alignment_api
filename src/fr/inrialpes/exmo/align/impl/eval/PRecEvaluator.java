@@ -173,6 +173,7 @@ public class PRecEvaluator extends BasicEvaluator {
     public double getPrecision() { return precision; }
     public double getRecall() {	return recall; }
     public double getOverall() { return overall; }
+    public double getFallout() { return fallout; }
     public double getFmeasure() { return fmeasure; }
 }
 
