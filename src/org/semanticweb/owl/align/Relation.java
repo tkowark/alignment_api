@@ -37,6 +37,8 @@ public interface Relation
     /** Creation **/
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
+    public Relation inverse();
+
     /** Housekeeping **/
     public void dump(ContentHandler h);
     public void write( PrintStream writer );

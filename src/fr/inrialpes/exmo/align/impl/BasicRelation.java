@@ -63,6 +63,11 @@ public class BasicRelation implements Relation
 	relation = rel;
     }
 
+    /** By default the inverse is the relation itself **/
+    public Relation inverse() {
+	return this;
+    }
+
     /** Housekeeping **/
     public void dump( ContentHandler h ){};
 

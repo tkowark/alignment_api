@@ -116,6 +116,7 @@ public interface Alignment
 
     public void cut( double threshold ) throws AlignmentException;
     public void harden( double threshold ) throws AlignmentException;
+    public void inverse() throws AlignmentException;
 
     /** Housekeeping **/
     /**

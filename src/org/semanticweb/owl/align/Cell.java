@@ -56,6 +56,8 @@ public interface Cell
     public double getStrength();
     public void setStrength( double m );
 
+    public void inverse();
+
     /** Housekeeping **/
     public void dump(ContentHandler h);
     //    public void write( PrintStream writer ) throws IOException, AlignmentException;

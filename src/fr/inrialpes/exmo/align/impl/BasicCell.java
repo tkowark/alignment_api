@@ -116,6 +116,14 @@ public class BasicCell implements Cell
     public double getStrength(){ return strength; };
     public void setStrength( double m ){ strength = m; };
 
+    public void inverse() {
+	OWLEntity ob = object1;
+	object1 = object2;
+	object2 = ob;
+	relation = relation.inverse();
+	// The sae should be done for the measure
+    }
+
     /** Housekeeping **/
     public void dump( ContentHandler h ){};
 

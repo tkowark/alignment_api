@@ -318,76 +318,92 @@ public class BasicAlignment implements Alignment {
 			return 0;
 	};
 
-	/** Housekeeping * */
-	public void dump(ContentHandler h) {
-	};
-
-	/***************************************************************************
-	 * The cut function suppresses from an alignment all the cell over a
-	 * particulat threshold
-	 **************************************************************************/
-	public void cut(double threshold) throws AlignmentException {
-		for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
-			Cell c = (Cell) hash1.get(e.nextElement());
-			if (c.getStrength() < threshold) {
-				// Beware, this suppresses all cells with these keys
-				// There is only one of them
-				try {
-					hash1.remove(((OWLEntity) c.getObject1()).getURI());
-					hash2.remove(((OWLEntity) c.getObject2()).getURI());
-				} catch (OWLException ex) {
-					throw new AlignmentException("getURI problem", ex);
-				}
-			}
-		} //end for
-	};
-
-	/***************************************************************************
-	 * The harden function acts like threshold but put all weights at 1.
-	 **************************************************************************/
-	public void harden(double threshold) throws AlignmentException {
-		for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
-			Cell c = (Cell) hash1.get(e.nextElement());
-			if (c.getStrength() < threshold) {
-				// Beware, this suppresses all cells with these keys
-				// There is only one of them
-				try {
-					hash1.remove(((OWLEntity) c.getObject1()).getURI());
-					hash2.remove(((OWLEntity) c.getObject2()).getURI());
-				} catch (OWLException ex) {
-					throw new AlignmentException("getURI problem", ex);
-				}
-			} else {
-				c.setStrength(1.);
-			}
-		} //end for
-	};
-
-	/**
-	 * Incorporate the cell of the alignment into it own alignment. Note: for
-	 * the moment, this does not copy but really incorporates. So, if hardening
-	 * or cutting, are applied, then the ingested alignmment will be modified as
-	 * well.
-	 */
-	protected void ingest(Alignment alignment) throws AlignmentException {
-		for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
-			Cell c = (Cell) e.nextElement();
-			try {
-				hash1.put((Object) ((OWLEntity) c.getObject1()).getURI(), c);
-				hash2.put((Object) ((OWLEntity) c.getObject2()).getURI(), c);
-			} catch (OWLException ex) {
-				throw new AlignmentException("getURI problem", ex);
-			}
-		}
-	};
-
-	/**
-	 * This should be rewritten in order to generate the axiom ontology instead
-	 * of printing it! And then use ontology serialization for getting it
-	 * printed.
-	 */
-	public void render(PrintStream writer, AlignmentVisitor renderer)
-			throws AlignmentException {
-		accept(renderer);
+    public void inverse () {
+	OWLOntology o = onto1;
+	onto1 = onto2;
+	onto2 = o;
+	// We must inverse getType
+	URI u = uri1;
+	uri1 = uri2;
+	uri2 = u;
+	Hashtable h = hash1;
+	hash1 = hash2;
+	hash2 = h;
+	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
+	    ((Cell)e.nextElement()).inverse();
 	}
+    };
+
+    /** Housekeeping * */
+    public void dump(ContentHandler h) {
+    };
+
+    /***************************************************************************
+     * The cut function suppresses from an alignment all the cell over a
+     * particulat threshold
+     **************************************************************************/
+    public void cut(double threshold) throws AlignmentException {
+	for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
+	    Cell c = (Cell) hash1.get(e.nextElement());
+	    if (c.getStrength() < threshold) {
+		// Beware, this suppresses all cells with these keys
+		// There is only one of them
+		try {
+		    hash1.remove(((OWLEntity) c.getObject1()).getURI());
+		    hash2.remove(((OWLEntity) c.getObject2()).getURI());
+		} catch (OWLException ex) {
+		    throw new AlignmentException("getURI problem", ex);
+		}
+	    }
+	} //end for
+    };
+
+    /***************************************************************************
+     * The harden function acts like threshold but put all weights at 1.
+     **************************************************************************/
+    public void harden(double threshold) throws AlignmentException {
+	for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
+	    Cell c = (Cell) hash1.get(e.nextElement());
+	    if (c.getStrength() < threshold) {
+		// Beware, this suppresses all cells with these keys
+		// There is only one of them
+		try {
+		    hash1.remove(((OWLEntity) c.getObject1()).getURI());
+		    hash2.remove(((OWLEntity) c.getObject2()).getURI());
+		} catch (OWLException ex) {
+		    throw new AlignmentException("getURI problem", ex);
+		}
+	    } else {
+		c.setStrength(1.);
+	    }
+	} //end for
+    };
+
+    /**
+     * Incorporate the cell of the alignment into it own alignment. Note: for
+     * the moment, this does not copy but really incorporates. So, if hardening
+     * or cutting, are applied, then the ingested alignmment will be modified as
+     * well.
+     */
+    protected void ingest(Alignment alignment) throws AlignmentException {
+	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
+	    Cell c = (Cell) e.nextElement();
+	    try {
+		hash1.put((Object) ((OWLEntity) c.getObject1()).getURI(), c);
+		hash2.put((Object) ((OWLEntity) c.getObject2()).getURI(), c);
+	    } catch (OWLException ex) {
+		throw new AlignmentException("getURI problem", ex);
+	    }
+	}
+    };
+
+    /**
+     * This should be rewritten in order to generate the axiom ontology instead
+     * of printing it! And then use ontology serialization for getting it
+     * printed.
+     */
+    public void render(PrintStream writer, AlignmentVisitor renderer)
+	throws AlignmentException {
+	accept(renderer);
+    }
 }
