@@ -67,7 +67,6 @@ double DistTab[];
 IndexWord index = null;
 Synset Syno[] = null;
 
-
 Dists1s2= StringDistances.subStringDistance( s1, s2 );
 
 try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,s1);}
@@ -79,8 +78,7 @@ if (index!=null){
 	 	sens= index.getSenseCount();
 		DistTab=new double[sens];
 		for (k=0;k<sens;k++){
-		 	System.out.println(Syno[k].toString());
-			for(j=0;j<Syno[k].getWordsSize();j++){
+		 	for(j=0;j<Syno[k].getWordsSize();j++){
 				Dist = StringDistances.subStringDistance( Syno[k].getWord(j).getLemma(), s2 );
 			    if (Dist < Dists1s2){Dists1s2=Dist;
 			    					besti=k;

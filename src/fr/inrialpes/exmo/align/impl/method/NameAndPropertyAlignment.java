@@ -126,26 +126,21 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
     
-System.out.println("1");
+
 	if (debug > 0) System.err.println("Initializing property distances");
 	for ( i=0; i<nbprop1; i++ ){
-System.out.println("2");
 	    OWLProperty cl = (OWLProperty)proplist1.get(i);
-System.out.println("3");
-	    String s1 = cl.getURI().getFragment().toLowerCase();
-System.out.println("4"+ cl);
+	    String st1=new String();
+	    String st2=new String();
+		if (cl.getURI().getFragment()!=null){ st1 = cl.getURI().getFragment().toLowerCase();}
 	    for ( j=0; j<nbprop2; j++ ){
-System.out.println("5");
 		cl = (OWLProperty)proplist2.get(j);
-System.out.println("6" + cl + "\n" + cl.getURI().getFragment().toLowerCase());
-		String s2 = cl.getURI().getFragment();
-		//.toLowerCase();
-System.out.println("7");
-		propmatrix[i][j] = pia1 * StringDistances.subStringDistance( s1, s2 );
-System.out.println("8");
+		if(cl.getURI().getFragment()!=null){st2 = cl.getURI().getFragment().toLowerCase() ;}
+		propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
+
 	    }
 	}
-System.out.println("1");
+
 	if (debug > 0) System.err.println("Initializing class distances");
 	// Initialize class distances
 	for ( i=0; i<nbclass1; i++ ){
@@ -156,7 +151,7 @@ System.out.println("1");
 						    ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
 	    }
 	}
-System.out.println("1");
+
 	// Iterate until completion
 	double factor = 1.0;
 	while ( factor > epsillon ){
@@ -179,7 +174,6 @@ System.out.println("1");
 		}
 		if ( found && max < 0.5) { addAlignDistanceCell( (OWLProperty)proplist1.get(i), (OWLProperty)proplist2.get(best), "=", max ); }
 	    }
-	    System.out.println("1");
 	    if (debug > 0) System.err.print("Computing class distances\n");
 	    // Compute classes distances
 	    // -- for all of its attribute, find the best match if possible... easy
@@ -217,7 +211,6 @@ System.out.println("1");
 	    // -- FirstExp: nothing to be done: one pass
 	    factor = 0.;
 	}
-System.out.println("1");
 	// This mechanism should be parametric!
 	// Select the best match
 	// There can be many algorithm for these:
