@@ -4,6 +4,7 @@
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2004, INRIA Rhône-Alpes
+ * Copyright (C) 2004, Universit de Montral
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -112,10 +113,10 @@ public class Procalign {
 		String initName = null;
 		Alignment init = null;
 		String alignmentClassName =
-			"fr.inrialpes.exmo.align.impl.ClassNameEqAlignment";
+			"fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
 		String filename = null;
 		String rendererClass =
-			"fr.inrialpes.exmo.align.impl.RDFRendererVisitor";
+			"fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 		PrintStream writer = null;
 		AlignmentVisitor renderer = null;
 		int debug = 0;
@@ -306,10 +307,10 @@ public class Procalign {
 		String initName = null;
 		Alignment init = null;
 		String alignmentClassName =
-			"fr.inrialpes.exmo.align.impl.ClassNameEqAlignment";
+			"fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
 		String filename = null;
 		String rendererClass =
-			"fr.inrialpes.exmo.align.impl.RDFRendererVisitor";
+			"fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 		PrintStream writer = null;
 		AlignmentVisitor renderer = null;
 		int debug = 0;

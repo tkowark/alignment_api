@@ -18,13 +18,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.eval; 
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;

@@ -19,7 +19,7 @@
  */
 
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.method; 
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -44,6 +44,8 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 
 /** This class has been built for ISWC experiments with bibliography.
  * It implements a non iterative (one step) OLA algorithms based on

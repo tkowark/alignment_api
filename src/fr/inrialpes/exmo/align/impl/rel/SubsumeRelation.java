@@ -17,10 +17,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.rel; 
 
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
+
+import fr.inrialpes.exmo.align.impl.BasicRelation;
 
 /**
  * Represents an OWL subsumption relation.

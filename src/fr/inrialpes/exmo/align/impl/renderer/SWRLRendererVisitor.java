@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Hashtable;
 import java.util.Enumeration;
@@ -40,6 +40,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
  * Renders an alignment as a SWRL rule set interpreting
@@ -120,15 +122,15 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	// but this seems to be the case...
 	try {
 	    Method mm = null;
-	    if ( Class.forName("fr.inrialpes.exmo.align.impl.EquivRelation").isInstance(rel) ){
+	    if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation").isInstance(rel) ){
 		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.EquivRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.SubsumeRelation").isInstance(rel) ) {
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation")});
+	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.SubsumeRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.IncompatRelation").isInstance(rel) ) {
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
+	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.IncompatRelation")});
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
 	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };

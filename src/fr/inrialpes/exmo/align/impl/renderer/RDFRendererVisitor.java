@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Hashtable;
 import java.util.Enumeration;
@@ -39,6 +39,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
  * Renders an alignment as a new ontology merging these.

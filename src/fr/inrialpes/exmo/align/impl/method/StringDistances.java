@@ -24,7 +24,7 @@
  * @version $Id$ 
  */
 
-package fr.inrialpes.exmo.align.impl; 
+package fr.inrialpes.exmo.align.impl.method; 
 
 
 public class StringDistances {

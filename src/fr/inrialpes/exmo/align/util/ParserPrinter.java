@@ -48,7 +48,7 @@ import org.semanticweb.owl.io.Parser;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
-import fr.inrialpes.exmo.align.impl.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 
 import java.io.PrintStream;
 import java.io.FileOutputStream;

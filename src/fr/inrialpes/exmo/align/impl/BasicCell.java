@@ -36,6 +36,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.rel.*;
+
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
  * collections. Each ontology has a number of classes, properties and
