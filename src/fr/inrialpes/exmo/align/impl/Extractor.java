@@ -16,7 +16,7 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface Extractor {
-	public void threshold (String type, BasicParameters param);
+	//public void threshold (String type, BasicParameters param);
 	public BasicAlignment extractAlignment (String type);
 
 }
