@@ -3,7 +3,7 @@
 <!-- $Id$ -->
 
 <xsl:stylesheet version="1.0"
-  xmlns:align='http://exmo.inrialpes.fr/align/1.0'
+  xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
   xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
