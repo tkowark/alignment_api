@@ -45,6 +45,9 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
  * individuals, along with a number of axioms asserting information
  * about those objects.
  *
+ * An improvement of that class is that, since it is based on names only,
+ * it can match freely property names with class names...
+ *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
@@ -63,47 +66,46 @@ public class NameEqAlignment extends BasicAlignment implements AlignmentProcess
     /** This is not exactly equal, this uses toLowerCase() */
     public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
 	Hashtable table = new Hashtable();
-	OWLClass cl = null;
-	OWLProperty pr = null;
-	OWLIndividual id = null;
+	OWLEntity ob1 = null;
+	OWLEntity ob2 = null;
 	//ignore alignment;
 	// This is a stupid O(2n) algorithm:
 	// Put each class of onto1 in a hashtable indexed by its name (not qualified)
 	// For each class of onto2 whose name is found in the hash table
 	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); ){
-	    cl = (OWLClass)it.next();
-	    if ( cl.getURI().getFragment() != null )
-		table.put((Object)cl.getURI().getFragment().toLowerCase(), cl);
+	    ob1 = (OWLEntity)it.next();
+	    if ( ob1.getURI().getFragment() != null )
+		table.put((Object)ob1.getURI().getFragment().toLowerCase(), ob1);
 	}
 	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); ){
-	    OWLClass cl2 = (OWLClass)it.next();
-	    if ( cl2.getURI().getFragment() != null ) {
-		cl = (OWLClass)table.get((Object)cl2.getURI().getFragment().toLowerCase());
-		if( cl != null ){ addAlignCell( cl, cl2 ); }
+	    ob2 = (OWLEntity)it.next();
+	    if ( ob2.getURI().getFragment() != null ) {
+		ob1 = (OWLEntity)table.get((Object)ob2.getURI().getFragment().toLowerCase());
+		if( ob1 != null ){ addAlignCell( ob1, ob2 ); }
 	    }
 	}
 	for ( Iterator it = onto1.getObjectProperties().iterator(); it.hasNext(); ){
-	    pr = (OWLProperty)it.next();
-	    if ( pr.getURI().getFragment() != null )
-		table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
+	    ob1 = (OWLEntity)it.next();
+	    if ( ob1.getURI().getFragment() != null )
+		table.put((Object)ob1.getURI().getFragment().toLowerCase(), ob1);
 	}
 	for ( Iterator it = onto2.getObjectProperties().iterator(); it.hasNext(); ){
-	    OWLProperty pr2 = (OWLProperty)it.next();
-	    if ( pr2.getURI().getFragment() != null ){
-		pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
-		if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    ob2 = (OWLEntity)it.next();
+	    if ( ob2.getURI().getFragment() != null ){
+		ob1 = (OWLEntity)table.get((Object)ob2.getURI().getFragment().toLowerCase());
+		if( ob1 != null ){ addAlignCell( ob1, ob2 ); }
 	    }
 	}
 	for ( Iterator it = onto1.getDataProperties().iterator(); it.hasNext(); ){
-	    pr = (OWLProperty)it.next();
-	    if ( pr.getURI().getFragment() != null )
-		table.put((Object)pr.getURI().getFragment().toLowerCase(), pr);
+	    ob1 = (OWLEntity)it.next();
+	    if ( ob1.getURI().getFragment() != null )
+		table.put((Object)ob1.getURI().getFragment().toLowerCase(), ob1);
 	}
 	for ( Iterator it = onto2.getDataProperties().iterator(); it.hasNext(); ){
-	    OWLProperty pr2 = (OWLProperty)it.next();
-	    if ( pr2.getURI().getFragment() != null ){
-		pr = (OWLProperty)table.get((Object)pr2.getURI().getFragment().toLowerCase());
-		if( pr != null ){ addAlignCell( pr, pr2 ); }
+	    ob2 = (OWLEntity)it.next();
+	    if ( ob2.getURI().getFragment() != null ){
+		ob1 = (OWLEntity)table.get((Object)ob2.getURI().getFragment().toLowerCase());
+		if( ob1 != null ){ addAlignCell( ob1, ob2 ); }
 	    }
 	}
 	//for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); ){
