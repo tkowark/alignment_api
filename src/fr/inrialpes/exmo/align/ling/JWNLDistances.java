@@ -53,10 +53,10 @@ catch(Exception ex){ex.printStackTrace();
 }	                	
 /**
  * Compute a basic distance between 2 strings using WordNet synonym.
- * 
+ *  
  * @param s1
  * @param s2
- * @return Distance between s1 & s2
+ * @return Distance between s1 & s2 (return 1 if s2 is a synonym of s1, else return a BasicStringDistance between s1 & s2)
  */
 public double BasicSynonymDistance(String s1, String s2){
 double Dist =0.0;
@@ -101,7 +101,7 @@ return Dists1s2;
  * 
  * @param s1
  * @param s2
- * @return Distance between s1 & s2
+ * @return Distance between s1 & s2 = card I /card U
  */
 
 public double SynonymDistance (String s1,String s2){
@@ -133,12 +133,13 @@ for (i=0;i<U.length;i++){if (U[i]!=null) {cardU++;}}
 	return (result);
 }
 /**
- *Compute a distance between 2 strings using WordNet synonym
+ *Compute a distance between 2 strings using WordNet synonym, hypernym, etc...
  * Get all the ...  for s1 , syno1
  * Get all the ...  for s2, syno2
  * compute intersection syno1(inter)syno2, I
  * compute union syno1(union)syno2, U
  * The distance = card I /card U
+ * NOT FINISHED YET!
   
  * @param s1
  * @param s2
@@ -156,13 +157,14 @@ public double CompleteDistance (String s1,String s2){
 	int nbmot1;
 	int nbmot2;
 	
-	/** Build the list of synonym for s1 & s2 **/
+	/** Build the list of related word for s1 & s2 **/
 	nbmot1=CountMaxSens(s1);
 	nbmot2=CountMaxSens(s2);
 	Syno1=new String[nbmot1];
 	Syno2=new String[nbmot2];
     Syno1=GetAll(s1);
     Syno2=GetAll(s2);
+    
         		/** Compute intersection between the list of synonym : I**/
 I=Inter (Syno1,Syno2);
     	/** Compute union between the list of synonym  U **/
@@ -174,6 +176,8 @@ for (i=0;i<U.length;i++){if (U[i]!=null) {cardU++;}}
 	return (result);
 }
 /**
+ * Count the maximum number of sens for a word using all related word
+ * NOT FINISHED YET!
  * 
  * @param S
  * @return Number of sens for the word s
@@ -239,7 +243,7 @@ private int CountMaxSens(String S){
 
 }
 /**
- * 
+ * Count the maximum number of sens for a word, using synonym relation
  * @param S
  * @return Number of sens for the word s using synonym
  */
@@ -249,7 +253,7 @@ private int CountMaxSensSyno (String S){
 	int i=0;
 	int sens1=0;
 	int nbmot1=0;
-	
+	//Counting  NOUN
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -259,7 +263,7 @@ private int CountMaxSensSyno (String S){
 					 catch (JWNLException e) {e.printStackTrace();}
 	}
 	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
-	
+	// Counting VERB
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.VERB,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -269,7 +273,7 @@ private int CountMaxSensSyno (String S){
 					 catch (JWNLException e) {e.printStackTrace();}
 	}
 	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
-	
+	//Counting  ADJECTIVE
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADJECTIVE,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -279,7 +283,7 @@ private int CountMaxSensSyno (String S){
 					 catch (JWNLException e) {e.printStackTrace();}
 	}
 	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
-	
+	//Counting ADVERB
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADVERB,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -294,7 +298,7 @@ private int CountMaxSensSyno (String S){
 
 }
 /**
- * 
+ * Search all the synonym for a word
  * @param S
  * @return The tab with all the synonym of the word s
  */
@@ -310,7 +314,7 @@ private String[] GetAllSyno(String S){
 	
 	nbmot=CountMaxSens(S);
 	Syno=new String[nbmot];
-
+//Looking for word as a NOUN
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -329,6 +333,7 @@ private String[] GetAllSyno(String S){
 			trouve=false;
 		}
 	}
+//	Looking for word as a VERB
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.VERB,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -348,7 +353,7 @@ private String[] GetAllSyno(String S){
 			trouve=false;
 		}
 	}
-	
+//	Looking for word as a AJECTIVE
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADJECTIVE,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -368,7 +373,7 @@ private String[] GetAllSyno(String S){
 			trouve=false;
 		}
 	}
-	
+//	Looking for word as a ADVERB
 	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADVERB,S);}
 	catch(Exception ex){ex.printStackTrace();
 			                System.exit(-1);}
@@ -391,9 +396,10 @@ private String[] GetAllSyno(String S){
 }
 
 /**
- * 
+ * Search for ALL the related word for a given word
+ * NOT FINISHED YET!
  * @param S
- * @return The tab with all the ... of the word s
+ * @return The tab with all the related word of the word s
  */
 private String[] GetAll(String S){
 	String Syno[]=null;
@@ -486,6 +492,13 @@ private String[] GetAll(String S){
 	}
 	return(Syno);
 }
+/**
+ * Compute the intersection between two group of words
+ * @param S1[] first group
+ * @param S2[] second group
+ * @return a string[] with the intersection of S1[] and S[]
+ * 
+ * */
 
 private String[] Inter(String[] S1, String[] S2){
 	String result[]=null;
@@ -508,6 +521,12 @@ private String[] Inter(String[] S1, String[] S2){
 	}
 	return(result);
 }
+/**
+ * Compute the Union between two group of words
+ * @param S1[] first group
+ * @param S2[] second group
+ * @return String[] with the Union of S1[] and S2[]
+ */
 
 private String[] Union(String[] S1,String[] S2){
 	String result[]=null;
