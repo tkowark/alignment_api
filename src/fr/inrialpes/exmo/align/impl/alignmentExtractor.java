@@ -16,9 +16,16 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class alignmentExtractor implements Extractor{
+
+	private double threshold=0.5;
 public void threshold(String type, BasicParameters param){}
+public double getThreshold(){return (threshold);}
 public  BasicAlignment extractAlignment (String type){
  BasicAlignment Al=new BasicAlignment();
+ 
+ 
+ 
+ 
 return (Al);
 
 }
