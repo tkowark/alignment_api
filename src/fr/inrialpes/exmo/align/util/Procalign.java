@@ -167,12 +167,9 @@ public class Procalign {
 		break;
 	    case 'd' :
 		/* Debug level  */
-		// Should convert into integer
 		arg = g.getOptarg();
-		if (arg != null)
-		    debug = 2;
-		else
-		    debug = 4; // !!
+		if ( arg != null ) debug = Integer.parseInt(arg.trim());
+		else debug = 4;
 		break;
 	    }
 	}
@@ -181,8 +178,7 @@ public class Procalign {
 
 	loadedOntologies = new Hashtable();
 	params = new BasicParameters();
-	if (debug > 0)
-	    params.setParameter("debug", new Integer(debug));
+	if (debug > 0) params.setParameter("debug", new Integer(debug));
 	// debug = ((Integer)params.getParameter("debug")).intValue();
 	
 	try {

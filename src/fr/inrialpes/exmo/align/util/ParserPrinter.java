@@ -146,9 +146,8 @@ public class ParserPrinter {
 		break;
 	    case 'd':
 		/* Debug level  */
-		// Should convert into integer
 		arg = g.getOptarg();
-		if ( arg != null ) debug = 2;
+		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
 	    }

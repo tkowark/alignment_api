@@ -139,15 +139,16 @@ public class EvalAlign {
 	    case 'd':
 		/* Debug level  */
 		arg = g.getOptarg();
-		if ( arg != null ) debug = 2;
+		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
-		params.setParameter("debug",new Integer(debug));
-		// debug = ((Integer)params.getParameter("debug")).intValue();
 		break;
 	    }
 	}
 	
 	int i = g.getOptind();
+
+	params.setParameter("debug",new Integer(debug));
+	// debug = ((Integer)params.getParameter("debug")).intValue();
 	
 	if (args.length > i+1 ) {
 	    alignName1 = args[i];

@@ -72,7 +72,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     where the options are:
     <pre>
     -o filename --output=filename
-    -f format = prfm (precision/recall/fallout/f-measure) --format=prfm
+    -f format = prfmo (precision/recall/fallout/f-measure) --format=prfmo
     -d debug --debug=level
     -s algo/measure
     -l list of compared algorithms
@@ -96,6 +96,7 @@ public class GroupEval {
     static Parameters params = null;
     static String filename = null;
     static String format = "pr";
+    static int fsize = 2;
     static String type = "html";
     static String dominant = "s";
     static Vector listAlgo = null;
@@ -122,7 +123,7 @@ public class GroupEval {
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:r:t:i:c::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:c::", longopts);
 	int c;
 	String arg;
 
@@ -158,14 +159,10 @@ public class GroupEval {
 		break;
 	    case 'd' :
 		/* Debug level  */
-		// Should convert into integer
 		arg = g.getOptarg();
-		debug = Integer.parseInt(arg);
-		//if (arg != null)
-		//    debug = 2;
-		//else
-		//    debug = 4; // !!
-		//break;
+		if ( arg != null ) debug = Integer.parseInt(arg.trim());
+		else debug = 4;
+		break;
 	    }
 	}
 
@@ -176,8 +173,8 @@ public class GroupEval {
 	}
 
 	params = new BasicParameters();
-	if (debug > 0) params.setParameter("debug", new Integer(debug));
-		// debug = ((Integer)params.getParameter("debug")).intValue();
+	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
+	// debug = ((Integer)params.getParameter("debug")).intValue();
 
 	print( iterateDirectories() );
     }
@@ -187,12 +184,18 @@ public class GroupEval {
 	try {
 	    File [] subdir = (new File(System.getProperty("user.dir"))).listFiles();
 	    int size = subdir.length;
-	    result = new Vector(size); 
-	    for ( int i=0 ; i < size; i++ ) {
-		if( subdir[i].isDirectory() ) {
+	    result = new Vector(size);
+	    int i = 0;
+	    for ( int j=0 ; j < size; j++ ) {
+		if( subdir[j].isDirectory() ) {
+		    if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
 		    // eval the alignments in a subdirectory
 		    // store the result
-		    result.add(i, (Object)iterateAlignments( subdir[i] ));
+		    Object vect = (Object)iterateAlignments( subdir[j] );
+		    if ( vect != null ){
+			result.add(i, vect);
+			i++;
+		    }
 		}
 	    }
 	} catch (Exception e) {
@@ -205,6 +208,7 @@ public class GroupEval {
     public static Vector iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
 	Vector result = new Vector();
+	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
 	int i = 1;
 	// for all alignments there,
@@ -212,7 +216,10 @@ public class GroupEval {
 	    // call eval
 	    // store the resul in a record
 	    // return the record.
-	    result.add( i, (Object)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf"));
+	    if ( debug > 1) System.err.println("  Considering result "+i);
+	    Object vect = (Object)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf");
+	    if ( vect != null ) ok = true;
+	    result.add( i, vect );
 	}
 	// Unload the ontologies.
 	try {
@@ -221,7 +228,8 @@ public class GroupEval {
 		o.getOWLConnection().notifyOntologyDeleted( o );
 	    }
 	} catch (Exception ex) { System.err.println(ex); };
-	return result;
+	if ( ok == true ) return result;
+	else return (Vector)null;
     }
 
     public static Evaluator eval( String alignName1, String alignName2 ) {
@@ -244,6 +252,7 @@ public class GroupEval {
 
     public static void print( Vector result ) {
 	PrintStream writer = null;
+	fsize = format.length();
 	try {
 	    // Print result
 	    if ( filename == null ) {
@@ -253,22 +262,37 @@ public class GroupEval {
 	    }
 	    // Print the header
 	    writer.println("<html><head></head><body>");
-	    writer.println("<table border='2' frame='hsides' rules='groups'>");
+	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
 	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
-		writer.println("<colgroup align='center' span='2' />");
+		writer.println("<colgroup align='center' span='"+fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
 	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;) {
-		writer.println("<th colspan='2'>"+(String)e.nextElement()+"</th>");
+		writer.println("<th colspan='"+fsize+"'>"+(String)e.nextElement()+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
 	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
-		writer.println("<td>Prec.</td><td>Rec.</td>");
+		for ( int i = 0; i < fsize; i++){
+		    writer.print("<td>");
+		    if ( format.charAt(i) == 'p' ) {
+			writer.print("Prec.");
+		    } else if ( format.charAt(i) == 'r' ) {
+			writer.print("Rec.");
+		    } else if ( format.charAt(i) == 'f' ) {
+			writer.print("Fall.");
+		    } else if ( format.charAt(i) == 'm' ) {
+			writer.print("FMeas.");
+		    } else if ( format.charAt(i) == 'o' ) {
+			writer.print("Over.");
+		    }
+		    writer.println("</td>");
+		}
+		//writer.println("<td>Prec.</td><td>Rec.</td>");
 	    }
 	    writer.println("</tr></tbody><tbody>");
 	    // </tr>
@@ -291,12 +315,21 @@ public class GroupEval {
 		for ( ; f.hasMoreElements() ;) {
 		    PRecEvaluator eval = (PRecEvaluator)f.nextElement();
 		    if ( eval != null ){
-			// JE: This should be formatted to 2 decimals
-			writer.print("<td>");
-			printFormat(writer,eval.getPrecision());
-			writer.print("</td><td>");
-			printFormat(writer,eval.getRecall());
-			writer.println("</td>");
+			for ( int i = 0 ; i < fsize; i++){
+			    writer.print("<td>");
+			    if ( format.charAt(i) == 'p' ) {
+				printFormat(writer,eval.getPrecision());
+			    } else if ( format.charAt(i) == 'r' ) {
+				printFormat(writer,eval.getRecall());
+			    } else if ( format.charAt(i) == 'f' ) {
+				printFormat(writer,eval.getFallout());
+			    } else if ( format.charAt(i) == 'm' ) {
+				printFormat(writer,eval.getFmeasure());
+			    } else if ( format.charAt(i) == 'o' ) {
+				printFormat(writer,eval.getOverall());
+			    }
+			    writer.println("</td>");
+			}
 		    } else {
 			writer.println("<td>n/a</td><td>n/a</td>");
 		    }
@@ -330,10 +363,9 @@ public class GroupEval {
 
     public static void usage() {
 	System.out.println("usage: GroupEval [options]");
-	System.out.println("** Current imlementation only support -od options");
 	System.out.println("options are:");
 	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.out.println("\t--format=prfm -r prfm\tSpecifies the output order (precision/recall/fallout/f-measure)");
+	System.out.println("\t--format=prfmo -r prfmo\tSpecifies the output order (precision/recall/fallout/f-measure/overall)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
