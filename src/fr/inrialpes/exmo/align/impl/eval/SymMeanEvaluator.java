@@ -35,7 +35,7 @@ import org.semanticweb.owl.model.OWLException;
 import java.lang.Math;
 import java.lang.ClassNotFoundException;
 import java.util.Enumeration;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import java.net.URI;
@@ -119,7 +119,7 @@ public class SymMeanEvaluator extends BasicEvaluator
 	return(result);
     }
 
-    public void write( PrintStream writer ) throws java.io.IOException {
+    public void write( PrintWriter writer ) throws java.io.IOException {
 	writer.print("<rdf:RDF>\n  <Evaluation class=\"SymMeanEvaluator\">\n    <class>");
  	writer.print(classScore);
 	writer.print("</class>\n    <properties>");

@@ -34,7 +34,7 @@ import org.semanticweb.owl.model.OWLException;
 
 import java.lang.Math;
 import java.util.Enumeration;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import java.net.URI;
@@ -129,7 +129,7 @@ public class PRecEvaluator extends BasicEvaluator {
      * While we compare two alignments (so the source and the reference to these
      * algorithms should be within the alignment structure.
      */
-    public void write(PrintStream writer) throws java.io.IOException {
+    public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
 	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
 	writer.println("  <map:output rdf:about=''>");
