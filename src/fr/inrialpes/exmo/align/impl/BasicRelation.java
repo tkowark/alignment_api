@@ -20,9 +20,14 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import org.semanticweb.owl.align.Relation;
+import org.semanticweb.owl.align.Cell;
+
+import org.semanticweb.owl.model.OWLException;
 
 import java.io.PrintStream;
 import java.io.IOException;
+
+import java.net.URI;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -55,6 +60,17 @@ public class BasicRelation implements Relation
 
     public void write( PrintStream writer ) throws java.io.IOException {
 	writer.print(relation);
+    }
+
+    public void printAsAxiom( Cell c ) throws OWLException {
+	if ( relation.equals("=") ){
+	    // Test if the object is a class
+	    System.out.println("  <owl:Class rdf:about=\""+c.getObject1().getURI().toString()+"\">");
+	    System.out.println("    <owl:sameClassAs rdf:resource=\""+c.getObject2().getURI().toString()+"\"/>");
+	    System.out.println("  </owl:Class>");
+	} else {
+	}
+
     }
 
 }

@@ -21,6 +21,7 @@ package org.semanticweb.owl.align;
 
 import java.io.PrintStream;
 import java.io.IOException;
+import java.util.Enumeration;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -87,6 +88,8 @@ public interface Alignment
     public double getAlignedMeasure1( OWLEntity ob ) throws OWLException;
     public double getAlignedMeasure2( OWLEntity ob ) throws OWLException;
 
+    public Enumeration getElements();
+
     /** Housekeeping **/
     /**
      * The methods for outputing and dispalying alignments are common to
@@ -99,6 +102,11 @@ public interface Alignment
      */
     public void dump(ContentHandler h);
     public void write( PrintStream writer ) throws java.io.IOException, org.semanticweb.owl.model.OWLException;
+
+    /** Exporting
+	The alignments are exported for other purposes.
+    */
+    public void printAsAxiom() throws OWLException;
 
 }
 

@@ -76,6 +76,9 @@ public class BasicAlignment implements Alignment
     public void setType( String type ){ this.type = type; };
     public String getType(){ return type; };
 
+    public Enumeration getElements(){
+	return hash1.elements();
+    }
     /* Please note that all the following methods must be changed because
 	they consider that only ONE Entity can be aligned with another !! */
     /** Cell methods **/
@@ -161,5 +164,34 @@ public class BasicAlignment implements Alignment
 	writer.print("  </map>\n</Alignment>\n");
 	writer.print("</rdf:RDF>\n");
     };
+
+    /* It should be possible either:
+       - to print the possible axioms;
+       - to create them (but they will be in an ontology)
+     */
+    public void printAsAxiom() throws OWLException {
+	System.out.println("<rdf:RDF xmlns:dc=\"http://purl.org/dc/elements/1.1/\"");
+	System.out.println("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"");
+	System.out.println("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
+	System.out.println("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" ");
+	System.out.println("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"");
+	System.out.println("    xml:base=\"http://www.example.org/ontology1\"");
+	System.out.println("    xmlns=\"http://www.example.org/ontology1#\">");
+	
+	System.out.println("<owl:Ontology rdf:about=\"\">");
+	System.out.println("  <rdfs:comment>Aligned ontollogies</rdfs:comment>");
+	System.out.println("  <owl:imports rdf:resource=\""+onto1.getLogicalURI().toString()+"\"/>");
+	System.out.println("  <owl:imports rdf:resource=\""+onto2.getLogicalURI().toString()+"\"/>");
+	System.out.println("</owl:Ontology>");
+
+	for( Enumeration e = getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.getRelation().printAsAxiom( c );
+	} //end for
+	
+	System.out.println("</rdf:RDF>");
+
+
+    }
 
 }

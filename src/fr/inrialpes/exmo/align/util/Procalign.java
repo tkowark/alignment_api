@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 The University of Manchester 
+ * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2004, INRIA Rhône-Alpes
  *
@@ -32,6 +32,8 @@ package fr.inrialpes.exmo.align.util;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+
 import org.semanticweb.owl.util.OWLConnection;
 import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLOntology;
@@ -46,6 +48,7 @@ import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.Hashtable;
+import java.lang.Double;
 
 import org.xml.sax.SAXException;
 
@@ -74,6 +77,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
         --alignment=filename -a filename Start from an XML alignment file
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
+	--format=format -f format
         --help -h                       Print this message
     </pre>
 
@@ -103,24 +107,23 @@ public class Procalign {
 	Alignment init = null;
 	String alignmentClassName = "fr.inrialpes.exmo.align.impl.ClassNameEqAlignment";
 	String filename = null;
+	String format = "";
 	PrintStream writer = null;
 	Renderer renderer = null;
-	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
+	double threshold = 0;
 	
-	loadedOntologies = new Hashtable();
+	LongOpt[] longopts = new LongOpt[8];
 
-	// abcdefghijklmnopqrstuvwxyz?
-	// x  x    i      x x x x    x 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
+	longopts[3] = new LongOpt("format", LongOpt.REQUIRED_ARGUMENT, null, 'f');
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	//longopts[5] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[6] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[6] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');	longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	
-	/* JE: Certainly not correct here... */
-	Getopt g = new Getopt("", args, "ho:a:d::r:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:f:d::r:t:i:", longopts);
 	int c;
 	String arg;
 
@@ -153,18 +156,31 @@ public class Procalign {
 		/* Use the given file as a partial alignment */
 		initName = g.getOptarg();
 		break;
+	    case 'f':
+		/* Output format */
+		format = g.getOptarg();
+		if ( format.equals("xslt") ) {
+		    System.err.println("XSLT output not implemented\n");
+		}
+		break;
+	    case 't':
+		/* Threshold */
+		threshold = Double.parseDouble(g.getOptarg());
+		break;
 	    case 'd':
 		/* Debug level  */
 		// Should convert into integer
 		arg = g.getOptarg();
 		if ( arg != null ) debug = 2;
-		else debug = 4;
+		else debug = 4; // !!
 		break;
 	    }
 	}
 	
 	int i = g.getOptind();
 	
+	loadedOntologies = new Hashtable();
+
 	try {
 	    
 	    BasicConfigurator.configure();
@@ -207,7 +223,7 @@ public class Procalign {
 		if ( debug > 0 ) System.err.println(" Init parsed");
 	    }
 
-	    /* JE: I must produce the alignment */
+	    // Create alignment object
 	    try {
 		Object [] params = {(Object)onto1, (Object)onto2};
 		Class alignmentClass =  Class.forName(alignmentClassName);
@@ -221,17 +237,28 @@ public class Procalign {
 	    }
 
 	    if ( debug > 0 ) System.err.println(" Alignment structure created");
+	    // Compute alignment
 	    result.align(init); // add opts
 
 	    if ( debug > 0 ) System.err.println(" Alignment performed");
 
+	    // Set output file
 	    if ( filename == null ) {
 	    	writer = (PrintStream)System.out;
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
 
-	    result.write( writer );
+	    // Thresholding
+	    if ( threshold != 0 ) 
+		{ ((BasicAlignment)result).cut( threshold ); };
+
+	    // Result printing
+	    if ( format.equals("axioms") ) {
+		result.printAsAxiom();
+	    } else result.write( writer );
+	    
+	    // File closing
 	    //writer.close();
 	    //System.out.println( writer.toString() );
 
@@ -256,7 +283,9 @@ public class Procalign {
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
 	//System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
 	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
+	System.out.println("\t--format=axioms|xslt -f axioms|xslt\tSpecifies tha alignment format");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
     }
