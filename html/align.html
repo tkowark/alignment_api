@@ -11,9 +11,45 @@
 <li>Implementing further alignment methods;</li>
 </ul></p>
 
+<h1>Getting ontoalign</h1>
+
+<h2>Fetching the ZIP'ed version</h2>
+
+<p>The simplest way to use ontoalign is to get the following
+<a href="align.zip">zipfile</a>. It contains all the soources, compiled
+library, OWL API library.</p>
+
+<h2>Anonymous CVS</h2>
+
+<p>The very last version of ontoalign can be fetched from the CVS
+  source tree. Just do the following:
+<pre>
+$ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft login
+&lt;ENTER return when asked for the password&gt;
+$ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft checkout ontoalign
+</pre>
+... and you are done.
+Note that you will have to fetch separately the <a href="owlapi.html">OWL-API</a>.</p>
+
+<h2>CVS account</h2>
+
+<p>If you have improved ontoalign and want this to be included in the
+  source tree and want to have a CVS account for that, please contact
+  Jerome . Euzenat (&Agrave;) inrialpes . fr.</p>
+
+<p>Once provided with a password you will be able to check out from and
+  commit in our repository through:
+<pre>
+$
+</pre>
+</p>
+
+
 <h1>Distribution</h1>
+
 <p>It comes in a zip file: <a href="align.zip">align.zip</a>.</p>
 
+<h2>Files</h2>
 <p>Everything is built on top of the OWL-API binary distribution
   (which does not need to be recompiled).
 It is made of:
@@ -21,14 +57,32 @@ It is made of:
   <li>src: source classes;</li>
   <li>rdf: some examples to be tested;</li>
   <li>dtd: the align.dtd and align.owl alignment specification;</li>
-  <li>lib: jar-files including a procalign.jar;</li>
+  <li>lib: jar-files including a procalign.jar (in the zip-file the
+  owl-api libraries are included);</li>
   <li>html: a few html presentation files</li>
   <li>build.xml: ant file to compile and generate jar-file.</li>
   <li>distrib: contains a few files for building the distribution</li>
-  <li>classes: the compiled classes (useless)</li>
-  <li>javadoc: generated javadoc;</li>
+  <li>classes: the compiled classes (in the zip file, the classes are
+  included)</li> 
+  <li>javadoc: generated javadoc (in the zip file the doc are
+  pregenerated);</li> 
 </ul>
 </p>
+
+<h2>Requirements</h2>
+
+<p><b>For using</b> you will need <a href="http://java.sun.com">Java
+  runtime environment</a> (tested in 1.4.1) and the <a href="owlapi.html">OWL-API binary distribution</a> (this is
+  included in the above zip file).</p>
+
+<p><b>For extending</b> you will need Java compiler (tested in  <a href="http://java.sun.com">Java
+  standard edition</a> 1.4.1) and the <a href="owlapi.html">OWL-API binary distribution</a> (this is included in the
+  above zip file).
+
+<p><b>For developing</b> (compiling) you will need Java compiler
+  (tested in  <a href="http://java.sun.com">Java standard edition</a> 1.4.1) and the <a href="owlapi.html">OWL-API binary distribution</a> (which is
+  not included in the CVS repositories). It is also very usefull to
+  have <a ref="http://ant.apache.org">Ant</a>.</p>
 
 <h1>Compilation and use</h1>
 

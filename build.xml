@@ -31,6 +31,7 @@
 		<property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
 		<property name="libdir"  value="lib" />
 		<property name="debug" value="off"/>
+		<property name="WebDir" value="/Volumes/Phata/Web/html/co4/align"/>
 
 		<filter token="DATE" value="${date}"/>
 		<filter token="VERS" value="${version}"/>
@@ -116,19 +117,18 @@
     </javadoc>
   </target>
 
-  <!-- tested -->
   <target name="release" depends="init">
+    <antcall target="zip"/>
   </target>
 
+  <!-- tested -->
   <target name="zip" depends="jar">
     <echo message="Ziping..."/>
-    <mkdir dir="html"/>
-    <copy todir="html">
-      <fileset dir="/Volumes/Phata/Web/html/co4/align"
-      includes="**/*.html" excludes="**/plan.html"/>
+    <copy todir="${WebDir}">
+      <fileset dir="html" includes="**/*.html"/>
     </copy>
     <!-- zip everything from outside -->
-    <zip zipfile="/Volumes/Phata/Web/html/co4/align/align.zip">
+    <zip zipfile="${WebDir}/align.zip">
       <fileset dir="." includes="**/*"/>
     </zip>
   </target>
