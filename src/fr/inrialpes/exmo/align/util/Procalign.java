@@ -298,7 +298,7 @@ public class Procalign {
 		}
 	}
 
-	public static Alignment run(String[] args) {
+	public static Alignment run(String[] args) throws Exception {
 		Parameters params = null;
 		OWLOntology onto1 = null;
 		OWLOntology onto2 = null;
@@ -443,7 +443,8 @@ public class Procalign {
 						+ "\n"
 						+ ex.getMessage());
 				usage();
-				System.exit(0);
+				throw ex;
+				//System.exit(0);
 			}
 
 			if (debug > 0)
@@ -481,14 +482,16 @@ public class Procalign {
 						+ "\n"
 						+ ex.getMessage());
 				usage();
-				System.exit(0);
+				throw ex;
+				//System.exit(0);
 			}
 
 			// Output
 			result.render(writer, renderer);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw ex;
+			//ex.printStackTrace();
 		}
 		return result;
 	}
