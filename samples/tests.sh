@@ -79,3 +79,15 @@ java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localho
 
 java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.SWRLRendererVisitor -t 0.4
 
+# Output to html
+echo "HTML output..."
+
+# This should be best done with JAVA XSLT if it exists than xsltproc
+echo '<html><head></head><body>' > aligns/index.html
+xsltproc ../html/form-align.xsl rdf/bibref.owl > aligns/bibref.html
+echo '<a href="bibref.html">Reference</a>' >> aligns/index.html
+foreach i (`ls aligns/*.owl | sed "s:aligns/::" | sed "s:\.owl::"`)
+	echo '<a href="'$i'.html">'$i'</a>' >> aligns/index.html
+	xsltproc ../html/form-align.xsl aligns/$i.owl > aligns/$i.html
+end
+echo '</body></html>' >> aligns/index.html
