@@ -52,7 +52,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
-import fr.inrialpes.exmo.align.impl.PRecEvaluator;
+import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import java.io.PrintStream;
@@ -98,6 +98,12 @@ $Id$
 public class EvalAlign {
 
     public static void main(String[] args) {
+	try { run( args ); }
+	catch (Exception e) { e.printStackTrace(); };
+    }
+
+
+    public static void run(String[] args) {
 	Parameters params = new BasicParameters();
 	Evaluator eval = null;
 	String alignName1 = null;
@@ -121,7 +127,7 @@ public class EvalAlign {
 	    switch(c) {
 	    case 'h':
 		usage();
-		System.exit(0);
+		return;
 	    case 'o':
 		/* Write warnings to stdout rather than stderr */
 		filename = g.getOptarg();
@@ -149,7 +155,7 @@ public class EvalAlign {
 	} else {
 	    System.out.println("Require two alignement filenames");
 	    usage();
-	    System.exit(0);
+	    return;
 	}
 
 	if ( debug > 1 ) System.err.println(" Filename"+alignName1+"/"+alignName2);
@@ -174,7 +180,7 @@ public class EvalAlign {
 		    System.err.println("Cannot create alignment " + 
 				       classname + "\n" + ex.getMessage() );
 		    usage();
-		    System.exit(0);
+		    return;
 		}
 	    } else { eval = new PRecEvaluator( align1, align2 ); };
 

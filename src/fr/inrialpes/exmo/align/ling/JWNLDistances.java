@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.ling;
 
-import fr.inrialpes.exmo.align.impl.StringDistances;
+import fr.inrialpes.exmo.align.impl.method.StringDistances;
 
 import java.io.FileInputStream;
 import java.util.Enumeration;

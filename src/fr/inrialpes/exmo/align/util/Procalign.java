@@ -4,7 +4,7 @@
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2004, INRIA Rhône-Alpes
- * Copyright (C) 2004, Universit de Montral
+ * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -106,197 +106,8 @@ public class Procalign {
 	static OWLRDFErrorHandler handler = null;
 
 	public static void main(String[] args) {
-		Parameters params = null;
-		OWLOntology onto1 = null;
-		OWLOntology onto2 = null;
-		AlignmentProcess result = null;
-		String initName = null;
-		Alignment init = null;
-		String alignmentClassName =
-			"fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
-		String filename = null;
-		String rendererClass =
-			"fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
-		PrintStream writer = null;
-		AlignmentVisitor renderer = null;
-		int debug = 0;
-		double threshold = 0;
-
-		LongOpt[] longopts = new LongOpt[8];
-
-		longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-		longopts[1] =
-			new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-		longopts[2] =
-			new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-		longopts[3] =
-			new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-		longopts[4] =
-			new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-		longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-		longopts[7] =
-			new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
-
-		Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
-		int c;
-		String arg;
-
-		while ((c = g.getopt()) != -1) {
-			switch (c) {
-				case 'h' :
-					usage();
-					System.exit(0);
-				case 'o' :
-					/* Write warnings to stdout rather than stderr */
-					filename = g.getOptarg();
-					break;
-				case 'r' :
-					/* Use the given class for rendering */
-					rendererClass = g.getOptarg();
-					break;
-				case 'i' :
-					/* Use the given class for the alignment */
-					alignmentClassName = g.getOptarg();
-					break;
-				case 'a' :
-					/* Use the given file as a partial alignment */
-					initName = g.getOptarg();
-					break;
-				case 't' :
-					/* Threshold */
-					threshold = Double.parseDouble(g.getOptarg());
-					break;
-				case 'd' :
-					/* Debug level  */
-					// Should convert into integer
-					arg = g.getOptarg();
-					if (arg != null)
-						debug = 2;
-					else
-						debug = 4; // !!
-					break;
-			}
-		}
-
-		int i = g.getOptind();
-
-		loadedOntologies = new Hashtable();
-		params = new BasicParameters();
-		if (debug > 0)
-			params.setParameter("debug", new Integer(debug));
-		// debug = ((Integer)params.getParameter("debug")).intValue();
-
-		try {
-
-			BasicConfigurator.configure();
-
-			URI uri1 = null;
-			URI uri2 = null;
-
-			if (args.length > i + 1) {
-				uri1 = new URI(args[i++]);
-				uri2 = new URI(args[i]);
-			} else if (initName == null) {
-				System.out.println("Two URIs required");
-				usage();
-				System.exit(0);
-			}
-
-			handler = new OWLRDFErrorHandler() {
-				public void owlFullConstruct(int code, String message)
-					throws SAXException {
-				}
-				public void error(String message) throws SAXException {
-					throw new SAXException(message.toString());
-				}
-				public void warning(String message) throws SAXException {
-					System.out.println("WARNING: " + message);
-				}
-			};
-
-			if (debug > 0)
-				System.err.println(" Handler set");
-
-			try {
-				if (uri1 != null)
-					onto1 = loadOntology(uri1);
-				if (uri2 != null)
-					onto2 = loadOntology(uri2);
-				if (debug > 0)
-					System.err.println(" Ontology parsed");
-				if (initName != null) {
-					AlignmentParser aparser = new AlignmentParser(debug);
-					init = aparser.parse(initName, loadedOntologies);
-					onto1 = (OWLOntology) init.getOntology1();
-					onto2 = (OWLOntology) init.getOntology2();
-					if (debug > 0)
-						System.err.println(" Init parsed");
-				}
-
-				// Create alignment object
-				Object[] mparams = {(Object) onto1, (Object) onto2 };
-				Class alignmentClass = Class.forName(alignmentClassName);
-				java.lang.reflect.Constructor[] alignmentConstructors =
-					alignmentClass.getConstructors();
-				result =
-					(AlignmentProcess) alignmentConstructors[0].newInstance(
-						mparams);
-				result.setFile1(uri1);
-				result.setFile2(uri2);
-			} catch (Exception ex) {
-				System.err.println(
-					"Cannot create alignment "
-						+ alignmentClassName
-						+ "\n"
-						+ ex.getMessage());
-				usage();
-				System.exit(0);
-			}
-
-			if (debug > 0)
-				System.err.println(" Alignment structure created");
-			// Compute alignment
-			result.align(init, params); // add opts
-
-			// Thresholding
-			if (threshold != 0) {
-				((BasicAlignment) result).cut(threshold);
-			};
-
-			if (debug > 0)
-				System.err.println(" Alignment performed");
-
-			// Set output file
-			if (filename == null) {
-				writer = (PrintStream) System.out;
-			} else {
-				writer = new PrintStream(new FileOutputStream(filename));
-			}
-
-			// Result printing (to be reimplemented with a default value)
-			try {
-				Object[] mparams = {(Object) writer };
-				java.lang.reflect.Constructor[] rendererConstructors =
-					Class.forName(rendererClass).getConstructors();
-				renderer =
-					(AlignmentVisitor) rendererConstructors[0].newInstance(
-						mparams);
-			} catch (Exception ex) {
-				System.err.println(
-					"Cannot create renderer "
-						+ rendererClass
-						+ "\n"
-						+ ex.getMessage());
-				usage();
-				System.exit(0);
-			}
-
-			// Output
-			result.render(writer, renderer);
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+	    try { run( args ); }
+	    catch (Exception ex) { ex.printStackTrace(); };
 	}
 
 	public static Alignment run(String[] args) throws Exception {
@@ -306,11 +117,9 @@ public class Procalign {
 		AlignmentProcess result = null;
 		String initName = null;
 		Alignment init = null;
-		String alignmentClassName =
-			"fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
+		String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
 		String filename = null;
-		String rendererClass =
-			"fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
+		String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 		PrintStream writer = null;
 		AlignmentVisitor renderer = null;
 		int debug = 0;
@@ -319,17 +128,12 @@ public class Procalign {
 		LongOpt[] longopts = new LongOpt[8];
 
 		longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-		longopts[1] =
-			new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-		longopts[2] =
-			new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-		longopts[3] =
-			new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-		longopts[4] =
-			new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+		longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
+		longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
+		longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+		longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 		longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-		longopts[7] =
-			new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+		longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 
 		Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
 		int c;
@@ -339,7 +143,7 @@ public class Procalign {
 			switch (c) {
 				case 'h' :
 					usage();
-					System.exit(0);
+					return null;
 				case 'o' :
 					/* Write warnings to stdout rather than stderr */
 					filename = g.getOptarg();
@@ -445,7 +249,6 @@ public class Procalign {
 						+ ex.getMessage());
 				usage();
 				throw ex;
-				//System.exit(0);
 			}
 
 			if (debug > 0)
@@ -484,7 +287,6 @@ public class Procalign {
 						+ ex.getMessage());
 				usage();
 				throw ex;
-				//System.exit(0);
 			}
 
 			// Output
@@ -492,7 +294,6 @@ public class Procalign {
 
 		} catch (Exception ex) {
 			throw ex;
-			//ex.printStackTrace();
 		}
 		return result;
 	}
