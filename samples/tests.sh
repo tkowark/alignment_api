@@ -8,6 +8,8 @@ setenv CWD `pwd`
 
 # Clean up
 /bin/rm aligns/*.owl
+/bin/cp ../dtd/align.dtd aligns/align.dtd
+/bin/cp ../file_properties.xml .
 
 # Display parameters
 echo "Basic..."
@@ -31,6 +33,8 @@ java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.public
 java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.StrucSubsDistAlignment -o aligns/StrucSubsDist4.owl -t .4
 
 java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.StrucSubsDistAlignment -o aligns/StrucSubsDist7.owl -t .7
+
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
 
 # Evaluate their performances
 echo "Comparing..."
