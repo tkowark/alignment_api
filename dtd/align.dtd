@@ -27,12 +27,16 @@
 >
 
 
-<!ELEMENT Alignment (xml?,type?,onto1,onto2,map)*>
+<!ELEMENT Alignment ((xml?,type?,onto1,onto2,uri1?,uri2?)*,map*)>
 <!ATTLIST Alignment>
 
 <!ELEMENT xml (#PCDATA)><!-- yes/no -->
 <!-- (11|1?|1+|1*|?1|??|?+|?*|+1|+?|++|+*|*1|*?|*+|**) -->
 <!ELEMENT type (#PCDATA)>
+<!ELEMENT uri1 (#PCDATA)><!-- uri -->
+<!ATTLIST uri1 rdf:resource %uri; #IMPLIED>
+<!ELEMENT uri2 (#PCDATA)><!-- uri -->
+<!ATTLIST uri2 rdf:resource %uri; #IMPLIED>
 <!ELEMENT onto1 (#PCDATA)><!-- uri -->
 <!ATTLIST onto1 rdf:resource %uri; #IMPLIED>
 <!ELEMENT onto2 (#PCDATA)><!-- uri -->
