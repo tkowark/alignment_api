@@ -59,6 +59,7 @@ import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
@@ -124,8 +125,18 @@ public class AlignmentParser extends DefaultHandler {
     /**
      * the relation content as text...
      */
+    protected Cell cell = null;
+    
+    /**
+     * the relation content as text...
+     */
     protected String relation = null;
     
+    /**
+     * the cell id as text...
+     */
+    protected String id = null;
+
     /**
      * the measure content as text...
      */
@@ -191,7 +202,10 @@ public class AlignmentParser extends DefaultHandler {
 		    cl1 = (OWLEntity)getEntity( onto1, atts.getValue("rdf:resource") );
 		} else if (pName.equals("Cell")) {
 		    if ( alignment == null )
-			{ throw new SAXException("No alignment provided"); }
+			{ throw new SAXException("No alignment provided"); };
+		    if ( atts.getValue("rdf:resource") != null ){
+			id = atts.getValue("rdf:resource");
+		    }
 		    measure = null;
 		    relation = null;
 		    cl1 = null;
@@ -289,9 +303,10 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( cl1 == null || cl2 == null ) {
 			throw new SAXException( "Missing entity "+cl1+" "+cl2 ); }
 		    if ( measure == null || relation == null ){
-			alignment.addAlignCell( cl1, cl2);
+			cell = alignment.addAlignCell( cl1, cl2);
 		    } else {
-			alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
+			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
+		    if ( id != null ) cell.setId( id );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
 		    try { alignment.setFile1( new URI( content ) );
