@@ -83,7 +83,8 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
         --alignment=filename -a filename Start from an XML alignment file
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
-	--renderer=renderer -r renderer
+        --impl=className -i classname           Use the given alignment implementation.
+        --renderer=className -r className       Specifies the alignment renderer
         --help -h                       Print this message
     </pre>
 
