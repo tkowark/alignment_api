@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.io.PrintStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.lang.ClassNotFoundException;
 
 import org.xml.sax.ContentHandler;
@@ -48,8 +49,7 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  * @version $Id$ 
  */
 
-public class BasicCell implements Cell
-{
+public class BasicCell implements Cell, Comparable {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
@@ -92,6 +92,17 @@ public class BasicCell implements Cell
 	// No exception, just keep 0?
 	if ( m >= 0 && m <= 1 ) strength = m;
     };
+
+    /**
+     * Used to order the cells in an alignment:
+     * -- this > c iff this.getStrength() < c.getStrength() --
+     */
+    public int compareTo( Object c ){
+	//if ( ! (c instanceof Cell) ) return 1;
+	if ( ((Cell)c).getStrength() > getStrength() ) return 1;
+	if ( getStrength() > ((Cell)c).getStrength() ) return -1;
+	return 0;
+    }
 
     public String getId(){ return id; };
     public void setId( String id ){ this.id = id; };

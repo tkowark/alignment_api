@@ -25,7 +25,7 @@ import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 /**
@@ -50,7 +50,7 @@ public abstract class BasicEvaluator implements Evaluator
 	this.align2 = align2;
     }
 
-    public void write( PrintStream writer ) throws java.io.IOException {
+    public void write( PrintWriter writer ) throws java.io.IOException {
 	writer.print("<rdf:RDF>\n  <Evaluation class=\"BasicEvaluator\">\n    <result>");
  	writer.print(result);
  	writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");

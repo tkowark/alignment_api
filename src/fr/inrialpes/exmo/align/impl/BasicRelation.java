@@ -30,6 +30,7 @@ import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import java.net.URI;
@@ -72,7 +73,8 @@ public class BasicRelation implements Relation
     public void dump( ContentHandler h ){};
 
     /** This is kept for displayig more correctly the result **/
-    public void write( PrintStream writer ) {
+    //public void write( PrintStream writer ) {
+    public void write( PrintWriter writer ) {
 	writer.print(relation);
     }
 }
