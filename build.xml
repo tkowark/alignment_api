@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!-- $Id$ -->
+
+<project name="align" default="compile" basedir=".">
+	
+	<!-- tested -->
+	<target name="usage" depends="init">
+		<echo message="sh ant _target_ _options_"/>
+		<echo/>
+		<echo message="usage: this message"/>
+		<echo message="init: sets necessary variables"/>
+		<echo message="compile: incrementaly compiles sources"/>
+		<echo message="compileall: recompiles all sources"/>
+		<echo message="jar: archives compiled code"/>
+		<echo message="test: performs unit tests [nyi]"/>
+		<echo message="zip: creates a new zip file"/>
+		<echo message="javadoc: generates documentation"/>
+		<echo message="release: releases a new version [nyi]"/>
+		<echo message="clean: clean-up the release directory"/>
+		<echo/>
+		<echo message="	-Dversion=${version}"/>
+	</target>
+
+	<!-- tested -->
+	<target name="init">
+		<tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
+		<property name="doing" value="running"/>
+		<property name="version" value="1-0-0${doing}"/>
+		<property name="date" value="${TODAY}"/>
+		<property name="login" value="euzenat"/>
+		<property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
+		<property name="libdir"  value="lib" />
+		<property name="debug" value="off"/>
+
+		<filter token="DATE" value="${date}"/>
+		<filter token="VERS" value="${version}"/>
+	
+		<path id="classpath">
+			<fileset dir="./lib">
+				<include name="*.jar"/>
+			</fileset>
+		</path>
+	
+	</target>
+
+  <!-- tested -->
+  <target name="compile" depends="init">
+    <echo message="Compiling..."/>
+    <javac  srcdir="src" destdir="classes">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <target name="compileall" depends="init">
+    <echo message="Erasing..."/>
+    <delete>
+      <fileset dir="classes" includes="**/*.class"/>
+    </delete>
+    <antcall target="compile"/>
+  </target>
+
+  <!-- tested -->
+  <target name="jar" depends="compile">
+    <echo message="Jarchiving..."/>
+    <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
+    <delete file="lib/procalign.jar"/>
+    <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST.MF">
+      <fileset dir="classes" includes="**/*.class"/>
+      <!--fileset dir="resources" includes="*.properties"/-->
+    </jar>
+  </target>
+
+  <target name="test" depends="init">
+    <echo message="Testing..."/>
+   <!--  <javac srcdir="test/fr/fluxmedia/transmorpher/graph/rules"
+    debug="on" destdir="classes">
+     <classpath refid="classpath"/>
+    </javac> -->
+    <javac srcdir="test/fr/fluxmedia/" debug="on" destdir="classes">
+      <classpath refid="classpath"/>
+    </javac>
+    <antcall target="jar"/>
+    <junit printsummary="yes" fork="yes" haltonfailure="no">
+      <batchtest todir="test/reports/xml/">
+			<fileset dir="classes/">
+				<include name="**/*Test.class"/>
+				<exclude name="**/Test.class"/>
+			</fileset>
+      <formatter type="xml"/>
+	</batchtest>
+      <classpath refid="classpath"/>
+    </junit>
+    <junitreport todir="test/reports">
+      <fileset dir="test/reports/xml/">
+	<include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="test/reports/html/"/>
+    </junitreport>
+  </target>
+
+  <!-- tested -->
+  <target name="javadoc">
+   <echo message="Javadocing..."/>
+   <javadoc
+      sourcepath="src" destdir="javadoc"
+      packagenames="fr.inrialpes.*,org.semanticweb.owl.align.*"
+      Use="true" Splitindex="true" private="true"
+      Windowtitle="Transmorpher 1.0 API"
+      Doctitle="alignmebr" Header="INRIA &amp; UMontréal"
+      bottom="..no bottom yet..."
+      >
+      <!--link href="http://www.inrialpes.fr/exmo/local/doc/jdk1.3-doc/api"/>
+      <link href="http://www.inrialpes.fr/exmo/local/doc/xerces-doc/apiDocs"/>
+      <link href="http://www.inrialpes.fr/exmo/local/doc/xalan-doc/apidocs"/>
+      <link href="http://www.inrialpes.fr/exmo/local/doc/SAX2-doc/javadoc"/-->
+    </javadoc>
+  </target>
+
+  <!-- tested -->
+  <target name="release" depends="init">
+  </target>
+
+  <target name="zip" depends="jar">
+    <echo message="Ziping..."/>
+    <mkdir dir="html"/>
+    <copy todir="html">
+      <fileset dir="/Volumes/Phata/Web/html/co4/align"
+      includes="**/*.html" excludes="**/plan.html"/>
+    </copy>
+    <!-- zip everything from outside -->
+    <zip zipfile="/Volumes/Phata/Web/html/co4/align/align.zip">
+      <fileset dir="." includes="**/*"/>
+    </zip>
+  </target>
+
+  <target name="clean">
+    <echo message="Cleaning..."/>
+  </target>
+
+</project>

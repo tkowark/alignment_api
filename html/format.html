@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>A format for ontology alignment</title>
+</head>
+<body bgcollor="#ffffff">
+
+<center><font size="+3"><b>A format for ontology
+    alignment</b></font></center>
+
+<p>A format for expressing ontology alignment is provided here. Its
+  goal is to be able to express an alignment in a consensual
+  format. It can then be manipulated by various tools which will use
+  it as imput for further alignment methods, transform it into axioms
+  or transformations or compare different alignments.</p>
+<p>This is a first format that could be extended for accomodating
+  further needs.</p>
+<p>We describe below its source descriptions, its specifications and
+  some implementations.</p>
+
+
+<h1>Specifications</h1>
+
+<p>There are two specifications of the format:
+<dl compact="1">
+<dt><a href="align.owl"></a>OWL Ontology</dt>
+<dd>An OWL description of the format which can then be described in
+  RDF. This is the reference description of the format.</dd>
+<dt><a href="align.dtd"></a>DTD</dt>
+<dd>A DTD for expressing the same format in RDF/XML. It is useful for
+  tools which wants to have a more fixed format than RDF.</dd>
+</dl>
+</p>
+
+<p>The namespace used by these formats is <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment</tt>.</p>
+
+<h1>Format descriptions</h1>
+
+<h2><tt>Alignment</tt> class</h2>
+
+<p>The <tt>Alignment</tt> class describes a partlicular alignment. Its
+  properties are the following:
+<dl compact="1">
+<dt>xml</dt><dd>(value: "yes"/"no") indicates if the alignment can be
+    read as an XML file compliant with the DTD;</dd>
+<dt>type</dt><dd>(values:
+    "11"/"1?"/"1+"/"1*"/"?1"/"??"/"?+"/"?*"/"+1"/"+?"/"++"/"+*"/"*1"/"*?"/"?+"/"**") the type of alignment;</dd>
+<dt>onto1</dt><dd>(value: URL) the first ontology to be aligned;</dd>
+<dt>onto2</dt><dd>(value: URL) the second ontology to be aligned;</dd>
+<dt>map</dt><dd>(value: Cell*) the set of correspondance between
+    entities of the ontologies.</dd>
+</dl></p>
+
+<h2><tt>Cell</tt> class</h2>
+<dl compact="1">
+<dt>entity1</dt><dd>(value: URI) the URI of some entity of the first ontology;</dd>
+<dt>entity2</dt><dd>(value: URI) the URI of some entity of the second ontology;</dd>
+<dt>measure</dt><dd>(value: float between 0. and 1.) the confidence
+    in the assertion that the relation holds between the first and
+    the second entity (the value is given as a distance between
+    entities: the higher the smallest the value, the higher the
+    confidence);</dd> 
+<dt>relation</dt><dd>(value: String, see below) the relation holding
+    between the first and second entity.</dd>
+</dl></p>
+
+<h2><tt>Relation</tt> class</h2>
+
+<p>This class does not currently exists in the format (it exists in
+  its implementation). Currently, the relation is expressed as a string.</p>
+
+<h1>Implementations</h1>
+
+<h2>JAVA implementation</h2>
+<p>There is a <a href="align.html">JAVA API</a>, extending the <a href="owlapi.html">OWL API</a> implementing this
+  format.</p>
+<p>We have implemented this API and provided tools for:
+<ul compact="1">
+<li>Outputing the RDF/XML format from the API;</li>
+<li>Parsing the RDF/XML format into the API;</li>
+<li>Processing alignment methods on ontologies and generating the
+  alignment Cells.</li>
+</ul></p>
+<p>This API and its implementation could fairly easily be adapted to
+  other representation languages than OWL.</p>
+
+<p>There is a small stand-alone program that parses an alignment and
+  displays it ($CWD is the directory where you are):
+<pre>
+$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/proca$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
+&lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
+&lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
+
+&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
+         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
+&lt;Alignment>
+  &lt;xml>yes&lt;/xml>
+  &lt;type>11&lt;/type>
+  &lt;onto1>file://localhost$CWD/rdf/onto1.owl&lt;/onto1>
+  &lt;onto2>file://localhost$CWD/rdf/onto2.owl&lt;/onto2>
+  &lt;map>
+    &lt;Cell>
+      &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
+      &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
+      &lt;measure rdf:datatype='xsd:float'>0.0&lt;/measure>
+      &lt;relation>=&lt;/relation>
+    &lt;/Cell>
+  &lt;/map>
+&lt;/Alignment>
+&lt;/rdf:RDF>
+</pre>
+</p>
+
+<address>
+<small>
+<hr />
+<center>http://co4.inrialpes.fr/align/format.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>

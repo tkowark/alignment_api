@@ -1,0 +1,159 @@
+<html>
+<head>
+<title>The alignment API</title>
+</head>
+<body bgcolor="#ffffff">
+
+<p>We develop an alignment toolkit for OWL by:
+<ul compact="1">
+<li>Extending the OWL-API towards <a href="format.html">alignment</a>;</li>
+<li>Providing an implementation of the API;</li>
+<li>Implementing further alignment methods;</li>
+</ul></p>
+
+<h1>Distribution</h1>
+<p>It comes in a zip file: <a href="align.zip">align.zip</a>.</p>
+
+<p>Everything is built on top of the OWL-API binary distribution
+  (which does not need to be recompiled).
+It is made of:
+<ul compact="1">
+  <li>src: source classes;</li>
+  <li>rdf: some examples to be tested;</li>
+  <li>dtd: the align.dtd and align.owl alignment specification;</li>
+  <li>lib: jar-files including a procalign.jar;</li>
+  <li>html: a few html presentation files</li>
+  <li>build.xml: ant file to compile and generate jar-file.</li>
+  <li>distrib: contains a few files for building the distribution</li>
+  <li>classes: the compiled classes (useless)</li>
+  <li>javadoc: generated javadoc;</li>
+</ul>
+</p>
+
+<h1>Compilation and use</h1>
+
+<p>Generating the lib/procalign.jar file can be done by launching:
+<pre>
+$ ant jar
+</pre></p>
+
+<h1>Using the API</h1>
+<p>For demonstrating the use of the API, we implement it and use it
+  through a particular processor
+  (<tt>fr.inrialpes.exmo.align.util.Procalign</tt>) which:
+<ul compact="1">
+<li>Reads two OWL/RDF ontologies;</li>
+<li>Creates an alignment object;</li>
+<li>Computes the alignment between these ontologies;</li>
+<li>Displays the result.</li>
+</ul>
+Running the program is achieved through:
+<pre>
+$ java -jar lib/procalign.jar
+Two URIs required
+usage: Procalign [options] URI1 URI2
+options are:
+        --alignment=filename -a=filename Start from an XML/RDF alignment file
+        --debug[=n] -d[=n]              Report debug info at level ,
+        --output[=filename] -o filename Output the alignment in filename
+        --help -h                       Print this message
+</pre>
+or ($CWD is the current directory)
+<pre>
+$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
+</pre>
+Additionaly a number of options are, or will be, available:
+<ul compact="1">
+<li>displaying debug information (-d);</li>
+<li>controling the way of rendering the output (-r) [not implemented];</li>
+<li>deciding the implementation of the alignment method (-i);</li>
+<li>providing an input alignent (-a) [implemented but not used by methods].</li>
+</ul>
+</p>
+
+<h1>The alignment API</h1>
+<p>The OWL-API is extended with the
+  (<tt>org.semanticweb.owl.align</tt>) package. Which describes the
+  Alignment API. This API is, in turns, an "implementation" of the <a
+  href="format.html">Alignment format</a>.</p>
+<p>It is basically made of three interfaces:
+<dl compact="1">
+<dt><tt>Alignment</tt></dt><dd>Represents the alignment of two ontology by a
+    specific method. It contains a specification of the alignment and
+    a list of cells.</dd>
+<dt><tt>Cell</tt></dt><dd>Represents a couple of aligned entities together
+    with their confidence measure and alignement relation.</dd>
+<dt><tt>Relation</tt></dt><dd>Represents the specification of the relation
+    holding between two aligned entities.</dd>
+</dl>
+</p>
+<p>More information about the attributes of these classes can be
+  found in the <a href="format.html">format description</a>.</p>
+<p>Addtionnally, there is an <tt>AlignmentProcess</tt> interface which
+  contains a method for calling a particular alignment method (it is
+  a sub-interface of <tt>Alignment</tt>) and an <tt>AlignmentException</tt>.</p>
+
+<h1>Implementing and extending the API</h1>
+<p>A (default) impplementation of this API can be found in
+  the <tt>fr.inrialpes.exmo.align.impl</tt> package.</p>
+<p>Adding new alignments methods amounts to create a
+  new <tt>AlignmentProcess</tt> 
+  class implementing the interface. Generally, this can extend the
+  proposed <tt>fr.inrialpes.exmo.align.impl.BasicAlignment</tt>
+  class and implement  <tt>AlignmentProcess</tt>.</p>
+<p>The <tt>BasicAlignment</tt> has the good taste of defining the storage
+  sructures for ontologies and alignment specification as well as the
+  methods for dealing with alignment display. The only method it does
+  not implement is alignment itself. All methods can be refined (no
+  one is final).</p>
+<p>The <tt>ClassNameEqAlignment</tt> class extends
+  the <tt>BasicAlignment</tt> by  aligning classes bearing the exact
+  same name (<tt>NameEqAlignment</tt> does the same for properties and
+  individuals).</p>
+<p>A more elaborate implementation is
+  the <tt>EditDistNameAlignment</tt> class which uses an edit
+  distance on class names. It thus have to build a matrix of distance
+  and to choose the alignment from the distance. It can be called by:
+<pre>
+$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment
+</Pre>
+which returns:
+<pre>
+&lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
+&lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
+
+&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'>
+&lt;Alignment>
+  &lt;xml>yes&lt;/xml>
+  &lt;type>11&lt;/type>
+  &lt;onto1>file://localhost$CWD/rdf/onto1.owl&lt;/onto1>
+  &lt;onto2>file://localhost$CWD/rdf/onto2.owl&lt;/onto2>
+  &lt;map>
+    &lt;Cell>
+      &lt;entity1 rdf:resource='http://www.example.org/ontology1#reviewedarticle'/>
+      &lt;entity2 rdf:resource='http://www.example.org/ontology2#article'/>
+      &lt;measure rdf:datatype='xsd:float'>0.5333333333333333&lt;/measure>
+      &lt;relation>=&lt;/relation>
+    &lt;/Cell>
+    &lt;Cell>
+      &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
+      &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
+      &lt;measure rdf:datatype='xsd:float'>0.0&lt;/measure>
+      &lt;relation>=&lt;/relation>
+    &lt;/Cell>
+  &lt;/map>
+&lt;/Alignment>
+&lt;/rdf:RDF>
+</pre>
+</p>
+
+<address>
+<small>
+<hr />
+<center>http://co4.inrialpes.fr/align/align.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>

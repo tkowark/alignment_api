@@ -1,0 +1,131 @@
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xml:base="http://www.example.org/ontology"
+    xmlns="http://www.example.org/ontology#">
+
+<owl:Ontology rdf:about="">
+  <rdfs:comment>The bibliographic ontology used by Exmo
+  made from the XML dtd</rdfs:comment>
+</owl:Ontology>
+
+<owl:Class rdf:nodeID="B">
+  <owl:intersectionOf rdf:parseType="Collection">
+    <owl:Class rdf:ID="B"/>
+    <owl:Class>
+      <owl:unionOf rdf:parseType="Collection">
+        <rdf:Description rdf:nodeID="B"/>
+        <owl:Class rdf:ID="C"/>
+      </owl:unionOf>
+    </owl:Class>
+  </owl:intersectionOf>
+</owl:Class>
+
+<owl:Class rdf:ID="p">
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+  	<owl:DatatypeProperty rdf:about="#first"/>
+      </owl:onProperty>
+      <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">7</owl:hasValue> 
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+  	<owl:DatatypeProperty rdf:about="#last"/>
+      </owl:onProperty>
+      <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">7</owl:hasValue> 
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+  	<owl:DatatypeProperty rdf:about="#title"/>
+      </owl:onProperty>
+      <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">7</owl:hasValue> 
+    </owl:Restriction>
+  </rdfs:subClassOf>
+</owl:Class>
+
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+        <owl:ObjectProperty rdf:about="#status"/>
+      </owl:onProperty>
+      <owl:allValuesFrom>
+        <owl:Class rdf:about="#p"/>
+      </owl:allValuesFrom>  
+    </owl:Restriction>
+  </rdfs:subClassOf>
+</owl:Class>
+
+<owl:Class rdf:ID="reference">
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+        <owl:ObjectProperty rdf:about="#status"/>
+      </owl:onProperty>
+      <owl:someValuesFrom>
+        <owl:Class rdf:about="#B"/>
+      </owl:someValuesFrom>  
+    </owl:Restriction>
+  </rdfs:subClassOf>
+</owl:Class>
+
+<owl:Class rdf:ID="article">
+  <rdfs:subClassOf rdf:about="#reference>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty>
+        <owl:ObjectProperty rdf:about="#status"/>
+      </owl:onProperty>
+      <owl:allValuesFrom>
+        <owl:Class rdf:about="#p"/>
+      </owl:allValuesFrom>  
+    </owl:Restriction>
+  </rdfs:subClassOf>
+</owl:Class>
+
+<!--
+
+<reference index="cerbah2000a" type="" status="hidden" reviewed="full" language="en">
+	<authors><p title="" first="" last=""/></authors>
+	<editors><p title="" first="" last=""/></editors>
+	<directors><p title="" first="" last=""/></directors>
+	<actors><p title="" first="" last=""/></actors>
+	<voices><p title="" first="" last=""/></voices>
+	<scenarists><p title="" first="" last=""/></scenarists>
+	<publishers name=""><location place="" city="" country="" state=""/></publishers>
+	<title></title>
+	<conference sponsor="" type="" name="" issue="" short=""/>
+	// having an accent on the These, raise an issue...
+        <type>These d'informatique</type>
+	<book></book>
+	<chapter></chapter>
+	<contract></contract>
+	<school name=""><location place="" city="" country="" state=""/></school>
+	<location place="" city="" country="" state=""/>
+	<edition></edition>
+	<journal name="" issn="" short=""><publishers name=""><location place="" city="" country="" state=""/></publishers></journal>
+	<volume></volume>
+	<numero></numero>
+	<pages></pages>
+	<length unit="mn|p"></length>
+        <in><reference></in>
+        <from><reference></from>
+        <trans><reference></trans>
+        <ed><reference></ed>
+        <red><reference></red>
+	<date day="" month="" year=""/>
+	<links><url href=""/></links>
+	<abstract></abstract>
+	<comments></comments>
+	<keywords><li/></keywords>
+	<areas><li/></areas>
+	<note></note>
+</reference>
+-->
+</rdf:RDF>
