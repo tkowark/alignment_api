@@ -163,8 +163,9 @@ public class PRecEvaluator extends BasicEvaluator {
 	 writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
 	 }*/
 
-	public double getPrecision() {
-		return precision;
-	}
+    public double getPrecision() { return precision; }
+    public double getRecall() {	return recall; }
+    public double getOverall() { return overall; }
+    public double getFmeasure() { return fmeasure; }
 }
 
