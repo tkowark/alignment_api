@@ -29,9 +29,8 @@ public class alignmentExtractor implements Extractor {
 
 	public BasicAlignment extractAlignment(String type) {
 		BasicAlignment Al = new BasicAlignment();
-		return (Al);
-		public void threshold (String type, BasicParameters param);
-		public BasicAlignment extractAlignment (String type);
+		return (Al);}
+		public void threshold (String type, BasicParameters param){}
+		
 
-	}
 }
