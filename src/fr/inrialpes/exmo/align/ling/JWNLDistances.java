@@ -31,6 +31,8 @@ import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.POS;
 import net.didion.jwnl.data.Synset;
 import net.didion.jwnl.dictionary.Dictionary;
+import net.didion.jwnl.data.PointerUtils;
+import net.didion.jwnl.data.list.PointerTargetNodeList;
 /** 
  * Compute a string distance using the JWNL API (WordNet API)
  * 
@@ -114,8 +116,8 @@ public double SynonymDistance (String s1,String s2){
 	int nbmot2;
 	
 	/** Build the list of synonym for s1 & s2 **/
-	nbmot1=CountMaxSens(s1);
-	nbmot2=CountMaxSens(s2);
+	nbmot1=CountMaxSensSyno(s1);
+	nbmot2=CountMaxSensSyno(s2);
 	Syno1=new String[nbmot1];
 	Syno2=new String[nbmot2];
     Syno1=GetAllSyno(s1);
@@ -131,11 +133,117 @@ for (i=0;i<U.length;i++){if (U[i]!=null) {cardU++;}}
 	return (result);
 }
 /**
+ *Compute a distance between 2 strings using WordNet synonym
+ * Get all the ...  for s1 , syno1
+ * Get all the ...  for s2, syno2
+ * compute intersection syno1(inter)syno2, I
+ * compute union syno1(union)syno2, U
+ * The distance = card I /card U
+  
+ * @param s1
+ * @param s2
+ * @return The Distance between s1 & s2
+ */
+
+public double CompleteDistance (String s1,String s2){
+	double result=0.000000;
+	int cardI=0,cardU=0;
+	int i=0,j=0,k=0;
+	String Syno1[];
+	String Syno2[];
+	String I[]=null;
+	String U[]=null;
+	int nbmot1;
+	int nbmot2;
+	
+	/** Build the list of synonym for s1 & s2 **/
+	nbmot1=CountMaxSens(s1);
+	nbmot2=CountMaxSens(s2);
+	Syno1=new String[nbmot1];
+	Syno2=new String[nbmot2];
+    Syno1=GetAll(s1);
+    Syno2=GetAll(s2);
+        		/** Compute intersection between the list of synonym : I**/
+I=Inter (Syno1,Syno2);
+    	/** Compute union between the list of synonym  U **/
+U=Union (Syno1,Syno2);	
+	/** compute card I / card U **/
+for (i=0;i<I.length;i++){if (I[i]!=null) {cardI++;}}
+for (i=0;i<U.length;i++){if (U[i]!=null) {cardU++;}}
+	if(cardU!=0){result=(double)cardI /(double) cardU;}
+	return (result);
+}
+/**
  * 
  * @param S
  * @return Number of sens for the word s
  */
-private int CountMaxSens (String S){
+private int CountMaxSens(String S){
+	IndexWord index=null;
+	Synset S1[]=null;
+	int i=0;
+	int sens1=0;
+	int nbmot1=0;
+	//PointerUtils utilitaire;
+	 PointerTargetNodeList pointeur = null;
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {S1=index.getSenses();
+						      sens1= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+					  
+	}
+	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();
+	try{
+		
+	pointeur= PointerUtils.getInstance().getDirectHypernyms(S1[i]);
+	System.out.println(pointeur.toString());}
+	catch (JWNLException e){}
+	
+	}
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.VERB,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {S1=index.getSenses();
+						      sens1= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADJECTIVE,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {S1=index.getSenses();
+						      sens1= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADVERB,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {S1=index.getSenses();
+						      sens1= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	for(i=0;i<sens1;i++){nbmot1=nbmot1+S1[i].getWordsSize();}
+	
+	return (nbmot1);
+
+}
+/**
+ * 
+ * @param S
+ * @return Number of sens for the word s using synonym
+ */
+private int CountMaxSensSyno (String S){
 	IndexWord index=null;
 	Synset S1[]=null;
 	int i=0;
@@ -281,6 +389,104 @@ private String[] GetAllSyno(String S){
 	}
 	return(Syno);
 }
+
+/**
+ * 
+ * @param S
+ * @return The tab with all the ... of the word s
+ */
+private String[] GetAll(String S){
+	String Syno[]=null;
+	IndexWord index=null;
+	Synset[] Synso=null;
+	int sens=0;
+	int nbmot=0;
+	int i=0,j=0,k=0,l=0;
+	boolean trouve=false;
+	int strcomp=0;
+	
+	nbmot=CountMaxSens(S);
+	Syno=new String[nbmot];
+
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {Synso=index.getSenses();
+						sens= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	
+	for (i=0;i<sens;i++){
+		for(j=0;j<Synso[i].getWordsSize();j++){
+			for(l=0;l<k;l++){
+				if (Synso[i].getWord(j).getLemma().compareTo(Syno[l])==0){trouve=true;}
+				}
+			if (trouve!=true){Syno[k++] =  Synso[i].getWord(j).getLemma();}
+			trouve=false;
+		}
+	}
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.VERB,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {Synso=index.getSenses();
+						sens= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	
+	for (i=0;i<sens;i++){
+		for(j=0;j<Synso[i].getWordsSize();j++){
+			for(l=0;l<k;l++){
+				if (Synso[i].getWord(j).getLemma().compareTo(Syno[l])==0){trouve=true;}
+				}
+			if (trouve!=true){
+			Syno[k++] = Synso[i].getWord(j).getLemma();}
+			trouve=false;
+		}
+	}
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADJECTIVE,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {Synso=index.getSenses();
+						sens= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	
+	for (i=0;i<sens;i++){
+		for(j=0;j<Synso[i].getWordsSize();j++){
+			for(l=0;l<k;l++){
+				if (Synso[i].getWord(j).getLemma().compareTo(Syno[l])==0){trouve=true;}
+				}
+			if (trouve!=true){
+			Syno[k++] =	Synso[i].getWord(j).getLemma();}
+			trouve=false;
+		}
+	}
+	
+	try { index = Dictionary.getInstance().lookupIndexWord(POS.ADVERB,S);}
+	catch(Exception ex){ex.printStackTrace();
+			                System.exit(-1);}
+	if (index!=null){
+						try {Synso=index.getSenses();
+						sens= index.getSenseCount();}
+					 catch (JWNLException e) {e.printStackTrace();}
+	}
+	for (i=0;i<sens;i++){
+		for(j=0;j<Synso[i].getWordsSize();j++){
+			for(l=0;l<k;l++){
+				if (Synso[i].getWord(j).getLemma().compareTo(Syno[l])==0){trouve=true;}
+				}
+			if (trouve!=true){
+			Syno[k++] =	 Synso[i].getWord(j).getLemma();}
+			trouve=false;
+		}
+	}
+	return(Syno);
+}
+
 private String[] Inter(String[] S1, String[] S2){
 	String result[]=null;
 	int i=0,j=0,k=0,l=0;
