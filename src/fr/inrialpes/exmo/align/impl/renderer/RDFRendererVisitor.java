@@ -65,7 +65,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("' standalone='no'?>\n");
 	writer.print("<!DOCTYPE rdf:RDF SYSTEM \"align.dtd\">\n\n");
 	// add date, etc.
-	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
+	writer.print("<rdf:RDF xmlns='http://exmo.inrialpes.fr/align/1.0'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
 	writer.print("<Alignment>\n  <xml>yes</xml>\n");
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
