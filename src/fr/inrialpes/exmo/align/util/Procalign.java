@@ -102,230 +102,207 @@ $Id$
 
 public class Procalign {
 
-	static Hashtable loadedOntologies = null;
+    static Hashtable loadedOntologies = null;
 
-	static OWLRDFErrorHandler handler = null;
+    static OWLRDFErrorHandler handler = null;
 
-	public static void main(String[] args) {
-	    try { run( args ); }
-	    catch (Exception ex) { ex.printStackTrace(); };
+    public static void main(String[] args) {
+	try { run( args ); }
+	catch (Exception ex) { ex.printStackTrace(); };
+    }
+
+    public static Alignment run(String[] args) throws Exception {
+	Parameters params = null;
+	OWLOntology onto1 = null;
+	OWLOntology onto2 = null;
+	AlignmentProcess result = null;
+	String initName = null;
+	Alignment init = null;
+	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
+	String filename = null;
+	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
+	PrintStream writer = null;
+	AlignmentVisitor renderer = null;
+	int debug = 0;
+	double threshold = 0;
+
+	LongOpt[] longopts = new LongOpt[8];
+
+	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
+	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
+	longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
+	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+
+	Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
+	int c;
+	String arg;
+
+	while ((c = g.getopt()) != -1) {
+	    switch (c) {
+	    case 'h' :
+		usage();
+		return null;
+	    case 'o' :
+		/* Write warnings to stdout rather than stderr */
+		filename = g.getOptarg();
+		break;
+	    case 'r' :
+		/* Use the given class for rendering */
+		rendererClass = g.getOptarg();
+		break;
+	    case 'i' :
+		/* Use the given class for the alignment */
+		alignmentClassName = g.getOptarg();
+		break;
+	    case 'a' :
+		/* Use the given file as a partial alignment */
+		initName = g.getOptarg();
+		break;
+	    case 't' :
+		/* Threshold */
+		threshold = Double.parseDouble(g.getOptarg());
+		break;
+	    case 'd' :
+		/* Debug level  */
+		// Should convert into integer
+		arg = g.getOptarg();
+		if (arg != null)
+		    debug = 2;
+		else
+		    debug = 4; // !!
+		break;
+	    }
 	}
+	
+	int i = g.getOptind();
 
-	public static Alignment run(String[] args) throws Exception {
-		Parameters params = null;
-		OWLOntology onto1 = null;
-		OWLOntology onto2 = null;
-		AlignmentProcess result = null;
-		String initName = null;
-		Alignment init = null;
-		String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
-		String filename = null;
-		String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
-		PrintStream writer = null;
-		AlignmentVisitor renderer = null;
-		int debug = 0;
-		double threshold = 0;
+	loadedOntologies = new Hashtable();
+	params = new BasicParameters();
+	if (debug > 0)
+	    params.setParameter("debug", new Integer(debug));
+	// debug = ((Integer)params.getParameter("debug")).intValue();
+	
+	try {
+	    
+	    BasicConfigurator.configure();
 
-		LongOpt[] longopts = new LongOpt[8];
+	    URI uri1 = null;
+	    URI uri2 = null;
 
-		longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-		longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-		longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-		longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-		longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-		longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-		longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	    if (args.length > i + 1) {
+		uri1 = new URI(args[i++]);
+		uri2 = new URI(args[i]);
+	    } else if (initName == null) {
+		System.out.println("Two URIs required");
+		usage();
+		System.exit(0);
+	    }
 
-		Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
-		int c;
-		String arg;
+	    handler = new OWLRDFErrorHandler() {
+		    public void owlFullConstruct(int code, String message)
+			throws SAXException {
+		    }
+		    public void error(String message) throws SAXException {
+			throw new SAXException(message.toString());
+		    }
+		    public void warning(String message) throws SAXException {
+			System.out.println("WARNING: " + message);
+		    }
+		};
 
-		while ((c = g.getopt()) != -1) {
-			switch (c) {
-				case 'h' :
-					usage();
-					return null;
-				case 'o' :
-					/* Write warnings to stdout rather than stderr */
-					filename = g.getOptarg();
-					break;
-				case 'r' :
-					/* Use the given class for rendering */
-					rendererClass = g.getOptarg();
-					break;
-				case 'i' :
-					/* Use the given class for the alignment */
-					alignmentClassName = g.getOptarg();
-					break;
-				case 'a' :
-					/* Use the given file as a partial alignment */
-					initName = g.getOptarg();
-					break;
-				case 't' :
-					/* Threshold */
-					threshold = Double.parseDouble(g.getOptarg());
-					break;
-				case 'd' :
-					/* Debug level  */
-					// Should convert into integer
-					arg = g.getOptarg();
-					if (arg != null)
-						debug = 2;
-					else
-						debug = 4; // !!
-					break;
-			}
+	    if (debug > 0) System.err.println(" Handler set");
+
+	    try {
+		if (uri1 != null) onto1 = loadOntology(uri1);
+		if (uri2 != null) onto2 = loadOntology(uri2);
+		if (debug > 0) System.err.println(" Ontology parsed");
+		if (initName != null) {
+		    AlignmentParser aparser = new AlignmentParser(debug);
+		    init = aparser.parse(initName, loadedOntologies);
+		    onto1 = (OWLOntology) init.getOntology1();
+		    onto2 = (OWLOntology) init.getOntology2();
+		    if (debug > 0) System.err.println(" Init parsed");
 		}
 
-		int i = g.getOptind();
+		// Create alignment object
+		Object[] mparams = {(Object)onto1, (Object)onto2 };
+		Class alignmentClass = Class.forName(alignmentClassName);
+		java.lang.reflect.Constructor[] alignmentConstructors =
+		    alignmentClass.getConstructors();
+		result = (AlignmentProcess)alignmentConstructors[0].newInstance(mparams);
+		result.setFile1(uri1);
+		result.setFile2(uri2);
+	    } catch (Exception ex) {
+		System.err.println("Cannot create alignment "+alignmentClassName+"\n"
+				   +ex.getMessage());
+		usage();
+		throw ex;
+	    }
 
-		loadedOntologies = new Hashtable();
-		params = new BasicParameters();
-		if (debug > 0)
-			params.setParameter("debug", new Integer(debug));
-		// debug = ((Integer)params.getParameter("debug")).intValue();
+	    if (debug > 0) System.err.println(" Alignment structure created");
+	    // Compute alignment
+	    result.align(init, params); // add opts
 
-		try {
+	    // Thresholding
+	    if (threshold != 0) {
+		((BasicAlignment) result).cut(threshold);
+	    };
 
-			BasicConfigurator.configure();
+	    if (debug > 0) System.err.println(" Alignment performed");
+	    
+	    // Set output file
+	    if (filename == null) {
+		writer = (PrintStream) System.out;
+	    } else {
+		writer = new PrintStream(new FileOutputStream(filename));
+	    }
 
-			URI uri1 = null;
-			URI uri2 = null;
+	    // Result printing (to be reimplemented with a default value)
+	    try {
+		Object[] mparams = {(Object) writer };
+		java.lang.reflect.Constructor[] rendererConstructors =
+		    Class.forName(rendererClass).getConstructors();
+		renderer =
+		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+	    } catch (Exception ex) {
+		System.err.println("Cannot create renderer "+rendererClass+"\n"
+				   + ex.getMessage());
+		usage();
+		throw ex;
+	    }
 
-			if (args.length > i + 1) {
-				uri1 = new URI(args[i++]);
-				uri2 = new URI(args[i]);
-			} else if (initName == null) {
-				System.out.println("Two URIs required");
-				usage();
-				System.exit(0);
-			}
+	    // Output
+	    result.render(writer, renderer);
 
-			handler = new OWLRDFErrorHandler() {
-				public void owlFullConstruct(int code, String message)
-					throws SAXException {
-				}
-				public void error(String message) throws SAXException {
-					throw new SAXException(message.toString());
-				}
-				public void warning(String message) throws SAXException {
-					System.out.println("WARNING: " + message);
-				}
-			};
-
-			if (debug > 0)
-				System.err.println(" Handler set");
-
-			try {
-				if (uri1 != null)
-					onto1 = loadOntology(uri1);
-				if (uri2 != null)
-					onto2 = loadOntology(uri2);
-				if (debug > 0)
-					System.err.println(" Ontology parsed");
-				if (initName != null) {
-					AlignmentParser aparser = new AlignmentParser(debug);
-					init = aparser.parse(initName, loadedOntologies);
-					onto1 = (OWLOntology) init.getOntology1();
-					onto2 = (OWLOntology) init.getOntology2();
-					if (debug > 0)
-						System.err.println(" Init parsed");
-				}
-
-				// Create alignment object
-				Object[] mparams = {(Object) onto1, (Object) onto2 };
-				Class alignmentClass = Class.forName(alignmentClassName);
-				java.lang.reflect.Constructor[] alignmentConstructors =
-					alignmentClass.getConstructors();
-				result =
-					(AlignmentProcess) alignmentConstructors[0].newInstance(
-						mparams);
-				result.setFile1(uri1);
-				result.setFile2(uri2);
-			} catch (Exception ex) {
-				System.err.println(
-					"Cannot create alignment "
-						+ alignmentClassName
-						+ "\n"
-						+ ex.getMessage());
-				usage();
-				throw ex;
-			}
-
-			if (debug > 0)
-				System.err.println(" Alignment structure created");
-			// Compute alignment
-			result.align(init, params); // add opts
-
-			// Thresholding
-			if (threshold != 0) {
-				((BasicAlignment) result).cut(threshold);
-			};
-
-			if (debug > 0)
-				System.err.println(" Alignment performed");
-
-			// Set output file
-			if (filename == null) {
-				writer = (PrintStream) System.out;
-			} else {
-				writer = new PrintStream(new FileOutputStream(filename));
-			}
-
-			// Result printing (to be reimplemented with a default value)
-			try {
-				Object[] mparams = {(Object) writer };
-				java.lang.reflect.Constructor[] rendererConstructors =
-					Class.forName(rendererClass).getConstructors();
-				renderer =
-					(AlignmentVisitor) rendererConstructors[0].newInstance(
-						mparams);
-			} catch (Exception ex) {
-				System.err.println(
-					"Cannot create renderer "
-						+ rendererClass
-						+ "\n"
-						+ ex.getMessage());
-				usage();
-				throw ex;
-			}
-
-			// Output
-			result.render(writer, renderer);
-
-		} catch (Exception ex) {
-			throw ex;
-		}
-		return result;
+	} catch (Exception ex) {
+	    throw ex;
 	}
+	return result;
+    }
 
-	public static OWLOntology loadOntology(URI uri)
-		throws ParserException, OWLException {
-		OWLOntology parsedOnt = null;
-		OWLRDFParser parser = new OWLRDFParser();
-		parser.setOWLRDFErrorHandler(handler);
-		parser.setConnection(OWLManager.getOWLConnection());
-		parsedOnt = parser.parseOntology(uri);
-		loadedOntologies.put(uri.toString(), parsedOnt);
-		return parsedOnt;
-	}
+    public static OWLOntology loadOntology(URI uri)
+	throws ParserException, OWLException {
+	OWLOntology parsedOnt = null;
+	OWLRDFParser parser = new OWLRDFParser();
+	parser.setOWLRDFErrorHandler(handler);
+	parser.setConnection(OWLManager.getOWLConnection());
+	parsedOnt = parser.parseOntology(uri);
+	loadedOntologies.put(uri.toString(), parsedOnt);
+	return parsedOnt;
+    }
 
-	public static void usage() {
-		System.out.println("usage: Procalign [options] URI1 URI2");
-		System.out.println("options are:");
-		System.out.println(
-			"\t--impl=className -i classname\t\tUse the given alignment implementation.");
-		System.out.println(
-			"\t--renderer=className -r className\tSpecifies the alignment renderer");
-		System.out.println(
-			"\t--output=filename -o filename\tOutput the alignment in filename");
-		System.out.println(
-			"\t--alignment=filename -a filename Start from an XML alignment file");
-		System.out.println(
-			"\t--threshold=double -t double\tFilters the similarities under threshold");
-		System.out.println(
-			"\t--debug[=n] -d [n]\t\tReport debug info at level n");
-		System.out.println("\t--help -h\t\t\tPrint this message");
-
-	}
+    public static void usage() {
+	System.out.println("usage: Procalign [options] URI1 URI2");
+	System.out.println("options are:");
+	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
+	System.out.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
+	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
+	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
+	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.out.println("\t--help -h\t\t\tPrint this message");
+    }
 }

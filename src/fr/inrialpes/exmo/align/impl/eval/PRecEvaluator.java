@@ -67,11 +67,6 @@ public class PRecEvaluator extends BasicEvaluator {
 		super(align1, align2);
 	}
 
-	// Presision: nbfound - nbexpected / nbexpected
-	// Recall: nbfound / nbexpected
-	// ----
-	// Signal: 
-	// Noise: 
     /**
      *
      * The formulas are standard:
@@ -79,12 +74,12 @@ public class PRecEvaluator extends BasicEvaluator {
      * given an obtained alignment B
      * which are sets of cells (linking one entity of ontology O to another of ontolohy O').
      *
-     * P = |A inter B| / |A|
-     * R = |A inter B| / |B|
+     * P = |A inter B| / |B|
+     * R = |A inter B| / |A|
      * F = 2PR/(P+R)
      * with inter = set intersection and |.| cardinal.
      *
-     * In the implementation |A|=nbfound, |B|=nbexpected and |A inter B|=nbcorrect.
+     * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
     public double eval(Parameters params) throws AlignmentException {
 	int nbexpected = align1.nbCells();
@@ -111,7 +106,7 @@ public class PRecEvaluator extends BasicEvaluator {
 
 	// What is the definition if:
 	// nbfound is 0 (p, r are 0)
-	// nbexpected is 0 [=> nbcorrect is 0] (r=100, p=0[if nbfound>0, 100 otherwise])
+	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
 	// precision+recall is 0 [= nbcorrect is 0]
 	// precision is 0 [= nbcorrect is 0]
 	precision = (double) nbcorrect / (double) nbfound;
@@ -125,43 +120,41 @@ public class PRecEvaluator extends BasicEvaluator {
     }
 
     /**
-	 * This now output the Lockheed format. However, the lookheed format
-	 * was intended to compare two merged ontologies instead of two alignment.
-	 * So it refered to the:
-	 * - input ontology A
-	 * - input ontology B
-	 * - alignement algorithm (used for obtaining what ????).
-	 * While we compare two alignments (so the source and the reference to these
-	 * algorithms should be within the alignment structure.
-	 */
-	public void write(PrintStream writer) throws java.io.IOException {
-		writer
-				.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-		writer
-				.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
-		writer.println("  <map:output rdf:about=''>");
-		// Missing items:
-		// writer.println("    <map:algorithm rdf:resource=\"\">");
-		// writer.println("    <map:intutA rdf:resource=\"\">");
-		// writer.println("    <map:inputB rdf:resource=\"\">");
-		// Other missing items (easy to get)
-		// writer.println("    <map:falseNegative>");
-		// writer.println("    <map:falsePositive>");
-		writer.print("    <map:precision>");
-		writer.print(precision);
-		writer.print("</map:precision>\n    <map:recall>");
-		writer.print(recall);
-		writer.print("</map:recall>\n    <fallout>");
-		writer.print(fallout);
-		writer.print("</fallout>\n    <map:fMeasure>");
-		writer.print(fmeasure);
-		writer.print("</map:fMeasure>\n    <map:oMeasure>");
-		writer.print(overall);
-		writer.print("</map:oMeasure>\n    <result>");
-		writer.print(result);
-		writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
-	}
-	/*    public void write( PrintStream writer ) throws java.io.IOException {
+     * This now output the Lockheed format. However, the lookheed format
+     * was intended to compare two merged ontologies instead of two alignment.
+     * So it refered to the:
+     * - input ontology A
+     * - input ontology B
+     * - alignement algorithm (used for obtaining what ????).
+     * While we compare two alignments (so the source and the reference to these
+     * algorithms should be within the alignment structure.
+     */
+    public void write(PrintStream writer) throws java.io.IOException {
+	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
+	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
+	writer.println("  <map:output rdf:about=''>");
+	// Missing items:
+	// writer.println("    <map:algorithm rdf:resource=\"\">");
+	// writer.println("    <map:intutA rdf:resource=\"\">");
+	// writer.println("    <map:inputB rdf:resource=\"\">");
+	// Other missing items (easy to get)
+	// writer.println("    <map:falseNegative>");
+	// writer.println("    <map:falsePositive>");
+	writer.print("    <map:precision>");
+	writer.print(precision);
+	writer.print("</map:precision>\n    <map:recall>");
+	writer.print(recall);
+	writer.print("</map:recall>\n    <fallout>");
+	writer.print(fallout);
+	writer.print("</fallout>\n    <map:fMeasure>");
+	writer.print(fmeasure);
+	writer.print("</map:fMeasure>\n    <map:oMeasure>");
+	writer.print(overall);
+	writer.print("</map:oMeasure>\n    <result>");
+	writer.print(result);
+	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
+    }
+    /*    public void write( PrintStream writer ) throws java.io.IOException {
 	 writer.print("<rdf:RDF>\n  <Evaluation class=\"PRecEvaluator\">\n    <precision>");
 	 writer.print(precision);
 	 writer.print("</precision>\n    <recall>");
