@@ -16,72 +16,74 @@ echo "Basic..."
 java -jar ../lib/procalign.jar
 
 # Simple basic example
-java -jar ../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.SubsDistNameAlignment file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -o aligns/sample.owl
+java -jar ../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -o aligns/sample.owl
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.SubsDistNameAlignment -t .6 -r fr.inrialpes.exmo.align.impl.OWLAxiomsRendererVisitor
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment -t .6 -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 
 # Test a number of methods
 echo "Aligning..."
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.NameEqAlignment -o aligns/NameEq.owl
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.NameEqAlignment -o aligns/NameEq.owl
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment -o aligns/EditDistName.owl
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -o aligns/EditDistName.owl
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.SubsDistNameAlignment -o aligns/SubsDistName.owl
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment -o aligns/SubsDistName.owl
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.StrucSubsDistAlignment -o aligns/StrucSubsDist.owl
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment -o aligns/StrucSubsDist.owl
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.StrucSubsDistAlignment -o aligns/StrucSubsDist4.owl -t .4
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment -o aligns/StrucSubsDist4.owl -t .4
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.StrucSubsDistAlignment -o aligns/StrucSubsDist7.owl -t .7
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment -o aligns/StrucSubsDist7.owl -t .7
 
 java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
 
 # Evaluate their performances
 echo "Comparing..."
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/NameEq.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/NameEq.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/EditDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/EditDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/SubsDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/SubsDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist4.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist4.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist7.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist7.owl
 
 # Other evaluations
 echo "Comparing again..."
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/NameEq.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/NameEq.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/EditDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/EditDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/SubsDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/SubsDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist4.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist4.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist7.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://localhost$CWD/rdf/bibref.owl file://localhost$CWD/aligns/StrucSubsDist7.owl
 # Pipelining
 echo "Pipelining..."
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.PropSubsDistAlignment -o aligns/PropSubsDist.owl 
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.PropSubsDistAlignment -o aligns/PropSubsDist.owl 
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.ClassStructAlignment -a aligns/PropSubsDist.owl -o aligns/Piped.owl
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.ClassStructAlignment -a aligns/PropSubsDist.owl -o aligns/Piped.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.PRecEvaluator file://localhost$CWD/aligns/StrucSubsDist.owl file://localhost$CWD/aligns/Piped.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/StrucSubsDist.owl file://localhost$CWD/aligns/Piped.owl
 
 # Rendering
 echo "Rendering..."
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.OWLAxiomsRendererVisitor -t 0.4
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -t 0.4
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.XSLTRendererVisitor -t 0.4
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -t 0.4
 
-java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.SWRLRendererVisitor -t 0.4
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor -t 0.4
+
+java -jar ../lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.COWLMappingRendererVisitor -t 0.4
 
 # Output to html
 echo "HTML output..."
