@@ -188,7 +188,7 @@ public class AlignmentParser extends DefaultHandler {
     public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("startElement AlignmentParser : " + pName);
-	if(namespaceURI.equals("http://exmo.inrialpes.fr/align/1.0"))  {
+	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
 	    try {
 		if (pName.equals("relation")) {
 		} else if (pName.equals("measure")) {
@@ -285,7 +285,7 @@ public class AlignmentParser extends DefaultHandler {
     public  void endElement(String namespaceURI,String pName, String qName ) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("endElement AlignmentParser : " + pName);
-	if(namespaceURI.equals("http://exmo.inrialpes.fr/align/1.0"))  {
+	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
 	    try {
 		if (pName.equals("relation")) {
 		    relation = content;

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
 <!DOCTYPE rdf:RDF SYSTEM "../dtd/align.dtd">
 
-<rdf:RDF xmlns='http://exmo.inrialpes.fr/align/1.0'
+<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
 <Alignment>
