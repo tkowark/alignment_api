@@ -33,8 +33,6 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 
-import com.lmco.atl.ontrapro.util.StringEditDistance;
-
 /**
  * This class aligns ontology with regard to the editing distance between 
  * class names.

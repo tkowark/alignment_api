@@ -40,8 +40,12 @@ Note that you will have to fetch separately the <a href="owlapi.html">OWL-API</a
 <p>Once provided with a password you will be able to check out from and
   commit in our repository through:
 <pre>
-$
+$ export CVS_RSH=`which ssh`
+$ cvs -d :ext:&lt;loginname&gt;@cvs-sop.inria.fr:/CVS/exmosoft checkout ontoalign
 </pre>
+(If you are not familliar with SSH, it is useful to spend half an
+hour to know how to avoid to be asked your password anytime).</br>
+If you are not familiar with CVS, its is time to document yourself.
 </p>
 
 
