@@ -22,7 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import java.lang.reflect.Method;
@@ -53,11 +53,11 @@ import fr.inrialpes.exmo.align.impl.rel.*;
 
 public class XSLTRendererVisitor implements AlignmentVisitor
 {
-    PrintStream writer = null;
+    PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
 
-    public XSLTRendererVisitor( PrintStream writer ){
+    public XSLTRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
 

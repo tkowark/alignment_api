@@ -22,7 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 
 import java.lang.reflect.Method;
@@ -54,11 +54,11 @@ import fr.inrialpes.exmo.align.impl.rel.*;
 
 public class SWRLRendererVisitor implements AlignmentVisitor
 {
-    PrintStream writer = null;
+    PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
 
-    public SWRLRendererVisitor( PrintStream writer ){
+    public SWRLRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
 
@@ -93,22 +93,52 @@ public class SWRLRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {
-	// This is a very partial implementation since the code will depends
-	// on properties and classes.
-	// JE...
+	// JE: It sounds that the alignment and cell variables are taken as global...
+	// But it seems that this is not the case...
+	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
 	try {
 	    writer.println("  <ruleml:imp>");
 	    writer.println("    <ruleml:_body>");
-	    writer.println("      <swrl:classAtom>");
-	    writer.println("        <owllx:Class owllx:name=\""+((OWLEntity)cell.getObject1()).getURI().toString()+"\"/>");
-	    writer.println("        <ruleml:var>x</ruleml:var>");
-	    writer.println("      </swrl:classAtom>");
+	    OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
+	    OWLEntity obj1 = (OWLEntity)cell.getObject1();
+	    URI uri1 = obj1.getURI();
+	    if ( onto1.getClass( uri1 ) != null ){
+		writer.println("      <swrl:classAtom>");
+		writer.println("        <owllx:Class owllx:name=\""+uri1.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("      </swrl:classAtom>");
+	    } else if ( onto1.getDataProperty( uri1 )  != null ){
+		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri1.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      <swrl:datavaluedPropertyAtom>");
+	    } else {
+		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri1.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:individualPropertyAtom>");
+	    }
 	    writer.println("    </ruleml:_body>");
 	    writer.println("    <ruleml:_head>");
-	    writer.println("      <swrlx:classAtom>");
-	    writer.println("        <owlx:Class owlx:name=\""+((OWLEntity)cell.getObject2()).getURI().toString()+"\"/>");
-	    writer.println("        <ruleml:var>x</ruleml:var>");
-	    writer.println("      </swrlx:classAtom>");
+	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
+	    OWLEntity obj2 = (OWLEntity)cell.getObject2();
+	    URI uri2 = obj2.getURI();
+	    if ( onto2.getClass( uri2 ) != null ){
+		writer.println("      <swrlx:classAtom>");
+		writer.println("        <owllx:Class owllx:name=\""+uri2.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("      </swrl:classAtom>");
+	    } else if ( onto2.getDataProperty( uri2 )  != null ){
+		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri2.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:datavaluedPropertyAtom>");
+	    } else {
+		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri2.toString()+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:individualPropertyAtom>");
+	    }
 	    writer.println("    </ruleml:_head>");
 	    writer.println("  </ruleml:imp>\n");
 	} catch (Exception e) { throw new AlignmentException("getURI problem", e); };
