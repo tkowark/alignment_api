@@ -49,6 +49,7 @@ import org.semanticweb.owl.align.Relation;
 
 public class BasicAlignment implements Alignment
 {
+    protected String level = "0";
     protected String type = "11";
     protected OWLOntology onto1 = null;
     protected OWLOntology onto2 = null;
@@ -67,6 +68,10 @@ public class BasicAlignment implements Alignment
 	this.onto2 = onto2;
     }
 
+    public int nbCells(){
+	return hash1.size();
+    }
+
     /** Alignment methods **/
     public OWLOntology getOntology1(){ return onto1; };
     public OWLOntology getOntology2(){ return onto2; };
@@ -76,6 +81,8 @@ public class BasicAlignment implements Alignment
       { onto2 = ontology; };
     public void setType( String type ){ this.type = type; };
     public String getType(){ return type; };
+    public void setLevel( String level ){ this.level = level; };
+    public String getLevel(){ return level; };
 
     public Enumeration getElements(){
 	return hash1.elements();
@@ -91,6 +98,13 @@ public class BasicAlignment implements Alignment
     public void addAlignCell( OWLEntity ob1, OWLEntity ob2) throws OWLException {
 	addAlignCell( ob1, ob2, "=", 0);
     };
+
+    public Cell getAlignCell1( OWLEntity ob ) throws OWLException{
+	return (Cell)hash1.get((Object)ob.getURI());
+    }
+    public Cell getAlignCell2( OWLEntity ob ) throws OWLException{
+	return (Cell)hash2.get((Object)ob.getURI());
+    }
 
     public OWLEntity getAlignedObject1( OWLEntity ob ) throws OWLException{
 	Cell c = ((Cell)hash1.get((Object)ob.getURI()));
@@ -138,7 +152,6 @@ public class BasicAlignment implements Alignment
 		hash2.remove((Object)c.getObject2().getURI());
 	    }
 	} //end for
-	
     };
 
     /** New version corresponding to the RDF/XML/OWL DTD **/
@@ -150,7 +163,9 @@ public class BasicAlignment implements Alignment
 	// add date, etc.
 	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
 	writer.print("<Alignment>\n  <xml>yes</xml>\n");
-	writer.print("  <type>");
+	writer.print("  <level>");
+	writer.print(level);
+	writer.print("</level>\n  <type>");
 	writer.print(type);
 	writer.print("</type>\n  <onto1>");
 	writer.print(onto1.getLogicalURI().toString());

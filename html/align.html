@@ -60,6 +60,7 @@ If you are not familiar with CVS, its is time to document yourself.
 <ul compact="1">
   <li>src: source classes;</li>
   <li>rdf: some examples to be tested;</li>
+  <li>results: some result alignments and evaluations;</li>
   <li>dtd: the align.dtd and align.owl alignment specification;</li>
   <li>lib: jar-files including a procalign.jar (in the zip-file the
   owl-api libraries are included);</li>
@@ -133,12 +134,12 @@ options are:
 </pre>
 or ($CWD is the current directory)
 <pre>
-$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
+$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
 </pre>
 Additionaly a number of options are, or will be, available:
 <ul compact="1">
 <li>displaying debug information (-d);</li>
-<li>controling the way of rendering the output (-r) [not implemented];</li>
+<li>controling the way of rendering the output (-r);</li>
 <li>deciding the implementation of the alignment method (-i);</li>
 <li>providing an input alignent (-a) [implemented but not used by methods].</li>
 </ul>
@@ -188,7 +189,7 @@ Additionaly a number of options are, or will be, available:
   distance on class names. It thus have to build a matrix of distance
   and to choose the alignment from the distance. It can be called by:
 <pre>
-$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment
+$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.EditDistNameAlignment
 </Pre>
 which returns:
 <pre>
@@ -198,6 +199,7 @@ which returns:
 &lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'>
 &lt;Alignment>
   &lt;xml>yes&lt;/xml>
+  &lt;level>0&lt;/level>
   &lt;type>11&lt;/type>
   &lt;onto1>file://localhost$CWD/rdf/onto1.owl&lt;/onto1>
   &lt;onto2>file://localhost$CWD/rdf/onto2.owl&lt;/onto2>

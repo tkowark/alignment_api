@@ -204,6 +204,7 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("onto2")) {
 		} else if (pName.equals("onto1")) {
 		} else if (pName.equals("type")) {
+		} else if (pName.equals("level")) {
 		} else if (pName.equals("xml")) {
 		} else if (pName.equals("Alignment")) {
 		    alignment = new BasicAlignment();
@@ -273,20 +274,34 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("onto2")) {
 		    onto2 = (OWLOntology)ontologies.get( content );
 		    if ( onto2 == null ){
-			onto2 = loadOntology( content );
-			if ( onto2 == null ) {
-			    throw new SAXException("Cannot find ontology"); }}
+			try {
+			    onto2 = loadOntology( content );
+			    if ( onto2 == null ) {
+				throw new SAXException("Cannot find ontology");
+			    } else {
+				ontologies.put( content, onto2 );
+			    }
+			} catch (Exception e) {e.printStackTrace();}
+		    }
+		    
 			alignment.setOntology2( onto2 );
 		} else if (pName.equals("onto1")) {
 		    onto1 = (OWLOntology)ontologies.get( content );
 		    if ( onto1 == null ) {
-			onto1 = loadOntology( content );
-			if ( onto1 == null ) {
-			    throw new SAXException("Cannot find ontology"); 
-			}}
+			try {
+			    onto1 = loadOntology( content );
+			    if ( onto1 == null ) {
+				throw new SAXException("Cannot find ontology"); 
+			    } else {
+				ontologies.put( content, onto1 );
+			    }
+			} catch (Exception e) {e.printStackTrace();}
+		    }
 		    alignment.setOntology1( onto1 );
 		} else if (pName.equals("type")) {
 		    alignment.setType( content );
+		} else if (pName.equals("level")) {
+		    alignment.setLevel( content );
 		} else if (pName.equals("xml")) {
 		    //if ( content.equals("no") )
 		    //	{ throw new SAXException("Non parseable alignment"); }
@@ -302,22 +317,23 @@ public class AlignmentParser extends DefaultHandler {
 	}
     } //end endElement
     
-	/** Can be used for loading the ontology if it is not available **/
-    private OWLOntology loadOntology( String ref ) throws SAXException {
+    /** Can be used for loading the ontology if it is not available **/
+    private OWLOntology loadOntology( String ref ) throws SAXException, OWLException {
 	OWLOntology parsedOnt = null;
 	OWLRDFParser parser = new OWLRDFParser();
-			OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-				public void owlFullConstruct( int code,
-							      String message ) throws SAXException {
-				}
-				public void error( String message ) throws SAXException {
-				    throw new SAXException( message.toString() );
-				}
-				public void warning( String message ) throws SAXException {
-				    System.out.println("WARNING: " + message);
-				}
-			    };
+	OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
+		public void owlFullConstruct( int code, String message ) 
+		    throws SAXException {
+		}
+		public void error( String message ) throws SAXException {
+		    throw new SAXException( message.toString() );
+		}
+		public void warning( String message ) throws SAXException {
+		    System.out.println("WARNING: " + message);
+		}
+	    };
 	parser.setOWLRDFErrorHandler( handler );
+	parser.setConnection( OWLManager.getOWLConnection() );
 	try {
 	    return parser.parseOntology( new URI( ref ) );
 	} catch ( URISyntaxException e ) {

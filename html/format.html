@@ -42,6 +42,7 @@
 <dl compact="1">
 <dt>xml</dt><dd>(value: "yes"/"no") indicates if the alignment can be
     read as an XML file compliant with the DTD;</dd>
+<dt>level</dt><dd>(values: "0", "1", "2OWL") the level of alignment</dd>
 <dt>type</dt><dd>(values:
     "11"/"1?"/"1+"/"1*"/"?1"/"??"/"?+"/"?*"/"+1"/"+?"/"++"/"+*"/"*1"/"*?"/"?+"/"**") the type of alignment;</dd>
 <dt>onto1</dt><dd>(value: URL) the first ontology to be aligned;</dd>
@@ -86,7 +87,7 @@
 <p>There is a small stand-alone program that parses an alignment and
   displays it ($CWD is the directory where you are):
 <pre>
-$ java -Dorg.semanticweb.owl.util.OWLConnection=org.semanticweb.owl.impl.model.OWLConnectionImpl -jar lib/proca$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
+$ java -jar lib/procalign file://localhost$$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
 &lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
 

@@ -101,7 +101,8 @@ public class Procalign {
 
     public static void main(String[] args) {
 	
-	OWLOntology onto1, onto2 = null;
+	OWLOntology onto1 = null;
+	OWLOntology onto2 = null;
 	AlignmentProcess result = null;
 	String initName = null;
 	Alignment init = null;
@@ -191,7 +192,7 @@ public class Procalign {
 	    if (args.length > i+1 ) {
 		uri1 = new URI( args[i++] );
 		uri2 = new URI( args[i] );
-	    } else {
+	    } else if ( initName == null ){
 		System.out.println("Two URIs required");
 		usage();
 		System.exit(0);
@@ -211,20 +212,19 @@ public class Procalign {
 
 	    if ( debug > 0 ) System.err.println(" Handler set");
 
-	    /* Will use default implementation class as specified. */
-	    onto1 = loadOntology(uri1);
-	    onto2 = loadOntology(uri2);
-
-	    if ( debug > 0 ) System.err.println(" Ontology parsed");
-
-	    if ( initName != null ){
-		AlignmentParser aparser = new AlignmentParser( debug );
-		init = aparser.parse( initName, loadedOntologies );
-		if ( debug > 0 ) System.err.println(" Init parsed");
-	    }
-
-	    // Create alignment object
 	    try {
+		if ( uri1 != null ) onto1 = loadOntology(uri1);
+		if ( uri2 != null ) onto2 = loadOntology(uri2);
+		if ( debug > 0 ) System.err.println(" Ontology parsed");
+		if ( initName != null ){
+		    AlignmentParser aparser = new AlignmentParser( debug );
+		    init = aparser.parse( initName, loadedOntologies );
+		    onto1 = init.getOntology1();
+		    onto2 = init.getOntology2();
+		    if ( debug > 0 ) System.err.println(" Init parsed");
+		}
+
+		// Create alignment object
 		Object [] params = {(Object)onto1, (Object)onto2};
 		Class alignmentClass =  Class.forName(alignmentClassName);
 		java.lang.reflect.Constructor[] alignmentConstructors = alignmentClass.getConstructors();
@@ -267,10 +267,11 @@ public class Procalign {
 	}
     }
 
-    public static OWLOntology loadOntology( URI uri ) throws ParserException {
+    public static OWLOntology loadOntology( URI uri ) throws ParserException,OWLException {
 	OWLOntology parsedOnt = null;
 	OWLRDFParser parser = new OWLRDFParser();
 	parser.setOWLRDFErrorHandler( handler );
+	parser.setConnection( OWLManager.getOWLConnection() );
 	parsedOnt = parser.parseOntology( uri );
 	loadedOntologies.put( uri.toString(), parsedOnt );
 	return parsedOnt;

@@ -47,6 +47,7 @@ import org.semanticweb.owl.io.Renderer;
 import org.semanticweb.owl.io.Parser;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Evaluator;
 
 import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -61,6 +62,7 @@ import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
 /** A really simple utility that loads and alignment and prints it.
     A basic class for an OWL ontology alignment processing. The processor
@@ -68,7 +70,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     Command synopsis is as follows:
     
     <pre>
-    java fr.inrialpes.exmo.align.util.ParserPrinter [options] input [output]
+    java fr.inrialpes.exmo.align.util.EvalAlign [options] input [output]
     </pre>
 
     where the options are:
@@ -90,25 +92,25 @@ $Id$
 @author Jérôme Euzenat
     */
 
-public class ParserPrinter {
+public class EvalAlign {
 
     public static void main(String[] args) {
 	
-	Alignment result = null;
-	String initName = null;
+	Evaluator eval = null;
+	String alignName1 = null;
+	String alignName2 = null;
 	String filename = null;
+	String classname = null;
 	PrintStream writer = null;
-	Renderer renderer = null;
 	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
 	
 	// abcdefghijklmnopqrstuvwxyz?
 	// x  x    i      x x x x    x 
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	//longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
 	
-	Getopt g = new Getopt("", args, "ho:d::r:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::i:", longopts);
 	int c;
 	String arg;
 
@@ -121,21 +123,12 @@ public class ParserPrinter {
 		/* Write warnings to stdout rather than stderr */
 		filename = g.getOptarg();
 		break;
-	    case 'r':
-		/* Use the given class for rendernig */
-		String renderingClass = g.getOptarg();
-		try {
-		    renderer = (Renderer) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
-		} catch (Exception ex) {
-		    System.err.println("Cannot create renderer " + 
-				       renderingClass + "\n" + ex.getMessage() );
-		    usage();
-		    System.exit(0);
-		}
+	    case 'i':
+		/* Write warnings to stdout rather than stderr */
+		classname = g.getOptarg();
 		break;
 	    case 'd':
 		/* Debug level  */
-		// Should convert into integer
 		arg = g.getOptarg();
 		if ( arg != null ) debug = 2;
 		else debug = 4;
@@ -145,27 +138,52 @@ public class ParserPrinter {
 	
 	int i = g.getOptind();
 	
-	if (args.length > i ) {
-	    initName = args[i];
+	if (args.length > i+1 ) {
+	    alignName1 = args[i];
+	    alignName2 = args[i+1];
 	} else {
-	    System.out.println("Require the alignement filename");
+	    System.out.println("Require two alignement filenames");
 	    usage();
 	    System.exit(0);
 	}
 
-	if ( debug > 1 ) System.err.println(" Filename"+initName);
+	if ( debug > 1 ) System.err.println(" Filename"+alignName1+"/"+alignName2);
 
 	try {
-	    AlignmentParser aparser = new AlignmentParser( debug );
-	    result = aparser.parse( initName, new Hashtable() );
-	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
+	    // Load alignments
+	    Hashtable loaded = new Hashtable();
+	    AlignmentParser aparser1 = new AlignmentParser( debug );
+	    Alignment align1 = aparser1.parse( alignName1, loaded );
+	    if ( debug > 0 ) System.err.println(" Alignment structure1 parsed");
+	    AlignmentParser aparser2 = new AlignmentParser( debug );
+	    Alignment align2 = aparser2.parse( alignName2, loaded );
+	    if ( debug > 0 ) System.err.println(" Alignment structure2 parsed");
+	    // Create evaluator object
+	    if ( classname != null ) {
+		try {
+		    Object [] params = {(Object)align1, (Object)align2};
+		    Class evaluatorClass =  Class.forName(classname);
+		    java.lang.reflect.Constructor[] evaluatorConstructors = evaluatorClass.getConstructors();
+		    eval = (Evaluator)evaluatorConstructors[0].newInstance(params);
+		} catch (Exception ex) {
+		    System.err.println("Cannot create alignment " + 
+				       classname + "\n" + ex.getMessage() );
+		    usage();
+		    System.exit(0);
+		}
+	    } else { eval = new BasicEvaluator( align1, align2 ); };
+
+	    // Compare
+	    System.err.println( eval.evaluate() );
+
+	    // Print result
 	    if ( filename == null ) {
 		writer = (PrintStream)System.out;
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
 	    
-	    result.write( writer );
+	    eval.write( writer );
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();
@@ -173,13 +191,8 @@ public class ParserPrinter {
     }
 
     public static void usage() {
-	System.out.println("usage: ParserPrinter [options] URI1 URI2");
+	System.out.println("usage: EvalAlign [options] file1 file2");
 	System.out.println("options are:");
-	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
-	//System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
-	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
     }

@@ -1,5 +1,6 @@
 /*
  * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2004
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,6 +59,14 @@ public interface Alignment
      * This string is supposed to contain two characters: among ?, 1, *, +
      * Can be implemented otherwise
      */
+    public void setLevel( String level );
+    public String getLevel();
+    /**
+     * Alignment type:
+     * Currently defined a sa String.
+     * This string is supposed to contain two characters: among ?, 1, *, +
+     * Can be implemented otherwise
+     */
     public void setType( String type );
     public String getType();
 
@@ -77,6 +86,8 @@ public interface Alignment
      */
     public void addAlignCell( OWLEntity ob1, OWLEntity ob, String relation, double measure) throws OWLException;
     public void addAlignCell( OWLEntity ob1, OWLEntity ob2) throws OWLException;
+    public Cell getAlignCell1( OWLEntity ob ) throws OWLException;
+    public Cell getAlignCell2( OWLEntity ob ) throws OWLException;
     /**
      * Each part of the cell can be queried independently.
      * There is not cell access out of the alignment objects.
@@ -89,6 +100,7 @@ public interface Alignment
     public double getAlignedMeasure2( OWLEntity ob ) throws OWLException;
 
     public Enumeration getElements();
+    public int nbCells();
 
     /** Housekeeping **/
     /**

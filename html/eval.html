@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Evaluating alignments</title>
+</head>
+<body bgcolor="#ffffff">
+
+<p>On top of the alignment API, there is an evaluation API and an
+implementation described here. It is included in the 
+<a href="align.html">Alignment toolkit</a></p>
+
+<h1>Evaluating</h1>
+<p>For demonstrating the use of the API, we implement it and use it
+  through a particular processor
+  (<tt>fr.inrialpes.exmo.align.util.EvalAlign</tt>) which:
+<ul compact="1">
+<li>Reads two OWL/RDF ontologies;</li>
+<li>Creates an alignment object;</li>
+<li>Computes the alignment between these ontologies;</li>
+<li>Displays the result.</li>
+</ul>
+Running the program is achieved through:
+<pre>
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign
+Require two alignement filenames
+usage: EvalAlign [options] file1 file2
+options are:
+        --debug[=n] -d[=n]              Report debug info at level ,
+        --impl[=classname] -i classname Use classname for implementing Evaluator
+        --help -h                       Print this message
+</pre>
+or ($CWD is the current directory)
+<pre>
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://localhost$CWD/result/align1.owl file://localhost$CWD/result/align2.owl 
+</pre>
+</p>
+
+<h1>Implementing and extending the API</h1>
+<p>A (default) impplementation of this API can be found in
+  the <tt>fr.inrialpes.exmo.align.impl</tt> package.</p>
+<p>Adding new evaluations methods amounts to create a
+  new <tt>Evaluator</tt> 
+  class implementing the interface. Generally, this can extend the
+  proposed <tt>fr.inrialpes.exmo.align.impl.BasicEvaluator</tt>
+  class.</p>
+<p>The <tt>BasicEvaluator</tt> has the good taste of defining the storage
+  sructures for alignment, but this is all.</p>
+<p>The <tt>PRecEvaluatir</tt> class extends
+  the <tt>BasicEvaluatir</tt> by computing a very basic
+  Precision/Recall rate.</p>
+</p>
+
+<address>
+<small>
+<hr />
+<center>http://co4.inrialpes.fr/align/align.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>
