@@ -79,15 +79,11 @@ public class PRecEvaluator extends BasicEvaluator {
 
 		for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
 			Cell c1 = (Cell) e.nextElement();
-			try {
-			
-			Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());
-						
+			try {			
+			Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());	
 			if (c2 != null) {
-
 					URI uri1 = ((OWLEntity) c1.getObject2()).getURI();
-					URI uri2 = ((OWLEntity) c2.getObject2()).getURI();
-					
+					URI uri2 = ((OWLEntity) c2.getObject2()).getURI();	
 					// if (c1.getobject2 == c2.getobject2)
 					if (uri1.toString().equals(uri2.toString())) {
 						nbcorrect++;
@@ -165,5 +161,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	 writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
 	 }*/
 
+	public double getPrecision() {
+		return precision;
+	}
 }
 

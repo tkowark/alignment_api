@@ -63,7 +63,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("<?xml version='1.0' encoding='utf-8");
 	//	writer.print(writer.getEncoding().toString());
 	writer.print("' standalone='no'?>\n");
-	writer.print("<!DOCTYPE rdf:RDF SYSTEM \"align.dtd\">\n\n");
+	//writer.print("<!DOCTYPE rdf:RDF SYSTEM \"align.dtd\">\n\n");
 	// add date, etc.
 	writer.print("<rdf:RDF xmlns='http://exmo.inrialpes.fr/align/1.0'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
 	writer.print("<Alignment>\n  <xml>yes</xml>\n");
@@ -77,10 +77,16 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    writer.print("</onto1>\n  <onto2>");
 	    writer.print( ((OWLOntology)align.getOntology2()).getLogicalURI().toString());
 	    writer.print("</onto2>\n");
-	    if ( align.getFile1() != null )
-		writer.print("  <uri1>"+align.getFile1().toString()+"</uri1>\n");
-	    if ( align.getFile2() != null )
-		writer.print("  <uri2>"+align.getFile2().toString()+"</uri2>\n");
+	    //if ( align.getFile1() != null )
+		//writer.print("  <uri1>"+align.getFile1().toString()+"</uri1>\n");
+	    //if ( align.getFile2() != null )
+		//writer.print("  <uri2>"+align.getFile2().toString()+"</uri2>\n");
+	    writer.print("  <uri1>");
+	    writer.print( ((OWLOntology)align.getOntology1()).getLogicalURI().toString());
+	    writer.print("</uri1>\n");
+	    writer.print("  <uri2>");
+	    writer.print( ((OWLOntology)align.getOntology2()).getLogicalURI().toString());
+	    writer.print("</uri2>\n");
 	    writer.print("  <map>\n");
 	    
 	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){

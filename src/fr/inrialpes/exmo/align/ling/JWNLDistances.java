@@ -69,6 +69,9 @@ double DistTab[];
 IndexWord index = null;
 Synset Syno[] = null;
 
+s1 = s1.toUpperCase();
+s2 = s2.toUpperCase();
+
 Dists1s2= StringDistances.subStringDistance( s1, s2 );
 
 try { index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,s1);}

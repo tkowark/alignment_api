@@ -106,7 +106,7 @@ public class EvalAlign {
 	String classname = null;
 	PrintStream writer = null;
 	LongOpt[] longopts = new LongOpt[7];
-	int debug = 0;
+	int debug = 5;
 	
 	// abcdefghijklmnopqrstuvwxyz?
 	// x  x    i      x x x x    x 
