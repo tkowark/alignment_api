@@ -49,8 +49,11 @@ import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 import org.semanticweb.owl.io.ParserException;
 import org.semanticweb.owl.io.Parser;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.Hashtable;
 import java.lang.Double;
@@ -116,12 +119,14 @@ public class Procalign {
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
 	AlignmentProcess result = null;
+	String cutMethod = "hard";
 	String initName = null;
 	Alignment init = null;
 	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
 	String filename = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
-	PrintStream writer = null;
+	//PrintStream writer = null;
+	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
 	int debug = 0;
 	double threshold = 0;
@@ -134,9 +139,10 @@ public class Procalign {
 	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-	longopts[7] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
 
-	Getopt g = new Getopt("", args, "ho:a:d::r:t:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::r:t:T:i:", longopts);
 	int c;
 	String arg;
 
@@ -164,6 +170,10 @@ public class Procalign {
 	    case 't' :
 		/* Threshold */
 		threshold = Double.parseDouble(g.getOptarg());
+		break;
+	    case 'T' :
+		/* Cut method */
+		cutMethod = g.getOptarg();
 		break;
 	    case 'd' :
 		/* Debug level  */
@@ -243,18 +253,20 @@ public class Procalign {
 	    result.align(init, params); // add opts
 
 	    // Thresholding
-	    if (threshold != 0) {
-		((BasicAlignment) result).cut(threshold);
-	    };
+	    if (threshold != 0) result.cut( cutMethod, threshold );
 
 	    if (debug > 0) System.err.println(" Alignment performed");
 	    
 	    // Set output file
+	    OutputStream stream;
 	    if (filename == null) {
-		writer = (PrintStream) System.out;
+		stream = System.out;
 	    } else {
-		writer = new PrintStream(new FileOutputStream(filename));
+		stream = new FileOutputStream(filename);
 	    }
+	    writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
 
 	    // Result printing (to be reimplemented with a default value)
 	    try {
@@ -271,7 +283,8 @@ public class Procalign {
 	    }
 
 	    // Output
-	    result.render(writer, renderer);
+	    result.render(renderer);
+	    writer.flush();
 
 	} catch (Exception ex) {
 	    throw ex;
@@ -298,6 +311,7 @@ public class Procalign {
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
 	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
+	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\tmethod for computing the threshold");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
     }

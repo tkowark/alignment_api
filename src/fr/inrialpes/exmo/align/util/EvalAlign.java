@@ -55,8 +55,11 @@ import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.Hashtable;
 
@@ -110,7 +113,7 @@ public class EvalAlign {
 	String alignName2 = null;
 	String filename = null;
 	String classname = null;
-	PrintStream writer = null;
+	PrintWriter writer = null;
 	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
 	
@@ -188,14 +191,20 @@ public class EvalAlign {
 	    // Compare
 	    eval.eval(params) ;
 
-	    // Print result
-	    if ( filename == null ) {
-		writer = (PrintStream)System.out;
+	    // Set output file
+	    OutputStream stream;
+	    if (filename == null) {
+		//writer = (PrintStream) System.out;
+		stream = System.out;
 	    } else {
-		writer = new PrintStream(new FileOutputStream( filename ));
+		//writer = new PrintStream(new FileOutputStream(filename));
+		stream = new FileOutputStream(filename);
 	    }
-	    
+	    writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
 	    eval.write( writer );
+	    writer.flush();
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();

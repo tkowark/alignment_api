@@ -50,8 +50,11 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.Hashtable;
 
@@ -104,19 +107,24 @@ public class ParserPrinter {
 	Alignment result = null;
 	String initName = null;
 	String filename = null;
-	PrintStream writer = null;
+	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
 	LongOpt[] longopts = new LongOpt[7];
 	int debug = 0;
-	boolean inverse = false;
-	
+	String rendererClass = null;
+	boolean inverse = false;	
+	double threshold = 0;
+	String cutMethod = "hard";
+
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
 	longopts[4] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
+	longopts[5] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[6] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
 	
-	Getopt g = new Getopt("", args, "hio:d::r:", longopts);
+	Getopt g = new Getopt("", args, "hio:t:T:d::r:", longopts);
 	int c;
 	String arg;
 
@@ -134,15 +142,15 @@ public class ParserPrinter {
 		break;
 	    case 'r':
 		/* Use the given class for rendernig */
-		String renderingClass = g.getOptarg();
-		try {
-		    renderer = (AlignmentVisitor) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
-		} catch (Exception ex) {
-		    System.err.println("Cannot create renderer " + 
-				       renderingClass + "\n" + ex.getMessage() );
-		    usage();
-		    return;
-		}
+		rendererClass = g.getOptarg();
+		break;
+	    case 't' :
+		/* Threshold */
+		threshold = Double.parseDouble(g.getOptarg());
+		break;
+	    case 'T' :
+		/* Cut method */
+		cutMethod = g.getOptarg();
 		break;
 	    case 'd':
 		/* Debug level  */
@@ -169,17 +177,43 @@ public class ParserPrinter {
 	    AlignmentParser aparser = new AlignmentParser( debug );
 	    result = aparser.parse( initName, new Hashtable() );
 	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
-	    if ( filename == null ) {
-		writer = (PrintStream)System.out;
+	    // Set output file
+	    OutputStream stream;
+	    if (filename == null) {
+		//writer = (PrintStream) System.out;
+		stream = System.out;
 	    } else {
-		writer = new PrintStream(new FileOutputStream( filename ));
+		//writer = new PrintStream(new FileOutputStream(filename));
+		stream = new FileOutputStream(filename);
 	    }
+	    writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
 
 	    if ( inverse ) result.inverse();
 	    
+	    // Thresholding
+	    if (threshold != 0) result.cut( cutMethod, threshold );
+
 	    //result.write( writer );
-	    if ( renderer == null ) renderer = new RDFRendererVisitor( writer );
-	    result.render( writer, renderer );
+	    if ( rendererClass == null ) renderer = new RDFRendererVisitor( writer );
+	    else {
+		try {
+		    //renderer = (AlignmentVisitor) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
+		Object[] mparams = {(Object) writer };
+		java.lang.reflect.Constructor[] rendererConstructors =
+		    Class.forName(rendererClass).getConstructors();
+		renderer =
+		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+		} catch (Exception ex) {
+		    System.err.println("Cannot create renderer " + 
+				       rendererClass + "\n" + ex.getMessage() );
+		    usage();
+		    return;
+		}
+	    }
+	    result.render( renderer );
+	    writer.flush();
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();
@@ -187,7 +221,7 @@ public class ParserPrinter {
     }
 
     public static void usage() {
-	System.out.println("usage: ParserPrinter [options] URI1 URI2");
+	System.out.println("usage: ParserPrinter [options] URI");
 	System.out.println("options are:");
 	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
