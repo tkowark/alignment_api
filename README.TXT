@@ -1,5 +1,5 @@
-Ontology alignment API and implementation, version 1.1
-05/11/2004
+Ontology alignment API and implementation, version 1.2
+23/11/2004
 
 Copyright (C) 2003-2004 INRIA Rhône-Alpes.
 Copyright (C) 2004 Université de Montréal.

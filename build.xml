@@ -3,48 +3,50 @@
 
 <project name="align" default="compile" basedir=".">
 	
-	<!-- tested -->
-	<target name="usage" depends="init">
-		<echo message="sh ant _target_ _options_"/>
-		<echo/>
-		<echo message="usage: this message"/>
-		<echo message="init: sets necessary variables"/>
-		<echo message="compile: incrementaly compiles sources"/>
-		<echo message="compileall: recompiles all sources"/>
-		<echo message="jar: archives compiled code"/>
-		<echo message="test: performs unit tests [nyi]"/>
-		<echo message="zip: creates a new zip file"/>
-		<echo message="javadoc: generates documentation"/>
-		<echo message="release: releases a new version [nyi]"/>
-		<echo message="clean: clean-up the release directory"/>
-		<echo/>
-		<echo message="	-Dversion=${version}"/>
-	</target>
+  <!-- tested -->
+  <target name="usage" depends="init">
+    <echo message="sh ant _target_ _options_"/>
+    <echo/>
+    <echo message="usage: this message"/>
+    <echo message="init: sets necessary variables"/>
+    <echo message="compile: incrementaly compiles sources"/>
+    <echo message="compileall: recompiles all sources"/>
+    <echo message="jar: archives compiled code"/>
+    <echo message="test: performs unit tests [nyi]"/>
+    <echo message="zip: creates a new zip file"/>
+    <echo message="javadoc: generates documentation"/>
+    <echo message="release: releases a new version"/>
+    <echo message="clean: clean-up the release directory"/>
+    <echo/>
+    <echo message="	-Dversion=${version}"/>
+  </target>
 
-	<!-- tested -->
-	<target name="init">
-		<tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
-		<property name="doing" value="running"/>
-		<property name="version" value="1-0-0${doing}"/>
-		<property name="date" value="${TODAY}"/>
-		<property name="login" value="euzenat"/>
-		<property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
-		<property name="libdir"  value="lib" />
-		<property name="debug" value="off"/>
-		<property name="WebDir" value="/Volumes/Phata/Web/html/co4/align"/>
+  <!-- tested -->
+  <target name="init">
+    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
+    <property name="doing" value="running"/>
+    <property name="version" value="1.2"/>
+    <property name="date" value="${TODAY}"/>
+    <property name="login" value="euzenat"/>
+    <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
+    <property name="libdir"  value="lib" />
+    <property name="debug" value="off"/>
+    <property name="rootdir" value="/Volumes/Phata/Web/html"/>
+    <property name="WebDir" value="${rootdir}/co4/align"/>
+    <property name="FTPDir" value="${rootdir}/ftpexmo/software/ontoalign"/>
 
-		<property name="classpath"  value="classes"/>
-
-		<filter token="DATE" value="${date}"/>
-		<filter token="VERS" value="${version}"/>
-	
-		<path id="classpath">
-			<fileset dir="./lib">
-				<include name="*.jar"/>
-			</fileset>
-		</path>
-	
-	</target>
+    <property name="classpath"  value="classes"/>
+    
+    <filter token="DATE" value="${date}"/>
+    <filter token="VERS" value="${version}"/>
+    
+    <path id="classpath">
+      <fileset dir="./lib">
+	<include name="*.jar"/>
+      </fileset>
+    </path>
+    
+  </target>
 
   <!-- tested -->
   <target name="compile" depends="init">
@@ -119,21 +121,28 @@
     </javadoc>
   </target>
 
+  <!-- tested -->
   <target name="release" depends="init">
+    <echo message="Releasing version ${version}" />
+    <copy file="distrib/README.TXT" tofile="README.TXT" filtering="true"/>
+    <copy file="distrib/LICENSE.TXT" tofile="LICENSE.TXT" filtering="true"/>
     <antcall target="zip"/>
+    <copy file="${FTPDir}/align-${version}.zip" tofile="${WebDir}/align.zip" />
+    <delete file="LICENSE.TXT"/>
   </target>
 
   <!-- tested -->
   <target name="zip" depends="jar">
     <echo message="Ziping..."/>
-    <copy todir="${WebDir}">
+    <echo message="Are you sure that everything is OK (update/ci/compile)?"/>
+    <copy todir="${WebDir}" filtering="true">
       <fileset dir="html" includes="**/*.html,**/*.css"/>
     </copy>
     <!--copy todir="${WebDir}">
       <fileset dir="/Users/euzenat/Papiers/Align\ paper/align.pdf"/>
     </copy-->
     <!-- zip everything from outside -->
-    <zip zipfile="${WebDir}/align.zip">
+    <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir="." includes="**/*"/>
     </zip>
   </target>
