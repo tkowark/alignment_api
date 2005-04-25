@@ -117,6 +117,18 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	    writer.print("     </cowl:Into>\n");
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
+    public void visit( SubsumedRelation rel ) throws AlignmentException {
+	try {
+	    writer.print("     <cowl:Onto>\n");
+	    writer.print("       <cowl:source>\n");
+	    printObject(((OWLEntity)cell.getObject1()).getURI(),(OWLOntology)alignment.getOntology1());
+	    writer.print("       </cowl:source>\n");
+	    writer.print("       <cowl:target>\n");
+	    printObject(((OWLEntity)cell.getObject2()).getURI(),(OWLOntology)alignment.getOntology2());
+	    writer.print("       </cowl:target>\n");
+	    writer.print("     </cowl:Onto>\n");
+	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+    }
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	try {
 	    writer.print("     <cowl:INCOMPATIBLE>\n");
@@ -140,6 +152,9 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
+	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(rel) ) {
+		mm = this.getClass().getMethod("visit",
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation")});
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});

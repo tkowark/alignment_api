@@ -43,7 +43,7 @@ public class SubsumeRelation extends BasicRelation
 
     /** Creation **/
     public SubsumeRelation(){
-	super("<");
+	super(">");
     }
 }
 

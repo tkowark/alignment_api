@@ -114,6 +114,7 @@ public class XSLTRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( SubsumeRelation rel ){};
+    public void visit( SubsumedRelation rel ){};
     public void visit( IncompatRelation rel ){};
 
     public void visit( Relation rel ) throws AlignmentException {
@@ -127,6 +128,9 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
+	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(rel) ) {
+		mm = this.getClass().getMethod("visit",
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation")});
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});

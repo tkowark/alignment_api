@@ -82,11 +82,20 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	
 	writer.print("</rdf:RDF>\n");
     }
+
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
+	OWLOntology onto1 = null;
+	URI entity1URI = null;
 	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	    // Not very good but we failed to think subsumed from the first shot.
+	    if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(cell.getRelation()) ) {
+		onto1 = (OWLOntology)alignment.getOntology2();
+		entity1URI = ((OWLEntity)cell.getObject2()).getURI();
+	    } else {
+		onto1 = (OWLOntology)alignment.getOntology1();
+		entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	    }
 	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
 		writer.print("  <owl:Class rdf:about=\""+entity1URI.toString()+"\">\n");
 		cell.getRelation().accept( this );
@@ -105,7 +114,9 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 		writer.print("  </owl:Thing>\n");
 	    }
 	    writer.print("\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	}
+	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	catch (ClassNotFoundException e) { throw new AlignmentException("Class no found", e); };
     }
     public void visit( EquivRelation rel ) throws AlignmentException {
 	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
@@ -137,6 +148,19 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	    }
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
+    public void visit( SubsumedRelation rel ) throws AlignmentException {
+	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
+	try {
+	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
+		writer.print("    <rdfs:subClassOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
+	    } else if ( (OWLEntity)onto1.getDataProperty( entity1URI ) != null ) { // A Dataproperty
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
+	    } else if ( (OWLEntity)onto1.getObjectProperty( entity1URI ) != null ) { // An ObjectProperty
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
+	    }
+	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+    }
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
 	try {
@@ -155,6 +179,9 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
+	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(rel) ) {
+		mm = this.getClass().getMethod("visit",
+					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation")});
 	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
 		mm = this.getClass().getMethod("visit",
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
