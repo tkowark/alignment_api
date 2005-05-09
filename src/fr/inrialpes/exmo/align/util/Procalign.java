@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2004, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2005, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -226,6 +226,9 @@ public class Procalign {
 		    public void owlFullConstruct(int code, String message)
 			throws SAXException {
 		    }
+		public void owlFullConstruct(int code, String message, Object o)
+		    throws SAXException {
+		}
 		    public void error(String message) throws SAXException {
 			throw new SAXException(message.toString());
 		    }

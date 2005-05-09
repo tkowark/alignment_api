@@ -83,12 +83,13 @@ DOCUMENTATION
 
 The best documentation can be found on the web site above.
 
+It is included in the html/index.html directory.
+
 FILES
 -----
 
 README.TXT	this file
 LICENSE.TXT	the terms under which the software is licensed to you.
-RELNOTES.TXT	release notes and to-do list
 build.xml	the Ant build file for compiling and testing
 classes/	empty directory for compiling the sources
 distrib/	some files for generating a new jarfile

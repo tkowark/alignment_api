@@ -1,6 +1,7 @@
 <html>
 <head>
-<title>Release notes</title>
+<title>Align API: Release notes</title>
+<style type="text/css">@import url(style.css);</style>
 </head>
 <body bgcolor="#ffffff">
 
@@ -8,20 +9,61 @@
 
 <h2>To do</h2>
 
+<p><ul compact="1">
+<li>Add full support for algebraic operations (meet/join/inv/compose)</li>
+<li>Fix all implementation that assume 1-1 alignments</li>
+<li>Fix usability of Wordnet (on Mac OS X)</li>
+<li>Full implementation of parameters</li>
+<li>GroupAlign implementation</li>
+<li>Build on unit tests</li>
+<li>Separating the API from its implementation (alignapi/alignimpl)</li>
+<li>Separating the wordnet stuff from the rest (alignwn)</li>
+<li>Integrating tagging to the wordnet stuff</li>
+</ul></p>
+
+<h2>Current CVS version</h2>
+
+<p>Upgraded to OWL-API 05-03-21</p>
+<p>Compatible with Java 1.5</p>
+
+<p>New version featuring:
 <ul compact="1">
-<li>Pass debug flag through parameters (almost done, to be checked in StrucSubsDistNameAlignment);</li>
-<li>Factorize distanceAlignment, in fact the selection;</li>
-<li>Implement correctly OWL-based stuff about non 1:1 alignments</li>
-<li>Integrate WordNet proximity</li>
-<li>Providing an XSLT stylesheet for evaluation;</li>
+<li>Corrected XML header of some examples (necessary for Java 1.5)</li>
+<li>Added a (necessary) SubsumedRelation!</li>
+<li>Added a sample embedding of main functions</li>
+<li>Added three replicas of align(A,p) -> align(), align(A) and align(p)</li>
+<li>Added SEKTMapping renderer</li>
 </ul>
 
-<h2>Done but not released yet</h2>
+<h2>November 23th, 2004</h2>
 
+<p><b>Version 1.2: 23/11/2004 - ISWC suggestions and improvements</b></p>
+
+<p>New version featuring:
 <ul compact="1">
+<li>Added multiple cut implementation (hard/perc/prop/best...)</li>
+<li>Added COWL renderer</li>
+<li>Added warning about the need of log4j and getopts</li>
+<li>Forced the RDFRenderer to generate UTF-8 (the parser does only accept UTF-8 in element names). All renderers take PrintWriters as arguments.</li>
+<li>Fully implemented the parser and the printer so that onto tags contains file info and uri tags contain URI info.</li>
+</ul></p>
+
+<h2>November 5th, 2004</h2>
+
+<p><b>Version 1.1: 5/11/2004 - Lessons from EON</b></p>
+
+<p>New version featuring:
+<ul compact="1">
+<li>Fixed the format output and parsing to true RDF</li>
+<li>Implemented GroupEval</li>
+<li>Added WordNet method</li>
+<li>Fixed two bugs in methods ()</li>
+<li>Divided impl directory into method/rendered...</li>
+<li>Implemented the inverse method</li>
+<li>Added RDFS Format</li>
 <li>Added an "id" to each cell (in API, Renderer and Parser);</li>
 <li>Provided an XSLT stylesheet for alignments;</li>
-</ul>
+</ul></p>
 
 <h2>April 19th, 2004</h2>
 
@@ -49,8 +91,10 @@
 <li>Corrected StrucSubsDistNameAlignment;</li>
 <li>Changed name: Evaluator.evaluate() --> Evaluator.eval();</li>
 </ul>
-T
+
 <h2>April 4th, 2004</h2>
+
+<p><b>Version 1.0: 4/4/2004 - First complete version</b></p>
 
 <p>This use the last version of the OWL API (090304).</p>
 
@@ -58,6 +102,8 @@ T
 <ul compact="1">
 <li>Added the Evaluator interface and implementation (PRecEvaluator
   and SymMeanEvaluator).</li>
+<li>Added Exceptions</li>
+<li>Added Renderer as visitors</li>
 <li>Added a simple structural algorithm (StrucSubsDistNameAlignment).</li>
 <li>Added a number of alignment based on substring distance;</li>
 <li>Various improvements.</li>
@@ -75,7 +121,7 @@ T
 
 <h2>December 2003</h2>
 
-<p>First release</p>
+<p><b>Version 0.1: 12/12/2003 - First release</b></p>
 
 <address>
 <small>
