@@ -1,5 +1,5 @@
 /*
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,17 +20,20 @@ package fr.inrialpes.exmo.align.impl;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Parameters;
+
 /**
  * @author jpierson
- *
+ * JE: THIS CLASS SHOULD BE OBSOLETED!
  */
 
 public class alignmentExtractor implements Extractor {
 
-	public BasicAlignment extractAlignment(String type) {
+	public Alignment extractAlignment(String type) {
 		BasicAlignment Al = new BasicAlignment();
-		return (Al);}
-		public void threshold (String type, BasicParameters param){}
+		return ((Alignment)Al);}
+		public void threshold (String type, Parameters param){}
 		
 
 }

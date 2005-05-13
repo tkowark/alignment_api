@@ -34,8 +34,9 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Parameters;
+
 import fr.inrialpes.exmo.align.impl.Similarity;
 
 /**
@@ -57,40 +58,29 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
      * 
      */
     private double propmatrix[][]; 
+
     /**	 class similarity matrix
      * 
      */
-		
     private double classmatrix[][]; 
+
     /** Individual similarity matrix
      * 
      */
+
     private double individualmatrix[][];
-
     private int nbclass1 = 0; // number of classes in onto1
-
     private int nbclass2 = 0; // number of classes in onto2
-
     private int nbprop1 = 0; // number of properties in onto1
-
     private int nbprop2 = 0; // number of properties in onto2
-	
     private int nbindividu1 = 0; // number of individual in onto1
-
     private int nbindividu2 = 0; // number of individual in onto2
-
     private Vector classlist2 = new Vector(10); // onto2 classes
-
     private Vector classlist1 = new Vector(10); // onto1 classes
-
     private Vector proplist2 = new Vector(10); // onto2 properties
-
     private Vector proplist1 = new Vector(10); // onto1 properties
-
     private Vector individulist2 = new Vector(10); // onto2 Individuals
-
     private Vector individulist1 = new Vector(10); // onto1 Individuals
-
     private double threshold;
 
     public SimExtract( String simClassName ) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -106,7 +96,7 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
      * Intialize the Alignment extraction process.
      * @param param
      */
-    public void align(BasicParameters param) {
+    public void align( Parameters param) {
 	sim.initialize(param);
 	onto1 = (OWLOntology) param.getParameter("ontology1");
 	onto2 = (OWLOntology) param.getParameter("ontology2");
@@ -203,7 +193,7 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
      * 
      * @return A basicAligment object
      */
-    public BasicAlignment extractAlignment(String type) {
+    public Alignment extractAlignment(String type) {
 	BasicAlignment Al = new BasicAlignment();
 	int i = 0, j = 0;
 

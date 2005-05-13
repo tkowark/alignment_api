@@ -1,5 +1,5 @@
 /*
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,15 +17,14 @@
  */
 package fr.inrialpes.exmo.align.impl;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Parameters;
 
 /**
  * @author jpierson
-
+ * JE: WHAT THE HELL DOES THAT INTERFACE OUT OF THE API !!!
  */
 public interface Extractor {
-	public void threshold (String type, BasicParameters param);
-	public BasicAlignment extractAlignment (String type);
-
+	public void threshold (String type, Parameters param);
+	public Alignment extractAlignment (String type);
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -46,7 +46,7 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
- * Renders an alignment as a new ontology merging these.
+ * Renders an alignment in its RDF format
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -76,10 +76,6 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print( align.getType() );
 	writer.print("</type>\n");
 	try {
-	    //writer.print( ((OWLOntology)align.getOntology1()).getLogicalURI().toString());
-	    //writer.print("</onto1>\n  <onto2>");
-	    //writer.print( ((OWLOntology)align.getOntology2()).getLogicalURI().toString());
-	    //writer.print("</onto2>\n");
 	    if ( align.getFile1() != null )
 		writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
 	    if ( align.getFile2() != null )
