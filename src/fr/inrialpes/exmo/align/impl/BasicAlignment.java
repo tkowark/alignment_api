@@ -89,6 +89,7 @@ public class BasicAlignment implements Alignment {
 
     // Note: protected is a problem outside of package
     //  but everything else is public
+    // JE[15/5/2005]: This does not seem to be a problem indeed
     protected void init(OWLOntology onto1, OWLOntology onto2) {
 	this.onto1 = onto1;
 	this.onto2 = onto2;
