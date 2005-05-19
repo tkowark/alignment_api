@@ -84,6 +84,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     where the options are:
     <pre>
         --alignment=filename -a filename Start from an XML alignment file
+	--params=filename -p filename   Read the parameters in file
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --impl=className -i classname           Use the given alignment implementation.
@@ -123,6 +124,7 @@ public class Procalign {
 	Alignment init = null;
 	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
 	String filename = null;
+	String paramfile = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 	//PrintStream writer = null;
 	PrintWriter writer = null;
@@ -131,7 +133,7 @@ public class Procalign {
 	double threshold = 0;
 	Parameters params = new BasicParameters();
 
-	LongOpt[] longopts = new LongOpt[9];
+	LongOpt[] longopts = new LongOpt[10];
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -141,10 +143,11 @@ public class Procalign {
 	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
+	longopts[8] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	// Is there a way for that in LongOpt ???
-	longopts[8] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:a:d::r:t:T:i:D::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:p:d::r:t:T:i:D::", longopts);
 	int c;
 	String arg;
 
@@ -154,8 +157,12 @@ public class Procalign {
 		usage();
 		return null;
 	    case 'o' :
-		/* Write warnings to stdout rather than stderr */
+		/* Use filename instead of stdout */
 		filename = g.getOptarg();
+		break;
+	    case 'p' :
+		/* Read parameters from filename */
+		paramfile = g.getOptarg();
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */
@@ -202,6 +209,10 @@ public class Procalign {
 	
 	int i = g.getOptind();
 
+	// Read the param file here
+	// This should include redirecting input + this should be before
+	if ( paramfile != null ) params = (Parameters)BasicParameters.read();
+
 	loadedOntologies = new Hashtable();
 	if (debug > 0) params.setParameter("debug", new Integer(debug));
 	// debug = ((Integer)params.getParameter("debug")).intValue();
@@ -233,7 +244,7 @@ public class Procalign {
 			throw new SAXException(message.toString());
 		    }
 		    public void warning(String message) throws SAXException {
-			System.out.println("WARNING: " + message);
+			System.err.println("WARNING: " + message);
 		    }
 		};
 
@@ -322,16 +333,17 @@ public class Procalign {
     }
 
     public static void usage() {
-	System.out.println("usage: Procalign [options] URI1 URI2");
-	System.out.println("options are:");
-	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.out.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
-	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.out.println("\t--threshold=double -t double\tFilters the similarities under threshold");
-	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\tmethod for computing the threshold");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.out.println("\t-Dparam=value\t\t\tSet parameter");
-	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("usage: Procalign [options] URI1 URI2");
+	System.err.println("options are:");
+	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
+	System.err.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
+	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
+	System.err.println("\t--alignment=filename -a filename Start from an XML alignment file");
+	System.err.println("\t--threshold=double -t double\tFilters the similarities under threshold");
+	System.err.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\tmethod for computing the threshold");
+	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.err.println("\t-Dparam=value\t\t\tSet parameter");
+	System.err.println("\t--help -h\t\t\tPrint this message");
     }
 }

@@ -1,7 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +25,19 @@ package fr.inrialpes.exmo.align.impl;
 // import java classes
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.io.PrintStream;
+import java.io.File;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import org.semanticweb.owl.align.Parameters;
 
@@ -68,11 +82,49 @@ public class BasicParameters implements Parameters {
 	System.out.println("</Parameters>");
     }
 
+    /**
+     * displays the current parameters (debugging)
+     */
+    public void displayParameters( PrintStream stream ){
+	stream.println("Parameters:");
+	for (Enumeration e = parameters.keys(); e.hasMoreElements();) {
+	    String k = (String)e.nextElement();
+	    stream.println("  "+k+" = "+parameters.get(k));
+	}
+    }
+
     public static Parameters read(){
 	Parameters p = new BasicParameters();
-	// open the stream
-	// parse it
-	// fill the structure
+	String filename = "params.xml";
+
+	try {
+	    // open the stream
+	    DocumentBuilderFactory docBuilderFactory =
+		DocumentBuilderFactory.newInstance();
+	    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+	    Document doc = docBuilder.parse(new File(filename));
+
+	    // normalize text representation
+	    doc.getDocumentElement().normalize();
+
+	    // Get the params
+	    NodeList paramList = doc.getElementsByTagName("param");
+	    int totalParams = paramList.getLength();
+	    for (int s = 0; s < totalParams; s++) {
+		Element paramElement = (Element)paramList.item(s);
+		String paramName = paramElement.getAttribute("name");
+		NodeList paramContent = paramElement.getChildNodes();
+		String paramValue =((Node)paramContent.item(0)).getNodeValue().trim();
+		p.setParameter(paramName, paramValue); 
+	    }
+	} catch (SAXParseException err) {
+	    System.err.println("** Parsing error: ["+ err.getLineNumber()+"]: "+err.getSystemId()); 
+	    System.err.println(" " + err.getMessage());
+	} catch (SAXException e) {
+	    Exception x = e.getException();
+	    ((x == null) ? e : x).printStackTrace();
+	} catch (Throwable t) {	t.printStackTrace(); }
+
 	return p;
     }
 }
