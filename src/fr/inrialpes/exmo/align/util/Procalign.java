@@ -51,6 +51,7 @@ import org.semanticweb.owl.io.Parser;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -163,6 +164,11 @@ public class Procalign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
+		try {
+		    FileInputStream fis = new FileInputStream( paramfile );
+		    System.setIn( fis );
+		} catch (Exception e) { e.printStackTrace(); }
+		params = (Parameters)BasicParameters.read();
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */
@@ -208,10 +214,6 @@ public class Procalign {
 	}
 	
 	int i = g.getOptind();
-
-	// Read the param file here
-	// This should include redirecting input + this should be before
-	if ( paramfile != null ) params = (Parameters)BasicParameters.read();
 
 	loadedOntologies = new Hashtable();
 	if (debug > 0) params.setParameter("debug", new Integer(debug));
