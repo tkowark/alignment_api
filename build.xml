@@ -69,14 +69,18 @@
     <echo message="Jarchiving..."/>
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
     <delete file="lib/align.jar"/>
-    <jar jarfile="lib/align.jar">
+    <jar jarfile="lib/align.jar" manifest="distrib/MANIFEST.MF">
       <fileset dir="classes" includes="org/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/procalign.jar"/>
-    <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST.MF">
-      <fileset dir="classes" includes="fr/**/*.class"/>
-      <!--fileset dir="resources" includes="*.properties"/-->
+    <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST-pr.MF">
+      <fileset dir="classes" includes="fr/**/*.class" excludes="fr/inrialpes/exmo/align/ling/**/*.class"/>
+      <fileset dir="classes" includes="LICENSE.TXT"/>
+    </jar>
+    <delete file="lib/alignwn.jar"/>
+    <jar jarfile="lib/alignwn.jar" manifest="distrib/MANIFEST-wn.MF">
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
   </target>

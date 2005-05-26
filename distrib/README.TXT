@@ -1,7 +1,7 @@
 Ontology alignment API and implementation, version @VERS@
 @DATE@
 
-Copyright (C) 2003-2004 INRIA Rhône-Alpes.
+Copyright (C) 2003-2005 INRIA Rhône-Alpes.
 Copyright (C) 2004 Université de Montréal.
 
 This program is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ Using with JWNL (Wordnet)
 - jwnl.jar commons-logging.jar must be in lib.
 - file_properties.xml must be in current directory
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
+$ java -jar lib/alignwn.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
 
 LAST RELEASE
 ------------
