@@ -69,10 +69,9 @@ If you are not familiar with CVS, its is time to document yourself.
   <li>rdf: some examples to be tested;</li>
   <li>results: some result alignments and evaluations;</li>
   <li>dtd: the align.dtd and align.owl alignment specification;</li>
-  <li>lib: jar-files including a procalign.jar (in the zip-file the
-  owl-api libraries are included);</li>
+  <li>lib: jar-files (in the zip-file the owl-api libraries are included);</li>
   <li>html: a few html presentation files</li>
-  <li>build.xml: ant file to compile and generate jar-file.</li>
+  <li>build.xml: ant file to compile and generate jar-files.</li>
   <li>distrib: contains a few files for building the distribution</li>
   <li>classes: the compiled classes (in the zip file, the classes are
   included)</li> 
@@ -100,6 +99,26 @@ Note that OWL-API needs log4j and getopt packages, but these are
   not included in the CVS repositories). It is also very usefull to
   have <a ref="http://ant.apache.org">Ant</a>.</p>
 
+<h2>Required libraries (jar)</h2>
+
+<p>Using the api (align.jar) requires:
+<ul compact="1">
+<li>OWL-API (api.jar)</li>
+</ul></p>
+<p>Using its implementation (procalign.jar) requires in addition:
+<ul compact="1">
+<li>the implementation of the OWL-API (impl.jar, io.jar, rdfparser.jar,
+rdfapi.jar),</li>
+<li>GNU parameter management (getopt.jar),</li>
+<li>(log4j.jar).</li>
+</ul></p>
+<p>Using the <a href="alignwn.html">Wordnet example</a> requires, in
+addition:
+<ul compact="1">
+<li>commons-logging.jar</li>
+<li>The Java WordNet Library (jwnl.jar).</li>
+</ul></p>
+
 <h2>Assembling</h2>
 
 <p>A good way of setting your environment (from the CVS archive) for
@@ -117,7 +136,8 @@ $ rm -rf owl
 
 <h1>Compilation and use</h1>
 
-<p>Generating the lib/procalign.jar file can be done by launching:
+<p>Generating the lib/procalign.jar file (and the other libraries) can
+  be done by launching:
 <pre>
 $ ant jar
 </pre></p>
@@ -153,12 +173,13 @@ or ($CWD is the current directory)
 <pre>
 $ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
 </pre>
-Additionaly a number of options are, or will be, available:
+Additionaly a number of options are available:
 <ul compact="1">
 <li>displaying debug information (-d);</li>
 <li>controling the way of rendering the output (-r);</li>
 <li>deciding the implementation of the alignment method (-i);</li>
-<li>providing an input alignent (-a) [implemented but not used by methods].</li>
+<li>providing an input alignent (-a) [implemented but not used by most
+  methods].</li>
 </ul>
 </p>
 

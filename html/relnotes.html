@@ -12,10 +12,8 @@
 <p><ul compact="1">
 <li>Add full support for algebraic operations (meet/join/inv/compose)</li>
 <li>Fix all implementation that assume 1-1 alignments</li>
-<li>Fix usability of Wordnet (on Mac OS X)</li>
 <li>GroupAlign implementation</li>
 <li>Build on unit tests</li>
-<li>Separating the wordnet stuff from the rest (alignwn)</li>
 <li>Integrating tagging to the wordnet stuff</li>
 </ul></p>
 
@@ -27,8 +25,10 @@
 <p>New version featuring:
 <ul compact="1">
 <li>Full implementation of parameters (reader included)</li>
-<li>Separated the API from its implementation (alignapi/align)</li>
+<li>Separated the API from its implementation (align/procalign)</li>
+<li>Separated the WordNet from the implementation (alignwn)</li>
 <li>Corrected XML header of some examples (necessary for Java 1.5)</li>
+<li>Fixed usability of Wordnet (on Mac OS X)</li>
 <li>Added a (necessary) SubsumedRelation!</li>
 <li>Added a sample embedding of main functions</li>
 <li>Added three replicas of align(A,p) -> align(), align(A) and align(p)</li>
