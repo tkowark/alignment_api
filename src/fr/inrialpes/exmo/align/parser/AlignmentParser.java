@@ -243,7 +243,9 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("Alignment")) {
 		    alignment = new BasicAlignment();
 		} else {
-		    throw new SAXException("[AlignmentParser] Unknown element name : "+pName);};
+		    System.err.println("[AlignmentParser] Unknown element name : "+pName);
+		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
+		};
 	    } catch ( OWLException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); }; 
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
@@ -335,7 +337,9 @@ public class AlignmentParser extends DefaultHandler {
 		    //	{ throw new SAXException("Non parseable alignment"); }
 		} else if (pName.equals("Alignment")) {
 		} else {
-		    throw new SAXException("[AlignmentParser] Unknown element name : "+pName);};
+		    System.err.println("[AlignmentParser] Unknown element name : "+pName);
+		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
+		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); };
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {

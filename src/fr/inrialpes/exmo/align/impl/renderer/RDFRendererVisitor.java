@@ -75,6 +75,9 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
 	writer.print("</type>\n");
+	writer.print("<method>");
+	writer.print( align.getClass().getName());
+	writer.print("</method>\n");
 	try {
 	    if ( align.getFile1() != null )
 		writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
