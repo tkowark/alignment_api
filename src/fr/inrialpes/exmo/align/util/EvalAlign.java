@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2004 INRIA Rhône-Alpes.
+ * Copyright (C) 2003-2005 INRIA Rhône-Alpes.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -177,9 +177,11 @@ public class EvalAlign {
 	    if ( classname != null ) {
 		try {
 		    Object [] mparams = {(Object)align1, (Object)align2};
+		    Class oClass = Class.forName("org.semanticweb.owl.align.Alignment");
+		    Class[] cparams = { oClass, oClass };
 		    Class evaluatorClass =  Class.forName(classname);
-		    java.lang.reflect.Constructor[] evaluatorConstructors = evaluatorClass.getConstructors();
-		    eval = (Evaluator)evaluatorConstructors[0].newInstance(mparams);
+		    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
+		    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
 		} catch (Exception ex) {
 		    System.err.println("Cannot create alignment " + 
 				       classname + "\n" + ex.getMessage() );

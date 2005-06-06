@@ -199,12 +199,12 @@ public class ParserPrinter {
 	    if ( rendererClass == null ) renderer = new RDFRendererVisitor( writer );
 	    else {
 		try {
-		    //renderer = (AlignmentVisitor) ClassLoader.getSystemClassLoader().loadClass(renderingClass).newInstance();
-		Object[] mparams = {(Object) writer };
-		java.lang.reflect.Constructor[] rendererConstructors =
-		    Class.forName(rendererClass).getConstructors();
-		renderer =
-		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+		    Object[] mparams = {(Object) writer };
+		    Class[] cparams = {Class.forName("java.io.writer")};
+		    java.lang.reflect.Constructor rendererConstructor =
+			Class.forName(rendererClass).getConstructor(cparams);
+		    renderer =
+			(AlignmentVisitor) rendererConstructor.newInstance(mparams);
 		} catch (Exception ex) {
 		    System.err.println("Cannot create renderer " + 
 				       rendererClass + "\n" + ex.getMessage() );

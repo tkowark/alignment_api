@@ -267,9 +267,10 @@ public class Procalign {
 		// Create alignment object
 		Object[] mparams = {(Object)onto1, (Object)onto2 };
 		Class alignmentClass = Class.forName(alignmentClassName);
-		java.lang.reflect.Constructor[] alignmentConstructors =
-		    alignmentClass.getConstructors();
-		result = (AlignmentProcess)alignmentConstructors[0].newInstance(mparams);
+		Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
+		Class[] cparams = { oClass, oClass };
+		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 		result.setFile1(uri1);
 		result.setFile2(uri2);
 	    } catch (Exception ex) {
