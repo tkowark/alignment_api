@@ -113,7 +113,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    writer.print( ((OWLEntity)cell.getObject2()).getURI().toString() );
 	    writer.print("'/>\n      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
 	    writer.print( cell.getStrength() );
-	    writer.print("</measure>\n      <relation>");
+	    writer.print("</measure>\n");
+	    if ( !cell.getSemantics().equals("first-order") )
+		writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
+	    writer.print("      <relation>");
 	    cell.getRelation().accept( this );
 	    writer.print("</relation>\n    </Cell>\n  </map>\n");
 	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }

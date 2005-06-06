@@ -138,6 +138,11 @@ public class AlignmentParser extends DefaultHandler {
     protected String id = null;
 
     /**
+     * the semantics of the cell (default first-order)...
+     */
+    protected String sem = null;
+
+    /**
      * the measure content as text...
      */
     protected String measure = null;
@@ -191,6 +196,7 @@ public class AlignmentParser extends DefaultHandler {
 	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
 	    try {
 		if (pName.equals("relation")) {
+		} else if (pName.equals("semantics")) {
 		} else if (pName.equals("measure")) {
 		} else if (pName.equals("entity2")) {
 		    if(debugMode > 2) 
@@ -206,6 +212,7 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( atts.getValue("rdf:resource") != null ){
 			id = atts.getValue("rdf:resource");
 		    }
+		    sem = null;
 		    measure = null;
 		    relation = null;
 		    cl1 = null;
@@ -293,6 +300,8 @@ public class AlignmentParser extends DefaultHandler {
 		    relation = content;
 		} else if (pName.equals("measure")) {
 		    measure = content;
+		} else if (pName.equals("semantics")) {
+		    sem = content;
 		} else if (pName.equals("entity2")) {
 		} else if (pName.equals("entity1")) {
 		} else if (pName.equals("Cell")) {
@@ -309,6 +318,7 @@ public class AlignmentParser extends DefaultHandler {
 		    } else {
 			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
 		    if ( id != null ) cell.setId( id );
+		    if ( sem != null ) cell.setSemantics( sem );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
 		    onto1 = (OWLOntology)ontologies.get( content );

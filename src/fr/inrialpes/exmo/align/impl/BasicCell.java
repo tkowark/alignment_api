@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -55,6 +55,7 @@ public class BasicCell implements Cell, Comparable {
     }
 
     String id = null;
+    String semantics = null;
     OWLEntity object1 = null;
     OWLEntity object2 = null;
     Relation relation = null;
@@ -106,6 +107,11 @@ public class BasicCell implements Cell, Comparable {
 
     public String getId(){ return id; };
     public void setId( String id ){ this.id = id; };
+    public String getSemantics(){ 
+	if ( semantics != null ) { return semantics; }
+	else { return "first-order"; }
+    };
+    public void setSemantics( String sem ){ semantics = sem; };
     public Object getObject1(){ return object1; };
     public Object getObject2(){ return object2; };
     public void setObject1( Object ob ) throws AlignmentException {
