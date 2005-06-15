@@ -43,10 +43,10 @@ import fr.inrialpes.exmo.align.impl.DistanceAlignment;
  */
 
 
-public class JWNLAlignmentTest extends DistanceAlignment implements AlignmentProcess
+public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 {
     /** Creation **/
-    public JWNLAlignmentTest( OWLOntology onto1, OWLOntology onto2 ){
+    public JWNLAlignment( OWLOntology onto1, OWLOntology onto2 ){
 	super( onto1, onto2 );
 	setType("**");
     };
