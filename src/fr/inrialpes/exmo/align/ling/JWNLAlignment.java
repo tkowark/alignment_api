@@ -1,8 +1,7 @@
-
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -77,7 +76,9 @@ public class JWNLAlignmentTest extends DistanceAlignment implements AlignmentPro
 	double pia2 = 0.; // relation weight for domain
 	double pia3 = 0.; // relation weight for range
 	double epsillon = 0.05; // stoping condition
-     OldJWNLDistances Dist = new OldJWNLDistances();
+	// JE: changed within the tutorial Old to not-ald
+	JWNLDistances Dist = new JWNLDistances();
+	//OldJWNLDistances Dist = new OldJWNLDistances();
      Dist.Initialize();
 				if ( params.getParameter("debug") != null )
 			     debug = ((Integer)params.getParameter("debug")).intValue();
