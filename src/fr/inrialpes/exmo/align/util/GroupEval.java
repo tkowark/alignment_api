@@ -338,6 +338,7 @@ public class GroupEval {
 	    }
 	    writer.println("</tbody></table>");
 	    writer.println("</body></html>");
+	    writer.close();
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	}

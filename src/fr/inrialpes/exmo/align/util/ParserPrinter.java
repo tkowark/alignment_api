@@ -214,6 +214,7 @@ public class ParserPrinter {
 	    }
 	    result.render( renderer );
 	    writer.flush();
+	    writer.close();
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();

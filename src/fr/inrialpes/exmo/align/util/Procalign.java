@@ -317,6 +317,7 @@ public class Procalign {
 	    // Output
 	    result.render(renderer);
 	    writer.flush();
+	    writer.close();
 
 	} catch (Exception ex) {
 	    throw ex;
