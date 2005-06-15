@@ -152,11 +152,11 @@ public class GroupAlign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		try {
-		    FileInputStream fis = new FileInputStream( paramfile );
-		    System.setIn( fis );
-		} catch (Exception e) { e.printStackTrace(); }
-		params = (Parameters)BasicParameters.read();
+		//try {
+		//    FileInputStream fis = new FileInputStream( paramfile );
+		//    System.setIn( fis );
+		//} catch (Exception e) { e.printStackTrace(); }
+		params = (Parameters)BasicParameters.read(paramfile);
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */

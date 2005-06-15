@@ -164,11 +164,11 @@ public class Procalign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		try {
-		    FileInputStream fis = new FileInputStream( paramfile );
-		    System.setIn( fis );
-		} catch (Exception e) { e.printStackTrace(); }
-		params = (Parameters)BasicParameters.read();
+		//try {
+		//    FileInputStream fis = new FileInputStream( paramfile );
+		//    System.setIn( fis );
+		//} catch (Exception e) { e.printStackTrace(); }
+		params = (Parameters)BasicParameters.read(paramfile);
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */
@@ -216,8 +216,11 @@ public class Procalign {
 	int i = g.getOptind();
 
 	loadedOntologies = new Hashtable();
-	if (debug > 0) params.setParameter("debug", new Integer(debug));
-	// debug = ((Integer)params.getParameter("debug")).intValue();
+	if (debug > 0) {
+	    params.setParameter("debug", new Integer(debug));
+	} else if ( params.getParameter("debug") != null ) {
+	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	}
 	
 	try {
 	    
