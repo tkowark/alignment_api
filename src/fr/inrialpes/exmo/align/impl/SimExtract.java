@@ -97,9 +97,9 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
      * @param param
      */
     public void align( Parameters param) {
-	sim.initialize(param);
 	onto1 = (OWLOntology) param.getParameter("ontology1");
 	onto2 = (OWLOntology) param.getParameter("ontology2");
+	sim.initialize( onto1, onto2 );
 	threshold = ((Double) param.getParameter("Threshold")).doubleValue();
 	createDistanceMatrix();
     }
