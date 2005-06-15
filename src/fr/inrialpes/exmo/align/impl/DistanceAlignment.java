@@ -101,21 +101,19 @@ public class DistanceAlignment extends BasicAlignment
 	      OWLProperty prop2 = null;
 	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
 		  OWLProperty current = (OWLProperty)it2.next();
-		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
 	      }
 	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
 		  OWLProperty current = (OWLProperty)it2.next();
-		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
 	      }
-	      if (found && max > threshold) {
-		  addAlignCell(prop1,prop2, "=", max);
-	      }
+	      if ( found ) addAlignCell(prop1,prop2, "=", max);
 	  }
 	  for (Iterator it1 = onto1.getDataProperties().iterator(); it1.hasNext(); ) {
 	      OWLProperty prop1 = (OWLProperty)it1.next();
@@ -123,21 +121,19 @@ public class DistanceAlignment extends BasicAlignment
 	      OWLProperty prop2 = null;
 	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
 		  OWLProperty current = (OWLProperty)it2.next();
-		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
 	      }
 	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
 		  OWLProperty current = (OWLProperty)it2.next();
-		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
 	      }
-	      if (found && max > threshold) {
-		  addAlignCell(prop1,prop2, "=", max);
-	      }
+	      if ( found )  addAlignCell(prop1,prop2, "=", max);
 	  }
 
 	for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ) {
@@ -146,12 +142,12 @@ public class DistanceAlignment extends BasicAlignment
 	    OWLClass class2 = null;
 	    for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ) {
 		OWLClass current = (OWLClass)it2.next();
-		val = sim.getSimilarity(class1.getURI(),current.getURI());
+		val = 1 - sim.getClassSimilarity(class1,current);
 		if (val > max) {
 		    found = true; max = val; class2 = current;
 		}
 	    }
-	    if (found && max > threshold) {
+	    if ( found ) {
 		addAlignCell(class1,class2, "=", max);
 	    }
 	}
@@ -162,14 +158,12 @@ public class DistanceAlignment extends BasicAlignment
 	    OWLIndividual ind2 = null;
 	    for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
 		OWLIndividual current = (OWLIndividual)it2.next();
-		val = sim.getSimilarity(ind1.getURI(),current.getURI());
+		val = 1 - sim.getIndividualSimilarity(ind1,current);
 		if (val > max) {
 		    found = true; max = val; ind2 = current;
 		}
 	    }
-	    if (found && max > threshold) {
-		addAlignCell(ind1,ind2, "=", max);
-	    }
+	    if ( found ) addAlignCell(ind1,ind2, "=", max);
 	}
       } catch (Exception e2) {e2.printStackTrace();}
       return((Alignment)this);

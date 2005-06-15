@@ -151,10 +151,10 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
 		OWLProperty cl = (OWLProperty) proplist1.get(i);
 		URI U1 = cl.getURI();
 		for (j = 0; j < nbprop2; j++) {
-		    cl = (OWLProperty) proplist2.get(j);
+		    OWLProperty cl2 = (OWLProperty) proplist2.get(j);
 		    URI U2;
 		    U2 = cl.getURI();
-		    propmatrix[i][j] = sim.getSimilarity(U1, U2);
+		    propmatrix[i][j] = sim.getPropertySimilarity(cl, cl2);
 		}
 	    }
 	} catch (Exception e2) {e2.printStackTrace();}
@@ -163,7 +163,7 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
 	    for (i = 0; i < nbclass1; i++) {
 		OWLClass cl = (OWLClass) classlist1.get(i);
 		for (j = 0; j < nbclass2; j++) {
-		    classmatrix[i][j] = sim.getSimilarity(cl.getURI(),((OWLClass) classlist2.get(j)).getURI());
+		    classmatrix[i][j] = sim.getClassSimilarity(cl,(OWLClass) classlist2.get(j));
 		}
 	    }
 	} catch (Exception e2) {e2.printStackTrace();}
@@ -172,7 +172,7 @@ public class SimExtract extends alignmentExtractor implements PreAlignment {
 	    for (i = 0; i < nbindividu1; i++) {
 		OWLIndividual In = (OWLIndividual) individulist1.get(i);
 		for (j = 0; j < nbindividu2; j++) {
-		    individualmatrix[i][j] = sim.getSimilarity(In.getURI(),((OWLIndividual) individulist2.get(j)).getURI());
+		    individualmatrix[i][j] = sim.getIndividualSimilarity(In,(OWLIndividual) individulist2.get(j));
 		}
 	    }
 	} catch (Exception e2) {e2.printStackTrace();}

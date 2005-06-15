@@ -25,9 +25,13 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.net.URI;
 
+import org.semanticweb.owl.model.OWLOntology;
+import org.semanticweb.owl.model.OWLClass;
+import org.semanticweb.owl.model.OWLProperty;
+import org.semanticweb.owl.model.OWLIndividual;
+
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.model.OWLOntology;
 
 /**
  * Represents the implementation of a similarity measure
@@ -46,6 +50,8 @@ public interface Similarity
     public void initialize( OWLOntology onto1, OWLOntology onto2 );
     public void initialize( OWLOntology onto1, OWLOntology onto2, Alignment align );
     public void compute( Parameters p );
-    public double getSimilarity( URI u1, URI u2 );
+    public double getClassSimilarity( OWLClass c1, OWLClass c2 );
+    public double getPropertySimilarity( OWLProperty p1, OWLProperty p2);
+    public double getIndividualSimilarity( OWLIndividual i1, OWLIndividual i2 );
 }
 
