@@ -24,7 +24,7 @@ import org.semanticweb.owl.align.Parameters;
  * @author jpierson
  * JE: WHAT THE HELL DOES THAT INTERFACE OUT OF THE API !!!
  */
+
 public interface Extractor {
-	public void threshold (String type, Parameters param);
-	public Alignment extractAlignment (String type);
+    public Alignment extract(String type, Parameters param);
 }

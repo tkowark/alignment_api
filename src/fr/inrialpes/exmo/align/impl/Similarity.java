@@ -26,6 +26,8 @@ import java.util.Enumeration;
 import java.net.URI;
 
 import org.semanticweb.owl.align.Parameters;
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.model.OWLOntology;
 
 /**
  * Represents the implementation of a similarity measure
@@ -40,7 +42,10 @@ public interface Similarity
     // ontology1 and ontology2
     // It would be better if they where explicit...
     // Apparently the initialize also compute the similarity
-    public void initialize( Parameters p );
+
+    public void initialize( OWLOntology onto1, OWLOntology onto2 );
+    public void initialize( OWLOntology onto1, OWLOntology onto2, Alignment align );
+    public void compute( Parameters p );
     public double getSimilarity( URI u1, URI u2 );
 }
 

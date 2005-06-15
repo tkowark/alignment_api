@@ -55,7 +55,6 @@ import fr.inrialpes.exmo.align.impl.DistanceAlignment;
  * @version $Id$ 
  */
 
-
 public class SubsDistNameAlignment extends DistanceAlignment implements AlignmentProcess
 {
 

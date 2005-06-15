@@ -30,10 +30,8 @@ import org.semanticweb.owl.align.Parameters;
 
 public class alignmentExtractor implements Extractor {
 
-	public Alignment extractAlignment(String type) {
-		BasicAlignment Al = new BasicAlignment();
-		return ((Alignment)Al);}
-		public void threshold (String type, Parameters param){}
-		
-
+    public Alignment extract(String type, Parameters param) {
+	BasicAlignment Al = new BasicAlignment();
+	return ((Alignment)Al);}
+    public void threshold (String type, Parameters param){}
 }

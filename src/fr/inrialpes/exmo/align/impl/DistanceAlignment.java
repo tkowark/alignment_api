@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl;
 import java.lang.ClassNotFoundException;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Vector;
 import java.io.PrintStream;
 import java.io.IOException;
@@ -33,6 +34,9 @@ import org.xml.sax.SAXException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
+import org.semanticweb.owl.model.OWLClass;
+import org.semanticweb.owl.model.OWLProperty;
+import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
@@ -40,6 +44,8 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+import org.semanticweb.owl.align.Parameters;
+import fr.inrialpes.exmo.align.impl.Similarity;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -54,10 +60,15 @@ import org.semanticweb.owl.align.Relation;
 
 public class DistanceAlignment extends BasicAlignment
 {
+    Similarity sim;
+
     /** Creation **/
     public DistanceAlignment( OWLOntology onto1, OWLOntology onto2 ){
     	init( onto1, onto2 );
     };
+
+    public void setSimilarity( Similarity s ) { sim = s; }
+    public Similarity getSimilarity() { return sim; }
 
     public void addAlignDistanceCell( Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
 	addAlignCell( ob1, ob2, relation, 1-measure );
@@ -68,6 +79,101 @@ public class DistanceAlignment extends BasicAlignment
     public double getAlignedDistance2( Object ob ) throws AlignmentException{
 	return (1 - getAlignedStrength1(ob));
     };
+
+    /**
+     * Extract the alignment form the Similarity
+     * FRom OLA
+     */
+    public Alignment extract(String type, Parameters param) {
+      int i = 0, j = 0;
+      double max = 0.;
+      double threshold = 0.;
+      boolean found = false;
+      double val = 0;
+
+      if (  param.getParameter("threshold") != null )
+	  threshold = ((Double) param.getParameter("threshold")).doubleValue();
+
+      try {
+	  for (Iterator it1 = onto1.getObjectProperties().iterator(); it1.hasNext(); ) {
+	      OWLProperty prop1 = (OWLProperty)it1.next();
+	      found = false; max = threshold; val = 0;
+	      OWLProperty prop2 = null;
+	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
+		  OWLProperty current = (OWLProperty)it2.next();
+		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  if ( val > max) {
+		      found = true; max = val; prop2 = current;
+		  }
+	      }
+	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
+		  OWLProperty current = (OWLProperty)it2.next();
+		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  if ( val > max) {
+		      found = true; max = val; prop2 = current;
+		  }
+	      }
+	      if (found && max > threshold) {
+		  addAlignCell(prop1,prop2, "=", max);
+	      }
+	  }
+	  for (Iterator it1 = onto1.getDataProperties().iterator(); it1.hasNext(); ) {
+	      OWLProperty prop1 = (OWLProperty)it1.next();
+	      found = false; max = threshold; val = 0;
+	      OWLProperty prop2 = null;
+	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
+		  OWLProperty current = (OWLProperty)it2.next();
+		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  if ( val > max) {
+		      found = true; max = val; prop2 = current;
+		  }
+	      }
+	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
+		  OWLProperty current = (OWLProperty)it2.next();
+		  val = sim.getSimilarity(prop1.getURI(),current.getURI());
+		  if ( val > max) {
+		      found = true; max = val; prop2 = current;
+		  }
+	      }
+	      if (found && max > threshold) {
+		  addAlignCell(prop1,prop2, "=", max);
+	      }
+	  }
+
+	for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ) {
+	    OWLClass class1 = (OWLClass)it1.next();
+	    found = false; max = threshold; val = 0;
+	    OWLClass class2 = null;
+	    for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ) {
+		OWLClass current = (OWLClass)it2.next();
+		val = sim.getSimilarity(class1.getURI(),current.getURI());
+		if (val > max) {
+		    found = true; max = val; class2 = current;
+		}
+	    }
+	    if (found && max > threshold) {
+		addAlignCell(class1,class2, "=", max);
+	    }
+	}
+	
+	for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
+	    OWLIndividual ind1 = (OWLIndividual)it1.next();
+	    found = false; max = threshold; val = 0;
+	    OWLIndividual ind2 = null;
+	    for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
+		OWLIndividual current = (OWLIndividual)it2.next();
+		val = sim.getSimilarity(ind1.getURI(),current.getURI());
+		if (val > max) {
+		    found = true; max = val; ind2 = current;
+		}
+	    }
+	    if (found && max > threshold) {
+		addAlignCell(ind1,ind2, "=", max);
+	    }
+	}
+      } catch (Exception e2) {e2.printStackTrace();}
+      return((Alignment)this);
+    }
 
 	// This mechanism should be parametric!
 	// Select the best match
