@@ -1,7 +1,9 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Except for the Levenshtein class whose copyright is not claimed to
+ * our knowledge.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +21,14 @@
  */
 
 /** 
+ * This class implements various string distances that can be used on
+ * various kind of strings.
+ *
+ * This includes:
+ * - subStringDistance
+ * - equality
+ * - lowenhein (edit) distance
+ * - n-gram distance
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -68,24 +78,46 @@ public class StringDistances {
     }
 
 
-/* Pointer was provided in Todd Hugues (Lockheed)
-   Taken from http://www.merriampark.com/ldjava.htm
-   Initial algorithm by Michael Gilleland
-   Integrated in Apache Jakarta Commons
-   Improved by Chas Emerick
-   This algorithm should be taken appart of this file and reset in the
-   context of a proper package name with an acceptable license terms.
-   Hopefully, Jakarta Commons will provide this.
- */
+    public static int equalDistance (String s, String t) {
+	if (s == null || t == null) {
+	    throw new IllegalArgumentException("Strings must not be null");
+	}
+	if ( s.equals(t) ) { return 1;} else {return 0;}
+    }
 
+    // JE: 30/05/2005: this has not been tested
+    public static int ngramDistance(String s, String t) {
+	int n = 3; // tri-grams for the moment
+	if (s == null || t == null) {
+	    throw new IllegalArgumentException("Strings must not be null");
+	}
+	int found = 0;
+	for( int i=0; i < s.length()-n ; i++ ){
+	    for( int j=0; j < t.length()-n; j++){
+		int k = 0;
+		for( ; (k<n) && s.charAt(i+k)==t.charAt(j+k); k++);
+		if ( k == n ) found++;
+	    }
+	}
+	return found;
+    }
+
+    /* Pointer was provided in Todd Hugues (Lockheed)
+       Taken from http://www.merriampark.com/ldjava.htm
+       Initial algorithm by Michael Gilleland
+       Integrated in Apache Jakarta Commons
+       Improved by Chas Emerick
+       This algorithm should be taken appart of this file and reset in the
+       context of a proper package name with an acceptable license terms.
+       Hopefully, Jakarta Commons will provide this.
+    */
 
     public static int levenshteinDistance (String s, String t) {
 	if (s == null || t == null) {
 	    throw new IllegalArgumentException("Strings must not be null");
 	}
 		
-	/*
-	  The difference between this impl. and the previous is that, rather 
+	/* The difference between this impl. and the previous is that, rather 
 	  than creating and retaining a matrix of size s.length()+1 by 
 	  t.length()+1,
 	  we maintain two single-dimensional arrays of length s.length()+1.
