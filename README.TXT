@@ -1,7 +1,7 @@
-Ontology alignment API and implementation, version 1.2
-23/11/2004
+Ontology alignment API and implementation, version 1.3
+15/06/2005
 
-Copyright (C) 2003-2004 INRIA Rhône-Alpes.
+Copyright (C) 2003-2005 INRIA Rhône-Alpes.
 Copyright (C) 2004 Université de Montréal.
 
 This program is free software; you can redistribute it and/or
@@ -48,13 +48,13 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter rdf/srca
 
 $ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -a rdf/srcalign.owl
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
+$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl 
 
 $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment
 
 $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment -t .4
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/sdna4h.rdf file://localhost$CWD/aligns/sdna4s.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/bibref.owl file://localhost$CWD/aligns/BLA 
 
 Using with JWNL (Wordnet)
 -------------------------
@@ -63,7 +63,7 @@ Using with JWNL (Wordnet)
 - jwnl.jar commons-logging.jar must be in lib.
 - file_properties.xml must be in current directory
 
-$ java -jar lib/alignwn.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
+$ java -jar lib/alignwn.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o aligns/JWNL.owl
 
 LAST RELEASE
 ------------
@@ -83,13 +83,12 @@ DOCUMENTATION
 
 The best documentation can be found on the web site above.
 
-It is included in the html/index.html directory.
-
 FILES
 -----
 
 README.TXT	this file
 LICENSE.TXT	the terms under which the software is licensed to you.
+RELNOTES.TXT	release notes and to-do list
 build.xml	the Ant build file for compiling and testing
 classes/	empty directory for compiling the sources
 distrib/	some files for generating a new jarfile
