@@ -29,6 +29,7 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
+import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
@@ -53,5 +54,9 @@ public interface Similarity
     public double getClassSimilarity( OWLClass c1, OWLClass c2 );
     public double getPropertySimilarity( OWLProperty p1, OWLProperty p2);
     public double getIndividualSimilarity( OWLIndividual i1, OWLIndividual i2 );
+    // New implementation
+    public double measure( OWLClass c1, OWLClass c2 ) throws OWLException;
+    public double measure( OWLProperty p1, OWLProperty p2) throws OWLException;
+    public double measure( OWLIndividual i1, OWLIndividual i2 ) throws OWLException;
 }
 

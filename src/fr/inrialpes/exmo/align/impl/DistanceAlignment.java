@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,9 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
+
 import fr.inrialpes.exmo.align.impl.Similarity;
+import fr.inrialpes.exmo.align.impl.ConcatenatedIterator;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -81,33 +83,71 @@ public class DistanceAlignment extends BasicAlignment
     };
 
     /**
+     * Process matching
+     * - create distance data structures,
+     * - compute distance or similarity
+     * - extract alignment
+     **/
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
+      if (  params.getParameter("type") != null ) 
+	  setType((String)params.getParameter("type"));
+      else setType("**");
+
+      getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
+      getSimilarity().compute( params );
+      extract( getType(), params );
+    }
+
+    /**
      * Extract the alignment form the Similarity
-     * FRom OLA
+     * There are theoretically 16 types of extractors composing the
+     * characteristics
+     * [q]estion mark = ?, one or zero relation
+     * [s]tar = *, one, zero or many relations
+     * [1] = 1, exactly one relation
+     * [p]lus = +, one or many relations
+     * for each place of the relation. Howerver, since it is not possible from a matrics to guarantee that one object will be in at least one relation, this is restricted to the four following types:
+     * ?? (covering 11, 1? and ?1)
+     * ** (covering ++, *+ and +*)
+     * ?* (covering 1*, 1+ and ?+)
+     * *? (covering +?, *1 and +1)
      */
-    public Alignment extract(String type, Parameters param) {
+    public Alignment extract(String type, Parameters params) throws AlignmentException {
+	double threshold = 0.;
+	if (  params.getParameter("threshold") != null )
+	    threshold = ((Double) params.getParameter("threshold")).doubleValue();
+	
+	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
+	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqs( threshold, params );
+	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractqs( threshold, params );
+	else if ( type.equals("**") || type.equals("+*") || type.equals("*+") || type.equals("++") ) return extractqs( threshold, params );
+	// The else should be an error message
+	else throw new AlignmentException("Unknown alignment type: "+type);
+    }
+
+    /**
+     * Extract the alignment of a ?* type
+     */
+    public Alignment extractqs( double threshold, Parameters params) {
       int i = 0, j = 0;
       double max = 0.;
-      double threshold = 0.;
       boolean found = false;
       double val = 0;
 
-      if (  param.getParameter("threshold") != null )
-	  threshold = ((Double) param.getParameter("threshold")).doubleValue();
-
       try {
-	  for (Iterator it1 = onto1.getObjectProperties().iterator(); it1.hasNext(); ) {
-	      OWLProperty prop1 = (OWLProperty)it1.next();
+	  // Extract for properties
+	  ConcatenatedIterator pit1 = new 
+	      ConcatenatedIterator(onto1.getObjectProperties().iterator(),
+				    onto1.getDataProperties().iterator());
+	  for ( ; pit1.hasNext(); ) {
+	      OWLProperty prop1 = (OWLProperty)pit1.next();
 	      found = false; max = threshold; val = 0;
 	      OWLProperty prop2 = null;
-	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
-		  OWLProperty current = (OWLProperty)it2.next();
-		  val = 1 - sim.getPropertySimilarity(prop1,current);
-		  if ( val > max) {
-		      found = true; max = val; prop2 = current;
-		  }
-	      }
-	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
-		  OWLProperty current = (OWLProperty)it2.next();
+	      ConcatenatedIterator pit2 = new 
+		  ConcatenatedIterator(onto2.getObjectProperties().iterator(),
+					onto2.getDataProperties().iterator());
+	      for ( ; pit2.hasNext(); ) {
+		  OWLProperty current = (OWLProperty)pit2.next();
 		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
@@ -115,84 +155,38 @@ public class DistanceAlignment extends BasicAlignment
 	      }
 	      if ( found ) addAlignCell(prop1,prop2, "=", max);
 	  }
-	  for (Iterator it1 = onto1.getDataProperties().iterator(); it1.hasNext(); ) {
-	      OWLProperty prop1 = (OWLProperty)it1.next();
+	  // Extract for classes
+	  for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ) {
+	      OWLClass class1 = (OWLClass)it1.next();
 	      found = false; max = threshold; val = 0;
-	      OWLProperty prop2 = null;
-	      for (Iterator it2 = onto2.getObjectProperties().iterator(); it2.hasNext(); ) {
-		  OWLProperty current = (OWLProperty)it2.next();
-		  val = 1 - sim.getPropertySimilarity(prop1,current);
-		  if ( val > max) {
-		      found = true; max = val; prop2 = current;
+	      OWLClass class2 = null;
+	      for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ) {
+		  OWLClass current = (OWLClass)it2.next();
+		  val = 1 - sim.getClassSimilarity(class1,current);
+		  if (val > max) {
+		      found = true; max = val; class2 = current;
 		  }
 	      }
-	      for (Iterator it2 = onto2.getDataProperties().iterator(); it2.hasNext();) {
-		  OWLProperty current = (OWLProperty)it2.next();
-		  val = 1 - sim.getPropertySimilarity(prop1,current);
-		  if ( val > max) {
-		      found = true; max = val; prop2 = current;
-		  }
+	      if ( found ) {
+		  addAlignCell(class1,class2, "=", max);
 	      }
-	      if ( found )  addAlignCell(prop1,prop2, "=", max);
 	  }
-
-	for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ) {
-	    OWLClass class1 = (OWLClass)it1.next();
-	    found = false; max = threshold; val = 0;
-	    OWLClass class2 = null;
-	    for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ) {
-		OWLClass current = (OWLClass)it2.next();
-		val = 1 - sim.getClassSimilarity(class1,current);
-		if (val > max) {
-		    found = true; max = val; class2 = current;
-		}
-	    }
-	    if ( found ) {
-		addAlignCell(class1,class2, "=", max);
-	    }
-	}
-	
-	for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
-	    OWLIndividual ind1 = (OWLIndividual)it1.next();
-	    found = false; max = threshold; val = 0;
-	    OWLIndividual ind2 = null;
-	    for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
-		OWLIndividual current = (OWLIndividual)it2.next();
-		val = 1 - sim.getIndividualSimilarity(ind1,current);
-		if (val > max) {
-		    found = true; max = val; ind2 = current;
-		}
-	    }
-	    if ( found ) addAlignCell(ind1,ind2, "=", max);
-	}
+	  // Extract for properties
+	  for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
+	      OWLIndividual ind1 = (OWLIndividual)it1.next();
+	      found = false; max = threshold; val = 0;
+	      OWLIndividual ind2 = null;
+	      for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
+		  OWLIndividual current = (OWLIndividual)it2.next();
+		  val = 1 - sim.getIndividualSimilarity(ind1,current);
+		  if (val > max) {
+		      found = true; max = val; ind2 = current;
+		  }
+	      }
+	      if ( found ) addAlignCell(ind1,ind2, "=", max);
+	  }
       } catch (Exception e2) {e2.printStackTrace();}
       return((Alignment)this);
-    }
-
-	// This mechanism should be parametric!
-	// Select the best match
-	// There can be many algorithm for these:
-	// n:m: get all of those above a threshold
-	// 1:1: get the best discard lines and columns and iterate
-	// Here we basically implement ?:* because the algorithm
-	// picks up the best matching object above threshold for i.
-
-    protected void selectBestMatch( int nbobj1, Vector list1, int nbobj2, Vector list2, double[][] matrix, double threshold, Object way) throws AlignmentException {
-	if (debug > 0) System.err.print("Storing class alignment\n");
-	
-	for ( int i=0; i<nbobj1; i++ ){
-	    boolean found = false;
-	    int best = 0;
-	    double max = threshold;
-	    for ( int j=0; j<nbobj2; j++ ){
-		if ( matrix[i][j] < max) {
-		    found = true;
-		    best = j;
-		    max = matrix[i][j];
-		}
-	    }
-	    if ( found ) { addAlignDistanceCell( (OWLEntity)list1.get(i), (OWLEntity)list2.get(best), "=", max ); }
-	}
     }
 
 }

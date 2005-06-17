@@ -107,6 +107,33 @@ public abstract class MatrixMeasure implements Similarity {
 	} catch (OWLException e) { e.printStackTrace(); };
     }
 
+    public void compute( Parameters params ){
+	try {
+	    // Compute distances on classes
+	    for ( Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ){
+		OWLClass cl2 = (OWLClass)it2.next();
+		for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
+		    OWLClass cl1 = (OWLClass)it1.next();
+		    clmatrix[((Integer)classlist1.get(cl1)).intValue()][((Integer)classlist2.get(cl2)).intValue()] = measure( cl1, cl2 );
+		}
+	    }
+	    // Compute distances on properties
+	    ConcatenatedIterator it2 = new
+		ConcatenatedIterator(onto2.getObjectProperties().iterator(),
+				     onto2.getDataProperties().iterator());
+	    for ( ; it2.hasNext(); ){
+		OWLProperty pr2 = (OWLProperty)it2.next();
+		ConcatenatedIterator it1 = new
+		    ConcatenatedIterator(onto1.getObjectProperties().iterator(),
+					 onto1.getDataProperties().iterator());
+		for ( ; it1.hasNext(); ){
+		    OWLProperty pr1 = (OWLProperty)it1.next();
+		    prmatrix[((Integer)proplist1.get(pr1)).intValue()][((Integer)proplist2.get(pr2)).intValue()] = measure( pr1, pr2 );
+		}
+	    }
+	} catch (OWLException e) { e.printStackTrace(); }
+    }
+
     public double getIndividualSimilarity( OWLIndividual i1, OWLIndividual i2 ){
 	// JE: non finished...
         int i,j = 0;
