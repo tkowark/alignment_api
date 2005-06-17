@@ -97,9 +97,6 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	double pia2 = 0.; // relation weight for domain
 	double pia3 = 0.; // relation weight for range
 	double epsillon = 0.05; // stoping condition
-	
-        
-
         	
 	if ( params.getParameter("debug") != null )
 	    debug = ((Integer)params.getParameter("debug")).intValue();
@@ -127,7 +124,6 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    classlist1.add( it.next() );
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
-    
 
 	if (debug > 0) System.err.println("Initializing property distances");
 	for ( i=0; i<nbprop1; i++ ){
@@ -322,10 +318,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    moy=moy+max;
 	    max=0.0;
 	}
-
 	return moy;
-	
-
     }
 
 }

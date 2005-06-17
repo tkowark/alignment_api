@@ -144,7 +144,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	    // Assess factor
 	    // -- FirstExp: nothing to be done: one pass
 	}
-	selectBestMatch( nbclass1, classlist1, nbclass2, classlist2, classmatrix, threshold, null);
+	//selectBestMatch( nbclass1, classlist1, nbclass2, classlist2, classmatrix, threshold, null);
 
     }
 
