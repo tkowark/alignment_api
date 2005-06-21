@@ -25,10 +25,11 @@
  * various kind of strings.
  *
  * This includes:
- * - subStringDistance
  * - equality
+ * - subStringDistance
+ * - pSubStringDistance [not implemented yet]
  * - lowenhein (edit) distance
- * - n-gram distance
+ * - n-gram distance [not implemented yet]
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -77,6 +78,10 @@ public class StringDistances {
 	return (1.0 - ((double)2*best / (l1+l2)));
     }
 
+    /* pSubStringDistance:
+     * find all the common substrings (up to length 3)
+     * sum their size / s1+s2
+     */
 
     public static int equalDistance (String s, String t) {
 	if (s == null || t == null) {

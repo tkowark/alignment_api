@@ -40,6 +40,7 @@ import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
@@ -60,7 +61,7 @@ import fr.inrialpes.exmo.align.impl.ConcatenatedIterator;
  */
 
 
-public class DistanceAlignment extends BasicAlignment
+public class DistanceAlignment extends BasicAlignment implements AlignmentProcess
 {
     Similarity sim;
 
@@ -171,8 +172,9 @@ public class DistanceAlignment extends BasicAlignment
 		  addAlignCell(class1,class2, "=", max);
 	      }
 	  }
-	  // Extract for properties
-	  for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
+	  // Extract for individuals
+	  // This does not work, at least for the OAEI 2005 tests
+	  /*	  for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
 	      OWLIndividual ind1 = (OWLIndividual)it1.next();
 	      found = false; max = threshold; val = 0;
 	      OWLIndividual ind2 = null;
@@ -183,8 +185,9 @@ public class DistanceAlignment extends BasicAlignment
 		      found = true; max = val; ind2 = current;
 		  }
 	      }
+	      System.err.println(ind1+" -- "+ind2+" = "+max);
 	      if ( found ) addAlignCell(ind1,ind2, "=", max);
-	  }
+	      }*/
       } catch (Exception e2) {e2.printStackTrace();}
       return((Alignment)this);
     }

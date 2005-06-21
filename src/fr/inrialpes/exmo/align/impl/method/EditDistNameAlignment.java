@@ -55,21 +55,24 @@ public class EditDistNameAlignment extends DistanceAlignment implements Alignmen
 		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
 		    String s1 = cl1.getURI().getFragment();
 		    String s2 = cl2.getURI().getFragment();
-		    return StringDistances.levenshteinDistance(
+		    if ( s1 == null || s2 == null ) return 1.;
+		    else return StringDistances.levenshteinDistance(
 							s1.toLowerCase(),
 							s2.toLowerCase()) / max(s1.length(),s2.length());
 		}
 		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws OWLException{
 		    String s1 = pr1.getURI().getFragment();
 		    String s2 = pr2.getURI().getFragment();
-		    return StringDistances.levenshteinDistance(
+		    if ( s1 == null || s2 == null ) return 1.;
+		    else return StringDistances.levenshteinDistance(
 							s1.toLowerCase(),
 							s2.toLowerCase()) / max(s1.length(),s2.length());
 		}
 		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws OWLException{
 		    String s1 = id1.getURI().getFragment();
 		    String s2 = id2.getURI().getFragment();
-		    return StringDistances.levenshteinDistance(
+		    if ( s1 == null || s2 == null ) return 1.;
+		    else return StringDistances.levenshteinDistance(
 							s1.toLowerCase(),
 							s2.toLowerCase()) / max(s1.length(),s2.length());
 		}

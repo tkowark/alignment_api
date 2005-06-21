@@ -72,19 +72,19 @@ public class BasicCell implements Cell, Comparable {
     }
 
     public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-	try {
-	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1) ||
-		 !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2) )
-		throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
-	} catch (ClassNotFoundException e) { e.printStackTrace(); }
-	object1 = (OWLEntity)ob1;
-	object2 = (OWLEntity)ob2;
+	throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
+    }
+    public BasicCell( OWLEntity ob1, OWLEntity ob2, String rel, double m ) throws AlignmentException {
+	object1 = ob1;
+	object2 = ob2;
 	if ( rel.equals("=") ) {
 	    relation = new EquivRelation();
 	} else if ( rel.equals("<") ) {
 	    relation = new SubsumeRelation();
 	} else if ( rel.equals("%") ) {
 	    relation = new IncompatRelation();
+	} else if ( rel.equals("~>") ) {
+	    relation = new NonTransitiveImplicationRelation();
 	} else {
 	    // I could use the class name for relation, 
 	    // this would be more extensible...
