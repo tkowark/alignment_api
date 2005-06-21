@@ -106,7 +106,7 @@ public class GroupAlign {
     static Hashtable loadedOntologies = null;
     static OWLRDFErrorHandler handler = null;
     static int debug = 0;
-    static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
+    static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
     static String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 
     public static void main(String[] args) {

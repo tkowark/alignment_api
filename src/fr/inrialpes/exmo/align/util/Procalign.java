@@ -123,7 +123,7 @@ public class Procalign {
 	String cutMethod = "hard";
 	String initName = null;
 	Alignment init = null;
-	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.ClassNameEqAlignment";
+	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
 	String filename = null;
 	String paramfile = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
