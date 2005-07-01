@@ -115,19 +115,19 @@ public class BasicCell implements Cell, Comparable {
     public Object getObject1(){ return object1; };
     public Object getObject2(){ return object2; };
     public void setObject1( Object ob ) throws AlignmentException {
-	try { 
-	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob) )
-		throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
-	} catch (ClassNotFoundException e) { e.printStackTrace(); }
-	object1 = (OWLEntity)ob;
+	if ( ob instanceof OWLEntity ) {
+	    object1 = (OWLEntity)ob;
+	} else {
+	    throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
+	}
     }
     public void setObject2( Object ob ) throws AlignmentException {
-	try { 
-	    if ( !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob) )
-		throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
-	} catch (ClassNotFoundException e) { e.printStackTrace(); }
-	object2 = (OWLEntity)ob;
-    };
+	if ( ob instanceof OWLEntity ) {
+	    object2 = (OWLEntity)ob;
+	} else {
+	    throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
+	}
+    }
     public Relation getRelation(){ return relation; };
     public void setRelation( Relation rel ){ relation = rel; };
     public double getStrength(){ return strength; };

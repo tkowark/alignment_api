@@ -116,17 +116,19 @@ public class BasicAlignment implements Alignment {
     };
 
     public void setOntology1(Object ontology) throws AlignmentException {
-	throw new AlignmentException("setOntollogy1: arguments must be OWLEntities");
-    };
-    public void setOntology1(OWLOntology ontology) throws AlignmentException {
-	onto1 = (OWLOntology) ontology;
+	if ( ontology instanceof OWLOntology ){
+	    onto1 = (OWLOntology) ontology;
+	} else {
+	    throw new AlignmentException("setOntology1: arguments must be OWLOntology");
+	};
     };
 
     public void setOntology2(Object ontology) throws AlignmentException {
-	throw new AlignmentException("setOntollogy2: arguments must be OWLEntities");
-    };
-    public void setOntology2(OWLOntology ontology) throws AlignmentException {
-	onto2 = (OWLOntology) ontology;
+	if ( ontology instanceof OWLOntology ){
+	    onto2 = (OWLOntology) ontology;
+	} else {
+	    throw new AlignmentException("setOntology2: arguments must be OWLOntology");
+	};
     };
 
     public void setType(String type) { this.type = type; };
@@ -155,14 +157,15 @@ public class BasicAlignment implements Alignment {
      * consider that only ONE Entity can be aligned with another !!
      * A number of modifications are considered in the //Raph:
      */
-    /** Cell methods * */
+    /** Cell methods **/
     public Cell addAlignCell(Object ob1, Object ob2, String relation,
 			     double measure) throws AlignmentException {
-	try {
-	    if (!Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1)
-		|| !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2))
+	//try {
+	    if ( !( ob1 instanceof OWLEntity && ob1 instanceof OWLEntity ) )
+		//if (!Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1)
+		//|| !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2))
 		throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
-	} catch (ClassNotFoundException e) { e.printStackTrace(); }
+	    //} catch (ClassNotFoundException e) { e.printStackTrace(); }
 	try {
 	    Cell cell = (Cell) new BasicCell((OWLEntity) ob1, (OWLEntity) ob2,
 					     relation, measure);
@@ -194,31 +197,33 @@ public class BasicAlignment implements Alignment {
 
     // Raph:
     public Iterator getAlignCells1(Object ob) throws AlignmentException {
-	throw new AlignmentException("getAlignCell1: arguments must be OWLEntities");
-    }
-    // Raph:
-    public Iterator getAlignCells1(OWLEntity ob) throws AlignmentException {
-	HashSet s = null;
-	try { s = (HashSet)hash1.get(((OWLEntity)ob).getURI()); }
-	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
-	if ( s == null ) { return null; }
-	else { return s.iterator(); }
+	if ( ob instanceof OWLEntity ){
+	    HashSet s = null;
+	    try { s = (HashSet)hash1.get(((OWLEntity)ob).getURI()); }
+	    catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	    if ( s == null ) { return null; }
+	    else { return s.iterator(); }
+	} else {
+	    throw new AlignmentException("getAlignCell1: argument must be OWLEntity");
+	}
     }
 
     public Cell getAlignCell1(Object ob) throws AlignmentException {
-	throw new AlignmentException("getAlignCell1: arguments must be OWLEntities");
-    }
-    public Cell getAlignCell1(OWLEntity ob) throws AlignmentException {
-	try { return (Cell) hash1.get(((OWLEntity) ob).getURI()); }
-	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	if ( ob instanceof OWLEntity ){
+	    try { return (Cell) hash1.get(((OWLEntity) ob).getURI()); }
+	    catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	} else {
+	    throw new AlignmentException("getAlignCell1: argument must be OWLEntity");
+	}
     }
 
     public Cell getAlignCell2(Object ob) throws AlignmentException {
-	throw new AlignmentException("getAlignCell2: arguments must be OWLEntities");
-    }
-    public Cell getAlignCell2(OWLEntity ob) throws AlignmentException {
-	try { return (Cell) hash2.get(((OWLEntity) ob).getURI()); }
-	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	if ( ob instanceof OWLEntity ){
+	    try { return (Cell) hash2.get(((OWLEntity) ob).getURI()); }
+	    catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	} else {
+	    throw new AlignmentException("getAlignCell2: argument must be OWLEntity");
+	}
     }
 
     public Object getAlignedObject1(Object ob) throws AlignmentException {
@@ -436,7 +441,7 @@ public class BasicAlignment implements Alignment {
 	}
     };
 
-    /** Housekeeping * */
+    /** Housekeeping **/
     public void dump(ContentHandler h) {
     };
 
