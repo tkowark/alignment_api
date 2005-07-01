@@ -174,33 +174,33 @@ public class GroupEval {
 
 	params = new BasicParameters();
 	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
-	// debug = ((Integer)params.getParameter("debug")).intValue();
 
 	print( iterateDirectories() );
     }
 
     public static Vector iterateDirectories (){
 	Vector result = null;
+	File [] subdir = null;
 	try {
-	    File [] subdir = (new File(System.getProperty("user.dir"))).listFiles();
-	    int size = subdir.length;
-	    result = new Vector(size);
-	    int i = 0;
-	    for ( int j=0 ; j < size; j++ ) {
-		if( subdir[j].isDirectory() ) {
-		    if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
-		    // eval the alignments in a subdirectory
-		    // store the result
-		    Object vect = (Object)iterateAlignments( subdir[j] );
-		    if ( vect != null ){
-			result.add(i, vect);
-			i++;
-		    }
-		}
-	    }
+	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
 	} catch (Exception e) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
+	}
+	int size = subdir.length;
+	result = new Vector(size);
+	int i = 0;
+	for ( int j=0 ; j < size; j++ ) {
+	    if( subdir[j].isDirectory() ) {
+		if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
+		// eval the alignments in a subdirectory
+		// store the result
+		Object vect = (Object)iterateAlignments( subdir[j] );
+		if ( vect != null ){
+		    result.add(i, vect);
+		    i++;
+		}
+	    }
 	}
 	return result;
     }
@@ -236,12 +236,12 @@ public class GroupEval {
 	Evaluator eval = null;
 	try {
 	    // Load alignments
-	    AlignmentParser aparser1 = new AlignmentParser( debug );
+	    AlignmentParser aparser1 = new AlignmentParser( debug-1 );
 	    Alignment align1 = aparser1.parse( alignName1, loaded );
-	    if ( debug > 0 ) System.err.println(" Alignment structure1 parsed");
-	    AlignmentParser aparser2 = new AlignmentParser( debug );
+	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
+	    AlignmentParser aparser2 = new AlignmentParser( debug-1 );
 	    Alignment align2 = aparser2.parse( alignName2, loaded );
-	    if ( debug > 0 ) System.err.println(" Alignment structure2 parsed");
+	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare

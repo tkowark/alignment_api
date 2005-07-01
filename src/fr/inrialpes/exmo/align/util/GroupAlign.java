@@ -101,6 +101,9 @@ public class GroupAlign {
     static Parameters params = null;
     static String filename = "align";
     static String paramfile = null;
+    static String urlprefix = null;
+    static String source = "onto1.rdf";
+    static String target = "onto.rdf";
     static URI uri1 = null;
     static String initName = null;
     static Hashtable loadedOntologies = null;
@@ -116,7 +119,7 @@ public class GroupAlign {
 
     public static void run(String[] args) throws Exception {
 
-	LongOpt[] longopts = new LongOpt[9];
+	LongOpt[] longopts = new LongOpt[12];
 	loadedOntologies = new Hashtable();
 	params = new BasicParameters();
 
@@ -128,10 +131,13 @@ public class GroupAlign {
 	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	longopts[6] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	longopts[7] = new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, 'n');
+	longopts[8] = new LongOpt("prefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
+	longopts[9] = new LongOpt("source", LongOpt.REQUIRED_ARGUMENT, null, 's');
+	longopts[10] = new LongOpt("target", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	// Is there a way for that in LongOpt ???
-	longopts[8] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	longopts[11] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:a:d::n:r:i:p:D::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p::D::", longopts);
 	int c;
 	String arg;
 
@@ -170,6 +176,18 @@ public class GroupAlign {
 		/* Use the given file as a partial alignment */
 		initName = g.getOptarg();
 		break;
+	    case 'u' :
+		/* Use the given url prefix for fetching the ontologies */
+		urlprefix = g.getOptarg();
+		break;
+	    case 's' :
+		/* Use the given filename for source ontology */
+		source = g.getOptarg();
+		break;
+	    case 't' :
+		/* Use the given filename for target ontology */
+		target = g.getOptarg();
+		break;
 	    case 'D' :
 		/* Parameter definition */
 		arg = g.getOptarg();
@@ -194,42 +212,57 @@ public class GroupAlign {
 
 	int i = g.getOptind();
 
-	if (debug > 0) params.setParameter("debug", new Integer(debug));
-	// debug = ((Integer)params.getParameter("debug")).intValue();
+	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
 
 	iterateDirectories();
     }
 
     public static void iterateDirectories (){
-	try {
-	    File [] subdir = (new File(System.getProperty("user.dir"))).listFiles();
-	    int size = subdir.length;
-	    for ( int i=0 ; i < size; i++ ) {
-		if( subdir[i].isDirectory() ) {
-		    try {
-			// Align
-			if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
-			align( subdir[i] );
-		    } catch (Exception e) { e.printStackTrace(); }
-		}
-	    }
-	} catch (Exception e) {
+	File [] subdir = null;
+	try { subdir = (new File(System.getProperty("user.dir"))).listFiles(); }
+	catch (Exception e) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
+	}
+	int size = subdir.length;
+	for ( int i=0 ; i < size; i++ ) {
+	    if( subdir[i].isDirectory() ) {
+		try {
+		    // Align
+		    if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
+		    align( subdir[i] );
+		    // Unload the ontologies
+		    // (this is a pitty but helps avoiding memory full)
+		    try {
+			for ( Enumeration e = loadedOntologies.elements() ; e.hasMoreElements();  ){
+			    OWLOntology o = (OWLOntology)e.nextElement();
+			    o.getOWLConnection().notifyOntologyDeleted( o );
+			}
+		    } catch (Exception ex) { System.err.println(ex); };
+		} catch (Exception e) { 
+		    if ( debug > 1 ) e.printStackTrace(); }
+	    }
 	}
     }
 
     public static void align ( File dir ) throws Exception {
-	String prefix = dir.toURI().toString()+File.separator;
+	String prefix = null;
+	// toURI(). is not very good
 	AlignmentProcess result = null;
 	Alignment init = null;
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
 
+	if ( urlprefix != null ){
+	    prefix = urlprefix+"/"+dir.getName()+"/";
+	} else {
+	    prefix = "file://localhost"+dir.toString()+"/";
+	}
+
 	BasicConfigurator.configure();
 
-	if ( uri1 == null ) uri1 = new URI(prefix+"onto1.rdf");
-	URI uri2 = new URI(prefix+"onto.rdf");
+	if ( uri1 == null ) uri1 = new URI(prefix+source);
+	URI uri2 = new URI(prefix+target);
 
 	handler = new OWLRDFErrorHandler() {
 		public void owlFullConstruct(int code, String message)
@@ -246,18 +279,22 @@ public class GroupAlign {
 		}
 	    };
 
-	if (debug > 0) System.err.println(" Handler set");
+	if (debug > 1) System.err.println(" Handler set");
+	if (debug > 1) System.err.println(" URI1: "+uri1);
+	if (debug > 1) System.err.println(" URI2: "+uri2);
 
 	try {
 	    if (uri1 != null) onto1 = loadOntology(uri1);
 	    if (uri2 != null) onto2 = loadOntology(uri2);
-	    if (debug > 0) System.err.println(" Ontology parsed");
+	} catch (Exception e) { return ;};
+	if (debug > 1) System.err.println(" Ontology parsed");
+	try {
 	    if (initName != null) {
-		AlignmentParser aparser = new AlignmentParser(debug);
+		AlignmentParser aparser = new AlignmentParser(debug-1);
 		init = aparser.parse(initName, loadedOntologies);
 		onto1 = (OWLOntology) init.getOntology1();
 		onto2 = (OWLOntology) init.getOntology2();
-		if (debug > 0) System.err.println(" Init parsed");
+		if (debug > 1) System.err.println(" Init parsed");
 	    }
 
 	    // Create alignment object
@@ -275,12 +312,12 @@ public class GroupAlign {
 	    throw ex;
 	}
 
-	if (debug > 0) System.err.println(" Alignment structure created");
+	if (debug > 1) System.err.println(" Alignment structure created");
 
 	// Compute alignment
 	result.align(init, params); // add opts
 
-	if (debug > 0) System.err.println(" Alignment performed");
+	if (debug > 1) System.err.println(" Alignment performed");
 
 	// Set output file
 	PrintWriter writer = new PrintWriter (
@@ -300,11 +337,11 @@ public class GroupAlign {
 	    throw ex;
 	}
 
-	if (debug > 0) System.err.println(" Outputing result to "+dir+File.separator+filename+".rdf");
+	if (debug > 1) System.err.println(" Outputing result to "+dir+File.separator+filename+".rdf");
 	// Output
 	result.render( renderer);
 
-	if (debug > 0) System.err.println(" Done..."+renderer+"\n");
+	if (debug > 1) System.err.println(" Done..."+renderer+"\n");
 	// It should be useful to unload ontologies
 
 	// JE: This instruction is very important
