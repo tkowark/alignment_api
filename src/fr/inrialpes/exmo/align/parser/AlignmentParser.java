@@ -227,7 +227,7 @@ public class AlignmentParser extends DefaultHandler {
 				ontologies.put( onto2.getLogicalURI().toString(), onto2 );
 			    }
 			}
-			alignment.setOntology2( (OWLOntology)onto2 );
+			alignment.setOntology2( onto2 );
 			if ( onto1 == null ){
 			    onto1 = loadOntology( alignment.getFile1() );
 			    if ( onto1 == null ) {
@@ -236,7 +236,7 @@ public class AlignmentParser extends DefaultHandler {
 				ontologies.put( onto1.getLogicalURI().toString(), onto1 );
 			    }
 			}
-			alignment.setOntology1( (OWLOntology)onto1 );
+			alignment.setOntology1( onto1 );
 		    } catch ( AlignmentException e ) {
 			throw new SAXException("Catched alignment exception", e );
 		    }
@@ -250,7 +250,7 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("Alignment")) {
 		    alignment = new BasicAlignment();
 		} else {
-		    System.err.println("[AlignmentParser] Unknown element name : "+pName);
+		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
 	    } catch ( OWLException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); }; 
@@ -312,6 +312,7 @@ public class AlignmentParser extends DefaultHandler {
 			System.err.println(" " + Double.parseDouble(measure));
 		    }
 		    if ( cl1 == null || cl2 == null ) {
+			// Maybe we could just print this out and fail in the end.
 			throw new SAXException( "Missing entity "+cl1+" "+cl2 ); }
 		    if ( measure == null || relation == null ){
 			cell = alignment.addAlignCell( cl1, cl2);
@@ -347,7 +348,7 @@ public class AlignmentParser extends DefaultHandler {
 		    //	{ throw new SAXException("Non parseable alignment"); }
 		} else if (pName.equals("Alignment")) {
 		} else {
-		    System.err.println("[AlignmentParser] Unknown element name : "+pName);
+		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); };
@@ -379,8 +380,8 @@ public class AlignmentParser extends DefaultHandler {
 	    };
 	parser.setOWLRDFErrorHandler( handler );
 	parser.setConnection( OWLManager.getOWLConnection() );
-	try { return parser.parseOntology( ref );
-	} catch ( Exception e ) {
+	try { return parser.parseOntology( ref ); }
+	catch ( Exception e ) {
 	    throw new SAXException("[AlignmentParser] Error during parsing : "+ref);
 	}
     }
