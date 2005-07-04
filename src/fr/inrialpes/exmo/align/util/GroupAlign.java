@@ -363,13 +363,16 @@ public class GroupAlign {
 	System.out.println("usage: GroupAlign [options]");
 	System.err.println("options are:");
 	System.err.println("\t--name=uri -n uri\t\tUse the given uri to compare with.");
+	System.err.println("\t--source=filename -s filename Source filename (default onto1.rdf)");
+	System.err.println("\t--target=filename -t filename Target filename (default onto.rdf)");
+	System.err.println("\t--prefix=uriprefix -u uriprefix URI prefix of the target");
+	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename.rdf");
 	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
 	System.err.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
-	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename.rdf");
-	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
 	System.err.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
+	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.err.println("\t--help -h\t\t\tPrint this message");
     }
 }
