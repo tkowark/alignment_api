@@ -158,7 +158,7 @@ public class JWNLDistances {
 
 		Dists1s2 = StringDistances.subStringDistance(s1, s2);
 
-		if (s1.equals(s2)) {
+		if (s1.equals(s2) || s1.toLowerCase().equals(s2.toLowerCase())) {
 			//System.out.println(s1+" - "+s2+" = "+ (1-Dists1s2) + "|" + sim);
 			return 1;
 		}
@@ -201,8 +201,8 @@ public class JWNLDistances {
 	public double computeBestMatch(String s1, String s2) {
 		Vector s1Tokens = new Vector();
 		Vector s2Tokens = new Vector();
-		tokenizes(s1, s1Tokens);
-		tokenizes(s2, s2Tokens);
+		tokenize(s1, s1Tokens);
+		tokenize(s2, s2Tokens);
 
 		// tokens storage
 		Vector vg;
@@ -469,19 +469,30 @@ public class JWNLDistances {
 		return 0;
 	}
 
-	public void tokenizes(String s, Vector sTokens) {
+	public void tokenize(String s, Vector sTokens) {
 		String str1 = s;
 		// starts on the second character of the string
 		int start = 0;
 		int car = start + 1;
 		while (car < str1.length()) {
-			while (car < str1.length() && !(str1.charAt(car) < 'Z')) {
+			while (car < str1.length() && (str1.charAt(car) > 'Z')) {
+			// PV while (car < str1.length() && !(str1.charAt(car) < 'Z')) {
 				car++;
 			}
+			// PV : Leave unique capitals with the previous token
+			if (car < str1.length() - 1 && str1.charAt(car+1) <= 'Z') {
+				car++;
+				} else {
+					if (car == str1.length() - 1) {
+						car++;
+					}	
+				}
+			
 			sTokens.add(str1.substring(start, car));
 			start = car;
 			car = start + 1;
 		}
+		// PV: Debug System.out.println("Tokens = "+ sTokens.toString());
 	}
 
 	/**
@@ -632,9 +643,10 @@ public class JWNLDistances {
 		Vector v = new Vector();
 		JWNLDistances j = new JWNLDistances();
 		j.Initialize();
-		String s1 = "Monograph";
-		String s2 = "Book";
+		String s1 = "MastersThesis";
+		String s2 = "PhDThesis";
 		System.out.println("Sim = "+ j.computeSimilarity(s1, s2));
 		System.out.println("SimOld = "+ (1 - j.BasicSynonymDistance(s1, s2)));
+		System.out.println("SimWN = "+ j.computeBestMatch(s1, s2));
 	}
 }
