@@ -21,10 +21,15 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import java.lang.ClassNotFoundException;
+import java.lang.ClassCastException;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.TreeSet;
+import java.util.SortedSet;
+import java.util.Set;
+import java.util.Comparator;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.net.URI;
@@ -59,7 +64,6 @@ import fr.inrialpes.exmo.align.impl.ConcatenatedIterator;
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
-
 
 public class DistanceAlignment extends BasicAlignment implements AlignmentProcess
 {
@@ -117,9 +121,10 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	double threshold = 0.;
 	if (  params.getParameter("threshold") != null )
 	    threshold = ((Double) params.getParameter("threshold")).doubleValue();
-	
+
+	//System.err.println("The type is "+type+" with length = "+type.length());
 	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
-	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqs( threshold, params );
+	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqq( threshold, params );
 	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractqs( threshold, params );
 	else if ( type.equals("**") || type.equals("+*") || type.equals("*+") || type.equals("++") ) return extractqs( threshold, params );
 	// The else should be an error message
@@ -128,6 +133,7 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 
     /**
      * Extract the alignment of a ?* type
+     * Complexity: O(n^2)
      */
     public Alignment extractqs( double threshold, Parameters params) {
       int i = 0, j = 0;
@@ -168,27 +174,123 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 		      found = true; max = val; class2 = current;
 		  }
 	      }
-	      if ( found ) {
-		  addAlignCell(class1,class2, "=", max);
-	      }
+	      if ( found ) addAlignCell(class1,class2, "=", max);
 	  }
 	  // Extract for individuals
 	  // This does not work, at least for the OAEI 2005 tests
-	  /*	  for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
-	      OWLIndividual ind1 = (OWLIndividual)it1.next();
-	      found = false; max = threshold; val = 0;
-	      OWLIndividual ind2 = null;
-	      for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
-		  OWLIndividual current = (OWLIndividual)it2.next();
-		  val = 1 - sim.getIndividualSimilarity(ind1,current);
-		  if (val > max) {
-		      found = true; max = val; ind2 = current;
+	  if (  params.getParameter("noinst") == null ){
+	      for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
+		  OWLIndividual ind1 = (OWLIndividual)it1.next();
+		  found = false; max = threshold; val = 0;
+		  OWLIndividual ind2 = null;
+		  for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
+		      OWLIndividual current = (OWLIndividual)it2.next();
+		      val = 1 - sim.getIndividualSimilarity(ind1,current);
+		      if (val > max) {
+			  found = true; max = val; ind2 = current;
+		      }
+		  }
+		  System.err.println(ind1+" -- "+ind2+" = "+max);
+		  if ( found ) addAlignCell(ind1,ind2, "=", max);
+	      }
+	  }
+      } catch (Exception e2) {e2.printStackTrace();}
+      return((Alignment)this);
+    }
+
+    /**
+     * Extract the alignment of a ?? type
+     * 
+     * Basic algorithm:
+     * 1) dump the part of the matrix distance above threshold in a sorted set
+     * 2) traverse the sorted set and each time a correspondence involving two
+     *    entities that have no correspondence is encountered, add it to the 
+     *    alignment.
+     * Complexity: O(n^2.logn)
+     * Pitfall: no global optimality is warranted
+     * for instance if there is the following matrix:
+     * (a,a')=1., (a,b')=.9, (b,a')=.9, (b,b')=.1
+     * This algorithm will select the first and last correspondances of
+     * overall similarity 1.1, while the optimum is the second solution
+     * with overall of 1.8.
+     */
+    public Alignment extractqq( double threshold, Parameters params) {
+      OWLEntity ent1=null, ent2=null;
+      double val = 0;
+      //TreeSet could be replaced by something else
+      //The comparator must always tell that things are different!
+      SortedSet cellSet = new TreeSet(
+			    new Comparator() {
+				public int compare( Object o1, Object o2 )
+				    throws ClassCastException{
+				    if ( o1 instanceof Cell
+					 && o2 instanceof Cell ) {
+					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					    return -1;
+					} else { return 1; }
+				    } else {
+					throw new ClassCastException();
+				    }}});
+
+      try {
+	  // Get all the matrix above threshold in the SortedSet
+	  // Plus a map from the objects to the cells
+	  // O(n^2.log n)
+	  ConcatenatedIterator pit1 = new 
+	      ConcatenatedIterator(onto1.getObjectProperties().iterator(),
+				    onto1.getDataProperties().iterator());
+	  for (; pit1.hasNext(); ) {
+	      ent1 = (OWLProperty)pit1.next();
+	      ConcatenatedIterator pit2 = new 
+		  ConcatenatedIterator(onto2.getObjectProperties().iterator(),
+				       onto2.getDataProperties().iterator());
+	      for (; pit2.hasNext(); ) {
+		  ent2 = (OWLProperty)pit2.next();
+		  val = 1 - sim.getPropertySimilarity((OWLProperty)ent1,(OWLProperty)ent2);
+		  //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+		  if ( val > threshold ){
+		      cellSet.add( new BasicCell( ent1, ent2, "=", val ) );
 		  }
 	      }
-	      System.err.println(ind1+" -- "+ind2+" = "+max);
-	      if ( found ) addAlignCell(ind1,ind2, "=", max);
-	      }*/
-      } catch (Exception e2) {e2.printStackTrace();}
+	  }
+	  for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ) {
+	      ent1 = (OWLClass)it1.next();
+	      for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ) {
+		  ent2 = (OWLClass)it2.next();
+		  val = 1 - sim.getClassSimilarity((OWLClass)ent1,(OWLClass)ent2);
+		  //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+		  if ( val > threshold ){
+		      cellSet.add( new BasicCell( ent1, ent2, "=", val ) );
+		  }
+	      }
+	  }
+	  // OLA with or without instances
+	  if (  params.getParameter("noinst") == null ){
+	      for (Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext();) {
+		  ent1 = (OWLIndividual)it1.next();
+		  for (Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ) {
+		      ent2 = (OWLIndividual)it2.next();
+		      val = 1 - sim.getIndividualSimilarity((OWLIndividual)ent1,(OWLIndividual)ent2);
+		      //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+		      if ( val > threshold ){
+			  cellSet.add( new BasicCell( ent1, ent2, "=", val ) );
+		      }
+		  }
+	      }
+	  }
+
+	  // O(n^2)
+	  for( Iterator it = cellSet.iterator(); it.hasNext(); ){
+	      Cell cell = (Cell)it.next();
+	      ent1 = (OWLEntity)cell.getObject1();
+	      ent2 = (OWLEntity)cell.getObject2();
+	      if ( (getAlignCell1( ent1 ) == null) && (getAlignCell2( ent2 ) == null) ){
+		  // The cell is directly added!
+		  addCell( ent1, ent2, cell );
+	      }
+	  };
+
+      } catch (Exception e) { e.printStackTrace(); }
       return((Alignment)this);
     }
 
