@@ -160,15 +160,20 @@ public class BasicAlignment implements Alignment {
     /** Cell methods **/
     public Cell addAlignCell(Object ob1, Object ob2, String relation,
 			     double measure) throws AlignmentException {
-	//try {
-	    if ( !( ob1 instanceof OWLEntity && ob1 instanceof OWLEntity ) )
-		//if (!Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob1)
-		//|| !Class.forName("org.semanticweb.owl.model.OWLEntity").isInstance(ob2))
-		throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
-	    //} catch (ClassNotFoundException e) { e.printStackTrace(); }
-	try {
-	    Cell cell = (Cell) new BasicCell((OWLEntity) ob1, (OWLEntity) ob2,
+	if ( !( ob1 instanceof OWLEntity && ob1 instanceof OWLEntity ) )
+	    throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
+	    Cell cell = (Cell) new BasicCell((OWLEntity)ob1, (OWLEntity)ob2,
 					     relation, measure);
+	    addCell( (OWLEntity)ob1, (OWLEntity)ob2, cell );
+	    return cell;
+    };
+
+    public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {
+	return addAlignCell( ob1, ob2, "=", 1. );
+    }
+
+    public void addCell( OWLEntity ob1, OWLEntity ob2, Cell cell ) throws AlignmentException {
+	try {
 	    //Raph: 
 	    //HashSet s1 = hash1.get((Object)(((OWLEntity)ob1).getURI()));
 	    //if ( s1 == null ){
@@ -185,14 +190,9 @@ public class BasicAlignment implements Alignment {
 	    //}
 	    //s2.add(cell);
 	    hash2.put((Object)(((OWLEntity)ob2).getURI()), cell);
-	    return cell;
 	} catch (OWLException e) {
 	    throw new AlignmentException("getURI problem", e);
 	}
-    };
-
-    public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {
-	return addAlignCell( ob1, ob2, "=", 1. );
     }
 
     // Raph:
