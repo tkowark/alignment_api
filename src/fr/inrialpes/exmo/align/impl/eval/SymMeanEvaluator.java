@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,6 +31,8 @@ import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
+import org.semanticweb.owl.model.OWLClass;
+import org.semanticweb.owl.model.OWLProperty;
 
 import java.lang.Math;
 import java.lang.ClassNotFoundException;
@@ -49,6 +51,10 @@ import org.xml.sax.SAXException;
  * The highest the value the closest are the alignments:
  * 1: the alignments are exactly the same, with the same strenghts
  * 0: the alignments do not share a single cell
+ *
+ * The result is 2*w(A\cap B)/|A|+|B|
+ * in which w(.) is the sum of the complement of the strength diference between same cells
+ * i.e., \Sum_{c\in A, c'\in R; c=c'} (1 - | c.strength - c'.strength |)
  *
  * @author Jerome Euzenat
  * @version $Id$ 
@@ -74,42 +80,40 @@ public class SymMeanEvaluator extends BasicEvaluator
 	propScore = 0.;
 	indScore = 0.;
 	
-	try {
-	    for (Enumeration e = align1.getElements() ; e.hasMoreElements() ;) {
-		Cell c1 = (Cell)e.nextElement();
-		if ( Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(c1.getObject1()) )
-		    nbClassCell++;
-		else if ( Class.forName("org.semanticweb.owl.model.OWLProperty").isInstance(c1.getObject1()) )
-		    nbPropCell++;
-		else nbIndCell++;
-		Cell c2 = (Cell)align2.getAlignCell1((OWLEntity)c1.getObject1());
-		if ( c2 != null ){
-		    if ( c1.getObject2() == c2.getObject2() ) {
-			if ( Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(c1.getObject1()) ) {
-			    classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			} else if ( Class.forName("org.semanticweb.owl.model.OWLProperty").isInstance(c1.getObject1()) ) {
-			    propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			} else {
-			    indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}
-	    }
-	    for (Enumeration e = align2.getElements() ; e.hasMoreElements() ;) {
-		Cell c2 = (Cell)e.nextElement();
-		if ( Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(c2.getObject1()))
-		    nbClassCell++;
-		else if ( Class.forName("org.semanticweb.owl.model.OWLProperty").isInstance(c2.getObject1()) )
-		    nbPropCell++;
-		else nbIndCell++;
-		Cell c1 = (Cell)align1.getAlignCell1((OWLEntity)c2.getObject1());
-		if ( c1 != null ){
-		    if ( c2.getObject2() == c1.getObject2() ) {
-			if ( Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(c2.getObject1()) ) {
-			    classScore = classScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-			} else if ( Class.forName("org.semanticweb.owl.model.OWLProperty").isInstance(c2.getObject1()) ) {
-			    propScore = propScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-			} else {
-			    indScore = indScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());}}}
-	    }
-	} catch (ClassNotFoundException e) { e.printStackTrace(); }
+	for (Enumeration e = align1.getElements() ; e.hasMoreElements() ;) {
+	    Cell c1 = (Cell)e.nextElement();
+	    if ( c1.getObject1() instanceof OWLClass )
+		nbClassCell++;
+	    else if ( c1.getObject1() instanceof OWLProperty )
+		nbPropCell++;
+	    else nbIndCell++;
+	    Cell c2 = (Cell)align2.getAlignCell1((OWLEntity)c1.getObject1());
+	    if ( c2 != null ){
+		if ( c1.getObject2() == c2.getObject2() ) {
+		    if ( c1.getObject2() instanceof OWLClass ) {
+			classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+		    } else if ( c1.getObject2() instanceof OWLProperty ) {
+			propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+		    } else {
+			indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}
+	}
+	for (Enumeration e = align2.getElements() ; e.hasMoreElements() ;) {
+	    Cell c2 = (Cell)e.nextElement();
+	    if ( c2.getObject1() instanceof OWLClass )
+		nbClassCell++;
+	    else if ( c2.getObject1() instanceof OWLProperty )
+		nbPropCell++;
+	    else nbIndCell++;
+	    Cell c1 = (Cell)align1.getAlignCell1((OWLEntity)c2.getObject1());
+	    if ( c1 != null ){
+		if ( c2.getObject2() == c1.getObject2() ) {
+		    if ( c2.getObject2() instanceof OWLClass ) {
+			classScore = classScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
+		    } else if (  c2.getObject2() instanceof OWLProperty ) {
+			propScore = propScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
+		    } else {
+			indScore = indScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());}}}
+	}
 
 	// Beware, this must come first
 	result = (classScore+propScore+indScore) / (nbClassCell+nbPropCell+nbIndCell);
