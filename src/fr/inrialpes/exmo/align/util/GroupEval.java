@@ -336,6 +336,8 @@ public class GroupEval {
 		}
 		writer.println("</tr>");
 	    }
+	    //JE: it would be interesting to compute a last row of weigthed
+	    // harmonic mean based on the size of the reference alignment.
 	    writer.println("</tbody></table>");
 	    writer.println("</body></html>");
 	    writer.close();
@@ -345,8 +347,8 @@ public class GroupEval {
     }
 
     // Borrowed and enhanced from
-    // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
-    // What a pity that it is not in Java...
+    // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
+    // What a pity that it is not in Java... (wait for 1.5)
     public static void printFormat(PrintStream w, double f){
 	// Must add the test is the value is Not a number, print NaN.
 	if ( f != f ) {
