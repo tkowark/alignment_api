@@ -94,9 +94,10 @@ public class BasicParameters implements Parameters {
     }
 
     public static Parameters read(String filename){
-	Parameters p = new BasicParameters();
-	//	String filename = "params.xml";
+	return read(new BasicParameters(), filename);
+    }
 
+    public static Parameters read(Parameters p, String filename){
 	try {
 	    // open the stream
 	    DocumentBuilderFactory docBuilderFactory =

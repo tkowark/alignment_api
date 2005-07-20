@@ -148,7 +148,7 @@ public class Procalign {
 	// Is there a way for that in LongOpt ???
 	longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:a:p:d::r:t:T:i:D::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:p:d::r:t:T:i:D:", longopts);
 	int c;
 	String arg;
 
@@ -214,6 +214,12 @@ public class Procalign {
 	}
 	
 	int i = g.getOptind();
+
+	if (debug > 0) {
+	    params.setParameter("debug", new Integer(debug));
+	} else if ( params.getParameter("debug") != null ) {
+	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	}
 
 	loadedOntologies = new Hashtable();
 	if (debug > 0) {

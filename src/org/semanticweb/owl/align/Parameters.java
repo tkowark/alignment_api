@@ -43,5 +43,6 @@ public interface Parameters {
     public Enumeration getNames();
 
     public void write();
-    //public static Parameters read();
+    //public static Parameters read(String filename);
+    //public static Parameters read(Parameters params, String filename);
 }

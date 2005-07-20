@@ -137,7 +137,7 @@ public class GroupAlign {
 	// Is there a way for that in LongOpt ???
 	longopts[11] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p::D::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p:D:", longopts);
 	int c;
 	String arg;
 
@@ -212,6 +212,9 @@ public class GroupAlign {
 
 	int i = g.getOptind();
 
+	if (debug == 0 && params.getParameter("debug") != null) {
+	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	}
 	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
 
 	iterateDirectories();
