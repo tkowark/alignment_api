@@ -160,7 +160,7 @@ public class BasicAlignment implements Alignment {
     /** Cell methods **/
     public Cell addAlignCell(Object ob1, Object ob2, String relation,
 			     double measure) throws AlignmentException {
-	if ( !( ob1 instanceof OWLEntity && ob1 instanceof OWLEntity ) )
+	if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
 	    throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
 	    Cell cell = (Cell) new BasicCell((OWLEntity)ob1, (OWLEntity)ob2,
 					     relation, measure);
