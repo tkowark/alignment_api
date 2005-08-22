@@ -469,27 +469,46 @@ public class JWNLDistances {
 		return 0;
 	}
 
+	// Splits a string into tokens
+	// Takes into account separator (Bad_Boy) and capital letter (BadBoy) -based token limits 
 	public void tokenize(String s, Vector sTokens) {
 		String str1 = s;
 		// starts on the second character of the string
 		int start = 0;
+		// PV igore leadng separators
+		while (start < str1.length() && 
+				((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z')) 
+				|| ((str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z'))) {
+			start++;
+			}
+		
 		int car = start + 1;
 		while (car < str1.length()) {
-			while (car < str1.length() && (str1.charAt(car) > 'Z')) {
+			while (car < str1.length() && (str1.charAt(car) >= 'a') && (str1.charAt(car) <= 'z')) {
+			// PV while (car < str1.length() && (str1.charAt(car) > 'Z')) {
 			// PV while (car < str1.length() && !(str1.charAt(car) < 'Z')) {
 				car++;
 			}
-			// PV : Leave unique capitals with the previous token
-			if (car < str1.length() - 1 && str1.charAt(car+1) <= 'Z') {
-				car++;
-				} else {
-					if (car == str1.length() - 1) {
-						car++;
-					}	
+			// PV : correction of the separator problem
+			if ((car < str1.length()) && (str1.charAt(car) >= 'A') && (str1.charAt(car) <= 'Z')) {
+				
+				// PV : leave single capitals with the previous token (abbreviations)
+				if ((car < str1.length() - 1) && ((str1.charAt(car+1) < 'a') || (str1.charAt(car+1) > 'z'))) {
+					car++;
+					} else {
+						if (car == str1.length() - 1) {
+							car++;
+						}	
+					}
 				}
-			
 			sTokens.add(str1.substring(start, car));
 			start = car;
+			// PV igore leadng separators
+			while (start < str1.length() && 
+					((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z')
+					|| (str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z') )) {
+				start++;
+				}
 			car = start + 1;
 		}
 		// PV: Debug System.out.println("Tokens = "+ sTokens.toString());
@@ -643,8 +662,8 @@ public class JWNLDistances {
 		Vector v = new Vector();
 		JWNLDistances j = new JWNLDistances();
 		j.Initialize();
-		String s1 = "MastersThesis";
-		String s2 = "PhDThesis";
+		String s1 = "Black-Back";
+		String s2 = "Clîck_Bàck.";
 		System.out.println("Sim = "+ j.computeSimilarity(s1, s2));
 		System.out.println("SimOld = "+ (1 - j.BasicSynonymDistance(s1, s2)));
 		System.out.println("SimWN = "+ j.computeBestMatch(s1, s2));
