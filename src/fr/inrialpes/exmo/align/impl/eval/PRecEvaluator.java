@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -52,20 +52,27 @@ import org.xml.sax.SAXException;
  */
 
 public class PRecEvaluator extends BasicEvaluator {
-	private double precision = 0.;
 
-	private double recall = 0.;
+    private double precision = 0.;
 
-	private double fallout = 0.;
+    private double recall = 0.;
 
-	private double overall = 0.;
+    private double fallout = 0.;
 
-	private double fmeasure = 0.;
+    private double overall = 0.;
 
-	/** Creation **/
-	public PRecEvaluator(Alignment align1, Alignment align2) {
-		super(align1, align2);
-	}
+    private double fmeasure = 0.;
+
+    private int nbexpected = 0;
+
+    private int nbfound = 0;
+
+    private int nbcorrect = 0; // nb of cells correctly identified
+
+    /** Creation **/
+    public PRecEvaluator(Alignment align1, Alignment align2) {
+	super(align1, align2);
+    }
 
     /**
      *
@@ -82,9 +89,8 @@ public class PRecEvaluator extends BasicEvaluator {
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
     public double eval(Parameters params) throws AlignmentException {
-	int nbexpected = align1.nbCells();
-	int nbfound = align2.nbCells();
-	int nbcorrect = 0; // nb of cells correctly identified
+	nbexpected = align1.nbCells();
+	nbfound = align2.nbCells();
 	precision = 0.;
 	recall = 0.;
 
@@ -175,5 +181,8 @@ public class PRecEvaluator extends BasicEvaluator {
     public double getOverall() { return overall; }
     public double getFallout() { return fallout; }
     public double getFmeasure() { return fmeasure; }
+    public int getExpected() { return nbexpected; }
+    public int getFound() { return nbfound; }
+    public int getCorrect() { return nbcorrect; }
 }
 

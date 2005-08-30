@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2004, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2005, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -217,9 +217,9 @@ public class GroupEval {
 	    // store the resul in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Object vect = (Object)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf");
-	    if ( vect != null ) ok = true;
-	    result.add( i, vect );
+	    Evaluator evaluator = (Evaluator)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf");
+	    if ( evaluator != null ) ok = true;
+	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
 	try {
@@ -235,22 +235,35 @@ public class GroupEval {
     public static Evaluator eval( String alignName1, String alignName2 ) {
 	Evaluator eval = null;
 	try {
+	    int nextdebug;
+	    if ( debug < 2 ) nextdebug = 0;
+	    else nextdebug = debug - 2;
 	    // Load alignments
-	    AlignmentParser aparser1 = new AlignmentParser( debug-1 );
+	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
 	    Alignment align1 = aparser1.parse( alignName1, loaded );
 	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
-	    AlignmentParser aparser2 = new AlignmentParser( debug-1 );
+	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
 	    Alignment align2 = aparser2.parse( alignName2, loaded );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
-	    eval.eval(params) ;
+	    params.setParameter( "debug", new Integer( nextdebug ) );
+	    eval.eval( params ) ;
 	} catch (Exception ex) { System.err.println(ex); }
 	return eval;
     }
 
+    /**
+     * This does not only print the results but compute the average as well
+     */
     public static void print( Vector result ) {
+	// variables for computing iterative harmonic means
+	int expected = 0; // expected so far
+	int foundVect[]; // found so far
+	int correctVect[]; // correct so far
+	double hMeansPrec[]; // Precision H-means so far
+	double hMeansRec[]; // Recall H-means so far
 	PrintStream writer = null;
 	fsize = format.length();
 	try {
@@ -295,10 +308,22 @@ public class GroupEval {
 		//writer.println("<td>Prec.</td><td>Rec.</td>");
 	    }
 	    writer.println("</tr></tbody><tbody>");
+	    foundVect = new int[ listAlgo.size() ];
+	    correctVect = new int[ listAlgo.size() ];
+	    hMeansPrec = new double[ listAlgo.size() ];
+	    hMeansRec = new double[ listAlgo.size() ];
+	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
+		foundVect[k] = 0;
+		correctVect[k] = 0;
+		hMeansPrec[k] = 1.;
+		hMeansRec[k] = 1.;
+	    }
 	    // </tr>
 	    // For each directory <tr>
 	    boolean colored = false;
 	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
+		int nexpected = -1;
+		int oexpected = 0;
 		Vector test = (Vector)e.nextElement();
 		if ( colored == true && color != null ){
 		    colored = false;
@@ -312,9 +337,39 @@ public class GroupEval {
 		// For each record print the values <td>bla</td>
 		Enumeration f = test.elements();
 		f.nextElement();
-		for ( ; f.hasMoreElements() ;) {
+		System.err.println(" Test#"+test);
+		for( int k = 0 ; f.hasMoreElements() ; k++) {
 		    PRecEvaluator eval = (PRecEvaluator)f.nextElement();
 		    if ( eval != null ){
+			// JE: It might seem that the analogy with kilometers is not correct? This is because of when we have found=0 then the rate is 0, then the value must worsen... which is not the case with our new stuff:
+			// I must reconstuct P & R: this is doable.
+			// iterative H-means computation
+			if ( nexpected == -1 ){
+			    nexpected = eval.getExpected();
+			    oexpected = expected;
+			    expected = oexpected + nexpected;
+			}
+			int nfound = eval.getFound();
+			int ofound = foundVect[k];
+			foundVect[k] = ofound + nfound;
+			int ncorrect = eval.getCorrect();
+			int ocorrect = correctVect[k];
+			correctVect[k] = ocorrect + ncorrect;
+
+			//System.err.println("  Algo "+k+" hprec[k-1]="+hMeansPrec[k]+" exp[k-1]="+oexpected+" Prec[k]="+eval.getPrecision()+" exp[k]="+nexpected);
+			// JE: not sure it is precision or recall
+			//if ( eval.getRecall() == 0 ) {
+			//    hMeansRec[k] = (expected)/((oexpected/hMeansRec[k])); 
+			//} else {
+			//    hMeansRec[k] = (expected)/((nexpected/eval.getRecall())+(oexpected/hMeansRec[k])); 
+			//};
+			//if ( eval.getPrecision() == 0 ){
+			//    hMeansPrec[k] = (foundVect[k])/((ofound/hMeansPrec[k])); 
+			//} else {
+			//    hMeansPrec[k] = (foundVect[k])/((nfound/eval.getPrecision())+(ofound/hMeansPrec[k])); 
+			//};
+			// Update data structures
+			//System.err.println("          hprec[k]="+hMeansPrec[k]+" exp[k]="+expected);
 			for ( int i = 0 ; i < fsize; i++){
 			    writer.print("<td>");
 			    if ( format.charAt(i) == 'p' ) {
@@ -336,8 +391,29 @@ public class GroupEval {
 		}
 		writer.println("</tr>");
 	    }
-	    //JE: it would be interesting to compute a last row of weigthed
-	    // harmonic mean based on the size of the reference alignment.
+	    writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
+	    int k = 0;
+	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
+		e.nextElement();
+		double precision = (double)correctVect[k]/foundVect[k];
+		double recall = (double)correctVect[k]/expected;
+		for ( int i = 0 ; i < fsize; i++){
+		    writer.print("<td>");
+		    if ( format.charAt(i) == 'p' ) {
+			printFormat(writer,precision);
+		    } else if ( format.charAt(i) == 'r' ) {
+			printFormat(writer,recall);
+		    } else if ( format.charAt(i) == 'f' ) {
+			printFormat(writer,(double)(foundVect[k] - correctVect[k])/foundVect[k]);
+		    } else if ( format.charAt(i) == 'm' ) {
+			printFormat(writer,2 * precision * recall / (precision + recall));
+		    } else if ( format.charAt(i) == 'o' ) {
+			printFormat(writer,recall * (2 - (1 / precision)));
+		    }
+		    writer.println("</td>");
+		};
+	    }
+	    writer.println("</tr>");
 	    writer.println("</tbody></table>");
 	    writer.println("</body></html>");
 	    writer.close();
@@ -350,7 +426,7 @@ public class GroupEval {
     // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
     // What a pity that it is not in Java... (wait for 1.5)
     public static void printFormat(PrintStream w, double f){
-	// Must add the test is the value is Not a number, print NaN.
+	// JE: Must add the test is the value is Not a number, print NaN.
 	if ( f != f ) {
 	    w.print("NaN");
 	} else {
