@@ -1,5 +1,6 @@
 /*
  * $Id$
+ * MULT
  *
  * Copyright (C) 2003-2005 INRIA Rhône-Alpes.
  *
@@ -62,6 +63,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.MultipleAlignment;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -105,7 +107,9 @@ public class AlignmentParser extends DefaultHandler {
      * This is a pitty but the idea of creating a particular alignment
      * is not in accordance with using an interface.
      */
-    protected Alignment alignment = null;
+    //JE: mult
+    //protected Alignment alignment = null;
+    protected MultipleAlignment alignment = null;
     
     /**
      * the content found as text...
@@ -248,7 +252,9 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("level")) {
 		} else if (pName.equals("xml")) {
 		} else if (pName.equals("Alignment")) {
-		    alignment = new BasicAlignment();
+		    //JE: multiple
+		    //alignment = new BasicAlignment();
+		    alignment = new MultipleAlignment();
 		} else {
 		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
@@ -313,8 +319,10 @@ public class AlignmentParser extends DefaultHandler {
 		    }
 		    if ( cl1 == null || cl2 == null ) {
 			// Maybe we could just print this out and fail in the end.
-			throw new SAXException( "Missing entity "+cl1+" "+cl2 ); }
-		    if ( measure == null || relation == null ){
+			//throw new SAXException( "Missing entity "+cl1+" "+cl2 );
+			// The cell is void
+			System.err.println("Warning (cell voided), missing entity "+cl1+" "+cl2 );
+		    } else if ( measure == null || relation == null ){
 			cell = alignment.addAlignCell( cl1, cl2);
 		    } else {
 			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}

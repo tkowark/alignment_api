@@ -89,7 +89,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	URI entity1URI = null;
 	try {
 	    // Not very good but we failed to think subsumed from the first shot.
-	    if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(cell.getRelation()) ) {
+	    if ( cell.getRelation() instanceof SubsumedRelation ){
 		onto1 = (OWLOntology)alignment.getOntology2();
 		entity1URI = ((OWLEntity)cell.getObject2()).getURI();
 	    } else {
@@ -116,7 +116,6 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	    writer.print("\n");
 	}
 	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
-	catch (ClassNotFoundException e) { throw new AlignmentException("Class no found", e); };
     }
     public void visit( EquivRelation rel ) throws AlignmentException {
 	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();

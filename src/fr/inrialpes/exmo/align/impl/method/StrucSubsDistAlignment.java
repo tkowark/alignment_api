@@ -195,12 +195,19 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 			// check that there is a correspondance
 			// in list of class2 atts and add their weights
 			for ( Iterator prp = properties1.iterator(); prp.hasNext(); ){
-			    Cell cell = getAlignCell1( (OWLEntity)prp.next() );
-			    if ( cell != null ) {
-				if ( properties2.contains((Object)cell.getObject2() ) ) {
-				    attsum = attsum + 1 - cell.getStrength();
+			    Set s2 = getAlignCells1( (OWLEntity)prp.next() );
+			    // Find the property with the higest similarity
+			    // that is matched here
+			    double currentValue = 0.;
+			    for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
+				Cell c2 = (Cell)it2.next();
+				if ( properties2.contains((Object)c2.getObject2() ) ) {
+				    double val = c2.getStrength();
+				    if ( val > currentValue )
+					currentValue = val;
 				}
 			    }
+			    attsum = attsum + 1 - currentValue;
 			}
 			classmatrix[i][j] = classmatrix[i][j]
 			    + pic2 * (2 * attsum / (nba1 + nba2));

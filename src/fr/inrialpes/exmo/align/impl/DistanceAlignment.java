@@ -84,7 +84,7 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	return (1 - getAlignedStrength1(ob));
     };
     public double getAlignedDistance2( Object ob ) throws AlignmentException{
-	return (1 - getAlignedStrength1(ob));
+	return (1 - getAlignedStrength2(ob));
     };
 
     /**
@@ -96,7 +96,8 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
     public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
       if (  params.getParameter("type") != null ) 
 	  setType((String)params.getParameter("type"));
-      else setType("**");
+      // This is a 1:1 alignment in fact
+      else setType("11");
 
       getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
       getSimilarity().compute( params );
@@ -219,7 +220,7 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
       double val = 0;
       //TreeSet could be replaced by something else
       //The comparator must always tell that things are different!
-      SortedSet cellSet = new TreeSet(
+      /*SortedSet cellSet = new TreeSet(
 			    new Comparator() {
 				public int compare( Object o1, Object o2 )
 				    throws ClassCastException{
@@ -230,7 +231,41 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 					} else { return 1; }
 				    } else {
 					throw new ClassCastException();
-				    }}});
+					}}});*/
+      SortedSet cellSet = new TreeSet(
+			    new Comparator() {
+				public int compare( Object o1, Object o2 )
+				    throws ClassCastException{
+				    try {
+					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
+				    if ( o1 instanceof Cell
+					 && o2 instanceof Cell ) {
+					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					    return -1;
+					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
+					    return 1;
+					} else if ( (((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment() == null)
+						    || (((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment() == null) ) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) > 0) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) < 0 ) {
+					    return 1;
+					} else if ( (((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment() == null)
+						    || (((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment() == null) ) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment()) > 0) {
+					    return -1;
+					// On va supposer qu'ils n'ont pas le meme nom
+					} else { return 1; }
+				    } else {
+					throw new ClassCastException();
+				    }
+				    } catch ( OWLException e) { 
+					e.printStackTrace(); return 0;}
+				}
+			    }
+			    );
 
       try {
 	  // Get all the matrix above threshold in the SortedSet
@@ -284,9 +319,9 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	      Cell cell = (Cell)it.next();
 	      ent1 = (OWLEntity)cell.getObject1();
 	      ent2 = (OWLEntity)cell.getObject2();
-	      if ( (getAlignCell1( ent1 ) == null) && (getAlignCell2( ent2 ) == null) ){
+	      if ( (getAlignCells1( ent1 ) == null) && (getAlignCells2( ent2 ) == null) ){
 		  // The cell is directly added!
-		  addCell( ent1, ent2, cell );
+		  addCell( cell );
 	      }
 	  };
 

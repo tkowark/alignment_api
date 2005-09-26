@@ -61,9 +61,9 @@ import gnu.getopt.Getopt;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** A basic class for an OWL ontology alignment processing. The processor
-    will parse ontologies, align them and renderings the resulting alignment.
-    Command synopsis is as follows:
+/** A basic class for synthesizing the results of a set of alignments provided by
+    different algorithms. The output is a table showing various classical measures
+    for each test and for each algorithm. Average is also computed.
     
     <pre>
     java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupEval [options]
@@ -79,8 +79,11 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     -t output --type=output: xml/tex/html/ascii
    </pre>
 
-    If output is
-    requested (<CODE>-o</CODE> flags), then output will be written to
+   The input is taken in the current directory in a set of subdirectories (one per
+   test which will be rendered by a line) each directory contains a number of
+   alignment files (one per algorithms which will be renderer as a column).
+
+    If output is requested (<CODE>-o</CODE> flags), then output will be written to
     <CODE>output</CODE> if present, stdout by default.
 
 <pre>
@@ -110,7 +113,7 @@ public class GroupEval {
     }
 
     public static void run(String[] args) throws Exception {
-	String listFile = "std,ssda5,nea,edna5,sdna5,karlsruhe,karlsruhe2,fujitsu,umontreal,stanford";
+	String listFile = "";
 	LongOpt[] longopts = new LongOpt[8];
 	loaded = new Hashtable();
 
@@ -166,6 +169,7 @@ public class GroupEval {
 	    }
 	}
 
+	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
 	listAlgo = new Vector();
 	StringTokenizer st = new StringTokenizer(listFile,",");
 	while (st.hasMoreTokens()) {
@@ -337,12 +341,9 @@ public class GroupEval {
 		// For each record print the values <td>bla</td>
 		Enumeration f = test.elements();
 		f.nextElement();
-		System.err.println(" Test#"+test);
 		for( int k = 0 ; f.hasMoreElements() ; k++) {
 		    PRecEvaluator eval = (PRecEvaluator)f.nextElement();
 		    if ( eval != null ){
-			// JE: It might seem that the analogy with kilometers is not correct? This is because of when we have found=0 then the rate is 0, then the value must worsen... which is not the case with our new stuff:
-			// I must reconstuct P & R: this is doable.
 			// iterative H-means computation
 			if ( nexpected == -1 ){
 			    nexpected = eval.getExpected();
@@ -356,20 +357,6 @@ public class GroupEval {
 			int ocorrect = correctVect[k];
 			correctVect[k] = ocorrect + ncorrect;
 
-			//System.err.println("  Algo "+k+" hprec[k-1]="+hMeansPrec[k]+" exp[k-1]="+oexpected+" Prec[k]="+eval.getPrecision()+" exp[k]="+nexpected);
-			// JE: not sure it is precision or recall
-			//if ( eval.getRecall() == 0 ) {
-			//    hMeansRec[k] = (expected)/((oexpected/hMeansRec[k])); 
-			//} else {
-			//    hMeansRec[k] = (expected)/((nexpected/eval.getRecall())+(oexpected/hMeansRec[k])); 
-			//};
-			//if ( eval.getPrecision() == 0 ){
-			//    hMeansPrec[k] = (foundVect[k])/((ofound/hMeansPrec[k])); 
-			//} else {
-			//    hMeansPrec[k] = (foundVect[k])/((nfound/eval.getPrecision())+(ofound/hMeansPrec[k])); 
-			//};
-			// Update data structures
-			//System.err.println("          hprec[k]="+hMeansPrec[k]+" exp[k]="+expected);
 			for ( int i = 0 ; i < fsize; i++){
 			    writer.print("<td>");
 			    if ( format.charAt(i) == 'p' ) {
@@ -443,7 +430,6 @@ public class GroupEval {
     public static void usage() {
 	System.out.println("usage: GroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
 	System.out.println("\t--format=prfmo -r prfmo\tSpecifies the output order (precision/recall/fallout/f-measure/overall)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
