@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -64,9 +64,23 @@ public class BasicRelation implements Relation
 	relation = rel;
     }
 
+    /** Equality **/
+    public String getRelation(){
+	return relation;
+    }
+
     /** By default the inverse is the relation itself **/
     public Relation inverse() {
 	return this;
+    }
+
+    /** Are the two relations equal **/
+    public boolean equals( Relation r ) {
+	if ( r instanceof BasicRelation ){
+	    return ( relation.equals( ((BasicRelation)r).getRelation() ) );
+	} else {
+	    return false;
+	}
     }
 
     /** Housekeeping **/

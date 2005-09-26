@@ -94,6 +94,16 @@ public class BasicCell implements Cell, Comparable {
 	if ( m >= 0 && m <= 1 ) strength = m;
     };
 
+
+    // the strength must be compared with regard to abstract types
+    public boolean equals( Cell c ) {
+	if ( c instanceof BasicCell ){
+	    return ( object1.equals(c.getObject1()) && object2.equals(c.getObject2()) && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
+	} else {
+	    return false;
+	}
+    }
+
     /**
      * Used to order the cells in an alignment:
      * -- this > c iff this.getStrength() < c.getStrength() --
