@@ -1,5 +1,5 @@
-Ontology alignment API and implementation, version 1.3
-15/06/2005
+Ontology alignment API and implementation, version 2.0
+26/09/2005
 
 Copyright (C) 2003-2005 INRIA Rhône-Alpes.
 Copyright (C) 2004 Université de Montréal.
@@ -24,7 +24,7 @@ See http://co4.inrialpes.fr/align for the moment.
 USING THE ONTOLOGY ALIGNMENT API IMPLEMENTATION
 -----------------------------------------------
 
-The Align API implementation requires that you fetch the OWL-API ()
+The Align API _implementation_ requires that you fetch the OWL-API ()
 
 $ setenv CWD `pwd`
 
@@ -88,12 +88,12 @@ FILES
 
 README.TXT	this file
 LICENSE.TXT	the terms under which the software is licensed to you.
-RELNOTES.TXT	release notes and to-do list
 build.xml	the Ant build file for compiling and testing
 classes/	empty directory for compiling the sources
 distrib/	some files for generating a new jarfile
 dtd/		contains the ontoalign DTDs (and schemas)
 html/		contains some documentation in HTML format
+			 (includes relnotes.html)
 javadoc/	javadoc API documentation in HTML (not very useful)
 lib/		contains align.jar and other necessary jarfiles
 rdf/		a few samples ontologies to align
