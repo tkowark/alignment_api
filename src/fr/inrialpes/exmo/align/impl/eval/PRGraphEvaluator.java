@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *
  */
 
 package fr.inrialpes.exmo.align.impl.eval;
@@ -34,6 +35,13 @@ import org.semanticweb.owl.model.OWLException;
 
 import java.lang.Math;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.Comparator;
+import java.util.Vector;
 import java.io.PrintWriter;
 import java.io.IOException;
 
@@ -48,123 +56,202 @@ import org.xml.sax.SAXException;
  *
  * @author Jerome Euzenat
  * @version $Id$ 
+ * 
+ * The computation is remotely inspired from the sample programme of
+ * Raymond J. Mooney
+ * available under GPL from http://www.cs.utexas.edu/users/mooney/ir-course/
+ * 
+ * Mooney also provides the averaging of these graphs over several queries:
+ * unfortunatelly, the resulting graph is not anymore a Precision/Recall graph
  */
 
 public class PRGraphEvaluator extends BasicEvaluator {
+
+    private int STEP = 10;
+
     // The eleven values of precision and recall
-    private double precision[];
-    private double recall[];
+    private double[] precisions = null;
+
+    private Vector points;
 
     /** Creation **/
     public PRGraphEvaluator(Alignment align1, Alignment align2) {
 	super(align1, align2);
-	precision = new double[11];
-	recall = new double[11];
+	points = new Vector();
     }
 
     /**
-     *
-     * The formulas of P and R are standard:
-     * given a reference alignment A
-     * given an obtained alignment B
-     * which are sets of cells (linking one entity of ontology O to another of ontolohy O').
-     *
-     * P = |A inter B| / |B|
-     * R = |A inter B| / |A|
-     * F = 2PR/(P+R)
-     * with inter = set intersection and |.| cardinal.
-     *
-     * They now depend not on all the results but on the results with
-     * confidence above each unit.
-     * |A| never varies
-     * |B| varies each time (and can be decremented when we decrement the
-     * set of alignments in A inter B.
-     *
-     * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
+     * Compute precision and recall graphs.
+     * The algorithm is as follows:
+     * 1) Order the pairs of the found alignment.
+     * 2) For 
      */
     public double eval(Parameters params) throws AlignmentException {
+	// Local variables
 	int nbexpected = align1.nbCells();
-	int nbfound[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	int nbcorrect[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	int nbfound = 0;
+	int nbcorrect = 0;
 
-	// Record the number of found slice by slice
-	for (Enumeration e = align2.getElements(); e.hasMoreElements();) {
-	    Cell c2 = (Cell) e.nextElement();
-	    int j = (int)( c2.getStrength() / .1 );
-	    System.err.println(">>>> " + c2.getObject1() + " : " + c2.getObject1() + " : " + c2.getStrength()+" ("+j);
-
-	    //increment the found corresponding;
-	    (nbfound[j])++;
+	// unchecked
+	if( params.getParameter("step") != null ){
+	    STEP = ((Integer)params.getParameter("step")).intValue();
 	}
-	
-	// Record the number of correct slice by slice
-	for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
-	    Cell c1 = (Cell) e.nextElement();
-	    try {			
-		Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());	
-		if (c2 != null) {
-		    URI uri1 = ((OWLEntity) c1.getObject2()).getURI();
-		    URI uri2 = ((OWLEntity) c2.getObject2()).getURI();	
-		    // if (c1.getobject2 == c2.getobject2)
-		    if (uri1.toString().equals(uri2.toString())) {
-			int j = (int)( c2.getStrength() / .1 );
-			//increment the correct corresponding;
-			(nbcorrect[j])++;
-		    }
-		}
-	    } catch (Exception exc) {
-		// Bad URI should not happen there
-	    }
-	}
+	precisions = new double[ STEP+1 ];
 
-	// Compute precision record for each slice
-	// What is the definition if:
-	// nbfound is 0 (p, r are 0)
-	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
-	// precision+recall is 0 [= nbcorrect is 0]
-	// precision is 0 [= nbcorrect is 0]
-	for ( int i = 10; i >= 0; i-- ){
-	    System.err.println(">>>> " + nbcorrect[i] + " : " + nbfound[i] + " : " + nbexpected);
-	    precision[i] = (double) nbcorrect[i] / (double) nbfound[i];
-	    recall[i] = (double) nbcorrect[i] / (double) nbexpected;
-	    if ( i > 0 ) {
-		nbcorrect[i-1] = nbcorrect[i-1] + nbcorrect[i];
-		nbfound[i-1] = nbfound[i-1] + nbfound[i];
-	    }
-	}
+      //TreeSet could be replaced by something else
+      //The comparator must always tell that things are different!
+      /*SortedSet cellSet = new TreeSet(
+			    new Comparator() {
+				public int compare( Object o1, Object o2 )
+				    throws ClassCastException{
+				    if ( o1 instanceof Cell
+					 && o2 instanceof Cell ) {
+					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					    return -1;
+					} else { return 1; }
+				    } else {
+					throw new ClassCastException();
+					}}});*/
+      SortedSet cellSet = new TreeSet(
+			    new Comparator() {
+				public int compare( Object o1, Object o2 )
+				    throws ClassCastException{
+				    try {
+					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
+				    if ( o1 instanceof Cell
+					 && o2 instanceof Cell ) {
+					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					    return -1;
+					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
+					    return 1;
+					} else if ( (((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment() == null)
+						    || (((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment() == null) ) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) > 0) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) < 0 ) {
+					    return 1;
+					} else if ( (((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment() == null)
+						    || (((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment() == null) ) {
+					    return -1;
+					} else if ( ((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment()) > 0) {
+					    return -1;
+					// On va supposer qu'ils n'ont pas le meme nom
+					} else { return 1; }
+				    } else {
+					throw new ClassCastException();
+				    }
+				    } catch ( OWLException e) { 
+					e.printStackTrace(); return 0;}
+				}
+			    }
+			    );
 
-	return (result);
-    }
+      // Set the found cells in the sorted structure
+      for (Enumeration e = align2.getElements(); e.hasMoreElements();) {
+	  cellSet.add( e.nextElement() );
+      }
+
+      // Collect the points that change recall
+      // (the other provide lower precision from the same recall
+      //  and are not considered)
+      for( Iterator it = cellSet.iterator(); it.hasNext(); ){
+	  nbfound++;
+	  Cell c2 = (Cell)it.next();
+	  Set s1 = (Set)align1.getAlignCells1((OWLEntity)c2.getObject1());
+	  if( s1 != null ){
+	      for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
+		  Cell c1 = (Cell)it1.next();
+		  try {			
+		      URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
+		      URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
+		      // if (c1.getobject2 == c2.getobject2)
+		      if (uri1.toString().equals(uri2.toString())) {
+			  nbcorrect++;
+			  double recall = (double)nbcorrect / (double)nbexpected;
+			  double precision = (double)nbcorrect / (double)nbfound;
+			  // Create a new pair to put in the list
+			  points.add( new Pair( recall, precision ) );
+			  c2 = null; // out of the loop.
+		      }
+		  } catch (Exception exc) { exc.printStackTrace(); }
+	      }
+	  }
+      }
+
+      // Interpolate curve points at each n-recall level
+      // This is inspired form Ray Mooney's program
+      // It works backward in the vector,
+      //  (in the same spirit as before, the maximum value so far is retained)
+      int j = points.size()-1; // index in recall-ordered vector of points
+      int i = STEP; // index of the current recall interval
+      double level = (double)i/STEP; // max level of that interval
+      double best = 0.; // best value found for that interval
+      while( j >= 0 ){
+	  Pair precrec = (Pair)points.get(j);
+	  while ( precrec.getX() < level ){
+	      precisions[i] = best;
+	      i--;
+	      level = (double)i/STEP;
+	  };
+	  if ( precrec.getY() > best ) best = precrec.getY();
+	  j--;
+      }
+      precisions[0] = best;
+
+      return 0.0; // useless
+      }
 
     /**
-     * This now output the Lockheed format. However, the lookheed format
-     * was intended to compare two merged ontologies instead of two alignment.
-     * So it refered to the:
-     * - input ontology A
-     * - input ontology B
-     * - alignement algorithm (used for obtaining what ????).
-     * While we compare two alignments (so the source and the reference to these
-     * algorithms should be within the alignment structure.
+     * This output the result
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
-	writer.println("  <map:output rdf:about=''>");
-	// Missing items:
-	// writer.println("    <map:algorithm rdf:resource=\"\">");
-	// writer.println("    <map:intutA rdf:resource=\"\">");
-	// writer.println("    <map:inputB rdf:resource=\"\">");
-	for( int i=0; i <= 10; i++ ){
-	    writer.print("    <map:step>\n      <map:precision>");
-	    writer.print(precision[i]);
-	    writer.print("</map:precision>\n      <map:recall>");
-	    writer.print(recall[i]);
-	    writer.print("</map:recall>\n    </map:step>\n");
+	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>");
+	writer.println("  <output rdf:about=''>");
+	for( int i=0; i <= STEP; i++ ){
+	    writer.print("    <step>\n      <recall>");
+	    writer.print((double)i/STEP);
+	    writer.print("</recall>\n      <precision>");
+	    writer.print(precisions[i]);
+	    writer.print("</precision>\n    </step>\n");
 	}
-	writer.print("  </map:output>\n</rdf:RDF>\n");
+	writer.print("  </output>\n</rdf:RDF>\n");
+	writePlot( writer );
     }
 
-    public double getPrecision(int i) { return precision[i]; }
-    public double getRecall(int i) {	return recall[i]; }
+    /**
+     * This output the result
+     */
+    public void writeFullPlot(PrintWriter writer) throws java.io.IOException {
+	for( int j = 0; j < points.size(); j++ ){
+	    Pair precrec = (Pair)points.get(j);
+	    writer.println( precrec.getX()+" "+precrec.getY() );
+	}
+    }
+
+    /* Write out the final interpolated recall/precision graph data.
+     * One line for each recall/precision point in the form: 'R-value P-value'.
+     * This is the format needed for GNUPLOT.
+     */
+    public void writePlot(PrintWriter writer) throws java.io.IOException {
+        for(int i = 0; i < STEP+1; i++){
+            writer.println( (double)i/10 + "\t" + precisions[i]);
+	}
+    }
+
+    public double getPrecision( int i ){
+	return precisions[i];
+    }
 }
 
+class Pair {
+    private double x;
+    private double y;
+    public Pair( double x, double y ){
+	this.x = x;
+	this.y = y;
+    }
+    public double getX(){ return x; }
+    public double getY(){ return y; }
+}

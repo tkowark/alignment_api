@@ -34,6 +34,9 @@ import org.semanticweb.owl.model.OWLException;
 
 import java.lang.Math;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 import java.io.PrintWriter;
 import java.io.IOException;
 
@@ -94,6 +97,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	precision = 0.;
 	recall = 0.;
 
+	// mult.
+	/*
 	for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
 	    Cell c1 = (Cell) e.nextElement();
 	    try {			
@@ -107,6 +112,29 @@ public class PRecEvaluator extends BasicEvaluator {
 		    }
 		}
 	    } catch (Exception exc) {
+	    }
+	}
+	*/
+	//if ( align1 instanceof MultipleAlignment )
+	//    System.err.print("align1["+nbexpected+"] OK");
+	//if ( align2 instanceof MultipleAlignment )
+	//    System.err.println(" align2["+nbfound+"] OK");
+	for ( Enumeration e = align1.getElements(); e.hasMoreElements();) {
+	    Cell c1 = (Cell)e.nextElement();
+	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
+	    if( s2 != null ){
+		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
+		    Cell c2 = (Cell)it2.next();
+		    try {			
+			URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
+			URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
+			// if (c1.getobject2 == c2.getobject2)
+			if (uri1.toString().equals(uri2.toString())) {
+			    nbcorrect++;
+			    c1 = null; // out of the loop.
+			}
+		    } catch (Exception exc) { exc.printStackTrace(); }
+		}
 	    }
 	}
 
@@ -126,23 +154,19 @@ public class PRecEvaluator extends BasicEvaluator {
     }
 
     /**
-     * This now output the Lockheed format. However, the lookheed format
-     * was intended to compare two merged ontologies instead of two alignment.
-     * So it refered to the:
-     * - input ontology A
-     * - input ontology B
-     * - alignement algorithm (used for obtaining what ????).
-     * While we compare two alignments (so the source and the reference to these
-     * algorithms should be within the alignment structure.
+     * This now output the results in Lockheed format.
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
 	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
 	writer.println("  <map:output rdf:about=''>");
-	// Missing items:
-	// writer.println("    <map:algorithm rdf:resource=\"\">");
-	// writer.println("    <map:intutA rdf:resource=\"\">");
-	// writer.println("    <map:inputB rdf:resource=\"\">");
+	//if ( ) {
+	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
+	//}
+	try {
+	    writer.println("    <map:intutA rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
+	    writer.println("    <map:inputB rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
+	} catch (OWLException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
 	// writer.println("    <map:falseNegative>");
 	// writer.println("    <map:falsePositive>");
@@ -160,21 +184,6 @@ public class PRecEvaluator extends BasicEvaluator {
 	writer.print(result);
 	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
     }
-    /*    public void write( PrintStream writer ) throws java.io.IOException {
-	 writer.print("<rdf:RDF>\n  <Evaluation class=\"PRecEvaluator\">\n    <precision>");
-	 writer.print(precision);
-	 writer.print("</precision>\n    <recall>");
-	 writer.print(recall);
-	 writer.print("</recall>\n    <fallout>");
-	 writer.print(fallout);
-	 writer.print("</fallout>\n    <fmeasure>");
-	 writer.print(fmeasure);
-	 writer.print("</fmeasure>\n    <overall>");
-	 writer.print(overall);
-	 writer.print("</overall>\n    <result>");
-	 writer.print(result);
-	 writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
-	 }*/
 
     public double getPrecision() { return precision; }
     public double getRecall() {	return recall; }
