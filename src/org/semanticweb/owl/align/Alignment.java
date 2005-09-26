@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,16 +24,14 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Set;
 import java.net.URI;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-//import org.semanticweb.owl.model.OWLOntology;
-//import org.semanticweb.owl.model.OWLEntity;
-
 /**
- * Represents an OWL ontology alignment.
+ * Represents an Ontology alignment.
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -99,11 +97,24 @@ public interface Alignment
      */
     public Cell addAlignCell( Object ob1, Object ob, String relation, double measure) throws AlignmentException;
     public Cell addAlignCell( Object ob1, Object ob2) throws AlignmentException;
+
+    /**
+     * Cells are retrieved
+     * These primitives are deprecated. Use getAlignCells1 and getAlignCells2
+     * instead.
+     * Reason: this applies only for 1:1 alignments
+     * Some implementations might act cleverly (retrieving the best value).
+     * Basic implementations may raise the exception
+     */
     public Cell getAlignCell1( Object ob ) throws AlignmentException;
     public Cell getAlignCell2( Object ob ) throws AlignmentException;
     /**
      * Each part of the cell can be queried independently.
-     * There is not cell access out of the alignment objects.
+     * These primitives are deprecated. Use getAlignCells1 and getAlignCells2
+     * instead.
+     * Reason: this applies only for 1:1 alignments
+     * Some implementations might act cleverly (retrieving the best value).
+     * Basic implementations may raise the exception
      */
     public Object getAlignedObject1( Object ob ) throws AlignmentException;
     public Object getAlignedObject2( Object ob ) throws AlignmentException;
@@ -111,6 +122,17 @@ public interface Alignment
     public Relation getAlignedRelation2( Object ob ) throws AlignmentException;
     public double getAlignedStrength1( Object ob ) throws AlignmentException;
     public double getAlignedStrength2( Object ob ) throws AlignmentException;
+
+    /**
+     * Cells are retrieved
+     * These primitives are deprecated. Use getAlignCells1 and getAlignCells2
+     * instead.
+     * Reason: this applies only for 1:1 alignments
+     * Some implementations might act cleverly (retrieving the best value).
+     * Basic implementations may raise the exception
+     */
+    public Set getAlignCells1( Object ob ) throws AlignmentException;
+    public Set getAlignCells2( Object ob ) throws AlignmentException;
 
     public Enumeration getElements();
     public int nbCells();

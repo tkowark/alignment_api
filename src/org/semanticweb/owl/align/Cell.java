@@ -27,10 +27,9 @@ import java.io.IOException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-//import org.semanticweb.owl.model.OWLEntity;
-
 /**
- * Represents an OWL ontology alignment. An ontology comprises a number of
+ * Represents an correspondence between ontology entities.
+ * An ontology comprises a number of
  * collections. Each ontology has a number of classes, properties and
  * individuals, along with a number of axioms asserting information
  * about those objects.
@@ -58,6 +57,7 @@ public interface Cell
     public void setRelation( Relation r );
     public double getStrength();
     public void setStrength( double m );
+    public boolean equals( Cell c );
 
     public void inverse();
 
