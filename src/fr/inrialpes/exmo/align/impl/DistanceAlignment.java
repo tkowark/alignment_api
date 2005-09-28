@@ -53,6 +53,7 @@ import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Similarity;
+import fr.inrialpes.exmo.align.impl.HungarianAlgorithm;
 import fr.inrialpes.exmo.align.impl.ConcatenatedIterator;
 
 /**
@@ -202,7 +203,90 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
     /**
      * Extract the alignment of a ?? type
      * 
-     * Basic algorithm:
+     * exact algorithm using the Hungarian method
+     */
+    public Alignment extractqq( double threshold, Parameters params) {
+	System.err.println("OK, getting in the extractor\n");
+	try {
+	    // A STRAIGHTFORWARD IMPLEMENTATION
+	    // (redoing the matrix instead of getting it)
+	    // For each kind of stuff (cl, pr, ind)
+	    // Create a matrix
+	    int nbclasses1 = onto1.getClasses().size();
+	    int nbclasses2 = onto2.getClasses().size();
+	    double[][] matrix = new double[nbclasses1][nbclasses2];
+	    OWLEntity[] class1 = new OWLEntity[nbclasses1];
+	    OWLEntity[] class2 = new OWLEntity[nbclasses2];
+	    int i = 0;
+	    for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); i++) {
+		class1[i] = (OWLClass)it1.next();
+	    }
+	    int j = 0;
+	    for (Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); j++) {
+		class2[j] = (OWLClass)it2.next();
+	    }
+	    for( i = 0; i < nbclasses1; i++ ){
+		for( j = 0; j < nbclasses2; j++ ){
+		    matrix[i][j] = 1 - sim.getClassSimilarity((OWLClass)class1[i],(OWLClass)class2[j]);
+		}
+	    }
+	    // Pass it to the algorithm
+	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+	    // Extract the result
+	    for( i=0; i < result.length ; i++ ){
+		double val = matrix[result[i][0]][result[i][1]];
+		// JE: here using strict-> is a very good idea.
+		// it means that alignments with 0. similarity
+		// will be excluded from the best match. 
+		if( val > threshold ){
+		    addCell( new BasicCell( class1[result[i][0]], class2[result[i][1]], "=", val ) );
+		}
+	    }
+	} catch (Exception e) { e.printStackTrace(); }
+	// For properties
+	try{
+	    int nbprop1 = onto1.getDataProperties().size() + onto1.getObjectProperties().size();
+	    int nbprop2 = onto2.getDataProperties().size() + onto2.getObjectProperties().size();
+	    double[][] matrix = new double[nbprop1][nbprop2];
+	    OWLEntity[] prop1 = new OWLEntity[nbprop1];
+	    OWLEntity[] prop2 = new OWLEntity[nbprop2];
+	    int i = 0;
+	    ConcatenatedIterator pit1 = new 
+		ConcatenatedIterator(onto1.getObjectProperties().iterator(),
+				     onto1.getDataProperties().iterator());
+	    for (; pit1.hasNext(); i++) {
+		prop1[i] = (OWLProperty)pit1.next();
+	    }
+	    int j = 0;
+	    ConcatenatedIterator pit2 = new 
+		ConcatenatedIterator(onto2.getObjectProperties().iterator(),
+				     onto2.getDataProperties().iterator());
+	    for (; pit2.hasNext(); j++) {
+		prop2[j] = (OWLProperty)pit2.next();
+	    }
+	    for( i = 0; i < nbprop1; i++ ){
+		for( j = 0; j < nbprop2; j++ ){
+		    matrix[i][j] = 1 - sim.getPropertySimilarity((OWLProperty)prop1[i],(OWLProperty)prop2[j]);
+		}
+	    }
+	    // Pass it to the algorithm
+	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+	    // Extract the result
+	    for( i=0; i < result.length ; i++ ){
+		double val = matrix[result[i][0]][result[i][1]];
+		// JE: here using strict-> is a very good idea.
+		// it means that alignments with 0. similarity
+		// will be excluded from the best match. 
+		if( val > threshold ){
+		    addCell( new BasicCell( prop1[result[i][0]], prop2[result[i][1]], "=", val ) );
+		}
+	    }
+	} catch (Exception e) { e.printStackTrace(); }
+	return((Alignment)this);
+    }
+
+    /**
+     * Naive algorithm:
      * 1) dump the part of the matrix distance above threshold in a sorted set
      * 2) traverse the sorted set and each time a correspondence involving two
      *    entities that have no correspondence is encountered, add it to the 
@@ -215,8 +299,8 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
      * overall similarity 1.1, while the optimum is the second solution
      * with overall of 1.8.
      */
-    public Alignment extractqq( double threshold, Parameters params) {
-      OWLEntity ent1=null, ent2=null;
+    public Alignment extractqqNaive( double threshold, Parameters params) {
+	OWLEntity ent1=null, ent2=null;
       double val = 0;
       //TreeSet could be replaced by something else
       //The comparator must always tell that things are different!
