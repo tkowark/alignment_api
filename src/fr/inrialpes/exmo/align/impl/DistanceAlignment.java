@@ -206,7 +206,6 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
      * exact algorithm using the Hungarian method
      */
     public Alignment extractqq( double threshold, Parameters params) {
-	System.err.println("OK, getting in the extractor\n");
 	try {
 	    // A STRAIGHTFORWARD IMPLEMENTATION
 	    // (redoing the matrix instead of getting it)
