@@ -63,7 +63,6 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.MultipleAlignment;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -107,9 +106,7 @@ public class AlignmentParser extends DefaultHandler {
      * This is a pitty but the idea of creating a particular alignment
      * is not in accordance with using an interface.
      */
-    //JE: mult
-    //protected Alignment alignment = null;
-    protected MultipleAlignment alignment = null;
+    protected BasicAlignment alignment = null;
     
     /**
      * the content found as text...
@@ -252,9 +249,7 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("level")) {
 		} else if (pName.equals("xml")) {
 		} else if (pName.equals("Alignment")) {
-		    //JE: multiple
-		    //alignment = new BasicAlignment();
-		    alignment = new MultipleAlignment();
+		    alignment = new BasicAlignment();
 		} else {
 		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
