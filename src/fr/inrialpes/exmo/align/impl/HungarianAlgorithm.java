@@ -38,10 +38,11 @@
  * Modifications by Jérôme Euzenat for integrating within Alignment API:
  * (C) INRIA Rhône-Alpes, 2005
  * 1) suppressed Java 1.5 dependencies (marked //JE1.5:)
+ * 1') suppressed all the testing features (main)
  * 2) stripped some i/o stuff and main (JEstrip)
  * 3) included under package fr.inrialpes.exmo.align.impl
- * 4) connected with alignment generation
- * 5) explicited all imports (very few //JEimp)
+ * 4) Suppressed the copy of the structure (we use a fresh structure for that)
+ * 5) connected with alignment generation
  */
 
 package fr.inrialpes.exmo.align.impl; 
@@ -55,23 +56,6 @@ public class HungarianAlgorithm {
     //METHODS THAT PERFORM ARRAY-PROCESSING TASKS//
     //*******************************************//
 	
-    public static void generateRandomArray	//Generates random 2-D array.
-	(double[][] array, String randomMethod)	{
-	Random generator = new Random();
-	for (int i=0; i<array.length; i++){
-	    for (int j=0; j<array[i].length; j++){
-		if (randomMethod.equals("random"))
-		    {array[i][j] = generator.nextDouble();}
-		if (randomMethod.equals("gaussian")){
-		    array[i][j] = generator.nextGaussian()/4;		//range length to 1.
-		    if (array[i][j] > 0.5) {array[i][j] = 0.5;}		//eliminate outliers.
-		    if (array[i][j] < -0.5) {array[i][j] = -0.5;}	//eliminate outliers.
-		    array[i][j] = array[i][j] + 0.5;				//make elements positive.
-		}
-	    }
-	}			
-    }
-
     public static double findLargest		//Finds the largest element in a positive array.
 	(double[][] array){
 	//works for arrays where all values are >= 0.
@@ -108,8 +92,10 @@ public class HungarianAlgorithm {
     //METHODS OF THE HUNGARIAN ALGORITHM//
     //**********************************//
 	
-    public static int[][] hgAlgorithm (double[][] array, String sumType){
-	double[][] cost = copyOf(array);	//Create the cost matrix
+    // JEcopy: use the same structure
+    public static int[][] hgAlgorithm (double[][] cost, String sumType){
+	// JEcopy: use the same structure
+	//double[][] cost = copyOf(array);	//Create the cost matrix
 		
 	if (sumType.equalsIgnoreCase("max")){	//Then array is weight array. Must change to cost.
 	    double maxWeight = findLargest(cost);
@@ -153,7 +139,9 @@ public class HungarianAlgorithm {
 	    }
 	}//end while
 		
-	int[][] assignment = new int[array.length][2];	//Create the returned array.
+	// JEcopy: use the same structure
+	//int[][] assignment = new int[array.length][2];	//Create the returned array.
+	int[][] assignment = new int[cost.length][2];	//Create the returned array.
 	for (int i=0; i<mask.length; i++){
 	    for (int j=0; j<mask[i].length; j++){
 		if (mask[i][j] == 1){
@@ -163,17 +151,6 @@ public class HungarianAlgorithm {
 	    }
 	}
 		
-	//If you want to return the min or max sum, in your own main method
-	//instead of the assignment array, then use the following code:
-	/*
-	  double sum = 0; 
-	  for (int i=0; i<assignment.length; i++){
-	  sum = sum + array[assignment[i][0]][assignment[i][1]];
-	  }
-	  return sum;
-	*/
-	//Of course you must also change the header of the method to:
-	//public static double hgAlgorithm (double[][] array, String sumType)
 	return assignment;
     }
 
@@ -422,67 +399,4 @@ public class HungarianAlgorithm {
 	return minval;
     }
 	
-    //***********//
-    //MAIN METHOD//
-    //***********//
-	
-    public static void main(String[] args) {
-	//Below enter "max" or "min" to find maximum sum or minimum sum assignment.
-	String sumType = "max";		
-	
-	//Hard-coded example.
-	double[][] array =
-	{
-			{1, 2, 3},
-			{2, 4, 6},
-			{3, 6, 9}
-	};
-		
-	//<UNCOMMENT> BELOW AND COMMENT BLOCK ABOVE TO USE A RANDOMLY GENERATED MATRIX
-	//JEstrip:
-	//int numOfRows = readInput("How many rows for the matrix? ");
-	//int numOfCols = readInput("How many columns for the matrix? ");
-	//double[][] array = new double[numOfRows][numOfCols];
-	//generateRandomArray(array, "random");	//All elements within [0,1].
-	//</UNCOMMENT>
-		
-	if (array.length > array[0].length){
-	    System.out.println("Array transposed (because rows>columns).\n");	//Cols must be >= Rows.
-	    array = transpose(array);
-	}
-				
-	//<COMMENT> TO AVOID PRINTING THE MATRIX FOR WHICH THE ASSIGNMENT IS CALCULATED
-	System.out.println("\n(Printing out only 2 decimals)\n");
-	System.out.println("The matrix is:");
-	for (int i=0; i<array.length; i++){
-	    for (int j=0; j<array[i].length; j++){
-		//JE1.5:System.out.printf("%.2f\t", array[i][j]);
-		System.out.print((array[i][j])+"\t");
-	    }
-	    System.out.println();
-	}
-	System.out.println();
-	//</COMMENT>*/
-		
-	//JE1.5:double startTime = System.nanoTime();	
-	int[][] assignment = new int[array.length][2];
-	assignment = hgAlgorithm(array, sumType);	//Call Hungarian algorithm.
-	//JE1.5:double endTime = System.nanoTime();
-						
-	System.out.println("The winning assignment (" + sumType + " sum) is:\n");	
-	double sum = 0;
-	for (int i=0; i<assignment.length; i++){
-	    //<COMMENT> to avoid printing the elements that make up the assignment
-	    //JE1.5:System.out.printf("array(%d,%d) = %.2f\n", (assignment[i][0]+1), (assignment[i][1]+1),
-	    //JE1.5:		      array[assignment[i][0]][assignment[i][1]]);
-	    System.out.println("array("+(assignment[i][0]+1)+","+(assignment[i][1]+1)+") = "+array[assignment[i][0]][assignment[i][1]]);
-	    sum = sum + array[assignment[i][0]][assignment[i][1]];
-	    //</COMMENT>
-	}
-		
-	//JE1.5:System.out.printf("\nThe %s is: %.1f\n", sumType, sum);
-	System.out.println("\nThe "+sumType+" is: "+sum);
-	//JE1.5printTime((endTime - startTime)/1000000000.0);
-		
-    }
 }
