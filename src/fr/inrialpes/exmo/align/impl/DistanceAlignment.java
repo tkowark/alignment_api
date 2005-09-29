@@ -214,8 +214,8 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	    int nbclasses1 = onto1.getClasses().size();
 	    int nbclasses2 = onto2.getClasses().size();
 	    double[][] matrix = new double[nbclasses1][nbclasses2];
-	    OWLEntity[] class1 = new OWLEntity[nbclasses1];
-	    OWLEntity[] class2 = new OWLEntity[nbclasses2];
+	    OWLClass[] class1 = new OWLClass[nbclasses1];
+	    OWLClass[] class2 = new OWLClass[nbclasses2];
 	    int i = 0;
 	    for (Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); i++) {
 		class1[i] = (OWLClass)it1.next();
@@ -226,14 +226,15 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	    }
 	    for( i = 0; i < nbclasses1; i++ ){
 		for( j = 0; j < nbclasses2; j++ ){
-		    matrix[i][j] = 1 - sim.getClassSimilarity((OWLClass)class1[i],(OWLClass)class2[j]);
+		    matrix[i][j] = 1 - sim.getClassSimilarity(class1[i],class2[j]);
 		}
 	    }
 	    // Pass it to the algorithm
 	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
 	    // Extract the result
 	    for( i=0; i < result.length ; i++ ){
-		double val = matrix[result[i][0]][result[i][1]];
+		// The matrix has been destroyed
+		double val = 1 - sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
 		// JE: here using strict-> is a very good idea.
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
@@ -247,8 +248,8 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	    int nbprop1 = onto1.getDataProperties().size() + onto1.getObjectProperties().size();
 	    int nbprop2 = onto2.getDataProperties().size() + onto2.getObjectProperties().size();
 	    double[][] matrix = new double[nbprop1][nbprop2];
-	    OWLEntity[] prop1 = new OWLEntity[nbprop1];
-	    OWLEntity[] prop2 = new OWLEntity[nbprop2];
+	    OWLProperty[] prop1 = new OWLProperty[nbprop1];
+	    OWLProperty[] prop2 = new OWLProperty[nbprop2];
 	    int i = 0;
 	    ConcatenatedIterator pit1 = new 
 		ConcatenatedIterator(onto1.getObjectProperties().iterator(),
@@ -265,14 +266,15 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 	    }
 	    for( i = 0; i < nbprop1; i++ ){
 		for( j = 0; j < nbprop2; j++ ){
-		    matrix[i][j] = 1 - sim.getPropertySimilarity((OWLProperty)prop1[i],(OWLProperty)prop2[j]);
+		    matrix[i][j] = 1 - sim.getPropertySimilarity(prop1[i],prop2[j]);
 		}
 	    }
 	    // Pass it to the algorithm
 	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
 	    // Extract the result
 	    for( i=0; i < result.length ; i++ ){
-		double val = matrix[result[i][0]][result[i][1]];
+		// The matrix has been destroyed
+		double val = 1 - sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
 		// JE: here using strict-> is a very good idea.
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
