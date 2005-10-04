@@ -158,11 +158,7 @@ public class GroupAlign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		//try {
-		//    FileInputStream fis = new FileInputStream( paramfile );
-		//    System.setIn( fis );
-		//} catch (Exception e) { e.printStackTrace(); }
-		params = (Parameters)BasicParameters.read(paramfile);
+		BasicParameters.read( params, paramfile );
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */
@@ -215,6 +211,7 @@ public class GroupAlign {
 	if (debug == 0 && params.getParameter("debug") != null) {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
+	// Exception to the parameter as string rule
 	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
 
 	iterateDirectories();

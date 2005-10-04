@@ -63,7 +63,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A basic class for synthesizing the results of a set of alignments provided by
     different algorithms. The output is a table showing various classical measures
-    for each test and for each algorithm. Average is also computed.
+    for each test and for each algorithm. Average is also computed as Harmonic means.
     
     <pre>
     java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupEval [options]
