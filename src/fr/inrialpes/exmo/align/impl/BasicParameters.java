@@ -43,8 +43,12 @@ import org.semanticweb.owl.align.Parameters;
 
 /**
   *
- * @author Jérôme Euzenat
- * @version $Id$ 
+  * Standard parameter list structure to be used everywhere.
+  * By default and for means of communication, parameter names and values 
+  * are Strings (even if their type is Object).
+  * 
+  * @author Jérôme Euzenat
+  * @version $Id$ 
  */
 
 public class BasicParameters implements Parameters {
