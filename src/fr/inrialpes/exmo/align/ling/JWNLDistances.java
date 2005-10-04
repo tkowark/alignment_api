@@ -493,12 +493,159 @@ public class JWNLDistances {
         return 0;
     }
 
+
+	public boolean isAlphaNum(char c) {
+		return (c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z') || (c >= '0') && (c <= '9');
+	}
+
+	public boolean isAlpha(char c) {
+		return (c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z');
+	}
+
+	public boolean isAlphaCap(char c) {
+		return (c >= 'A') && (c <= 'Z');
+	}
+
+	public boolean isAlphaSmall(char c) {
+		return (c >= 'a') && (c <= 'z');
+	}
+	
+	// the new tokenizer
+	// firsst looks for non-alphanumeric chars in the string
+	// if any, they will be taken as the only delimiters
+	// otherwise the standard naming convention will be assumed:
+	// words start with a capital letter
+	// substring of capital letters will be seen as a whole
+	// if it is a suffix
+	// otherwise the last letter will be taken as the new token
+	// start
+	public Vector tokenize(String s) {
+		String str1 = s;
+		int sLength = s.length();
+		Vector vTokens = new Vector();
+		
+		// 1. detect possible delimiters
+		// starts on the first character of the string
+		int tkStart = 0;
+		int tkEnd = 0;
+		
+		// looks for the first delimiter
+		while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
+			tkStart++;
+		}
+		
+		// if there is one then the tokens will be the
+		// substrings between delimiters
+		if (tkStart < sLength){
+			
+			// reset start and look for the first token
+			tkStart = 0;
+
+			// ignore leading separators
+			while (tkStart < sLength  && ! isAlpha (str1.charAt(tkStart))) {
+				tkStart++;
+			}
+
+			tkEnd = tkStart+1;
+
+			while (tkStart < sLength) {
+
+				// consumption of the token
+				while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
+					tkEnd++;
+				}
+				// creation
+				vTokens.add(str1.substring(tkStart, tkEnd));
+				
+				// ignoring intermediate delimiters
+								
+				while (tkEnd < sLength  && !isAlpha (str1.charAt(tkEnd))) {
+					tkEnd++;
+				}
+			
+				tkStart=tkEnd;
+			}
+
+			
+		}
+		
+		// else the standard naming convention will be used
+		// TO DO :: include numbers: (between parts)
+		// 
+		else{
+			// start at the beginning of the string
+			tkStart = 0;			
+
+			tkEnd = tkStart+1;
+
+			while (tkStart < sLength) {
+				// INV: thStart is always the first char of a token or the
+				// position after the string end
+				// consumption of the leading Caps
+				while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
+					tkEnd++;
+				}
+
+				// at this point tkEnd is pointing at:
+				// a) the first small letter OR
+				// b) the end of the string
+				// c) [NOT YET DONE] a number
+				
+				// if a) look whether there are more than one caps in a row
+				if (tkEnd < sLength) {
+					
+					// if there are several this should be an abbreviation
+					// so make a token out of them, till the second last one
+					// and update the position of tkStart
+					if (tkEnd - tkStart > 1) {
+						
+						vTokens.add(str1.substring(tkStart, tkEnd-1));
+						tkStart = tkEnd-1;
+					
+					}
+					else {
+						// if there is only one, this is the beginning of the
+						// token
+						// so just go on
+					}
+					
+				}
+				else {
+					// if b) i.e., this is the string end, just create the token
+					// 
+				}
+				// at this point th Start is the leading letter of a token that
+				// has at least one
+				// small letter (regardless of whether its first one is a
+				// capital or not)
+				// OR it is of length one
+				
+				while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
+					tkEnd++;
+				}
+				
+				
+				vTokens.add(str1.substring(tkStart, tkEnd));
+				tkStart=tkEnd;			
+
+			}
+			
+
+		}
+
+		// PV: Debug 
+		// System.out.println("Tokens = "+ vTokens.toString());		
+			return vTokens;
+	}
+	
+    
+    
     // PG: The method now returns an instance of Vector.
     /**
      * @param s A string.
      * @return a vector containing a collection of tokens.
      */
-    public Vector tokenize(String s) {
+    public Vector tokenizeDep(String s) {
         Vector sTokens = new Vector();
         String str1 = s;
         
@@ -727,8 +874,8 @@ public class JWNLDistances {
 
         JWNLDistances j = new JWNLDistances();
         j.Initialize();
-        String s1 = "French";
-        String s2 = "Dutch";
+        String s1 = "French997Guy";
+        String s2 = "Dutch_Goaly";
 //        try {
 //            IndexWord index1 = Dictionary.getInstance().getIndexWord(POS.NOUN, s1);
 //            IndexWord index2 = Dictionary.getInstance().getIndexWord(POS.NOUN, s2);
