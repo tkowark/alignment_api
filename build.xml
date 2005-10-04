@@ -25,7 +25,7 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="version" value="1.4"/>
+    <property name="version" value="2.0"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
@@ -145,6 +145,9 @@
   <target name="zip" depends="jar">
     <echo message="Ziping..."/>
     <echo message="Are you sure that everything is OK (update/ci/compile)?"/>
+    <zip zipfile="${FTPDir}/align-${version}.zip">
+      <fileset dir="." includes="**/*"/>
+    </zip>
     <copy todir="${WebDir}" filtering="true">
       <fileset dir="html" includes="**/*.html,**/*.css"/>
     </copy>
@@ -152,9 +155,6 @@
       <fileset dir="/Users/euzenat/Papiers/Align\ paper/align.pdf"/>
     </copy-->
     <!-- zip everything from outside -->
-    <zip zipfile="${FTPDir}/align-${version}.zip">
-      <fileset dir="." includes="**/*"/>
-    </zip>
   </target>
 
   <target name="clean">
