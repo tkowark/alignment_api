@@ -495,11 +495,11 @@ public class JWNLDistances {
 
 
 	public boolean isAlphaNum(char c) {
-		return (c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z') || (c >= '0') && (c <= '9');
+		return isAlpha(c) || isNum(c);
 	}
 
 	public boolean isAlpha(char c) {
-		return (c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z');
+		return isAlphaCap(c) || isAlphaSmall(c);
 	}
 
 	public boolean isAlphaCap(char c) {
@@ -509,7 +509,12 @@ public class JWNLDistances {
 	public boolean isAlphaSmall(char c) {
 		return (c >= 'a') && (c <= 'z');
 	}
+
+	public boolean isNum(char c) {
+		return (c >= '0') && (c <= '9');
+	}
 	
+
 	// the new tokenizer
 	// firsst looks for non-alphanumeric chars in the string
 	// if any, they will be taken as the only delimiters
@@ -530,7 +535,8 @@ public class JWNLDistances {
 		int tkEnd = 0;
 		
 		// looks for the first delimiter
-		while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
+		// while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
+		while (tkStart < sLength  && isAlphaNum (str1.charAt(tkStart))) {
 			tkStart++;
 		}
 		
@@ -542,99 +548,103 @@ public class JWNLDistances {
 			tkStart = 0;
 
 			// ignore leading separators
-			while (tkStart < sLength  && ! isAlpha (str1.charAt(tkStart))) {
+			// while (tkStart < sLength && ! isAlpha (str1.charAt(tkStart))) {
+			while (tkStart < sLength  && ! isAlphaNum (str1.charAt(tkStart))) {
 				tkStart++;
 			}
 
-			tkEnd = tkStart+1;
+			tkEnd = tkStart;
 
 			while (tkStart < sLength) {
 
-				// consumption of the token
-				while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
-					tkEnd++;
+				// consumption of the Alpha/Num token
+				if (isAlpha (str1.charAt(tkEnd))) {
+					while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
+						tkEnd++;
+					}
+				} else {
+					while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+						tkEnd++;
+					}					
 				}
-				// creation
-				vTokens.add(str1.substring(tkStart, tkEnd));
 				
-				// ignoring intermediate delimiters
-								
-				while (tkEnd < sLength  && !isAlpha (str1.charAt(tkEnd))) {
-					tkEnd++;
-				}
-			
-				tkStart=tkEnd;
-			}
+				// consumption of the Num token
+				vTokens.add(str1.substring(tkStart, tkEnd));
 
-			
+				// ignoring intermediate delimiters
+				while (tkEnd < sLength  && !isAlphaNum (str1.charAt(tkEnd))) {
+					tkEnd++;
+				}			
+				tkStart=tkEnd;
+			}			
 		}
 		
 		// else the standard naming convention will be used
-		// TO DO :: include numbers: (between parts)
+		//
 		// 
 		else{
 			// start at the beginning of the string
 			tkStart = 0;			
-
-			tkEnd = tkStart+1;
+			tkEnd = tkStart;
 
 			while (tkStart < sLength) {
-				// INV: thStart is always the first char of a token or the
-				// position after the string end
-				// consumption of the leading Caps
-				while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
-					tkEnd++;
-				}
 
-				// at this point tkEnd is pointing at:
-				// a) the first small letter OR
-				// b) the end of the string
-				// c) [NOT YET DONE] a number
-				
-				// if a) look whether there are more than one caps in a row
-				if (tkEnd < sLength) {
+				// the beginning of a token
+				if (isAlpha (str1.charAt(tkEnd))){
 					
-					// if there are several this should be an abbreviation
-					// so make a token out of them, till the second last one
-					// and update the position of tkStart
-					if (tkEnd - tkStart > 1) {
+					if (isAlphaCap (str1.charAt(tkEnd))){
 						
-						vTokens.add(str1.substring(tkStart, tkEnd-1));
-						tkStart = tkEnd-1;
-					
-					}
-					else {
-						// if there is only one, this is the beginning of the
-						// token
-						// so just go on
-					}
-					
-				}
-				else {
-					// if b) i.e., this is the string end, just create the token
-					// 
-				}
-				// at this point th Start is the leading letter of a token that
-				// has at least one
-				// small letter (regardless of whether its first one is a
-				// capital or not)
-				// OR it is of length one
-				
-				while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
-					tkEnd++;
-				}
-				
-				
-				vTokens.add(str1.substring(tkStart, tkEnd));
-				tkStart=tkEnd;			
-
-			}
+						// This starts with a Cap
+						// IS THIS an Abbreviaton ???
+						// lets see how maqny Caps
+						while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
+							tkEnd++;
+						}
 			
+						// The pointer is at:
+						// a) string end: make a token and go on
+						// b) number: make a token and go on
+						// c) a small letter:
+						// if there are at least 3 Caps,
+						// separate them up to the second last one and move the
+						// tkStart to tkEnd-1
+						// otherwise
+						// go on
 
+						if (tkEnd == sLength || isNum (str1.charAt(tkEnd))) {
+							vTokens.add(str1.substring(tkStart, tkEnd));
+							tkStart=tkEnd;									
+						} else {
+							// small letter
+							if (tkEnd - tkStart > 2) {
+								// If at least 3
+								vTokens.add(str1.substring(tkStart, tkEnd-1));
+								tkStart=tkEnd-1;									
+							}
+						}
+						// if (isAlphaSmall (str1.charAt(tkEnd))){}
+					} else {
+						// it is a small letter that follows a number : go on
+						// relaxed
+						while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
+							tkEnd++;
+						}
+						vTokens.add(str1.substring(tkStart, tkEnd));
+						tkStart=tkEnd;										
+					}
+				} else {
+				
+					// Here is the numerical token processing
+					while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+						tkEnd++;
+					}
+					vTokens.add(str1.substring(tkStart, tkEnd));
+					tkStart=tkEnd;			
+				}
+			}	
 		}
-
 		// PV: Debug 
-		// System.out.println("Tokens = "+ vTokens.toString());		
+		System.out.println("Tokens = "+ vTokens.toString());		
 			return vTokens;
 	}
 	
@@ -875,7 +885,7 @@ public class JWNLDistances {
         JWNLDistances j = new JWNLDistances();
         j.Initialize();
         String s1 = "French997Guy";
-        String s2 = "Dutch_Goaly";
+        String s2 = "Dutch_Goa77ly";
 //        try {
 //            IndexWord index1 = Dictionary.getInstance().getIndexWord(POS.NOUN, s1);
 //            IndexWord index2 = Dictionary.getInstance().getIndexWord(POS.NOUN, s2);
@@ -888,5 +898,17 @@ public class JWNLDistances {
 //        System.out.println("Sim = " + j.computeSimilarity(s1, s2));
 //        System.out.println("SimOld = " + (1 - j.BasicSynonymDistance(s1, s2)));
 //        System.out.println("SimSubs = " + (1 - StringDistances.subStringDistance(s1, s2)));
+        s1 = "FREnch997guy21GUIe";
+        s2 = "Dutch_GOa77ly.";
+        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+
+        s1 = "a997c";
+        s2 = "77ly.";
+        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+
+        s1 = "MSc";
+        s2 = "PhD";
+        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+
     }
 }
