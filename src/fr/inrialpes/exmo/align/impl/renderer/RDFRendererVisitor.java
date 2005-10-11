@@ -68,16 +68,18 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	alignment = align;
 	writer.print("<?xml version='1.0' encoding='utf-8");
 	writer.print("' standalone='no'?>\n");
-	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
+	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>\n");
 	writer.print("<Alignment>\n  <xml>yes</xml>\n");
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
 	writer.print("</type>\n");
-	writer.print("  <method>");
-	writer.print( align.getClass().getName());
-	writer.print("</method>\n");
+	// Get the keys of the parameter
+	for( Enumeration e = align.getExtensions().getNames() ; e.hasMoreElements() ; ){
+	    String tag = (String)e.nextElement();
+	    writer.print("  <"+tag+">"+align.getExtension(tag)+"</"+tag+">\n");
+	}
 	try {
 	    if ( align.getFile1() != null )
 		writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");

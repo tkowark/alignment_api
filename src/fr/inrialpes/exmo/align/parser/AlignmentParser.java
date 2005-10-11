@@ -1,6 +1,5 @@
 /*
  * $Id$
- * MULT
  *
  * Copyright (C) 2003-2005 INRIA Rhône-Alpes.
  *
@@ -152,6 +151,12 @@ public class AlignmentParser extends DefaultHandler {
      * XML Parser
 1     */
     protected SAXParser parser = null;
+
+    /**
+     * The parsing level, if equal to 2 we are in the Alignment
+     * and can find metadata
+     */
+    protected int parselevel = 0;
     
     /** 
      * Creates an XML Parser.
@@ -194,6 +199,7 @@ public class AlignmentParser extends DefaultHandler {
     public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("startElement AlignmentParser : " + pName);
+	parselevel++;
 	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
 	    try {
 		if (pName.equals("relation")) {
@@ -259,7 +265,7 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
+	    if ( parselevel != 2 ) throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
     }
 
@@ -326,20 +332,12 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
 		    onto1 = (OWLOntology)ontologies.get( content );
-		    //try { alignment.setFile1( new URI( content ) );
-		    //} catch (Exception e) {e.printStackTrace();};
 		} else if (pName.equals("uri2")) {
 		    onto2 = (OWLOntology)ontologies.get( content );
-		    //try { alignment.setFile2( new URI( content ) );
-		    //} catch (Exception e) {e.printStackTrace();};
 		} else if (pName.equals("onto2")) {
-		    // If the ontology is already loaded.
-		    //onto2 = (OWLOntology)ontologies.get( content );
-		    //JE: these are URI, I do not try to locate!
 		    try { alignment.setFile2( new URI( content ) );
 		    } catch (Exception e) {e.printStackTrace();}
 		} else if (pName.equals("onto1")) {
-		    //onto1 = (OWLOntology)ontologies.get( content );
 		    try { alignment.setFile1( new URI( content ) );
 		    } catch (Exception e) {e.printStackTrace();}
 		} else if (pName.equals("type")) {
@@ -351,7 +349,8 @@ public class AlignmentParser extends DefaultHandler {
 		    //	{ throw new SAXException("Non parseable alignment"); }
 		} else if (pName.equals("Alignment")) {
 		} else {
-		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
+		    if ( debugMode > 0 )
+			System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); };
@@ -359,8 +358,11 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
+	    if ( parselevel == 2 ){
+		alignment.setExtension( pName, content );
+	    } else throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
+	parselevel--;
     } //end endElement
     
     /** Can be used for loading the ontology if it is not available **/

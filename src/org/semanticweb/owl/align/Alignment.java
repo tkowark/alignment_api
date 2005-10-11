@@ -134,6 +134,14 @@ public interface Alignment
     public Set getAlignCells1( Object ob ) throws AlignmentException;
     public Set getAlignCells2( Object ob ) throws AlignmentException;
 
+    /**
+     * Extensions are a way to read and add other information (metadata)
+     * to the alignment structure itself.
+     */
+    public Parameters getExtensions();
+    public String getExtension( String label );
+    public void setExtension( String label, String value );
+
     public Enumeration getElements();
     public int nbCells();
 
