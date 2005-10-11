@@ -47,6 +47,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+import org.semanticweb.owl.align.Parameters;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -83,6 +84,10 @@ public class BasicAlignment implements Alignment {
 
     protected Hashtable hash2 = null;
 
+    protected long time = 0;
+
+    protected Parameters extensions = null;
+
     /**
      * This is the URI of the place from which the ontology has been loaded!
      * This is NOT the Ontology URI which can be obtained by
@@ -95,6 +100,8 @@ public class BasicAlignment implements Alignment {
     public BasicAlignment() {
 	hash1 = new Hashtable();
 	hash2 = new Hashtable();
+	extensions = new BasicParameters();
+	setExtension( "method", getClass().getName() );
     }
 
     // Note: protected is a problem outside of package
@@ -154,6 +161,16 @@ public class BasicAlignment implements Alignment {
     public URI getFile2() { return uri2; };
 
     public void setFile2(URI u) { uri2 = u; };
+
+    public Parameters getExtensions(){ return extensions; }
+
+    public void setExtension( String label, String value ) {
+	extensions.setParameter( label, value );
+    };
+
+    public String getExtension( String label ) {
+	return (String)extensions.getParameter( label );
+    };
 
     public Enumeration getElements() { 
 	//-return hash1.elements(); 
