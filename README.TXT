@@ -102,5 +102,9 @@ javadoc/	javadoc API documentation in HTML (not very useful)
 lib/		contains align.jar and other necessary jarfiles
 rdf/		a few samples ontologies to align
 samples/	two example applications
-src/		Java sources of Transmorpher
+src/		Java sources of ontoalign
+		org.semanticweb.owl.align: the API
+		fr.inrialpes.exmo.align.impl: basic implementation
+		fr.inrialpes.exmo.align.util: utility wrapper functions
+		fr.inrialpes.exmo.align.ling: WordNet-based implementation
 
