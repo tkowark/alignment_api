@@ -43,6 +43,7 @@
  * 3) included under package fr.inrialpes.exmo.align.impl
  * 4) Suppressed the copy of the structure (we use a fresh structure for that)
  * 5) connected with alignment generation
+ * 6) Added guards: (a) when empty array; (b) when rectangular 0 input matrix
  */
 
 package fr.inrialpes.exmo.align.impl; 
@@ -96,6 +97,11 @@ public class HungarianAlgorithm {
     public static int[][] hgAlgorithm (double[][] cost, String sumType){
 	// JEcopy: use the same structure
 	//double[][] cost = copyOf(array);	//Create the cost matrix
+	// JEguard:
+	if ( cost.length == 0 || cost[1].length == 0 ){
+	    // Maybe the best would be to return null
+	    return new int[0][0];
+	}
 		
 	if (sumType.equalsIgnoreCase("max")){	//Then array is weight array. Must change to cost.
 	    double maxWeight = findLargest(cost);
