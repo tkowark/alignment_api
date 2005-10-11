@@ -136,13 +136,10 @@ public class PRGraphEvaluator extends BasicEvaluator {
 					    return -1;
 					} else if ( ((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment()) > 0) {
 					    return -1;
-					// On va supposer qu'ils n'ont pas le meme nom
+					// We assume that they have different names
 					} else { return 1; }
-				    } else {
-					throw new ClassCastException();
-				    }
-				    } catch ( OWLException e) { 
-					e.printStackTrace(); return 0;}
+				    } else { throw new ClassCastException(); }
+				    } catch ( OWLException e) { e.printStackTrace(); return 0;}
 				}
 			    }
 			    );

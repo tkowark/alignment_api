@@ -66,6 +66,8 @@ public class PRecEvaluator extends BasicEvaluator {
 
     private double fmeasure = 0.;
 
+    private long time = 0;
+
     private int nbexpected = 0;
 
     private int nbfound = 0;
@@ -149,6 +151,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	fmeasure = 2 * precision * recall / (precision + recall);
 	overall = recall * (2 - (1 / precision));
 	result = recall / precision;
+	String timeExt = align2.getExtension("time");
+	if ( timeExt != null ) time = Long.parseLong(timeExt);
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
 	return (result);
     }
@@ -180,8 +184,9 @@ public class PRecEvaluator extends BasicEvaluator {
 	writer.print(fmeasure);
 	writer.print("</map:fMeasure>\n    <map:oMeasure>");
 	writer.print(overall);
-	writer.print("</map:oMeasure>\n    <result>");
-	writer.print(result);
+	writer.print("</map:oMeasure>\n");
+	if ( time != 0 ) writer.print("<time>"+time+"</time>\n");
+    	writer.print("<result>"+result);
 	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
     }
 
@@ -193,5 +198,6 @@ public class PRecEvaluator extends BasicEvaluator {
     public int getExpected() { return nbexpected; }
     public int getFound() { return nbfound; }
     public int getCorrect() { return nbcorrect; }
+    public long getTime() { return time; }
 }
 
