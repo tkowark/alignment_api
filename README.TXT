@@ -1,8 +1,12 @@
 Ontology alignment API and implementation, version 2.0
 26/09/2005
 
+Copyright (C) 2003 The University of Manchester.
+Copyright (C) 2003 The University of Karlsruhe.
 Copyright (C) 2003-2005 INRIA Rhône-Alpes.
-Copyright (C) 2004 Université de Montréal.
+Copyright (C) 2004-2005 Université de Montréal.
+Copyright (C) 2005 CNR Pisa.
+Copyright (C) 2005 Konstantinos A. Nedas.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License
@@ -14,7 +18,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
-Read the LICENSE.TXT file for the terms of the GLPL license.
+Read the LICENSE.TXT file for the terms of the LGPL license.
 
 WHAT IS ONTOLOGY ALIGNMENT?
 ---------------------------
