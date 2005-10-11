@@ -266,6 +266,7 @@ public class GroupEval {
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
 	int correctVect[]; // correct so far
+	long timeVect[]; // time so far
 	double hMeansPrec[]; // Precision H-means so far
 	double hMeansRec[]; // Recall H-means so far
 	PrintStream writer = null;
@@ -306,6 +307,8 @@ public class GroupEval {
 			writer.print("FMeas.");
 		    } else if ( format.charAt(i) == 'o' ) {
 			writer.print("Over.");
+		    } else if ( format.charAt(i) == 't' ) {
+			writer.print("Time");
 		    }
 		    writer.println("</td>");
 		}
@@ -314,11 +317,13 @@ public class GroupEval {
 	    writer.println("</tr></tbody><tbody>");
 	    foundVect = new int[ listAlgo.size() ];
 	    correctVect = new int[ listAlgo.size() ];
+	    timeVect = new long[ listAlgo.size() ];
 	    hMeansPrec = new double[ listAlgo.size() ];
 	    hMeansRec = new double[ listAlgo.size() ];
 	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
 		foundVect[k] = 0;
 		correctVect[k] = 0;
+		timeVect[k] = 0;
 		hMeansPrec[k] = 1.;
 		hMeansRec[k] = 1.;
 	    }
@@ -356,6 +361,7 @@ public class GroupEval {
 			int ncorrect = eval.getCorrect();
 			int ocorrect = correctVect[k];
 			correctVect[k] = ocorrect + ncorrect;
+			timeVect[k] += eval.getTime();
 
 			for ( int i = 0 ; i < fsize; i++){
 			    writer.print("<td>");
@@ -369,6 +375,12 @@ public class GroupEval {
 				printFormat(writer,eval.getFmeasure());
 			    } else if ( format.charAt(i) == 'o' ) {
 				printFormat(writer,eval.getOverall());
+			    } else if ( format.charAt(i) == 't' ) {
+				if ( eval.getTime() == 0 ){
+				    writer.print("-");
+				} else {
+				    printFormat(writer,eval.getTime());
+				}
 			    }
 			    writer.println("</td>");
 			}
@@ -396,6 +408,12 @@ public class GroupEval {
 			printFormat(writer,2 * precision * recall / (precision + recall));
 		    } else if ( format.charAt(i) == 'o' ) {
 			printFormat(writer,recall * (2 - (1 / precision)));
+		    } else if ( format.charAt(i) == 't' ) {
+			if ( timeVect[k] == 0 ){
+			    writer.print("-");
+			} else {
+			    printFormat(writer,timeVect[k]);
+			}
 		    }
 		    writer.println("</td>");
 		};
@@ -430,7 +448,7 @@ public class GroupEval {
     public static void usage() {
 	System.out.println("usage: GroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=prfmo -r prfmo\tSpecifies the output order (precision/recall/fallout/f-measure/overall)");
+	System.out.println("\t--format=prfmot -r prfmot\tSpecifies the output order (precision/recall/fallout/f-measure/overall/time)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");

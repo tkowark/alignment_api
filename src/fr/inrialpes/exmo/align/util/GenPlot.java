@@ -1,6 +1,5 @@
 /*
  * $Id$
- * MULT
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
@@ -63,35 +62,40 @@ import gnu.getopt.Getopt;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A basic class for synthesizing the alignment results of an algorithm by a
-    precision recall graph.
-    
-    <pre>
-    java -cp procalign.jar fr.inrialpes.exmo.align.util.GenPlot [options]
-    </pre>
-
-    where the options are:
-    <pre>
-    -o filename --output=filename
-    -d debug --debug=level
-    -l list of compared algorithms
-    -t output --type=output: xml/tex/html/ascii
-   </pre>
-
-   The input is taken in the current directory in a set of subdirectories (one per
-   test) each directory contains a the alignment files (one per algorithm) for that test and the
-   reference alignment file.
-
-   If output is
-   requested (<CODE>-o</CODE> flags), then output will be written to
-    <CODE>output</CODE> if present, stdout by default.
-
-<pre>
-$Id$
-</pre>
-
-@author Sean K. Bechhofer
-@author Jérôme Euzenat
-    */
+ * precision recall graph.
+ *
+ * These graphs are however computed on averaging the precision recall/graphs
+ * on test directories instead of recording the actual precision recall graphs
+ * which would amount at recoding all the valid and invalid alignment cells and
+ * their level.
+ *  
+ *  <pre>
+ *  java -cp procalign.jar fr.inrialpes.exmo.align.util.GenPlot [options]
+ *  </pre>
+ *
+ *  where the options are:
+ *  <pre>
+ *  -o filename --output=filename
+ *  -d debug --debug=level
+ *  -l list of compared algorithms
+ *  -t output --type=output: xml/tex/html/ascii
+ * </pre>
+ *
+ * The input is taken in the current directory in a set of subdirectories (one per
+ * test) each directory contains a the alignment files (one per algorithm) for that test and the
+ * reference alignment file.
+ *
+ * If output is
+ * requested (<CODE>-o</CODE> flags), then output will be written to
+ *  <CODE>output</CODE> if present, stdout by default.
+ *
+ * <pre>
+ * $Id$
+ * </pre>
+ *
+ * @author Sean K. Bechhofer
+ * @author Jérôme Euzenat
+ */
 
 public class GenPlot {
 
@@ -167,7 +171,7 @@ public class GenPlot {
     /**
      * Iterate on each subdirectory
      * Returns a vector[ each algo ] of vector [ each point ]
-     * The points are computing by aggregating the values
+     * The points are computed by aggregating the values
      *  (and in the end computing the average)
      */
     public static double[][] iterateDirectories (){
@@ -254,7 +258,7 @@ public class GenPlot {
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params ) ;
 
-	// Unload the ontologies.
+	    // Unload the ontologies.
 	    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
 		OWLOntology o = (OWLOntology)e.nextElement();
 		o.getOWLConnection().notifyOntologyDeleted( o );

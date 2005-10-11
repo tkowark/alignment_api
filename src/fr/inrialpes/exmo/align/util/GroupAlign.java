@@ -315,7 +315,10 @@ public class GroupAlign {
 	if (debug > 1) System.err.println(" Alignment structure created");
 
 	// Compute alignment
+	long time = System.currentTimeMillis();
 	result.align(init, params); // add opts
+	long newTime = System.currentTimeMillis();
+	//result.setTime( newTime - time );
 
 	if (debug > 1) System.err.println(" Alignment performed");
 
