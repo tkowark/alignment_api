@@ -1,5 +1,5 @@
 Ontology alignment API and implementation, version 2.0
-26/09/2005
+11/10/2005
 
 Copyright (C) 2003 The University of Manchester.
 Copyright (C) 2003 The University of Karlsruhe.
@@ -99,7 +99,8 @@ dtd/		contains the ontoalign DTDs (and schemas)
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
 javadoc/	javadoc API documentation in HTML (not very useful)
-lib/		contains align.jar and other necessary jarfiles
+lib/		contains align.jar, alignwn.jar, procalign.jar
+			 and other necessary jarfiles
 rdf/		a few samples ontologies to align
 samples/	two example applications
 src/		Java sources of ontoalign
