@@ -148,7 +148,7 @@
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir="." includes="**/*"/>
     </zip>
-    <copy todir="${WebDir}" filtering="true">
+    <copy todir="${WebDir}" filtering="true" overwrite="true">
       <fileset dir="html" includes="**/*.html,**/*.css"/>
     </copy>
     <!--copy todir="${WebDir}">
