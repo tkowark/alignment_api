@@ -43,7 +43,7 @@ import net.didion.jwnl.data.relationship.SymmetricRelationship;
 
 /**
  * Compute a string distance using the JWNL API (WordNet API)
- * @author Jerome Pierson, David Loup
+ * @author Jerome Pierson, David Loup, Petko Valtchev
  * @version $Id: JWNLDistances.java,v 1.0 2004/08/04
  */
 public class JWNLDistances {
@@ -644,7 +644,7 @@ public class JWNLDistances {
 			}	
 		}
 		// PV: Debug 
-		System.out.println("Tokens = "+ vTokens.toString());		
+		//System.out.println("Tokens = "+ vTokens.toString());		
 			return vTokens;
 	}
 	
