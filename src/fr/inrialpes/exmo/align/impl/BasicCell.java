@@ -94,11 +94,18 @@ public class BasicCell implements Cell, Comparable {
 	if ( m >= 0 && m <= 1 ) strength = m;
     };
 
+    public BasicCell( OWLEntity ob1, OWLEntity ob2, Relation rel, double m ) throws AlignmentException {
+	object1 = ob1;
+	object2 = ob2;
+	relation = rel;
+	// No exception, just keep 0?
+	if ( m >= 0 && m <= 1 ) strength = m;
+    };
 
     // the strength must be compared with regard to abstract types
     public boolean equals( Cell c ) {
 	if ( c instanceof BasicCell ){
-	    return ( object1.equals(c.getObject1()) && object2.equals(c.getObject2()) && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
+	    return ( object1 == c.getObject1() && object2 == c.getObject2() && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
 	} else {
 	    return false;
 	}
@@ -143,11 +150,8 @@ public class BasicCell implements Cell, Comparable {
     public double getStrength(){ return strength; };
     public void setStrength( double m ){ strength = m; };
 
-    public void inverse() {
-	OWLEntity ob = object1;
-	object1 = object2;
-	object2 = ob;
-	relation = relation.inverse();
+    public Cell inverse() throws AlignmentException {
+	return (Cell)new BasicCell( object2, object1, relation.inverse(), strength );
 	// The sae should be done for the measure
     }
 
