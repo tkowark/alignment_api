@@ -7,8 +7,8 @@
 <Alignment>
   <xml>yes</xml>
   <type>11</type>
-  <uri1>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto1.owl</uri1>
-  <uri2>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto2.owl</uri2>
+  <uri1>http://www.example.org/ontology1</uri1>
+  <uri2>http://www.example.org/ontology2</uri2>
   <onto1>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto1.owl</onto1>
   <onto2>file://localhost/Volumes/Phata/JAVA/ontoalign/rdf/onto2.owl</onto2>
   <map>
