@@ -1,6 +1,5 @@
 /*
  * $Id$
- * MULT
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
