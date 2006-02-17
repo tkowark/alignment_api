@@ -59,7 +59,7 @@ public interface Cell
     public void setStrength( double m );
     public boolean equals( Cell c );
 
-    public void inverse();
+    public Cell inverse() throws AlignmentException;
 
     /** Housekeeping **/
     public void dump(ContentHandler h);

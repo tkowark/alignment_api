@@ -152,7 +152,7 @@ public interface Alignment
     /**
      * Algebra of alignment manipulation operations: compose, join, meet.
      */
-    public void inverse() throws AlignmentException;
+    public Alignment inverse() throws AlignmentException;
     public Alignment meet(Alignment align) throws AlignmentException;
     public Alignment join(Alignment align) throws AlignmentException;
     public Alignment compose(Alignment align) throws AlignmentException;

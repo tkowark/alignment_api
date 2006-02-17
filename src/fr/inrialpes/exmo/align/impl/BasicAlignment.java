@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2006
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -104,16 +104,12 @@ public class BasicAlignment implements Alignment {
 	setExtension( "method", getClass().getName() );
     }
 
-    // Note: protected is a problem outside of package
-    //  but everything else is public
-    // JE[15/5/2005]: This does not seem to be a problem indeed
     protected void init(OWLOntology onto1, OWLOntology onto2) {
 	this.onto1 = onto1;
 	this.onto2 = onto2;
     }
 
     public int nbCells() {
-	//-return hash1.size();
 	int sum = 0;
 	for ( Enumeration e = hash1.elements(); e.hasMoreElements(); ) {
 	    sum = sum + ((HashSet)e.nextElement()).size();
@@ -173,7 +169,6 @@ public class BasicAlignment implements Alignment {
     };
 
     public Enumeration getElements() { 
-	//-return hash1.elements(); 
 	return new MEnumeration( hash1 );
     }
 
@@ -186,90 +181,59 @@ public class BasicAlignment implements Alignment {
     }
 
     /** Cell methods **/
-    //-public Cell addAlignCell(Object ob1, Object ob2, String relation,
-    //			     double measure) throws AlignmentException {
-    //	if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
-    //	    throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
-    //	    Cell cell = (Cell) new BasicCell((OWLEntity)ob1, (OWLEntity)ob2,
-    //					     relation, measure);
-    //	    addCell( (OWLEntity)ob1, (OWLEntity)ob2, cell );
-    //	    return cell;
-    //};
     public Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
  
         if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
             throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
-        try {
-            Cell cell = (Cell) new BasicCell((OWLEntity) ob1, (OWLEntity) ob2, relation, measure);
-            HashSet s1 = (HashSet)hash1.get((Object)(((OWLEntity)ob1).getURI()));
-            if (s1 == null) {
-                s1 = new HashSet();
-                hash1.put((Object)(((OWLEntity)ob1).getURI()),s1);
-            }
-            s1.add(cell);
-            HashSet s2 = (HashSet)hash2.get((Object)(((OWLEntity)ob2).getURI()));
-            if (s2 == null) {
-                s2 = new HashSet(); 
-                hash2.put((Object)(((OWLEntity)ob2).getURI()),s2);
-            } 
-            s2.add(cell);
-            return cell;
-        } catch (OWLException e) {
-            throw new AlignmentException("getURI problem", e);
-        }
+	Cell cell = (Cell) new BasicCell((OWLEntity) ob1, (OWLEntity) ob2, relation, measure);
+	addCell( cell );
+	return cell;
     };
 
     public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {
 	return addAlignCell( ob1, ob2, "=", 1. );
     }
 
-    //-
-    //public void addCell( OWLEntity ob1, OWLEntity ob2, Cell cell ) throws AlignmentException {
-    //	try {
-    //	    hash1.put((Object)(((OWLEntity)ob1).getURI()), cell);
-    //	    hash2.put((Object)(((OWLEntity)ob2).getURI()), cell);
-    //	} catch (OWLException e) {
-    //	    throw new AlignmentException("getURI problem", e);
-    //	}
-    //}
     protected void addCell( Cell c ) throws AlignmentException {
-        try {
-            HashSet s1 = (HashSet)hash1.get(((OWLEntity)c.getObject1()).getURI());
-	    if( s1 != null ){
-		s1.add( c ); // I must check that there is no one here
-	    } else {
-		s1 = new HashSet();
-		hash1.put(((OWLEntity)c.getObject1()).getURI(),s1);
-		s1.add( c );
+	boolean found = false;
+	HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
+	if ( s1 != null ) {
+	    // I must check that there is no one here
+	    for (Iterator i = s1.iterator(); !found && i.hasNext(); ) {
+		if ( c.equals((BasicCell)i.next()) ) found = true;
 	    }
-
-            HashSet s2 = (HashSet)hash2.get(((OWLEntity)c.getObject2()).getURI());
-	    if( s2 != null ){
-		s2.add( c ); // I must check that there is no one here
-	    } else {
-		s2 = new HashSet();
-		hash2.put(((OWLEntity)c.getObject2()).getURI(),s2);
-		s2.add( c );
+	    if (!found) s1.add( c );
+	} else {
+	    s1 = new HashSet();
+	    s1.add( c );
+	    hash1.put((OWLEntity)c.getObject1(),s1);
+	}
+	found = false;
+	HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	if( s2 != null ){
+	    // I must check that there is no one here
+	    for (Iterator i=s2.iterator(); !found && i.hasNext(); ) {
+		if ( c.equals((BasicCell)i.next()) ) found = true;
 	    }
-
-        } catch (OWLException ex) {
-            throw new AlignmentException("getURI problem", ex);
-        }
+	    if (!found)	s2.add( c );
+	} else {
+	    s2 = new HashSet();
+	    s2.add( c );
+	    hash2.put((OWLEntity)c.getObject2(),s2);
+	}
     }
 
     // Beware, the catch applies both for getURI and OWLException
     public Set getAlignCells1(Object ob) throws AlignmentException {
 	if ( ob instanceof OWLEntity ){
-	    try{ return (HashSet)hash1.get(((OWLEntity)ob).getURI());
-	    } catch (Exception e) { return null;}
+	    return (HashSet)hash1.get((OWLEntity)ob);
 	} else {
 	    throw new AlignmentException("getAlignCells1: argument must be OWLEntity");
 	}
     }
     public Set getAlignCells2(Object ob) throws AlignmentException {
 	if ( ob instanceof OWLEntity ){
-	    try{ return (HashSet)hash2.get(((OWLEntity)ob).getURI());
-	    } catch (Exception e) { return null;}
+	    return (HashSet)hash2.get((OWLEntity)ob);
 	} else {
 	    throw new AlignmentException("getAlignCells1: argument must be OWLEntity");
 	}
@@ -281,22 +245,20 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
 	    if ( ob instanceof OWLEntity ){
-		try { 
-		    Set s2 = (Set)hash1.get(((OWLEntity) ob).getURI());
-		    Cell bestCell = null;
-		    double bestStrength = 0.;
-		    if ( s2 != null ) {
-			for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
-			    Cell c = (Cell)it2.next();
-			    double val = c.getStrength();
-			    if ( val > bestStrength ) {
-				bestStrength = val;
-				bestCell = c;
-			    }
+		Set s2 = (Set)hash1.get((OWLEntity) ob);
+		Cell bestCell = null;
+		double bestStrength = 0.;
+		if ( s2 != null ) {
+		    for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
+			Cell c = (Cell)it2.next();
+			double val = c.getStrength();
+			if ( val > bestStrength ) {
+			    bestStrength = val;
+			    bestCell = c;
 			}
 		    }
-		    return bestCell;
-		} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+		}
+		return bestCell;
 	    } else {
 		throw new AlignmentException("getAlignCell1: argument must be OWLEntity");
 	    }
@@ -308,22 +270,20 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
 	    if ( ob instanceof OWLEntity ){
-		try { 
-		    Set s1 = (Set)hash2.get(((OWLEntity) ob).getURI());
-		    Cell bestCell = null;
-		    double bestStrength = 0.;
-		    if ( s1 != null ){
-			for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
-			    Cell c = (Cell)it1.next();
-			    double val = c.getStrength();
-			    if ( val > bestStrength ) {
-				bestStrength = val;
-				bestCell = c;
-			    }
+		Set s1 = (Set)hash2.get((OWLEntity) ob);
+		Cell bestCell = null;
+		double bestStrength = 0.;
+		if ( s1 != null ){
+		    for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
+			Cell c = (Cell)it1.next();
+			double val = c.getStrength();
+			if ( val > bestStrength ) {
+			    bestStrength = val;
+			    bestCell = c;
 			}
 		    }
-		    return bestCell;
-		} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+		}
+		return bestCell;
 	    } else {
 		throw new AlignmentException("getAlignCell2: argument must be OWLEntity");
 	    }
@@ -372,62 +332,30 @@ public class BasicAlignment implements Alignment {
 	else return 0;
     };
 
-    //-
-    //public void removeAlignCell(Cell c) throws AlignmentException {
-    //try {
-    //    HashSet s1 = (HashSet)hash1.get(((OWLEntity)c.getObject1()).getURI());
-    //    HashSet s2 = (HashSet)hash2.get(((OWLEntity)c.getObject2()).getURI());
-    //    s1.remove(c);
-    //    s2.remove(c);
-    //} catch (OWLException ex) {
-    //    throw new AlignmentException("getURI problem", ex);
-    //}
-    //}
-
+    // JE: beware this does only remove the exact equal cell
+    // not those with same value
     public void removeAlignCell(Cell c) throws AlignmentException {
-        try {
-            HashSet s1 = (HashSet)hash1.get(((OWLEntity)c.getObject1()).getURI());
-            HashSet s2 = (HashSet)hash2.get(((OWLEntity)c.getObject2()).getURI());
-            s1.remove(c);
-            s2.remove(c);
-            if (s1.isEmpty())
-                hash1.remove(((OWLEntity) c.getObject1()).getURI());
-            if (s2.isEmpty())
-                hash2.remove(((OWLEntity) c.getObject2()).getURI());
-        } catch (OWLException ex) {
-            throw new AlignmentException("getURI problem", ex);
-        }
+	HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
+	HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	s1.remove(c);
+	s2.remove(c);
+	if (s1.isEmpty())
+	    hash1.remove((OWLEntity) c.getObject1());
+	if (s2.isEmpty())
+	    hash2.remove((OWLEntity) c.getObject2());
     }
 
     /***************************************************************************
      * The cut function suppresses from an alignment all the cell over a
      * particulat threshold
      **************************************************************************/
-    //-public void cut2(double threshold) throws AlignmentException {
-    //	for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
-    //	    Cell c = (Cell) hash1.get(e.nextElement());
-    //	    if (c.getStrength() < threshold) {
-    //		// Beware, this suppresses all cells with these keys
-    //		// There is only one of them
-    //		try {
-    //		    //Raph:
-    //		    //removeAlignCell( c );
-    //		    hash1.remove(((OWLEntity) c.getObject1()).getURI());
-    //		    hash2.remove(((OWLEntity) c.getObject2()).getURI());
-    //		} catch (OWLException ex) {
-    //		    throw new AlignmentException("getURI problem", ex);
-    //		}
-    //	    }
-    //	} //end for
-    //   };
     public void cut2(double threshold) throws AlignmentException {
 	for (Enumeration e = getElements(); e.hasMoreElements(); ) {
 	    Cell c = (Cell)e.nextElement();
-	    if (c.getStrength() < threshold)
+	    if ( c.getStrength() < threshold )
 		removeAlignCell( c );
 	}
     }
-
 
     /***************************************************************************
      * Default cut implementation
@@ -445,53 +373,6 @@ public class BasicAlignment implements Alignment {
      * - getting the under n% of the best (prop)
      * - getting the n best values
      **************************************************************************/
-    //-public void cut( String method, double threshold ) throws AlignmentException {
-    //	// Check that threshold is a percent
-    //	if ( threshold > 1. || threshold < 0. )
-    //	    throw new AlignmentException( "Not a percentage or threshold : "+threshold );
-    //	// Create a sorted list of cells
-    //	// Raph: this will not work anymore
-    //	List buffer = new ArrayList( hash1.values() );
-    //	Collections.sort( buffer );
-    //	int size = buffer.size();
-    //	boolean found = false;
-    //	int i = 0;
-    //	// Depending on the method, find the limit
-    //	if ( method.equals("hard") ){
-    //	    for( i=0; i < size && !found ; i++ ) {
-    //		if ( ((Cell)buffer.get(i)).getStrength() <= threshold ) found = true;
-    //	    }
-    //	} else if ( method.equals("span") ){
-    //	    double max = ((Cell)buffer.get(0)).getStrength() -threshold;
-    //	    for( i=0; i < size && !found ; i++ ) {
-    //		if ( ((Cell)buffer.get(i)).getStrength() <= max ) found = true;
-    //	    }
-    //	} else if ( method.equals("prop") ){
-    //	    double max = ((Cell)buffer.get(0)).getStrength() * (1-threshold);
-    //	    for( i=0; i < size && !found ; i++ ) {
-    //		if ( ((Cell)buffer.get(i)).getStrength() <= max ) found = true;
-    //	    }
-    //	} else if ( method.equals("perc") ){
-    //	    i = (new Double(size*threshold)).intValue();
-    //	} else if ( method.equals("best") ){
-    //	    i=(new Double(threshold)).intValue();
-    //	} else throw new AlignmentException( "Not a cut specification : "+method );
-    //	// Flush the structure
-    //	for( size-- ; size > i ; size-- ) buffer.remove(size);
-    //	// Introduce the result back in the structure
-    //	size = i;
-    //	hash1.clear();
-    //	hash2.clear();
-    //	try {
-    //	    for( i = 0; i < size; i++ ) {
-    //		Cell c = (Cell)buffer.get(i);
-    //		hash1.put((Object) (((OWLEntity)c.getObject1()).getURI()), c);
-    //		hash2.put((Object) (((OWLEntity)c.getObject2()).getURI()), c);
-    //	    }
-    //	} catch (OWLException e) {
-    //	    throw new AlignmentException("getURI problem", e);
-    //	}
-    //    };
     public void cut( String method, double threshold ) throws AlignmentException
     {
 	// Check that threshold is a percent
@@ -500,7 +381,7 @@ public class BasicAlignment implements Alignment {
 	// Create a sorted list of cells
 	// For sure with sorted lists, we could certainly do far better
 	// Raph: this will not work anymore
-	//List buffer = new ArrayList( hash1.values() );
+	// JE**: did we know if it still works???
 	List buffer = getArrayElements();
 	Collections.sort( buffer );
 	int size = buffer.size();
@@ -534,39 +415,17 @@ public class BasicAlignment implements Alignment {
 	hash2.clear();
 	for( i = 0; i < size; i++ ) {
 	    addCell( (Cell)buffer.get(i) );
-	    // OLD Stuff pre-v2
-	    //hash1.put((Object) (((OWLEntity)c.getObject1()).getURI()), c);
-	    //hash2.put((Object) (((OWLEntity)c.getObject2()).getURI()), c);
 	}
     };
 
     /***************************************************************************
      * The harden function acts like threshold but put all weights to 1.
      **************************************************************************/
-    //-public void harden(double threshold) throws AlignmentException {
-    //	for (Enumeration e = hash1.keys(); e.hasMoreElements();) {
-    //	    Cell c = (Cell) hash1.get(e.nextElement());
-    //	    if (c.getStrength() < threshold) {
-    //		// Beware, this suppresses all cells with these keys
-    //		// There is only one of them
-    //		try {
-    //		    hash1.remove(((OWLEntity) c.getObject1()).getURI());
-    //		    hash2.remove(((OWLEntity) c.getObject2()).getURI());
-    //		} catch (OWLException ex) {
-    //		    throw new AlignmentException("getURI problem", ex);
-    //		}
-    //	    } else {
-    //		c.setStrength(1.);
-    //	    }
-    //	} //end for
-    //    };
     public void harden(double threshold) throws AlignmentException {
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
-	    if (c.getStrength() < threshold)
-		removeAlignCell( c );
-	    else
-		c.setStrength(1.);
+	    if (c.getStrength() < threshold) removeAlignCell( c );
+	    else c.setStrength(1.);
 	}
     }
 
@@ -613,20 +472,24 @@ public class BasicAlignment implements Alignment {
      * any pair (o, o', n, r) in O the resulting alignment will contain:
      * ( o', o, n, inverse(r)) iff compose(r) exists.
      */
-    public void inverse () {
-	OWLOntology o = onto1;
-	onto1 = onto2;
-	onto2 = o;
+
+    public Alignment inverse () throws AlignmentException {
+	BasicAlignment result = new BasicAlignment();
+	result.init( onto2, onto1 );
+	result.setFile1( getFile2() );
+	result.setFile2( getFile1() );
 	// We must inverse getType
-	URI u = uri1;
-	uri1 = uri2;
-	uri2 = u;
-	Hashtable h = hash1;
-	hash1 = hash2;
-	hash2 = h;
-	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
-	    ((Cell)e.nextElement()).inverse();
+	result.setType( getType() );
+	result.setLevel( getLevel() );
+	// Must add an inverse to the method extension
+	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
+	    String label = (String)e.nextElement();
+	    result.setExtension( label, getExtension( label ) );
 	}
+	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
+	    result.addCell(((Cell)e.nextElement()).inverse());
+	}
+	return (Alignment)result;
     };
 
     /** Housekeeping **/
@@ -639,18 +502,6 @@ public class BasicAlignment implements Alignment {
      * or cutting, are applied, then the ingested alignmment will be modified as
      * well.
      */
-    //-
-    //protected void ingest(Alignment alignment) throws AlignmentException {
-    //	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
-    //	    Cell c = (Cell) e.nextElement();
-    //	    try {
-    //		hash1.put((Object) ((OWLEntity) c.getObject1()).getURI(), c);
-    //		hash2.put((Object) ((OWLEntity) c.getObject2()).getURI(), c);
-    //	    } catch (OWLException ex) {
-    //		throw new AlignmentException("getURI problem", ex);
-    //	    }
-    //	}
-    //    };
     protected void ingest(Alignment alignment) throws AlignmentException {
 	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
 	    addCell((Cell)e.nextElement());
