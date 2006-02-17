@@ -30,6 +30,7 @@
  * - pSubStringDistance [not implemented yet]
  * - lowenhein (edit) distance
  * - n-gram distance [not implemented yet]
+ * - CERTH ISWC-2005 SMOA (calling org.ivml.alimo.ISub)
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -37,6 +38,7 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
+import org.ivml.alimo.ISub;
 
 public class StringDistances {
 
@@ -185,4 +187,24 @@ public class StringDistances {
 	//System.err.println(s+" x "+t+" = "+p[n]);
 	return p[n];
     }
+
+    /**
+     * Calls the string matching method proposed in the paper
+     * "A String Metric For Ontology Alignment", published in ISWC 2005 
+     * It is implemented in a separate class provided by the authors and
+     * available with this package
+     * JE: question:
+     * ISub seems to be a distance: if both strings are empty, it returns 0, if only one is, it returns 1. But its final statement is:
+     * 	return commonality - dissimilarity + winklerImprovement;
+     * which really looks like a similarity!
+     */
+    public static double smoaDistance (String s1, String s2) {
+	if (s1 == null || s2 == null) {
+	    throw new IllegalArgumentException("Strings must not be null");
+	}
+
+	ISub metrics = new ISub();
+	return metrics.score( s1, s2 );
+    }
+	
 }
