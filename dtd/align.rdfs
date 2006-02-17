@@ -2,10 +2,11 @@
 <!DOCTYPE rdf:RDF [
 	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
 	 <!ENTITY alignment 'http://knowledgeweb.semanticweb.org/heterogeneity/alignment'>
-	 <!ENTITY rdfs 'http://www.w3.org/TR/1999/PR-rdf-schema-19990303#'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
 ]>
 
 <!-- Contributed by Natasha Noy, 2004 -->
+<!-- improved by Antoine Isaac -->
 <!-- $Id$ -->
 
 <rdf:RDF xmlns:rdf="&rdf;"
