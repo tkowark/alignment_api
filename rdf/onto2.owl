@@ -14,11 +14,16 @@
 </owl:Class>
 
 <owl:Class rdf:ID="article">
-  <rdfs:subClassOf rdf:about="#reference"/>
+  <rdfs:subClassOf rdf:resource="#reference"/>
 </owl:Class>
 
 <owl:Class rdf:ID="journalarticle">
-  <rdfs:subClassOf rdf:about="#article"/>
+  <rdfs:subClassOf rdf:resource="#article"/>
 </owl:Class>
+
+<owl:Class rdf:ID="journalarticledgfg">
+  <rdfs:subClassOf rdf:resource="#article"/>
+</owl:Class>
+
 
 </rdf:RDF>
