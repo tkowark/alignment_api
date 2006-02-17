@@ -10,16 +10,39 @@
 <h2>To do</h2>
 
 <p><ul compact="1">
-<li></li>
+<li>Move to gforge.inria.fr</li>
 <li>Implement better similarity/extractor</li>
 <li>Fully implement individual alignments</li>
-<li>Add full support for algebraic operations (meet/join/inv/compose)</li>
 <li>-d directory</li>
+<li>Include additional tags;</li>
+<li>Add full support for algebraic operations (meet/join/inv/compose)</li>
+<li>Integrate web-service/Fipa-ACL/HTML server interface;</li>
+<li>Implement level 2OML alignments (version 3);</li>
 <li>Integrating tagging to the wordnet stuff</li>
+<li>Improve the metadata</li>
 <li>Build on unit tests</li>
 </ul></p>
 
 <h2>Current CVS version</h2>
+
+<h2>February 17th, 2006</h2>
+
+<p><b>Version 2.1: 17/02/2006 - </b></p>
+<p>New version featuring:
+<ul compact="1">
+<li>Fixed SEKT renderer problem;</li>
+<li>Further fixed ingest and addAlignCell methods that were not 1-1
+  ready;</li>
+<li>Fixed unicity problem in cell sets;</li>
+<li>Reintroduced hash indexing by objects in BasicAlignment;</li>
+<li>Added PRExtEvaluator implementing Ehrig/Euzenat extended precision
+  and recall;</li>
+<li>Added CERTH string comparison method;</li>
+<li>Added SKOSRendererVisitor;</li>
+<li>Corrected OWL/RDF mistakes in some example files;</li>
+</ul>
+
+<h2>October 1st, 2005</h2>
 
 <p><b>Version 2: 1/10/2005 - Raphael's version a.k.a. AC385 version</b></p>
 <p><font color="red">BEWARE:</font> <tt>Alignment</tt> methods <tt>getAlignCell1</tt>, <tt>getAlignCell2</tt>, <tt>getAlignedObject1</tt>, <tt>getAlignedObject2</tt>, <tt>getStrength1</tt>, <tt>getStrength2</tt>, <tt>getRelation1</tt>
