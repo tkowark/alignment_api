@@ -7,6 +7,7 @@ Copyright (C) 2003-2005 INRIA Rhône-Alpes.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
+Copyright (C) 2006 CERT
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License
@@ -58,6 +59,7 @@ $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publica
 
 $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment -t .4
 
+##### JE: this does not work
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/bibref.owl file://localhost$CWD/rdf/srcalign.owl
 
 Using with JWNL (Wordnet)
