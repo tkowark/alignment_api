@@ -200,11 +200,10 @@ public class ParserPrinter {
 	    else {
 		try {
 		    Object[] mparams = {(Object) writer };
-		    Class[] cparams = {Class.forName("java.io.writer")};
-		    java.lang.reflect.Constructor rendererConstructor =
-			Class.forName(rendererClass).getConstructor(cparams);
+		    java.lang.reflect.Constructor[] rendererConstructors =
+			Class.forName(rendererClass).getConstructors();
 		    renderer =
-			(AlignmentVisitor) rendererConstructor.newInstance(mparams);
+			(AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
 		} catch (Exception ex) {
 		    System.err.println("Cannot create renderer " + 
 				       rendererClass + "\n" + ex.getMessage() );
