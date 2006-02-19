@@ -24,36 +24,53 @@
   zipfile from the site <a href="http://gforge.inria.fr/frs/?group_id=117">http://gforge.inria.fr/frs/?group_id=117</a>. It contains all the sources, compiled
 library, OWL API library.</p>
 
-<h2>Anonymous CVS</h2>
+<h2>Anonymous Subversion</h2>
 
-<p>The very last version of ontoalign can be fetched from the SVN
+<p>The very last version of ontoalign can be fetched from the subversion
   source tree that can be found at:
 <a href="http://gforge.inria.fr/scm/?group_id=117">http://gforge.inria.fr/scm/?group_id=117</a>
 </p>
-<p>Just do the following:
+<p>From there you have two options:
+<dl compact="1">
+<dt>Getting the last nightly build</dt>
+<dd>This will provide you with the source but no opportunity to
+  smoothly upgrade it.</dd>
+<dt>Checking out (anonymously) the repository</dt>
+<dd>Can be achieved by just doing the following:
 <pre>
-$ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft login
+<!-- $ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft login
 &lt;ENTER return when asked for the password&gt;
-$ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft checkout ontoalign
+$ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft checkout
+ontoalign-->
+$ svn checkout svn://scm.gforge.inria.fr/svn/alignapi/trunk/ 
 </pre>
-... and you are done.
-Note that you will have to fetch separately the <a href="owlapi.html">OWL-API</a>.</p>
+... and you are done.</dd>
+</dl>
+Note that you may have to fetch separately the <a href="owlapi.html">OWL-API</a>.</p>
 
-<h2>CVS account</h2>
+<h2>Subversion account</h2>
 
 <p>If you have improved ontoalign and want this to be included in the
-  source tree and want to have a CVS account for that, please contact
+  source base or if you want to seriously work on improving the
+  software, please contact
   Jerome . Euzenat (&Agrave;) inrialpes . fr.</p>
+
+<p>We can either commit your ponctual changes or give you commit
+  rights to the repository (for that purpose, you will have to first
+  register by <a href="http://gforge.inria.fr">http://gforge.inria.fr</a>.</p>
 
 <p>Once provided with a password you will be able to check out from and
   commit in our repository through:
 <pre>
+<!--
 $ export CVS_RSH=`which ssh`
-$ cvs -d :ext:&lt;loginname&gt;@cvs-sop.inria.fr:/CVS/exmosoft checkout ontoalign
+$ cvs -d :ext:&lt;loginname&gt;@cvs-sop.inria.fr:/CVS/exmosoft --
+  --checkout ontoalign
+-->
+$ svn checkout svn+ssh://username@scm.gforge.inria.fr/svn/alignapi/trunk
 </pre>
-(If you are not familliar with SSH, it is useful to spend half an
-hour to know how to avoid to be asked your password anytime).</br>
-If you are not familiar with CVS, its is time to document yourself.
+(If you are not familliar with subversion, it is worth looking at the
+documentation. If you are familiar with CVS, the move is straightforward.)
 </p>
 
 <h2>Release notes</h2>
