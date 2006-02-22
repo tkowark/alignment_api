@@ -385,11 +385,6 @@ public class BasicAlignment implements Alignment {
 	List buffer = getArrayElements();
 	Collections.sort( buffer );
 	int size = buffer.size();
-	System.err.println( method+"("+threshold+")" );
-	for (int i=0; i < size ; i++ ) {
-	    BasicCell c = (BasicCell)buffer.get(i);
-	    System.err.println( "["+c.getStrength()+"]"+c.getObject1()+" "+c.getRelation()+" "+c.getObject2() );
-	}
 	boolean found = false;
 	int i = 0; // the number of cells to keep
 	// Depending on the method, find the limit
@@ -408,8 +403,6 @@ public class BasicAlignment implements Alignment {
 		else i++;
 	    }
 	}
-	// Flush the structure
-	for( size-- ; size >= i ; size-- ) buffer.remove(size);
 	// Introduce the result back in the structure
 	size = i;
 	hash1.clear();
