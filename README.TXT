@@ -1,5 +1,5 @@
-Ontology alignment API and implementation, version 2.0
-11/10/2005
+Ontology alignment API and implementation, version 2.1+
+22/02/2006
 
 Copyright (C) 2003 The University of Manchester.
 Copyright (C) 2003 The University of Karlsruhe.
@@ -75,19 +75,17 @@ LAST RELEASE
 ------------
 
 The last release is available from:
-	http://co4.inrialpes.fr/align
-or
-	http://www.inrialpes.fr/exmo/software/ontoalign.html
+    http://gforge.inria.fr/frs/?group_id=117
 
-CVS ACCESS
-----------
+SOURCE REPOSITORY
+-----------------
 
-See http://co4.inrialpes.fr/align for CVS Access.
+See http://gforge.inria.fr/scm/?group_id=117 for SVN Access.
 
 DOCUMENTATION
 -------------
 
-The best documentation can be found on the web site above.
+The documentation can be found on http://gforge.inria.fr/docman/?group_id=117
 
 FILES
 -----
