@@ -185,8 +185,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	writer.print("</map:fMeasure>\n    <map:oMeasure>");
 	writer.print(overall);
 	writer.print("</map:oMeasure>\n");
-	if ( time != 0 ) writer.print("<time>"+time+"</time>\n");
-    	writer.print("<result>"+result);
+	if ( time != 0 ) writer.print("    <time>"+time+"</time>\n");
+    	writer.print("    <result>"+result);
 	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
     }
 
