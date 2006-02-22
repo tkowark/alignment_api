@@ -367,11 +367,13 @@ public class BasicAlignment implements Alignment {
 
     /***************************************************************************
      * Cut refinement :
-     * - above n (hard)
-     * - above n under the best ()
-     * - getting the n% better (perc)
-     * - getting the under n% of the best (prop)
-     * - getting the n best values
+     * - getting those cells with strength above n (hard)
+     * - getting the n best cells (best)
+     * - getting those cells with strength at worse n under the best (span)
+     * - getting the n% best cells (perc)
+     * - getting those cells with strength at worse n% of the best (prop)
+     * Rule:
+     * threshold is betweew 1 and 0
      **************************************************************************/
     public void cut( String method, double threshold ) throws AlignmentException
     {
@@ -380,35 +382,34 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException( "Not a percentage or threshold : "+threshold );
 	// Create a sorted list of cells
 	// For sure with sorted lists, we could certainly do far better
-	// Raph: this will not work anymore
-	// JE**: did we know if it still works???
 	List buffer = getArrayElements();
 	Collections.sort( buffer );
 	int size = buffer.size();
+	System.err.println( method+"("+threshold+")" );
+	for (int i=0; i < size ; i++ ) {
+	    BasicCell c = (BasicCell)buffer.get(i);
+	    System.err.println( "["+c.getStrength()+"]"+c.getObject1()+" "+c.getRelation()+" "+c.getObject2() );
+	}
 	boolean found = false;
-	int i = 0;
+	int i = 0; // the number of cells to keep
 	// Depending on the method, find the limit
-	if ( method.equals("hard") ){
-	    for( i=0; i < size && !found ; i++ ) {
-		if ( ((Cell)buffer.get(i)).getStrength() <= threshold ) found = true;
-	    }
-	} else if ( method.equals("span") ){
-	    double max = ((Cell)buffer.get(0)).getStrength() -threshold;
-	    for( i=0; i < size && !found ; i++ ) {
-		if ( ((Cell)buffer.get(i)).getStrength() <= max ) found = true;
-	    }
-	} else if ( method.equals("prop") ){
-	    double max = ((Cell)buffer.get(0)).getStrength() * (1-threshold);
-	    for( i=0; i < size && !found ; i++ ) {
-		if ( ((Cell)buffer.get(i)).getStrength() <= max ) found = true;
-	    }
-	} else if ( method.equals("perc") ){
+	if ( method.equals("perc") ){
 	    i = (new Double(size*threshold)).intValue();
 	} else if ( method.equals("best") ){
-	    i=(new Double(threshold)).intValue();
-	} else throw new AlignmentException( "Not a cut specification : "+method );
+	    i = new Double(threshold*100).intValue();
+	} else {
+	    double max;
+	    if ( method.equals("hard") ) max = threshold;
+	    else if ( method.equals("span") ) max = ((Cell)buffer.get(0)).getStrength() - threshold;
+	    else if ( method.equals("prop") ) max = ((Cell)buffer.get(0)).getStrength() * threshold;
+	    else throw new AlignmentException( "Not a cut specification : "+method );
+	    for( i=0; i < size && !found ;) {
+		if ( ((Cell)buffer.get(i)).getStrength() < max ) found = true;
+		else i++;
+	    }
+	}
 	// Flush the structure
-	for( size-- ; size > i ; size-- ) buffer.remove(size);
+	for( size-- ; size >= i ; size-- ) buffer.remove(size);
 	// Introduce the result back in the structure
 	size = i;
 	hash1.clear();
