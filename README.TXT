@@ -47,7 +47,9 @@ $ java -jar lib/procalign.jar --help
 
 $ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -t 0.4
+$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+
+$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -t 0.4 -o aligns/bibref.owl
 
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter rdf/srcalign.owl
 
@@ -59,7 +61,6 @@ $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publica
 
 $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment -t .4
 
-##### JE: this does not work
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/bibref.owl file://localhost$CWD/rdf/srcalign.owl
 
 Using with JWNL (Wordnet)
