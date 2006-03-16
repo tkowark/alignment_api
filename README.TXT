@@ -24,7 +24,8 @@ Read the LICENSE.TXT file for the terms of the LGPL license.
 WHAT IS ONTOLOGY ALIGNMENT?
 ---------------------------
 
-See http://co4.inrialpes.fr/align for the moment.
+See http://alignapi.gforge.inria.fr for the moment.
+See also http://www.ontologymatching.org
 
 USING THE ONTOLOGY ALIGNMENT API IMPLEMENTATION
 -----------------------------------------------
