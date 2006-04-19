@@ -16,6 +16,7 @@
     <echo message="zip: creates a new zip file"/>
     <echo message="javadoc: generates documentation"/>
     <echo message="release: releases a new version"/>
+    <echo message="svnbranch: copy the version under svn"/>
     <echo message="clean: clean-up the release directory"/>
     <echo/>
     <echo message="	-Dversion=${version}"/>
@@ -25,15 +26,15 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="version" value="2.1"/>
+    <property name="version" value="2.2"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
     <property name="libdir"  value="lib" />
     <property name="debug" value="off"/>
-    <property name="rootdir" value="/Volumes/Phata/Web/html"/>
-    <property name="WebDir" value="${rootdir}/co4/align"/>
-    <property name="FTPDir" value="${rootdir}/ftpexmo/software/ontoalign"/>
+    <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
+    <!-- This should now be handled by GForge -->
+    <property name="FTPDir" value="/Volumes/Phata/Web/html/ftpexmo/software/ontoalign"/>
 
     <property name="classpath"  value="classes"/>
     
@@ -56,6 +57,7 @@
     </javac>
   </target>
 
+  <!-- tested -->
   <target name="compileall" depends="init">
     <echo message="Erasing..."/>
     <delete>
@@ -85,6 +87,7 @@
     </jar>
   </target>
 
+  <!-- not tested -->
   <target name="test" depends="init">
     <echo message="Testing..."/>
    <!--  <javac srcdir="test/fr/fluxmedia/transmorpher/graph/rules"
@@ -118,10 +121,10 @@
    <echo message="Javadocing..."/>
    <javadoc
       sourcepath="src" destdir="javadoc"
-      packagenames="fr.inrialpes.*,org.semanticweb.owl.align.*"
+      packagenames="fr.inrialpes.*,org.semanticweb.owl.align.*,org.ivml.alimo.*"
       Use="true" Splitindex="true" private="true"
       Windowtitle="Ontology Alignment API"
-      Doctitle="alignmebr" Header="INRIA &amp; UMontréal"
+      Doctitle="alignmebr" Header="INRIA &amp; friends"
       bottom="..no bottom yet..."
       >
       <!--link href="http://www.inrialpes.fr/exmo/local/doc/jdk1.3-doc/api"/>
@@ -137,24 +140,56 @@
     <copy file="distrib/README.TXT" tofile="README.TXT" filtering="true"/>
     <copy file="distrib/LICENSE.TXT" tofile="LICENSE.TXT" filtering="true"/>
     <antcall target="zip"/>
-    <copy file="${FTPDir}/align-${version}.zip" tofile="${WebDir}/align.zip" />
+    <!-- This should now go to GForge -->
+    <!--copy file="${FTPDir}/align-${version}.zip" tofile="${WebDir}/align.zip" /-->
+    <echo message="Please upload the released file to Gforge" />
     <delete file="LICENSE.TXT"/>
   </target>
 
   <!-- tested -->
-  <target name="zip" depends="jar">
+  <target name="zip" depends="init">
     <echo message="Ziping..."/>
-    <echo message="Are you sure that everything is OK (update/ci/compile)?"/>
+    <!--echo message="Are you sure that everything is OK (update/ci/compile)?"/-->
+    <antcall target="commit"/>
+    <antcall target="compileall"/>
+    <antcall target="jar"/>
+    <!-- may be useful to change directory -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir="." includes="**/*"/>
     </zip>
-    <copy todir="${WebDir}" filtering="true" overwrite="true">
-      <fileset dir="html" includes="**/*.html,**/*.css"/>
-    </copy>
-    <!--copy todir="${WebDir}">
-      <fileset dir="/Users/euzenat/Papiers/Align\ paper/align.pdf"/>
-    </copy-->
-    <!-- zip everything from outside -->
+  </target>
+
+  <!-- not tested yet -->
+  <target name="update" depends="init">
+    <exec executable="svn">
+      <arg line="update" />
+      <arg line="--username" />
+      <arg line="${login}" />
+    </exec>
+  </target>
+
+  <!-- not tested yet -->
+  <target name="commit" depends="update">
+    <exec executable="svn">
+      <arg line="commit" />
+      <arg line="--username" />
+      <arg line="${login}" />
+      <arg line="-m" />
+      <arg line='"Pre-release ${version}"' />
+    </exec>
+  </target>
+
+  <!-- not tested yet -->
+  <target name="svnbranch" depends="">
+    <exec executable="svn">
+      <arg line="copy" />
+      <arg line="--username" />
+      <arg line="${login}" />
+       <arg line="${rep}/trunk" />
+      <arg line="${rep}/tags/version-${version}" />
+      <arg line="-m" />
+      <arg line='"Release ${version}"' />
+    </exec>
   </target>
 
   <target name="clean">
