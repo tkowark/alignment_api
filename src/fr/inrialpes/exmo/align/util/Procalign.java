@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2006, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -123,7 +123,7 @@ public class Procalign {
 	String cutMethod = "hard";
 	String initName = null;
 	Alignment init = null;
-	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
+	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 	String filename = null;
 	String paramfile = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
