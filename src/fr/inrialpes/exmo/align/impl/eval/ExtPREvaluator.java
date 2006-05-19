@@ -254,14 +254,19 @@ public class ExtPREvaluator extends BasicEvaluator {
 	    writer.println("    <map:intutA rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
 	    writer.println("    <map:inputB rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
 	} catch (OWLException e) { e.printStackTrace(); };
-	// Other missing items (easy to get)
-	// writer.println("    <map:falseNegative>");
-	// writer.println("    <map:falsePositive>");
 	writer.print("    <map:symmetricprecision>");
 	writer.print(symprec);
 	writer.print("</map:symmetricprecision>\n    <map:symmetricrecall>");
 	writer.print(symrec);
-	writer.print("</map:symmetricrecall>\n  </map:output>\n</rdf:RDF>\n");
+	writer.print("</map:symmetricrecall>\n    <map:effortbasedprecision>");
+	writer.print(effprec);
+	writer.print("</map:effortbasedprecision>\n    <map:effortbasedrecall>");
+	writer.print(effrec);
+	writer.print("</map:effortbasedrecall>\n    <map:orientedprecision>");
+	writer.print(orientprec);
+	writer.print("</map:orientedprecision>\n    <map:orientedrecall>");
+	writer.print(orientrec);
+	writer.print("</map:orientedrecall>\n  </map:output>\n</rdf:RDF>\n");
     }
 
 }

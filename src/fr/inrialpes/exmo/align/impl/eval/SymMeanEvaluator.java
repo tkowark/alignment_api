@@ -84,21 +84,13 @@ public class SymMeanEvaluator extends BasicEvaluator
 	
 	for (Enumeration e = align1.getElements() ; e.hasMoreElements() ;) {
 	    Cell c1 = (Cell)e.nextElement();
+	    if ( c1.getObject1() instanceof OWLClass ) nbClassCell++;
+	    else if ( c1.getObject1() instanceof OWLProperty ) nbPropCell++;
+	    else nbIndCell++;
 	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
 	    if( s2 != null ){
-		// should be put to the length...of the set
-		if ( c1.getObject1() instanceof OWLClass )
-		    nbClassCell = nbClassCell + s2.size() ;
-		else if ( c1.getObject1() instanceof OWLProperty )
-		    nbPropCell = nbPropCell + s2.size();
-		else nbIndCell = nbIndCell + s2.size();
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();
-		    //try {			
-			//URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
-			//URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
-			// if (c1.getobject2 == c2.getobject2)
-			//if (uri1.toString().equals(uri2.toString())) {
 			if ( c1.getObject2() == c2.getObject2() ) {
 			    if ( c1.getObject2() instanceof OWLClass ) {
 				classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
@@ -109,34 +101,27 @@ public class SymMeanEvaluator extends BasicEvaluator
 		
 	for (Enumeration e = align2.getElements() ; e.hasMoreElements() ;) {
 	    Cell c2 = (Cell)e.nextElement();
-	    Set s1 = (Set)align1.getAlignCells2((OWLEntity)c2.getObject1());
-	    if( s1 != null ){
-		// should be put to the length...of the set
-		if ( c2.getObject1() instanceof OWLClass )
-		    nbClassCell = nbClassCell + s1.size() ;
-		else if ( c2.getObject1() instanceof OWLProperty )
-		    nbPropCell = nbPropCell + s1.size();
-		else nbIndCell = nbIndCell + s1.size();
-		for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
-		    Cell c1 = (Cell)it1.next();
-		    //try {			
-			//URI uri2 = ((OWLEntity)c2.getObject1()).getURI();
-			//URI uri1 = ((OWLEntity)c1.getObject1()).getURI();	
-			// if (c2.getobject1 == c1.getobject1)
-			//if (uri2.toString().equals(uri1.toString())) {
-			if ( c2.getObject1() == c1.getObject1() ) {
-			    if ( c2.getObject1() instanceof OWLClass ) {
-				classScore = classScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-			    } else if ( c2.getObject1() instanceof OWLProperty ) {
-				propScore = propScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-			    } else {
-				indScore = indScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());}}}}}
+	    if ( c2.getObject1() instanceof OWLClass ) nbClassCell++ ;
+	    else if ( c2.getObject1() instanceof OWLProperty ) nbPropCell++;
+	    else nbIndCell++;
+	    //Set s1 = (Set)align1.getAlignCells2((OWLEntity)c2.getObject1());
+	    //if( s1 != null ){
+	    //	for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
+	    //	    Cell c1 = (Cell)it1.next();
+	    //		if ( c2.getObject1() == c1.getObject1() ) {
+	    //		    if ( c2.getObject1() instanceof OWLClass ) {
+	    //			classScore = classScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
+	    //		    } else if ( c2.getObject1() instanceof OWLProperty ) {
+	    //			propScore = propScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
+	    //		    } else {
+	    //			indScore = indScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());}}}}
+	}
 		
 	// Beware, this must come first
-	result = (classScore+propScore+indScore) / (nbClassCell+nbPropCell+nbIndCell);
-	classScore = classScore / nbClassCell;
-	propScore = propScore / nbPropCell;
-	indScore = indScore / nbIndCell;
+	result = 2*(classScore+propScore+indScore) / (nbClassCell+nbPropCell+nbIndCell);
+	classScore = 2*classScore / nbClassCell;
+	propScore = 2*propScore / nbPropCell;
+	indScore = 2*indScore / nbIndCell;
 	return(result);
     }
 
