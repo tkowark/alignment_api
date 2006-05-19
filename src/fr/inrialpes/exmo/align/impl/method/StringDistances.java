@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2006
  * Except for the Levenshtein class whose copyright is not claimed to
  * our knowledge.
  *
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-/** 
+/*
  * This class implements various string distances that can be used on
  * various kind of strings.
  *
@@ -29,8 +29,12 @@
  * - subStringDistance
  * - pSubStringDistance [not implemented yet]
  * - lowenhein (edit) distance
- * - n-gram distance [not implemented yet]
+ * - n-gram distance
  * - CERTH ISWC-2005 SMOA (calling org.ivml.alimo.ISub)
+ * 
+ * All of these are implemented as distances normalized by the
+ * largest possible distance between two such strings.
+ * They return doubles
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -42,21 +46,23 @@ import org.ivml.alimo.ISub;
 
 public class StringDistances {
 
-  //*****************************
-  // Compute substring distance
-  // = 1 - (2 | length of longest common substring | / |s1|+|s2|)
-  //*****************************
-
+    /*
+     * subStringDistance
+     * computes substring distance:
+     * = 1 - (2 | length of longest common substring | / |s1|+|s2|)
+     * return: 0 if both string are equal, 1 otherwise
+     */
     public static double subStringDistance (String s1, String s2) {
 	if (s1 == null || s2 == null) {
-	    throw new IllegalArgumentException("Strings must not be null");
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
 	}
 	
 	int l1 = s1.length(); // length of s
 	int l2 = s2.length(); // length of t
 		
-	if ((l1 == 0) && ( l2 == 0 )) return 0;
-	if ((l1 == 0) || ( l2 == 0 )) return 1;
+	if ((l1 == 0) && ( l2 == 0 )) return 0.;
+	if ((l1 == 0) || ( l2 == 0 )) return 1.;
 
 	int max = Math.min( l1, l2 ); // the maximal length of a subs
 	int best = 0; // the best subs length so far
@@ -76,8 +82,7 @@ public class StringDistances {
 		}
 	    }
 	}
-	//System.err.println(s1+" x "+s2+" = "+(1.0 - ((double)2*best / (l1+l2))));
-	return (1.0 - ((double)2*best / (l1+l2)));
+		return (1.0 - ((double)2*best / (double)(l1+l2)));
     }
 
     /* pSubStringDistance:
@@ -85,28 +90,134 @@ public class StringDistances {
      * sum their size / s1+s2
      */
 
-    public static int equalDistance (String s, String t) {
+    /*
+     * equalDistance
+     * return: 0 if both string are equal, 1 otherwise
+     */
+    public static double equalDistance (String s, String t) {
 	if (s == null || t == null) {
-	    throw new IllegalArgumentException("Strings must not be null");
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
 	}
-	if ( s.equals(t) ) { return 1;} else {return 0;}
+	if ( s.equals(t) ) { return 0.;} else {return 1.;}
     }
 
-    // JE: 30/05/2005: this has not been tested
-    public static int ngramDistance(String s, String t) {
+    /*
+     * hammingDistance
+     * return: the proportion of positions on which two strings differ
+     */
+    public static double hammingDistance (String s, String t) {
+	if (s == null || t == null) {
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
+	}
+	int l1 = s.length();
+	int l2 = t.length();
+	int min = Math.min(l1, l2);
+	int max = Math.max(l1, l2);
+
+	int score = max;
+	for( int i=0; i < min ; i++ )
+	    if ( s.charAt(i) == t.charAt(i) ) score--;
+	return (double)score/(double)max ;
+    }
+
+    /*
+     * jaroMeasure as a dissimilarity (identical have 0.)
+     * return: 
+     * Original algorithm by Jérôme Euzenat.
+     * It traverses both strings at the same time
+     * finding the first match on s, then looking for the first on t
+     * (and deciding if there is transposition or not on the fly)
+     * before comming back to "s", etc.
+     * This is certainly minimal in lines of code if not optimal
+     */
+    public static double jaroMeasure (String s, String t) {
+	if (s == null || t == null) {
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
+	}
+	int l1 = s.length(); // length of s
+	int l2 = t.length(); // length of t
+	int span = Math.min(l1, l2)/2; // vicinity of search
+	int i = 0; // index on s
+	int j = 0; // index on t
+	int comps = 0; // nb of char in s, close in t
+	int compt = 0; // nb of char in t, close in s
+	int transp = 0; // nb of char NOT transposed
+	             // i.e., nb of char in s appearing in the same order in t
+	char lastchars = '\0'; // last matched char in s
+	while( i < l1 || j < l2 ){
+	    if ( ( j < l2 && comps > compt ) || i > l1 ){
+		// find a new match in compt
+		for ( int k = Math.max(0,j-span); k < Math.min(l1,j+span); k++){
+		    if ( t.charAt(j) == s.charAt(k) ){
+			compt++;
+			if ( t.charAt(j) == lastchars ) transp++;
+			k = l1;
+		    }
+		}
+		j++;
+	    } else if ( i == l1 ) { // end of s
+		lastchars = '\0'; // avoid matching with it
+		i = l1+1; // so we will go to the previous clause now
+	    } else { // comps
+		for ( int k = Math.max(0,i-span); k < Math.min(l2,i+span); k++){
+		    if ( t.charAt(k) == s.charAt(i) ){
+			comps++;
+			lastchars = s.charAt(i);
+			k = l2;
+		    }
+		}
+		i++;
+	    }
+	}
+	if ( comps == 0. ) return 1.;
+	else return 1.0 - ((double)comps/l1 + (double)compt/l2 + (double)transp/comps)/3.;
+    }
+
+    /*
+     * jaroWinklerMeasure
+     * return: 
+     */
+    public static double jaroWinklerMeasure (String s, String t) {
+	int PREFIX = 4;
+	double jaro = jaroMeasure( s, t );
+	//int P = Math.max( PREFIX );// length or larger prefix
+	return jaro + (double)PREFIX*(1 - jaro)/10;
+    }
+
+    /*
+     * ngrammDistance
+     * In fact 3-gramm distance
+     * return: the ratio between the number of common n-grams over the
+     *         total number of n-gramms in both strings. 
+     */
+    public static double ngramDistance(String s, String t) {
 	int n = 3; // tri-grams for the moment
 	if (s == null || t == null) {
-	    throw new IllegalArgumentException("Strings must not be null");
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
 	}
+	int l1 = s.length()-n+1;
+	int l2 = t.length()-n+1;
 	int found = 0;
-	for( int i=0; i < s.length()-n ; i++ ){
-	    for( int j=0; j < t.length()-n; j++){
+	for( int i=0; i < l1 ; i++ ){
+	    for( int j=0; j < l2; j++){
 		int k = 0;
-		for( ; (k<n) && s.charAt(i+k)==t.charAt(j+k); k++);
+		for( ; ( k < n ) && ( s.charAt(i+k) == t.charAt(j+k) ); k++);
 		if ( k == n ) found++;
 	    }
 	}
-	return found;
+	return 1.0 - (2*((double)found)/((double)(l1+l2)));
+    }
+
+    public static double levenshteinDistance (String s, String t) {
+	return needlemanWunchDistance( s, t, 1 );
+    }
+
+    public static double needlemanWunch2Distance (String s, String t) {
+	return needlemanWunchDistance( s, t, 2 );
     }
 
     /* Pointer was provided in Todd Hugues (Lockheed)
@@ -117,11 +228,13 @@ public class StringDistances {
        This algorithm should be taken appart of this file and reset in the
        context of a proper package name with an acceptable license terms.
        Hopefully, Jakarta Commons will provide this.
+       Modified by Jérôme Euzenat for returning normalized distance.
+       Modified again by Jérôme Euzenat for computing needleman-wunch.
     */
-
-    public static int levenshteinDistance (String s, String t) {
+    public static double needlemanWunchDistance (String s, String t, int gap) {
 	if (s == null || t == null) {
-	    throw new IllegalArgumentException("Strings must not be null");
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
 	}
 		
 	/* The difference between this impl. and the previous is that, rather 
@@ -148,8 +261,8 @@ public class StringDistances {
 	int n = s.length(); // length of s
 	int m = t.length(); // length of t
 		
-	if (n == 0) return m;
-	else if (m == 0) return n;
+	if (n == 0) return 1.;
+	else if (m == 0) return 1.;
 
 	int p[] = new int[n+1]; //'previous' cost array, horizontally
 	int d[] = new int[n+1]; // cost array, horizontally
@@ -173,7 +286,7 @@ public class StringDistances {
 		cost = s.charAt(i-1)==t_j ? 0 : 1;
 		// minimum of cell to the left+1, to the top+1,
 		// diagonally left and up +cost				
-		d[i] = Math.min(Math.min(d[i-1]+1, p[i]+1),  p[i-1]+cost);  
+		d[i] = Math.min(Math.min(d[i-1]+gap, p[i]+gap),  p[i-1]+cost);  
 	    }
 	    
 	    // copy current distance counts to 'previous row' distance counts
@@ -185,26 +298,30 @@ public class StringDistances {
 	// our last action in the above loop was to switch d and p, so p now 
 	// actually has the most recent cost counts
 	//System.err.println(s+" x "+t+" = "+p[n]);
-	return p[n];
+	//return p[n];
+	//return (double)p[n] / (double)Math.max( n, m );
+	int min = Math.min( n, m );
+	int diff = Math.max( n, m ) - min;
+	return (double)p[n] / (double)(min + diff*gap);
     }
 
-    /**
+    /*
+     * smoaDistance
+     * A specialized distance for ontology matching identifiers
      * Calls the string matching method proposed in the paper
      * "A String Metric For Ontology Alignment", published in ISWC 2005 
      * It is implemented in a separate class provided by the authors and
      * available with this package
-     * JE: question:
-     * ISub seems to be a distance: if both strings are empty, it returns 0, if only one is, it returns 1. But its final statement is:
-     * 	return commonality - dissimilarity + winklerImprovement;
-     * which really looks like a similarity!
+     * returns commonality - dissimilarity + winklerImprovement;
      */
     public static double smoaDistance (String s1, String s2) {
 	if (s1 == null || s2 == null) {
-	    throw new IllegalArgumentException("Strings must not be null");
+	    //throw new IllegalArgumentException("Strings must not be null");
+	    return 1.;
 	}
-
 	ISub metrics = new ISub();
-	return metrics.score( s1, s2 );
+
+	return 1.0 - (double)metrics.score( s1, s2 );
     }
 	
 }
