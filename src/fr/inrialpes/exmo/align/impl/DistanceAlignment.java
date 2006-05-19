@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -100,9 +100,23 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
       // This is a 1:1 alignment in fact
       else setType("11");
 
-      getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
-      getSimilarity().compute( params );
+      sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
+      sim.compute( params );
+      if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
       extract( getType(), params );
+    }
+
+    public void printDistanceMatrix( Parameters params ){
+	System.out.println("\\documentclass{article}\n");
+	System.out.println("\\usepackage{graphics}\n");
+	System.out.println("\\begin{document}\n");
+	System.out.println("\\begin{figure}");
+	sim.printClassSimilarityMatrix("tex");
+	System.out.println();
+	sim.printPropertySimilarityMatrix("tex");
+	System.out.println("\\caption{Class distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\end{figure}");
+	System.out.println("\n\\end{document}");
     }
 
     /**
@@ -192,7 +206,6 @@ public class DistanceAlignment extends BasicAlignment implements AlignmentProces
 			  found = true; max = val; ind2 = current;
 		      }
 		  }
-		  System.err.println(ind1+" -- "+ind2+" = "+max);
 		  if ( found ) addAlignCell(ind1,ind2, "=", max);
 	      }
 	  }

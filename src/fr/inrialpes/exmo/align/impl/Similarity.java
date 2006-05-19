@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -54,9 +54,19 @@ public interface Similarity
     public double getClassSimilarity( OWLClass c1, OWLClass c2 );
     public double getPropertySimilarity( OWLProperty p1, OWLProperty p2);
     public double getIndividualSimilarity( OWLIndividual i1, OWLIndividual i2 );
+
+    public void printClassSimilarityMatrix( String type );
+    public void printPropertySimilarityMatrix( String type );
+    public void printIndividualSimilarityMatrix( String type );
+
     // New implementation
-    public double measure( OWLClass c1, OWLClass c2 ) throws OWLException;
-    public double measure( OWLProperty p1, OWLProperty p2) throws OWLException;
-    public double measure( OWLIndividual i1, OWLIndividual i2 ) throws OWLException;
+    // JE: this is better as a new implementation.
+    // however, currently the implementation does not follow it:
+    // the abstract matrix class provides the get- accessors and the 
+    // concrete classes implement measure as their computation function.
+    // This is not clean. What should be done is:
+    public double measure( OWLClass c1, OWLClass c2 ) throws Exception;
+    public double measure( OWLProperty p1, OWLProperty p2) throws Exception;
+    public double measure( OWLIndividual i1, OWLIndividual i2 ) throws Exception;
 }
 
