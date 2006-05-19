@@ -294,8 +294,11 @@ public class GenPlot {
      */
     public static void printPGFTex( double[][] result ){
 	int i = 0;
+	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
 	output.println("\\documentclass[11pt]{book}");
 	output.println();
+	// This does not work genuinely
+	//output.println("\\usepackage{pgf,pgflibraryplotmarks}");
 	output.println("\\usepackage{pgf}");
 	output.println("\\usepackage{tikz}");
 	output.println();
@@ -308,8 +311,8 @@ public class GenPlot {
 	output.println("\\draw[->] (-0.2,0) -- (10.2,0) node[below] {$precision$}; ");
 	output.println("\\draw[->] (0,-0.2) -- (0,10.2) node[above] {$recall$}; ");
 	output.println("% Plots");
-	// Should be improved by changing the symbol
 	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	    //output.println("\\draw plot[mark="+marktable[i]+",smooth] file {"+(String)e.nextElement()+".table};");
 	    output.println("\\draw plot[mark=+,smooth] file {"+(String)e.nextElement()+".table};");
 	}
 	// And a legend
