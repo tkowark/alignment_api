@@ -1,4 +1,24 @@
 /*
+ * $Id: ParserPrinter.java 210 2006-02-17 12:09:31Z euzenat $
+ *
+ * Copyright (C) 2006 INRIA Rhône-Alpes.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
  * QueryMediator.java
  *
  * Created on May 20, 2006, 12:15 AM
@@ -7,37 +27,138 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.queryprocessor.impl.QueryProcessorImpl;
+// JE: I commented this in order to have it not tied to a
+// processor implementation
+//import fr.inrialpes.exmo.queryprocessor.impl.QueryProcessorImpl;
+import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
+import fr.inrialpes.exmo.queryprocessor.Result;
+import fr.inrialpes.exmo.queryprocessor.Type;
+
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
+
+import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
+
+import org.semanticweb.owl.model.OWLEntity;
+import org.semanticweb.owl.model.OWLException;
+
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.io.IOException;
 
 /**
- *
+ * QueryMediator
+ * 
+ * A query processor that mediates queries through an ontology alignment.
+ * This implementation rely on an embedded QueryProcessor.
+ * Another possible implementation would be to subclass a query processor.
+ * This would however provide few benefits (speed gained by no indirection)
+ * against loss in generality.
+ * 
  * @author Arun Sharma
  */
-public class QueryMediator extends QueryProcessorImpl {
+public class QueryMediator implements QueryProcessor {
     
     private String query;
     private Alignment alignment;
+    private QueryProcessor processor;
     
-    public QueryMediator(String aQuery) {
-        query = aQuery;
+    // May be usefull to prohibit this...
+    //public QueryMediator( ) {
+    //}
+    
+    public QueryMediator( QueryProcessor proc, Alignment a ) {
+	processor = proc;
+        alignment = a;
     }
     
-    public QueryMediator(Alignment a, String aQuery)  {
-        query = aQuery;
-        alignment = a;
+    public QueryMediator( QueryProcessor proc, String alignmentURI ) throws SAXException,ParserConfigurationException,IOException {
+	processor = proc;
+	AlignmentParser aparser = new AlignmentParser(0);
+	alignment = aparser.parse( alignmentURI, new Hashtable() );
+    }
+
+    public QueryMediator( Alignment a ) {
+	// For this to work we need to generate a processor
+	this( (QueryProcessor)null, a );
+    }
+    
+    public QueryMediator( String alignmentURI ) throws SAXException,ParserConfigurationException,IOException {
+	// For this to work we need to generate a processor
+	this( (QueryProcessor)null, alignmentURI );
+    }
+
+    /**
+     * @param query -- The query string
+     * @param type -- The query type, can be one of SELECT, ASK, CONSTRUCT, or DESCRIBE
+     * @returns Result, result form depends on type
+     */
+    // JE: There is a flaw in the query API: it should be defined with
+    // throws QueryException because if something fails, this will be
+    // done silently. (same for the other).
+    public Result query(String query, Type type) {
+	try {
+	    String newQuery = rewriteQuery( query );
+	    return processor.query( newQuery, type );
+	} catch (AlignmentException e) { return (Result)null; }
+    }
+    
+    /**
+     *@param query  -- The query string
+     */
+    public Result query(String query) {
+	try {
+	    String newQuery = rewriteQuery( query );
+	    return processor.query( newQuery );
+	} catch (AlignmentException e) { return (Result)null; }
+    }
+
+    /**
+     *@param query -- The query string
+     *@returns query results as string
+     */
+    public String queryWithStringResults(String query) {
+	try {
+	    String newQuery = rewriteQuery( query );
+	    return processor.queryWithStringResults( newQuery );
+	} catch (AlignmentException e) { return (String)null; }
+    }
+    
+    /**
+     *@param query -- the query string
+     *@returns the type of the query
+     */
+    public int getType(String query){
+	return processor.getType( query );
+    }
+    
+    public void loadOntology(String uri){
+	processor.loadOntology( uri );
     }
     
     /**
      * @aQuery query to be re-written
-     * @ a Alignment
-     * @ return -- rewritten query, Current code just replaces all the prefix namespaces, if present, in the query by actual IRIs
-     * TODO: rewrite the mainQuery variable (which is currently returned) to a query based on the given alignment     
+     * @ a the alignment used for rewriting the query Alignment
+     * @ return -- rewritten query:
+     * - replaces all the prefix namespaces, if present, in the query by actual IRIs
+     * - replaces all entity IRI by their counterpart in the ontology
+     *
+     * Caveats:
+     * - This does only work for alignments with =
+     * - This does not care for the *:x status of alignments
+     * - This does work from ontology1 to ontology2, not the otherway round
+     *    (use invert() in this case).
      */    
-    public String rewriteQuery(String aQuery, Alignment a)  {
+    public String rewriteQuery( String aQuery ) throws AlignmentException {
+	// The first part expands the prefixes of the query
         aQuery = aQuery.toLowerCase();
         String mainQuery = ""; 
-        if(aQuery.contains("prefix"))  {
+        if( aQuery.indexOf("prefix") != -1 )  {
             String[] pref = aQuery.split("prefix");               
             for(int j =0; j < pref.length; j++)  {
                 String str = "";
@@ -58,10 +179,17 @@ public class QueryMediator extends QueryProcessorImpl {
                     mainQuery = mainQuery.replaceAll(ns, iri);            
                 }
             }
-        }
-        
-        else
-            mainQuery = aQuery;
+        } else mainQuery = aQuery;
+	// The second part replaces the named items by their counterparts
+	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
+	    Cell cell = (Cell)e.nextElement();
+	    try {
+		mainQuery = mainQuery.replaceAll(
+			      ((OWLEntity)cell.getObject1()).getURI().toString(),
+			      ((OWLEntity)cell.getObject2()).getURI().toString() );
+	    } catch ( OWLException ex) { throw new AlignmentException( "getURI problem", ex ); }
+
+	}
         return mainQuery;
     }
     
