@@ -7,7 +7,7 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.QueryProcessor.impl.QueryProcessorImpl;
+import fr.inrialpes.exmo.queryprocessor.impl.QueryProcessorImpl;
 import org.semanticweb.owl.align.Alignment;
 
 /**
