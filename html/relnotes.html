@@ -10,7 +10,6 @@
 <h2>To do</h2>
 
 <p><ul compact="1">
-<li>Revisit the release target of the build file for svn compatibility</li>
 <li>Implement better similarity/extractor</li>
 <li>Fully implement individual alignments</li>
 <li>-d directory</li>
@@ -21,22 +20,29 @@
 <li>Integrating tagging to the wordnet stuff</li>
 <li>Improve the metadata</li>
 <li>Build on unit tests</li>
+<li>Consider the new release of OWL-API</li>
 </ul></p>
 
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Reengineered StringDistances (only return normalized values,
-  added n-grams) and StringDistNameAlignment (replaces all the
-  others) [BUGGED]</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
 
+<!--p><b>Version 2.2: /2006 - may GForge be with you</b></p-->
 <p><ul compact="1">
 <li>Moved sources to gforge.inria.fr</li>
 <li>Moved web site to alignapi.gforge.inria.fr</li>
 <li>Updated documentation to reflect new source location</li>
+<li>Added service directory, alignsvc.jar and QueryMediator class</li>
+<li>Revisited the release target of the build file for svn compatibility</li>
+<li>Reengineered StringDistances (only return normalized values) and
+  StringDistNameAlignment (replaces all the others). These fully
+  implement individual alignment;</li>
+<li>Added similarity matrix printer (-DprintMatrix=1)</li>
+<li>Added Hamming, N-gramms, Needleman-Wunch distance, Jaro and Jaro-Winckler measures on strings</li>
+<li>Corrected bug in SymMeanEvaluator</li>
 <li>Corrected cut behavior (did not cut the last item, best did not work)</li>
 <li>GenPlot generates directly gnuplot output and LaTeX/PGF inclusion.</li>
 </ul></p>
