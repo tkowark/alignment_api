@@ -34,7 +34,8 @@ public class QueryMediator extends QueryProcessorImpl {
      * @ return -- rewritten query, Current code just replaces all the prefix namespaces, if present, in the query by actual IRIs
      * TODO: rewrite the mainQuery variable (which is currently returned) to a query based on the given alignment     
      */    
-    public String rewriteQuery(String aQuery, Alignment a)  {               
+    public String rewriteQuery(String aQuery, Alignment a)  {
+        aQuery = aQuery.toLowerCase();
         String mainQuery = ""; 
         if(aQuery.contains("prefix"))  {
             String[] pref = aQuery.split("prefix");               
