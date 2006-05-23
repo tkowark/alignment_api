@@ -142,8 +142,8 @@ public class QueryMediator implements QueryProcessor {
     }
     
     /**
-     * @aQuery query to be re-written
-     * @ a the alignment used for rewriting the query Alignment
+     * @param aQuery query to be re-written
+     * @param a the alignment used for rewriting the query Alignment
      * @ return -- rewritten query:
      * - replaces all the prefix namespaces, if present, in the query by actual IRIs
      * - replaces all entity IRI by their counterpart in the ontology
@@ -156,7 +156,7 @@ public class QueryMediator implements QueryProcessor {
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {
 	// The first part expands the prefixes of the query
-        aQuery = aQuery.toLowerCase();
+        aQuery = aQuery.replaceAll("PREFIX", "prefix");
         String mainQuery = ""; 
         if( aQuery.indexOf("prefix") != -1 )  {
             String[] pref = aQuery.split("prefix");               
