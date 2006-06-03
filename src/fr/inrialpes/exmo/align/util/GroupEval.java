@@ -74,6 +74,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     -o filename --output=filename
     -f format = prfmo (precision/recall/fallout/f-measure) --format=prfmo
     -d debug --debug=level
+    -r filename --reference=filename
     -s algo/measure
     -l list of compared algorithms
     -t output --type=output: xml/tex/html/ascii
@@ -98,6 +99,7 @@ public class GroupEval {
 
     static Parameters params = null;
     static String filename = null;
+    static String reference = "refalign.rdf";
     static String format = "pr";
     static int fsize = 2;
     static String type = "html";
@@ -114,7 +116,7 @@ public class GroupEval {
 
     public static void run(String[] args) throws Exception {
 	String listFile = "";
-	LongOpt[] longopts = new LongOpt[8];
+	LongOpt[] longopts = new LongOpt[9];
 	loaded = new Hashtable();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -125,8 +127,9 @@ public class GroupEval {
 	longopts[5] = new LongOpt("sup", LongOpt.REQUIRED_ARGUMENT, null, 's');
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
+	longopts[8] = new LongOpt("reference", LongOpt.REQUIRED_ARGUMENT, null, 'r');
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:c::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:c::", longopts);
 	int c;
 	String arg;
 
@@ -138,6 +141,10 @@ public class GroupEval {
 	    case 'o' :
 		/* Write output here */
 		filename = g.getOptarg();
+		break;
+	    case 'r' :
+		/* File name for the reference alignment */
+		reference = g.getOptarg();
 		break;
 	    case 'f' :
 		/* Sequence of results to print */
@@ -153,8 +160,10 @@ public class GroupEval {
 		break;
 	    case 'c' :
 		/* Print colored lines */
-		color = "lightblue";
-		    //dominant = g.getOptarg();
+		arg = g.getOptarg();
+		if ( arg != null )  {
+		    color = arg.trim();
+		} else color = "lightblue";
 		break;
 	    case 'l' :
 		/* List of filename */
@@ -221,7 +230,7 @@ public class GroupEval {
 	    // store the resul in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf");
+	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+(String)e.nextElement()+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -449,10 +458,16 @@ public class GroupEval {
 	System.out.println("usage: GroupEval [options]");
 	System.out.println("options are:");
 	System.out.println("\t--format=prfmot -r prfmot\tSpecifies the output order (precision/recall/fallout/f-measure/overall/time)");
-	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
+	// Apparently not implemented
+	//System.out.println("\t--sup=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
+	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");
+	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
+
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
+	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
     }
 }
+
