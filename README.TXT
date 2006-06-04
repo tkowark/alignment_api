@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      22/02/2006, version 2.1+                       #
+#                      05/06/2006, version 2.2+                       #
 #######################################################################
 
 Copyright (C) 2003 The University of Manchester.
@@ -58,7 +58,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter rdf/srca
 
 $ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -a rdf/srcalign.owl
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl 
+$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
 
 $ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance
 
