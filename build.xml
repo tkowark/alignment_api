@@ -159,7 +159,7 @@
   <target name="zip" depends="init">
     <echo message="Ziping..."/>
     <!--echo message="Are you sure that everything is OK (update/ci/compile)?"/-->
-    <antcall target="commit"/>
+    <!--antcall target="commit"/-->
     <antcall target="compileall"/>
     <antcall target="jar"/>
     <!-- may be useful to change directory -->
