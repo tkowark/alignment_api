@@ -89,8 +89,7 @@
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/alignsvc.jar"/>
-	<!-- A manifest for the standalone service class should be created -->
-    <jar jarfile="lib/alignsvc.jar" manifest="distrib/MANIFEST-wn.MF">
+    <jar jarfile="lib/alignsvc.jar" manifest="distrib/MANIFEST-svc.MF">
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
@@ -236,8 +235,6 @@
       <classpath refid="classpath"/>
     </java>
   </target>
-
-  
 
   <target name="clean">
     <echo message="Cleaning..."/>
