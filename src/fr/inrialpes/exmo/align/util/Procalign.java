@@ -59,6 +59,7 @@ import java.net.URI;
 import java.util.Hashtable;
 import java.lang.Double;
 import java.lang.Integer;
+import java.lang.Long;
 
 import org.xml.sax.SAXException;
 
@@ -291,7 +292,10 @@ public class Procalign {
 
 	    if (debug > 0) System.err.println(" Alignment structure created");
 	    // Compute alignment
+	    long time = System.currentTimeMillis();
 	    result.align(init, params); // add opts
+	    long newTime = System.currentTimeMillis();
+	    result.setExtension( "time", Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );

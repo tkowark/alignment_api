@@ -59,6 +59,7 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.lang.Double;
 import java.lang.Integer;
+import java.lang.Long;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
@@ -318,7 +319,7 @@ public class GroupAlign {
 	long time = System.currentTimeMillis();
 	result.align(init, params); // add opts
 	long newTime = System.currentTimeMillis();
-	//result.setTime( newTime - time );
+	result.setExtension( "time", Long.toString(newTime - time) );
 
 	if (debug > 1) System.err.println(" Alignment performed");
 

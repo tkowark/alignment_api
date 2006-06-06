@@ -72,7 +72,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     where the options are:
     <pre>
     -o filename --output=filename
-    -f format = prfmo (precision/recall/fallout/f-measure) --format=prfmo
+    -f format = prfmot (precision/recall/fallout/f-measure/overall/time) --format=prfmot
     -d debug --debug=level
     -r filename --reference=filename
     -s algo/measure
