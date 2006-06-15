@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl.method;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.lang.reflect.Method;
+import java.net.URI;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
@@ -62,15 +63,28 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	setSimilarity( new MatrixMeasure() {
 		public double measure( OWLClass cl1, OWLClass cl2 ) throws Exception{
 		    String[] params = { cl1.getURI().getFragment(), cl2.getURI().getFragment() };
-		    //if ( debug > 4 ) 
+		    if ( debug > 4 ) 
+			System.err.println( "CL:"+cl1.getURI().getFragment()+" ++ "+cl2.getURI().getFragment());
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
 		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws Exception{
 		    String[] params = { pr1.getURI().getFragment(), pr2.getURI().getFragment() };
+		    if ( debug > 4 ) 
+			System.err.println( "PR:"+pr1.getURI().getFragment()+" ++ "+pr2.getURI().getFragment());
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
 		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws Exception{
-		    String[] params = { id1.getURI().getFragment(), id2.getURI().getFragment() };
+		    if ( debug > 4 ) 
+			System.err.println( "ID:"+id1+" -- "+id2);
+		    URI URI1 = id1.getURI();
+		    String name1;
+		    if ( URI1 != null ) name1 = URI1.getFragment();
+		    else name1 = "";
+		    URI URI2 = id2.getURI();
+		    String name2;
+		    if ( URI2 != null ) name2 = URI2.getFragment();
+		    else name2 = "";
+		    String[] params = { name1, name2 };
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
 	    } );

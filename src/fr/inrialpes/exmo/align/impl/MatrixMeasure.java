@@ -119,7 +119,7 @@ public abstract class MatrixMeasure implements Similarity {
 		indlist2.put( it.next(), new Integer(nbind2) );
 	    }
 	    for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); nbind1++ ){
-		indlist1.put( it.next(), new Integer(nbind1)  );
+		indlist1.put( it.next(), new Integer(nbind1) );
 	    }
 	    indmatrix = new double[nbind1+1][nbind2+1];
 
@@ -136,6 +136,7 @@ public abstract class MatrixMeasure implements Similarity {
 		    clmatrix[((Integer)classlist1.get(cl1)).intValue()][((Integer)classlist2.get(cl2)).intValue()] = measure( cl1, cl2 );
 		}
 	    }
+	    System.err.println("IND: "+nbind1+" / "+nbind2);
 	    // Compute distances on individuals
 	    // (this comes first because otherwise, it2 is defined)
 	    for ( Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ){

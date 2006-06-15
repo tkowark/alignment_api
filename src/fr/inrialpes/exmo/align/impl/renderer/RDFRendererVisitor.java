@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -104,6 +104,8 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	this.cell = cell;
 	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
 	try {
+	    if ( ((OWLEntity)cell.getObject1()).getURI() != null &&
+		 ((OWLEntity)cell.getObject2()).getURI() != null ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
 	    if ( cell.getId() != null ){
@@ -121,6 +123,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    writer.print("      <relation>");
 	    cell.getRelation().accept( this );
 	    writer.print("</relation>\n    </Cell>\n  </map>\n");
+	    }
 	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }
     }
     public void visit( Relation rel ) {
