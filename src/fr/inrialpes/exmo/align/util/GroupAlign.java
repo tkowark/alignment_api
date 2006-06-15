@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2006, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -110,7 +110,7 @@ public class GroupAlign {
     static Hashtable loadedOntologies = null;
     static OWLRDFErrorHandler handler = null;
     static int debug = 0;
-    static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
+    static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     static String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 
     public static void main(String[] args) {
