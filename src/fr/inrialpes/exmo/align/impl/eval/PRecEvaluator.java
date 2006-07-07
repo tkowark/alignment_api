@@ -168,8 +168,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
 	try {
-	    writer.println("    <map:intutA rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
-	    writer.println("    <map:inputB rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
+	    writer.println("    <map:reference rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
+	    writer.println("    <map:input rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
 	} catch (OWLException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
 	// writer.println("    <map:falseNegative>");
