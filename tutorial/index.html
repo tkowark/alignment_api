@@ -1,0 +1,373 @@
+<html><head>
+<title>A small tutorial to the Alignment API</title>
+<script language="JavaScript">
+function show(id) {
+ var element = document.getElementById(id);
+ element.style.display = "block";
+}
+
+function hide(id) {
+ var element = document.getElementById(id);
+ element.style.display = "none";
+}
+</script>
+
+<link rel="stylesheet" type="text/css"
+      href="base.css" />
+<link rel="stylesheet" type="text/css"
+      href="style.css" />
+</head><body bgcolor="white">
+
+<div style="detail"><p>
+<b>TODO</b>
+<ul>
+<li>OAEI</li>
+<li>Signer faxer le truc de Heiner</li>
+
+<li>repporting KW + NeOn</li>
+
+<li>Lire IJWIS</li>
+
+<li>Finish this</li>
+<li>Put it online</li>
+
+<li>--Tel Jutta</li>
+<li>--**--olange/maillot/canapé/notaire</li>
+<li>--Paye solange</li>
+<li>--Certif solange</li>
+<li>--Finish foreword</li>
+
+<li>review SAMT</li>
+<li>review Wonto</li>
+
+<li>Update bouquin</li>
+
+<li>Maillot -- crème</li>
+
+<li>Boulot WP3</li>
+<li>Bouquin</li>
+</ul>
+</p></div>
+
+
+<h1>A small tutorial to the Alignment API</h1>
+
+<p>Here is a small tutorial for the alignment API. Since the API has no
+dedicated GUI, most of the tutorial is based on command-lines
+  invocations. Of course, it is not the natural way to use this API:
+  it is made for being embedded in some application programme and we
+  are working towards implementing an alignment server that can help
+ programmes to use the API remotely.</p>
+
+<h2>Preparation</h2>
+
+<p>For running the alignment API, you must have a Java interpreter
+available. We wil call it <tt>java</tt>.</p>
+<p>Download the last version of the Alignement API from 
+<a href="http://gforge.inria.fr/frs/?group_id=117">http://gforge.inria.fr/frs/?group_id=117</a>.
+Unzip it and go to the created directory:
+<div class="fragment"><pre>
+$ mkdir alignapi
+$ cd alignapi
+$ unzip align*.zip
+</pre></div></p>
+<p>You can check that everything works by only typing 
+<div class="fragment"><pre>
+$ java -jar lib/procalign.jar --help
+</pre></div>
+<div class="button"><form><input type="button" value="Show
+output" onclick="show('qu3')"/><input type="button" value="Hide
+output" onclick="hide('qu3')"/></form></div>
+<div class="explain" id="qu3">
+<pre>
+usage: Procalign [options] URI1 URI2
+options are:
+        --impl=className -i classname           Use the given alignment implementation.
+        --renderer=className -r className       Specifies the alignment renderer
+        --output=filename -o filename   Output the alignment in filename
+        --params=filename -p filename   Reads parameters from filename
+        --alignment=filename -a filename Start from an XML alignment file
+        --threshold=double -t double    Filters the similarities under threshold
+        --cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span        method for computing the threshold
+        --debug[=n] -d [n]              Report debug info at level n
+        -Dparam=value                   Set parameter
+        --help -h                       Print this message
+</pre></div></p>
+This should output the command line usage of the Procalign 
+class. We do not detail it here, this tutorial will present
+it entirelly.</p>
+<p>You will then go to the tutorial directory by doing
+<div class="fragment"><pre>
+$ cd html/tutorial
+</pre></div>
+</p>
+
+<p>The goal of this tutorial is only to help you realize the
+  possibilities of the Alignment API and implementation. It can be
+  played by invoking each command line from the command-line
+  interpreter. In this example we use the <tt>tcsh</tt> syntax but the main
+  specific syntax is the first one:
+<div class="fragment"><pre>
+$ setenv CWD `pwd`
+</pre></div>
+
+which puts in variable $CWD the name of the current directory.</p>
+<p>Beside a Java interpreter, if one wants to generate the HTML
+  translations of the alignements, this can be done with the help of
+  an XSLT 1.0 processor like <tt>xsltproc</tt>. Hence:
+<div class="fragment"><pre>
+$ xsltproc ../form-align.xsl file.rdf > file.html
+</pre></div>
+
+generates <tt>file.html</tt> from the alignment file <tt>file.rdf</tt>.</p>
+
+<h2>The data</h2>
+
+<p>Your mission, if you accept it, will be to find the best alignment
+  between two bibliographic ontologies. They can be seen here:
+<dl>
+<dt></dt><dd></dd>
+<dt></dt><dd></dd>
+</dl>
+</p>
+
+<h2>Aligning</h2>
+
+<p>Let's try to align these two ontologies:
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl
+</pre></div>
+</p>
+
+<p>The <a href="">result</a> is displayed on the standard output in the
+Alignment format. This format, expressed in <a href="">RDF/XML</a>, is made of a
+header containing "metadata" about the alignment:
+<div class="owl"><pre>
+</pre></div>
+
+and the corresponding set of correspondences:
+<div class="owl"><pre>
+</pre></div>
+
+each correspondence is made of two references to the aligned entities,
+the relation holding between the entities (<tt>=</tt>) and a confidence measure
+(<tt>1.0</tt>) in this correspondence. Here, because the default method that
+has been used for aligning the ontologies is so simple (it only
+compares the labels of the entities and find that there is a
+correspondence if their labels are equal), the correspondences are
+always that simple. But it is too simple so we will use a more
+sophisticated method based on an edit distance:</p>
+
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance
+</pre></div>
+
+
+<p>This is achieved by specifying the class of alignment to be used
+(through the <tt>-i</tt> switch) and the distance function to be used
+(<tt>-DstringFunction=levenshteinDistance</tt>).</p>
+
+<p>Look at the results: how are they different from before?
+<div class="button"><form><input type="button" value="Show
+Discussion" onclick="show('qu1')"/><input type="button" value="Hide
+Discussion" onclick="hide('qu1')"/></form></div>
+<div class="explain" id="qu1"><p>We can see that the
+    correspondences now contain confidence factors different than <tt>1.0</tt>,
+    they also match strings which are not the same and indeed far more
+    correspondences are available.
+</p></div></p>
+
+<p>Because this result is too long to analize, it will be sent to the
+  file <a href="raw.rdf">raw.rdf</a> (though the <tt>-o</tt> flag).
+
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o raw.rdf
+</pre></div>
+
+See the output in <a href="raw.rdf">RDF/XML</a> or <a href="raw.html">HTML</a>.</p>
+
+<div class="logic"><p><b>More work:</b> you can apply other available alignments
+  classes. Look in the
+  <a
+  href="../src/fr/inrialpes/exmo/align/impl/method>"../src/fr/inrialpes/exmo/align/impl/method</a>
+  directory for more simple alignment methods. Also look in the
+  <tt>StringDistAlignment</tt> class the possible values for <tt>stringFunction</tt>.</p></div>
+
+<div class="logic"><p><b>Advanced:</b> You can also look at the instructions for
+  installing WordNet and its Java interface and use a WordNet based
+  distance provided with the API implementation by:
+<div class="fragment"><pre>
+$ java -jar ../../lib/alignwn.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o jwnl.rdf
+</pre></div>
+
+See the output in <a href="jwnl.rdf">RDF/XML</a> or <a href="jwnl.html">HTML</a>.</p></div>
+
+<h2>Manipulating</h2>
+
+<p>As can be seen there are some correspondences that do not really make
+sense. Fortunatelly, they also have very low confidence level. It is
+thus interesting to use a threshold for eliminating these
+  values. Let's try a threshold of <tt>.5</tt> over the alignment:
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.5 -o dist5.rdf
+</pre></div>
+See the output in <a href="dist5.rdf">RDF/XML</a>
+or <a href="dist5.html">HTML</a>.</p>
+<p>As expected we have suppressed some of these
+
+<p>We can also apply this treatment to other methods available:
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar file://localhost$CWD/edu.umbc.ebiquity.publication.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -t 0.5 -o dist2.rdf
+</pre></div>
+
+See the output in <a href="dist.rdf">RDF/XML</a>
+or <a href="dist.html">HTML</a>.</p>
+
+<p><b>Other manipulations:</b> It is possible to invert an alignement
+  with the following command:
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter -i dist.rdf -o tsid.rdf
+</pre></div>
+
+See the output in <a href="tsid.rdf">RDF/XML</a>
+or <a href="tsid.html">HTML</a>. The results is an alignement from
+the source to the target.</p>
+
+<div class="logic"><p><b>More work:</b>There is another switch (<tt>-T</tt>) in Procalign that
+  specifies the way a threshold is applied (hard|perc|prop|best|span)
+  the default being "hard". The curious reader can apply these and see
+  the difference in results. How they work is explained in the
+  Alignment API documentation.
+</p></div>
+
+<div class="logic"><p><b>More work:</b> What is the best threshold for 
+</p></div>
+
+<h2>Output</h2>
+
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter dist.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+</pre></div>
+
+
+We can also generate SWRL rules:
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter dist.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
+</pre></div>
+
+or XLST transformations:
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter dist.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o dist.xsl
+</pre></div>
+
+this transformation can be applied to the data of <a href="data.xml">data.xml</a>:
+<div class="fragment"><pre>
+$ xsltproc dist.xsl data.xml > data2.xml
+</pre></div>
+
+for giving the <a href="data2.xml">data2.xml</a> file.
+</p>
+
+<h2>Evaluating</h2>
+
+<p>We will evaluate alignments by comparing them to some reference
+  alignment which is supposed to express what is expected from an
+  alignment of these two ontologies. The reference alignment is
+  <a href="refalign.rdf">refalign.rdf</a>
+  (or <a href="refalign.html">HTML</a>).</p>
+<p>
+<p>For evaluating we use another class than Procalign. It is called
+  <tt>EvalAlign</tt> we should specify this to <tt>java</tt>. By default, it
+  computes precision, recall and associated measures. It can be
+  invoked this way:
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/refalign.rdf file://localhost$CWD/dist.rdf
+</pre></div>
+
+</p>
+
+<p>Look at the results: what to expect from the evaluation of this alignment?
+<div class="button"><form><input type="button" value="Show
+Discussion" onclick="show('qu2')"/><input type="button" value="Hide
+Discussion" onclick="hide('qu2')"/></form></div>
+<div class="explain" id="qu2"><p>Since it returns more correspondences
+    by loosening the constraints for being a correspondence, it is
+    expected that the recall will increase at the expense of precision.
+</p></div></p>
+
+<p>We can see the results 
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/refalign.rdf file://localhost$CWD/dist2.rdf
+</pre></div>
+
+<div class="fragment"><pre>
+$ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
+</pre></div>
+
+
+<div class="fragment"><pre>
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/refalign.rdf file://localhost$CWD/jwnl.rdf
+</pre></div>
+
+</pre></div>
+
+
+<div class="logic"><p><b>More work:</b> Use F-measure
+</p></div>
+
+<div class="logic"><p><b>More work:</b>If you want to compare several algorithms, there
+  is another class, GroupAlign, that ...
+</p></div>
+
+<h2>Embedding</h2>
+
+<p>Of course, the goal of this API is not to be used at the command
+  line level (even if it is very often very useful). So if you are
+  ready for it, you can develop in Java your own application that take
+  advantage of the API.</p>
+
+<p>This should be possible to invoque it through:
+<div class="fragment"><pre>
+$ java -cp ../../lib/Procalign.jar MyApp file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
+</pre></div></p>
+
+<div class="logic"><p><b>More work:</b> Can you add a switch like the <tt>-i</tt> switch
+  of <tt>Procalign</tt> so that the main class of the application can
+  be passed at commant-line.
+</p></div>
+
+<p>
+
+
+
+
+you can develop a specialized matching algorithm
+  by subclassing the Java programs provided in 
+
+<div class="logic"><p><b>More work:</b> Implement the F-measure optimization rule
+  presented above so that you automatically select the threshold that
+  maximizes F-measure.
+</p></div>
+
+<h2>Further exercises</h2>
+
+<div class="fragment"><pre>
+More info: <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a>
+
+Planning:
+- Alignment server (incl. DB storage, agents, WSDL service)
+- Extensive composition operators (with comp. tables)
+- Expressive alignment language (with SEKT/François Sharffe)
+</pre></div>
+
+<h2>Acknowledgements</h2>
+
+<p>The format of this tutorial has been shamelessly borrowed from Sean
+  Bechhofer's OWL tutorial.</p>
+
+<hr />
+<center><small>http://alignapi.gforge.inria.fr/tutorial</small></center>
+<hr />
+$Id$
+</body>
+</html>
