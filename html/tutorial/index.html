@@ -117,9 +117,17 @@ generates <tt>results/file.html</tt> from the alignment file <tt>results/file.rd
 <p>Your mission, if you accept it, will be to find the best alignment
   between two bibliographic ontologies. They can be seen here:
 <dl>
-<dt></dt><dd></dd>
-<dt></dt><dd></dd>
+<dt>edu.mit.visus.bibtex.owl</dt><dd>is a relatively faithfull
+    transcription of BibTeX as an ontology. It can be seen here
+    in <a href="edu.mit.visus.bibtex.owl">RDF/XML</a> or 
+    <a href="edu.mit.visus.bibtex.html">HTML</a>.</dd>
+<dt>myOnto.owl</dt><dd>is an extension of the previous one that
+    contains a number of supplementary concepts. It can be seen here
+    in <a href="myOnto.owl">RDF/XML</a> or 
+    <a href="myOnto.html">HTML</a>.</dd>
 </dl>
+These two ontologies have been used for a few year in the <a href="oaei.ontologymatching.org">Ontology
+Alignment Evaluation Initiative</a>
 </p>
 
 <hr />
@@ -142,11 +150,37 @@ See the output in <a href="results/equal.rdf">RDF/XML</a> or <a href="results/eq
 This format, in RDF/XML, is made of a
 header containing "metadata" about the alignment:
 <div class="owl"><pre>
+&lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
+&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
+         xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
+         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
+&lt;Alignment>
+  &lt;xml>yes&lt;/xml>
+  &lt;level>0&lt;/level>
+  &lt;type>**&lt;/type>
+  &lt;time>66&lt;/time>
+  &lt;owl:Class rdf:about="Techreport">
+    &lt;owl:equivalentClass rdf:resource="Techreport"/>
+  &lt;/owl:Class>
+
+  &lt;method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/method>
+  &lt;onto1>file://localhost/JAVA/alignapi/html/tutorial/myOnto.owl&lt;/onto1>
+  &lt;onto2>file://localhost/JAVA/alignapi/html/tutorial/edu.mit.visus.bibtex.owl&lt;/onto2>
+  &lt;uri1>http://alignapi.gforge.inria.fr/tutorial/myOnto.owl&lt;/uri1>
+  &lt;uri2>http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl&lt;/uri2>
 </pre></div>
 and the corresponding set of correspondences:
 <div class="owl"><pre>
+  &lt;map>
+    &lt;Cell>
+      &lt;entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Article'/>
+      &lt;entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Article'/>
+      &lt;measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0&lt;/measure>
+      &lt;relation>=&lt;/relation>
+    &lt;/Cell>
+  &lt;/map>
 </pre></div>
-
 each correspondence is made of two references to the aligned entities,
 the relation holding between the entities (<tt>=</tt>) and a confidence measure
 (<tt>1.0</tt>) in this correspondence. Here, because the default method that
@@ -161,7 +195,7 @@ $ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.Strin
 </pre></div>
 See the output in <a href="results/levenshtein.rdf">RDF/XML</a> or <a href="results/levenshtein.html">HTML</a>.</p>
 
-<p>This is achieved by specifying the class of alignment to be used
+<p>This is achieved by specifying the class of Alignment to be used
 (through the <tt>-i</tt> switch) and the distance function to be used
 (<tt>-DstringFunction=levenshteinDistance</tt>).</p>
 
@@ -174,6 +208,12 @@ Discussion" onclick="hide('qu1')"/></form></div>
     they also match strings which are not the same and indeed far more
     correspondences are available.
 </p></div></p>
+
+<p>We do the same with another measure (smoaDistance):
+<div class="fragment"><pre>
+$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/SMOA.rdf
+</pre></div>
+</p>
 
 <p><div class="logic"><p><b>More work:</b> you can apply other available alignments
   classes. Look in the
@@ -210,7 +250,10 @@ or <a href="results/levenshtein33.html">HTML</a>.</p>
 Discussion" onclick="show('qu4')"/><input type="button" value="Hide
 Discussion" onclick="hide('qu4')"/></form></div>
 <div class="explain" id="qu4"><p>
-Find them
+This operation has contributed eliminating a number of innacurate
+correspondences like Journal-Conference or
+Composite-Conference. However, there remains some unaccurate
+correspondences like Institution-InCollection and Published-UnPublished!
 </p></div></p>
 
 <p>We can also apply this treatment to other methods available:
@@ -255,6 +298,13 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter re
 </pre></div>
 The result is a set of OWL assertions of the form:
 <div class="owl"><pre>
+  &lt;owl:Class rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Techreport">
+    &lt;owl:equivalentClass rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Techreport"/>
+  &lt;/owl:Class>
+
+  &lt;owl:ObjectProperty rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#copyright">
+    &lt;owl:equivalentProperty rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasCopyright"/>
+  &lt;/owl:ObjectProperty>
 </pre></div>
 </p>
 
@@ -265,6 +315,35 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter re
 </pre></div>
 which brings for the same assertions:
 <div class="owl"><pre>
+  &lt;ruleml:imp>
+    &lt;ruleml:_body>
+      &lt;swrl:classAtom>
+        &lt;owllx:Class owllx:name="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Techreport"/>
+        &lt;ruleml:var>x&lt;/ruleml:var>
+      &lt;/swrl:classAtom>
+    &lt;/ruleml:_body>
+    &lt;ruleml:_head>
+      &lt;swrlx:classAtom>
+        &lt;owllx:Class owllx:name="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasCopyright"/>
+        &lt;ruleml:var>x&lt;/ruleml:var>
+      &lt;/swrl:classAtom>
+    &lt;/ruleml:_head>
+  &lt;/ruleml:imp>
+
+  &lt;ruleml:imp>
+    &lt;ruleml:_body>
+      &lt;swrl:individualPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#copyright"/>
+        &lt;ruleml:var>x&lt;/ruleml:var>
+        &lt;ruleml:var>y&lt;/ruleml:var>
+      &lt;/swrl:individualPropertyAtom>
+    &lt;/ruleml:_body>
+    &lt;ruleml:_head>
+      &lt;swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasCopyright"/>
+        &lt;ruleml:var>x&lt;/ruleml:var>
+        &lt;ruleml:var>y&lt;/ruleml:var>
+      &lt;/swrl:datavaluedPropertyAtom>
+    &lt;/ruleml:_head>
+  &lt;/ruleml:imp>
 </pre></div>
 </p>
 
@@ -300,6 +379,20 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 The first argument is always the reference alignment, the second one
 is the alignment to be evaluated. The result is given here:
 <div class="owl"><pre>
+&lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
+&lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
+  &lt;map:output rdf:about=''>
+    &lt;map:reference rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/refalign.rdf">
+    &lt;map:input rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/equal.rdf">
+    &lt;map:precision>1.0&lt;/map:precision>
+    &lt;map:recall>0.22916666666666666&lt;/map:recall>
+    &lt;fallout>0.0&lt;/fallout>
+    &lt;map:fMeasure>0.37288135593220334&lt;/map:fMeasure>
+    &lt;map:oMeasure>0.22916666666666666&lt;/map:oMeasure>
+    &lt;result>0.22916666666666666&lt;/result>
+  &lt;/map:output>
+&lt;/rdf:RDF>
 </pre></div>
 Of course, since that method only match objects with the same name, it
 is accurate, yielding a high precision. However, it has poor recall.
@@ -322,8 +415,21 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 <div class="button"><form><input type="button" value="Show
 result" onclick="show('qu6')"/><input type="button" value="Hide
 result" onclick="hide('qu6')"/></form></div>
-<div class="explain" id="qu6">
-<pre>
+<div class="explain" id="qu6"><pre>
+&lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
+&lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
+  &lt;map:output rdf:about=''>
+    &lt;map:reference rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/refalign.rdf">
+    &lt;map:input rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/levenshtein33.rdf">
+    &lt;map:precision>0.6811594202898551&lt;/map:precision>
+    &lt;map:recall>0.9791666666666666&lt;/map:recall>
+    &lt;fallout>0.3188405797101449&lt;/fallout>
+    &lt;map:fMeasure>0.8034188034188035&lt;/map:fMeasure>
+    &lt;map:oMeasure>0.5208333333333333&lt;/map:oMeasure>
+    &lt;result>1.4374999999999998&lt;/result>
+  &lt;/map:output>
+&lt;/rdf:RDF>
 </pre></div></p>
 
 <p>It is possible to summarize these results by comparing them to
@@ -333,11 +439,71 @@ result" onclick="hide('qu6')"/></form></div>
   directory. Here we only have the <tt>results</tt> directory:
 <div class="fragment"><pre>
 $ cp refalign.rdf results
-$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,raw,SMOA,levenshteinDistance" -c -prf -o results/eval.html
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c prf -o results/eval.html
 </pre></div>
 The results are displayed in
 the <a href="results/eval.html">results/eval.html</a> file whose main
-content is the table:
+content is the table:<br />
+<center>
+<table border='2' frame='sides' rules='groups'>
+<colgroup align='center' />
+<colgroup align='center' span='2' />
+<colgroup align='center' span='2' />
+<colgroup align='center' span='2' />
+<colgroup align='center' span='2' />
+<colgroup align='center' span='2' />
+<colgroup align='center' span='2' />
+<thead valign='top'><tr><th>algo</th>
+<th colspan='2'>refalign</th>
+<th colspan='2'>equal</th>
+<th colspan='2'>SMOA</th>
+<th colspan='2'>SMOA5</th>
+<th colspan='2'>levenshtein</th>
+<th colspan='2'>levenshtein33</th>
+</tr></thead><tbody><tr><td>test</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+</tr></tbody><tbody>
+<tr>
+<td>results</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.23</td>
+<td>0.56</td>
+<td>0.98</td>
+<td>0.69</td>
+<td>0.96</td>
+<td>0.53</td>
+<td>1.00</td>
+<td>0.68</td>
+<td>0.98</td>
+</tr>
+<tr bgcolor="yellow"><td>H-mean</td><td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.23</td>
+<td>0.56</td>
+<td>0.98</td>
+<td>0.69</td>
+<td>0.96</td>
+<td>0.53</td>
+<td>1.00</td>
+<td>0.68</td>
+<td>0.98</td>
+</tr>
+</tbody></table>
+</center>
 </p>
 
 <!--div class="fragment"><pre>
@@ -346,7 +512,11 @@ $ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.p
 
 <div class="logic"><p><b>More work:</b> As you can see,
     the <tt>PRecEvaluator</tt> does not only provide precision and
-    recall but also provides F-measure
+    recall but also provides F-measure. F-measure is usually used as
+    an "absolute" trade-off between precision and recall (i.e., the
+    optimum F-measure is considered the best precision and
+    recall). Can you establish this point for SMOA and levenshtein and
+    tell which algorithm is more adapted?
 </p></div>
 
 <!--div class="logic"><p><b>More work:</b>If you want to compare several algorithms, there
@@ -402,7 +572,7 @@ Planning:
 <h2>Acknowledgements</h2>
 
 <p>The format of this tutorial has been shamelessly borrowed from Sean
-  Bechhofer's OWL tutorial.</p>
+  Bechhofer's <a href="http://owl.man.ac.uk/2005/07/sssw/">OWL tutorial</a>.</p>
 
 <hr />
 <center><small>http://alignapi.gforge.inria.fr/tutorial</small></center>

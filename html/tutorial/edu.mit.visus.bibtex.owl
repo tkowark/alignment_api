@@ -12,6 +12,8 @@
     <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
 	
 <rdf:RDF
+   xmlns="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#"
+   xml:base="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#"
     xmlns:units		="&units;"
     xmlns:foaf		="http://xmlns.com/foaf/0.1/"
     xmlns:rdf		="&rdf;"
