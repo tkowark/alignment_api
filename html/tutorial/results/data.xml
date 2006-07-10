@@ -8,21 +8,21 @@
     <dc:description>Bibliographic entries</dc:description>
   </owl:Ontology>
 
-  <ns2:Techreport xmlns:ns2="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#" rdf:about="#a475526642">
-    <ns2:hasAuthor>
+  <ns0:Techreport xmlns:ns0="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#" rdf:about="#a475526642">
+    <ns0:hasAuthor>
       <PersonList>
 	<rdf:first rdf:resource="http://exmo.inrialpes.fr/people/euzenat/euzenatj.rdf#je"/>
-	<ns2:hasAddress rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+	<ns0:hasAddress rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </PersonList>
-    </ns2:hasAuthor>
-    <ns2:hasInstitution rdf:resource="http://www.inria.fr"/>
-    <ns2:hasTitle>An API for ontology alignment</ns2:hasTitle>
-    <ns2:pageChapterData><Date><ns2:hasYear>1996</ns2:hasYear></Date></ns2:pageChapterData>
-    <ns2:hasCopyright>INRIA Rh&#xF4;ne-Alpes 2004-2006</ns2:hasCopyright>
-    <ns2:hasNumber>Unfilled</ns2:hasNumber>
-  </ns2:Techreport>
+    </ns0:hasAuthor>
+    <ns0:hasInstitution rdf:resource="http://www.inria.fr"/>
+    <ns0:hasTitle>An API for ontology alignment</ns0:hasTitle>
+    <ns0:pageChapterData><Date><ns0:hasYear>1996</ns0:hasYear></Date></ns0:pageChapterData>
+    <ns0:hasCopyright>INRIA Rh&#xF4;ne-Alpes 2004-2006</ns0:hasCopyright>
+    <ns0:hasNumber>Unfilled</ns0:hasNumber>
+  </ns0:Techreport>
 
-  <ns2:Incollection xmlns:ns2="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#" rdf:ID="http://www.inria.fr"/>
+  <ns0:Incollection xmlns:ns0="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#" rdf:ID="http://www.inria.fr"/>
 
   <Person rdf:ID="http://exmo.inrialpes.fr/people/euzenat/euzenatj.rdf#je"/>
 

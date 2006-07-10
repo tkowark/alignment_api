@@ -220,9 +220,10 @@ $ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.Strin
   <a
   href="../../src/fr/inrialpes/exmo/align/impl/method>"../../src/fr/inrialpes/exmo/align/impl/method</a>
   directory for more simple alignment methods. Also look in the
-  <tt>StringDistAlignment</tt> class the possible values for <tt>stringFunction</tt>.</p></div></p>
+  <tt>StringDistances</tt> class the possible values
+  for <tt>stringFunction</tt> (they are the names of methods).</p></div></p>
 
-<p><div class="logic"><b>Advanced:</b> You can also look at the instructions for
+<p><div class="logic"><p><b>Advanced:</b> You can also look at the instructions for
   installing WordNet and its Java interface and use a WordNet based
   distance provided with the API implementation by:
 <div class="fragment"><pre>
@@ -272,17 +273,17 @@ See the output in <a href="results/AOMS5.rdf">RDF/XML</a>
 or <a href="results/AOMS5.html">HTML</a>. The results is an alignement from
 the source to the target.</p>
 
-<p><div class="logic"><b>More work:</b>There is another switch (<tt>-T</tt>) in Procalign that
+<p><div class="logic"><p><b>More work:</b>There is another switch (<tt>-T</tt>) in Procalign that
   specifies the way a threshold is applied (hard|perc|prop|best|span)
   the default being "hard". The curious reader can apply these and see
   the difference in results. How they work is explained in the
   Alignment API documentation.
-</div></p>
+</p></div></p>
 
-<p><div class="logic"><b>More work:</b> Try to play with the
+<p><div class="logic"><p><b>More work:</b> Try to play with the
     thresholds in order to find the best values for
     levenshteinDistance and smoaDistance.
-</div></p>
+</p></div></p>
 
 <hr />
 <h2>Output</h2>
@@ -510,14 +511,14 @@ content is the table:<br />
 $ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
 </pre></div-->
 
-<div class="logic"><p><b>More work:</b> As you can see,
+<p><div class="logic"><p><b>More work:</b> As you can see,
     the <tt>PRecEvaluator</tt> does not only provide precision and
     recall but also provides F-measure. F-measure is usually used as
     an "absolute" trade-off between precision and recall (i.e., the
     optimum F-measure is considered the best precision and
     recall). Can you establish this point for SMOA and levenshtein and
     tell which algorithm is more adapted?
-</p></div>
+</p></div></p>
 
 <!--div class="logic"><p><b>More work:</b>If you want to compare several algorithms, there
   is another class, GroupAlign, that allows to run an
@@ -530,29 +531,99 @@ $ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.p
   line level (even if it is very often very useful). So if you are
   ready for it, you can develop in Java your own application that take
   advantage of the API.</p>
-
-<p>This should be possible to invoque it through:
+<p>A skeleton of program using the Alignment API
+  is <a href="Skeleton.java">Skeleton.java</a>. It can be compiled by
+  invoking:
 <div class="fragment"><pre>
-$ java -cp ../../lib/Procalign.jar MyApp file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
+$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar Skeleton.java
+</div>
+and run by:
+<div class="fragment"><pre>
+$ java -cp ../../lib/Procalign.jar:. Skeleton myOnto.owl edu.mit.visus.bibtex.owl
 </pre></div></p>
 
-<div class="logic"><p><b>More work:</b> Can you add a switch like the <tt>-i</tt> switch
+<p>Now considering the API (that can be consulted through its thin
+  at <a
+	href="../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a>
+  for instance), can you modify the Skeleton program in order for it
+  performs the following:
+<ul compact="1">
+<li>Run two diffent alignment methods (e.g., ngram distance and
+  smoa);</li>
+<li>Merge the two results;</li>
+<li>Threshold at various thresholds;</li>
+<li>Evaluate them against the references and choose the one with the
+  best F-Measure;</li>
+<li>Displays it as SWRL Rules.</li>
+</ul>
+Of course, you can do it progressively.
+<div class="fragment"><pre>
+$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar MyApp.java
+$ java -cp ../../lib/Procalign.jar:. MyApp myOnto.owl edu.mit.visus.bibtex.owl > results/MyApp.owl
+</pre></div></p>
+<p>Do you want to see a possible solution?
+<div class="button"><form>
+<input type="button" value="Cheat" onclick="show('qu7')"/>
+<input type="button" value="Teacher is comming" onclick="hide('qu7')"/>
+</form></div>
+<div class="explain" id="qu7"><p>
+The main piece of code in Skeleton.java is replaced by
+<pre>
+// Run two diffent alignment methods (e.g., ngram distance and smoa)
+AlignmentProcess a1 = new StringDistAlignment( onto1, onto2 );
+params.setParameter("stringFunction","smoaDistance");
+a1.align( (Alignment)null, params );
+AlignmentProcess a2 = new StringDistAlignment( onto1, onto2 );
+params = new BasicParameters();
+params.setParameter("stringFunction","ngramDistance");
+a1.align( (Alignment)null, params );
+
+// Merge the two results.
+((BasicAlignment)a1).ingest(a2);
+
+// Test its f-measure.
+AlignmentParser aparser = new AlignmentParser(0);
+Alignment reference = aparser.parse( "file://localhost"+(new File ( "refalign.rdf" ) . getAbsolutePath()), loaded );
+Evaluator evaluator = new PRecEvaluator( reference, a1 );
+
+// Threshold at various thresholds (and maybe various threshold methods)
+for ( int i = 0; i <= 10 ; i = i+2 ){
+	a1.cut( ((double)i)/10 );
+	evaluator.eval( new BasicParameters() );
+	System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure());
+}
+
+// If it is over a certain value, output the result as SWRL rules.
+PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+	                   new OutputStreamWriter( System.out, "UTF-8" )), true);
+AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
+a1.render(renderer);
+</pre>
+</p></div></p>
+</p>
+<p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
+<p><div class="logic"><p><b>More work:</b> Can you add a switch like the <tt>-i</tt> switch
   of <tt>Procalign</tt> so that the main class of the application can
   be passed at commant-line.
-</p></div>
+</p></div></p>
 
-<p>
-
-
-
-
-you can develop a specialized matching algorithm
-  by subclassing the Java programs provided in 
-
-<div class="logic"><p><b>More work:</b> Implement the F-measure optimization rule
+<p><div class="logic"><p><b>More work:</b> Implement the F-measure optimization rule
   presented above so that you automatically select the threshold that
   maximizes F-measure.
-</p></div>
+</p></div></p>
+
+<p><div class="logic"><p><b>Advanced:</b>
+What about writing an editor for the alignment API?
+</p></div></p>
+
+<p><div class="logic"><p><b>Advanced:</b>
+You can develop a specialized matching algorithm
+by subclassing the Java programs provided in the Alignment API
+implementation (like BasicAlignment or DistanceAlignment).
+</p></div></p>
+
+
 
 <hr />
 <h2>Further exercises</h2>
@@ -577,6 +648,6 @@ Planning:
 <hr />
 <center><small>http://alignapi.gforge.inria.fr/tutorial</small></center>
 <hr />
-$Id$
+$Id:$
 </body>
 </html>
