@@ -190,7 +190,7 @@ public class ParserPrinter {
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
 
-	    if ( inverse ) result.inverse();
+	    if ( inverse ) result = result.inverse();
 	    
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
