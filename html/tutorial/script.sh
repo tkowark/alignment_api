@@ -54,8 +54,9 @@ cp refalign.rdf results
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c prf -o results/eval.html
 
 #####################
-# Evaluating
+# Embedding
 
-javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar MyApp
-java -cp ../../lib/Procalign.jar MyApp file://localhost$CWD/rdf/myOnto.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
-
+javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
+java -cp ../../lib/Procalign.jar:results Skeleton myOnto.owl edu.mit.visus.bibtex.owl
+javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
+java -cp ../../lib/Procalign.jar:results MyApp myOnto.owl edu.mit.visus.bibtex.owl > results/MyApp.owl

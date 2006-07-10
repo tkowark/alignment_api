@@ -87,7 +87,7 @@ public class MyApp {
 		return ;
 	    }
 
-	    // Run two diffent alignment methods (e.g., ngram distance and smoa)
+	    // Run two different alignment methods (e.g., ngram distance and smoa)
 	    AlignmentProcess a1 = new StringDistAlignment( onto1, onto2 );
 	    params.setParameter("stringFunction","smoaDistance");
 	    a1.align( (Alignment)null, params );
@@ -99,24 +99,31 @@ public class MyApp {
 	    // Merge the two results.
 	    ((BasicAlignment)a1).ingest(a2);
 
-	    // Test its f-measure.
+	    // Threshold at various thresholds
+	    // Evaluate them against the references
+	    // and choose the one with the best F-Measure
 	    AlignmentParser aparser = new AlignmentParser(0);
 	    Alignment reference = aparser.parse( "file://localhost"+(new File ( "refalign.rdf" ) . getAbsolutePath()), loaded );
 	    Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
-	    // Threshold at various thresholds (and maybe various threshold methods)
+	    double best = 0.;
+	    Alignment result = null;
 	    for ( int i = 0; i <= 10 ; i = i+2 ){
 		a1.cut( ((double)i)/10 );
 		evaluator.eval( new BasicParameters() );
 		System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure());
+		if ( ((PRecEvaluator)evaluator).getFmeasure() > best ) {
+		    result = (BasicAlignment)((BasicAlignment)a1).clone();
+		    best = ((PRecEvaluator)evaluator).getFmeasure();
 		}
+	    }
 
-	    // If it is over a certain value, output the result as SWRL rules.
+	    // Displays it as SWRL Rules
 	    PrintWriter writer = new PrintWriter (
 				  new BufferedWriter(
 		                   new OutputStreamWriter( System.out, "UTF-8" )), true);
 	    AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
-	    a1.render(renderer);
+	    result.render(renderer);
 	    writer.flush();
 	    writer.close();
 

@@ -352,7 +352,7 @@ which brings for the same assertions:
 through XLST transformations which will transform the OWL instance
   files from one ontology to another:
 <div class="fragment"><pre>
-$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter dist.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
 </pre></div>
 this transformation can be applied to the data of <a href="data.xml">data.xml</a>:
 <div class="fragment"><pre>
@@ -528,38 +528,37 @@ $ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.p
 <h2>Embedding</h2>
 
 <p>Of course, the goal of this API is not to be used at the command
-  line level (even if it is very often very useful). So if you are
-  ready for it, you can develop in Java your own application that take
+  line level (even if it can be very useful). So if you are
+  ready for it, you can develop in Java your own application that takes
   advantage of the API.</p>
 <p>A skeleton of program using the Alignment API
   is <a href="Skeleton.java">Skeleton.java</a>. It can be compiled by
   invoking:
 <div class="fragment"><pre>
-$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar Skeleton.java
+$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
 </div>
 and run by:
 <div class="fragment"><pre>
-$ java -cp ../../lib/Procalign.jar:. Skeleton myOnto.owl edu.mit.visus.bibtex.owl
+$ java -cp ../../lib/Procalign.jar:results Skeleton myOnto.owl edu.mit.visus.bibtex.owl
 </pre></div></p>
 
 <p>Now considering the API (that can be consulted through its thin
-  at <a
-	href="../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a>
+  <a href="../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a>
   for instance), can you modify the Skeleton program in order for it
   performs the following:
 <ul compact="1">
-<li>Run two diffent alignment methods (e.g., ngram distance and
+<li>Run two different alignment methods (e.g., ngram distance and
   smoa);</li>
 <li>Merge the two results;</li>
-<li>Threshold at various thresholds;</li>
-<li>Evaluate them against the references and choose the one with the
+<li>Trim at various thresholds;</li>
+<li>Evaluate them against the reference alignment and choose the one with the
   best F-Measure;</li>
 <li>Displays it as SWRL Rules.</li>
 </ul>
 Of course, you can do it progressively.
 <div class="fragment"><pre>
-$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar MyApp.java
-$ java -cp ../../lib/Procalign.jar:. MyApp myOnto.owl edu.mit.visus.bibtex.owl > results/MyApp.owl
+$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
+$ java -cp ../../lib/Procalign.jar:results MyApp myOnto.owl edu.mit.visus.bibtex.owl > results/MyApp.owl
 </pre></div></p>
 <p>Do you want to see a possible solution?
 <div class="button"><form>
@@ -569,7 +568,7 @@ $ java -cp ../../lib/Procalign.jar:. MyApp myOnto.owl edu.mit.visus.bibtex.owl >
 <div class="explain" id="qu7"><p>
 The main piece of code in Skeleton.java is replaced by
 <pre>
-// Run two diffent alignment methods (e.g., ngram distance and smoa)
+// Run two different alignment methods (e.g., ngram distance and smoa)
 AlignmentProcess a1 = new StringDistAlignment( onto1, onto2 );
 params.setParameter("stringFunction","smoaDistance");
 a1.align( (Alignment)null, params );
@@ -581,24 +580,33 @@ a1.align( (Alignment)null, params );
 // Merge the two results.
 ((BasicAlignment)a1).ingest(a2);
 
-// Test its f-measure.
+// Threshold at various thresholds
+// Evaluate them against the references
+// and choose the one with the best F-Measure
 AlignmentParser aparser = new AlignmentParser(0);
 Alignment reference = aparser.parse( "file://localhost"+(new File ( "refalign.rdf" ) . getAbsolutePath()), loaded );
 Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
-// Threshold at various thresholds (and maybe various threshold methods)
+double best = 0.;
+Alignment result = null;
 for ( int i = 0; i <= 10 ; i = i+2 ){
 	a1.cut( ((double)i)/10 );
 	evaluator.eval( new BasicParameters() );
 	System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure());
+	if ( ((PRecEvaluator)evaluator).getFmeasure() > best ) {
+             result = (BasicAlignment)((BasicAlignment)a1).clone();
+	     best = ((PRecEvaluator)evaluator).getFmeasure();
+	}
 }
 
-// If it is over a certain value, output the result as SWRL rules.
+// Displays it as SWRL Rules
 PrintWriter writer = new PrintWriter (
-			  new BufferedWriter(
-	                   new OutputStreamWriter( System.out, "UTF-8" )), true);
+                      new BufferedWriter(
+	               new OutputStreamWriter( System.out, "UTF-8" )), true);
 AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
-a1.render(renderer);
+result.render(renderer);
+writer.flush();
+writer.close();
 </pre>
 </p></div></p>
 </p>
@@ -608,22 +616,15 @@ a1.render(renderer);
   be passed at commant-line.
 </p></div></p>
 
-<p><div class="logic"><p><b>More work:</b> Implement the F-measure optimization rule
-  presented above so that you automatically select the threshold that
-  maximizes F-measure.
-</p></div></p>
-
-<p><div class="logic"><p><b>Advanced:</b>
-What about writing an editor for the alignment API?
-</p></div></p>
-
 <p><div class="logic"><p><b>Advanced:</b>
 You can develop a specialized matching algorithm
 by subclassing the Java programs provided in the Alignment API
 implementation (like BasicAlignment or DistanceAlignment).
 </p></div></p>
 
-
+<p><div class="logic"><p><b>Advanced:</b>
+What about writing an editor for the alignment API?
+</p></div></p>
 
 <hr />
 <h2>Further exercises</h2>
