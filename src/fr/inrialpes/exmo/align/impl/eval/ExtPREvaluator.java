@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -251,8 +251,8 @@ public class ExtPREvaluator extends BasicEvaluator {
 	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
 	try {
-	    writer.println("    <map:reference rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
-	    writer.println("    <map:input rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
+	    writer.println("    <map:input1 rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
+	    writer.println("    <map:input2 rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
 	} catch (OWLException e) { e.printStackTrace(); };
 	writer.print("    <map:symmetricprecision>");
 	writer.print(symprec);

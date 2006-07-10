@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -79,6 +79,18 @@ public class PRecEvaluator extends BasicEvaluator {
 	super(align1, align2);
     }
 
+    public void init(){
+	precision = 0.;
+	recall = 0.;
+	fallout = 0.;
+	overall = 0.;
+	fmeasure = 0.;
+	time = 0;
+	nbexpected = 0;
+	nbfound = 0;
+	nbcorrect = 0;
+    }
+
     /**
      *
      * The formulas are standard:
@@ -94,6 +106,7 @@ public class PRecEvaluator extends BasicEvaluator {
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
     public double eval(Parameters params) throws AlignmentException {
+	init();
 	nbexpected = align1.nbCells();
 	nbfound = align2.nbCells();
 	precision = 0.;
@@ -168,8 +181,8 @@ public class PRecEvaluator extends BasicEvaluator {
 	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
 	try {
-	    writer.println("    <map:reference rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
-	    writer.println("    <map:input rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
+	    writer.println("    <map:input1 rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\"/>");
+	    writer.println("    <map:input2 rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\"/>");
 	} catch (OWLException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
 	// writer.println("    <map:falseNegative>");
