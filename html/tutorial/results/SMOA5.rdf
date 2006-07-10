@@ -7,7 +7,7 @@
   <xml>yes</xml>
   <level>0</level>
   <type>**</type>
-  <time>162</time>
+  <time>337</time>
   <method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</method>
   <onto1>file://localhost/JAVA/alignapi/html/tutorial/myOnto.owl</onto1>
   <onto2>file://localhost/JAVA/alignapi/html/tutorial/edu.mit.visus.bibtex.owl</onto2>
