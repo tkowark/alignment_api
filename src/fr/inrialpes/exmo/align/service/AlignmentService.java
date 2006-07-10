@@ -31,6 +31,8 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
+import java.io.IOException;
+
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
@@ -69,6 +71,9 @@ public class AlignmentService {
 	String outfile = null;
 	String paramfile = null;
 	int debug = 0;
+
+	// Read parameters
+
 	Parameters params = new BasicParameters();
 
 	LongOpt[] longopts = new LongOpt[10];
@@ -125,11 +130,40 @@ public class AlignmentService {
 	    }
 	}
 	
+	    if ( debug > 0 ) System.err.println("AServ launched");
+
 	if (debug > 0) {
 	    params.setParameter("debug", new Integer(debug));
 	} else if ( params.getParameter("debug") != null ) {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
+
+	// Connect database
+
+	// For all services, init()
+
+	// Launch HTTP Server (this will have to be changed)
+	// To a more generic way by launching all the requested
+	// profile or all the available profiles
+
+	// Change port if requested
+	// JE: implement as parameter passing to init()
+	int port = 8090;
+	// Put this in the argument of --html=8980
+	//if ( args.length > 0 && lopt != 0 )
+	//    port = Integer.parseInt( args[0] );
+	HTMLAServProfile htmlS;
+	try {
+	    htmlS = new HTMLAServProfile();
+	    htmlS.init( port );
+	    if ( debug > 0 ) System.err.println("AServ launched");
+	} catch ( IOException ioe ) {
+	    System.err.println( "Couldn't start server:\n" + ioe );
+	    System.exit( -1 );
+	}
+	//try { System.in.read(); } catch( Throwable t ) {};
+
+	// I must do something for stoping them
     }
 
     public static void usage() {
