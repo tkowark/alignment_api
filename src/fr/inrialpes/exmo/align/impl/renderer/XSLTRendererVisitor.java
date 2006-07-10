@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -56,20 +56,36 @@ public class XSLTRendererVisitor implements AlignmentVisitor
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
+    Hashtable namespaces = null;
+    int nsrank = 0;
 
     public XSLTRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
+	namespaces = new Hashtable();
+	namespaces.put( "http://www.w3.org/1999/XSL/Transform", "xsl" );
+	namespaces.put( "http://www.w3.org/2002/07/owl#", "owl" );
+	namespaces.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
+	namespaces.put( "http://www.w3.org/2000/01/rdf-schema#", "rdfs" );
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	for( Enumeration e = align.getElements(); e.hasMoreElements(); ){
+	    collectURIs( (Cell)e.nextElement() );
+	}
 	alignment = align;
-	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	    writer.println("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"");
-	writer.println("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"");
-	writer.println("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
-	writer.println("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" ");
-	writer.println("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n");	
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	writer.println("<xsl:stylesheet version=\"1.0\"");
+	for ( Enumeration e = namespaces.keys(); e.hasMoreElements(); ){
+	    Object ns = e.nextElement();
+	    writer.println("    xmlns:"+namespaces.get(ns)+"=\""+ns+"\"");
+	}
+	writer.println("  >\n");
+	//	writer.println("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"");
+	//writer.println("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
+	//writer.println("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" ");
+	//writer.println("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n");	
+
+	for ( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
 	}
@@ -102,15 +118,40 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
 
+    private void collectURIs ( Cell cell ) throws AlignmentException {
+	try {
+	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
+	    if ( entity1URI != null ) {
+		String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
+		if ( namespaces.get( ns1 ) == null ){
+		    namespaces.put( ns1, "ns"+nsrank++ );
+		}
+	    }
+	    if ( entity2URI != null ) {
+		String ns2 = entity2URI.getScheme()+":"+entity2URI.getSchemeSpecificPart()+"#";
+		if ( namespaces.get( ns2 ) == null ){
+		    namespaces.put( ns2, "ns"+nsrank++ );
+		}
+	    }
+	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+    }
+
     public void visit( EquivRelation rel ) throws AlignmentException {
 	// The code is exactly the same for properties and classes
+	writer.println("  <xsl:template match=\""+namespacify((OWLEntity)cell.getObject1())+"\">");
+	writer.println("    <xsl:element name=\""+namespacify((OWLEntity)cell.getObject2())+"\">");
+	writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
+	writer.println("    </xsl:element>");
+	writer.println("  </xsl:template>\n");
+    }
+
+    private String namespacify( OWLEntity entity ) throws AlignmentException {
 	try {
-	    writer.println("  <xsl:template match=\""+((OWLEntity)cell.getObject1()).getURI().toString()+"\">");
-	    writer.println("    <xsl:element name=\""+((OWLEntity)cell.getObject2()).getURI().toString()+"\">");
-	    writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
-	    writer.println("    </xsl:element>");
-	    writer.println("  </xsl:template>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	    URI u = entity.getURI();
+	    String ns = u.getScheme()+":"+u.getSchemeSpecificPart()+"#";
+	    return namespaces.get(ns)+":"+u.getFragment();
+	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
     }
 
     public void visit( SubsumeRelation rel ){};
