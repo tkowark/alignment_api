@@ -257,8 +257,17 @@ public class GroupAlign {
 	if ( urlprefix != null ){
 	    prefix = urlprefix+"/"+dir.getName()+"/";
 	} else {
-	    prefix = "file://localhost"+dir.toString()+"/";
+	    //prefix = "file://localhost"+dir.toString()+"/";
+	    // sounds like the only way to have something portable
+	    // This is the modification for acomodating the HCONE 
+	    prefix = dir.toURI().toString();
+	    // The problem is that is brings
+	    // file:/localpath
+	    // instead of
+	    // file://localhost/localpath
+	    // Apparently should be file:///c:/localpath
 	}
+	//System.err.println("Here it is "+prefix+" (end by /?)");
 
 	BasicConfigurator.configure();
 
