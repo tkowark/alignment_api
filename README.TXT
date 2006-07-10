@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      05/06/2006, version 2.2+                       #
+#                      10/07/2006, version 2.4+                       #
 #######################################################################
 
 Copyright (C) 2003 The University of Manchester.
