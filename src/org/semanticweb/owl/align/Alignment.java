@@ -20,6 +20,7 @@
 
 package org.semanticweb.owl.align; 
 
+import java.lang.Cloneable;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
@@ -38,7 +39,7 @@ import org.xml.sax.SAXException;
  */
 
 
-public interface Alignment
+public interface Alignment extends Cloneable
 {
 
     /** Alignment methods **/

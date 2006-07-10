@@ -493,13 +493,32 @@ public class BasicAlignment implements Alignment {
     /**
      * Incorporate the cells of the alignment into its own alignment. Note: for
      * the moment, this does not copy but really incorporates. So, if hardening
-     * or cutting, are applied, then the ingested alignmment will be modified as
-     * well.
+     * is applied, then the ingested alignmment will be modified as well.
      */
-    protected void ingest(Alignment alignment) throws AlignmentException {
+    public void ingest(Alignment alignment) throws AlignmentException {
 	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
 	    addCell((Cell)e.nextElement());
 	};
+    }
+
+    /**
+     * Generate a copy of this alignment object
+     */
+    public Object clone() {
+	BasicAlignment align = new BasicAlignment();
+	align.init( (OWLOntology)getOntology1(), (OWLOntology)getOntology2() );
+	align.setType( getType() );
+	align.setLevel( getLevel() );
+	align.setFile1( getFile1() );
+	align.setFile2( getFile2() );
+	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
+	    String label = (String)e.nextElement();
+	    align.setExtension( label, getExtension( label ) );
+	}
+	try {
+	    align.ingest( this );
+	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	return align;
     }
 
     /**
