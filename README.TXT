@@ -34,8 +34,6 @@ USING THE ONTOLOGY ALIGNMENT API IMPLEMENTATION
 
 The Align API _implementation_ requires that you fetch the OWL-API
 
-$ setenv CWD `pwd`
-
 Building:
 ---------
 
@@ -43,6 +41,10 @@ $ ant jar
 
 Running:
 --------
+
+For a better introduction, see the tutorial at 
+      	     		   http://alignapi.gforge.inria.fr/tutorial
+or find it as a script in html/tutorial/script.sh
 
 $ setenv CWD `pwd`
 
@@ -103,8 +105,9 @@ distrib/	some files for generating a new jarfile
 dtd/		contains the ontoalign DTDs (and schemas)
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
+html/tutorial/  web based tutorial
 javadoc/	javadoc API documentation in HTML (not very useful)
-lib/		contains align.jar, alignwn.jar, procalign.jar
+lib/		contains align.jar, alignwn.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles
 rdf/		a few samples ontologies to align
 samples/	two example applications
@@ -113,4 +116,5 @@ src/		Java sources of ontoalign
 		fr.inrialpes.exmo.align.impl: basic implementation
 		fr.inrialpes.exmo.align.util: utility wrapper functions
 		fr.inrialpes.exmo.align.ling: WordNet-based implementation
+		fr.inrialpes.exmo.align.service: Alignment Service
 
