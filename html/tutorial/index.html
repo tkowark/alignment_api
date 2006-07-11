@@ -271,7 +271,12 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter -i
 </pre></div>
 See the output in <a href="results/AOMS5.rdf">RDF/XML</a>
 or <a href="results/AOMS5.html">HTML</a>. The results is an alignement from
-the source to the target.</p>
+the source to the target. Inverting alignment is only the exchange of
+the order of the elements in the alignment file. This can be useful
+when you have an alignment of <i>A</i> to <i>B</i>, an alignment
+from <i>C</i> to <i>B</i> and you want to go from <i>A</i>
+to <i>C</i>. The solution is then to invert the second alignment and
+to compose them.</p>
 
 <p><div class="logic"><p><b>More work:</b>There is another switch (<tt>-T</tt>) in Procalign that
   specifies the way a threshold is applied (hard|perc|prop|best|span)
@@ -325,7 +330,7 @@ which brings for the same assertions:
     &lt;/ruleml:_body>
     &lt;ruleml:_head>
       &lt;swrlx:classAtom>
-        &lt;owllx:Class owllx:name="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasCopyright"/>
+        &lt;owllx:Class owllx:name="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Techreport"/>
         &lt;ruleml:var>x&lt;/ruleml:var>
       &lt;/swrl:classAtom>
     &lt;/ruleml:_head>
@@ -399,7 +404,7 @@ Of course, since that method only match objects with the same name, it
 is accurate, yielding a high precision. However, it has poor recall.
 </p>
 
-<p>We can now evaluate the edit distance with its .33 threshold. What
+<p>We can now evaluate the edit distance. What
  to expect from the evaluation of this alignment?
 <div class="button"><form><input type="button" value="Show
 Discussion" onclick="show('qu5')"/><input type="button" value="Hide
@@ -649,6 +654,6 @@ Planning:
 <hr />
 <center><small>http://alignapi.gforge.inria.fr/tutorial</small></center>
 <hr />
-$Id:$
+<!-- $Id$ -->
 </body>
 </html>
