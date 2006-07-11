@@ -164,6 +164,7 @@
     <!--antcall target="commit"/-->
     <antcall target="compileall"/>
     <antcall target="jar"/>
+    <antcall target="javadoc"/>
     <!-- may be useful to change directory -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir="." includes="**/*"/>
