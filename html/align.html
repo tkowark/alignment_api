@@ -1,32 +1,36 @@
 <html>
 <head>
 <title>The alignment API in Java</title>
-<style type="text/css">@import url(style.css);</style>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body bgcolor="#ffffff">
 
 <h1 class="titre">The alignment API in Java</h1>
 
-<p>We develop an alignment toolkit for OWL by:
+<p>We have developed an alignment toolkit for OWL by:
 <ul compact="1">
 <li>Extending the OWL-API towards <a href="format.html">alignment</a>;</li>
-<li>Providing an implementation of the API;</li>
+<li>Providing an implementation of the Alignment API;</li>
 <li>Implementing further alignment methods;</li>
 </ul></p>
 
-<p>An extensive presentation of the alignment API can be found <a href="align.pdf">here</a>.</p>
+<p>An extensive presentation of the alignment API can be
+  found <a href="align.pdf">here</a>. We also have
+  a <a href="tutorial">tutorial</a> on using it.</p>
 
-<h1>Getting ontoalign</h1>
+<h2>Getting the Alignment API</h2>
 
-<h2>Fetching the ZIP'ed version</h2>
+<h3>Fetching the ZIP'ed version</h3>
 
-<p>The simplest way to use ontoalign is to get the last release
+<p>The simplest way to use alignapi is to get the last release
   zipfile from the site <a href="http://gforge.inria.fr/frs/?group_id=117">http://gforge.inria.fr/frs/?group_id=117</a>. It contains all the sources, compiled
 library, OWL API library.</p>
 
-<h2>Anonymous Subversion</h2>
+<h3>Anonymous Subversion</h3>
 
-<p>The very last version of ontoalign can be fetched from the subversion
+<p>The very last version of alignapi can be fetched from the subversion
   source tree that can be found at:
 <a href="http://gforge.inria.fr/scm/?group_id=117">http://gforge.inria.fr/scm/?group_id=117</a>
 </p>
@@ -37,20 +41,20 @@ library, OWL API library.</p>
   smoothly upgrade it.</dd>
 <dt>Checking out (anonymously) the repository</dt>
 <dd>Can be achieved by just doing the following:
-<pre>
 <!-- $ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft login
 &lt;ENTER return when asked for the password&gt;
 $ cvs -d :pserver:cvs@cvs-sop.inria.fr:/CVS/exmosoft checkout
-ontoalign-->
+alignapi-->
+<div class="fragment"><pre>
 $ svn checkout svn://scm.gforge.inria.fr/svn/alignapi/trunk/ 
-</pre>
+</pre></div>
 ... and you are done.</dd>
 </dl>
 Note that you may have to fetch separately the <a href="owlapi.html">OWL-API</a>.</p>
 
-<h2>Subversion account</h2>
+<h3>Subversion account</h3>
 
-<p>If you have improved ontoalign and want this to be included in the
+<p>If you have improved alignapi and want this to be included in the
   source base or if you want to seriously work on improving the
   software, please contact
   Jerome . Euzenat (&Agrave;) inrialpes . fr.</p>
@@ -61,31 +65,49 @@ Note that you may have to fetch separately the <a href="owlapi.html">OWL-API</a>
 
 <p>Once provided with a password you will be able to check out from and
   commit in our repository through:
-<pre>
+<div class="fragment"><pre>
 <!--
 $ export CVS_RSH=`which ssh`
 $ cvs -d :ext:&lt;loginname&gt;@cvs-sop.inria.fr:/CVS/exmosoft --
-  --checkout ontoalign
+  --checkout alignapi
 -->
 $ svn checkout svn+ssh://username@scm.gforge.inria.fr/svn/alignapi/trunk
-</pre>
+</pre></div>
 (If you are not familliar with subversion, it is worth looking at the
 documentation. If you are familiar with CVS, the move is straightforward.)
 </p>
 
-<h2>Release notes</h2>
+<h3>Running</h3>
+
+<p>Running the program is achieved through:
+<div class="fragment"><pre>
+$ java -jar lib/procalign.jar
+usage: Procalign [options] URI1 URI2
+options are:
+        --impl=className -i classname           Use the given alignment implementation.
+        --renderer=className -r className       Specifies the alignment renderer
+        --output=filename -o filename   Output the alignment in filename
+        --alignment=filename -a filename Start from an XML alignment file
+        --threshold=double -t double    Filters the similarities under threshold
+        --debug[=n] -d [n]              Report debug info at level n
+        --help -h                       Print this message
+</pre></div>
+More details are available below.
+</p>
+
+<h3>Release notes</h3>
 <p>They are provided <a href="relnotes.html">here</a>.</p>
 
-<h2>Documentation</h2>
+<h3>Documentation</h3>
 <p>The documentation can be found on <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>.</p>
 
-<h1>Installation</h1>
+<h2>Installation</h2>
 
 <p>"Installing" is really straightforward.</p>
 
-<h2>Files</h2>
+<h3>Files</h3>
 
-<p>Whatever your mode of getting ontolign you will get an ontoalign
+<p>Whatever your mode of getting ontolign you will get an alignapi
   directory containing the following subdirectories:
 <ul compact="1">
   <li>src: source classes;</li>
@@ -94,6 +116,7 @@ documentation. If you are familiar with CVS, the move is straightforward.)
   <li>dtd: the align.dtd and align.owl alignment specification;</li>
   <li>lib: jar-files (in the zip-file the owl-api libraries are included);</li>
   <li>html: a few html presentation files</li>
+  <li>html/tutorial: a tutorial on using the API</li>
   <li>build.xml: ant file to compile and generate jar-files.</li>
   <li>distrib: contains a few files for building the distribution</li>
   <li>classes: the compiled classes (in the zip file, the classes are
@@ -104,7 +127,7 @@ documentation. If you are familiar with CVS, the move is straightforward.)
 </ul>
 </p>
 
-<h2>Requirements</h2>
+<h3>Requirements</h3>
 
 <p><b>For using</b> you will need <a href="http://java.sun.com">Java
   runtime environment</a> (tested in 1.4.1) and the <a href="owlapi.html">OWL-API binary distribution</a> (this is
@@ -122,7 +145,7 @@ Note that OWL-API needs log4j and getopt packages, but these are
   included in the SVN repository). It is also very usefull to
   have <a ref="http://ant.apache.org">Ant</a>.</p>
 
-<h2>Required libraries (jar)</h2>
+<h3>Required libraries (jar)</h3>
 
 <p>Using the api (align.jar) requires:
 <ul compact="1">
@@ -142,76 +165,43 @@ addition:
 <li>The Java WordNet Library (jwnl.jar).</li>
 </ul></p>
 
-<h2>Assembling</h2>
+<h3>Assembling</h3>
 
 <p>A good way of setting your environment (from the SVN archive) for
   developing is to unzip the OWL-API binary distribution and put the
-  files in the ontoalign directories:
-<pre>
+  files in the alignapi directories:
+<div class="fragment"><pre>
 $ unzip owlapi-bin-03-10-15.zip
 $ mv owl/lib/* lib
 $ ant jar
 $ mv owl/javadoc/* javadoc
 $ ant javadoc
 $ rm -rf owl
-</pre>
+</pre></div>
 </p>
 
-<h1>Compilation and use</h1>
+<h2>Compilation and use</h2>
 
 <p>Generating the lib/procalign.jar file (and the other libraries) can
   be done by launching:
-<pre>
+<div class="fragment"><pre>
 $ ant jar
-</pre></p>
+</pre></div></p>
 
-<h1>Using the API</h1>
+<h2>Using the API</h2>
+
+<p>A <a href="tutorial">tutorial</a> presents how to use the Alignment
+  API</p>
 
 <p>An extensive presentation of the alignment API can be found 
 in the documentation section. It documents use and extension of the API.</p>
 
-<p>For demonstrating the use of the API, we implement it and use it
-  through a particular processor
-  (<tt>fr.inrialpes.exmo.align.util.Procalign</tt>) which:
-<ul compact="1">
-<li>Reads two OWL/RDF ontologies;</li>
-<li>Creates an alignment object;</li>
-<li>Computes the alignment between these ontologies;</li>
-<li>Displays the result.</li>
-</ul>
-Running the program is achieved through:
-<pre>
-$ java -jar lib/procalign.jar
-usage: Procalign [options] URI1 URI2
-options are:
-        --impl=className -i classname           Use the given alignment implementation.
-        --renderer=className -r className       Specifies the alignment renderer
-        --output=filename -o filename   Output the alignment in filename
-        --alignment=filename -a filename Start from an XML alignment file
-        --threshold=double -t double    Filters the similarities under threshold
-        --debug[=n] -d [n]              Report debug info at level n
-        --help -h                       Print this message
-</pre>
-or ($CWD is the current directory)
-<pre>
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
-</pre>
-Additionaly a number of options are available:
-<ul compact="1">
-<li>displaying debug information (-d);</li>
-<li>controling the way of rendering the output (-r);</li>
-<li>deciding the implementation of the alignment method (-i);</li>
-<li>providing an input alignent (-a) [implemented but not used by most
-  methods].</li>
-</ul>
-</p>
-
-<h1>License</h1>
+<h2>License</h2>
 
 <p>The alignment API and its implementation is distributed under the
   GNU <a href="../distrib/LICENSE.TXT">Lesser General Public License</a>.</p>
 
-<h1>The alignment API</h1>
+<h2>The alignment API</h2>
 <p>The OWL-API is extended with the
   (<tt>org.semanticweb.owl.align</tt>) package. Which describes the
   Alignment API. This API is, in turns, an "implementation" of the <a
@@ -233,7 +223,7 @@ Additionaly a number of options are available:
   contains a method for calling a particular alignment method (it is
   a sub-interface of <tt>Alignment</tt>) and an <tt>AlignmentException</tt>.</p>
 
-<h1>Implementing and extending the API</h1>
+<h2>Implementing and extending the API</h2>
 <p>A (default) impplementation of this API can be found in
   the <tt>fr.inrialpes.exmo.align.impl</tt> package.</p>
 <p>Adding new alignments methods amounts to create a
@@ -253,11 +243,11 @@ Additionaly a number of options are available:
   the <tt>EditDistNameAlignment</tt> class which uses an edit
   distance on class names. It thus have to build a matrix of distance
   and to choose the alignment from the distance. It can be called by:
-<pre>
+<div class="fragment"><pre>
 $ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment
-</Pre>
+</pre></div>
 which returns:
-<pre>
+<div class="code"><pre>
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
 &lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
 
@@ -284,7 +274,7 @@ which returns:
   &lt;/map>
 &lt;/Alignment>
 &lt;/rdf:RDF>
-</pre>
+</pre></div>
 </p>
 
 <address>

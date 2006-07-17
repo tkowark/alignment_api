@@ -1,7 +1,9 @@
 <html>
 <head>
 <title>A format for ontology alignment</title>
-<style type="text/css">@import url(style.css);</style>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body bgcollor="#ffffff">
 
@@ -18,7 +20,7 @@
   some implementations.</p>
 
 
-<h1>Specifications</h1>
+<h2>Specifications</h2>
 
 <p>There are two specifications of the format:
 <dl compact="1">
@@ -33,9 +35,9 @@
 
 <p>The namespace used by these formats is <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment</tt>.</p>
 
-<h1>Format descriptions</h1>
+<h2>Format descriptions</h2>
 
-<h2><tt>Alignment</tt> class</h2>
+<h3><tt>Alignment</tt> class</h3>
 
 <p>The <tt>Alignment</tt> class describes a partlicular alignment. Its
   properties are the following:
@@ -51,7 +53,7 @@
     entities of the ontologies.</dd>
 </dl></p>
 
-<h2><tt>Cell</tt> class</h2>
+<h3><tt>Cell</tt> class</h3>
 <dl compact="1">
 <dt>entity1</dt><dd>(value: URI) the URI of some entity of the first ontology;</dd>
 <dt>entity2</dt><dd>(value: URI) the URI of some entity of the second ontology;</dd>
@@ -64,12 +66,10 @@
     between the first and second entity.</dd>
 </dl></p>
 
-<h2><tt>Relation</tt> class</h2>
+<h3><tt>Relation</tt> class</h3>
 
 <p>This class does not currently exists in the format (it exists in
   its implementation). Currently, the relation is expressed as a string.</p>
-
-<h1>Implementations</h1>
 
 <h2>JAVA implementation</h2>
 <p>There is a <a href="align.html">JAVA API</a>, extending the <a href="owlapi.html">OWL API</a> implementing this

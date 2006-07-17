@@ -12,10 +12,8 @@ function hide(id) {
 }
 </script>
 
-<link rel="stylesheet" type="text/css"
-      href="base.css" />
-<link rel="stylesheet" type="text/css"
-      href="style.css" />
+<link rel="stylesheet" type="text/css" href="../base.css" />
+<link rel="stylesheet" type="text/css" href="../style.css" />
 </head><body bgcolor="white">
 
 <h1>A small tutorial on the Alignment API</h1>
@@ -35,7 +33,6 @@ http://alignapi.gforge.inria.fr/tutorial/
 </dl>
 
 <hr />
-
 <p>Here is a small tutorial for the alignment API. Since the API has no
 dedicated GUI, most of the tutorial is based on command-lines
   invocations. Of course, it is not the natural way to use this API:
@@ -43,8 +40,8 @@ dedicated GUI, most of the tutorial is based on command-lines
   are working towards implementing an alignment server that can help
  programmes to use the API remotely. The complete tutorial is also
   available as a self-contained <a href="script.sh">script.sh</a> or <a href="script.bat">script.bat</a>.</p>
-
 <hr />
+
 <h2>Preparation</h2>
 
 <p>For running the alignment API, you must have a Java interpreter
@@ -79,9 +76,12 @@ options are:
         -Dparam=value                   Set parameter
         --help -h                       Print this message
 </pre></div></p>
-This should output the command line usage of the Procalign 
-class. We do not detail it here, this tutorial will present
+The above command outputs the command line usage of the Procalign class.
+We do not detail it here, this tutorial will present
 it entirelly.</p>
+<p>If you want to modify the Alignment API and its implementation,
+  please refer to <a href="../align.html">this page</a>. In this
+  tutorial, we will simply learn how to use it.</p>
 <p>You will then go to the tutorial directory by doing
 <div class="fragment"><pre>
 $ cd html/tutorial
@@ -111,7 +111,6 @@ $ xsltproc ../form-align.xsl results/file.rdf > results/file.html
 
 generates <tt>results/file.html</tt> from the alignment file <tt>results/file.rdf</tt>.</p>
 
-<hr />
 <h2>The data</h2>
 
 <p>Your mission, if you accept it, will be to find the best alignment
@@ -130,16 +129,33 @@ These two ontologies have been used for a few year in the <a href="oaei.ontology
 Alignment Evaluation Initiative</a>
 </p>
 
-<hr />
 <h2>Matching</h2>
 
-<p>Let's try to match these two ontologies:
+<p>
+For demonstrating the use of our implementation of the Alignment API, 
+we implemented a particular processor
+(<tt>fr.inrialpes.exmo.align.util.Procalign</tt>) which:
+<ul compact="1">
+<li>Reads two OWL/RDF ontologies;</li>
+<li>Creates an alignment object;</li>
+<li>Computes the alignment between these ontologies;</li>
+<li>Displays the result.</li>
+</ul>
+Let's try to match these two ontologies:
 <div class="fragment"><pre>
 $ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl
 </pre></div>
+Additionaly a number of options are available:
+<ul compact="1">
+<li>displaying debug information (-d);</li>
+<li>controling the way of rendering the output (-r);</li>
+<li>deciding the implementation of the alignment method (-i);</li>
+<li>providing an input alignent (-a) [implemented but not used by most
+  methods].</li>
+</ul>
 </p>
 
-<p>The result is displayed on the standard output Since the output is
+<p>The result is displayed on the standard output. Since the output is
   too long we send it to a file by using the <tt>-o</tt> flag:
 <div class="fragment"><pre>
 $ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/equal.rdf
@@ -231,7 +247,6 @@ $ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment 
 </pre></div>
 See the output in <a href="jwnl.rdf">RDF/XML</a> or <a href="jwnl.html">HTML</a>.</p></div></p>
 
-<hr />
 <h2>Manipulating</h2>
 
 <p>As can be seen there are some correspondences that do not really make
@@ -290,7 +305,6 @@ to compose them.</p>
     levenshteinDistance and smoaDistance.
 </p></div></p>
 
-<hr />
 <h2>Output</h2>
 
 <p>Once a good alignment has been found, only half of the work has
@@ -366,7 +380,6 @@ $ xsltproc results/SMOA5.xsl data.xml > results/data.xml
 for giving the <a href="results/data.xml">results/data.xml</a> file.
 </p>
 
-<hr />
 <h2>Evaluating</h2>
 
 <p>We will evaluate alignments by comparing them to some reference
@@ -529,7 +542,6 @@ $ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.p
   is another class, GroupAlign, that allows to run an
 </p></div-->
 
-<hr />
 <h2>Embedding</h2>
 
 <p>Of course, the goal of this API is not to be used at the command
@@ -631,7 +643,6 @@ implementation (like BasicAlignment or DistanceAlignment).
 What about writing an editor for the alignment API?
 </p></div></p>
 
-<hr />
 <h2>Further exercises</h2>
 
 <p>
@@ -645,7 +656,6 @@ Planning:
 - Expressive alignment language (with SEKT/François Sharffe)
 -->
 
-<hr />
 <h2>Acknowledgements</h2>
 
 <p>The format of this tutorial has been shamelessly borrowed from Sean
@@ -654,6 +664,6 @@ Planning:
 <hr />
 <center><small>http://alignapi.gforge.inria.fr/tutorial</small></center>
 <hr />
-<!-- $Id$ -->
+$Id$
 </body>
 </html>
