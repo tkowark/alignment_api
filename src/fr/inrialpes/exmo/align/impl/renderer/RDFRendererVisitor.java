@@ -109,7 +109,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
 	    if ( cell.getId() != null ){
-		writer.print(" rdf:resource=\"#"+cell.getId()+"\"");
+		writer.print(" rdf:about=\"#"+cell.getId()+"\"");
 	    }
 	    writer.print(">\n      <entity1 rdf:resource='");
 	    writer.print( ((OWLEntity)cell.getObject1()).getURI().toString() );

@@ -216,8 +216,10 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("Cell")) {
 		    if ( alignment == null )
 			{ throw new SAXException("No alignment provided"); };
-		    if ( atts.getValue("rdf:resource") != null ){
-			id = atts.getValue("rdf:resource");
+		    if ( atts.getValue("rdf:ID") != null ){
+			id = atts.getValue("rdf:ID");
+		    } else if ( atts.getValue("rdf:about") != null ){
+			id = atts.getValue("rdf:about");
 		    }
 		    sem = null;
 		    measure = null;
@@ -230,8 +232,6 @@ public class AlignmentParser extends DefaultHandler {
 			    onto2 = loadOntology( alignment.getFile2() );
 			    if ( onto2 == null ) {
 				throw new SAXException("Cannot find ontology"+alignment.getFile2());
-			    } else {
-				ontologies.put( onto2.getLogicalURI().toString(), onto2 );
 			    }
 			}
 			alignment.setOntology2( onto2 );
@@ -239,8 +239,6 @@ public class AlignmentParser extends DefaultHandler {
 			    onto1 = loadOntology( alignment.getFile1() );
 			    if ( onto1 == null ) {
 				throw new SAXException("Cannot find ontology"+alignment.getFile1());
-			    } else {
-				ontologies.put( onto1.getLogicalURI().toString(), onto1 );
 			    }
 			}
 			alignment.setOntology1( onto1 );
@@ -385,8 +383,11 @@ public class AlignmentParser extends DefaultHandler {
 	    };
 	parser.setOWLRDFErrorHandler( handler );
 	parser.setConnection( OWLManager.getOWLConnection() );
-	try { return parser.parseOntology( ref ); }
-	catch ( Exception e ) {
+	try {
+	    parsedOnt = parser.parseOntology( ref );
+	    ontologies.put( ref.toString(), parsedOnt );
+	    return parsedOnt;
+	} catch ( Exception e ) {
 	    throw new SAXException("[AlignmentParser] Error during parsing : "+ref);
 	}
     }
