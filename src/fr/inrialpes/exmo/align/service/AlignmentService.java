@@ -148,7 +148,7 @@ public class AlignmentService {
 
 	// Change port if requested
 	// JE: implement as parameter passing to init()
-	int port = 8090;
+	int port = 8089;
 	// Put this in the argument of --html=8980
 	//if ( args.length > 0 && lopt != 0 )
 	//    port = Integer.parseInt( args[0] );
@@ -161,7 +161,7 @@ public class AlignmentService {
 	    System.err.println( "Couldn't start server:\n" + ioe );
 	    System.exit( -1 );
 	}
-	//try { System.in.read(); } catch( Throwable t ) {};
+	try { System.in.read(); } catch( Throwable t ) {};
 
 	// I must do something for stoping them
     }
