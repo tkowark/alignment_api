@@ -57,9 +57,30 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
+
+import java.util.StringTokenizer;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Date;
+import java.util.Enumeration;
+
+//import java.net.*;
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.net.URLEncoder;
+
+import java.lang.Integer;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignement server
@@ -69,7 +90,7 @@ import java.net.*;
  * (Modified BSD licence)
  */
 
-public class HTMLAServProfile {
+public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private int myTcpPort;
 
@@ -85,6 +106,16 @@ public class HTMLAServProfile {
     // No constructor needed.
     //public HTMLAServProfile() {}
 
+    public void init( Parameters params, AServProtocolManager manager ) throws AServException {
+	try {
+	    init( Integer.parseInt( (String)params.getParameter( "port" ) ) );
+	} catch (Exception e) {
+	    throw new AServException ( "Cannot launch HTTP Server" , e );
+	}
+    }
+
+    // Replace this by AServException
+    // Replace this by Parameters
     public void init( int port ) throws IOException {
 	myTcpPort = port;
 	
@@ -100,6 +131,12 @@ public class HTMLAServProfile {
 	    });
 	t.setDaemon( true );
 	t.start();
+    }
+
+    /*
+     * JE//: should certainly do more than that!
+     */
+    public void close(){
     }
     
     // ==================================================

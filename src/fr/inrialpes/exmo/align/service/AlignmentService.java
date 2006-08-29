@@ -1,7 +1,7 @@
 /*
  * $Id: ParserPrinter.java 210 2006-02-17 12:09:31Z euzenat $
  *
- * Copyright (C) 2006 INRIA Rhône-Alpes.
+ * Copyright (C) INRIA Rhône-Alpes, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,6 +19,9 @@
  */
 
 package fr.inrialpes.exmo.align.service;
+
+import fr.inrialpes.exmo.align.service.StoreRDFFormat;
+import fr.inrialpes.exmo.align.service.DBService;
 
 import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
@@ -65,11 +68,14 @@ public class AlignmentService {
 	try { run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
-
+    
     public static void run(String[] args) throws Exception {
 	String filename = null;
 	String outfile = null;
 	String paramfile = null;
+	String DbServer = "";             // Database server
+	String DbName = "root";           // Database userID
+	String DbPassword = "1234";       // Database user password
 	int debug = 0;
 
 	// Read parameters
@@ -139,8 +145,10 @@ public class AlignmentService {
 	}
 
 	// Connect database
+	DBService DBConnection = new StoreRDFFormat();
+	//DBConnection.init( DbName, DbPassword );
 
-	// For all services, init()
+	// Create a AServProtocolManager
 
 	// Launch HTTP Server (this will have to be changed)
 	// To a more generic way by launching all the requested
@@ -163,7 +171,16 @@ public class AlignmentService {
 	}
 	try { System.in.read(); } catch( Throwable t ) {};
 
+	// For all services:
+	// Get a list of services
+	// Create them
+	// init() -- parameters must be passed
+
 	// I must do something for stoping them
+	// For all list of services
+	// close()
+
+	//DBConnection.close();
     }
 
     public static void usage() {
