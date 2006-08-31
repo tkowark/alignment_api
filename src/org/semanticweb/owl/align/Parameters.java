@@ -29,7 +29,10 @@ import java.util.Enumeration;
  * a list of available parameters as an enumeration.
  * I does not provide any integrity checking (set and unset silently and
  * erase the previous value is there were one).
+ *
  * getParameter must return (null) if no corresponding parameter exist.
+ * JE: this may be deprecated at some point to use the standard Java
+ * java.lang.Properties class.
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
