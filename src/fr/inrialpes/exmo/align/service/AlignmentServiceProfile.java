@@ -24,7 +24,14 @@ import org.semanticweb.owl.align.Parameters;
 
 public interface AlignmentServiceProfile {
 
+    /**
+     * Creates the Service object and declares it after any
+     * required registery
+     */
     public void init( Parameters p, AServProtocolManager m ) throws AServException;
 
+    /**
+     * Shutdown the Service and undeclare it from any registery
+     */
     public void close();
 }

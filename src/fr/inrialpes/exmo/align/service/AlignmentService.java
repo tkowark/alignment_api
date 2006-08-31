@@ -1,5 +1,5 @@
 /*
- * $Id: ParserPrinter.java 210 2006-02-17 12:09:31Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2006
  *
@@ -19,9 +19,6 @@
  */
 
 package fr.inrialpes.exmo.align.service;
-
-import fr.inrialpes.exmo.align.service.StoreRDFFormat;
-import fr.inrialpes.exmo.align.service.DBService;
 
 import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
@@ -57,12 +54,14 @@ import gnu.getopt.Getopt;
     </pre>
 
 <pre>
-$Id: Procalign.java 240 2006-05-19 19:17:08Z euzenat $
+$Id$
 </pre>
 
  * @author Jérôme Euzenat
  */
 public class AlignmentService {
+
+    private static AServProtocolManager manager;
 
     public static void main(String[] args) {
 	try { run( args ); }
@@ -73,14 +72,19 @@ public class AlignmentService {
 	String filename = null;
 	String outfile = null;
 	String paramfile = null;
-	String DbServer = "";             // Database server
-	String DbName = "root";           // Database userID
-	String DbPassword = "1234";       // Database user password
 	int debug = 0;
 
-	// Read parameters
+	// Default parameters
 
 	Parameters params = new BasicParameters();
+	// Put this in the argument of --html=8089
+	params.setParameter( "httpport", "8089" );
+	// --dbms= --name= --password=
+	params.setParameter( "dbmsserver", "" );
+	params.setParameter( "dbmsname", "root" );
+	params.setParameter( "dbmspass", "1234" );
+
+	// Read parameters
 
 	LongOpt[] longopts = new LongOpt[10];
 
@@ -136,8 +140,6 @@ public class AlignmentService {
 	    }
 	}
 	
-	    if ( debug > 0 ) System.err.println("AServ launched");
-
 	if (debug > 0) {
 	    params.setParameter("debug", new Integer(debug));
 	} else if ( params.getParameter("debug") != null ) {
@@ -145,36 +147,34 @@ public class AlignmentService {
 	}
 
 	// Connect database
-	DBService DBConnection = new StoreRDFFormat();
+	//DBService DBConnection = new StoreRDFFormat();
 	//DBConnection.init( DbName, DbPassword );
 
 	// Create a AServProtocolManager
+	manager = new AServProtocolManager();
+	manager.init( params );
 
 	// Launch HTTP Server (this will have to be changed)
 	// To a more generic way by launching all the requested
 	// profile or all the available profiles
-
-	// Change port if requested
-	// JE: implement as parameter passing to init()
-	int port = 8089;
-	// Put this in the argument of --html=8980
-	//if ( args.length > 0 && lopt != 0 )
-	//    port = Integer.parseInt( args[0] );
 	HTMLAServProfile htmlS;
+	// May be put some Runable here...
 	try {
 	    htmlS = new HTMLAServProfile();
-	    htmlS.init( port );
-	    if ( debug > 0 ) System.err.println("AServ launched");
-	} catch ( IOException ioe ) {
-	    System.err.println( "Couldn't start server:\n" + ioe );
+	    htmlS.init( params, manager );
+	} catch ( AServException e ) {
+	    System.err.println( "Couldn't start server:\n" + e );
 	    System.exit( -1 );
 	}
-	try { System.in.read(); } catch( Throwable t ) {};
 
 	// For all services:
 	// Get a list of services
 	// Create them
-	// init() -- parameters must be passed
+	// init( params ) -- parameters must be passed
+
+	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("htmlport"));
+
+	try { System.in.read(); } catch( Throwable t ) {};
 
 	// I must do something for stoping them
 	// For all list of services

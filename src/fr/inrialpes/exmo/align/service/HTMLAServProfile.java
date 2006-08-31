@@ -74,11 +74,12 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 
-//import java.net.*;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.net.URLEncoder;
+import java.net.URLDecoder;
 
 import java.lang.Integer;
 
@@ -93,6 +94,28 @@ import java.lang.Integer;
 public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private int myTcpPort;
+    private int debug = 0;
+    private AServProtocolManager manager;
+
+    /**
+     * Some HTTP response status codes
+     */
+    public static final String
+	HTTP_OK = "200 OK",
+	HTTP_REDIRECT = "301 Moved Permanently",
+	HTTP_FORBIDDEN = "403 Forbidden",
+	HTTP_NOTFOUND = "404 Not Found",
+	HTTP_BADREQUEST = "400 Bad Request",
+	HTTP_INTERNALERROR = "500 Internal Server Error",
+	HTTP_NOTIMPLEMENTED = "501 Not Implemented";
+
+    /**
+     * Common mime types for dynamic content
+     */
+    public static final String
+	MIME_PLAINTEXT = "text/plain",
+	MIME_HTML = "text/html",
+	MIME_DEFAULT_BINARY = "application/octet-stream";
 
     // ==================================================
     // Socket & server code
@@ -101,39 +124,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     /**
      * Starts a HTTP server to given port.<p>
      * Throws an IOException if the socket is already in use
-     * JE: use rather parameters
      */
-    // No constructor needed.
-    //public HTMLAServProfile() {}
-
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
+	this.manager = manager;
 	try {
-	    init( Integer.parseInt( (String)params.getParameter( "port" ) ) );
+	    myTcpPort = Integer.parseInt( (String)params.getParameter( "httpport" ) );
+	    final ServerSocket ss = new ServerSocket( myTcpPort );
+	    Thread t = new Thread( new Runnable() {
+		    public void run() {
+			try { while( true ) new HTTPSession( ss.accept());
+			} catch ( IOException ioe ) { ioe.printStackTrace(); }
+		    }
+		});
+	    t.setDaemon( true );
+	    t.start();
 	} catch (Exception e) {
 	    throw new AServException ( "Cannot launch HTTP Server" , e );
 	}
     }
 
-    // Replace this by AServException
-    // Replace this by Parameters
-    public void init( int port ) throws IOException {
-	myTcpPort = port;
-	
-	final ServerSocket ss = new ServerSocket( myTcpPort );
-	Thread t = new Thread( new Runnable() {
-		public void run() {
-		    try {
-			while( true ) new HTTPSession( ss.accept());
-		    } catch ( IOException ioe ) {
-			ioe.printStackTrace();
-		    }
-		}
-	    });
-	t.setDaemon( true );
-	t.start();
-    }
-
-    /*
+    /**
      * JE//: should certainly do more than that!
      */
     public void close(){
@@ -155,8 +165,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * @return HTTP response, see class Response for details
      */
     public Response serve( String uri, String method, Properties header, Properties parms ) {
-	System.out.println( method + " '" + uri + "' " );
-	
+	// This should only be done for debugging
+	if ( debug >= 1 ) System.err.println( method + " '" + uri + "' " );
+	/*
 	Enumeration e = header.propertyNames();
 	while ( e.hasMoreElements()) {
 	    String value = (String)e.nextElement();
@@ -168,89 +179,96 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String value = (String)e.nextElement();
 	    System.out.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
 	}
-
-	return serveFile( uri, header, new File("."), true );
+	*/
+	
+	int start = 0;
+	if ( uri.charAt(0) == '/' ) start = 1;
+	int end = uri.indexOf( '/', start+1 );
+	String oper = "";
+	if ( end != -1 ) {
+	    oper = uri.substring( start, end );
+	    start = end+1;
+	} else {
+	    oper = uri.substring( start );
+	}
+	if ( oper.equals( "aserv" ) ){
+	    return protocolAnswer( uri, uri.substring(start), header );
+	} else if ( oper.equals( "admin" ) ){
+	    return adminAnswer( uri, uri.substring(start), header );
+	} else if ( oper.equals( "html" ) ){
+	    return htmlAnswer( uri, uri.substring(start), header );
+	} else {
+	    return serveFile( uri, header, new File("."), true );
+	}
     }
 
-    /**
-     * HTTP response.
-     * Return one of these from serve().
-     */
-    public class Response {
-	/**
-	 * Default constructor: response = HTTP_OK, data = mime = 'null'
-	 */
-	public Response() {
-	    this.status = HTTP_OK;
+    // ==================================================
+    // Connection with protocol
+    public Response adminAnswer( String uri, String perf, Properties header ) {
+	System.err.println("ADMIN["+perf+"]");
+	String msg = "";
+	if ( perf.equals("shutdown") ){
+	    msg = "Server shut down";
+	} else {
+	    msg = "Cannot understand: "+perf;
 	}
-
-	/**
-	 * Basic constructor.
-	 */
-	public Response( String status, String mimeType, InputStream data ) {
-	    this.status = status;
-	    this.mimeType = mimeType;
-	    this.data = data;
-	}
-
-	/**
-	 * Convenience method that makes an InputStream out of
-	 * given text.
-	 */
-	public Response( String status, String mimeType, String txt ) {
-	    this.status = status;
-	    this.mimeType = mimeType;
-	    this.data = new ByteArrayInputStream( txt.getBytes());
-	}
-
-	/**
-	 * Adds given line to the header.
-	 */
-	public void addHeader( String name, String value ) {
-	    header.put( name, value );
-	}
-
-	/**
-	 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
-	 */
-	public String status;
-
-	/**
-	 * MIME type of content, e.g. "text/html"
-	 */
-	public String mimeType;
-
-	/**
-	 * Data of the response, may be null.
-	 */
-	public InputStream data;
-
-	/**
-	 * Headers for the HTTP response. Use addHeader()
-	 * to add lines.
-	 */
-	public Properties header = new Properties();
+	return new Response( HTTP_OK, MIME_HTML, msg );
     }
 
-    /**
-     * Some HTTP response status codes
-     */
-    public static final String
-	HTTP_OK = "200 OK",
-	HTTP_REDIRECT = "301 Moved Permanently",
-	HTTP_FORBIDDEN = "403 Forbidden",
-	HTTP_NOTFOUND = "404 Not Found",
-	HTTP_BADREQUEST = "400 Bad Request",
-	HTTP_INTERNALERROR = "500 Internal Server Error",
-	HTTP_NOTIMPLEMENTED = "501 Not Implemented";
+    public Response protocolAnswer( String uri, String perf, Properties header ) {
+	System.err.println("ASERV["+perf+"]");
+	String msg = "";
+	return new Response( HTTP_OK, MIME_HTML, msg );
 
-    /**
-     * Common mime types for dynamic content
-     */
-    public static final String
-	MIME_PLAINTEXT = "text/plain",
-	MIME_HTML = "text/html",
-	MIME_DEFAULT_BINARY = "application/octet-stream";
+    }
+
+    public Response htmlAnswer( String uri, String perf, Properties header ) {
+	System.err.println("HTML["+perf+"]");
+	// Parse the performative
+	// Call the manager
+	// with the performatives
+	// and the arguments
+	//manager.perf( this, args );
+	// What is the result of the 
+	String msg = "";
+	if ( perf.equals("listmethods") ){
+	    msg = "<h1>Available methods</h1><ul compact=\"1\">";
+	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
+		msg += "<li>"+it.next()+"</li>";
+	    }
+	    msg += "</ul>";
+	} else if ( perf.equals("listrenderers") ) {
+	    msg = "<h1>Available renderers</h1><ul compact=\"1\">";
+	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
+		msg += "<li>"+it.next()+"</li>";
+	    }
+	    msg += "</ul>";
+	} else if ( perf.equals("align") ) {
+	    msg ="<form action=\"getalign\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><input type=\"submit\" value=\"Find\"/><br />Methods: <select name=\"method\">";
+	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
+		String id = (String)it.next();
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br /><input type=\"submit\" value=\"Align\"/></form>";
+	} else if ( perf.equals("getalign") ) {
+	    // Depends if Find or Align
+	    msg = "<form action=\"process\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><input type=\"submit\" value=\"Store\"/><br />Renderers: <select name=\"method\">";
+	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
+		String id = (String)it.next();
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "<br /></select><input type=\"submit\" value=\"Render\"/></form>";
+	} else if ( perf.equals("process") ) {
+	    // Depends if Store or Render
+	    msg = "Alignment stored";
+	} else {
+	    msg = "Cannot understand command "+perf;
+	}
+	return new Response( HTTP_OK, MIME_HTML, msg="<html><head></head><body>"+msg+"</body></html>" );
+    }
+
+    // ==================================================
+    // HTTP Machinery
 
     /**
      * Handles one session, i.e. parses the HTTP request
@@ -280,14 +298,21 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		if ( !st.hasMoreTokens())
 		    sendError( HTTP_BADREQUEST, "BAD REQUEST: Missing URI. Usage: GET /example/file.html" );
 
-		String uri = decodePercent( st.nextToken());
+		String uri = null;
+		try {
+		    uri = URLDecoder.decode( st.nextToken(), "iso-8859-1" );
+		} catch (Exception e) {}; //never thrown
+		//String uri = decodePercent( st.nextToken());
 
 		// Decode parameters from the URI
 		Properties parms = new Properties();
 		int qmi = uri.indexOf( '?' );
 		if ( qmi >= 0 )	{
 		    decodeParms( uri.substring( qmi+1 ), parms );
-		    uri = decodePercent( uri.substring( 0, qmi ));
+		    try {
+			uri = URLDecoder.decode( uri.substring( 0, qmi ), "iso-8859-1" );
+		    } catch (Exception e) {}; //never thrown
+		    //uri = decodePercent( uri.substring( 0, qmi ));
 		}
 
 		// If there's another token, it's protocol version,
@@ -342,7 +367,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	/**
 	 * Decodes the percent encoding scheme. <br/>
 	 * For example: "an+example%20string" -> "an example string"
-	 */
 	private String decodePercent( String str ) throws InterruptedException {
 	    try	{
 		StringBuffer sb = new StringBuffer();
@@ -367,6 +391,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		return null;
 	    }
 	}
+	 */
 
 	/**
 	 * Decodes parameters in percent-encoded URI-format
@@ -378,11 +403,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
 	    StringTokenizer st = new StringTokenizer( parms, "&" );
 	    while ( st.hasMoreTokens())	{
-		String e = st.nextToken();
-		int sep = e.indexOf( '=' );
+		String next = st.nextToken();
+		int sep = next.indexOf( '=' );
 		if ( sep >= 0 )
-		    p.put( decodePercent( e.substring( 0, sep )).trim(),
-			   decodePercent( e.substring( sep+1 )));
+
+		try {
+		    p.put( URLDecoder.decode( next.substring( 0, sep ), "iso-8859-1" ).trim(),
+			   URLDecoder.decode( next.substring( sep+1 ), "iso-8859-1" ));
+		} catch (Exception e) {}; //never thrown
 	    }
 	}
 
@@ -453,25 +481,25 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     private String encodeUri( String uri ) {
 	String newUri = "";
 	StringTokenizer st = new StringTokenizer( uri, "/ ", true );
-	while ( st.hasMoreTokens()) {
-	    String tok = st.nextToken();
-	    if ( tok.equals( "/" ))
-		newUri += "/";
-	    else if ( tok.equals( " " ))
-		newUri += "%20";
-	    else
-		// JE: this is deprecated
-		newUri += URLEncoder.encode( tok );
-	}
+	try {
+	    while ( st.hasMoreTokens()) {
+		String tok = st.nextToken();
+		if ( tok.equals( "/" ))
+		    newUri += "/";
+		else if ( tok.equals( " " ))
+		    newUri += "%20";
+		else
+		    newUri += URLEncoder.encode( tok, "iso-8859-1" );
+	    }
+	} catch (Exception e) {}; // never reported exception
 	return newUri;
     }
 
-    File myFileDir;
-
     // ==================================================
-    // File server code
-    // ==================================================
+    // File browsing stuff
     // JE: MOST OF THIS CODE WILL BE USELESS
+
+    File myFileDir;
 
     /**
      * Serves file from homeDir and its' subdirectories (only).
@@ -479,6 +507,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public Response serveFile( String uri, Properties header, File homeDir,
 							   boolean allowDirectoryListing ) {
+	System.err.println("SANDBOX");
 	// Make sure we won't die of an exception later
 	if ( !homeDir.isDirectory())
 	    return new Response( HTTP_INTERNALERROR, MIME_PLAINTEXT,
@@ -624,6 +653,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    theMimeTypes.put( st.nextToken(), st.nextToken());
     }
 
+    // ==================================================
+    // License
+
     /**
      * GMT date formatter
      */
@@ -661,4 +693,65 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"+
 	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"+
 	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.";
+    /**
+     * HTTP response.
+     * Return one of these from serve().
+     */
+    public class Response {
+	/**
+	 * Default constructor: response = HTTP_OK, data = mime = 'null'
+	 */
+	public Response() {
+	    this.status = HTTP_OK;
+	}
+
+	/**
+	 * Basic constructor.
+	 */
+	public Response( String status, String mimeType, InputStream data ) {
+	    this.status = status;
+	    this.mimeType = mimeType;
+	    this.data = data;
+	}
+
+	/**
+	 * Convenience method that makes an InputStream out of
+	 * given text.
+	 */
+	public Response( String status, String mimeType, String txt ) {
+	    this.status = status;
+	    this.mimeType = mimeType;
+	    this.data = new ByteArrayInputStream( txt.getBytes());
+	}
+
+	/**
+	 * Adds given line to the header.
+	 */
+	public void addHeader( String name, String value ) {
+	    header.put( name, value );
+	}
+
+	/**
+	 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
+	 */
+	public String status;
+
+	/**
+	 * MIME type of content, e.g. "text/html"
+	 */
+	public String mimeType;
+
+	/**
+	 * Data of the response, may be null.
+	 */
+	public InputStream data;
+
+	/**
+	 * Headers for the HTTP response. Use addHeader()
+	 * to add lines.
+	 */
+	public Properties header = new Properties();
+    }
+
 }
+
