@@ -85,6 +85,7 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 
 	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
+      if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( type, params );
     }
 }
