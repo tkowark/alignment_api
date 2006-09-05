@@ -209,6 +209,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	String msg = "";
 	if ( perf.equals("shutdown") ){
 	    msg = "Server shut down";
+	} else if ( perf.equals("sqlquery") ){
+	    msg = perf;
+	} else if ( perf.equals("relaunch") ){
+	    msg = perf;
+	} else if ( perf.equals("addservice") ){
+	    msg = perf;
+	} else if ( perf.equals("addmethod") ){
+	    msg = perf;
+	} else if ( perf.equals("addrenderer") ){
+	    msg = perf;
+	} else if ( perf.equals("listservices") ){
+	    msg = perf;
+	} else if ( perf.equals("listmethods") ){
+	    msg = perf;
+	} else if ( perf.equals("listrenderers") ){
+	    msg = perf;
 	} else {
 	    msg = "Cannot understand: "+perf;
 	}

@@ -192,6 +192,15 @@ public class AServProtocolManager {
 	return new Message(mess.getId(),mess,mess.getSender(),"dummy//",(Parameters)null);
     }
 
+    public Message getmetadata(Message mess){
+
+    //\prul{get-processor-success}{a - request ( metadata ( n )) \rightarrow S}{\langle O, O', A\rangle \Leftarrow Retrieve(n)\\P\Leftarrow Metadata(A)\\S - inform ( P~language:~l ) \rightarrow a}{Retrieve(n)\not=\emptyset}
+
+    //\prul{get-processor-unknown}{a - request ( metadata ( n )) \rightarrow S}{S - failure ( unknown (n) ) \rightarrow a}{Retrieve(n)=\emptyset}
+
+	return new Message(mess.getId(),mess,mess.getSender(),"dummy//",(Parameters)null);
+    }
+
     public boolean reachable( String ontology ){
 	return true;
     }
