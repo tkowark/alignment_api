@@ -19,13 +19,18 @@
  */
 
 package fr.inrialpes.exmo.align.service;
+
+import java.net.URI;
+import java.util.Enumeration;
 import org.semanticweb.owl.align.Alignment;
+
 
 public interface DBService {
 	public long store(Alignment alignment);
-	public Alignment find(long id);
 	public int connect(String password);                              // password in database
-    // JE: to be added
-    //public int init(String IPAdress, String id, String password);    // with userID, password in database
+    public int connect(String IPAdress, String id, String password);    // with userID, password in database
+    public Alignment find(long id);                                  // find alignment with alignmentID
+    public Enumeration find(URI uri);                                // find alignment list with an ontology uri
+    public Enumeration find(URI uri1, URI uri2);                     // find alignment list with two ontology uri
 	public int close();
 }

@@ -1,11 +1,32 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) XX, 2006
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 package fr.inrialpes.exmo.align.service;
 
-import java.util.*;
+import java.util.Vector;
+import java.util.Enumeration;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import com.mysql.jdbc.ResultSet;
-import com.mysql.jdbc.Statement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
@@ -40,8 +61,12 @@ public class DBServiceImpl implements DBService{
 	String s_uri2 = "";
 	String s_method = "";
 	String s_cell = "";
+	
+	final int CONNECTION_ERROR = 1;
+	final int SUCCESS = 2;
+	final int INIT_ERROR = 3;
 
-	static Hashtable cache = null;
+	static Cache cache = null;
 	
 	public DBServiceImpl() {
 		try{
@@ -55,12 +80,30 @@ public class DBServiceImpl implements DBService{
 		try {
 			conn = DriverManager.getConnection(url, "root", password);
 			st = (Statement) conn.createStatement();
-			
-			cache = loadAll(true);
-		} catch(Exception ex) {return -1;}
-		return 1;
+		} catch(Exception ex) {return CONNECTION_ERROR;}
+		
+		if(init()) return SUCCESS;
+		else return INIT_ERROR;
+
 	}
 	
+	public int connect(String IPAddress, String id, String password) {
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://"+IPAddress+":3306/DBService", id, password);
+			st = (Statement) conn.createStatement();
+		} catch(Exception ex) {return CONNECTION_ERROR;}
+		
+		if(init()) return SUCCESS;
+		else return INIT_ERROR;
+	}
+	
+	private boolean init() {
+		try {
+			cache = new CacheImpl();
+			return true;
+		} catch (Exception e) {return false;}
+	}
+	 	
 	private Hashtable loadAll(boolean force){
 		Hashtable result = new Hashtable();
 		String query = null;
@@ -187,6 +230,37 @@ public class DBServiceImpl implements DBService{
 		return result;
 	}
 	
+	public Enumeration find(URI uri) {
+		Enumeration result = null;
+		Alignment temp = null;
+		String query = null;
+		try {
+			result = (Enumeration) cache.get(uri);
+			
+			
+			if (result == null) {
+				query = "select id " + "from alignment " + "where id = " + id;
+		        
+		        rs = (ResultSet) st.executeQuery(query);
+
+		        if(rs == null) return null;
+		        else {
+		        	while (rs.next()) {
+		        		temp = retrieve(id);
+		        		loadOne(id, temp, true);	
+		        	}
+		        }
+			}
+			
+		} catch (Exception e) {System.out.println("Alignment Finding Exception");}		
+		return result;	    	
+	}                                // find alignment list with an ontology uri
+	
+	public Enumeration find(URI uri1, URI uri2) {
+		Enumeration result = null;
+		return result;    	
+	}                    // find alignment list with two ontology uri
+	
 	protected Alignment retrieve(long id){
 		OWLOntology o1 = null;
 		OWLOntology o2 = null;
@@ -278,6 +352,7 @@ public class DBServiceImpl implements DBService{
 	}
 	
 	public int close(){
+
 		try {
 			conn.close();
 			st.close();
@@ -287,6 +362,7 @@ public class DBServiceImpl implements DBService{
 			return -1;
 		}
 	}
+    
 	public static OWLOntology loadOntology(URI uri) throws Exception {
 		OWLRDFParser parser = new OWLRDFParser();
 		parser.setConnection(OWLManager.getOWLConnection());
