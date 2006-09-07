@@ -37,9 +37,6 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-
-import java.util.Hashtable;
 
 public class DBServiceImpl implements DBService{
 	int id = 0;
@@ -70,7 +67,7 @@ public class DBServiceImpl implements DBService{
 	
 	public DBServiceImpl() {
 		try{
-			Class.forName("com.mysql.jdbc.Driver").newInstance();	
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
 		} catch(Exception e){
 			System.out.println(e.toString());
 		}
@@ -84,7 +81,6 @@ public class DBServiceImpl implements DBService{
 		
 		if(init()) return SUCCESS;
 		else return INIT_ERROR;
-
 	}
 	
 	public int connect(String IPAddress, String id, String password) {
@@ -93,57 +89,24 @@ public class DBServiceImpl implements DBService{
 			st = (Statement) conn.createStatement();
 		} catch(Exception ex) {return CONNECTION_ERROR;}
 		
-		if(init()) return SUCCESS;
+		if(init()) {
+			System.out.println("init success");
+			return SUCCESS;
+		}
 		else return INIT_ERROR;
 	}
 	
 	private boolean init() {
 		try {
-			cache = new CacheImpl();
-			return true;
+			cache = new CacheImpl(conn);
+			if( cache.loading() == SUCCESS ) {
+				System.out.println("chche loading success");
+				return true;
+			}
+			else return false;
 		} catch (Exception e) {return false;}
 	}
 	 	
-	private Hashtable loadAll(boolean force){
-		Hashtable result = new Hashtable();
-		String query = null;
-		String id = null;
-		Alignment alignment = null;
-		Vector v = new Vector();
-		
-		if (force) {
-			try {
-				query = "select id " + "from alignment";
-		        
-		        rs = (ResultSet) st.executeQuery(query);
-		        
-				while(rs.next()) {
-					id = rs.getString("id");
-					v.add(id);					
-				}
-
-				for( int i = 0; i < v.size(); i ++ ) {
-					id = (String) v.get(i);
-					alignment = retrieve(Long.parseLong(id));
-					result.put(id,alignment);	
-				}
-							
-			} catch	(Exception e) {System.out.println("Hashtable loading error");}
-			return result;
-		}
-		else return null;
-	}
-	
-	private boolean loadOne(long id, Alignment alignment, boolean force){
-		if (force) {
-			try {
-				cache.put(Long.toString(id), alignment);
-			} catch	(Exception e) {System.out.println("Hashtable loading error");}
-			return true;
-		}
-		else return false;
-	}
-	
 	public long store(Alignment alignment){
 		long id = 0;
 		String query = null;
@@ -208,119 +171,27 @@ public class DBServiceImpl implements DBService{
 	
 	public Alignment find(long id) {
 		Alignment result = null;
-		String query = null;
 		try {
-			result = (Alignment) cache.get(Long.toString(id));
-			
-			if (result == null) {
-				query = "select id " + "from alignment " + "where id = " + id;
-		        
-		        rs = (ResultSet) st.executeQuery(query);
-
-		        if(rs == null) return null;
-		        else {
-		        	while (rs.next()) {
-		        		result = retrieve(id);
-		        		loadOne(id, result, true);	
-		        	}
-		        }
-			}
-			
+			result = (Alignment) cache.get(id);
 		} catch (Exception e) {System.out.println("Alignment Finding Exception");}		
 		return result;
 	}
 	
-	public Enumeration find(URI uri) {
-		Enumeration result = null;
-		Alignment temp = null;
-		String query = null;
+	public Vector find(URI uri) { // find alignment list with an ontology uri
+		Vector result = null;
 		try {
-			result = (Enumeration) cache.get(uri);
-			
-			
-			if (result == null) {
-				query = "select id " + "from alignment " + "where id = " + id;
-		        
-		        rs = (ResultSet) st.executeQuery(query);
-
-		        if(rs == null) return null;
-		        else {
-		        	while (rs.next()) {
-		        		temp = retrieve(id);
-		        		loadOne(id, temp, true);	
-		        	}
-		        }
-			}
-			
+			result = (Vector) cache.get(uri);
 		} catch (Exception e) {System.out.println("Alignment Finding Exception");}		
 		return result;	    	
-	}                                // find alignment list with an ontology uri
+	}                                
 	
-	public Enumeration find(URI uri1, URI uri2) {
-		Enumeration result = null;
-		return result;    	
-	}                    // find alignment list with two ontology uri
-	
-	protected Alignment retrieve(long id){
-		OWLOntology o1 = null;
-		OWLOntology o2 = null;
-		String query;
-		String tag;
-		String method;
-		OWLEntity ent1 = null, ent2 = null;
-		Cell cell = null;
-				
-		Alignment result = new BasicAlignment();
-		
+	public Vector find(URI uri1, URI uri2) { // find alignment list with two ontology uri
+		Vector result = null;
 		try {
-			query = "select * " +
-			        "from alignment " +
-			        "where id = " + id;
-			rs = (ResultSet) st.executeQuery(query);
-			
-			while(rs.next()) {
-				o1 = loadOntology(new URI(rs.getString("uri1")));
-				o2 = loadOntology(new URI(rs.getString("uri2")));
-			
-				result.setLevel(rs.getString("level"));
-				result.setType(rs.getString("type"));			
-				result.setOntology1(o1);
-				result.setOntology2(o2);
-			}
-			
-			query = "select * " +
-					"from extension " +
-					"where id = " + id;
-			
-			rs = (ResultSet) st.executeQuery(query);
-
-			while(rs.next()) {
-				tag = rs.getString("tag");
-				method = rs.getString("method");
-				result.setExtension(tag, method);
-			}
-
-			query = "select * " +
-	        		"from cell " +
-	        		"where id = " + id;
-			rs = (ResultSet) st.executeQuery(query);
-
-			while(rs.next()) {
-				ent1 = (OWLEntity) o1.getClass(new URI(rs.getString("uri1")));
-				ent2 = (OWLEntity) o2.getClass(new URI(rs.getString("uri2")));
-		
-				if(ent1 == null || ent2 == null) break;
-				cell = result.addAlignCell(ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")));
-				cell.setId(rs.getString("cell_id"));
-				cell.setSemantics(rs.getString("semantics"));
-			}
-		} catch (Exception e) {
-			System.out.println("No problem");
-			System.out.println(e.toString());
-			return null;
-		}
-		return result;
-	}
+			result = (Vector) cache.get(uri1, uri2);
+		} catch (Exception e) {System.out.println("Alignment Finding Exception");}		
+		return result;	    	
+	}                    
 	
 	public synchronized long nextID(){
 		long id = 0;
