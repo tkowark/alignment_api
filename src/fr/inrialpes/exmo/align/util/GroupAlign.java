@@ -154,9 +154,13 @@ public class GroupAlign {
 		filename = g.getOptarg();
 		break;
 	    case 'n' :
+	    arg = g.getOptarg();
 		/* Use common ontology to compare */
-		try { uri1 = new URI(g.getOptarg());
-		} catch (Exception e) { e.printStackTrace(); }
+		if(arg!=null){
+			try { uri1 = new URI(g.getOptarg());
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		else{uri1 = null;}
 		break;
 	    case 'p' :
 		/* Read parameters from filename */
@@ -268,6 +272,7 @@ public class GroupAlign {
 	Alignment init = null;
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
+	URI uri11 = null;
 
 	if ( urlprefix != null ){
 	    prefix = urlprefix+"/"+dir.getName()+"/";
@@ -285,8 +290,10 @@ public class GroupAlign {
 	//System.err.println("Here it is "+prefix+" (end by /?)");
 
 	BasicConfigurator.configure();
-
-	if ( uri1 == null ) uri1 = new URI(prefix+source);
+	//System.out.println("Before: uri1= "+uri1+", uri11= "+uri11);
+	if ( uri1 == null ) {uri11 = new URI(prefix+source);}
+	else{uri11 = uri1;}
+	//System.out.println("After: uri1= "+uri1+", uri11= "+uri11);
 	URI uri2 = new URI(prefix+target);
 
 	handler = new OWLRDFErrorHandler() {
@@ -305,11 +312,11 @@ public class GroupAlign {
 	    };
 
 	if (debug > 1) System.err.println(" Handler set");
-	if (debug > 1) System.err.println(" URI1: "+uri1);
+	if (debug > 1) System.err.println(" URI1: "+uri11);
 	if (debug > 1) System.err.println(" URI2: "+uri2);
 
 	try {
-	    if (uri1 != null) onto1 = loadOntology(uri1);
+	    if (uri11 != null) onto1 = loadOntology(uri11);
 	    if (uri2 != null) onto2 = loadOntology(uri2);
 	} catch (Exception e) { return ;};
 	if (debug > 1) System.err.println(" Ontology parsed");
@@ -330,7 +337,7 @@ public class GroupAlign {
 	    java.lang.reflect.Constructor alignmentConstructor =
 		alignmentClass.getConstructor(cparams);
 	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-	    result.setFile1(uri1);
+	    result.setFile1(uri11);
 	    result.setFile2(uri2);
 	} catch (Exception ex) {
 	    System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
