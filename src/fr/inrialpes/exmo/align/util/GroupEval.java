@@ -108,6 +108,7 @@ public class GroupEval {
     static int debug = 0;
     static String color = null;
     static Hashtable loaded = null;
+    static String ontoDir = null;
 
     public static void main(String[] args) {
 	try { run( args ); }
@@ -116,7 +117,7 @@ public class GroupEval {
 
     public static void run(String[] args) throws Exception {
 	String listFile = "";
-	LongOpt[] longopts = new LongOpt[9];
+	LongOpt[] longopts = new LongOpt[10];
 	loaded = new Hashtable();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -128,8 +129,9 @@ public class GroupEval {
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
 	longopts[8] = new LongOpt("reference", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[9] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:c::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:w:c::", longopts);
 	int c;
 	String arg;
 
@@ -175,6 +177,12 @@ public class GroupEval {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'w' :
+		/* Use the given ontology directory */
+	    arg = g.getOptarg();
+	    if ( arg != null ) ontoDir = g.getOptarg();
+	    else ontoDir = null;
+		break;
 	    }
 	}
 
@@ -195,7 +203,12 @@ public class GroupEval {
 	Vector result = null;
 	File [] subdir = null;
 	try {
-	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
+		if(ontoDir == null){
+		    subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+		}
+		else{
+			subdir = (new File(ontoDir)).listFiles();
+		}
 	} catch (Exception e) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
