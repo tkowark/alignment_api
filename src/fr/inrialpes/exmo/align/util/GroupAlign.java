@@ -112,6 +112,7 @@ public class GroupAlign {
     static int debug = 0;
     static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     static String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
+    static String ontoDir = null;
 
     public static void main(String[] args) {
 	try { run( args ); }
@@ -120,7 +121,7 @@ public class GroupAlign {
 
     public static void run(String[] args) throws Exception {
 
-	LongOpt[] longopts = new LongOpt[12];
+	LongOpt[] longopts = new LongOpt[13];
 	loadedOntologies = new Hashtable();
 	params = new BasicParameters();
 
@@ -137,8 +138,9 @@ public class GroupAlign {
 	longopts[10] = new LongOpt("target", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	// Is there a way for that in LongOpt ???
 	longopts[11] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	longopts[12] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
 
-	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p:D:", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p:D:w:", longopts);
 	int c;
 	String arg;
 
@@ -204,6 +206,12 @@ public class GroupAlign {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'w' :
+		/* Use the given ontology directory */
+	    arg = g.getOptarg();
+	    if ( arg != null ) ontoDir = g.getOptarg();
+	    else ontoDir = null;
+		break;
 	    }
 	}
 
@@ -220,7 +228,14 @@ public class GroupAlign {
 
     public static void iterateDirectories (){
 	File [] subdir = null;
-	try { subdir = (new File(System.getProperty("user.dir"))).listFiles(); }
+	try { 
+		if(ontoDir == null){
+		    subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+		}
+		else{
+			subdir = (new File(ontoDir)).listFiles();
+		}
+	}
 	catch (Exception e) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
