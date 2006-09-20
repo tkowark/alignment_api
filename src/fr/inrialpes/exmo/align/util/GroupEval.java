@@ -242,7 +242,7 @@ public class GroupEval {
 	    // call eval
 	    // store the resul in a record
 	    // return the record.
-	    if ( debug > 1) System.err.println("  Considering result "+i);
+	    if ( debug > 2) System.err.println("  Considering result "+i);
 	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+(String)e.nextElement()+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
@@ -267,10 +267,10 @@ public class GroupEval {
 	    // Load alignments
 	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
 	    Alignment align1 = aparser1.parse( alignName1, loaded );
-	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
+	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
 	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
 	    Alignment align2 = aparser2.parse( alignName2, loaded );
-	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
+	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
