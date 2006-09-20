@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id:$
  *
  * Copyright (C) XX, 2006
  *
