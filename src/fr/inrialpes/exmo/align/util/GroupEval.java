@@ -3,13 +3,8 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2006, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
- *
- * Modifications to the initial code base are copyright of their
- * respective authors, or their employers as appropriate.  Authorship
- * of the modifications may be determined from the ChangeLog placed at
- * the end of this file.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -103,6 +98,7 @@ public class GroupEval {
     static String format = "pr";
     static int fsize = 2;
     static String type = "html";
+    static boolean embedded = false;
     static String dominant = "s";
     static Vector listAlgo = null;
     static int debug = 0;
@@ -284,6 +280,14 @@ public class GroupEval {
      * This does not only print the results but compute the average as well
      */
     public static void print( Vector result ) {
+	if ( type.equals("html") ) printHTML( result );
+	else if ( type.equals("tex") ) printLATEX( result );
+    }
+
+    public static void printLATEX( Vector result ) {
+    }
+
+    public static void printHTML( Vector result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -301,7 +305,7 @@ public class GroupEval {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
 	    // Print the header
-	    writer.println("<html><head></head><body>");
+	    if ( embedded != true ) writer.println("<html><head></head><body>");
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
@@ -442,7 +446,7 @@ public class GroupEval {
 	    }
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");
-	    writer.println("</body></html>");
+	    if ( embedded != true ) writer.println("</body></html>");
 	    writer.close();
 	} catch (Exception ex) {
 	    ex.printStackTrace();

@@ -6,11 +6,6 @@
  * Copyright (C) 2003-2005, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
- * Modifications to the initial code base are copyright of their
- * respective authors, or their employers as appropriate.  Authorship
- * of the modifications may be determined from the ChangeLog placed at
- * the end of this file.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
@@ -28,6 +23,8 @@
  */
 
 /* This program evaluates the results of several ontology aligners in a row.
+   It uses the generalisations of precision and recall described in
+   [Ehrig & Euzenat 2005].
 */
 package fr.inrialpes.exmo.align.util;
 
@@ -61,12 +58,13 @@ import gnu.getopt.Getopt;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** A basic class for synthesizing the results of a set of alignments provided by
-    different algorithms. The output is a table showing various classical measures
-    for each test and for each algorithm. Average is also computed as Harmonic means.
+/** A basic class for synthesizing the results of a set of alignments provided
+    by different algorithms. The output is a table showing various generalisations
+    of precision and recall for each test and for each algorithm.
+    Average is also computed as Harmonic means.
     
     <pre>
-    java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupEval [options]
+    java -cp procalign.jar fr.inrialpes.exmo.align.util.ExtGroupEval [options]
     </pre>
 
     where the options are:
@@ -79,12 +77,13 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     -t output --type=output: xml/tex/html/ascii
    </pre>
 
-   The input is taken in the current directory in a set of subdirectories (one per
-   test which will be rendered by a line) each directory contains a number of
-   alignment files (one per algorithms which will be renderer as a column).
+   The input is taken in the current directory in a set of subdirectories
+   (one per test which will be rendered by a line) each directory contains
+   a number of alignment files (one per algorithms which will be renderer
+   as a column).
 
-    If output is requested (<CODE>-o</CODE> flags), then output will be written to
-    <CODE>output</CODE> if present, stdout by default.
+    If output is requested (<CODE>-o</CODE> flags), then output will be
+    written to <CODE>output</CODE> if present, stdout by default.
 
 <pre>
 $Id$
@@ -430,7 +429,7 @@ public class ExtGroupEval {
     public static void usage() {
 	System.out.println("usage: ExtGroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=prfmo -r prfmo\tSpecifies the output order (symetric/effort-based/oriented)");
+	System.out.println("\t--format=seo -r seo\tSpecifies the extended measure used (symetric/effort-based/oriented)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");

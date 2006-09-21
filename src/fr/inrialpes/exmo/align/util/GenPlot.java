@@ -3,13 +3,8 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2006, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
- *
- * Modifications to the initial code base are copyright of their
- * respective authors, or their employers as appropriate.  Authorship
- * of the modifications may be determined from the ChangeLog placed at
- * the end of this file.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -295,12 +290,12 @@ public class GenPlot {
     public static void printPGFTex( double[][] result ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
-	String colortable[] = { "black", "white", "red", "green", "blue", "cyan", "magenta", "yellow" }	;
+	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta", "yellow" }	;
 	output.println("\\documentclass[11pt]{book}");
 	output.println();
-	output.println("\\usepackage{pgflibraryplotmarks}");
 	output.println("\\usepackage{pgf}");
 	output.println("\\usepackage{tikz}");
+	output.println("\\usepackage{pgflibraryplotmarks}");
 	output.println();
 	output.println("\\begin{document}");
 	output.println("\\date{today}");
@@ -327,19 +322,25 @@ public class GenPlot {
 	output.println("\\begin{tikzpicture}[cap=round]");
 	output.println("% Draw grid");
 	output.println("\\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
-	output.println("\\draw[->] (-0.2,0) -- (10.2,0) node[below] {$recall$}; ");
+	output.println("\\draw[->] (-0.2,0) -- (10.2,0);");
+	output.println("\\draw (5,-0.3) node {$recall$}; ");
 	output.println("\\draw (0,-0.3) node {0.}; ");
 	output.println("\\draw (10,-0.3) node {1.}; ");
-	output.println("\\draw[->] (0,-0.2) -- (0,10.2) node[above] {$precision$}; ");
+	output.println("\\draw[->] (0,-0.2) -- (0,10.2);");
 	output.println("\\draw (-0.3,0) node {0.}; ");
+	output.println("\\draw (-0.3,5) node[rotate=90] {$precision$}; ");
 	output.println("\\draw (-0.3,10) node {1.}; ");
 	output.println("% Plots");
 	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
-	    output.println("\\draw["+colortable[i%8]+"] plot[mark="+marktable[i%20]+",smooth] file {"+(String)e.nextElement()+".table};");
-	    //output.println("\\draw plot[mark=+,smooth] file {"+(String)e.nextElement()+".table};");
+	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] file {"+(String)e.nextElement()+".table};");
 	}
 	// And a legend
 	output.println("% Legend");
+	i = 0;
+	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
+	    output.println("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+(String)e.nextElement()+"};");
+	}
 	output.println("\\end{tikzpicture}");
 	output.println();
 	output.println("\\end{document}");
@@ -361,8 +362,8 @@ public class GenPlot {
 		writer.println("%% Include in PGF tex by:\n");
 		writer.println("%% \\begin{tikzpicture}[cap=round]");
 		writer.println("%% \\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
-		writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$precision$}; ");
-		writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$recall$}; ");
+		writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$recall$}; ");
+		writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$precision$}; ");
 		writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
 		writer.println("%% \\end{tikzpicture}");
 		writer.println();

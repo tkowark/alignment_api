@@ -6,11 +6,6 @@
  * Copyright (C) 2003-2006, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
- * Modifications to the initial code base are copyright of their
- * respective authors, or their employers as appropriate.  Authorship
- * of the modifications may be determined from the ChangeLog placed at
- * the end of this file.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of

@@ -152,6 +152,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
       // Collect the points that change recall
       // (the other provide lower precision from the same recall
       //  and are not considered)
+      points.add( new Pair( 0., 1. ) );
       for( Iterator it = cellSet.iterator(); it.hasNext(); ){
 	  nbfound++;
 	  Cell c2 = (Cell)it.next();
@@ -175,6 +176,12 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	      }
 	  }
       }
+      // Now if we want to have a regular curve we must penalize those system
+      // that do not reach 100% recall.
+      // for that purpose, and for each other bound we add a point with the worse
+      // precision which is the required recall level divided with the maximum
+      // cardinality possible (i.e., the multiplication of the ontology sizes).
+      points.add( new Pair( 1.0, 0. ) ); // useless because 
 
       // Interpolate curve points at each n-recall level
       // This is inspired form Ray Mooney's program
@@ -194,7 +201,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	  if ( precrec.getY() > best ) best = precrec.getY();
 	  j--;
       }
-      precisions[0] = best;
+      precisions[0] = best; // It should be 1. that's why it is now added in points.
 
       return 0.0; // useless
       }
