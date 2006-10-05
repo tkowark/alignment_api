@@ -24,6 +24,8 @@ import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
+import fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile;
+
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
@@ -171,6 +173,19 @@ public class AlignmentService {
 	// Get a list of services
 	// Create them
 	// init( params ) -- parameters must be passed
+
+	// Launch jADE Server (this will have to be changed)
+	// To a more generic way by launching all the requested
+	// profile or all the available profiles
+	// TODO Auto-generated method stub
+	JadeFIPAAServProfile JADEServeur=new JadeFIPAAServProfile();
+	try{ JADEServeur.init(8888); }
+	//catch ( AServException e ) {
+	//    System.err.println( "Couldn't start server:\n" + e );
+	//    System.exit( -1 );
+	    // not good
+	//}
+	catch (Exception e) {e.printStackTrace();}
 
 	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("htmlport"));
 
