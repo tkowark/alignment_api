@@ -32,7 +32,7 @@ import org.semanticweb.owl.model.*;
 
 import fr.inrialpes.exmo.align.impl.*;
 
-public class StoreRDFFormat implements DBService{
+public abstract class StoreRDFFormat implements DBService{
 	int id = 0;
 	Connection conn = null;
 	String url = "jdbc:mysql://localhost:3306/DBService";
