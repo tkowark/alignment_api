@@ -1,5 +1,5 @@
 /*
- * $Id:$
+ * $Id$
  *
  * Copyright (C) XX, 2006
  *
@@ -190,7 +190,7 @@ public class DBServiceImpl implements DBService{
 		try {
 			result = (Vector) cache.get(uri1, uri2);
 		} catch (Exception e) {System.out.println("Alignment Finding Exception");}		
-		return result;	    	
+		return result;    	
 	}                    
 	
 	public synchronized long nextID(){

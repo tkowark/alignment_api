@@ -80,11 +80,8 @@ public class CacheImpl implements Cache {
 
 				for( int i = 0; i < idInfo.size(); i ++ ) {
 					id = (String) idInfo.get(i);
-					System.out.println("1");
 					alignment = retrieve(Long.parseLong(id));
-					System.out.println("2");
 					alignmentTable.put(id, alignment);
-					System.out.println("3");
 				}							
 			} catch	(Exception e) {System.out.println("Hashtable loading error1");}
 			return true;
