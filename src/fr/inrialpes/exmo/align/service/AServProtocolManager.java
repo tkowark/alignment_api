@@ -29,24 +29,26 @@ import java.util.Enumeration;
 
 import fr.inrialpes.exmo.align.service.StoreRDFFormat;
 import fr.inrialpes.exmo.align.service.DBService;
+import fr.inrialpes.exmo.align.service.CacheImpl;
 
 public class AServProtocolManager {
 
     Hashtable renderers = null; // language -> class
     Hashtable methods = null; // name -> class
-    Hashtable aligned = null; // ontology -> surrogateList
-    Hashtable alignments = null; // surrogate -> alignment
     Hashtable services = null; // name -> service
+    CacheImpl alignmentCache = null;
 
     public AServProtocolManager () {
 	renderers = new Hashtable();
 	methods = new Hashtable();
-	aligned = new Hashtable();
-	alignments = new Hashtable();
 	services = new Hashtable();
     }
 
-    public void init( Parameters p ) {
+    public void init( DBService connection, Parameters p ) {
+	alignmentCache = new CacheImpl( connection );
+	alignmentCache.init();
+	// This is ugly but it seems that Java does not provides the 
+	// opportunity to find the loaded implementations of an interface!
 	// Read all these parameters from the database
 	methods.put("Name equality","fr.inrialpes.exmo.align.impl.method.NameEqAlignment");
 	methods.put("SMOA","fr.inrialpes.exmo.align.impl.method.SMOANameAlignment");
