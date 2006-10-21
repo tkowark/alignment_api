@@ -21,12 +21,16 @@
 package fr.inrialpes.exmo.align.service;
 
 import java.net.URI;
-import java.util.Vector;
+import java.util.Set;
+import java.sql.SQLException;
 import org.semanticweb.owl.align.Alignment;
 
 public interface Cache {
-	int loading();
-	Alignment get(long id);
-	Vector get(URI uri);
-	Vector get(URI uri1, URI uri2);
+    void init() throws SQLException;
+    Alignment getMetadata( String id );
+    Alignment getAlignment( String id ) throws Exception;
+    Set getAlignments( URI uri );
+    Set getAlignments( URI uri1, URI uri2 );
+    void recordAlignment( Alignment alignment, boolean force );
+    void storeAlignment( String id ) throws Exception;
 }
