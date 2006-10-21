@@ -63,14 +63,18 @@ $Id$
  */
 public class AlignmentService {
 
-    private static AServProtocolManager manager;
+    private String DbName = null;
+    private String DbPassword = null;
+
+    private AServProtocolManager manager;
 
     public static void main(String[] args) {
-	try { run( args ); }
-	catch (Exception ex) { ex.printStackTrace(); };
+	AlignmentService aserv = new AlignmentService();
+	try { aserv.run( args ); }
+	catch ( Exception ex ) { ex.printStackTrace(); };
     }
     
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 	String filename = null;
 	String outfile = null;
 	String paramfile = null;
@@ -81,6 +85,8 @@ public class AlignmentService {
 	Parameters params = new BasicParameters();
 	// Put this in the argument of --html=8089
 	params.setParameter( "httpport", "8089" );
+	// --jadeport=
+	params.setParameter( "jadeport", "8888" );
 	// --dbms= --name= --password=
 	params.setParameter( "dbmsserver", "" );
 	params.setParameter( "dbmsname", "root" );
@@ -149,12 +155,13 @@ public class AlignmentService {
 	}
 
 	// Connect database
-	//DBService DBConnection = new StoreRDFFormat();
-	//DBConnection.init( DbName, DbPassword );
+	DBService connection = new DBServiceImpl();
+	connection.init();
+	connection.connect( DbName, DbPassword );
 
 	// Create a AServProtocolManager
 	manager = new AServProtocolManager();
-	manager.init( params );
+	manager.init( connection, params );
 
 	// Launch HTTP Server (this will have to be changed)
 	// To a more generic way by launching all the requested
@@ -168,26 +175,26 @@ public class AlignmentService {
 	    System.err.println( "Couldn't start server:\n" + e );
 	    System.exit( -1 );
 	}
+	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("httpport"));
 
 	// For all services:
 	// Get a list of services
 	// Create them
 	// init( params ) -- parameters must be passed
 
-	// Launch jADE Server (this will have to be changed)
-	// To a more generic way by launching all the requested
-	// profile or all the available profiles
+	// This will have to be changed to a more generic way by
+	// launching all the requested profile or all the available profiles
 	// TODO Auto-generated method stub
-	JadeFIPAAServProfile JADEServeur=new JadeFIPAAServProfile();
-	try{ JADEServeur.init(8888); }
-	//catch ( AServException e ) {
-	//    System.err.println( "Couldn't start server:\n" + e );
-	//    System.exit( -1 );
+	JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
+	try{ JADEServeur.init( params, manager ); }
+	catch ( AServException e ) {
+	    System.err.println( "Couldn't start server:\n" + e );
+	    System.exit( -1 );
 	    // not good
-	//}
-	catch (Exception e) {e.printStackTrace();}
+	}
+	//catch (Exception e) {e.printStackTrace();}
 
-	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("htmlport"));
+	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("jadeport"));
 
 	try { System.in.read(); } catch( Throwable t ) {};
 
@@ -195,10 +202,11 @@ public class AlignmentService {
 	// For all list of services
 	// close()
 
-	//DBConnection.close();
+	// Shut down database connection
+	connection.close();
     }
 
-    public static void usage() {
+    public void usage() {
 	System.err.println("usage: AlignmentService [options]");
 	System.err.println("$Id$\n");
 	System.err.println("options are:");
