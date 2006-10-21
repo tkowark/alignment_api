@@ -21,16 +21,17 @@
 package fr.inrialpes.exmo.align.service;
 
 import java.net.URI;
-import java.util.Vector;
-import org.semanticweb.owl.align.Alignment;
-
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public interface DBService {
-	public long store(Alignment alignment);
-	public int connect(String password);                              // password in database
-    public int connect(String IPAdress, String id, String password);    // with userID, password in database
-    public Alignment find(long id);                                  // find alignment with alignmentID
-    public Vector find(URI uri);                                // find alignment list with an ontology uri
-    public Vector find(URI uri1, URI uri2);                     // find alignment list with two ontology uri
-	public int close();
+    public void init();
+
+    public void connect(String password) throws SQLException;                              // password in database
+    public void connect(String user, String password) throws SQLException;                              // password in database
+    public void connect(String port, String user, String password) throws SQLException;                              // password in database
+    public void connect(String IPAdress, String port, String user, String password) throws SQLException;    // with userID, password in database
+    public Connection getConnection();
+
+    public void close();
 }
