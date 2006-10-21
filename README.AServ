@@ -1,0 +1,6 @@
+
+$ java -jar lib/alignsvc.jar  -d 4
+
+http://localhost:8089/html/align
+
+
