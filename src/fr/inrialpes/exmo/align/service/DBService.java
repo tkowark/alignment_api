@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import java.net.URI;
+//import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 

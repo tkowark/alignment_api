@@ -25,6 +25,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Date;
+import java.util.Random;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -38,7 +40,7 @@ import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.util.OWLManager;
+//import org.semanticweb.owl.util.OWLManager;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -47,9 +49,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
+//import org.semanticweb.owl.model.OWLEntity;
+//import org.semanticweb.owl.model.OWLOntology;
 
 /**
  * This class caches the content of the alignment database. I.e.,
@@ -130,8 +131,6 @@ public class CacheImpl implements Cache {
 	String query;
 	String tag;
 	String method;
-	OWLEntity ent1 = null, ent2 = null;
-	Cell cell = null;
 				
 	Alignment result = new BasicAlignment();
 		
@@ -143,7 +142,7 @@ public class CacheImpl implements Cache {
 		result.setFile1(new URI(rs.getString("uri1"))); 
 		result.setFile2(new URI(rs.getString("uri2"))); 
 		result.setLevel(rs.getString("level"));
-		result.setType(rs.getString("type"));			
+		result.setType(rs.getString("type"));	
 	    }
 
 	    // Get extension metadata
@@ -217,7 +216,16 @@ public class CacheImpl implements Cache {
 
     private String generateAlignmentId() {
 	// Generate an id based on a URI prefix + Date + random number
-	return "http://blavlacestmoi";
+    Date date;
+    String id;
+    date = new Date();
+    id = "http://blavlacestmoi" + date.getTime() + randomNum();
+	return id;
+    }
+    
+    private int randomNum() {
+    Random rand = new Random(System.currentTimeMillis());
+    return Math.abs(rand.nextInt(1000)); 
     }
 
     //**********************************************************************
@@ -226,11 +234,14 @@ public class CacheImpl implements Cache {
      */
     public Alignment getMetadata( String id ) {
 	Alignment result = null;		
-	String query = null;
+//	String query = null;
 	
 	result = (Alignment)alignmentTable.get( id );
-
-	// Raise an exception if no result
+	
+// Raise an exception if no result (by Seungkeun)
+	if(result == null) {
+		System.out.println("Metadata Loading Error in CacheImpl.getMetadata");
+	}		
 	return result;
     }
 	
@@ -239,15 +250,18 @@ public class CacheImpl implements Cache {
      */
     public Alignment getAlignment( String id ) throws Exception {
 	Alignment result = null;		
-	String query = null;
+//	String query = null;
 	
 	result = (Alignment)alignmentTable.get( id );
-
-	if ( result.getExtension("fr.inrialpes.exmo.align.service.cached") == "" && result.getExtension("fr.inrialpes.exmo.align.service.stored") != "") {
+	
+//	 Raise an exception if no result
+	if(result == null) { 
+		System.out.println("Metadata Loading Error in CacheImpl.getMetadata");
+	}		
+	else if ( result.getExtension("fr.inrialpes.exmo.align.service.cached") == "" && result.getExtension("fr.inrialpes.exmo.align.service.stored") != "") {
 	    retrieveAlignment( id, result );
-	}
-
-	// Raise an exception if no result
+	}	
+	
 	return result;
     }
 	
@@ -365,6 +379,4 @@ public class CacheImpl implements Cache {
 	parser.setConnection(OWLManager.getOWLConnection());
 	return parser.parseOntology(uri);
     }
-
-
 }

@@ -22,8 +22,7 @@ package fr.inrialpes.exmo.align.service;
 
 import java.lang.ClassNotFoundException;
 import java.lang.IllegalAccessException;
-import java.util.Vector;
-import java.net.URI;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -41,6 +40,7 @@ public class DBServiceImpl implements DBService{
     String driverPrefix = "jdbc:mysql";
     Statement st = null;
     ResultSet rs = null;
+    Cache cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 	Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -51,7 +51,8 @@ public class DBServiceImpl implements DBService{
 	driverPrefix = prefix;
     }
 
-    public void init() {};
+    public void init() {
+    }
 	 	
     public void connect( String password ) throws SQLException {
 	connect( IPAddress, port, user, password );
@@ -68,14 +69,14 @@ public class DBServiceImpl implements DBService{
     public void connect(String IPAddress, String port, String user, String password ) throws SQLException {
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/DBService", user, password);
 	st = (Statement) conn.createStatement();
-    }
+	}
 
     public Connection getConnection() {
 	return conn;
     }
 	
     // JE: I think that there is no interest now
-    public synchronized long nextID(){
+/*  public synchronized long nextID(){
 	long id = 0;
 	try {
 	    st.executeUpdate("insert into id_seq (aa) values ('a')");
@@ -90,7 +91,7 @@ public class DBServiceImpl implements DBService{
 	    return -1;
 	}
 	return id;
-    }
+    } */
 	
     public void close() {
 	try {
@@ -98,7 +99,7 @@ public class DBServiceImpl implements DBService{
 	    st.close();
 	    rs.close();
 	} catch (Exception ex) {
-	    // Do something
+	    System.out.println("DB Closing Error");
 	}
     }
     

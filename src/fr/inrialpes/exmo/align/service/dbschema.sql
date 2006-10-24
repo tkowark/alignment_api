@@ -1,14 +1,7 @@
-// id tabel
-
-create table id_seq(
-    id bigint not null auto_increment,
-    primary key (id),
-    aa char(1));
-
 // alignment info
 
 create table alignment (
-   id varchar(10), 
+   id varchar(50), 
    owlontology1 varchar(100),
    owlontology2 varchar(100),
    type varchar(5),
@@ -22,7 +15,7 @@ create table alignment (
 // cell info
 
 create table cell(
-   id varchar(10),
+   id varchar(50),
    cell_id varchar(20),
    uri1 varchar(100),
    uri2 varchar(100),
@@ -34,6 +27,6 @@ create table cell(
 // cell method
 
 create table method(
-   id varchar(10),
+   id varchar(50),
    tag varchar(20),
-   extension varchar(100))
+   extension varchar(100));
