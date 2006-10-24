@@ -63,8 +63,23 @@ $Id$
  */
 public class AlignmentService {
 
-    private String DbName = "adminAServ";
-    private String DbPassword = "aaa345";
+    public static final String
+	DBHOST = "localhost",
+	DBPORT = "3306",
+	DBUSER = "adminAServ",
+	DBPASS = "aaa345",
+	DBBASE = "AServDB";
+
+    public static final String
+	HTML = "8089",
+	JADE = "8888",
+	WSDL = "7777",
+	JXTA = "6666";
+
+    private int debug = 0;
+    private String filename = null;
+    private String outfile = null;
+    private String paramfile = null;
 
     private AServProtocolManager manager;
 
@@ -75,36 +90,103 @@ public class AlignmentService {
     }
     
     public void run(String[] args) throws Exception {
-	String filename = null;
-	String outfile = null;
-	String paramfile = null;
-	int debug = 0;
+	// Read parameters
+	Parameters params = readParameters( args );
+	if ( debug > 0 ) System.err.println("Parameter parsed");
 
-	// Default parameters
+	// Connect database
+	DBService connection = new DBServiceImpl();
+	connection.init();
+	connection.connect((String)params.getParameter( "dbmshost"), 
+			   (String)params.getParameter( "dbmsport"), 
+			   (String)params.getParameter( "dbmsuser"), 
+			   (String)params.getParameter( "dbmspass"), 
+			   (String)params.getParameter( "dbmsbase") );
+	if ( debug > 0 ) System.err.println("Database connected");
 
+	// Create a AServProtocolManager
+	manager = new AServProtocolManager();
+	manager.init( connection, params );
+	if ( debug > 0 ) System.err.println("Manager created");
+
+	// This will have to be changed to a more generic way by
+	// launching all the requested profile or all the available profiles
+	// For all services:
+	// Get a list of services
+	// Create them
+	// init( params ) -- parameters must be passed
+
+	// Launch HTTP Server
+	if ( params.getParameter( "http" ) != null ){
+	    HTMLAServProfile htmlS;
+	    // May be put some Runable here...
+	    try {
+		htmlS = new HTMLAServProfile();
+		htmlS.init( params, manager );
+		if ( debug > 0 ) System.err.println("HTTP AServ launched on http://localhost:"+params.getParameter("http"));
+	    } catch ( AServException e ) {
+		System.err.println( "Couldn't start HTTP server:\n");
+		e.printStackTrace();
+	    }
+	}
+
+	if ( params.getParameter( "jade" ) != null ){
+	    JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
+	    try{ 
+		JADEServeur.init( params, manager );
+		if ( debug > 0 ) System.err.println("JADE AServ launched on http://localhost:"+params.getParameter("jadeport")); }
+	    catch ( AServException e ) {
+		System.err.println( "Couldn't start JADE server:\n");
+		e.printStackTrace();
+	    }
+	}
+
+	// Wait loop
+	try { System.in.read(); } catch( Throwable t ) {};
+
+	// I must do something for stoping them
+	// For all list of services
+	// close()
+
+	// Shut down database connection
+	connection.close();
+	if ( debug > 0 ) System.err.println("Database connection closed");
+    }
+
+    public Parameters readParameters( String[] args ) {
 	Parameters params = new BasicParameters();
-	// Put this in the argument of --html=8089
-	params.setParameter( "httpport", "8089" );
-	// --jadeport=
-	params.setParameter( "jadeport", "8888" );
-	// --dbms= --name= --password=
-	params.setParameter( "dbmsserver", "" );
-	params.setParameter( "dbmsname", "root" );
-	params.setParameter( "dbmspass", "1234" );
+
+	// Default database parameters
+	params.setParameter( "dbmshost", DBHOST );
+	params.setParameter( "dbmsport", DBPORT );
+	params.setParameter( "dbmsuser", DBUSER );
+	params.setParameter( "dbmspass", DBPASS );
+	params.setParameter( "dbmsbase", DBBASE);
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[10];
-
+	LongOpt[] longopts = new LongOpt[14];
+	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'l');
-	longopts[4] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+	//longopts[4] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+	// Service parameters
+	longopts[5] = new LongOpt("html", LongOpt.OPTIONAL_ARGUMENT, null, 'H');
+	longopts[6] = new LongOpt("jade", LongOpt.OPTIONAL_ARGUMENT, null, 'A');
+	longopts[7] = new LongOpt("wsdl", LongOpt.OPTIONAL_ARGUMENT, null, 'W');
+	longopts[8] = new LongOpt("jxta", LongOpt.OPTIONAL_ARGUMENT, null, 'P');
+	// DBMS Server parameters
+	longopts[9] = new LongOpt("dbmshost", LongOpt.REQUIRED_ARGUMENT, null, 'm');
+	longopts[10] = new LongOpt("dbmsport", LongOpt.REQUIRED_ARGUMENT, null, 's');
+	longopts[11] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
+	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
 	// Is there a way for that in LongOpt ???
 	longopts[5] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:p:d::l:D:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::l:D:H::A::W::P::m:s:u:p:b:", longopts);
 	int c;
 	String arg;
 
@@ -116,13 +198,13 @@ public class AlignmentService {
 		/* Use filename instead of stdout */
 		outfile = g.getOptarg();
 		break;
-	    case 'p' :
+		//case 'p' :
 		/* Read parameters from filename */
-		paramfile = g.getOptarg();
-		BasicParameters.read( params, paramfile);
-		break;
+		//paramfile = g.getOptarg();
+		//BasicParameters.read( params, paramfile);
+		//break;
 	    case 'l' :
-		/* Use the given class for rendering */
+		/* Use the given file as a database image to load */
 		filename = g.getOptarg();
 		break;
 	    case 'd' :
@@ -130,6 +212,56 @@ public class AlignmentService {
 		arg = g.getOptarg();
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
+		break;
+	    case 'H' :
+		/* HTTP Server + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "http", arg );
+		} else {
+		    params.setParameter( "http", HTML );
+		}		    
+		break;
+	    case 'A' :
+		/* JADE Server + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "jade", arg );
+		} else {
+		    params.setParameter( "jade", JADE );
+		}		    
+		break;
+	    case 'W' :
+		/* WSDL Server + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "wsdl", arg );
+		} else {
+		    params.setParameter( "wsdl", WSDL );
+		}		    
+		break;
+	    case 'P' :
+		/* JXTA Server + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "jxta", arg );
+		} else {
+		    params.setParameter( "jxta", JXTA );
+		}		    
+	    case 'm' :
+		params.setParameter( "dbmshost", g.getOptarg() );
+		break;
+	    case 's' :
+		params.setParameter( "dbmsport", g.getOptarg() );
+		break;
+	    case 'u' :
+		params.setParameter( "dbmsuser", g.getOptarg() );
+		break;
+	    case 'p' :
+		params.setParameter( "dbmspass", g.getOptarg() );
+		break;
+	    case 'b' :
+		params.setParameter( "dbmsbase", g.getOptarg() );
 		break;
 	    case 'D' :
 		/* Parameter definition */
@@ -154,57 +286,9 @@ public class AlignmentService {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
 
-	// Connect database
-	DBService connection = new DBServiceImpl();
-	connection.init();
-	connection.connect( DbName, DbPassword );
-
-	// Create a AServProtocolManager
-	manager = new AServProtocolManager();
-	manager.init( connection, params );
-
-	// Launch HTTP Server (this will have to be changed)
-	// To a more generic way by launching all the requested
-	// profile or all the available profiles
-	HTMLAServProfile htmlS;
-	// May be put some Runable here...
-	try {
-	    htmlS = new HTMLAServProfile();
-	    htmlS.init( params, manager );
-	} catch ( AServException e ) {
-	    System.err.println( "Couldn't start server:\n" + e );
-	    System.exit( -1 );
-	}
-	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("httpport"));
-
-	// For all services:
-	// Get a list of services
-	// Create them
-	// init( params ) -- parameters must be passed
-
-	// This will have to be changed to a more generic way by
-	// launching all the requested profile or all the available profiles
-	// TODO Auto-generated method stub
-	/*JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
-	try{ JADEServeur.init( params, manager ); }
-	catch ( AServException e ) {
-	    System.err.println( "Couldn't start server:\n" + e );
-	    System.exit( -1 );
-	    // not good
-	}
-	//catch (Exception e) {e.printStackTrace();}
-	*/
-	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("jadeport"));
-
-	try { System.in.read(); } catch( Throwable t ) {};
-
-	// I must do something for stoping them
-	// For all list of services
-	// close()
-
-	// Shut down database connection
-	connection.close();
+	return params;
     }
+
 
     public void usage() {
 	System.err.println("usage: AlignmentService [options]");
