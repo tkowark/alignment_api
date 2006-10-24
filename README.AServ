@@ -1,6 +1,58 @@
+#######################################################################
+#		Alignment Server launch instructions                  #
+#                      21/10/2006, version 2.4+                       #
+#######################################################################
 
-$ java -jar lib/alignsvc.jar  -d 4
+Using the alignment server requires an SQL database server.
+We see here, how to use mysql (http://dev.mysql.com/doc/refman).
 
-http://localhost:8089/html/align
+PORTS USED BY THE ALIGNMENT SERVER
+----------------------------------
+
+The alignment server is a communicating system that communicates through
+TCP sockets which are bound to ports on your machines. We provide here the
+list of default ports and options to change them as well as the necessity
+for the firewalls to open these ports:
+    	default	  option  open?
+HTTP	8080	  -httpport	Y
+Jade		  -jadeport
+	1099			? (RMI)
+	7778			Y (MTP HTTP)
+WSDL
+mysql	3306	-dbmsport	No if on the same machine
+
+MYSQL FOR THE FIRST TIME
+------------------------
+
+$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+$ /usr/local/mysql/bin/mysqladmin -u root password mysqlpassword
+$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password mysqlpassword
+$ /usr/local/mysql/bin/mysql -u root -ppasswd
+sql> source dbschema.sql
+sql> quit
+
+SAMPLE SCRIPT
+-------------
+
+$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
+$ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
+sql> source toto.sql;
+
+
+LAUNCHING MYSQL AND LOADING SAMPLE DATABASE
+-------------------------------------------
+
+The next time it is sufficient that mysql is running...
+
+$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+
+RUNNING THE ALIGNMENT SERVER
+----------------------------
+
+$ java -jar lib/alignsvc.jar -d 4
+
+The alignment server is then available through HTTP with:
+
+    	      http://localhost:8089/html/align
 
 
