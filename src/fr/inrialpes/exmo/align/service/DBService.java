@@ -31,6 +31,7 @@ public interface DBService {
     public void connect(String user, String password) throws SQLException;                              // password in database
     public void connect(String port, String user, String password) throws SQLException;                              // password in database
     public void connect(String IPAdress, String port, String user, String password) throws SQLException;    // with userID, password in database
+    public void connect(String IPAdress, String port, String user, String password, String database) throws SQLException;    // with userID, password in database
     public Connection getConnection();
 
     public void close();

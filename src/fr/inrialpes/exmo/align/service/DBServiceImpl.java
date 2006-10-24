@@ -66,6 +66,10 @@ public class DBServiceImpl implements DBService{
     }
     
     public void connect(String IPAddress, String port, String user, String password ) throws SQLException {
+	connect( IPAddress, port, user, password, database );
+	}
+
+    public void connect(String IPAddress, String port, String user, String password, String database ) throws SQLException {
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, password);
 	st = (Statement) conn.createStatement();
 	}
