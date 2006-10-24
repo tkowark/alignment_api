@@ -41,12 +41,11 @@ import jade.wrapper.*;
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
-	//	public void init( int port ) throws IOException {
 	int port = 8888;
 	int debug = 0;
 	
-	if ( params.getParameter( "jadeport" ) != null )
-	    port = Integer.parseInt( (String)params.getParameter( "jadeport" ) );
+	if ( params.getParameter( "jade" ) != null )
+	    port = Integer.parseInt( (String)params.getParameter( "jade" ) );
 	if ( params.getParameter( "debug" ) != null )
 	    debug = Integer.parseInt( (String)params.getParameter( "debug" ) ) - 1;
 	
@@ -76,7 +75,6 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	}
 	catch(Exception e) {
 	    throw new AServException ( "Cannot launch Jade Server" , e );
-	    //	    e.printStackTrace();
 	}
     }
 
