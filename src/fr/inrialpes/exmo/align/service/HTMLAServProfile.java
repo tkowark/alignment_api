@@ -128,7 +128,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
 	try {
-	    myTcpPort = Integer.parseInt( (String)params.getParameter( "httpport" ) );
+	    myTcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
 	    final ServerSocket ss = new ServerSocket( myTcpPort );
 	    Thread t = new Thread( new Runnable() {
 		    public void run() {
