@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Enumeration;
 
+import java.sql.SQLException;
+
 import fr.inrialpes.exmo.align.service.StoreRDFFormat;
 import fr.inrialpes.exmo.align.service.DBService;
 import fr.inrialpes.exmo.align.service.CacheImpl;
@@ -44,7 +46,7 @@ public class AServProtocolManager {
 	services = new Hashtable();
     }
 
-    public void init( DBService connection, Parameters p ) {
+    public void init( DBService connection, Parameters p ) throws SQLException {
 	alignmentCache = new CacheImpl( connection );
 	alignmentCache.init();
 	// This is ugly but it seems that Java does not provides the 

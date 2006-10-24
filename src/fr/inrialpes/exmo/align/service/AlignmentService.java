@@ -63,8 +63,8 @@ $Id$
  */
 public class AlignmentService {
 
-    private String DbName = null;
-    private String DbPassword = null;
+    private String DbName = "adminAServ";
+    private String DbPassword = "aaa345";
 
     private AServProtocolManager manager;
 
@@ -185,7 +185,7 @@ public class AlignmentService {
 	// This will have to be changed to a more generic way by
 	// launching all the requested profile or all the available profiles
 	// TODO Auto-generated method stub
-	JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
+	/*JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
 	try{ JADEServeur.init( params, manager ); }
 	catch ( AServException e ) {
 	    System.err.println( "Couldn't start server:\n" + e );
@@ -193,7 +193,7 @@ public class AlignmentService {
 	    // not good
 	}
 	//catch (Exception e) {e.printStackTrace();}
-
+	*/
 	if ( debug > 0 ) System.err.println("AServ launched on http://localhost:"+params.getParameter("jadeport"));
 
 	try { System.in.read(); } catch( Throwable t ) {};
