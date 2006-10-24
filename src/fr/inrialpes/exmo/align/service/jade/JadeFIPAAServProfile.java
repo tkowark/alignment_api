@@ -47,8 +47,8 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	if ( params.getParameter( "jade" ) != null )
 	    port = Integer.parseInt( (String)params.getParameter( "jade" ) );
 	if ( params.getParameter( "debug" ) != null )
-	    debug = Integer.parseInt( (String)params.getParameter( "debug" ) ) - 1;
-	
+	    debug = ((Integer)params.getParameter( "debug" )).intValue() - 1;
+
 	/**		
 	Properties props = new Properties();
 	**/
