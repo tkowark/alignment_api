@@ -35,11 +35,10 @@ public class DBServiceImpl implements DBService{
     Connection conn = null;
     static String IPAddress = "localhost";
     static String port = "3306";
-    static String user = "root";
-    static String database = "";
+    static String user = "adminAServ";
+    static String database = "AServDB";
     String driverPrefix = "jdbc:mysql";
     Statement st = null;
-    ResultSet rs = null;
     Cache cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -67,7 +66,7 @@ public class DBServiceImpl implements DBService{
     }
     
     public void connect(String IPAddress, String port, String user, String password ) throws SQLException {
-	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/DBService", user, password);
+	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, password);
 	st = (Statement) conn.createStatement();
 	}
 
@@ -97,9 +96,8 @@ public class DBServiceImpl implements DBService{
 	try {
 	    conn.close();
 	    st.close();
-	    rs.close();
 	} catch (Exception ex) {
-	    System.out.println("DB Closing Error");
+	    ex.printStackTrace();
 	}
     }
     
