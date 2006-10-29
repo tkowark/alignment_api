@@ -24,8 +24,6 @@ import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
-import fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile;
-
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
@@ -34,6 +32,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Enumeration;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -63,14 +63,14 @@ $Id$
  */
 public class AlignmentService {
 
-    public static final String
+    public static final String //DBMS Strings
 	DBHOST = "localhost",
 	DBPORT = "3306",
 	DBUSER = "adminAServ",
 	DBPASS = "aaa345",
 	DBBASE = "AServDB";
 
-    public static final String
+    public static final String //Port Strings
 	HTML = "8089",
 	JADE = "8888",
 	WSDL = "7777",
@@ -80,6 +80,7 @@ public class AlignmentService {
     private String filename = null;
     private String outfile = null;
     private String paramfile = null;
+    private Hashtable services = null;
 
     private AServProtocolManager manager;
 
@@ -90,6 +91,7 @@ public class AlignmentService {
     }
     
     public void run(String[] args) throws Exception {
+	services = new Hashtable();
 	// Read parameters
 	Parameters params = readParameters( args );
 	if ( debug > 0 ) System.err.println("Parameter parsed");
@@ -97,11 +99,11 @@ public class AlignmentService {
 	// Connect database
 	DBService connection = new DBServiceImpl();
 	connection.init();
-	connection.connect((String)params.getParameter( "dbmshost"), 
-			   (String)params.getParameter( "dbmsport"), 
-			   (String)params.getParameter( "dbmsuser"), 
-			   (String)params.getParameter( "dbmspass"), 
-			   (String)params.getParameter( "dbmsbase") );
+	connection.connect((String)params.getParameter("dbmshost"), 
+			   (String)params.getParameter("dbmsport"), 
+			   (String)params.getParameter("dbmsuser"), 
+			   (String)params.getParameter("dbmspass"), 
+			   (String)params.getParameter("dbmsbase") );
 	if ( debug > 0 ) System.err.println("Database connected");
 
 	// Create a AServProtocolManager
@@ -109,44 +111,36 @@ public class AlignmentService {
 	manager.init( connection, params );
 	if ( debug > 0 ) System.err.println("Manager created");
 
-	// This will have to be changed to a more generic way by
-	// launching all the requested profile or all the available profiles
-	// For all services:
-	// Get a list of services
-	// Create them
-	// init( params ) -- parameters must be passed
-
-	// Launch HTTP Server
-	if ( params.getParameter( "http" ) != null ){
-	    HTMLAServProfile htmlS;
-	    // May be put some Runable here...
+	// Launch services
+	for ( Enumeration e = services.keys() ; e.hasMoreElements() ; ) {
+	    String name = (String)e.nextElement();
+	    Class serviceClass = Class.forName(name);
+	    //Object[] mparams = {(Object)onto1, (Object)onto2 };
+	    //Class[] cparams = { oClass, oClass };
+	    java.lang.reflect.Constructor constructor = serviceClass.getConstructor( null );
+	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( null );
 	    try {
-		htmlS = new HTMLAServProfile();
-		htmlS.init( params, manager );
-		if ( debug > 0 ) System.err.println("HTTP AServ launched on http://localhost:"+params.getParameter("http"));
-	    } catch ( AServException e ) {
-		System.err.println( "Couldn't start HTTP server:\n");
-		e.printStackTrace();
+		serv.init( params, manager );
+		if ( debug > 0 ) System.err.println(name+" launched on ");
+	    } catch ( AServException ex ) {
+		System.err.println( "Couldn't start "+name+" server:\n");
+		ex.printStackTrace();
 	    }
-	}
-
-	if ( params.getParameter( "jade" ) != null ){
-	    JadeFIPAAServProfile JADEServeur = new JadeFIPAAServProfile();
-	    try{ 
-		JADEServeur.init( params, manager );
-		if ( debug > 0 ) System.err.println("JADE AServ launched on http://localhost:"+params.getParameter("jadeport")); }
-	    catch ( AServException e ) {
-		System.err.println( "Couldn't start JADE server:\n");
-		e.printStackTrace();
-	    }
+	    services.put( name, serv );
 	}
 
 	// Wait loop
 	try { System.in.read(); } catch( Throwable t ) {};
 
-	// I must do something for stoping them
-	// For all list of services
-	// close()
+	// Close services
+	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
+	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
+	    try { serv.close();
+	    } catch ( AServException ex ) {
+		System.err.println("Cannot close "+serv);
+		ex.printStackTrace();
+	    }
+	}
 
 	// Shut down database connection
 	connection.close();
@@ -165,7 +159,7 @@ public class AlignmentService {
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[14];
+	LongOpt[] longopts = new LongOpt[15];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -183,10 +177,11 @@ public class AlignmentService {
 	longopts[11] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
 	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
+	longopts[3] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	// Is there a way for that in LongOpt ???
-	longopts[5] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:d::l:D:H::A::W::P::m:s:u:p:b:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::l:D:H::A::W::P::m:s:u:p:b:i:", longopts);
 	int c;
 	String arg;
 
@@ -194,6 +189,7 @@ public class AlignmentService {
 	    switch (c) {
 	    case 'h' :
 		usage();
+		System.exit(0);
 	    case 'o' :
 		/* Use filename instead of stdout */
 		outfile = g.getOptarg();
@@ -213,6 +209,11 @@ public class AlignmentService {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'i' :
+		/* external service */
+		arg = g.getOptarg();
+		services.put( arg, arg );
+		break;
 	    case 'H' :
 		/* HTTP Server + port */
 		arg = g.getOptarg();
@@ -221,6 +222,7 @@ public class AlignmentService {
 		} else {
 		    params.setParameter( "http", HTML );
 		}		    
+		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
 		break;
 	    case 'A' :
 		/* JADE Server + port */
@@ -230,6 +232,7 @@ public class AlignmentService {
 		} else {
 		    params.setParameter( "jade", JADE );
 		}		    
+		services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", params.getParameter( "jade" ) );
 		break;
 	    case 'W' :
 		/* WSDL Server + port */
@@ -289,17 +292,30 @@ public class AlignmentService {
 	return params;
     }
 
-
+    // Really missing:
+    // OUTPUT(o): what for, there is no output (maybe LOGS)
+    // LOAD(l): good idea, load from file, but what kind? sql?
+    // PARAMS(p is taken, P is taken): yes good as well to read parameters from file
     public void usage() {
 	System.err.println("usage: AlignmentService [options]");
-	System.err.println("$Id$\n");
 	System.err.println("options are:");
-	System.err.println("\t--load=filename -l filename\t\tInitialize the Service with the content of this file.");
-	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
+	//System.err.println("\t--load=filename -l filename\t\tInitialize the Service with the content of this ");
+	//System.err.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.err.println("\t--html[=port] -H [port]\t\t\tLaunch HTTP service");
+	System.err.println("\t--jade[=port] -A [port]\t\t\tLaunch Agent service");
+	System.err.println("\t--wsdl[=port] -W [port]\t\t\tLaunch Web service");
+	System.err.println("\t--jxta[=port] -P [port]\t\t\tLaunch P2P service");
+	System.err.println("\t--serv=class -i class\t\t\tLaunch service corresponding to fully qualified classname");
+	//System.err.println("\t--params=filename -p filename\tReads parameters from filename");
+	System.err.println("\t--dbmshost=host -m host\t\t\tUse DBMS host");
+	System.err.println("\t--dbmsport=port -s port\t\t\tUse DBMS port");
+	System.err.println("\t--dbmsuser=name -u name\t\t\tUse DBMS user name");
+	System.err.println("\t--dbmspass=pwd -p pwd\t\t\tUse DBMS password");
+	System.err.println("\t--dbmsbase=name -b name\t\t\tUse Database name");
 	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("\n$Id$\n");
     }
     
 }
