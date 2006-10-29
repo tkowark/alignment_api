@@ -33,5 +33,5 @@ public interface AlignmentServiceProfile {
     /**
      * Shutdown the Service and undeclare it from any registery
      */
-    public void close();
+    public void close() throws AServException;
 }
