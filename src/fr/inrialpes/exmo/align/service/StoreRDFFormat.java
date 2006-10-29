@@ -62,12 +62,11 @@ public abstract class StoreRDFFormat implements DBService{
 		}
 	}
 
-	public int init(){
+	public void init(){
 		try {
 			conn = DriverManager.getConnection(url, "root", "1234");
 			st = (Statement) conn.createStatement();
-		} catch(Exception ex) {return -1;}
-		return 1;
+		} catch(Exception ex) {}
 	}
 	
 	public int init(String id, String password){
@@ -263,14 +262,12 @@ public abstract class StoreRDFFormat implements DBService{
 		return 1;
 	}
 	
-	public int close(){
+	public void close(){
 		try {
 			conn.close();
 			st.close();
 			rs.close();
-			return 1;
 		} catch (Exception ex) {
-			return -1;
 		}
 	}
 }
