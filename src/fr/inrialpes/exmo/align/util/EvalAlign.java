@@ -119,8 +119,11 @@ public class EvalAlign {
 	
 	// abcdefghijklmnopqrstuvwxyz?
 	// x  x    i      x x x x    x 
+	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
+	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	//longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[4] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	
 	Getopt g = new Getopt("", args, "ho:d::i:", longopts);
 	int c;
@@ -157,7 +160,7 @@ public class EvalAlign {
 	    alignName1 = args[i];
 	    alignName2 = args[i+1];
 	} else {
-	    System.out.println("Require two alignement filenames");
+	    System.err.println("Require two alignement filenames");
 	    usage();
 	    return;
 	}
@@ -214,12 +217,13 @@ public class EvalAlign {
     }
 
     public static void usage() {
-	System.out.println("usage: EvalAlign [options] file1 file2");
-	System.out.println("options are:");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.out.println("\t--impl=className -i classname\t\tUse the given evaluator implementation.");
-	System.out.println("\t--output=filename -o filename\tOutput the result in filename");
-	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("usage: EvalAlign [options] file1 file2");
+	System.err.println("options are:");
+	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.err.println("\t--impl=className -i classname\t\tUse the given evaluator implementation.");
+	System.err.println("\t--output=filename -o filename\tOutput the result in filename");
+	System.err.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("\n$Id$\n");
 
     }
 }

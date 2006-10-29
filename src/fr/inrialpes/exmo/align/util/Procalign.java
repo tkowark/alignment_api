@@ -357,5 +357,6 @@ public class Procalign {
 	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("\n$Id$\n");
     }
 }
