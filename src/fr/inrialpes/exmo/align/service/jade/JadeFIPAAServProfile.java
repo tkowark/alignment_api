@@ -1,5 +1,5 @@
 /*
- * $Id: AlignmentService.java 335 2006-10-05 10:02:02Z euzenat $
+ * $Id: JadeFIPAAServProfile.java 335 2006-10-05 10:02:02Z euzenat $
  *
  * Copyright (C) Orange R&D, 2006
  * Copyright (C) INRIA Rhône-Alpes, 2006
@@ -33,51 +33,63 @@ import org.semanticweb.owl.align.Parameters;
 import jade.core.Runtime;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
+import jade.util.Logger;
 import jade.util.leap.Properties;
-// JE: find them
+//JE: find them
 import jade.wrapper.*;
 
 
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 
-    public void init( Parameters params, AServProtocolManager manager ) throws AServException {
-	int port = 8888;
-	int debug = 0;
-	
-	if ( params.getParameter( "jade" ) != null )
-	    port = Integer.parseInt( (String)params.getParameter( "jade" ) );
-	if ( params.getParameter( "debug" ) != null )
-	    debug = ((Integer)params.getParameter( "debug" )).intValue() - 1;
 
-	/**		
+	private AgentContainer mc;
+	private AgentController algagentcontroller;
+	private Logger myLogger = Logger.getMyLogger(getClass().getName());
+
+	public void init( Parameters params, AServProtocolManager manager ) throws AServException {
+		int port = 8888;
+		int debug = 0;
+
+		if ( params.getParameter( "jade" ) != null )
+			port = Integer.parseInt( (String)params.getParameter( "jade" ) );
+		if ( params.getParameter( "debug" ) != null )
+			debug = ((Integer)params.getParameter( "debug" )).intValue() - 1;
+
+		/**		
 	Properties props = new Properties();
-	**/
-	try {
-	    // Get a hold on JADE runtime
-	    Runtime rt = Runtime.instance();
+		 **/
+		try {
+			// Get a hold on JADE runtime
+			Runtime rt = Runtime.instance();
 
-	    // Exit the JVM when there are no more containers around
-	    rt.setCloseVM(true);
+			// Exit the JVM when there are no more containers around
+			rt.setCloseVM(true);
 
-	    /** Profile with no MTP( Message Transfer Protocol
+			/** Profile with no MTP( Message Transfer Protocol
 		props.setProperty("nomtp", "true");
 		Profile pMain = new ProfileImpl(props);
-	    **/
-	    // create a default Profile
-	    Profile pMain = new ProfileImpl(null, port, null);
+			 **/
+			// create a default Profile
+			Profile pMain = new ProfileImpl(null, port, null);
 
-	    if ( debug > 0 )
-		System.out.println("Launching a whole in-process platform..."+pMain);
-	    AgentContainer mc = rt.createMainContainer(pMain);
-	    
-	    AgentController custom = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), null);
-	    custom.start();
+			if ( debug > 0 )
+				System.out.println("Launching a whole in-process platform..."+pMain);
+			mc = rt.createMainContainer(pMain);
+			algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), null);
+			algagentcontroller.start();
+		}
+		catch(Exception e) {
+			throw new AServException ( "Cannot launch Jade Server" , e );
+		}
 	}
-	catch(Exception e) {
-	    throw new AServException ( "Cannot launch Jade Server" , e );
-	}
-    }
 
-    public void close(){
-    }
+	public void close(){
+		try{
+			algagentcontroller.kill();
+			mc.kill();
+			myLogger.log(Logger.INFO, "Agent Alignement close");
+		}
+		catch (ControllerException e){myLogger.log(Logger.WARNING, "Error killing the alignment agent."); }
+	}
+	
 }
