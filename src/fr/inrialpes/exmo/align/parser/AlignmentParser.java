@@ -289,6 +289,32 @@ public class AlignmentParser extends DefaultHandler {
 	    System.err.println("content AlignmentParser : " + content);
     }
 
+    /*
+    // Change proposed by Sabine Massmann
+    // If to be integrated, then put it in the proper place
+    // There is no reasons to test for Double in characters
+   public void characters(char ch[], int start, int length) {
+       String oldContent = "" + content;
+       content = new String( ch, start, length );
+       if ( content != null && !content.equals("\n") 
+	    && !content.startsWith("\n ") 
+	    //	    && oldContent.contains(".")
+	    && oldContent.indexOf('.',0) != -1
+	    ){
+	   oldContent = oldContent.concat(content);
+	   try {
+	       double test = Double.parseDouble(oldContent);
+	       content = oldContent;
+	   } catch (NumberFormatException e) {
+	       // TODO Auto-generated catch block
+	       // e.printStackTrace();
+	   }
+       }
+       if(debugMode > 2)
+	   System.err.println("content AlignmentParser : " + content);
+   }
+    */
+
     /** 
      * Called by the XML parser at the end of an element.
      *
