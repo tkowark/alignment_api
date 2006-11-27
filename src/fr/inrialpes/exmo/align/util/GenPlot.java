@@ -97,22 +97,22 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 public class GenPlot {
 
-    static int STEP = 10;
-    static Parameters params = null;
-    static Vector listAlgo;
-    static String fileNames = "";
-    static String outFile = null;
-    static String type = "tsv";
-    static int debug = 0;
-    static Hashtable loaded = null;
-    static PrintWriter output = null;
+    int STEP = 10;
+    Parameters params = null;
+    Vector listAlgo;
+    String fileNames = "";
+    String outFile = null;
+    String type = "tsv";
+    int debug = 0;
+    Hashtable loaded = null;
+    PrintWriter output = null;
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new GenPlot().run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
 
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 	LongOpt[] longopts = new LongOpt[8];
 	loaded = new Hashtable();
 
@@ -189,7 +189,7 @@ public class GenPlot {
      * The points are computed by aggregating the values
      *  (and in the end computing the average)
      */
-    public static double[][] iterateDirectories (){
+    public double[][] iterateDirectories (){
 	File [] subdir = null;
 	try {
 	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
@@ -227,7 +227,7 @@ public class GenPlot {
 	return result;
     }
 
-    public static void iterateAlignments ( File dir, double[][] result ) {
+    public void iterateAlignments ( File dir, double[][] result ) {
 	String prefix = dir.toURI().toString()+"/";
 	int i = 0;
 
@@ -254,7 +254,7 @@ public class GenPlot {
 	} catch (Exception ex) { System.err.println(ex); };
     }
 
-    public static PRGraphEvaluator eval( String alignName1, String alignName2 ) {
+    public PRGraphEvaluator eval( String alignName1, String alignName2 ) {
 	PRGraphEvaluator eval = null;
 	try {
 	    int nextdebug;
@@ -287,7 +287,7 @@ public class GenPlot {
      * This does average plus plot
      *
      */
-    public static void printPGFTex( double[][] result ){
+    public void printPGFTex( double[][] result ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
 	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta", "yellow" }	;
@@ -359,7 +359,7 @@ public class GenPlot {
 	}
     }
 
-    public static void printTSV( double[][] result ) {
+    public void printTSV( double[][] result ) {
 	// Print first line
 	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; ) {
 	    output.print("\t"+(String)e.nextElement() );
@@ -376,7 +376,7 @@ public class GenPlot {
 	}
     }
 
-    public static void usage() {
+    public void usage() {
 	System.out.println("usage: GenPlot [options]");
 	System.out.println("options are:");
 	System.out.println("\t--type=tsv|tex|(html|xml) -t tsv|tex|(html|xml)\tSpecifies the output format");

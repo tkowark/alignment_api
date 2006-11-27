@@ -101,12 +101,12 @@ $Id$
 public class EvalAlign {
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new EvalAlign().run( args ); }
 	catch (Exception e) { e.printStackTrace(); };
     }
 
 
-    public static void run(String[] args) {
+    public void run(String[] args) {
 	Parameters params = new BasicParameters();
 	Evaluator eval = null;
 	String alignName1 = null;
@@ -216,7 +216,7 @@ public class EvalAlign {
 	}
     }
 
-    public static void usage() {
+    public void usage() {
 	System.err.println("usage: EvalAlign [options] file1 file2");
 	System.err.println("options are:");
 	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");

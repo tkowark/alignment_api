@@ -95,23 +95,23 @@ $Id$
 
 public class ExtGroupEval {
 
-    static Parameters params = null;
-    static String filename = null;
-    static String format = "s";
-    static int fsize = 2;
-    static String type = "html";
-    static String dominant = "s";
-    static Vector listAlgo = null;
-    static int debug = 0;
-    static String color = null;
-    static Hashtable loaded = null;
+    Parameters params = null;
+    String filename = null;
+    String format = "s";
+    int fsize = 2;
+    String type = "html";
+    String dominant = "s";
+    Vector listAlgo = null;
+    int debug = 0;
+    String color = null;
+    Hashtable loaded = null;
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new ExtGroupEval().run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
 
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[8];
 	loaded = new Hashtable();
@@ -181,7 +181,7 @@ public class ExtGroupEval {
 	print( iterateDirectories() );
     }
 
-    public static Vector iterateDirectories (){
+    public Vector iterateDirectories (){
 	Vector result = null;
 	File [] subdir = null;
 	try {
@@ -208,7 +208,7 @@ public class ExtGroupEval {
 	return result;
     }
 
-    public static Vector iterateAlignments ( File dir ) {
+    public Vector iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
 	Vector result = new Vector();
 	boolean ok = false;
@@ -235,7 +235,7 @@ public class ExtGroupEval {
 	else return (Vector)null;
     }
 
-    public static Evaluator eval( String alignName1, String alignName2 ) {
+    public Evaluator eval( String alignName1, String alignName2 ) {
 	Evaluator eval = null;
 	try {
 	    int nextdebug;
@@ -260,7 +260,7 @@ public class ExtGroupEval {
     /**
      * This does not only print the results but compute the average as well
      */
-    public static void print( Vector result ) {
+    public void print( Vector result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -411,7 +411,7 @@ public class ExtGroupEval {
     // Borrowed and enhanced from
     // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
     // What a pity that it is not in Java... (wait for 1.5)
-    public static void printFormat(PrintStream w, double f){
+    public void printFormat(PrintStream w, double f){
 	// JE: Must add the test is the value is Not a number, print NaN.
 	if ( f != f ) {
 	    w.print("NaN");
@@ -426,7 +426,7 @@ public class ExtGroupEval {
 	}
     }
 
-    public static void usage() {
+    public void usage() {
 	System.out.println("usage: ExtGroupEval [options]");
 	System.out.println("options are:");
 	System.out.println("\t--format=seo -r seo\tSpecifies the extended measure used (symetric/effort-based/oriented)");

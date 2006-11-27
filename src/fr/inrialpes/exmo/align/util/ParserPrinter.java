@@ -99,11 +99,11 @@ $Id$
 public class ParserPrinter {
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new ParserPrinter().run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
 
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 	Alignment result = null;
 	String initName = null;
 	String filename = null;
@@ -220,7 +220,7 @@ public class ParserPrinter {
 	}
     }
 
-    public static void usage() {
+    public void usage() {
 	System.out.println("usage: ParserPrinter [options] URI");
 	System.out.println("options are:");
 	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");

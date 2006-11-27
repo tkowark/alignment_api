@@ -103,16 +103,16 @@ $Id$
 
 public class Procalign {
 
-    static Hashtable loadedOntologies = null;
+    Hashtable loadedOntologies = null;
 
-    static OWLRDFErrorHandler handler = null;
+    OWLRDFErrorHandler handler = null;
 
     public static void main(String[] args) {
-	try { run( args ); }
-	catch (Exception ex) { ex.printStackTrace(); };
+	try { new Procalign().run( args ); }
+	catch ( Exception ex ) { ex.printStackTrace(); };
     }
 
-    public static Alignment run(String[] args) throws Exception {
+    public Alignment run(String[] args) throws Exception {
 	OWLOntology onto1 = null;
 	OWLOntology onto2 = null;
 	AlignmentProcess result = null;
@@ -333,7 +333,7 @@ public class Procalign {
 	return result;
     }
 
-    public static OWLOntology loadOntology(URI uri)
+    public OWLOntology loadOntology(URI uri)
 	throws ParserException, OWLException {
 	OWLOntology parsedOnt = null;
 	OWLRDFParser parser = new OWLRDFParser();
@@ -344,7 +344,7 @@ public class Procalign {
 	return parsedOnt;
     }
 
-    public static void usage() {
+    public void usage() {
 	System.err.println("usage: Procalign [options] URI1 URI2");
 	System.err.println("options are:");
 	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");

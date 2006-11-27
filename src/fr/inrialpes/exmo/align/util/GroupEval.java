@@ -93,26 +93,26 @@ $Id$
 
 public class GroupEval {
 
-    static Parameters params = null;
-    static String filename = null;
-    static String reference = "refalign.rdf";
-    static String format = "pr";
-    static int fsize = 2;
-    static String type = "html";
-    static boolean embedded = false;
-    static String dominant = "s";
-    static Vector listAlgo = null;
-    static int debug = 0;
-    static String color = null;
-    static Hashtable loaded = null;
-    static String ontoDir = null;
+    Parameters params = null;
+    String filename = null;
+    String reference = "refalign.rdf";
+    String format = "pr";
+    int fsize = 2;
+    String type = "html";
+    boolean embedded = false;
+    String dominant = "s";
+    Vector listAlgo = null;
+    int debug = 0;
+    String color = null;
+    Hashtable loaded = null;
+    String ontoDir = null;
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new GroupEval().run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
 
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[10];
 	loaded = new Hashtable();
@@ -196,7 +196,7 @@ public class GroupEval {
 	print( iterateDirectories() );
     }
 
-    public static Vector iterateDirectories (){
+    public Vector iterateDirectories (){
 	Vector result = null;
 	File [] subdir = null;
 	try {
@@ -228,7 +228,7 @@ public class GroupEval {
 	return result;
     }
 
-    public static Vector iterateAlignments ( File dir ) {
+    public Vector iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
 	Vector result = new Vector();
 	boolean ok = false;
@@ -255,7 +255,7 @@ public class GroupEval {
 	else return (Vector)null;
     }
 
-    public static Evaluator eval( String alignName1, String alignName2 ) {
+    public Evaluator eval( String alignName1, String alignName2 ) {
 	Evaluator eval = null;
 	try {
 	    int nextdebug;
@@ -280,13 +280,13 @@ public class GroupEval {
     /**
      * This does not only print the results but compute the average as well
      */
-    public static void print( Vector result ) {
+    public void print( Vector result ) {
 	if ( type.equals("html") ) printHTML( result );
 	else if ( type.equals("tex") ) printLATEX( result );
 	else if ( type.equals("triangle") ) printTRIANGLE( result );
     }
 
-    public static void printTRIANGLE( Vector result ) {
+    public void printTRIANGLE( Vector result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -369,10 +369,10 @@ public class GroupEval {
 	    System.out.println("\\end{document}");
     }
 
-    public static void printLATEX( Vector result ) {
+    public void printLATEX( Vector result ) {
     }
 
-    public static void printHTML( Vector result ) {
+    public void printHTML( Vector result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -543,7 +543,7 @@ public class GroupEval {
     // Borrowed and enhanced from
     // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
     // What a pity that it is not in Java... (wait for 1.5)
-    public static void printFormat(PrintStream w, double f){
+    public void printFormat(PrintStream w, double f){
 	// JE: Must add the test is the value is Not a number, print NaN.
 	if ( f != f ) {
 	    w.print("NaN");
@@ -558,7 +558,7 @@ public class GroupEval {
 	}
     }
 
-    public static void usage() {
+    public void usage() {
 	System.out.println("usage: GroupEval [options]");
 	System.out.println("options are:");
 	System.out.println("\t--format=prfmot -r prfmot\tSpecifies the output order (precision/recall/fallout/f-measure/overall/time)");

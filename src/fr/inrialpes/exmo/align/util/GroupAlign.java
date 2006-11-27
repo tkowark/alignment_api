@@ -99,27 +99,27 @@ $Id$
 
 public class GroupAlign {
 
-    static Parameters params = null;
-    static String filename = "align";
-    static String paramfile = null;
-    static String urlprefix = null;
-    static String source = "onto1.rdf";
-    static String target = "onto.rdf";
-    static URI uri1 = null;
-    static String initName = null;
-    static Hashtable loadedOntologies = null;
-    static OWLRDFErrorHandler handler = null;
-    static int debug = 0;
-    static String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-    static String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
-    static String ontoDir = null;
+    Parameters params = null;
+    String filename = "align";
+    String paramfile = null;
+    String urlprefix = null;
+    String source = "onto1.rdf";
+    String target = "onto.rdf";
+    URI uri1 = null;
+    String initName = null;
+    Hashtable loadedOntologies = null;
+    OWLRDFErrorHandler handler = null;
+    int debug = 0;
+    String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+    String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
+    String ontoDir = null;
 
     public static void main(String[] args) {
-	try { run( args ); }
+	try { new GroupAlign().run( args ); }
 	catch (Exception ex) { ex.printStackTrace(); };
     }
 
-    public static void run(String[] args) throws Exception {
+    public void run(String[] args) throws Exception {
 
 	LongOpt[] longopts = new LongOpt[13];
 	loadedOntologies = new Hashtable();
@@ -230,7 +230,7 @@ public class GroupAlign {
 	iterateDirectories();
     }
 
-    public static void iterateDirectories (){
+    public void iterateDirectories (){
 	File [] subdir = null;
 	try { 
 		if(ontoDir == null){
@@ -265,7 +265,7 @@ public class GroupAlign {
 	}
     }
 
-    public static void align ( File dir ) throws Exception {
+    public void align ( File dir ) throws Exception {
 	String prefix = null;
 	// toURI(). is not very good
 	AlignmentProcess result = null;
@@ -383,7 +383,7 @@ public class GroupAlign {
 	writer.close();
     }
 
-    public static OWLOntology loadOntology(URI uri)
+    public OWLOntology loadOntology(URI uri)
 	throws ParserException, OWLException {
 	OWLOntology parsedOnt = null;
 	OWLRDFParser parser = new OWLRDFParser();
@@ -394,7 +394,7 @@ public class GroupAlign {
 	return parsedOnt;
     }
 
-    public static void usage() {
+    public void usage() {
 	System.out.println("usage: GroupAlign [options]");
 	System.err.println("options are:");
 	System.err.println("\t--name=uri -n uri\t\tUse the given uri to compare with.");
