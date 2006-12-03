@@ -107,34 +107,12 @@ public class PRecEvaluator extends BasicEvaluator {
      */
     public double eval(Parameters params) throws AlignmentException {
 	init();
-	nbexpected = align1.nbCells();
+	nbexpected = 0;
 	nbfound = align2.nbCells();
 	precision = 0.;
 	recall = 0.;
 
-	// mult.
-	/*
-	for (Enumeration e = align1.getElements(); e.hasMoreElements();) {
-	    Cell c1 = (Cell) e.nextElement();
-	    try {			
-		Cell c2 = (Cell) align2.getAlignCell1((OWLEntity) c1.getObject1());	
-		if (c2 != null) {
-		    URI uri1 = ((OWLEntity) c1.getObject2()).getURI();
-		    URI uri2 = ((OWLEntity) c2.getObject2()).getURI();	
-		    // if (c1.getobject2 == c2.getobject2)
-		    if (uri1.toString().equals(uri2.toString())) {
-			nbcorrect++;
-		    }
-		}
-	    } catch (Exception exc) {
-	    }
-	}
-	*/
-	//if ( align1 instanceof MultipleAlignment )
-	//    System.err.print("align1["+nbexpected+"] OK");
-	//if ( align2 instanceof MultipleAlignment )
-	//    System.err.println(" align2["+nbfound+"] OK");
-	for ( Enumeration e = align1.getElements(); e.hasMoreElements();) {
+	for ( Enumeration e = align1.getElements(); e.hasMoreElements(); nbexpected++) {
 	    Cell c1 = (Cell)e.nextElement();
 	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
 	    if( s2 != null ){
