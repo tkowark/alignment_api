@@ -292,23 +292,16 @@ public class GroupEval {
 	int foundVect[]; // found so far
 	int correctVect[]; // correct so far
 	long timeVect[]; // time so far
-	double hMeansPrec[]; // Precision H-means so far
-	double hMeansRec[]; // Recall H-means so far
 	    foundVect = new int[ listAlgo.size() ];
 	    correctVect = new int[ listAlgo.size() ];
 	    timeVect = new long[ listAlgo.size() ];
-	    hMeansPrec = new double[ listAlgo.size() ];
-	    hMeansRec = new double[ listAlgo.size() ];
 	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
 		foundVect[k] = 0;
 		correctVect[k] = 0;
 		timeVect[k] = 0;
-		hMeansPrec[k] = 1.;
-		hMeansRec[k] = 1.;
 	    }
 	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
 		int nexpected = -1;
-		int oexpected = 0;
 		Vector test = (Vector)e.nextElement();
 		Enumeration f = test.elements();
 		f.nextElement();
@@ -317,16 +310,11 @@ public class GroupEval {
 		    if ( eval != null ){
 			// iterative H-means computation
 			if ( nexpected == -1 ){
-			    nexpected = eval.getExpected();
-			    oexpected = expected;
-			    expected = oexpected + nexpected;
+			    nexpected = 0;
+			    expected += eval.getExpected();
 			}
-			int nfound = eval.getFound();
-			int ofound = foundVect[k];
-			foundVect[k] = ofound + nfound;
-			int ncorrect = eval.getCorrect();
-			int ocorrect = correctVect[k];
-			correctVect[k] = ocorrect + ncorrect;
+			foundVect[k] += eval.getFound();
+			correctVect[k] += eval.getCorrect();
 			timeVect[k] += eval.getTime();
 		    }
 		}
@@ -372,14 +360,58 @@ public class GroupEval {
     public void printLATEX( Vector result ) {
     }
 
+    /* A few comments on how and why computing "weighted harmonic means"
+       (Jérôme Euzenat)
+
+Let Ai be the found alignment for test i, let Ri be the reference alignment for test i.
+Let |A| be the size of A, i.e., the number of correspondences.
+
+Let P(Ri,Ai) and R(Ri,Ai) being precision and recall respectively.
+
+Arithmetic means is \Sum{i=1}{n} P(Ri,Ai) / n and \Sum{i=1}{n} R(Ri,Ai) / n.
+
+Weighted harmonic means is
+
+\Sum{i=1}{n} Wi / \Sum{i=1}{n} (Wi/P(Ri,Ai))
+and
+\Sum{i=1}{n} Wi / \Sum{i=1}{n} (Wi/R(Ri,Ai))
+
+The goal of using it is that the result be the Precision and Recall of all tests (and not the average precision and recall).
+
+If we take Wi = |Ai\cap Ri|
+Then we have exactly this result:
+
+\Sum{i=1}{n} Wi / \Sum{i=1}{n} (Wi/P(Ri,Ai))
+                           = P( \cup{i=1}{n} Ri, \cup{i=1}{n} Ai )
+(here no two correspondences are equivalent so \cup is a disjunct sum).
+
+[[you can replace Wi by kilometers, Precision by kilometers-per-hour
+or you can do the test by yourself to convince you that this is true]]
+
+So our goal is to compute the weighted harmonic means with these weights because this will provide us the true precision and recall.
+
+In fact what the algorithm does is not to compute the harmonic means! I rephrase it, it computes the harmonic means of the numbers above it but since this is equivalent to computing precision and recall, it just computes it!
+
+How?
+For each column k in the table (corresponding to an algorithm), it maintains two vectors:
+correctVect[k] and foundVect[k]
+which is equal to \Sum{i=1}{n} |Ai\cap Ri| and \Sim{i=1}{n} |Ai|
+and it additionally stores in "expected" the size of \Sum{i=1}{n} |Ri|
+
+So computing the average means of these columns, with the weights corresponding respectively to the size |Ai\cup Ri|, corresponds to computing:
+
+	correctVect[k] / foundVect[k]
+and
+	correctVect[k] / expected
+
+which the program does...
+    */
     public void printHTML( Vector result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
 	int correctVect[]; // correct so far
 	long timeVect[]; // time so far
-	double hMeansPrec[]; // Precision H-means so far
-	double hMeansRec[]; // Recall H-means so far
 	PrintStream writer = null;
 	fsize = format.length();
 	// JE: the writer should be put out
@@ -431,21 +463,16 @@ public class GroupEval {
 	    foundVect = new int[ listAlgo.size() ];
 	    correctVect = new int[ listAlgo.size() ];
 	    timeVect = new long[ listAlgo.size() ];
-	    hMeansPrec = new double[ listAlgo.size() ];
-	    hMeansRec = new double[ listAlgo.size() ];
 	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
 		foundVect[k] = 0;
 		correctVect[k] = 0;
 		timeVect[k] = 0;
-		hMeansPrec[k] = 1.;
-		hMeansRec[k] = 1.;
 	    }
 	    // </tr>
 	    // For each directory <tr>
 	    boolean colored = false;
 	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
 		int nexpected = -1;
-		int oexpected = 0;
 		Vector test = (Vector)e.nextElement();
 		if ( colored == true && color != null ){
 		    colored = false;
@@ -464,16 +491,11 @@ public class GroupEval {
 		    if ( eval != null ){
 			// iterative H-means computation
 			if ( nexpected == -1 ){
-			    nexpected = eval.getExpected();
-			    oexpected = expected;
-			    expected = oexpected + nexpected;
+			    expected += eval.getExpected();
+			    nexpected = 0;
 			}
-			int nfound = eval.getFound();
-			int ofound = foundVect[k];
-			foundVect[k] = ofound + nfound;
-			int ncorrect = eval.getCorrect();
-			int ocorrect = correctVect[k];
-			correctVect[k] = ocorrect + ncorrect;
+			foundVect[k] += eval.getFound();
+			correctVect[k] += eval.getCorrect();
 			timeVect[k] += eval.getTime();
 
 			for ( int i = 0 ; i < fsize; i++){
