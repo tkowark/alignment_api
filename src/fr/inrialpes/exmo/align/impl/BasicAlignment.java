@@ -112,7 +112,7 @@ public class BasicAlignment implements Alignment {
     public int nbCells() {
 	int sum = 0;
 	for ( Enumeration e = hash1.elements(); e.hasMoreElements(); ) {
-	    sum = sum + ((HashSet)e.nextElement()).size();
+	    sum += ((HashSet)e.nextElement()).size();
 	}
 	return sum;
     }
