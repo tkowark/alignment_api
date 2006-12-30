@@ -68,7 +68,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
-	alignment = align;
+	//alignment = align;
 	writer.print("<html>\n<head></head>\n<body>\n");
 	writer.print("<h1></h1>\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
@@ -82,7 +82,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	if ( align.getFile1() != null )
 	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile1().toString()+"\">"+align.getFile1().toString()+"</a></td></tr>\n" );
 	if ( align.getFile2() != null )
-	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile2().toString()+"\">"+align.getFile2().toString()+"</a></td></tr>\n" );
+	    writer.print("<tr><td>ontofile2</td><td><a href=\""+align.getFile2().toString()+"\">"+align.getFile2().toString()+"</a></td></tr>\n" );
 	writer.print("<tr><td>level</td><td>"+align.getLevel()+"</td></tr>\n" );
 	writer.print("<tr><td>type</td><td>"+align.getType()+"</td></tr>\n" );
 	// Get the keys of the parameter
