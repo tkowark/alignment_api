@@ -45,9 +45,10 @@ create table cell(
    relation varchar(5));
 
 
-// cell method
+// extension info
 
-create table method(
+create table extension(
    id varchar(100),
-   tag varchar(20),
-   extension varchar(100));
+   tag varchar(100),
+   method varchar(500));
+

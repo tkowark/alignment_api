@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) XX, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,6 +22,7 @@
 package fr.inrialpes.exmo.align.service;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Set;
@@ -58,6 +60,7 @@ import org.semanticweb.owl.align.Cell;
  * It stores the alignment when requested
  * It 
  */
+
 public class CacheImpl implements Cache {
     Hashtable alignmentTable = null;
     Hashtable ontologyTable = null;
@@ -96,6 +99,16 @@ public class CacheImpl implements Cache {
      * loads the alignment descriptions from the database and put them in the
      * alignmentTable hashtable
      * index them under the ontology URIs
+     *
+     * Beware, the Alignment API has two attributes:
+     * onto1 is the OWLOntology object
+     * uri1 is the URI object from which loading the ontologies
+     * In the database we store:
+     * owlontology1 the URI string of the ontology
+     * file1 the URI string from which loading the ontologies
+     * uri1 which should be the same as the last one...
+     * Since alignments are indexed by the URI of the ontologies, we use
+     * the "ouri1" temporary extension to contain this URI.
      */
     private void loadAlignments( boolean force ) throws SQLException {
 	String query = null;
@@ -107,11 +120,9 @@ public class CacheImpl implements Cache {
 	    // Retrieve the alignment ids
 	    query = "select id " + "from alignment";
 	    rs = (ResultSet) st.executeQuery(query);
-	    //System.err.println("1234");
 	    while(rs.next()) {
 		id = rs.getString("id");
 		idInfo.add(id);	
-		//System.err.println(id);
 	    }
 	    
 	    // For each alignment id store metadata
@@ -121,6 +132,10 @@ public class CacheImpl implements Cache {
 		recordAlignment( id, alignment, true );
 	    }							
 	}
+    }
+
+    protected Enumeration listAlignments() {
+	return alignmentTable.elements();
     }
 
     /**
@@ -136,29 +151,34 @@ public class CacheImpl implements Cache {
 		
 	try {
 	    // Get basic ontology metadata
-	    query = "select * "+"from alignment "+"where id = " + id;
+	    query = "select * from alignment where id = '" + id  +"'";
 	    rs = (ResultSet) st.executeQuery(query);
 	    while(rs.next()) {
-		result.setFile1(new URI(rs.getString("uri1"))); 
-		result.setFile2(new URI(rs.getString("uri2"))); 
+		// Either uri1 or file1
+		result.setFile1( new URI(rs.getString("uri1")) ); 
+		result.setFile2( new URI(rs.getString("uri2")) );
+		result.setExtension( "ouri1", rs.getString("owlontology1") );
+		result.setExtension( "ouri2", rs.getString("owlontology2") );
 		result.setLevel(rs.getString("level"));
 		result.setType(rs.getString("type"));	
 	    }
 
 	    // Get extension metadata
-	    query = "select * "+"from extension "+"where id = " + id;
+	    query = "select * from extension where id = '" + id + "'";
 	    rs = (ResultSet) st.executeQuery(query);
 	    while(rs.next()) {
 		tag = rs.getString("tag");
 		method = rs.getString("method");
 		result.setExtension(tag, method);
 	    }
-	} catch (Exception e) {
-	    System.err.println("No problem");
-	    System.err.println(e.toString());
+	} catch (Exception e) { // URI exception that should not occur
+	    System.err.println("Unlikely URI exception!");
+	    e.printStackTrace();
 	    return null;
 	}
-	result.setExtension("fr.inrialpes.exmo.align.service.stored", "DATE");
+	// should be there
+	//result.setExtension("fr.inrialpes.exmo.align.service.stored", "DATE");
+	// not yet cached
 	result.setExtension("fr.inrialpes.exmo.align.service.cached", "");
 	return result;
     }
@@ -185,19 +205,20 @@ public class CacheImpl implements Cache {
 	o1 = loadOntology(result.getFile1());
 	o2 = loadOntology(result.getFile2());
 	result.setOntology1(o1);
-	result.setOntology1(o2);
+	result.setOntology2(o2);
 	
 	// Get extension metadata
-	query = "select * "+"from extension "+"where id = " + id;
-	rs = (ResultSet) st.executeQuery(query);
-	while(rs.next()) {
-	    tag = rs.getString("tag");
-	    method = rs.getString("method");
-	    result.setExtension(tag, method);
-	}
+	// JE: this has been done already by getDescription (in all cases)
+	//query = "select * from extension where id = '" + id + "'";
+	//rs = (ResultSet) st.executeQuery(query);
+	//while(rs.next()) {
+	//    tag = rs.getString("tag");
+	//    method = rs.getString("method");
+	//    result.setExtension(tag, method);
+	//}
 	
 	// Get cells
-	query = "select * "+"from cell "+"where id = " + id;
+	query = "select * from cell where id = '" + id + "'";
 	rs = (ResultSet) st.executeQuery(query);
 	while(rs.next()) {
 	    ent1 = (OWLEntity) o1.getClass(new URI(rs.getString("uri1")));
@@ -207,41 +228,40 @@ public class CacheImpl implements Cache {
 	    cell.setId(rs.getString("cell_id"));
 	    cell.setSemantics(rs.getString("semantics"));
 	}
-	result.setExtension("fr.inrialpes.exmo.align.service.stored", "DATE");
-	// Put the date here
-	result.setExtension("fr.inrialpes.exmo.align.service.cached", "DATE");
+	// It is here
+	//result.setExtension("fr.inrialpes.exmo.align.service.stored", "DATE");
+	// reset
+	resetCacheStamp(result);
 
 	return result;
     }
 
     private String generateAlignmentId() {
 	// Generate an id based on a URI prefix + Date + random number
-    Date date;
-    String id;
-    date = new Date();
-    id = "http://blavlacestmoi" + date.getTime() + randomNum();
+	Date date;
+	String id;
+	date = new Date();
+	id = "http://localhost:8089/" + date.getTime() + "/" + randomNum();
 	return id;
     }
     
     private int randomNum() {
-    Random rand = new Random(System.currentTimeMillis());
-    return Math.abs(rand.nextInt(1000)); 
+	Random rand = new Random(System.currentTimeMillis());
+	return Math.abs(rand.nextInt(1000)); 
     }
 
     //**********************************************************************
     /**
      * retrieve alignment metadata from id
+     * This is more difficult because we return the alignment we have 
+     * disreagarding if it is complete o only metadata
      */
-    public Alignment getMetadata( String id ) {
-	Alignment result = null;		
-//	String query = null;
+    public Alignment getMetadata( String id ) throws Exception {
+	Alignment result = (Alignment)alignmentTable.get( id );
 	
-	result = (Alignment)alignmentTable.get( id );
-	
-// Raise an exception if no result (by Seungkeun)
-	if(result == null) {
-		System.out.println("Metadata Loading Error in CacheImpl.getMetadata");
-	}		
+	if ( result == null )
+	    throw new Exception("getMetadata: Cannot find alignment");
+
 	return result;
     }
 	
@@ -249,18 +269,16 @@ public class CacheImpl implements Cache {
      * retrieve full alignment from id (and cache it)
      */
     public Alignment getAlignment( String id ) throws Exception {
-	Alignment result = null;		
-//	String query = null;
+	Alignment result = (Alignment)alignmentTable.get( id );
 	
-	result = (Alignment)alignmentTable.get( id );
-	
-//	 Raise an exception if no result
-	if(result == null) { 
-		System.out.println("Metadata Loading Error in CacheImpl.getMetadata");
-	}		
-	else if ( result.getExtension("fr.inrialpes.exmo.align.service.cached") == "" && result.getExtension("fr.inrialpes.exmo.align.service.stored") != "") {
+	if ( result == null )
+	    throw new Exception("getAlignment: Cannot find alignment");
+
+	// If not cached, retrieve it now
+	if ( result.getExtension("fr.inrialpes.exmo.align.service.cached") == "" 
+	     && result.getExtension("fr.inrialpes.exmo.align.service.stored") != "") {
 	    retrieveAlignment( id, result );
-	}	
+	}
 	
 	return result;
     }
@@ -271,37 +289,80 @@ public class CacheImpl implements Cache {
     }
 
     public Set getAlignments( URI uri1, URI uri2 ) {
-	// Crete the set and compare
-	return (Set)ontologyTable.get( uri1 );
+	// Create the set and compare
+	Set result = new HashSet();
+	Set potentials = (Set)ontologyTable.get( uri1 );
+	if ( potentials != null ) {
+	    for( Iterator it = potentials.iterator(); it.hasNext(); ) {
+		Alignment al = (Alignment)it.next();
+		// This is not the best because URI are not resolved here...
+		if ( al.getExtension("ouri2").equals( uri2.toString() ) ) result.add( al );
+	    }
+	}
+	return result;
     }
 
     /**
      * records newly created alignment
      */
-    public void recordAlignment( Alignment alignment, boolean force ){
-	recordAlignment( generateAlignmentId(), alignment, force );
+    public String recordNewAlignment( Alignment alignment, boolean force ){
+	return recordNewAlignment( generateAlignmentId(), alignment, force );
     }
 
     /**
      * records alignment identified by id
      */
-    public void recordAlignment( String id, Alignment alignment, boolean force ){
-	if ( force || alignmentTable.get( id ) == null ) {
-	    Set s1 = (Set)ontologyTable.get( alignment.getFile1() );
-	    if ( s1 == null ) {
-		s1 = new HashSet();
-		ontologyTable.put( alignment.getFile1(), s1 );
-	    }
-	    s1.add( alignment );
-	    Set s2 = (Set)ontologyTable.get( alignment.getFile2() );
-	    if ( s2 == null ) {
-		s2 = new HashSet();
-		ontologyTable.put( alignment.getFile1(), s2 );
-	    }
-	    s2.add( alignment );
-	    alignmentTable.put( id, alignment );
+    public String recordNewAlignment( String id, Alignment alignment, boolean force ){
+	// Set the Ontology URIs
+	try {
+	    alignment.setExtension("ouri1", ((OWLOntology)alignment.getOntology1()).getLogicalURI().toString());
+	    alignment.setExtension("ouri2", ((OWLOntology)alignment.getOntology2()).getLogicalURI().toString());
+	} catch (OWLException e) {
+	    System.err.println("Unexpected OWL Exception");
+	    e.printStackTrace();
 	}
-    }		
+	// Index
+	recordAlignment( id, alignment, force );
+	// Not yet stored
+	alignment.setExtension("fr.inrialpes.exmo.align.service.stored", "");
+	// Cached now
+	resetCacheStamp(alignment);
+	return id;
+    }
+
+    /**
+     * records alignment identified by id
+     */
+    public String recordAlignment( String id, Alignment alignment, boolean force ){
+	// record the Id!
+	if ( alignment.getExtension("id") == null )
+	    alignment.setExtension( "id", id );
+	// Store it
+	try {
+	    URI ouri1 = new URI( alignment.getExtension("ouri1") );
+	    URI ouri2 = new URI( alignment.getExtension("ouri2") );
+	    if ( force || alignmentTable.get( id ) == null ) {
+		Set s1 = (Set)ontologyTable.get( ouri1 );
+		if ( s1 == null ) {
+		    s1 = new HashSet();
+		    ontologyTable.put( ouri1, s1 );
+		}
+		s1.add( alignment );
+		Set s2 = (Set)ontologyTable.get( ouri2 );
+		if ( s2 == null ) {
+		    s2 = new HashSet();
+		    ontologyTable.put( ouri2, s2 );
+		}
+		s2.add( alignment );
+		alignmentTable.put( id, alignment );
+	    }
+	    return id;
+	} catch (Exception e) {
+	    System.err.println("Unlikely URI exception!");
+	    e.printStackTrace();
+	    return (String)null;
+	}
+    }
 
     //**********************************************************************
     public void storeAlignment( String id ) throws Exception {
@@ -310,12 +371,23 @@ public class CacheImpl implements Cache {
 
 	alignment = getAlignment( id );
 
+	// We store stored date
+	alignment.setExtension("fr.inrialpes.exmo.align.service.stored", new Date().toString());
+	// We empty cached date
+	alignment.setExtension("fr.inrialpes.exmo.align.service.cached", "");
+
 	try {
-	    OWLOntology O1 = (OWLOntology)alignment.getOntology1();
-	    OWLOntology O2 = (OWLOntology)alignment.getOntology2();
-	    String s_O1 = O1.getLogicalURI().toString();
-	    String s_O2 = O2.getLogicalURI().toString();
+	    // owlontology attribute
+	    // JE: This cannot work if the ontology is not loaded!
+	    // which should not be the case but who knows?
+	    //OWLOntology O1 = (OWLOntology)alignment.getOntology1();
+	    //OWLOntology O2 = (OWLOntology)alignment.getOntology2();
+	    //String s_O1 = O1.getLogicalURI().toString();
+	    //String s_O2 = O2.getLogicalURI().toString();
+	    String s_O1 = alignment.getExtension("ouri1");
+	    String s_O2 = alignment.getExtension("ouri2");
 	    
+	    // file attribute
 	    String s_File1 = null;
 	    String s_File2 = null;
 	    if (alignment.getFile1() != null) 
@@ -323,22 +395,25 @@ public class CacheImpl implements Cache {
 	    if (alignment.getFile2() != null) 
 		s_File2 = alignment.getFile2().toString();
 	    
-	    String s_uri1 = O1.getPhysicalURI().toString();
-	    String s_uri2 = O2.getPhysicalURI().toString();
+	    // uri attribute
+	    // JE: This cannot work if the ontology is not loaded!
+	    // which should not be the case but who knows?
+	    String s_uri1 = ((OWLOntology)alignment.getOntology1()).getPhysicalURI().toString();
+	    String s_uri2 = ((OWLOntology)alignment.getOntology2()).getPhysicalURI().toString();
 	    
 	    String type = alignment.getType();
 	    String level = alignment.getLevel();
 			
 	    query = "insert into alignment " + 
 		"(id, owlontology1, owlontology2, type, level, file1, file2, uri1, uri2) " +
-		"values (" + id + ",'" +  s_O1 + "','" + s_O2 + "','" + type + "','" + level + "','" + s_File1 + "','" + s_File2 + "','" + s_uri1 + "','" + s_uri2 + "')";
+		"values ('" + id + "','" +  s_O1 + "','" + s_O2 + "','" + type + "','" + level + "','" + s_File1 + "','" + s_File2 + "','" + s_uri1 + "','" + s_uri2 + "')";
 	    st.executeUpdate(query);
 	    for( Enumeration e = alignment.getExtensions().getNames() ; e.hasMoreElements() ; ){
 		String tag = (String)e.nextElement();
 		String s_method = alignment.getExtension(tag);
 		query = "insert into extension " + 
 		    "(id, tag, method) " +
-		    "values (" + id + ",'" +  tag + "','" + s_method + "')";
+		    "values ('" + id + "','" +  tag + "','" + s_method + "')";
 		st.executeUpdate(query);
 	    }
 	    
@@ -360,7 +435,7 @@ public class CacheImpl implements Cache {
 			temp[5] =  ((BasicRelation)c.getRelation()).getRelation();	
 			query = "insert into cell " + 
 			    "(id, cell_id, uri1, uri2, measure, semantics, relation) " +
-			    "values (" + id + ",'" + temp[0] + "','" + temp[1] + "','" + temp[2] + "','" + temp[3] + "','" + temp[4] + "','" + temp[5] + "')";
+			    "values ('" + id + "','" + temp[0] + "','" + temp[1] + "','" + temp[2] + "','" + temp[3] + "','" + temp[4] + "','" + temp[5] + "')";
 			st.executeUpdate(query);
 		    }
 				    
@@ -371,10 +446,26 @@ public class CacheImpl implements Cache {
 	} catch (Exception e) {
 	    System.err.println(e.toString());
 	}
+	// we reset cached date
+	resetCacheStamp(alignment);
     }
 
     //**********************************************************************
-    public static OWLOntology loadOntology( URI uri ) throws OWLException {
+    public void resetCacheStamp( Alignment result ){
+	result.setExtension("fr.inrialpes.exmo.align.service.cached", new Date().toString() );
+    }
+
+    public void cleanUpCache() {
+	// for each alignment in the table
+	// set currentDate = Date();
+	// if ( DateFormat.parse( result.getExtension("fr.inrialpes.exmo.align.service.cached") ).before( ) ) {
+	// - for each ontology if no other alignment => unload
+	// - clean up cells
+	// }
+    }
+
+    //**********************************************************************
+    public OWLOntology loadOntology( URI uri ) throws OWLException {
 	OWLRDFParser parser = new OWLRDFParser();
 	parser.setConnection(OWLManager.getOWLConnection());
 	return parser.parseOntology(uri);

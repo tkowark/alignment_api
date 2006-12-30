@@ -27,10 +27,10 @@ import org.semanticweb.owl.align.Alignment;
 
 public interface Cache {
     void init() throws SQLException;
-    Alignment getMetadata( String id );
+    Alignment getMetadata( String id ) throws Exception;
     Alignment getAlignment( String id ) throws Exception;
     Set getAlignments( URI uri );
     Set getAlignments( URI uri1, URI uri2 );
-    void recordAlignment( Alignment alignment, boolean force );
+    String recordNewAlignment( Alignment alignment, boolean force );
     void storeAlignment( String id ) throws Exception;
 }

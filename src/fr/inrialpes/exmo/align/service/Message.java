@@ -35,12 +35,18 @@ public class Message {
     String content = "";
     Parameters parameters = null;
 
-    public Message ( int surr, Message rep, String to, String cont, Parameters param ) {
+    public Message ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	surrogate = surr;
 	inReplyTo = rep;
 	receiver = to;
+	sender = from;
 	content = cont;
 	parameters = param;
+    }
+
+    public static String HTMLString = "Message: ";
+    public String htmlString(){
+	return "<h1>Message</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }
 
     public int getId () {

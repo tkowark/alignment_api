@@ -55,6 +55,6 @@ $ java -jar lib/alignsvc.jar -H
 
 The alignment server is then available through HTTP with:
 
-    	      http://localhost:8089/html/align
+    	      http://localhost:8089/html/
 
 

@@ -121,9 +121,9 @@ public class AlignmentService {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( null );
 	    try {
 		serv.init( params, manager );
-		if ( debug > 0 ) System.err.println(name+" launched on ");
+		if ( debug > 0 ) System.err.println(name+" launched on http://localhost:"+params.getParameter( "http" )+"/html/");
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't start "+name+" server:\n");
+		System.err.println( "Couldn't start "+name+" server on http://localhost:"+params.getParameter( "http" )+"/html/:\n");
 		ex.printStackTrace();
 	    }
 	    services.put( name, serv );
