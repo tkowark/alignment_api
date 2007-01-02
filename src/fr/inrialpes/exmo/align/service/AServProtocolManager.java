@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -392,12 +392,16 @@ public class AServProtocolManager {
 	}
 	// Put all the local metadata in parameters
 	Parameters params = new BasicParameters();
+	params.setParameter( "file1", al.getFile1() );
+	params.setParameter( "file2", al.getFile2() );
+	params.setParameter( "level", al.getLevel() );
+	params.setParameter( "type", al.getType() );
 	Parameters extensions = al.getExtensions();
 	for ( Enumeration e = extensions.getNames(); e.hasMoreElements(); ){
 	    String name = (String)e.nextElement();
 	    params.setParameter( name, extensions.getParameter( name ) );
 	}
-	return new AlignmentMetadata(newId(),mess,myId,mess.getSender(),"dummy//",params);
+	return new AlignmentMetadata(newId(),mess,myId,mess.getSender(),id,params);
     }
 
     /*********************************************************************
@@ -408,7 +412,22 @@ public class AServProtocolManager {
      *********************************************************************/
 
     public Message cut( Message mess ){
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	// Retrieve the alignment
+	String id = (String)mess.getParameters().getParameter("id");
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	}
+	// get the cut parameters here
+	//al = al.clone();
+	try { al.cut( "hard", (double).5 ); }
+	catch (AlignmentException e) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	}
+	String newId = alignmentCache.recordNewAlignment( al, true );
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null);
     }
 
     public Message harden( Message mess ){
@@ -429,11 +448,13 @@ public class AServProtocolManager {
 	    // Copy the alignment
 	}
 	// Invert it
+	//try { al = al.clone().inverse(); }
 	try { al.inverse(); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	String newId = alignmentCache.recordNewAlignment( al, true );
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null);
     }
 
     public Message meet( Message mess ){
