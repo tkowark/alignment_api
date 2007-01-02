@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
@@ -376,13 +377,27 @@ public class AServProtocolManager {
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
-    public Message getmetadata(Message mess){
-
-    //\prul{get-processor-success}{a - request ( metadata ( n )) \rightarrow S}{\langle O, O', A\rangle \Leftarrow Retrieve(n)\\P\Leftarrow Metadata(A)\\S - inform ( P~language:~l ) \rightarrow a}{Retrieve(n)\not=\emptyset}
-
-    //\prul{get-processor-unknown}{a - request ( metadata ( n )) \rightarrow S}{S - failure ( unknown (n) ) \rightarrow a}{Retrieve(n)=\emptyset}
-
-	return new RenderedAlignment(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+    /*
+     * Returns only the metadata of an alignment and returns it in 
+     * parameters
+     */
+    public Message metadata( Message mess ){
+	// Retrieve the alignment
+	String id = (String)mess.getParameters().getParameter("id");
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getMetadata( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	}
+	// Put all the local metadata in parameters
+	Parameters params = new BasicParameters();
+	Parameters extensions = al.getExtensions();
+	for ( Enumeration e = extensions.getNames(); e.hasMoreElements(); ){
+	    String name = (String)e.nextElement();
+	    params.setParameter( name, extensions.getParameter( name ) );
+	}
+	return new AlignmentMetadata(newId(),mess,myId,mess.getSender(),"dummy//",params);
     }
 
     /*********************************************************************
