@@ -61,16 +61,15 @@ import gnu.getopt.Getopt;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** A basic class for synthesizing the alignment results of an algorithm by a
- * precision recall graph.
+/** A basic class for synthesizing the alignment results of an algorithm with regard to the ontology characteristics as a colored module.
  *
- * These graphs are however computed on averaging the precision recall/graphs
+ * These modules are however computed on averaging the precision recall/graphs
  * on test directories instead of recording the actual precision recall graphs
  * which would amount at recoding all the valid and invalid alignment cells and
  * their level.
  *  
  *  <pre>
- *  java -cp procalign.jar fr.inrialpes.exmo.align.util.GenPlot [options]
+ *  java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupOutput [options]
  *  </pre>
  *
  *  where the options are:
