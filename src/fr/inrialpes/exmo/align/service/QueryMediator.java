@@ -1,5 +1,5 @@
 /*
- * $Id: ParserPrinter.java 210 2006-02-17 12:09:31Z euzenat $
+ * $Id$
  *
  * Copyright (C) 2006 INRIA Rhône-Alpes.
  *
