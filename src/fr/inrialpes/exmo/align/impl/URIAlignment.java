@@ -173,6 +173,7 @@ public class URIAlignment extends BasicAlignment {
 	    String label = (String)e.nextElement();
 	    align.setExtension( label, getExtension( label ) );
 	}
+	align.getExtensions().unsetParameter( "id" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

@@ -506,6 +506,7 @@ public class BasicAlignment implements Alignment {
 	    String label = (String)e.nextElement();
 	    result.setExtension( label, getExtension( label ) );
 	}
+	result.setExtension( "id", (String)null );
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
 	    result.addCell(((Cell)e.nextElement()).inverse());
 	}
@@ -531,10 +532,10 @@ public class BasicAlignment implements Alignment {
 
     /**
      * Generate a copy of this alignment object
+     * It has the same content but a different id (no id indeed)
      */
     public Object clone() {
 	BasicAlignment align = new BasicAlignment();
-	//*/align.init( (OWLOntology)getOntology1(), (OWLOntology)getOntology2() );
 	try {
 	    align.init( getOntology1(), getOntology2() );
 	    // This method is never launched by the present class
@@ -547,9 +548,9 @@ public class BasicAlignment implements Alignment {
 	    String label = (String)e.nextElement();
 	    align.setExtension( label, getExtension( label ) );
 	}
-	try {
-	    align.ingest( this );
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	align.getExtensions().unsetParameter( "id" );
+	try { align.ingest( this ); }
+	catch (AlignmentException ex) { ex.printStackTrace(); }
 	return align;
     }
 
