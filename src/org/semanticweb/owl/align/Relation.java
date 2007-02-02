@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,12 +20,9 @@
 
 package org.semanticweb.owl.align; 
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.IOException;
 
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  *

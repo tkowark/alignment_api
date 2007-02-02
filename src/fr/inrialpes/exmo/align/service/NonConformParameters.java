@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -31,8 +31,8 @@ public class NonConformParameters extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
 
-    public static String HTMLString = "Non conform parameters: ";
-    public String htmlString(){
+    public String HTMLString(){
+	// Here I may display the parameters in parameters
 	return "<h1>Non conform parameters</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }
     

@@ -25,7 +25,7 @@ import java.lang.IllegalAccessException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
+//import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
@@ -84,13 +84,13 @@ public class DBServiceImpl implements DBService{
 	try {
 	    st.executeUpdate("insert into id_seq (aa) values ('a')");
 	    rs = (ResultSet) st.executeQuery("select max(id) from id_seq");
-	    //System.out.println(rs.toString());
+	    //System.err.println(rs.toString());
 	    while(rs.next()) {
 		id = rs.getInt(1);
 	    }
 	    //id = rs.getBigDecimal(1).longValue();
 	} catch(Exception ex){
-	    System.out.println(ex.toString());
+	    ex.printStackTrace();
 	    return -1;
 	}
 	return id;

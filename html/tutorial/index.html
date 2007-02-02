@@ -45,6 +45,8 @@ div.logic {
 
 <p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid #AAAAAA; padding-top: 15px; padding-bottom: 15px;">Here is a small tutorial for the alignment <abbr>API</abbr>. Since the <abbr>API</abbr> has no dedicated <abbr title="Graphical User Interface">GUI</abbr>, most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely. The complete tutorial is also available as a self-contained <a href="script.sh" title="script for UNIX systems">script.sh</a> or <a href="script.bat" title="script for Windows systems">script.bat</a>
 </p>
+<small>This tutorial has been designed for the Alignment API version
+  2.4 (it has been updated to work with version 3.0)</small>
 	
 <h2>Preparation</h2>
 	
@@ -95,7 +97,7 @@ $ cd html/tutorial
 </pre></div>
 <p>You can clean up previous trials by:</p>
 <div class="fragment"><pre>
-$ rm results/
+$ rm results/*
 </pre></div>
 
 <p>The goal of this tutorial is only to help you realize the possibilities of the Alignment <abbr>API</abbr> and implementation. It can be played by invoking each command line from the command-line interpreter. In this example we use the <tt>tcsh</tt> syntax but the main specific syntax is the first one:</p>
@@ -134,7 +136,7 @@ $ xsltproc ../form-align.xsl results/file.rdf > results/file.html
 
 <p>Let's try to match these two ontologies:</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl
+$ java -jar ../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </pre></div>
 
 <p>Additionaly a number of options are available:</p>
@@ -147,7 +149,7 @@ $ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://local
 
 <p>The result is displayed on the standard output. Since the output is too long we send it to a file by using the <tt>-o</tt> flag:</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/equal.rdf
+$ java -jar ../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/equal.rdf
 </pre></div>
 
 <p>See the output in <a href="results/equal.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/equal.html"><abbr>HTML</abbr></a>.</p>
@@ -187,7 +189,7 @@ $ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://local
 </pre></div>
 <p>each correspondence is made of two references to the aligned entities, the relation holding between the entities (<tt>=</tt>) and a confidence measure (<tt>1.0</tt>) in this correspondence. Here, because the default method that has been used for aligning the ontologies is so simple (it only compares the labels of the entities and find that there is a correspondence if their labels are equal), the correspondences are always that simple. But it is too simple so we will use a more sophisticated method based on an edit distance:</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/levenshtein.rdf
+$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/levenshtein.rdf
 </pre></div>
 
 <p>See the output in <a href="results/levenshtein.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/levenshtein.html"><abbr>HTML</abbr></a>.</p>
@@ -205,12 +207,12 @@ $ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.Strin
 
 <p>We do the same with another measure (smoaDistance):</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/SMOA.rdf
+$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/SMOA.rdf
 </pre></div>
 <div class="logic"><p><b>More work:</b> you can apply other available alignments classes. Look in the <a href="../../src/fr/inrialpes/exmo/align/impl/method">../../src/fr/inrialpes/exmo/align/impl/method</a> directory for more simple alignment methods. Also look in the <tt>StringDistances</tt> class the possible values for <tt>stringFunction</tt> (they are the names of methods).</p></div>
 <div class="logic"><p><b>Advanced:</b> You can also look at the instructions for installing WordNet and its Java interface and use a WordNet based distance provided with the <abbr>API</abbr> implementation by:</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
+$ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
 </pre></div>
 
 <p>See the output in <a href="jwnl.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="jwnl.html"><abbr>HTML</abbr></a>.</p></div>
@@ -219,7 +221,7 @@ $ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment 
 	
 <p>As can be seen there are some correspondences that do not really make sense. Fortunately, they also have very low confidence values. It is thus interesting to use a threshold for eliminating these values. Let's try a threshold of <tt>.33</tt> over the alignment (with the <tt>-t</tt> switch):</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.33 -o results/levenshtein33.rdf
+$ java -jar ../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.33 -o results/levenshtein33.rdf
 </pre></div>
 
 <p>See the output in <a href="results/levenshtein33.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/levenshtein33.html"><abbr>HTML</abbr></a>.</p>
@@ -233,7 +235,7 @@ $ java -jar ../../lib/procalign.jar file://localhost$CWD/myOnto.owl file://local
 
 <p>We can also apply this treatment to other methods available:</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://localhost$CWD/myOnto.owl file://localhost$CWD/edu.mit.visus.bibtex.owl -t 0.5 -o results/SMOA5.rdf
+$ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -t 0.5 -o results/SMOA5.rdf
 </pre></div>
 
 <p>See the output in <a href="results/SMOA5.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/SMOA5.html"><abbr>HTML</abbr></a>.</p>
@@ -319,7 +321,7 @@ $ xsltproc results/SMOA5.xsl data.xml > results/data.xml
 
 <p>For evaluating we use another class than <tt>Procalign</tt>. It is called <tt>EvalAlign</tt> we should specify this to <tt>java</tt>. By default, it computes precision, recall and associated measures. It can be invoked this way:</p>
 <div class="fragment"><pre>
-$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/refalign.rdf file://localhost$CWD/results/equal.rdf
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/results/equal.rdf
 </pre></div>
 
 <p>The first argument is always the reference alignment, the second one is the alignment to be evaluated. The result is given here:</p>
@@ -350,7 +352,7 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 <div class="explain" id="qu5"><p>Since it returns more correspondences by loosening the constraints for being a correspondence, it is expected that the recall will increase at the expense of precision.</p></div>
 <p>We can see the results of:</p>
 <div class="fragment"><pre>
-$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/refalign.rdf file://localhost$CWD/results/levenshtein33.rdf
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/results/levenshtein33.rdf
 </pre></div>
 <div class="button">
 	<input type="button" onclick="show('qu6')" value="Show result"/>
@@ -375,72 +377,91 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 <p>It is possible to summarize these results by comparing them to each others. This can be achieved by the <tt>GroupEval</tt> class. This class can output several formats (by default html) and takes all the alignments in the subdirectories of the current directory. Here we only have the <tt>results</tt> directory:</p>
 <div class="fragment"><pre>
 $ cp refalign.rdf results
-$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c prf -o results/eval.html
+$ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c -f prm -o results/eval.html
 </pre></div>
 
 <p>The results are displayed in the <a href="results/eval.html">results/eval.html</a> file whose main content is the table:</p>
-<table border="2" frame="box" rules="groups">
-  <colgroup />
-  <colgroup span="2" />
-  <colgroup span="2" />
-  <colgroup span="2" />
-  <colgroup span="2" />
-  <colgroup span="2" />
-  <colgroup span="2" />
-  <thead valign="top"><tr>
-      <th>algo</th>
-      <th colspan="2">refalign</th>
-      <th colspan="2">equal</th>
-      <th colspan="2">SMOA</th>
-      <th colspan="2">SMOA5</th>
-      <th colspan="2">levenshtein</th>
-      <th colspan="2">levenshtein33</th>
-  </tr></thead><tbody><tr>
-      <td>test</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-      <td>Prec.</td>
-      <td>Rec.</td>
-  </tr></tbody><tbody><tr>
-      <td>results</td>
-      <td>1.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-      <td>0.23</td>
-      <td>0.56</td>
-      <td>0.98</td>
-      <td>0.69</td>
-      <td>0.96</td>
-      <td>0.53</td>
-      <td>1.00</td>
-      <td>0.68</td>
-      <td>0.98</td>
-    </tr><tr style="background-color: #FFFF00;">
-      <td>H-mean</td><td>1.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-      <td>0.23</td>
-      <td>0.56</td>
-      <td>0.98</td>
-      <td>0.69</td>
-      <td>0.96</td>
-      <td>0.53</td>
-      <td>1.00</td>
-      <td>0.68</td>
-      <td>0.98</td>
-  </tr></tbody>
-</table>
+<center>
+<table border='2' frame='sides' rules='groups'>
+<colgroup align='center' />
+<colgroup align='center' span='3' />
+<colgroup align='center' span='3' />
+<colgroup align='center' span='3' />
+<colgroup align='center' span='3' />
+<colgroup align='center' span='3' />
+<colgroup align='center' span='3' />
+<thead valign='top'><tr><th>algo</th>
+<th colspan='3'>refalign</th>
+<th colspan='3'>equal</th>
+<th colspan='3'>SMOA</th>
+<th colspan='3'>SMOA5</th>
+<th colspan='3'>levenshtein</th>
+<th colspan='3'>levenshtein33</th>
+</tr></thead><tbody><tr><td>test</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+<td>Prec.</td>
+<td>Rec.</td>
+<td>FMeas.</td>
+</tr></tbody><tbody>
+<tr>
+<td>results</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.23</td>
+<td>0.37</td>
+<td>0.55</td>
+<td>0.96</td>
+<td>0.70</td>
+<td>0.69</td>
+<td>0.96</td>
+<td>0.80</td>
+<td>0.53</td>
+<td>1.00</td>
+<td>0.69</td>
+<td>0.68</td>
+<td>0.98</td>
+<td>0.80</td>
+</tr>
+<tr bgcolor="yellow"><td>H-mean</td><td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.23</td>
+<td>0.37</td>
+<td>0.55</td>
+<td>0.96</td>
+<td>0.70</td>
+<td>0.69</td>
+<td>0.96</td>
+<td>0.80</td>
+<td>0.53</td>
+<td>1.00</td>
+<td>0.69</td>
+<td>0.68</td>
+<td>0.98</td>
+<td>0.80</td>
+</tr>
+</tbody></table>
+</center>
 	
 <!--div class="fragment"><pre>
-$ java -jar ../../lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
+$ java -jar ../../lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
 </pre></div-->
 	
 <div class="logic"><p><b>More work:</b> As you can see, the <tt>PRecEvaluator</tt> does not only provide precision and recall but also provides F-measure. F-measure is usually used as an "absolute" trade-off between precision and recall (i.e., the optimum F-measure is considered the best precision and recall). Can you establish this point for <acronym>SMOA</acronym> and levenshtein and tell which algorithm is more adapted?</p></div>
@@ -457,7 +478,7 @@ $ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar
 </pre></div>
 <p>and run by:</p>
 <div class="fragment"><pre>
-$ java -cp ../../lib/Procalign.jar:results Skeleton myOnto.owl edu.mit.visus.bibtex.owl
+$ java -cp ../../lib/Procalign.jar:results Skeleton file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </pre></div>
 
 <p>Now considering the <abbr>API</abbr> (that can be consulted through its thin <a href="../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a> for instance), can you modify the Skeleton program in order for it performs the following:</p>
@@ -472,7 +493,7 @@ $ java -cp ../../lib/Procalign.jar:results Skeleton myOnto.owl edu.mit.visus.bib
 <p>Of course, you can do it progressively.</p>
 <div class="fragment"><pre>
 $ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
-$ java -cp ../../lib/Procalign.jar:results MyApp myOnto.owl edu.mit.visus.bibtex.owl > results/MyApp.owl
+$ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl
 </pre></div>
 
 <p>Do you want to see a possible solution?</p>
@@ -483,13 +504,15 @@ $ java -cp ../../lib/Procalign.jar:results MyApp myOnto.owl edu.mit.visus.bibtex
 <div class="explain" id="qu7"><p>The main piece of code in Skeleton.java is replaced by:</p>
 <pre>
 // Run two different alignment methods (e.g., ngram distance and smoa)
-AlignmentProcess a1 = new StringDistAlignment( onto1, onto2 );
+AlignmentProcess a1 = new StringDistAlignment();
+a1.init( onto1, onto2, loaded );
 params.setParameter("stringFunction","smoaDistance");
 a1.align( (Alignment)null, params );
-AlignmentProcess a2 = new StringDistAlignment( onto1, onto2 );
+AlignmentProcess a2 = new StringDistAlignment();
+a2.init( onto1, onto2, loaded );
 params = new BasicParameters();
 params.setParameter("stringFunction","ngramDistance");
-a1.align( (Alignment)null, params );
+a2.align( (Alignment)null, params );
 
 // Merge the two results.
 ((BasicAlignment)a1).ingest(a2);
@@ -498,7 +521,7 @@ a1.align( (Alignment)null, params );
 // Evaluate them against the references
 // and choose the one with the best F-Measure
 AlignmentParser aparser = new AlignmentParser(0);
-Alignment reference = aparser.parse( "file://localhost"+(new File ( "refalign.rdf" ) . getAbsolutePath()), loaded );
+Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
 Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
 double best = 0.;

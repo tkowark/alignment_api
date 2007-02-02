@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2007
  * Except for the Levenshtein class whose copyright is not claimed to
  * our knowledge.
  *
@@ -64,7 +64,7 @@ public class StringDistances {
 	if ((l1 == 0) && ( l2 == 0 )) return 0.;
 	if ((l1 == 0) || ( l2 == 0 )) return 1.;
 
-	int max = Math.min( l1, l2 ); // the maximal length of a subs
+	//int max = Math.min( l1, l2 ); // the maximal length of a subs
 	int best = 0; // the best subs length so far
 	    
 	int i = 0; // iterates through s1

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,19 +20,14 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintWriter;
-import java.io.IOException;
-
-import java.lang.reflect.Method;
 import java.net.URI;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
@@ -41,6 +36,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
@@ -63,33 +59,26 @@ public class SWRLRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	if ( !( align instanceof OWLAPIAlignment) )
+	    throw new AlignmentException("SWRLRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
 	alignment = align;
 	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");
 	writer.println("                xmlns:swrlx=\"http://www.w3.org/2003/11/swrlx#\"");
 	writer.println("                xmlns:owlx=\"http://www.w3.org/2003/05/owl-xml\"");
 	writer.println("                xmlns:ruleml=\"http://www.w3.org/2003/11/ruleml#\">");
-	try {
-	    writer.println("  <owlx:Imports rdf:resource=\""+((OWLOntology)align.getOntology1()).getLogicalURI().toString()+"\"/>\n");
-	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		c.accept( this );
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	writer.println("  <owlx:Imports rdf:resource=\""+align.getOntology1URI().toString()+"\"/>\n");
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.accept( this );
+	}
 	writer.println("</swrlx:Ontology>");
     }
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	    if ( ((OWLEntity)onto1.getClass( entity1URI ) != null )
-		 || ((OWLEntity)onto1.getDataProperty( entity1URI ) != null)
-		 || ((OWLEntity)onto1.getObjectProperty( entity1URI ) != null )) { 
-		cell.getRelation().accept( this );
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	URI entity1URI = cell.getObject1AsURI();
+	cell.getRelation().accept( this );
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {
@@ -100,8 +89,7 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	    writer.println("  <ruleml:imp>");
 	    writer.println("    <ruleml:_body>");
 	    OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	    OWLEntity obj1 = (OWLEntity)cell.getObject1();
-	    URI uri1 = obj1.getURI();
+	    URI uri1 = cell.getObject1AsURI();
 	    if ( onto1.getClass( uri1 ) != null ){
 		writer.println("      <swrl:classAtom>");
 		writer.println("        <owllx:Class owllx:name=\""+uri1.toString()+"\"/>");
@@ -121,8 +109,7 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	    writer.println("    </ruleml:_body>");
 	    writer.println("    <ruleml:_head>");
 	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	    OWLEntity obj2 = (OWLEntity)cell.getObject2();
-	    URI uri2 = obj2.getURI();
+	    URI uri2 = cell.getObject2AsURI();
 	    if ( onto2.getClass( uri2 ) != null ){
 		writer.println("      <swrlx:classAtom>");
 		writer.println("        <owllx:Class owllx:name=\""+uri2.toString()+"\"/>");
@@ -141,7 +128,7 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	    }
 	    writer.println("    </ruleml:_head>");
 	    writer.println("  </ruleml:imp>\n");
-	} catch (Exception e) { throw new AlignmentException("getURI problem", e); };
+	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
 
     public void visit( SubsumeRelation rel ){};
@@ -167,6 +154,15 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
+	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

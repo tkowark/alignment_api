@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -31,5 +31,12 @@ public class AlignmentIds extends Success {
     public AlignmentIds ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public static String HTMLString = "Alignment IDs: ";
+    public String HTMLString(){
+	String result = "Alignment Ids: <ul>";
+	String id[] = content.split(" ");
+	for ( int i = id.length-1; i >= 0; i-- ){
+	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a></lI>";
+	}
+	return result += "</ul>";
+    }
 }

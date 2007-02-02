@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2006, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,22 +20,13 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
+//*/3.0
+//import org.semanticweb.owl.model.OWLOntology;
+//import org.semanticweb.owl.model.OWLEntity;
+//import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -43,15 +34,12 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.rel.*;
-
 /**
  * Renders an alignment in its RDF format
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
-
 
 public class RDFRendererVisitor implements AlignmentVisitor
 {
@@ -80,41 +68,41 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    String tag = (String)e.nextElement();
 	    writer.print("  <"+tag+">"+align.getExtension(tag)+"</"+tag+">\n");
 	}
-	try {
+	//	try {
 	    if ( align.getFile1() != null )
 		writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
 	    if ( align.getFile2() != null )
 		writer.print("  <onto2>"+align.getFile2().toString()+"</onto2>\n");
 	    writer.print("  <uri1>");
-	    writer.print( ((OWLOntology)align.getOntology1()).getLogicalURI().toString());
+	    writer.print( align.getOntology1URI().toString() );
 	    writer.print("</uri1>\n");
 	    writer.print("  <uri2>");
-	    writer.print( ((OWLOntology)align.getOntology2()).getLogicalURI().toString());
+	    writer.print( align.getOntology2URI().toString() );
 	    writer.print("</uri2>\n");
 	    
 	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 		Cell c = (Cell)e.nextElement();
 		c.accept( this );
 	    } //end for
-	} catch (OWLException ex) { throw new AlignmentException( "getURI problem", ex); }
+	    //	} catch (OWLException ex) { throw new AlignmentException( "getURI problem", ex); }
 	writer.print("</Alignment>\n");
 	writer.print("</rdf:RDF>\n");
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	try {
-	    if ( ((OWLEntity)cell.getObject1()).getURI() != null &&
-		 ((OWLEntity)cell.getObject2()).getURI() != null ){
+	//	try {
+	    if ( cell.getObject1AsURI() != null &&
+		 cell.getObject2AsURI() != null ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
 	    if ( cell.getId() != null ){
 		writer.print(" rdf:about=\"#"+cell.getId()+"\"");
 	    }
 	    writer.print(">\n      <entity1 rdf:resource='");
-	    writer.print( ((OWLEntity)cell.getObject1()).getURI().toString() );
+	    writer.print( cell.getObject1AsURI().toString() );
 	    writer.print("'/>\n      <entity2 rdf:resource='");
-	    writer.print( ((OWLEntity)cell.getObject2()).getURI().toString() );
+	    writer.print( cell.getObject2AsURI().toString() );
 	    writer.print("'/>\n      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
 	    writer.print( cell.getStrength() );
 	    writer.print("</measure>\n");
@@ -124,7 +112,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    cell.getRelation().accept( this );
 	    writer.print("</relation>\n    </Cell>\n  </map>\n");
 	    }
-	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }
+	    //	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }
     }
     public void visit( Relation rel ) {
 	rel.write( writer );

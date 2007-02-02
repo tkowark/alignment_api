@@ -1,7 +1,7 @@
 /*
- * $Id: Skeleton.java 267 2006-06-06 11:34:32Z euzenat $
+ * $Id$
  *
- * Copyright (C) 2006, INRIA Rhône-Alpes
+ * Copyright (C) 2006-2007, INRIA Rhône-Alpes
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -33,15 +33,9 @@ import org.semanticweb.owl.align.Parameters;
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-
-// OWL API classes
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
 // SAX standard classes
 import org.xml.sax.SAXException;
@@ -52,7 +46,6 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.File;
 import java.net.URI;
-import java.util.Hashtable;
 
 /**
  * The Skeleton of code for embeding the alignment API
@@ -62,30 +55,28 @@ import java.util.Hashtable;
 
 public class Skeleton {
 
-    static OWLRDFErrorHandler handler = null;
-    static Hashtable loaded = null;
+    static OntologyCache loaded = null;
 
     public static void main( String[] args ) {
-	OWLOntology onto1 = null;
-	OWLOntology onto2 = null;
+	URI onto1 = null;
+	URI onto2 = null;
 	Parameters params = new BasicParameters();
 
 	try {
-	    // Initializing ontology parsers
-	    initErrorHandler();
-	    loaded = new Hashtable();
+	    loaded = new OntologyCache();
 
 	    // Loading ontologies
 	    if (args.length >= 2) {
-		onto1 = loadOntology(args[0]);
-		onto2 = loadOntology(args[1]);
+		onto1 = new URI( args[0] );
+		onto2 = new URI( args[1] );
 	    } else {
 		System.err.println("Need two arguments to proceed");
 		return ;
 	    }
 
 	    // Aligning
-	    AlignmentProcess a1 = new StringDistAlignment( onto1, onto2 );
+	    AlignmentProcess a1 = new StringDistAlignment();
+	    a1.init ( onto1, onto2, loaded );
 	    a1.align( (Alignment)null, params );
 
 	    // Outputing
@@ -99,40 +90,4 @@ public class Skeleton {
 
 	} catch (Exception e) { e.printStackTrace(); };
     }
-
-    // Initializes RDF Parser error handlers
-    private static void initErrorHandler() throws Exception {
-	try {
-	    handler = new OWLRDFErrorHandler() {
-		    public void owlFullConstruct(int code, String message)
-			throws SAXException {
-		    }
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		    public void error(String message) throws SAXException {
-			throw new SAXException(message.toString());
-		    }
-		    public void warning(String message) throws SAXException {
-			System.err.println("WARNING: " + message);
-		    }
-		};
-	} catch (Exception ex) {
-	    throw ex;
-	}
-    }
-
-    // Load an ontology in the OWL API
-    public static OWLOntology loadOntology(String filename)
-	throws Exception {
-	URI uri = new URI ("file://localhost"+(new File ( filename ) . getAbsolutePath()));
-	if (uri == null) { throw new OWLException( "Bad filename" ); }
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setOWLRDFErrorHandler(handler);
-	parser.setConnection(OWLManager.getOWLConnection());
-	OWLOntology parsedOnt = parser.parseOntology(uri);
-	loaded.put( uri, parsedOnt );
-	return parsedOnt;
-    }
-
 }

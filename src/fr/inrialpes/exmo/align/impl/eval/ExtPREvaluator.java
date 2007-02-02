@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,31 +23,26 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.impl.model.OWLClassImpl;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLException;
 
-import java.lang.Math;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.PrintWriter;
-import java.io.IOException;
 
 import java.net.URI;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 /**
  * Implement extended precision and recall between alignments.
  * These are the measures corresponding to [Ehrig&Euzenat2005].
@@ -63,9 +58,9 @@ public class ExtPREvaluator extends BasicEvaluator {
     private OWLOntology onto2;
 
     private double symALPHA = .5;
-    private double editALPHA = .4;
-    private double editBETA = .6;
-    private double oriented = .5;
+    //private double editALPHA = .4;
+    //private double editBETA = .6;
+    //private double oriented = .5;
 
     private double symprec = 0.;
     private double symrec = 0.;
@@ -84,8 +79,6 @@ public class ExtPREvaluator extends BasicEvaluator {
     /** Creation **/
     public ExtPREvaluator(Alignment align1, Alignment align2) {
 	super(align1, align2);
-	onto1 = (OWLOntology)align1.getOntology1();
-	onto2 = (OWLOntology)align1.getOntology2();
     }
 
     public double getSymPrecision() { return symprec; }
@@ -109,6 +102,14 @@ public class ExtPREvaluator extends BasicEvaluator {
      * (they are supposed to be always =) 
      */
     public double eval(Parameters params) throws AlignmentException {
+	return eval( params, (Object)null );
+    }
+    public double eval(Parameters params, Object cache) throws AlignmentException {
+	// Better to transform them instead...
+	if ( !( align1 instanceof OWLAPIAlignment ) || !( align2 instanceof OWLAPIAlignment ) )
+	    throw new AlignmentException( "ExtPREvaluation: requires OWLAPIAlignments" );
+	onto1 = (OWLOntology)align1.getOntology1();
+	onto2 = (OWLOntology)align1.getOntology2();
 	nbexpected = align1.nbCells();
 	nbfound = align2.nbCells();
 
@@ -126,15 +127,15 @@ public class ExtPREvaluator extends BasicEvaluator {
 			    symsimilarity = symsimilarity + 1.;
 			    c1 = null; // out of the loop.
 			}
-		    } catch (Exception exc) { exc.printStackTrace(); }
+		    } catch (OWLException exc) { exc.printStackTrace(); }
 		}
 		// if nothing has been found
 		// JE: Full implementation would require computing a matrix
 		// of distances between both set of correspondences and
 		// running the Hungarian method...
-		Enumeration enum = align2.getElements();
+		Enumeration e2 = align2.getElements();
 		if ( c1 != null ) {
-		    symsimilarity = symsimilarity + computeSymSimilarity(c1,enum);
+		    symsimilarity = symsimilarity + computeSymSimilarity(c1,e2);
 		}
 	    }
 	}
@@ -171,7 +172,7 @@ public class ExtPREvaluator extends BasicEvaluator {
 		}
 	    }
 	    return symALPHA; //^minval;
-	} catch (Exception e) { return 0; }
+	} catch (OWLException e) { return 0; }
     }
 
     protected int relativePosition( OWLEntity o1, OWLEntity o2, OWLOntology onto ){

@@ -1,6 +1,7 @@
 /*
  * $Id$
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ *
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,11 +23,7 @@ package fr.inrialpes.exmo.align.impl;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-
 import java.io.PrintWriter;
-import java.io.IOException;
 
 /**
  * Evaluate proximity between two alignments.

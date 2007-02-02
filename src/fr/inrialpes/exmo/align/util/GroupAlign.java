@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2006, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2007, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -36,32 +36,28 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-import org.semanticweb.owl.util.OWLConnection;
+/** 3.0
 import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 import org.semanticweb.owl.io.ParserException;
-import org.semanticweb.owl.io.Parser;
+*/
 
 import java.io.File;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.lang.Double;
 import java.lang.Integer;
 import java.lang.Long;
 import java.util.Hashtable;
-import java.util.Vector;
 import java.util.Enumeration;
 
 import org.xml.sax.SAXException;
@@ -107,8 +103,9 @@ public class GroupAlign {
     String target = "onto.rdf";
     URI uri1 = null;
     String initName = null;
-    Hashtable loadedOntologies = null;
-    OWLRDFErrorHandler handler = null;
+    //Hashtable loadedOntologies = null;
+    OntologyCache loadedOntologies = null;
+    //OWLRDFErrorHandler handler = null;
     int debug = 0;
     String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
@@ -122,7 +119,8 @@ public class GroupAlign {
     public void run(String[] args) throws Exception {
 
 	LongOpt[] longopts = new LongOpt[13];
-	loadedOntologies = new Hashtable();
+	//loadedOntologies = new Hashtable();
+	loadedOntologies = new OntologyCache();
 	params = new BasicParameters();
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -154,11 +152,11 @@ public class GroupAlign {
 		filename = g.getOptarg();
 		break;
 	    case 'n' :
-	    arg = g.getOptarg();
+		arg = g.getOptarg();
 		/* Use common ontology to compare */
 		if(arg!=null){
-			try { uri1 = new URI(g.getOptarg());
-			} catch (Exception e) { e.printStackTrace(); }
+		    try { uri1 = new URI(g.getOptarg());
+		    } catch (Exception e) { e.printStackTrace(); }
 		}
 		else{uri1 = null;}
 		break;
@@ -219,7 +217,7 @@ public class GroupAlign {
 	    }
 	}
 
-	int i = g.getOptind();
+	//int i = g.getOptind();
 
 	if (debug == 0 && params.getParameter("debug") != null) {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
@@ -253,12 +251,14 @@ public class GroupAlign {
 		    align( subdir[i] );
 		    // Unload the ontologies
 		    // (this is a pitty but helps avoiding memory full)
+		    loadedOntologies.clear();
+		    /*
 		    try {
 			for ( Enumeration e = loadedOntologies.elements() ; e.hasMoreElements();  ){
 			    OWLOntology o = (OWLOntology)e.nextElement();
 			    o.getOWLConnection().notifyOntologyDeleted( o );
 			}
-		    } catch (Exception ex) { System.err.println(ex); };
+			} catch (Exception ex) { System.err.println(ex); };*/
 		} catch (Exception e) { 
 		    if ( debug > 1 ) e.printStackTrace(); }
 	    }
@@ -270,8 +270,8 @@ public class GroupAlign {
 	// toURI(). is not very good
 	AlignmentProcess result = null;
 	Alignment init = null;
-	OWLOntology onto1 = null;
-	OWLOntology onto2 = null;
+	//OWLOntology onto1 = null;
+	//OWLOntology onto2 = null;
 	URI uri11 = null;
 
 	if ( urlprefix != null ){
@@ -290,12 +290,13 @@ public class GroupAlign {
 	//System.err.println("Here it is "+prefix+" (end by /?)");
 
 	BasicConfigurator.configure();
-	//System.out.println("Before: uri1= "+uri1+", uri11= "+uri11);
+	//System.err.println("Before: uri1= "+uri1+", uri11= "+uri11);
 	if ( uri1 == null ) {uri11 = new URI(prefix+source);}
 	else{uri11 = uri1;}
-	//System.out.println("After: uri1= "+uri1+", uri11= "+uri11);
+	//System.err.println("After: uri1= "+uri1+", uri11= "+uri11);
 	URI uri2 = new URI(prefix+target);
 
+	/*
 	handler = new OWLRDFErrorHandler() {
 		public void owlFullConstruct(int code, String message)
 		    throws SAXException {
@@ -307,38 +308,43 @@ public class GroupAlign {
 		    throw new SAXException(message.toString());
 		}
 		public void warning(String message) throws SAXException {
-		    System.out.println("WARNING: " + message);
+		    System.err.println("WARNING: " + message);
 		}
 	    };
+	*/
 
 	if (debug > 1) System.err.println(" Handler set");
 	if (debug > 1) System.err.println(" URI1: "+uri11);
 	if (debug > 1) System.err.println(" URI2: "+uri2);
 
-	try {
-	    if (uri11 != null) onto1 = loadOntology(uri11);
-	    if (uri2 != null) onto2 = loadOntology(uri2);
-	} catch (Exception e) { return ;};
-	if (debug > 1) System.err.println(" Ontology parsed");
+	//try {
+	//    if (uri11 != null) onto1 = loadOntology(uri11);
+	//    if (uri2 != null) onto2 = loadOntology(uri2);
+	//} catch (Exception e) { return ;};
+	//if (debug > 1) System.err.println(" Ontology parsed");
 	try {
 	    if (initName != null) {
 		AlignmentParser aparser = new AlignmentParser(debug-1);
-		init = aparser.parse(initName, loadedOntologies);
-		onto1 = (OWLOntology) init.getOntology1();
-		onto2 = (OWLOntology) init.getOntology2();
+		//init = aparser.parse( initName, loadedOntologies);
+		init = aparser.parse( initName );
+		uri11 = init.getFile1();
+		uri2 = init.getFile2();
 		if (debug > 1) System.err.println(" Init parsed");
 	    }
 
 	    // Create alignment object
-	    Object[] mparams = { (Object)onto1, (Object)onto2 };
-	    Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
-	    Class[] cparams = { oClass, oClass };
+	    //Object[] mparams = { (Object)onto1, (Object)onto2 };
+	    Object[] mparams = {};
+	    //Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
+	    //Class[] cparams = { oClass, oClass };
+	    Class[] cparams = {};
 	    Class alignmentClass = Class.forName(alignmentClassName);
 	    java.lang.reflect.Constructor alignmentConstructor =
 		alignmentClass.getConstructor(cparams);
 	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-	    result.setFile1(uri11);
-	    result.setFile2(uri2);
+	    result.init( uri11, uri2 );
+	    //result.setFile1(uri11);
+	    //result.setFile2(uri2);
 	} catch (Exception ex) {
 	    System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
 	    throw ex;
@@ -383,6 +389,7 @@ public class GroupAlign {
 	writer.close();
     }
 
+    /*
     public OWLOntology loadOntology(URI uri)
 	throws ParserException, OWLException {
 	OWLOntology parsedOnt = null;
@@ -392,10 +399,10 @@ public class GroupAlign {
 	parsedOnt = parser.parseOntology(uri);
 	loadedOntologies.put(uri.toString(), parsedOnt);
 	return parsedOnt;
-    }
+	}*/
 
     public void usage() {
-	System.out.println("usage: GroupAlign [options]");
+	System.err.println("usage: GroupAlign [options]");
 	System.err.println("options are:");
 	System.err.println("\t--name=uri -n uri\t\tUse the given uri to compare with.");
 	System.err.println("\t--source=filename -s filename Source filename (default onto1.rdf)");

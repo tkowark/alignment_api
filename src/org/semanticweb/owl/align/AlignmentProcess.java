@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,18 +20,8 @@
 
 package org.semanticweb.owl.align; 
 
-import java.io.PrintStream;
-import java.io.IOException;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
-
 /**
- * Represents an OWL ontology alignment.
+ * Represents an executable alignment
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -47,7 +37,7 @@ public interface AlignmentProcess extends Alignment
      * TODO: a set of parameters should better be passed to the alignment
      * method.
      */
-    public void align( Alignment alignment, Parameters param ) throws AlignmentException, OWLException;
+    public void align( Alignment alignment, Parameters param ) throws AlignmentException;
 
 }
 

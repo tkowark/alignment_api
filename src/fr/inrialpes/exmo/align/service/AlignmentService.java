@@ -24,14 +24,10 @@ import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
-import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Enumeration;
 

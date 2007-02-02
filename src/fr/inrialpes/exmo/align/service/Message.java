@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -44,8 +44,7 @@ public class Message {
 	parameters = param;
     }
 
-    public static String HTMLString = "Message: ";
-    public String htmlString(){
+    public String HTMLString(){
 	return "<h1>Message</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }
 

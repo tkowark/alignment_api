@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,13 +26,10 @@ import java.util.Vector;
 import java.util.Set;
 import java.util.HashSet;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLFrame;
-import org.semanticweb.owl.impl.model.OWLDataCardinalityRestrictionImpl;
-import org.semanticweb.owl.impl.model.OWLObjectCardinalityRestrictionImpl;
 import org.semanticweb.owl.model.OWLRestriction;
 import org.semanticweb.owl.model.OWLDescription;
 import org.semanticweb.owl.model.OWLNaryBooleanDescription;
@@ -68,18 +65,15 @@ import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 public class ClassStructAlignment extends DistanceAlignment implements AlignmentProcess
 {
     /** Creation **/
-    public ClassStructAlignment( OWLOntology onto1, OWLOntology onto2 ){
-    	super( onto1, onto2 );
-    };
-
-    private double max( double i, double j) { if ( i>j ) return i; else return j; }
+    public ClassStructAlignment(){};
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+	loadInit( alignment );
 	//ignore alignment;
-	double threshold = 0.6; // threshold above which distances are to high
+	//double threshold = 0.6; // threshold above which distances are to high
 	int i, j = 0;     // index for onto1 and onto2 classes
-	int l1, l2 = 0;   // length of strings (for normalizing)
+	//int l1, l2 = 0;   // length of strings (for normalizing)
 	int nbclass1 = 0; // number of classes in onto1
 	int nbclass2 = 0; // number of classes in onto2
 	Vector classlist2 = new Vector(10); // onto2 classes
@@ -89,70 +83,73 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	double pic2 = 0.5; // class weight for properties
 
 	ingest( alignment );
-	// Create class lists
-	for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); nbclass2++ ){
-	    classlist2.add( it.next() );
-	}
-	for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); nbclass1++ ){
-	    classlist1.add( it.next() );
-	}
-	classmatrix = new double[nbclass1+1][nbclass2+1];
-	
-	if (debug > 0) System.err.println("Initializing class distances");
-	// Initialize class distances
-	for ( i=0; i<nbclass1; i++ ){
-	    OWLClass cl = (OWLClass)classlist1.get(i);
-	    for ( j=0; j<nbclass2; j++ ){
-		classmatrix[i][j] = pic1 * StringDistances.subStringDistance(
-									     cl.getURI().getFragment().toLowerCase(),
-									     ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
+	try {
+	    // Create class lists
+	    for ( Iterator it = ((OWLOntology)onto2).getClasses().iterator(); it.hasNext(); nbclass2++ ){
+		classlist2.add( it.next() );
 	    }
-	}
-
-	if (debug > 0) System.err.print("Computing class distances\n");
-	// Compute classes distances
-	// -- for all of its attribute, find the best match if possible... easy
-	// -- simply replace in the matrix the value by the value plus the 
-	// classmatrix[i][j] =
-	// pic1 * classmatrix[i][j]
-	// + pic2 * 2 *
-	//  (sigma (att in c[i]) getAllignCell... )
-	//  / nbatts of c[i] + nbatts of c[j]
-	for ( i=0; i<nbclass1; i++ ){
-	    Set properties1 = getProperties( (OWLClass)classlist1.get(i), onto1 );
-	    int nba1 = properties1.size();
-	    if ( nba1 > 0 ) { // if not, keep old values...
-		Set correspondences = new HashSet();
+	    for ( Iterator it = ((OWLOntology)onto1).getClasses().iterator(); it.hasNext(); nbclass1++ ){
+		classlist1.add( it.next() );
+	    }
+	    classmatrix = new double[nbclass1+1][nbclass2+1];
+	
+	    if (debug > 0) System.err.println("Initializing class distances");
+	    // Initialize class distances
+	    for ( i=0; i<nbclass1; i++ ){
+		OWLClass cl = (OWLClass)classlist1.get(i);
 		for ( j=0; j<nbclass2; j++ ){
-		    Set properties2 = getProperties( (OWLClass)classlist2.get(j), onto2 );
-		    int nba2 = properties1.size();
-		    double attsum = 0.;
-		    // check that there is a correspondance
-		    // in list of class2 atts and add their weights
-		    for ( Iterator prp = properties1.iterator(); prp.hasNext(); ){
-			Set s2 = getAlignCells1( (OWLEntity)prp.next() );
-			// Find the property with the higest similarity
-			// that is matched here
-			double currentValue = 0.;
-			for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
-			    Cell c2 = (Cell)it2.next();
-			    if ( properties2.contains((Object)c2.getObject2() ) ) {
-				double val = c2.getStrength();
-				if ( val > currentValue )
-				    currentValue = val;
-			    }
-			}
-			attsum = attsum + 1 - currentValue;
-		    }
-		    classmatrix[i][j] = classmatrix[i][j]
-			+ pic2 * (2 * attsum / (nba1 + nba2));
+		    classmatrix[i][j] = pic1 * StringDistances.subStringDistance(
+										 cl.getURI().getFragment().toLowerCase(),
+										 ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
 		}
 	    }
-	    // Assess factor
-	    // -- FirstExp: nothing to be done: one pass
-	}
-	//selectBestMatch( nbclass1, classlist1, nbclass2, classlist2, classmatrix, threshold, null);
 
+	    if (debug > 0) System.err.print("Computing class distances\n");
+	    // Compute classes distances
+	    // -- for all of its attribute, find the best match if possible... easy
+	    // -- simply replace in the matrix the value by the value plus the 
+	    // classmatrix[i][j] =
+	    // pic1 * classmatrix[i][j]
+	    // + pic2 * 2 *
+	    //  (sigma (att in c[i]) getAllignCell... )
+	    //  / nbatts of c[i] + nbatts of c[j]
+	    for ( i=0; i<nbclass1; i++ ){
+		Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)onto1) );
+		int nba1 = properties1.size();
+		if ( nba1 > 0 ) { // if not, keep old values...
+		    //Set correspondences = new HashSet();
+		    for ( j=0; j<nbclass2; j++ ){
+			Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)onto2) );
+			int nba2 = properties1.size();
+			double attsum = 0.;
+			// check that there is a correspondance
+			// in list of class2 atts and add their weights
+			for ( Iterator prp = properties1.iterator(); prp.hasNext(); ){
+			    Set s2 = getAlignCells1( (OWLEntity)prp.next() );
+			    // Find the property with the higest similarity
+			    // that is matched here
+			    double currentValue = 0.;
+			    for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
+				Cell c2 = (Cell)it2.next();
+				if ( properties2.contains((Object)c2.getObject2() ) ) {
+				    double val = c2.getStrength();
+				    if ( val > currentValue )
+					currentValue = val;
+				}
+			    }
+			    attsum = attsum + 1 - currentValue;
+			}
+			classmatrix[i][j] = classmatrix[i][j]
+			    + pic2 * (2 * attsum / (nba1 + nba2));
+		    }
+		}
+		// Assess factor
+		// -- FirstExp: nothing to be done: one pass
+	    }
+	    //selectBestMatch( nbclass1, classlist1, nbclass2, classlist2, classmatrix, threshold, null);
+	} catch (OWLException e) {
+	    throw new AlignmentException( "OWLException during alignment", e );
+	}
     }
 
     public void getProperties( OWLDescription desc, OWLOntology o, Set list){
@@ -178,7 +175,15 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	    //	    i = mmm.length;
 	    //	}
 	    // }
-	} catch (Exception e) { e.printStackTrace(); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
     }
     public void getProperties( OWLRestriction rest, OWLOntology o, Set list) throws OWLException {
 	list.add( (Object)rest.getProperty() );

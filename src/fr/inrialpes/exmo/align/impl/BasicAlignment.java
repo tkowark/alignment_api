@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2007
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 package fr.inrialpes.exmo.align.impl;
 
-import java.lang.ClassNotFoundException;
 import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Enumeration;
@@ -30,17 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.IOException;
 import java.net.URI;
 
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -50,13 +41,15 @@ import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
 /**
- * Represents an OWL ontology alignment. An ontology comprises a number of
- * collections. Each ontology has a number of classes, properties and
- * individuals, along with a number of axioms asserting information about those
- * objects.
+ * Represents a basic ontology alignment, i.e., a fully functionnal alignment
+ * for wich the type of aligned objects is not known.
  *
  * NOTE(JE): hashtabale are indexed by URI.
  * This is strange, but there might be a reason
+ * NOTE(JE): I do not think that this is the case anymore
+ * 
+ * In version 3.0 this class is virtually abstract.
+ * But it cannot be declared abstract because it uses its own constructor.
  * 
  * @author Jérôme Euzenat, David Loup, Raphaël Troncy
  * @version $Id$
@@ -67,18 +60,18 @@ public class BasicAlignment implements Alignment {
 	visitor.visit(this);
     }
 
+    protected Object onto1 = null;
+
+    protected Object onto2 = null;
+
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
-    private boolean STRICT_IMPLEMENTATION = false;
+    protected static boolean STRICT_IMPLEMENTATION = false;
 
     protected int debug = 0;
 
     protected String level = "0";
 
     protected String type = "**";
-
-    protected OWLOntology onto1 = null;
-
-    protected OWLOntology onto2 = null;
 
     protected Hashtable hash1 = null;
 
@@ -104,9 +97,13 @@ public class BasicAlignment implements Alignment {
 	setExtension( "method", getClass().getName() );
     }
 
-    protected void init(OWLOntology onto1, OWLOntology onto2) {
+    public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
 	this.onto1 = onto1;
 	this.onto2 = onto2;
+    }
+
+    public void init( Object onto1, Object onto2 ) throws AlignmentException {
+	init( onto1, onto2, null );
     }
 
     public int nbCells() {
@@ -126,20 +123,30 @@ public class BasicAlignment implements Alignment {
 	return onto2;
     };
 
-    public void setOntology1(Object ontology) throws AlignmentException {
-	if ( ontology instanceof OWLOntology ){
-	    onto1 = (OWLOntology) ontology;
+    public URI getOntology1URI() throws AlignmentException {
+	if ( onto1 instanceof URI ) {
+	    return (URI)onto1;
 	} else {
-	    throw new AlignmentException("setOntology1: arguments must be OWLOntology");
-	};
+	    throw new AlignmentException( "Cannot find URI for "+onto1 );
+	}
+    };
+
+    public URI getOntology2URI() throws AlignmentException {
+	if ( onto2 instanceof URI ) {
+	    return (URI)onto2;
+	} else {
+	    throw new AlignmentException( "Cannot find URI for "+onto2 );
+	}
+    };
+
+    public void setOntology1(Object ontology) throws AlignmentException {
+	//*/onto1 = (OWLOntology)ontology;
+	onto1 = ontology;
     };
 
     public void setOntology2(Object ontology) throws AlignmentException {
-	if ( ontology instanceof OWLOntology ){
-	    onto2 = (OWLOntology) ontology;
-	} else {
-	    throw new AlignmentException("setOntology2: arguments must be OWLOntology");
-	};
+	//*/onto2 = (OWLOntology)ontology;
+	onto2 = ontology;
     };
 
     public void setType(String type) { this.type = type; };
@@ -181,22 +188,30 @@ public class BasicAlignment implements Alignment {
     }
 
     /** Cell methods **/
-    public Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
- 
-        if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
-            throw new AlignmentException("addAlignCell: arguments must be OWLEntities");
-	Cell cell = (Cell) new BasicCell((OWLEntity) ob1, (OWLEntity) ob2, relation, measure);
+    public Cell addAlignCell( String id, Object ob1, Object ob2, Relation relation, double measure ) throws AlignmentException {
+	Cell cell = createCell( id, ob1, ob2, relation, measure);
 	addCell( cell );
 	return cell;
+    }
+
+    // JE: Why does this not allow to create cells with ids preserved?
+    // This would be useful when the Alignements are cloned to preserve them
+    public Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
+	return addAlignCell( (String)null, ob1, ob2, BasicRelation.createRelation("="), measure );
     };
 
     public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {
-	return addAlignCell( ob1, ob2, "=", 1. );
+	return addAlignCell( (String)null, ob1, ob2, BasicRelation.createRelation("="), 1. );
+    }
+
+    public Cell createCell( String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
+	return (Cell)new BasicCell( id, ob1, ob2, relation, measure);
     }
 
     protected void addCell( Cell c ) throws AlignmentException {
 	boolean found = false;
-	HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
+	//*/ HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
+	HashSet s1 = (HashSet)hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
 	    for (Iterator i = s1.iterator(); !found && i.hasNext(); ) {
@@ -206,10 +221,12 @@ public class BasicAlignment implements Alignment {
 	} else {
 	    s1 = new HashSet();
 	    s1.add( c );
-	    hash1.put((OWLEntity)c.getObject1(),s1);
+	    //*/hash1.put((OWLEntity)c.getObject1(),s1);
+	    hash1.put(c.getObject1(),s1);
 	}
 	found = false;
-	HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	//*/HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	HashSet s2 = (HashSet)hash2.get(c.getObject2());
 	if( s2 != null ){
 	    // I must check that there is no one here
 	    for (Iterator i=s2.iterator(); !found && i.hasNext(); ) {
@@ -219,49 +236,43 @@ public class BasicAlignment implements Alignment {
 	} else {
 	    s2 = new HashSet();
 	    s2.add( c );
-	    hash2.put((OWLEntity)c.getObject2(),s2);
+	    //*/hash2.put((OWLEntity)c.getObject2(),s2);
+	    hash2.put(c.getObject2(),s2);
 	}
     }
 
-    // Beware, the catch applies both for getURI and OWLException
     public Set getAlignCells1(Object ob) throws AlignmentException {
-	if ( ob instanceof OWLEntity ){
-	    return (HashSet)hash1.get((OWLEntity)ob);
-	} else {
-	    throw new AlignmentException("getAlignCells1: argument must be OWLEntity");
-	}
+	//*/return (HashSet)hash1.get((OWLEntity)ob);
+	return (HashSet)hash1.get( ob );
     }
     public Set getAlignCells2(Object ob) throws AlignmentException {
-	if ( ob instanceof OWLEntity ){
-	    return (HashSet)hash2.get((OWLEntity)ob);
-	} else {
-	    throw new AlignmentException("getAlignCells1: argument must be OWLEntity");
-	}
+	//*/return (HashSet)hash2.get((OWLEntity)ob);
+	return (HashSet)hash2.get( ob );
     }
 
-    // Deprecated: implement as the one retrieving the highest strength correspondence (
+    /*
+     * Deprecated: implement as the one retrieving the highest strength correspondence
+     * @deprecated
+     */
     public Cell getAlignCell1(Object ob) throws AlignmentException {
 	if ( STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
-	    if ( ob instanceof OWLEntity ){
-		Set s2 = (Set)hash1.get((OWLEntity) ob);
-		Cell bestCell = null;
-		double bestStrength = 0.;
-		if ( s2 != null ) {
-		    for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
-			Cell c = (Cell)it2.next();
-			double val = c.getStrength();
-			if ( val > bestStrength ) {
-			    bestStrength = val;
-			    bestCell = c;
-			}
+	    //*/Set s2 = (Set)hash1.get((OWLEntity)ob);
+	    Set s2 = (Set)hash1.get(ob);
+	    Cell bestCell = null;
+	    double bestStrength = 0.;
+	    if ( s2 != null ) {
+		for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
+		    Cell c = (Cell)it2.next();
+		    double val = c.getStrength();
+		    if ( val > bestStrength ) {
+			bestStrength = val;
+			bestCell = c;
 		    }
 		}
-		return bestCell;
-	    } else {
-		throw new AlignmentException("getAlignCell1: argument must be OWLEntity");
 	    }
+	    return bestCell;
 	}
     }
 
@@ -269,63 +280,72 @@ public class BasicAlignment implements Alignment {
 	if ( STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
-	    if ( ob instanceof OWLEntity ){
-		Set s1 = (Set)hash2.get((OWLEntity) ob);
-		Cell bestCell = null;
-		double bestStrength = 0.;
-		if ( s1 != null ){
-		    for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
-			Cell c = (Cell)it1.next();
-			double val = c.getStrength();
-			if ( val > bestStrength ) {
-			    bestStrength = val;
-			    bestCell = c;
-			}
+	    //*/Set s1 = (Set)hash2.get((OWLEntity) ob);
+	    Set s1 = (Set)hash2.get(ob);
+	    Cell bestCell = null;
+	    double bestStrength = 0.;
+	    if ( s1 != null ){
+		for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
+		    Cell c = (Cell)it1.next();
+		    double val = c.getStrength();
+		    if ( val > bestStrength ) {
+			bestStrength = val;
+			bestCell = c;
 		    }
 		}
-		return bestCell;
-	    } else {
-		throw new AlignmentException("getAlignCell2: argument must be OWLEntity");
 	    }
+	    return bestCell;
 	}
     }
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public Object getAlignedObject1(Object ob) throws AlignmentException {
 	Cell c = getAlignCell1(ob);
 	if (c != null) return c.getObject2();
 	else return null;
     };
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public Object getAlignedObject2(Object ob) throws AlignmentException {
 	Cell c = getAlignCell2(ob);
 	if (c != null) return c.getObject1();
 	else return null;
     };
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public Relation getAlignedRelation1(Object ob) throws AlignmentException {
 	Cell c = getAlignCell1(ob);
 	if (c != null) return c.getRelation();
 	else return (Relation) null;
     };
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public Relation getAlignedRelation2(Object ob) throws AlignmentException {
 	Cell c = getAlignCell2(ob);
 	if (c != null) return c.getRelation();
 	else return (Relation) null;
     };
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public double getAlignedStrength1(Object ob) throws AlignmentException {
 	Cell c = getAlignCell1(ob);
 	if (c != null) return c.getStrength();
 	else return 0;
     };
 
-    //- Deprecated
+    /*
+     * @deprecated
+     */
     public double getAlignedStrength2(Object ob) throws AlignmentException {
 	Cell c = getAlignCell2(ob);
 	if (c != null) return c.getStrength();
@@ -335,14 +355,18 @@ public class BasicAlignment implements Alignment {
     // JE: beware this does only remove the exact equal cell
     // not those with same value
     public void removeAlignCell(Cell c) throws AlignmentException {
-	HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
-	HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	//*/HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
+	HashSet s1 = (HashSet)hash1.get(c.getObject1());
+	//*/HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
+	HashSet s2 = (HashSet)hash2.get(c.getObject2());
 	s1.remove(c);
 	s2.remove(c);
 	if (s1.isEmpty())
-	    hash1.remove((OWLEntity) c.getObject1());
+	    //*/hash1.remove((OWLEntity)c.getObject1());
+	    hash1.remove(c.getObject1());
 	if (s2.isEmpty())
-	    hash2.remove((OWLEntity) c.getObject2());
+	    //*/hash2.remove((OWLEntity)c.getObject2());
+	    hash2.remove(c.getObject2());
     }
 
     /***************************************************************************
@@ -423,6 +447,8 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
+    // JE: BEWARE, THESE METHODS RETURNS BASIC-ALIGNMENTS! ONCE IMPLEMENTED
+    // THEY MAY BENEFIT AT BEING OVERRIDDEN WHICH THEY ARE NOT
    /**
      * The second alignment is meet with the first one meaning that for
      * any pair (o, o', n, r) in O and (o, o', n', r) in O' the resulting
@@ -494,6 +520,8 @@ public class BasicAlignment implements Alignment {
      * Incorporate the cells of the alignment into its own alignment. Note: for
      * the moment, this does not copy but really incorporates. So, if hardening
      * is applied, then the ingested alignmment will be modified as well.
+     * JE: May be a "force" boolean for really ingesting or copying may be
+     *     useful
      */
     public void ingest(Alignment alignment) throws AlignmentException {
 	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
@@ -506,7 +534,11 @@ public class BasicAlignment implements Alignment {
      */
     public Object clone() {
 	BasicAlignment align = new BasicAlignment();
-	align.init( (OWLOntology)getOntology1(), (OWLOntology)getOntology2() );
+	//*/align.init( (OWLOntology)getOntology1(), (OWLOntology)getOntology2() );
+	try {
+	    align.init( getOntology1(), getOntology2() );
+	    // This method is never launched by the present class
+	} catch ( AlignmentException e ) {};
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );

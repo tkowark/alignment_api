@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,16 +20,12 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Random;
 import java.io.PrintWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
@@ -41,6 +37,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
@@ -66,27 +63,26 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor
 
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
-	try {
-	    writer.print("MappingDocument(<\""+"\">\n");
-	    writer.print("  source(<\""+((OWLOntology)align.getOntology1()).getLogicalURI().toString()+"\">)\n");
-	    writer.print("  target(<\""+((OWLOntology)align.getOntology2()).getLogicalURI().toString()+"\">)\n");
+	if ( !(align instanceof OWLAPIAlignment) )
+	    throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
+	writer.print("MappingDocument(<\""+"\">\n");
+	writer.print("  source(<\""+align.getOntology1URI().toString()+"\">)\n");
+	writer.print("  target(<\""+align.getOntology2URI().toString()+"\">)\n");
 
-	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		c.accept( this );
-	    } //end for
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
-	
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.accept( this );
+	} //end for
 	writer.print(")\n");
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	String id = "s"+generator.nextInt(100000);
 	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
+	//OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
 	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
+	    URI entity1URI = cell.getObject1AsURI();
+	    URI entity2URI = cell.getObject2AsURI();
 	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
 		writer.print("  classMapping( <\"#"+id+"\">\n");
 		cell.getRelation().accept( this );
@@ -148,6 +144,15 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
+	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

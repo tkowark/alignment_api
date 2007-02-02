@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,31 +24,19 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
-
-import java.lang.Math;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.TreeSet;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Comparator;
 import java.util.Vector;
 import java.io.PrintWriter;
-import java.io.IOException;
-
 import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Compute the precision recall graph on 11 points
@@ -87,6 +75,9 @@ public class PRGraphEvaluator extends BasicEvaluator {
      * 2) For 
      */
     public double eval(Parameters params) throws AlignmentException {
+	return eval( params, (Object)null );
+    }
+    public double eval(Parameters params, Object cache) throws AlignmentException {
 	// Local variables
 	int nbexpected = align1.nbCells();
 	int nbfound = 0;
@@ -118,28 +109,29 @@ public class PRGraphEvaluator extends BasicEvaluator {
 				    throws ClassCastException{
 				    try {
 					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
+	  //*/3.0
 				    if ( o1 instanceof Cell
 					 && o2 instanceof Cell ) {
 					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
 					    return -1;
 					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
 					    return 1;
-					} else if ( (((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment() == null)
-						    || (((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment() == null) ) {
+					} else if ( (((Cell)o1).getObject1AsURI().getFragment() == null)
+						    || (((Cell)o2).getObject1AsURI().getFragment() == null) ) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) > 0) {
+					} else if ( ((Cell)o1).getObject1AsURI().getFragment().compareTo(((Cell)o2).getObject1AsURI().getFragment()) > 0) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) < 0 ) {
+					} else if ( ((Cell)o1).getObject1AsURI().getFragment().compareTo(((Cell)o2).getObject1AsURI().getFragment()) < 0 ) {
 					    return 1;
-					} else if ( (((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment() == null)
-						    || (((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment() == null) ) {
+					} else if ( (((Cell)o1).getObject2AsURI().getFragment() == null)
+						    || (((Cell)o2).getObject2AsURI().getFragment() == null) ) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment()) > 0) {
+					} else if ( ((Cell)o1).getObject2AsURI().getFragment().compareTo(((Cell)o2).getObject2AsURI().getFragment()) > 0) {
 					    return -1;
 					// We assume that they have different names
 					} else { return 1; }
 				    } else { throw new ClassCastException(); }
-				    } catch ( OWLException e) { e.printStackTrace(); return 0;}
+				    } catch ( AlignmentException e) { e.printStackTrace(); return 0;}
 				}
 			    }
 			    );
@@ -156,23 +148,22 @@ public class PRGraphEvaluator extends BasicEvaluator {
       for( Iterator it = cellSet.iterator(); it.hasNext(); ){
 	  nbfound++;
 	  Cell c2 = (Cell)it.next();
-	  Set s1 = (Set)align1.getAlignCells1((OWLEntity)c2.getObject1());
+	  //*/3.0
+	  Set s1 = (Set)align1.getAlignCells1( c2.getObject1() );
 	  if( s1 != null ){
 	      for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
 		  Cell c1 = (Cell)it1.next();
-		  try {			
-		      URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
-		      URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
-		      // if (c1.getobject2 == c2.getobject2)
-		      if (uri1.toString().equals(uri2.toString())) {
-			  nbcorrect++;
-			  double recall = (double)nbcorrect / (double)nbexpected;
-			  double precision = (double)nbcorrect / (double)nbfound;
-			  // Create a new pair to put in the list
-			  points.add( new Pair( recall, precision ) );
-			  c2 = null; // out of the loop.
-		      }
-		  } catch (Exception exc) { exc.printStackTrace(); }
+		  URI uri1 = c1.getObject2AsURI();
+		  URI uri2 = c2.getObject2AsURI();	
+		  // if (c1.getobject2 == c2.getobject2)
+		  if (uri1.toString().equals(uri2.toString())) {
+		      nbcorrect++;
+		      double recall = (double)nbcorrect / (double)nbexpected;
+		      double precision = (double)nbcorrect / (double)nbfound;
+		      // Create a new pair to put in the list
+		      points.add( new Pair( recall, precision ) );
+		      c2 = null; // out of the loop.
+		  }
 	      }
 	  }
       }

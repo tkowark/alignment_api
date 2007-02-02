@@ -1,9 +1,9 @@
 /*
- * $Id: GroupEval.java 331 2006-09-21 11:00:15Z euzenat $
+ * $Id$
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2006, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2007, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -26,23 +26,19 @@
 */
 package fr.inrialpes.exmo.align.util;
 
-import org.semanticweb.owl.model.OWLOntology;
+//import org.semanticweb.owl.model.OWLOntology;
 
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
-import java.net.URI;
-import java.lang.Double;
 import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -83,7 +79,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     <CODE>output</CODE> if present, stdout by default.
 
 <pre>
-$Id: GroupEval.java 331 2006-09-21 11:00:15Z euzenat $
+$Id$
 </pre>
 
 @author Sean K. Bechhofer
@@ -103,7 +99,8 @@ public class GenTriangle {
     Vector listAlgo = null;
     int debug = 0;
     String color = null;
-    Hashtable loaded = null;
+    //Hashtable loaded = null;
+    OntologyCache loaded = null;
     String ontoDir = null;
 
     public static void main(String[] args) {
@@ -114,7 +111,8 @@ public class GenTriangle {
     public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[10];
-	loaded = new Hashtable();
+	//loaded = new Hashtable();
+	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -244,12 +242,13 @@ public class GenTriangle {
 	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
-	try {
-	    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-		OWLOntology o = (OWLOntology)e.nextElement();
-		o.getOWLConnection().notifyOntologyDeleted( o );
-	    }
-	} catch (Exception ex) { System.err.println(ex); };
+	loaded.clear();
+	//try {
+	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
+	//	OWLOntology o = (OWLOntology)e.nextElement();
+	//	o.getOWLConnection().notifyOntologyDeleted( o );
+	//    }
+	//} catch (Exception ex) { System.err.println(ex); };
 	if ( ok == true ) return result;
 	else return (Vector)null;
     }
@@ -262,16 +261,16 @@ public class GenTriangle {
 	    else nextdebug = debug - 2;
 	    // Load alignments
 	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
-	    Alignment align1 = aparser1.parse( alignName1, loaded );
+	    Alignment align1 = aparser1.parse( alignName1 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
 	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
-	    Alignment align2 = aparser2.parse( alignName2, loaded );
+	    Alignment align2 = aparser2.parse( alignName2 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params ) ;
+	    eval.eval( params, loaded ) ;
 	} catch (Exception ex) { System.err.println(ex); }
 	return eval;
     }

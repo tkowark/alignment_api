@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@
 package org.semanticweb.owl.align; 
 
 import java.io.PrintWriter;
-import java.io.IOException;
 
 /**
  * Assess the closeness between two ontology alignments.
@@ -42,6 +41,14 @@ public interface Evaluator
      * proximity
      */
     public double eval( Parameters param ) throws AlignmentException;
+
+    /**
+     * Run the evaluation between the two ontologies.
+     * Returns a double (between 0 and 1) providing an idea of the
+     * proximity
+     * The additional argument allows to cache the ontologies if necessary
+     */
+    public double eval( Parameters param, Object cache ) throws AlignmentException;
 
     /** Housekeeping **/
     /**

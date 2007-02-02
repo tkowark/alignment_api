@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>Alignment API: Upgrading from version 2.x to 3.0</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcolor="#ffffff">
+
+<center><h1>Upgrading an Alignment implementation from version 2.x to
+    3.0 of the Alignment API</h1></center>
+
+<p>The version 3.0 of the Alignement API has been designed to provide
+  matching algorithm designers more flexibility. In particular, the
+  version 3.0 does not necessarily rely on the OWL API, so designers
+  who want to use another OWL API can do so at no cost.</p>
+
+<h2>Don't panic</h2>
+
+<p>Those who already implemented an algorithm under the API will have
+  to implement some changes for upgrading from version 2 to version
+  3. But first do not panic. This document aims at helping you in this
+  simple task.</p>
+
+<h2>From Basic to OWLAPI</h2>
+
+<p>Previously you certainly had your class
+  extending <tt>BasicAlignment</tt>. You must now have it
+  extending <tt>OWLAPIAlignment</tt>. This guarantee that you will
+  still find all the features found in the
+  previous <tt>BasicAlignment</tt>.</p>
+<p>If you create on the fly new <tt>Alignment</tt> or
+  new <tt>Cell</tt>, if they must contain <tt>OWLEntity</tt>, then
+  be sure that they are created as <tt>OWLAPIAlignment</tt>
+  and <tt>OWLAPICell</tt> respectively.</p>
+<p>The new implementation of <tt>BasicAlignment</tt>
+  and <tt>BasicCell</tt> provides additional new primitives such
+  as <tt>getOntology1URI()</tt> and <tt>getObject1AsURI()</tt>.</p>
+
+<h2>Parsing alignments</h2>
+
+<p>If you used to parse alignments, you certainly
+  used <tt>AlignmentParser</tt> which returned
+  a <tt>BasicAlignment</tt>. Now the <tt>AlignmentParser</tt> returns
+  a <tt>URIAlignment</tt>. To turn this <tt>URIAlignment</tt> into
+  a <tt>OWLAPIAlignment</tt>, just
+  invoke <tt>OWLAPIAlignment.toOWLAPIAlignment( URIAlignment )</tt>. It
+  will return the corresponding <tt>OWLAPIAlignment</tt>.</p>
+
+<h2>Invoking your alignment</h2>
+
+<p>For invoking your alignment class, the sequence used to be the
+  following:
+<pre>
+AlignmentProcess al = new MyAlignment();
+al.init( OWLOntology, OWLOntology );
+al.align( Alignment, Parameters );
+</pre>
+(You may have used a <tt>MyAlignment( OWLOntology, OWLOntology )</tt>
+constructor and no <tt>init</tt>. Now the sequence above is compulsory).
+From version 3, the sequence is the same except that the arguments for init() are
+the <tt>URL</tt> where to find the ontologies instead of the ontology
+themselves. It is thus necessary for you to change your implementation
+of <tt>init()</tt> so that it loads the ontologies. Moreover, the init
+Alignent in <tt>align()</tt> is a <tt>URIAlignment</tt> and not
+a <tt>OWLAPIAlignment</tt> so it may be necessary to change it as well.</p>
+
+<p>Fortunately, the <tt>OWLAPIAlignment</tt> class already provides
+  the <tt>loadOntology( URI, Hashtable )</tt> method that loads the
+  required ontology and a <tt>loadInit( URI )</tt> method that will
+  load the initial alignment.</p>
+
+<h2>Report to us</h2>
+
+<p>Please report any tweak that we did not mention here so that we can
+  update this document.</p>
+
+<h2>More</h2>
+
+<p>You can look at the sources of the Alignment API which contain many
+  examples. In particular, look at the <tt>Procalign</tt> class for
+  example of the use of <tt>OntologyCache</tt>.</p>
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/up2to3.html</center>
+<hr />
+$Id: relnotes.html 374 2006-12-30 18:26:13Z euzenat $
+</small>
+</address>
+</body>
+</html>

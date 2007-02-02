@@ -50,25 +50,25 @@ $ setenv CWD `pwd`
 
 $ java -jar lib/procalign.jar --help
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl
+$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o aligns/bibref.owl
+$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o aligns/bibref.owl
 
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter rdf/srcalign.owl
 
-$ java -jar lib/procalign.jar file://localhost$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl -a rdf/srcalign.owl
+$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -a rdf/srcalign.owl
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl
+$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance
+$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4
+$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://localhost$CWD/aligns/bibref.owl file://localhost$CWD/rdf/srcalign.owl
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/bibref.owl file://$CWD/rdf/srcalign.owl
 
-$ java -jar lib/Procalign.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
+$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
 
 Using with JWNL (Wordnet)
 -------------------------
@@ -77,7 +77,7 @@ Using with JWNL (Wordnet)
 - jwnl.jar commons-logging.jar must be in lib.
 - file_properties.xml must be in current directory
 
-$ java -jar lib/alignwn.jar file://localhost$CWD/rdf/edu.umbc.ebiquity.publication.owl file://localhost$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o aligns/JWNL.owl
+$ java -jar lib/alignwn.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o aligns/JWNL.owl
 
 LAST RELEASE
 ------------

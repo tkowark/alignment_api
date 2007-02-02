@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,15 +20,11 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
@@ -40,6 +36,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
@@ -61,25 +58,24 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	if ( !( align instanceof OWLAPIAlignment ) ) 
+	    throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
 	alignment = align;
 	writer.print("<rdf:RDF\n");
 	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n");
 	writer.print("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
 	writer.print("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" \n");
 	writer.print("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n\n");	
-	try {
-	    writer.print("  <owl:Ontology rdf:about=\"\">\n");
-	    writer.print("    <rdfs:comment>Aligned ontollogies</rdfs:comment>\n");
-	    writer.print("    <owl:imports rdf:resource=\""+((OWLOntology)align.getOntology1()).getLogicalURI().toString()+"\"/>\n");
-	    writer.print("    <owl:imports rdf:resource=\""+((OWLOntology)align.getOntology2()).getLogicalURI().toString()+"\"/>\n");
-	    writer.print("  </owl:Ontology>\n\n");
-
-	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		c.accept( this );
-	    } //end for
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	writer.print("  <owl:Ontology rdf:about=\"\">\n");
+	writer.print("    <rdfs:comment>Aligned ontollogies</rdfs:comment>\n");
+	writer.print("    <owl:imports rdf:resource=\""+align.getOntology1URI().toString()+"\"/>\n");
+	writer.print("    <owl:imports rdf:resource=\""+align.getOntology2URI().toString()+"\"/>\n");
+	writer.print("  </owl:Ontology>\n\n");
 	
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.accept( this );
+	} //end for
 	writer.print("</rdf:RDF>\n");
     }
 
@@ -91,10 +87,10 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	    // Not very good but we failed to think subsumed from the first shot.
 	    if ( cell.getRelation() instanceof SubsumedRelation ){
 		onto1 = (OWLOntology)alignment.getOntology2();
-		entity1URI = ((OWLEntity)cell.getObject2()).getURI();
+		entity1URI = cell.getObject2AsURI();
 	    } else {
 		onto1 = (OWLOntology)alignment.getOntology1();
-		entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+		entity1URI = cell.getObject1AsURI();
 	    }
 	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
 		writer.print("  <owl:Class rdf:about=\""+entity1URI.toString()+"\">\n");
@@ -120,7 +116,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
     public void visit( EquivRelation rel ) throws AlignmentException {
 	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
 	try {
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
+	    URI entity2URI = cell.getObject2AsURI();
 	    if ( (OWLEntity)onto2.getClass( entity2URI ) != null ) { // A class
 		writer.print("    <owl:equivalentClass rdf:resource=\""+entity2URI.toString()+"\"/>\n");
 	    } else if ( (OWLEntity)onto2.getDataProperty( entity2URI ) != null ) { // A Dataproperty
@@ -137,7 +133,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
     public void visit( SubsumeRelation rel ) throws AlignmentException {
 	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
 	try {
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
+	    URI entity2URI = cell.getObject2AsURI();
 	    if ( (OWLEntity)onto2.getClass( entity2URI ) != null ) { // A class
 		writer.print("    <rdfs:subClassOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
 	    } else if ( (OWLEntity)onto2.getDataProperty( entity2URI ) != null ) { // A Dataproperty
@@ -150,7 +146,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
     public void visit( SubsumedRelation rel ) throws AlignmentException {
 	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
 	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	    URI entity1URI = cell.getObject1AsURI();
 	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
 		writer.print("    <rdfs:subClassOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
 	    } else if ( (OWLEntity)onto1.getDataProperty( entity1URI ) != null ) { // A Dataproperty
@@ -161,11 +157,9 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
     public void visit( IncompatRelation rel ) throws AlignmentException {
-	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	try {
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
-	    writer.print("    <owl:inverseOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	//OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
+	URI entity2URI = cell.getObject2AsURI();
+	writer.print("    <owl:inverseOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
     }
     public void visit( Relation rel ) throws AlignmentException {
 	// JE: I do not understand why I need this,
@@ -186,6 +180,15 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
+	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

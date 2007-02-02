@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006 INRIA Rhône-Alpes.
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007.
  * Copyright (C) 2001,2005,2006 Jarno Elonen (elonen@iki.fi, http://iki.fi/elonen/)
  *
  * This code is based on NanoHTTPD from Jarno Elonen
@@ -46,14 +46,8 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
-import fr.inrialpes.exmo.queryprocessor.Result;
-import fr.inrialpes.exmo.queryprocessor.Type;
-
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
-import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
@@ -84,7 +78,7 @@ import java.net.URLDecoder;
 import java.lang.Integer;
 
 /**
- * HTMLAServProfile: an HTML provile for the Alignement server
+ * HTMLAServProfile: an HTML provile for the Alignment server
  * It embeds an HTTP server.
  */
 
@@ -175,7 +169,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	Enumeration e = header.propertyNames();
 	while ( e.hasMoreElements()) {
 	    String value = (String)e.nextElement();
-	    System.out.println( "  HDR: '" + value + "' = '" +
+	    System.err.println( "  HDR: '" + value + "' = '" +
 				header.getProperty( value ) + "'" );
 	}
 	e = parms.propertyNames();
@@ -247,10 +241,21 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
+	} else if ( perf.equals("listservices") ) {
+	    msg = "<h1>Available services</h1><ul compact=\"1\">";
+	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
+		msg += "<li>"+it.next()+"</li>";
+	    }
+	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
 	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Provide an id: <input type=\"textarea\" name=\"id\" size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
 	    msg = "Not available yet";
+	} else if ( perf.equals("about") ){
+	    msg = "<h1>Alignment Server</h1><center>$Id$<br />";
+	    msg += "(C) INRIA Rh&ocirc;ne-Alpes, 2007<br />";
+	    msg += "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>";
+	    msg += "</center>";
 	} else if ( perf.equals("shutdown") ){
 	    manager.close();
 	    msg = "Server shut down";
@@ -265,13 +270,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("listservices") ){
 	    msg = perf;
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Alignement server administration</h1><ul compact=\"1\">";
+	    msg = "<h1>Alignment server administration</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"listalignments\"><input type=\"submit\" value=\"Available alignments\"/></form></li>";
 	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Available methods\"/></form></li>";
 	    msg += "<li><form action=\"listrenderers\"><input type=\"submit\" value=\"Available renderers\"/></form></li>";
+	    msg += "<li><form action=\"listservices\"><input type=\"submit\" value=\"Available services\"/></form></li>";
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
-	    msg += "<li><form action=\"shutdown\"><input type=\"submit\" value=\"shutdown\"/></form></li>";
+	    msg += "<li><form action=\"shutdown\"><input type=\"submit\" value=\"Shutdown\"/></form></li>";
+	    msg += "<li><form action=\"about\"><input type=\"submit\" value=\"About\"/></form></li>";
 	    msg += "<li><form action=\"../html/\"><input type=\"submit\" value=\"User interface\"/></form></li>";
 	    msg += "</ul>";
 	} else {
@@ -302,7 +309,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//System.err.println("HTML["+perf+"]");
 	String msg = "";
 	if ( perf.equals("prmstore") ) {
-	    msg = "<h1>Store an alignement</h1><form action=\"store\">Provide an id: <input type=\"text\" name=\"id\" size=\"60\"/> (id)<br /><small>The id is that of the alignment as known by the server (load it before)</small><br /><input type=\"submit\" value=\"Store\"/></form>";
+	    msg = "<h1>Store an alignement</h1><form action=\"store\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    // JE: only those non stored please (retrieve metadata + stored)
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
 	    String id = (String)params.getParameter("id");
@@ -320,24 +335,51 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer );
 		} else {
-		    msg = "<h1>Alignment stored</h1>With id " + id;
+		    msg = "<h1>Alignment stored</h1>";
+		    msg += displayAnswer( answer );
+		}
+	    }
+	} else if ( perf.equals("prmcut") ) {
+	    msg ="<h1>Trim alignments</h1><form action=\"cut\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "Methods: <select name=\"method\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
+	} else if ( perf.equals("cut") ) {
+	    String id = (String)params.getParameter("id");
+	    String threshold = (String)params.getParameter("threshold");
+	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
+		Message answer = manager.cut( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessages( answer );
+		} else {
+		    msg = "<h1>Alignment trimed</h1>";
+		    msg += displayAnswer( answer );
 		}
 	    }
 	} else if ( perf.equals("prmalign") ) {
-	    msg ="<h1>Align ontologies</h1><form action=\"align\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
+	    msg ="<h1>Match ontologies</h1><form action=\"align\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
-	    msg += "</select><br />Initial alignment: <input type=\"text\" name=\"init\" size=\"60\"/> (id)<br /><small>The id is that of the alignment as known by the server (load it before)</small>";
-	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Align\"/><br />";
+	    msg += "</select><br />Initial alignment id:  <select name=\"id\"><option value=\"\" selected=\"1\"></option>";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Match\"/>  <input type=\"checkbox\" name=\"force\" /> Force<br />";
 	    msg += "Additional parameters:<br /><input type=\"text\" name=\"paramn1\" size=\"15\"/> = <input type=\"text\" name=\"paramv1\" size=\"65\"/><br /><input type=\"text\" name=\"paramn2\" size=\"15\"/> = <input type=\"text\" name=\"paramv2\" size=\"65\"/><br /><input type=\"text\" name=\"paramn3\" size=\"15\"/> = <input type=\"text\" name=\"paramv3\" size=\"65\"/><br /><input type=\"text\" name=\"paramn4\" size=\"15\"/> = <input type=\"text\" name=\"paramv4\" size=\"65\"/></form>";
 	} else if ( perf.equals("align") ) {
 	    Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer );
 	    } else {
-		msg = "<h1>Alignement results</h1>";
+		msg = "<h1>Alignment results</h1>";
 		msg += displayAnswer( answer );
 	    }
 	} else if ( perf.equals("prmfind") ) {
@@ -351,12 +393,19 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer );
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
-	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">Alignment id: <input type=\"text\" name=\"id\" size=\"60\"/> (id)<br /><small>The id is that of the alignment as known by the server (load it before)</small><br />Rendering: <select name=\"method\">";
+	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "Rendering: <select name=\"method\">";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
-	    msg += "</select><br /><input type=\"submit\" value=\"get alignement\"/></form>";
+	    msg += "</select><br /><input type=\"submit\" value=\"Retrieve\"/></form>";
 	} else if ( perf.equals("retrieve") ) {
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
@@ -368,12 +417,19 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    // Metadata not done yet
 	} else if ( perf.equals("prmmetadata") ) {
-	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">Alignment id: <input type=\"text\" name=\"id\" size=\"60\"/> (id)<br /><small>The id is that of the alignment as known by the server (load it before)</small><br />Rendering: <select name=\"method\">";
+	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "Rendering: <select name=\"method\">";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
-	    msg += "</select><br /><input type=\"submit\" value=\"get metadata\"/></form>";
+	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
 	} else if ( perf.equals("metadata") ) {
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    //System.err.println("Content: "+answer.getContent());
@@ -387,7 +443,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // Alignment in HTML can be rendre or metadata+tuples
 	} else if ( perf.equals("prmload") ) {
 	    // Should certainly be good to offer store as well
-	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br /><input type=\"submit\" value=\"Load alignment\"/></form>";
+	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br /><input type=\"submit\" value=\"Load\"/></form>";
 	} else if ( perf.equals("load") ) {
 	    // load
 	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
@@ -403,7 +459,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Available commands</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
-	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Compute an alignment for ontologies\"/></form></li>";
+	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Match ontologies\"/></form></li>";
+	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
 	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
 	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
 	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from its id\"/></form></li>";
@@ -419,12 +476,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // Util
 
     private String testErrorMessages( Message answer ) {
-	return "<h1>Alignement error</h1>"+answer.HTMLString+answer.getContent();
+	return "<h1>Alignment error</h1>"+answer.HTMLString();
     }
 
     private String displayAnswer ( Message answer ) {
-	// seems a bit static...
-	return answer.HTMLString+answer.getContent();
+	return answer.HTMLString();
     }
 
     private int newId() { return localId++; }
@@ -669,7 +725,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public Response serveFile( String uri, Properties header, File homeDir,
 							   boolean allowDirectoryListing ) {
-	System.err.println("SANDBOX");
+	//System.err.println("SANDBOX");
 	// Make sure we won't die of an exception later
 	if ( !homeDir.isDirectory())
 	    return new Response( HTTP_INTERNALERROR, MIME_PLAINTEXT,

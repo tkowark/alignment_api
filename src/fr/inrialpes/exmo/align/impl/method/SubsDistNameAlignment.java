@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,15 +20,12 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
-import java.util.Iterator;
-
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLException;
 
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
 import fr.inrialpes.exmo.align.impl.Similarity;
 
@@ -50,8 +47,7 @@ import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 public class SubsDistNameAlignment extends DistanceAlignment implements AlignmentProcess
 {
     /** Creation **/
-    public SubsDistNameAlignment( OWLOntology onto1, OWLOntology onto2 ){
-	super( onto1, onto2 );
+    public SubsDistNameAlignment(){
 	setSimilarity( new MatrixMeasure() {
 		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
 		    String s1 = cl1.getURI().getFragment();
@@ -73,10 +69,8 @@ public class SubsDistNameAlignment extends DistanceAlignment implements Alignmen
     };
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
-	//ignore alignment;
-	double threshold = 1.; // threshold above which distances are to high
-
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+	loadInit( alignment );
 	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
 	extract( type, params );

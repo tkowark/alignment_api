@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,6 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.util.Iterator;
 import java.util.HashMap;
-import java.net.URI;
 import java.text.NumberFormat;
 
 import org.semanticweb.owl.model.OWLOntology;
@@ -33,11 +32,9 @@ import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.Similarity;
 
 /**
@@ -159,6 +156,7 @@ public abstract class MatrixMeasure implements Similarity {
 		    prmatrix[((Integer)proplist1.get(pr1)).intValue()][((Integer)proplist2.get(pr2)).intValue()] = measure( pr1, pr2 );
 		}
 	    }
+	    // What is caught is really Exceptions
 	} catch (Exception e) { e.printStackTrace(); }
     }
 

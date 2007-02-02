@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,15 +20,11 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
+import java.net.URI;
 import java.util.Enumeration;
 import java.io.PrintWriter;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
@@ -40,6 +36,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
@@ -61,6 +58,8 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	if ( !(align instanceof OWLAPIAlignment) )
+	    throw new AlignmentException("COWLMappingRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
 	alignment = align;
 	writer.print("<rdf:RDF\n");
 	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n");
@@ -70,24 +69,22 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	writer.print("    xml:base=\"http://www.itc.it/cowl#\" \n");
 	writer.print("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n\n");	
 	writer.print("  <cowl:Mapping rdf:ID=\"\">\n");
-	try {
-	    writer.print("    <cowl:sourceOntology>\n");
-	    writer.print("      <owl:Ontology rdf:about=\""+((OWLOntology)align.getOntology1()).getURI()+"\"/>\n");
-	    writer.print("    </cowl:sourceOntology>\n");
-	    writer.print("    <cowl:targetOntology>\n");
-	    writer.print("      <owl:Ontology rdf:about=\""+((OWLOntology)align.getOntology2()).getURI()+"\"/>\n");
-	    writer.print("    </cowl:targetOntology>\n");
-	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		c.accept( this );
-	    } //end for
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	writer.print("    <cowl:sourceOntology>\n");
+	writer.print("      <owl:Ontology rdf:about=\""+align.getOntology1URI()+"\"/>\n");
+	writer.print("    </cowl:sourceOntology>\n");
+	writer.print("    <cowl:targetOntology>\n");
+	writer.print("      <owl:Ontology rdf:about=\""+align.getOntology2URI()+"\"/>\n");
+	writer.print("    </cowl:targetOntology>\n");
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.accept( this );
+	} //end for
 	writer.print("  </cowl:Mapping>\n");
 	writer.print("</rdf:RDF>\n");
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
+	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
 	writer.print("    <cowl:bridgeRule>\n");
 	cell.getRelation().accept( this );
 	writer.print("    </cowl:bridgeRule>\n");
@@ -96,10 +93,10 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	try {
 	    writer.print("     <cowl:Equivalent>\n");
 	    writer.print("       <cowl:source>\n");
-	    printObject(((OWLEntity)cell.getObject1()).getURI(),(OWLOntology)alignment.getOntology1());
+	    printObject(cell.getObject1AsURI(),(OWLOntology)alignment.getOntology1());
 	    writer.print("       </cowl:source>\n");
 	    writer.print("       <cowl:target>\n");
-	    printObject(((OWLEntity)cell.getObject2()).getURI(),(OWLOntology)alignment.getOntology2());
+	    printObject(cell.getObject2AsURI(),(OWLOntology)alignment.getOntology2());
 	    writer.print("       </cowl:target>\n");
 	    writer.print("     </cowl:Equivalent>\n");
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
@@ -109,10 +106,10 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	try {
 	    writer.print("     <cowl:Into>\n");
 	    writer.print("       <cowl:source>\n");
-	    printObject(((OWLEntity)cell.getObject1()).getURI(),(OWLOntology)alignment.getOntology1());
+	    printObject(cell.getObject1AsURI(),(OWLOntology)alignment.getOntology1());
 	    writer.print("       </cowl:source>\n");
 	    writer.print("       <cowl:target>\n");
-	    printObject(((OWLEntity)cell.getObject2()).getURI(),(OWLOntology)alignment.getOntology2());
+	    printObject(cell.getObject2AsURI(),(OWLOntology)alignment.getOntology2());
 	    writer.print("       </cowl:target>\n");
 	    writer.print("     </cowl:Into>\n");
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
@@ -121,10 +118,10 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	try {
 	    writer.print("     <cowl:Onto>\n");
 	    writer.print("       <cowl:source>\n");
-	    printObject(((OWLEntity)cell.getObject1()).getURI(),(OWLOntology)alignment.getOntology1());
+	    printObject(cell.getObject1AsURI(),(OWLOntology)alignment.getOntology1());
 	    writer.print("       </cowl:source>\n");
 	    writer.print("       <cowl:target>\n");
-	    printObject(((OWLEntity)cell.getObject2()).getURI(),(OWLOntology)alignment.getOntology2());
+	    printObject(cell.getObject2AsURI(),(OWLOntology)alignment.getOntology2());
 	    writer.print("       </cowl:target>\n");
 	    writer.print("     </cowl:Onto>\n");
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
@@ -133,10 +130,10 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	try {
 	    writer.print("     <cowl:INCOMPATIBLE>\n");
 	    writer.print("       <cowl:source>\n");
-	    printObject(((OWLEntity)cell.getObject1()).getURI(),(OWLOntology)alignment.getOntology1());
+	    printObject(cell.getObject1AsURI(),(OWLOntology)alignment.getOntology1());
 	    writer.print("       </cowl:source>\n");
 	    writer.print("       <cowl:target>\n");
-	    printObject(((OWLEntity)cell.getObject2()).getURI(),(OWLOntology)alignment.getOntology2());
+	    printObject(cell.getObject2AsURI(),(OWLOntology)alignment.getOntology2());
 	    writer.print("       </cowl:target>\n");
 	    writer.print("     </cowl:INCOMPATIBLE>\n");
 	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
@@ -160,7 +157,16 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
+	//	} catch (OWLException e) { throw new AlignmentException("Dispatching problem ", e); };
     }
 
     public void printObject( URI uri, OWLOntology onto ) throws OWLException {

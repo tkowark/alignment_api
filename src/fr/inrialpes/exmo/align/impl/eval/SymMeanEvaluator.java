@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,29 +23,19 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
-import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
 
 import java.lang.Math;
-import java.lang.ClassNotFoundException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
 import java.io.PrintWriter;
-import java.io.IOException;
-
-import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Evaluate proximity between two alignments.
@@ -73,7 +63,10 @@ public class SymMeanEvaluator extends BasicEvaluator
 	super(align1,align2);
     }
 
-    public double eval( Parameters params ) throws AlignmentException {
+    public double eval(Parameters params) throws AlignmentException {
+	return eval( params, (Object)null );
+    }
+    public double eval(Parameters params, Object cache) throws AlignmentException {
 	int nbClassCell = 0;
 	int nbPropCell = 0;
 	int nbIndCell = 0;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2006-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,16 +20,10 @@
 
 package fr.inrialpes.exmo.align.impl;
 
-import java.io.PrintStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.net.URI;
-
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;

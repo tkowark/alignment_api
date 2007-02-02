@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,32 +20,22 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
-import java.util.Iterator;
-import java.util.Hashtable;
-
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLException;
 
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-import fr.inrialpes.exmo.align.impl.Similarity;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.impl.DistanceAlignment;
+import fr.inrialpes.exmo.align.impl.MatrixMeasure;
+
 /**
- * Represents an OWL ontology alignment. An ontology comprises a number of
- * collections. Each ontology has a number of classes, properties and
- * individuals, along with a number of axioms asserting information
- * about those objects.
- *
- * An improvement of that class is that, since it is based on names only,
- * it can match freely property names with class names...
+ * Matches two oontologies based on the equality of the name of their entities.
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -54,8 +44,7 @@ import org.semanticweb.owl.align.Parameters;
 public class NameEqAlignment extends DistanceAlignment implements AlignmentProcess {
 	
     /** Creation **/
-    public NameEqAlignment( OWLOntology onto1, OWLOntology onto2 ){
-	super( onto1, onto2 );
+    public NameEqAlignment(){
 	setSimilarity( new MatrixMeasure() {
 		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
 		    String s1 = cl1.getURI().getFragment();
@@ -80,10 +69,8 @@ public class NameEqAlignment extends DistanceAlignment implements AlignmentProce
     };
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
-	//ignore alignment;
-	double threshold = 1.; // threshold above which distances are to high
-
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+	loadInit( alignment );
 	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
 	extract( type, params );

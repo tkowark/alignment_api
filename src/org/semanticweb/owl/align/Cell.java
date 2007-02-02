@@ -23,6 +23,7 @@ package org.semanticweb.owl.align;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.net.URI;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -51,6 +52,8 @@ public interface Cell
     public void setSemantics( String s );
     public Object getObject1();
     public Object getObject2();
+    public URI getObject1AsURI() throws AlignmentException;
+    public URI getObject2AsURI() throws AlignmentException;
     public void setObject1( Object ob ) throws AlignmentException;
     public void setObject2( Object ob ) throws AlignmentException;
     public Relation getRelation();

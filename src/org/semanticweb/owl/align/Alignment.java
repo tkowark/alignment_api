@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,15 +21,11 @@
 package org.semanticweb.owl.align; 
 
 import java.lang.Cloneable;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Set;
 import java.net.URI;
 
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Represents an Ontology alignment.
@@ -42,6 +38,14 @@ import org.xml.sax.SAXException;
 public interface Alignment extends Cloneable
 {
 
+    /** Initialize the alignement before using it **/
+
+    public void init( Object onto1, Object onto2 ) throws AlignmentException;
+
+    /** Initialize the alignement before using it, with some ontology caching trick **/
+
+    public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException;
+
     /** Alignment methods **/
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
@@ -52,6 +56,8 @@ public interface Alignment extends Cloneable
      */
     public Object getOntology1();
     public Object getOntology2();
+    public URI getOntology1URI() throws AlignmentException;
+    public URI getOntology2URI() throws AlignmentException;
     public void setOntology1(Object ontology) throws AlignmentException;
     public void setOntology2(Object ontology) throws AlignmentException;
     /**

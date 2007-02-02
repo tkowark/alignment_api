@@ -36,7 +36,7 @@
  * [Created in Eclipse 3.1M6 (www.eclipse.org).]
  * 
  * Modifications by Jérôme Euzenat for integrating within Alignment API:
- * (C) INRIA Rhône-Alpes, 2005
+ * (C) INRIA Rhône-Alpes, 2005, 2007
  * 1) suppressed Java 1.5 dependencies (marked //JE1.5:)
  * 1') suppressed all the testing features (main)
  * 2) stripped some i/o stuff and main (JEstrip)
@@ -44,12 +44,10 @@
  * 4) Suppressed the copy of the structure (we use a fresh structure for that)
  * 5) connected with alignment generation
  * 6) Added guards: (a) when empty array; (b) when rectangular 0 input matrix
+ * 7) Suppressed useless imports
  */
 
 package fr.inrialpes.exmo.align.impl; 
-
-//import static java.lang.Math.*;
-import java.util.Random;
 
 public class HungarianAlgorithm {
 

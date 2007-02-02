@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,19 +20,11 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -76,34 +68,18 @@ public class SKOSRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	try {
-	    OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	    writer.print("  <skos:Concept rdf:about=\""+entity1URI.toString()+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("  </skos:Concept>\n\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI().toString()+"\">\n");
+	cell.getRelation().accept( this );
+	writer.print("  </skos:Concept>\n\n");
     }
     public void visit( EquivRelation rel ) throws AlignmentException {
-	try {
-	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
-	    writer.print("    <skos:related rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	writer.print("    <skos:related rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
     }
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	try {
-	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
-	    writer.print("    <skos:narrower rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	writer.print("    <skos:narrower rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
     }
     public void visit( SubsumedRelation rel ) throws AlignmentException {
-	try {
-	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
-	    writer.print("    <skos:broader rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+	writer.print("    <skos:broader rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
     }
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	throw new AlignmentException("Cannot translate in SKOS"+rel);
@@ -127,6 +103,15 @@ public class SKOSRendererVisitor implements AlignmentVisitor
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} catch (NoSuchMethodException e) {
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) { 
+	    e.printStackTrace();
+	}
+	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

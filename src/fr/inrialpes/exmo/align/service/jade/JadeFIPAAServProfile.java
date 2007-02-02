@@ -1,8 +1,8 @@
 /*
- * $Id: JadeFIPAAServProfile.java 335 2006-10-05 10:02:02Z euzenat $
+ * $Id$
  *
- * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) Orange R&D, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,8 +21,6 @@
 
 package fr.inrialpes.exmo.align.service.jade;
 
-import java.io.IOException;
-
 import fr.inrialpes.exmo.align.service.jade.JadeFIPAAServiceAgent;
 import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
@@ -34,13 +32,11 @@ import jade.core.Runtime;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.util.Logger;
-import jade.util.leap.Properties;
-//JE: find them
-import jade.wrapper.*;
-
+import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
+import jade.wrapper.ControllerException;
 
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
-
 
 	private AgentContainer mc;
 	private AgentController algagentcontroller;
@@ -49,7 +45,11 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 		int port = 8888;
 		int debug = 0;
-
+		Object args[] = new Object[1];
+		
+		//set up the manager as an argument to pass to the JADEFIPAAServiceAgent
+		args[0]=manager;
+		
 		if ( params.getParameter( "jade" ) != null )
 			port = Integer.parseInt( (String)params.getParameter( "jade" ) );
 		if ( params.getParameter( "debug" ) != null )
@@ -75,7 +75,7 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 			if ( debug > 0 )
 				System.out.println("Launching a whole in-process platform..."+pMain);
 			mc = rt.createMainContainer(pMain);
-			algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), null);
+			algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), args);
 			algagentcontroller.start();
 		}
 		catch(Exception e) {

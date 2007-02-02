@@ -22,6 +22,8 @@ package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
@@ -29,6 +31,7 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
+//*/3.0
 import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
@@ -39,10 +42,16 @@ import org.semanticweb.owl.io.ParserException;
 import org.xml.sax.SAXException;
 import java.sql.SQLException;
 
+import java.lang.ClassNotFoundException;
+import java.lang.InstantiationException;
+import java.lang.NoSuchMethodException;
+import java.lang.IllegalAccessException;
+import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Set;
@@ -50,14 +59,28 @@ import java.util.HashSet;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import java.io.File;
+import java.net.URL;
+import java.net.JarURLConnection;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.lang.UnsatisfiedLinkError;
+
+/**
+ * This is the main class that control the behaviour of the Alignment Server
+ * It is as independent from the OWL API as possible.
+ * However, it is still necessary to test for the reachability of an ontology and moreover to resolve its URI for that of its source.
+ * For these reasons we still need a parser of OWL files here.
+ */
+
 public class AServProtocolManager {
 
-    Hashtable renderers = null; // language -> class
-    Hashtable methods = null; // name -> class
-    Hashtable services = null; // name -> service
     CacheImpl alignmentCache = null;
+    Set renderers = null;
+    Set methods = null;
+    Set services = null;
 
-    Hashtable loadedOntologies = null;
+    OntologyCache loadedOntologies = null;
     OWLRDFErrorHandler handler = null;
 
     // This should be stored somewhere
@@ -69,9 +92,6 @@ public class AServProtocolManager {
      *********************************************************************/
 
     public AServProtocolManager () {
-	renderers = new Hashtable();
-	methods = new Hashtable();
-	services = new Hashtable();
     }
 
     public void init( DBService connection, Parameters p ) throws SQLException {
@@ -79,21 +99,11 @@ public class AServProtocolManager {
 	alignmentCache.init();
 	// dummy string
 	myId = "localhost://alignserv";
-	// This is ugly but it seems that Java does not provides the 
-	// opportunity to find the loaded implementations of an interface!
-	// Read all these parameters from the database
-	methods.put("Name equality","fr.inrialpes.exmo.align.impl.method.NameEqAlignment");
-	methods.put("SMOA","fr.inrialpes.exmo.align.impl.method.SMOANameAlignment");
-	methods.put("String distance","fr.inrialpes.exmo.align.impl.method.StringDistAlignment");
-	renderers.put("COWL","fr.inrialpes.exmo.align.impl.renderer.COWLMappingRendererVisitor");
-	renderers.put("HTML","fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor");
-	renderers.put("OWL","fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor");
-	renderers.put("RDF/XML","fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
-	renderers.put("SEKT/OWMG","fr.inrialpes.exmo.align.impl.renderer.SEKTMappingRendererVisitor");
-	renderers.put("SKOS","fr.inrialpes.exmo.align.impl.renderer.SKOSRendererVisitor");
-	renderers.put("SWRL","fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor");
-	renderers.put("XSLT","fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor");
-	loadedOntologies = new Hashtable();
+	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
+	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
+	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
+	services = implementations( "fr.inrialpes.exmo.align.service.AlignmentServiceProfile" );
+	loadedOntologies = new OntologyCache();
 	handler = new OWLRDFErrorHandler() {
 		public void owlFullConstruct(int code, String message)
 		    throws SAXException {
@@ -119,22 +129,19 @@ public class AServProtocolManager {
      * Extra administration primitives
      *********************************************************************/
 
-    // DONE BUT UNSATISFACTORY
+    // DONE
     public Set listmethods (){
-	Set result = new HashSet();
-	for (Enumeration e = methods.elements() ; e.hasMoreElements() ;) {
-	    result.add(e.nextElement());
-	}
-	return result;
+	return methods;
     }
 
-    // DONE BUT UNSATISFACTORY
+    // DONE
     public Set listrenderers(){
-	Set result = new HashSet();
-	for (Enumeration e = renderers.elements() ; e.hasMoreElements() ;) {
-	    result.add(e.nextElement());
-	}
-	return result;
+	return renderers;
+    }
+
+    // DONE
+    public Set listservices(){
+	return services;
     }
 
     // DONE
@@ -148,24 +155,22 @@ public class AServProtocolManager {
 
     // DONE
     // Implements: store (different from store below)
-    public Message load( Message mess ){
+    public Message load( Message mess ) {
 	Parameters params = mess.getParameters();
 	// load the alignment
 	String name = (String)params.getParameter("url");
-	System.err.println("Preparing for "+name);
+	//if (debgug > 0) System.err.println("Preparing for "+name);
 	Alignment init = null;
 	try {
 	    //if (debug > 0) System.err.println(" Parsing init");
 	    AlignmentParser aparser = new AlignmentParser(0);
-	    init = aparser.parse( name, loadedOntologies );
+	    init = aparser.parse( name );
 	    //if (debug > 0) System.err.println(" Init parsed");
 	} catch (Exception e) {
 	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),name,(Parameters)null);
 	}
-	System.err.println("For recording");
 	// register it
 	String id = alignmentCache.recordNewAlignment( init, true );
-	System.err.println("For returning");
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
@@ -177,82 +182,104 @@ public class AServProtocolManager {
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
+	OWLOntology onto1 = null;
+	OWLOntology onto2 = null;
 	try {
 	    uri1 = new URI((String)params.getParameter("onto1"));
 	    uri2 = new URI((String)params.getParameter("onto2"));
-	} catch (Exception e) {}; //done below
-	OWLOntology onto1 = reachable( uri1 );
-	OWLOntology onto2 = reachable( uri2 );
-	if ( onto1 == null ){
-	    // Unreachable
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
-	} else if ( onto2 == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
-	} else {
-	    // find n
-	    Alignment init = null;
-	    if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
+	} catch (Exception e) {
+	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+	};
+	// find n
+	Alignment init = null;
+	if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
+	    try {
+		//if (debug > 0) System.err.println(" Retrieving init");
+		//AlignmentParser aparser = new AlignmentParser(0);
+		//init = aparser.parse((String)params.getParameter("init"), loadedOntologies);
 		try {
-		    //if (debug > 0) System.err.println(" Retrieving init");
-		    //AlignmentParser aparser = new AlignmentParser(0);
-		    //init = aparser.parse((String)params.getParameter("init"), loadedOntologies);
-		    try {
-			init = alignmentCache.getAlignment( (String)params.getParameter("init") );
-		    } catch (Exception e) {
-			return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
-		    }
-		    // Not really useful
-		    onto1 = (OWLOntology)init.getOntology1();
-		    onto2 = (OWLOntology)init.getOntology2();
-		    //if (debug > 0) System.err.println(" Init retrieved");
+		    init = alignmentCache.getAlignment( (String)params.getParameter("init") );
 		} catch (Exception e) {
 		    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
 		}
+		// Not really useful
+		//onto1 = (OWLOntology)init.getOntology1();
+		//onto2 = (OWLOntology)init.getOntology2();
+		//if (debug > 0) System.err.println(" Init retrieved");
+	    } catch (Exception e) {
+		return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
 	    }
-	    // Try to retrieve first
-	    Set alignments = null;
-	    try {
-		alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
-	    } catch (OWLException e) {
-		// Unexpected OWLException!
-	    }
-	    String id = null;
-	    if ( alignments != null ) {
-		for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
-		    Alignment al = ((Alignment)it.next());
-		    if ( al.getExtension( "method" ).equals(method) )
-			id = al.getExtension( "id" );
-		}
-	    }
-	    // Otherwise compute
-	    if ( id == null ){
-		// Create alignment object
-		try {
-		    Object[] mparams = {(Object)onto1, (Object)onto2 };
-		    if ( method == null )
-			method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-		    Class alignmentClass = Class.forName(method);
-		    Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
-		    Class[] cparams = { oClass, oClass };
-		    java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
-		    AlignmentProcess result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		    result.setFile1(uri1);
-		    result.setFile2(uri2);
-		    // call alignment algorithm
-		    long time = System.currentTimeMillis();
-		    result.align(init, params); // add opts
-		    long newTime = System.currentTimeMillis();
-		    result.setExtension( "time", Long.toString(newTime - time) );
-		    // ask to store A'
-		    id = alignmentCache.recordNewAlignment( result, true );
-		} catch (Exception e) {
-		    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
-		}
-	    }
-	    // JE: In non OWL-API-based version, here unload ontologies
-	    // return A' surrogate
-	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
+	if ( ( onto1 = reachable( uri1 ) ) == null ){
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+	}
+
+	// Try to retrieve first
+	Set alignments = null;
+	try {
+	    // This is OWLAPI specific but there is no other way...
+	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
+	} catch (OWLException e) {
+	    // Unexpected OWLException!
+	}
+	String id = null;
+	if ( alignments != null && params.getParameter("force") != null ) {
+	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
+		Alignment al = ((Alignment)it.next());
+		if ( al.getExtension( "method" ).equals(method) )
+		    id = al.getExtension( "id" );
+	    }
+	}
+	// Otherwise compute
+	if ( id == null ){
+	    // Create alignment object
+	    try {
+		//Object[] mparams = {(Object)onto1, (Object)onto2 };
+		Object[] mparams = {};
+		if ( method == null )
+		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+		Class alignmentClass = Class.forName(method);
+		//Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
+		//Class[] cparams = { oClass, oClass };
+		Class[] cparams = {};
+		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+		AlignmentProcess result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+		result.init( uri1, uri2, loadedOntologies );
+		//result.setFile1(uri1);
+		//result.setFile2(uri2);
+		// call alignment algorithm
+		long time = System.currentTimeMillis();
+		try {
+		    result.align( init, params ); // add opts
+
+		} catch (AlignmentException e) {
+			return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+		}
+		long newTime = System.currentTimeMillis();
+		result.setExtension( "time", Long.toString(newTime - time) );
+		// ask to store A'
+		id = alignmentCache.recordNewAlignment( result, true );
+	    } catch (ClassNotFoundException e) {
+		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
+	    } catch (NoSuchMethodException e) {
+		return new RunTimeError(newId(),mess,myId,mess.getSender(),"No such method: "+method+"(Object, Object)",(Parameters)null);
+	    } catch (InstantiationException e) {
+		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Instantiation",(Parameters)null);
+	    } catch (IllegalAccessException e) {
+		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Cannot access",(Parameters)null);
+	    } catch (InvocationTargetException e) {
+		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Parameters)null);
+	    } catch (AlignmentException e) {
+		return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+	    }
+	}
+
+	// JE: In non OWL-API-based version, here unload ontologies
+	loadedOntologies.clear(); // not always necessary
+	// return A' surrogate
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
     // DONE
@@ -348,10 +375,14 @@ public class AServProtocolManager {
 		return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
 	    }
 	    al.render(renderer);
+	    // Strange that I do not catch the AlignmentException raised when OWL is needed
 	    writer.flush();
 	    writer.close();
-	} catch (Exception e) {
-	    // These are exceptions related to I/O
+	} catch (AlignmentException e) {
+	    writer.flush();
+	    writer.close();
+	    return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
+	} catch (Exception e) { // These are exceptions related to I/O
 	    writer.flush();
 	    writer.close();
 	    System.err.println(result.toString());
@@ -411,7 +442,7 @@ public class AServProtocolManager {
      * There is no way an alignment server could modify an alignment
      *********************************************************************/
 
-    public Message cut( Message mess ){
+    public Message cut( Message mess ) {
 	// Retrieve the alignment
 	String id = (String)mess.getParameters().getParameter("id");
 	Alignment al = null;
@@ -420,9 +451,11 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
-	// get the cut parameters here
-	//al = al.clone();
-	try { al.cut( "hard", (double).5 ); }
+	// get the cut parameters
+	String method = (String)mess.getParameters().getParameter("method");
+	double threshold = Double.parseDouble((String)mess.getParameters().getParameter("threshold"));
+	al = (BasicAlignment)((BasicAlignment)al).clone();
+	try { al.cut( method, threshold ); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
@@ -476,6 +509,30 @@ public class AServProtocolManager {
      * Network of alignment server implementation
      *********************************************************************/
 
+    /**
+     * Ideal network implementation protocol:
+     *
+     * - publication (to some directory)
+     * registerID
+     * publishServices
+     * unregisterID
+     * (publishRenderer)
+     * (publishMethods) : can be retrieved through the classical interface.
+     *  requires a direcory
+     *
+     * - subscribe style
+     * subscribe() : ask to receive new metadata
+     * notify( metadata ) : send new metadata to subscriber
+     * unsubscribe() :
+     * update( metadata ) : update some modification
+     *   requires to store the subscribers
+     *
+     * - query style: this is the classical protocol that can be done through WSDL
+     * getMetadata()
+     * getAlignment()
+     *   requires to store the node that can be 
+     */
+
     // Implements: reply-with
     public Message replywith(Message mess){
 
@@ -509,30 +566,155 @@ public class AServProtocolManager {
     }
 
     /*********************************************************************
-     * Utilities
+     * Utilities: reaching and loading ontologies
      *********************************************************************/
 
     public OWLOntology reachable( URI uri ){
 	try { return loadOntology( uri ); }
 	catch (Exception e) {
+	    e.printStackTrace();
 	    return (OWLOntology)null;
 	}
     }
 
-    public OWLOntology loadOntology(URI uri)
-	throws ParserException, OWLException {
+    public OWLOntology loadOntology( URI uri ) throws ParserException, OWLException {
 	// Test if not loaded...
 	OWLOntology parsedOnt = null;
 	OWLRDFParser parser = new OWLRDFParser();
 	parser.setOWLRDFErrorHandler(handler);
 	parser.setConnection(OWLManager.getOWLConnection());
-	parsedOnt = parser.parseOntology(uri);
-	loadedOntologies.put(uri.toString(), parsedOnt);
+	parsedOnt = parser.parseOntology( uri );
+	if ( loadedOntologies != null )
+	    loadedOntologies.recordOntology( uri, parsedOnt );
 	return parsedOnt;
     }
 
-    // this should be done at some point...
-    private void unloadOntology( OWLOntology o ){
+    /*********************************************************************
+     * Utilities: Finding the subclasses of a class
+     *********************************************************************/
+
+    /**
+     * Display all the classes inheriting or implementing a given
+     * class in the currently loaded packages.
+     * @param tosubclassname the name of the class to inherit from
+     */
+    public static Set implementations( String tosubclassname ) {
+	Set list = new HashSet();
+	try {
+	    Class tosubclass = Class.forName(tosubclassname);
+	    Package [] pcks = Package.getPackages();
+	    for (int i=0;i<pcks.length;i++) {
+		implementations( pcks[i].getName(), tosubclass, list );
+	    }
+	} catch (ClassNotFoundException ex) {
+	    System.err.println("Class "+tosubclassname+" not found!");
+	}
+	return list;
     }
 
+    /**
+     * Display all the classes inheriting or implementing a given
+     * class in a given package.
+     * @param pckgname the fully qualified name of the package
+     * @param tosubclass the Class object to inherit from
+     */
+    public static Set implementations( String pckgname, Class tosubclass, Set list ) {
+	//if (debug > 0 ) System.err.println( "Searching in "+pckgname );
+	
+	// Code from JWhich
+	// ======
+	// Translate the package name into an absolute path
+	String name = new String(pckgname);
+	if (!name.startsWith("/")) {
+	    name = "/" + name;
+	}	
+	name = name.replace('.','/');
+
+  	// Get a File object for the package
+  	//URL url = RTSI.class.getResource(name);
+	URL url = tosubclass.getResource(name);
+	// URL url = ClassLoader.getSystemClassLoader().getResource(name);
+	//System.out.println(name+"->"+url);
+
+	// Happens only if the jar file is not well constructed, i.e.
+	// if the directories do not appear alone in the jar file like here:
+	// 
+	//          meta-inf/
+	//          meta-inf/manifest.mf
+	//          commands/                  <== IMPORTANT
+	//          commands/Command.class
+	//          commands/DoorClose.class
+	//          commands/DoorLock.class
+	//          commands/DoorOpen.class
+	//          commands/LightOff.class
+	//          commands/LightOn.class
+	//          RTSI.class
+	//
+	if ( url != null ) {
+	    File directory = new File(url.getFile());
+	    if ( directory != null && directory.exists()) {
+		// Get the list of the files contained in the package
+		String [] files = directory.list();
+		for (int i=0;i<files.length;i++) {
+		    // we are only interested in .class files
+		    if (files[i].endsWith(".class")) {
+			// removes the .class extension
+			String classname = files[i].substring(0,files[i].length()-6);
+			try {
+			    Class[] cls = Class.forName(pckgname+"."+classname).getInterfaces();
+			    for ( int j=0; j < cls.length ; j++ ){
+				if ( cls[j] == tosubclass ) {
+				    //if (debug > 0 ) System.err.println(" -d-> "+pckgname+"."+classname );
+				    list.add( pckgname+"."+classname );
+				}
+			    }
+			// Not one of our classes
+			} catch (ClassNotFoundException cnfex) {
+			} catch (UnsatisfiedLinkError ule) {
+			}
+		    }
+		}
+	    } else {
+		try {
+		    // It does not work with the filesystem: we must
+		    // be in the case of a package contained in a jar file.
+		    JarURLConnection conn = (JarURLConnection)url.openConnection();
+		    String starts = conn.getEntryName();
+		    JarFile jfile = conn.getJarFile();
+		    Enumeration e = jfile.entries();
+		    while (e.hasMoreElements()) {
+			ZipEntry entry = (ZipEntry)e.nextElement();
+			String entryname = entry.getName();
+			if (entryname.startsWith(starts)
+			    //JE: suppressing this line
+			    // Without it, id does not follow subdirs
+			    //&& (entryname.lastIndexOf('/')<=starts.length())
+			    && entryname.endsWith(".class")) {
+			    String classname = entryname.substring(0,entryname.length()-6);
+			    if (classname.startsWith("/")) 
+				classname = classname.substring(1);
+			    classname = classname.replace('/','.');
+			    try {
+				Class[] cls = Class.forName(classname).getInterfaces();
+				for ( int i=0; i < cls.length ; i++ ){
+				    if ( cls[i] == tosubclass ) {
+					//if (debug > 0 ) System.err.println(" -j-> "+classname);
+					list.add( classname );
+				    }
+				}
+			    // Not one of our classes
+			    } catch ( NoClassDefFoundError ncdex ) {
+			    } catch (ClassNotFoundException cnfex) {
+			    } catch (UnsatisfiedLinkError ule) {
+			    }
+			}
+		    }
+		} catch (IOException ioex) {
+		    ioex.printStackTrace();
+		}	
+	    }
+	}
+	return list;
+    }
+    
 }

@@ -26,11 +26,11 @@ import org.semanticweb.owl.align.Parameters;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class UnreachableAlignment extends ErrorMsg {
-    public UnreachableAlignment ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
+public class RunTimeError extends ErrorMsg {
+    public RunTimeError ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String HTMLString() {
-	return "Unreachable alignment: "+content;
+    public String HTMLString(){
+	return "Cannot process: "+content;
     }
 }

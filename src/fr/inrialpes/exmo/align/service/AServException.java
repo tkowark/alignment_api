@@ -32,6 +32,8 @@ import java.lang.Exception;
 
 public class AServException extends Exception {
 
+    static final long serialVersionUID = 300;
+
     public AServException( String message ){
 	super( message );
     }

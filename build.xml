@@ -26,7 +26,7 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="version" value="2.5"/>
+    <property name="version" value="3.0"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
@@ -45,9 +45,6 @@
       <fileset dir="./lib">
 	<include name="*.jar"/>
       </fileset>
-      <fileset dir="../lib">
-	<include name="*.jar" />
-      </fileset>
     </path>
     
   </target>
@@ -55,7 +52,7 @@
   <!-- tested -->
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
-    <javac  srcdir="src" destdir="classes">
+    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes">
       <classpath refid="classpath"/>
     </javac>
   </target>
@@ -75,12 +72,15 @@
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
     <delete file="lib/align.jar"/>
     <jar jarfile="lib/align.jar" manifest="distrib/MANIFEST.MF">
-      <fileset dir="classes" includes="org/**/*.class"/>
+      <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/procalign.jar"/>
     <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST-pr.MF">
-      <fileset dir="classes" includes="fr/**/*.class" excludes="fr/inrialpes/exmo/align/ling/**/*.class"/>
+      <fileset dir="classes" includes="org/ivml/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/alignwn.jar"/>
@@ -166,6 +166,7 @@
     <antcall target="jar"/>
     <antcall target="javadoc"/>
     <!-- may be useful to change directory -->
+    <!-- may be useful to exclude stuff like .svn -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir="." includes="**/*"/>
     </zip>

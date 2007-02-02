@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2006, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2007 INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -26,16 +26,13 @@
 */
 package fr.inrialpes.exmo.align.util;
 
-import org.semanticweb.owl.model.OWLOntology;
+//import org.semanticweb.owl.model.OWLOntology;
 
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
-import org.semanticweb.owl.align.Evaluator;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
 
 import java.io.File;
@@ -45,8 +42,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.lang.Double;
 import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -104,7 +99,8 @@ public class GenPlot {
     String outFile = null;
     String type = "tsv";
     int debug = 0;
-    Hashtable loaded = null;
+    //Hashtable loaded = null;
+    OntologyCache loaded = null;
     PrintWriter output = null;
 
     public static void main(String[] args) {
@@ -114,7 +110,8 @@ public class GenPlot {
 
     public void run(String[] args) throws Exception {
 	LongOpt[] longopts = new LongOpt[8];
-	loaded = new Hashtable();
+	//loaded = new Hashtable();
+	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -246,12 +243,13 @@ public class GenPlot {
 	    }
 	}
 	// Unload the ontologies.
-	try {
-	    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-		OWLOntology o = (OWLOntology)e.nextElement();
-		o.getOWLConnection().notifyOntologyDeleted( o );
-	    }
-	} catch (Exception ex) { System.err.println(ex); };
+	loaded.clear();
+	//try {
+	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
+	//	OWLOntology o = (OWLOntology)e.nextElement();
+	//	o.getOWLConnection().notifyOntologyDeleted( o );
+	//    }
+	//} catch (Exception ex) { System.err.println(ex); };
     }
 
     public PRGraphEvaluator eval( String alignName1, String alignName2 ) {
@@ -262,22 +260,23 @@ public class GenPlot {
 	    else nextdebug = debug - 2;
 	    // Load alignments
 	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
-	    Alignment align1 = aparser1.parse( alignName1, loaded );
+	    Alignment align1 = aparser1.parse( alignName1 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
 	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
-	    Alignment align2 = aparser2.parse( alignName2, loaded );
+	    Alignment align2 = aparser2.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRGraphEvaluator( align1, align2 );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params ) ;
+	    eval.eval( params, loaded ) ;
 
 	    // Unload the ontologies.
-	    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-		OWLOntology o = (OWLOntology)e.nextElement();
-		o.getOWLConnection().notifyOntologyDeleted( o );
-	    }
+	    loaded.clear();
+	    //for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
+	    //	OWLOntology o = (OWLOntology)e.nextElement();
+	    //	o.getOWLConnection().notifyOntologyDeleted( o );
+	    //}
 	} catch (Exception ex) { ex.printStackTrace(); };
 	return eval;
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006 INRIA Rhône-Alpes.
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -27,9 +27,6 @@
 
 package fr.inrialpes.exmo.align.service;
 
-// JE: I commented this in order to have it not tied to a
-// processor implementation
-//import fr.inrialpes.exmo.queryprocessor.impl.QueryProcessorImpl;
 import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
@@ -39,9 +36,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
-
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 
 import org.xml.sax.SAXException;
 
@@ -64,7 +58,6 @@ import java.io.IOException;
  */
 public class QueryMediator implements QueryProcessor {
     
-    private String query;
     private Alignment alignment;
     private QueryProcessor processor;
     
@@ -183,12 +176,9 @@ public class QueryMediator implements QueryProcessor {
 	// The second part replaces the named items by their counterparts
 	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
 	    Cell cell = (Cell)e.nextElement();
-	    try {
-		mainQuery = mainQuery.replaceAll(
-			      ((OWLEntity)cell.getObject1()).getURI().toString(),
-			      ((OWLEntity)cell.getObject2()).getURI().toString() );
-	    } catch ( OWLException ex) { throw new AlignmentException( "getURI problem", ex ); }
-
+	    mainQuery = mainQuery.replaceAll(
+					     cell.getObject1AsURI().toString(),
+					     cell.getObject2AsURI().toString() );
 	}
         return mainQuery;
     }

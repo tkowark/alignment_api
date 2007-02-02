@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2006
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,27 +23,16 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
-
-import java.lang.Math;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.HashSet;
 import java.util.Set;
 import java.io.PrintWriter;
-import java.io.IOException;
-
 import java.net.URI;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Evaluate proximity between two alignments.
@@ -106,6 +95,9 @@ public class PRecEvaluator extends BasicEvaluator {
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
     public double eval(Parameters params) throws AlignmentException {
+	return eval( params, (Object)null );
+    }
+    public double eval(Parameters params, Object cache) throws AlignmentException {
 	init();
 	nbexpected = 0;
 	nbfound = align2.nbCells();
@@ -114,19 +106,17 @@ public class PRecEvaluator extends BasicEvaluator {
 
 	for ( Enumeration e = align1.getElements(); e.hasMoreElements(); nbexpected++) {
 	    Cell c1 = (Cell)e.nextElement();
-	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
+	    URI uri1 = c1.getObject2AsURI();
+	    Set s2 = (Set)align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();
-		    try {			
-			URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
-			URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
-			// if (c1.getobject2 == c2.getobject2)
-			if (uri1.toString().equals(uri2.toString())) {
-			    nbcorrect++;
-			    c1 = null; // out of the loop.
-			}
-		    } catch (Exception exc) { exc.printStackTrace(); }
+		    URI uri2 = c2.getObject2AsURI();	
+		    // if (c1.getobject2 == c2.getobject2)
+		    if (uri1.toString().equals(uri2.toString())) {
+			nbcorrect++;
+			c1 = null; // out of the loop.
+		    }
 		}
 	    }
 	}
@@ -159,9 +149,9 @@ public class PRecEvaluator extends BasicEvaluator {
 	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
 	try {
-	    writer.println("    <map:input1 rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\"/>");
-	    writer.println("    <map:input2 rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\"/>");
-	} catch (OWLException e) { e.printStackTrace(); };
+	    writer.println("    <map:input1 rdf:resource=\""+align1.getOntology1URI()+"\"/>");
+	    writer.println("    <map:input2 rdf:resource=\""+align1.getOntology2URI()+"\"/>");
+	} catch (AlignmentException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
 	// writer.println("    <map:falseNegative>");
 	// writer.println("    <map:falsePositive>");

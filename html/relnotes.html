@@ -12,13 +12,14 @@
 <h2>To do</h2>
 
 <p><ul compact="1">
+<li>Add full support for algebraic operations (meet/join/inv/compose)</li>
+<li>Implement level 2OML alignments (version 3);</li>
 <li>Implement better similarity/extractor</li>
 <li>Fully implement individual alignments</li>
 <li>-d directory</li>
 <li>Include additional tags;</li>
-<li>Add full support for algebraic operations (meet/join/inv/compose)</li>
-<li>Implement level 2OML alignments (version 3);</li>
-<li>Integrating tagging to the wordnet stuff</li>
+<li>Add correspondence annotations</li>
+<li>Integrating tagging to the wordnet part</li>
 <li>Improve the metadata</li>
 <li>Build on unit tests</li>
 </ul></p>
@@ -27,14 +28,39 @@
 
 <p><ul compact="1">
 <li>Completing the reference manual</li>
-<li>Separating BasicAlignment (with URI) from OWLAPIAlignment</li>
 <li>Adding JADE (FIPA/ACL) Alignement server profile</li>
 <li>Adding Web Service Alignement server profile</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
 
+<!--p><b>Version 3.0: ??/02/2007 - Hyderabad</b></p-->
+
+<p><font color="red">BEWARE:</font>
+The main modification in this version is more independence from the
+  OWL API which is not anymore compulsory. Consequently, the existing
+  implementation of matching methods with Alignment API should undergo
+  some modifications: <a href="up2to3.html">Here is how to do</a>.</p>
+
+<p>The Alignment API is now compiled in Java 1.5 (older versions
+  should still be able to run it).</p>
+
 <p><ul compact="1">
+<li>Separated <tt>BasicAlignment</tt>
+ from <tt>OWLAPIAlignment</tt></li>
+<li>Implemented <tt>URIAlignment</tt></li>
+<li><tt>AlignmentParser</tt> returns an <tt>URIAlignment</tt>, for
+  obtaining an <tt>OWLAPIAlignment</tt>,
+  use <tt>OWLAPIAlignment.toOWLAPIAlignemnent(URIAlignment)</tt>.</li>
+<li>Based all implemented methods on <tt>OWLAPIAlignment</tt></li>
+<li>Implemented all renderer methods for <tt>URIAlignments</tt></li>
+<li>Adapted all util functions to the relevant methods</li>
+<li>Added autodetection of renderers and methods in server</li>
+<li>Added menu of available alignments when possibles</li>
+<li>Added cut method in server</li>
+<li>Suppressed all useless import and imprecise catch</li>
+<li>Implemented an abstract notion of ontology cache</li>
+<li>Suppressed "localhost" from local URL in README, tutorial and documentation</li>
 </ul></p>
 
 <h2>December 30th, 2006</h2>
@@ -251,7 +277,7 @@ because it requires and additional method:
 
 <p><b>Version 1.0: 4/4/2004 - First complete version</b></p>
 
-<p>This use the last version of the OWL API (090304).</p>
+<p>This uses the 090304 version of the OWL API.</p>
 
 <p>New version featuring:
 <ul compact="1">

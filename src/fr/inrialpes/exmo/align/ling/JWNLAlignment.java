@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,8 +20,6 @@
 
 package fr.inrialpes.exmo.align.ling; 
 
-import java.util.Iterator;
-
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLProperty;
@@ -30,14 +28,11 @@ import org.semanticweb.owl.model.OWLException;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-import fr.inrialpes.exmo.align.impl.Similarity;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
-
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 
 /**
  * This Class uses JWNLDistances to align two ontologies.
@@ -52,6 +47,8 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 
 	public SynonymMatrixMeasure() {
 	    Dist = new JWNLDistances();
+	}
+	public void init() throws AlignmentException {
 	    Dist.Initialize();
 	}
 	public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
@@ -72,18 +69,17 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
     }
 
     /** Creation **/
-    public JWNLAlignment( OWLOntology onto1, OWLOntology onto2 ){
-	super( onto1, onto2 );
+    public JWNLAlignment(){
 	setSimilarity( new SynonymMatrixMeasure() );
 	setType("**");
     };
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException, OWLException {
-	//ignore alignment;
-	double threshold = 1.; // threshold above which distances are to high
-
-	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
+    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+	loadInit( alignment );
+	SynonymMatrixMeasure sim = (SynonymMatrixMeasure)getSimilarity();
+	sim.init();
+	sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
       if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( type, params );

@@ -32,6 +32,8 @@ import java.lang.Exception;
 public class AlignmentException extends Exception 
 {
 
+    static final long serialVersionID = 100;
+
     public AlignmentException( String message )
     {
 	super( message );

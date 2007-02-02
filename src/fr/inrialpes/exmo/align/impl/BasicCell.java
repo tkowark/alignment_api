@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,29 +21,20 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
-import java.io.PrintStream;
-import java.io.IOException;
-import java.util.Comparator;
-import java.lang.ClassNotFoundException;
+import java.net.URI;
 
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.model.OWLEntity;
+//*/3.0
+//import org.semanticweb.owl.model.OWLEntity;
 
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.rel.*;
-
 /**
- * Represents an OWL ontology alignment. An ontology comprises a number of
- * collections. Each ontology has a number of classes, properties and
- * individuals, along with a number of axioms asserting information
- * about those objects.
+ * Represents an ontology alignment correspondence. 
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -56,45 +47,32 @@ public class BasicCell implements Cell, Comparable {
 
     String id = null;
     String semantics = null;
-    OWLEntity object1 = null;
-    OWLEntity object2 = null;
+    //*/3.0
+    //OWLEntity object1 = null;
+    //OWLEntity object2 = null;
+    Object object1 = null;
+    Object object2 = null;
     Relation relation = null;
     double strength = 0;
 
     /** Creation **/
-    public BasicCell( Object ob1, Object ob2 ) throws AlignmentException {
-	new BasicCell( ob1, ob2, "=", 0 );
-    };
+    //    public BasicCell( Object ob1, Object ob2 ) throws AlignmentException {
+    //	new BasicCell( (String)null, ob1, ob2, "=", 0 );
+    //    };
 
-    public BasicCell( String id, Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-	new BasicCell( ob1, ob2, rel, m );
-	setId( id );
-    }
+//*/3.0
+//    public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
+//	throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
+//    }
+//    public BasicCell( OWLEntity ob1, OWLEntity ob2, String rel, double m ) throws AlignmentException {
+//    public BasicCell( String id, Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
+//	new BasicCell( id, ob1, ob2, BasicRelation.createRelation(rel), m );
+//    };
 
-    public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-	throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
-    }
-    public BasicCell( OWLEntity ob1, OWLEntity ob2, String rel, double m ) throws AlignmentException {
-	object1 = ob1;
-	object2 = ob2;
-	if ( rel.equals("=") ) {
-	    relation = new EquivRelation();
-	} else if ( rel.equals("<") ) {
-	    relation = new SubsumeRelation();
-	} else if ( rel.equals("%") ) {
-	    relation = new IncompatRelation();
-	} else if ( rel.equals("~>") ) {
-	    relation = new NonTransitiveImplicationRelation();
-	} else {
-	    // I could use the class name for relation, 
-	    // this would be more extensible...
-	    relation = new BasicRelation("=");
-	};
-	// No exception, just keep 0?
-	if ( m >= 0 && m <= 1 ) strength = m;
-    };
-
-    public BasicCell( OWLEntity ob1, OWLEntity ob2, Relation rel, double m ) throws AlignmentException {
+//*/3.0
+//    public BasicCell( OWLEntity ob1, OWLEntity ob2, Relation rel, double m ) throws AlignmentException {
+    public BasicCell( String id, Object ob1, Object ob2, Relation rel, double m ) throws AlignmentException {
+	setId( id ); 
 	object1 = ob1;
 	object2 = ob2;
 	relation = rel;
@@ -131,19 +109,37 @@ public class BasicCell implements Cell, Comparable {
     public void setSemantics( String sem ){ semantics = sem; };
     public Object getObject1(){ return object1; };
     public Object getObject2(){ return object2; };
-    public void setObject1( Object ob ) throws AlignmentException {
-	if ( ob instanceof OWLEntity ) {
-	    object1 = (OWLEntity)ob;
+    public URI getObject1AsURI() throws AlignmentException { 
+	if ( object1 instanceof URI ) {
+	    return (URI)object1; 
 	} else {
-	    throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
+	    throw new AlignmentException( "Cannot find URI for "+object1 );
 	}
     }
-    public void setObject2( Object ob ) throws AlignmentException {
-	if ( ob instanceof OWLEntity ) {
-	    object2 = (OWLEntity)ob;
+    public URI getObject2AsURI() throws AlignmentException { 
+	if ( object2 instanceof URI ) {
+	    return (URI)object2; 
 	} else {
-	    throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
+	    throw new AlignmentException( "Cannot find URI for "+object2 );
 	}
+    }
+    public void setObject1( Object ob ) throws AlignmentException {
+//*/3.0
+//	if ( ob instanceof OWLEntity ) {
+//	    object1 = (OWLEntity)ob;
+//	} else {
+//	    throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
+//	}
+	object1 = ob;
+    }
+    public void setObject2( Object ob ) throws AlignmentException {
+//*/3.0
+//	if ( ob instanceof OWLEntity ) {
+//	    object2 = (OWLEntity)ob;
+//	} else {
+//	    throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
+//	}
+	object2 = ob;
     }
     public Relation getRelation(){ return relation; };
     public void setRelation( Relation rel ){ relation = rel; };
@@ -151,7 +147,7 @@ public class BasicCell implements Cell, Comparable {
     public void setStrength( double m ){ strength = m; };
 
     public Cell inverse() throws AlignmentException {
-	return (Cell)new BasicCell( object2, object1, relation.inverse(), strength );
+	return (Cell)new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
 	// The sae should be done for the measure
     }
 

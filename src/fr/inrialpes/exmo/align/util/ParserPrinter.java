@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2004 INRIA Rhône-Alpes.
+ * Copyright (C) 2003-2004, 2007 INRIA Rhône-Alpes.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -23,44 +23,26 @@
 package fr.inrialpes.exmo.align.util;
 
 //Imported JAVA classes
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.lang.Integer;
 import java.lang.Double;
-import java.util.Observer;
-import java.util.Stack;
 import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
-import java.util.Observer;
-import java.util.Hashtable;
-
-import org.semanticweb.owl.util.OWLConnection;
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-import org.semanticweb.owl.io.Parser;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.util.Hashtable;
 
 import org.xml.sax.SAXException;
-
-import org.apache.log4j.BasicConfigurator;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -68,8 +50,7 @@ import gnu.getopt.Getopt;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A really simple utility that loads and alignment and prints it.
-    A basic class for an OWL ontology alignment processing. The processor
-    will parse ontologies, align them and renderings the resulting alignment.
+    A basic class for ontology alignment processing.
     Command synopsis is as follows:
     
     <pre>
@@ -175,7 +156,7 @@ public class ParserPrinter {
 
 	try {
 	    AlignmentParser aparser = new AlignmentParser( debug );
-	    result = aparser.parse( initName, new Hashtable() );
+	    result = aparser.parse( initName );
 	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
 	    // Set output file
 	    OutputStream stream;
@@ -195,7 +176,7 @@ public class ParserPrinter {
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
 
-	    //result.write( writer );
+	    // Create renderer
 	    if ( rendererClass == null ) renderer = new RDFRendererVisitor( writer );
 	    else {
 		try {
@@ -211,7 +192,14 @@ public class ParserPrinter {
 		    return;
 		}
 	    }
-	    result.render( renderer );
+	    // Render the alignment
+	    try {
+		result.render( renderer );
+	    } catch ( AlignmentException aex ) {
+		// if the renderer needs an OWLAPIALignment: give it
+		result = OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)result, (OntologyCache)null );
+		result.render( renderer );
+	    }
 	    writer.flush();
 	    writer.close();
 	    

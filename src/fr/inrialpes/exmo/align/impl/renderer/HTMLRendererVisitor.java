@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,30 +20,14 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-
-import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
  * Renders an alignment in HTML
@@ -73,12 +57,8 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("<h1></h1>\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
 	writer.print("<table border=\"0\">\n");
-	try {
-	    writer.print("<tr><td>uri1</td><td>"+((OWLOntology)align.getOntology1()).getLogicalURI().toString()+"</td></tr>\n" );
-	    writer.print("<tr><td>uri2</td><td>"+((OWLOntology)align.getOntology2()).getLogicalURI().toString()+"</td></tr>\n" );
-	} catch (OWLException ex) { 
-	    throw new AlignmentException( "getURI problem", ex);
-	}
+	writer.print("<tr><td>uri1</td><td>"+align.getOntology1URI().toString()+"</td></tr>\n" );
+	writer.print("<tr><td>uri2</td><td>"+align.getOntology2URI().toString()+"</td></tr>\n" );
 	if ( align.getFile1() != null )
 	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile1().toString()+"\">"+align.getFile1().toString()+"</a></td></tr>\n" );
 	if ( align.getFile2() != null )
@@ -102,18 +82,15 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	try {
-	    writer.print("  <tr>");
-	    if ( cell.getId() != null ) writer.print("<td>"+cell.getId()+"</td>");
-	    else writer.print("<td></td>");
-	    writer.print("<td>"+((OWLEntity)cell.getObject1()).getURI().toString()+"</td><td>");
-	    cell.getRelation().accept( this );
-	    writer.print("</td><td>"+cell.getStrength()+"</td>");
-	    writer.print("<td>"+((OWLEntity)cell.getObject2()).getURI().toString() +"</td></tr>");
-	    //if ( !cell.getSemantics().equals("first-order") )
-	    //	writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
-	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }
+	writer.print("  <tr>");
+	if ( cell.getId() != null ) writer.print("<td>"+cell.getId()+"</td>");
+	else writer.print("<td></td>");
+	writer.print("<td>"+cell.getObject1AsURI().toString()+"</td><td>");
+	cell.getRelation().accept( this );
+	writer.print("</td><td>"+cell.getStrength()+"</td>");
+	writer.print("<td>"+cell.getObject2AsURI().toString()+"</td></tr>");
+	//if ( !cell.getSemantics().equals("first-order") )
+	//	writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
     }
     public void visit( Relation rel ) {
 	rel.write( writer );

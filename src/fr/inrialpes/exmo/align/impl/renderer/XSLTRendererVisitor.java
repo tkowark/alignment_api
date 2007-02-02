@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,17 +23,9 @@ package fr.inrialpes.exmo.align.impl.renderer;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintWriter;
-import java.io.IOException;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -107,51 +99,47 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	    if ( ((OWLEntity)onto1.getClass( entity1URI ) != null )
-		 || ((OWLEntity)onto1.getDataProperty( entity1URI ) != null)
-		 || ((OWLEntity)onto1.getObjectProperty( entity1URI ) != null )) { 
+	// This was here for avoiding to treat individuals...
+	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
+	//try {
+	//    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
+	//    if ( ((OWLEntity)onto1.getClass( entity1URI ) != null )
+	//	 || ((OWLEntity)onto1.getDataProperty( entity1URI ) != null)
+	//	 || ((OWLEntity)onto1.getObjectProperty( entity1URI ) != null )) { 
 		cell.getRelation().accept( this );
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+		//    }
+		//} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
     }
 
     private void collectURIs ( Cell cell ) throws AlignmentException {
-	try {
-	    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	    URI entity2URI = ((OWLEntity)cell.getObject2()).getURI();
-	    if ( entity1URI != null ) {
-		String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
-		if ( namespaces.get( ns1 ) == null ){
-		    namespaces.put( ns1, "ns"+nsrank++ );
-		}
+	URI entity1URI = cell.getObject1AsURI();
+	URI entity2URI = cell.getObject2AsURI();
+	if ( entity1URI != null ) {
+	    String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
+	    if ( namespaces.get( ns1 ) == null ){
+		namespaces.put( ns1, "ns"+nsrank++ );
 	    }
-	    if ( entity2URI != null ) {
-		String ns2 = entity2URI.getScheme()+":"+entity2URI.getSchemeSpecificPart()+"#";
-		if ( namespaces.get( ns2 ) == null ){
-		    namespaces.put( ns2, "ns"+nsrank++ );
-		}
+	}
+	if ( entity2URI != null ) {
+	    String ns2 = entity2URI.getScheme()+":"+entity2URI.getSchemeSpecificPart()+"#";
+	    if ( namespaces.get( ns2 ) == null ){
+		namespaces.put( ns2, "ns"+nsrank++ );
 	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	}
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {
 	// The code is exactly the same for properties and classes
-	writer.println("  <xsl:template match=\""+namespacify((OWLEntity)cell.getObject1())+"\">");
-	writer.println("    <xsl:element name=\""+namespacify((OWLEntity)cell.getObject2())+"\">");
+	writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI())+"\">");
+	writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI())+"\">");
 	writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
 	writer.println("    </xsl:element>");
 	writer.println("  </xsl:template>\n");
     }
 
-    private String namespacify( OWLEntity entity ) throws AlignmentException {
-	try {
-	    URI u = entity.getURI();
-	    String ns = u.getScheme()+":"+u.getSchemeSpecificPart()+"#";
-	    return namespaces.get(ns)+":"+u.getFragment();
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
+    private String namespacify( URI u ) {
+	String ns = u.getScheme()+":"+u.getSchemeSpecificPart()+"#";
+	return namespaces.get(ns)+":"+u.getFragment();
     }
 
     public void visit( SubsumeRelation rel ){};

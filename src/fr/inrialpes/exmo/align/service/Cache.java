@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) XX, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -23,7 +24,9 @@ package fr.inrialpes.exmo.align.service;
 import java.net.URI;
 import java.util.Set;
 import java.sql.SQLException;
+
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
 
 public interface Cache {
     void init() throws SQLException;

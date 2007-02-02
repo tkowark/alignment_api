@@ -1,25 +1,31 @@
 /*
- * $Id$ Copyright
- * (C) University of Montréal, 2004-2005 Copyright (C) INRIA Rhône-Alpes,
- * 2004-2005 This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of the License,
- * or (at your option) any later version. This program is distributed in the
- * hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
- * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
- * the GNU Lesser General Public License for more details. You should have
- * received a copy of the GNU Lesser General Public License along with this
- * program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA 02111-1307 USA
+ * $Id$
+ *
+ * Copyright (C) University of Montréal, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 package fr.inrialpes.exmo.align.ling;
 
 import fr.inrialpes.exmo.align.impl.method.StringDistances;
+import org.semanticweb.owl.align.AlignmentException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -30,16 +36,11 @@ import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.POS;
-import net.didion.jwnl.data.PointerType;
 import net.didion.jwnl.data.Synset;
 import net.didion.jwnl.dictionary.Dictionary;
 import net.didion.jwnl.data.PointerUtils;
 import net.didion.jwnl.data.list.PointerTargetNode;
 import net.didion.jwnl.data.list.PointerTargetNodeList;
-import net.didion.jwnl.data.list.PointerTargetTree;
-import net.didion.jwnl.data.relationship.AsymmetricRelationship;
-import net.didion.jwnl.data.relationship.Relationship;
-import net.didion.jwnl.data.relationship.SymmetricRelationship;
 
 /**
  * Compute a string distance using the JWNL API (WordNet API)
@@ -70,8 +71,6 @@ public class JWNLDistances {
 
     double[][]                 adjectivesMasks;
     
-    private FileInputStream fis;
-
     // tokens depending on their nature
     // PG: These are now global variables.
     private Hashtable nouns1        = new Hashtable();
@@ -84,15 +83,14 @@ public class JWNLDistances {
     /**
      * Initialize the JWNL API. Must be done one time before computing distance
      * Need to configure the file_properties.xml located in the current
-     * directory (ontoalign)
+     * directory
      */
-    public void Initialize() {
-        try {
-            JWNL.initialize(new FileInputStream("./file_properties.xml"));
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            System.exit(-1);
+    public void Initialize() throws AlignmentException {
+        try { JWNL.initialize(new FileInputStream("./file_properties.xml"));
+        } catch ( JWNLException e ) {
+	    throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
+        } catch ( FileNotFoundException e ) {
+	    throw new AlignmentException( "Cannot find WordNet property file (./file_properties.xml)", e );
         }
     }
 
@@ -106,10 +104,11 @@ public class JWNLDistances {
     public double BasicSynonymDistance(String s1, String s2) {
         double Dist = 0.0;
         double Dists1s2;
-        int i, j, k = 0;
+        int j, k = 0;
         int synonymNb = 0;
-        int besti = 0, bestj = 0;
-        int syno = 0;
+        int besti = 0;
+	int bestj = 0;
+        //int syno = 0;
         double DistTab[];
         IndexWord index = null;
         Synset Syno[] = null;
@@ -217,7 +216,6 @@ public class JWNLDistances {
      * @param mask A mask matrix.
      * @param results A result matrix.
      * @deprecated The use of a mask is deprecated.
-     */
     private void updateMaskAndResults(Hashtable hash1, Hashtable hash2, double[][] mask, double[][] results) {
         Enumeration enum1, enum2;
         String token1, token2;
@@ -247,6 +245,7 @@ public class JWNLDistances {
             x++;
         }
     }
+     */
 
     public double compareComponentNames(String s1, String s2) {
         Vector s1Tokens;
@@ -435,8 +434,8 @@ public class JWNLDistances {
                         }
                     }
                 }
-                // System.out.println("common = " + maxCommon);
-                // System.out.println("value = "
+                // System.err.println("common = " + maxCommon);
+                // System.err.println("value = "
                 // + ((2 * maxCommon) / (best1.size() + best2.size())));
                 // if (best1 != null) best1.print();
                 // if (best2 != null) best2.print();
@@ -482,7 +481,7 @@ public class JWNLDistances {
                         }
                     }
                 }
-                // System.out.println("value = " + value);
+                // System.err.println("value = " + value);
                 return value;
             }
             catch (JWNLException je) {
@@ -644,7 +643,7 @@ public class JWNLDistances {
 			}	
 		}
 		// PV: Debug 
-		//System.out.println("Tokens = "+ vTokens.toString());		
+		//System.err.println("Tokens = "+ vTokens.toString());		
 			return vTokens;
 	}
 	
@@ -702,7 +701,7 @@ public class JWNLDistances {
             }
             car = start + 1;
         }
-        // PV: Debug System.out.println("Tokens = "+ sTokens.toString());
+        // PV: Debug System.err.println("Tokens = "+ sTokens.toString());
     
         return sTokens;
     }
@@ -744,7 +743,7 @@ public class JWNLDistances {
         for (int s = 0; s < syn.getWordsSize(); s++) {
             str += syn.getWord(s);
         }
-        // System.out.println(str);
+        // System.err.println(str);
     }
 
     public int getCommonConcepts(PointerTargetNodeList list1,
@@ -883,32 +882,36 @@ public class JWNLDistances {
         Vector v = new Vector();
 
         JWNLDistances j = new JWNLDistances();
-        j.Initialize();
+	try { j.Initialize(); }
+	catch ( AlignmentException e) {
+	    e.printStackTrace();
+	    return;
+	}
         String s1 = "French997Guy";
         String s2 = "Dutch_Goa77ly";
 //        try {
 //            IndexWord index1 = Dictionary.getInstance().getIndexWord(POS.NOUN, s1);
 //            IndexWord index2 = Dictionary.getInstance().getIndexWord(POS.NOUN, s2);
-//            System.out.println(j.computeTokenSimilarity(index1, index2));
+//            System.err.println(j.computeTokenSimilarity(index1, index2));
 //        }
 //        catch (JWNLException e) {
 //            e.printStackTrace();
 //        }
-        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
-//        System.out.println("Sim = " + j.computeSimilarity(s1, s2));
-//        System.out.println("SimOld = " + (1 - j.BasicSynonymDistance(s1, s2)));
-//        System.out.println("SimSubs = " + (1 - StringDistances.subStringDistance(s1, s2)));
+        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
+//        System.err.println("Sim = " + j.computeSimilarity(s1, s2));
+//        System.err.println("SimOld = " + (1 - j.BasicSynonymDistance(s1, s2)));
+//        System.err.println("SimSubs = " + (1 - StringDistances.subStringDistance(s1, s2)));
         s1 = "FREnch997guy21GUIe";
         s2 = "Dutch_GOa77ly.";
-        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
 
         s1 = "a997c";
         s2 = "77ly.";
-        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
 
         s1 = "MSc";
         s2 = "PhD";
-        System.out.println("SimWN = " + j.compareComponentNames(s1, s2));
+        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
 
     }
 }
