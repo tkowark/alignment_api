@@ -73,7 +73,7 @@ public class QueryMediator implements QueryProcessor {
     public QueryMediator( QueryProcessor proc, String alignmentURI ) throws SAXException,ParserConfigurationException,IOException {
 	processor = proc;
 	AlignmentParser aparser = new AlignmentParser(0);
-	alignment = aparser.parse( alignmentURI, new Hashtable() );
+	alignment = aparser.parse( alignmentURI );
     }
 
     public QueryMediator( Alignment a ) {

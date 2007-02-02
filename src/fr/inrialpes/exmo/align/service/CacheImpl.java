@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) XX, 2006
+ * Copyright (C) Seungkeun Lee, 2006
  * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
@@ -37,27 +37,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
-/*
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-//import org.semanticweb.owl.util.OWLManager;
-*/
-
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-//import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-
-//import org.semanticweb.owl.model.OWLEntity;
-//import org.semanticweb.owl.model.OWLOntology;
 
 /**
  * This class caches the content of the alignment database. I.e.,
@@ -152,8 +139,6 @@ public class CacheImpl implements Cache {
 	String tag;
 	String method;
 
-	//*/3.0
-	//Alignment result = new BasicAlignment();
 	Alignment result = new URIAlignment();
 		
 	try {
@@ -162,8 +147,8 @@ public class CacheImpl implements Cache {
 	    rs = (ResultSet) st.executeQuery(query);
 	    while(rs.next()) {
 		// Either uri1 or file1
-		result.setFile1( new URI(rs.getString("uri1")) ); 
-		result.setFile2( new URI(rs.getString("uri2")) );
+		result.setFile1( new URI( rs.getString("file1") ) ); 
+		result.setFile2( new URI( rs.getString("file2") ) );
 		result.setExtension( "ouri1", rs.getString("owlontology1") );
 		result.setExtension( "ouri2", rs.getString("owlontology2") );
 		result.setLevel(rs.getString("level"));
@@ -199,43 +184,18 @@ public class CacheImpl implements Cache {
      * && result.getExtension("fr.inrialpes.exmo.align.service.stored") != "") {
 
      */
-    protected Alignment retrieveAlignment( String id, Alignment result ) throws SQLException, AlignmentException, URISyntaxException//*/, OWLException 
-{
-	//*/3.0
-	//OWLOntology o1 = null;
-	//OWLOntology o2 = null;
+    protected Alignment retrieveAlignment( String id, Alignment result ) throws SQLException, AlignmentException, URISyntaxException {
 	String query;
-	//String tag;
-	//String method;
-	//*/3.0
-	//OWLEntity ent1 = null, ent2 = null;
 	URI ent1 = null, ent2 = null;
 	Cell cell = null;
 
-	// Load the ontologies
-	//*/3.0
-	//o1 = loadOntology(result.getFile1());
-	//o2 = loadOntology(result.getFile2());
 	result.setOntology1( new URI( result.getExtension( "ouri1" ) ) );
 	result.setOntology2( new URI( result.getExtension( "ouri2" ) ) );
 
-	// Get extension metadata
-	// JE: this has been done already by getDescription (in all cases)
-	//query = "select * from extension where id = '" + id + "'";
-	//rs = (ResultSet) st.executeQuery(query);
-	//while(rs.next()) {
-	//    tag = rs.getString("tag");
-	//    method = rs.getString("method");
-	//    result.setExtension(tag, method);
-	//}
-	
 	// Get cells
 	query = "select * from cell where id = '" + id + "'";
 	rs = (ResultSet) st.executeQuery(query);
 	while(rs.next()) {
-	    //*/3.0
-	    //ent1 = (OWLEntity) o1.getClass(new URI(rs.getString("uri1")));
-	    //ent2 = (OWLEntity) o2.getClass(new URI(rs.getString("uri2")));
 	    ent1 = new URI(rs.getString("uri1"));
 	    ent2 = new URI(rs.getString("uri2"));
 	    if(ent1 == null || ent2 == null) break;
@@ -328,24 +288,10 @@ public class CacheImpl implements Cache {
     /**
      * records alignment identified by id
      */
-    //*/3.0 In fact this assumes an URIAlignment
     public String recordNewAlignment( String id, Alignment al, boolean force ) throws AlignmentException {
 	Alignment alignment = al;
-	//if ( alignment instanceof OWLAPIAlignment )
-	//    alignment = ((OWLAPIAlignment)al).toURIAlignment();
-	// Set the Ontology URIs
-	//*/3.0
-	//try {
-	    //*/3.0
-	    //alignment.setExtension("ouri1", ((OWLOntology)alignment.getOntology1()).getLogicalURI().toString());
-	    //alignment.setExtension("ouri2", ((OWLOntology)alignment.getOntology2()).getLogicalURI().toString());
 	alignment.setExtension("ouri1", alignment.getOntology1URI().toString());
 	alignment.setExtension("ouri2", alignment.getOntology2URI().toString());
-	    //*/3.0
-	    //} catch (OWLException e) {
-	    //System.err.println("Unexpected OWL Exception");
-	    //e.printStackTrace();
-	    //}
 	// Index
 	recordAlignment( id, alignment, force );
 	// Not yet stored
@@ -395,8 +341,6 @@ public class CacheImpl implements Cache {
 	Alignment alignment = null;
 
 	alignment = getAlignment( id );
-	//if ( alignment instanceof OWLAPIAlignment )
-	//    alignment = ((OWLAPIAlignment)alignment).toURIAlignment();
 
 	// We store stored date
 	alignment.setExtension("fr.inrialpes.exmo.align.service.stored", new Date().toString());
@@ -404,13 +348,6 @@ public class CacheImpl implements Cache {
 	alignment.setExtension("fr.inrialpes.exmo.align.service.cached", "");
 
 	try {
-	    // owlontology attribute
-	    // JE: This cannot work if the ontology is not loaded!
-	    // which should not be the case but who knows?
-	    //OWLOntology O1 = (OWLOntology)alignment.getOntology1();
-	    //OWLOntology O2 = (OWLOntology)alignment.getOntology2();
-	    //String s_O1 = O1.getLogicalURI().toString();
-	    //String s_O2 = O2.getLogicalURI().toString();
 	    String s_O1 = alignment.getExtension("ouri1");
 	    String s_O2 = alignment.getExtension("ouri2");
 	    
@@ -423,11 +360,6 @@ public class CacheImpl implements Cache {
 		s_File2 = alignment.getFile2().toString();
 	    
 	    // uri attribute
-	    //*/3.0
-	    // JE: This cannot work if the ontology is not loaded!
-	    // which should not be the case but who knows?
-	    //String s_uri1 = ((OWLOntology)alignment.getOntology1()).getPhysicalURI().toString();
-	    //String s_uri2 = ((OWLOntology)alignment.getOntology2()).getPhysicalURI().toString();
 	    String s_uri1 = alignment.getOntology1URI().toString();
 	    String s_uri2 = alignment.getOntology2URI().toString();
 
@@ -450,18 +382,11 @@ public class CacheImpl implements Cache {
 	    for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
 		Cell c = (Cell)e.nextElement();
 		String temp[] = new String[10];
-		//*/3.0
-		//try {
-		    //*/3.0
-		    //if ( ((OWLEntity)c.getObject1()).getURI() != null && ((OWLEntity)c.getObject2()).getURI() != null ){
 		    if ( c.getObject1() != null && c.getObject2() != null ){
 			if ( c.getId() != null ){
 			    temp[0] = c.getId();
 			} 
 			else temp[0] = "";
-			//*/3.0
-			//temp[1] = ((OWLEntity)c.getObject1()).getURI().toString();
-			//temp[2] = ((OWLEntity)c.getObject2()).getURI().toString();
 			temp[1] = c.getObject1AsURI().toString();
 			temp[2] = c.getObject2AsURI().toString();
 			temp[3] = c.getStrength() + "";
@@ -474,11 +399,6 @@ public class CacheImpl implements Cache {
 			    "values ('" + id + "','" + temp[0] + "','" + temp[1] + "','" + temp[2] + "','" + temp[3] + "','" + temp[4] + "','" + temp[5] + "')";
 			st.executeUpdate(query);
 		    }
-		
-		    //*/3.0
-		    //		} catch ( OWLException ex) {
-		    // Raise an exception
-		    //System.err.println( "getURI problem" + ex.toString() ); }
 	    }
 	} catch (Exception e) { e.printStackTrace(); };
 	// We reset cached date
@@ -498,11 +418,4 @@ public class CacheImpl implements Cache {
 	// - clean up cells
 	// }
     }
-
-    //**********************************************************************
-    /*public OWLOntology loadOntology( URI uri ) throws OWLException {
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setConnection(OWLManager.getOWLConnection());
-	return parser.parseOntology(uri);
-	}*/
 }
