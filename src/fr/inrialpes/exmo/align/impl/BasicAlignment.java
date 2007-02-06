@@ -506,7 +506,7 @@ public class BasicAlignment implements Alignment {
 	    String label = (String)e.nextElement();
 	    result.setExtension( label, getExtension( label ) );
 	}
-	result.setExtension( "id", (String)null );
+	result.getExtensions().unsetParameter( "id" );
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
 	    result.addCell(((Cell)e.nextElement()).inverse());
 	}
