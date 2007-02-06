@@ -97,7 +97,6 @@ public class MyApp {
 	    // and choose the one with the best F-Measure
 	    AlignmentParser aparser = new AlignmentParser(0);
 	    Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
-	    // JE: This does not work because BasicAlignment vs. OWLAPIAlignment
 	    Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
 	    double best = 0.;
@@ -117,7 +116,6 @@ public class MyApp {
 				  new BufferedWriter(
 		                   new OutputStreamWriter( System.out, "UTF-8" )), true);
 	    AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
-	    // JE: Here this will not break because result is already a OWLAPIAlignment
 	    result.render(renderer);
 	    writer.flush();
 	    writer.close();
