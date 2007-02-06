@@ -86,7 +86,6 @@ public class URIAlignment extends BasicAlignment {
 
     /** Cell methods **/
     public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
- 
         if ( !( ob1 instanceof URI && ob2 instanceof URI ) )
 	    throw new AlignmentException("arguments must be URIs");
 
@@ -151,6 +150,14 @@ public class URIAlignment extends BasicAlignment {
 		throw new AlignmentException("arguments must be URIs");
 	    }
 	}
+    }
+
+    /**
+     * Returns default exception for conversion to URIAlignments
+     *
+     */
+    public URIAlignment toURIAlignment() throws AlignmentException {
+	return this;
     }
 
     /**

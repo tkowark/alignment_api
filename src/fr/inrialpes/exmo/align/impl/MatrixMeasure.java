@@ -112,11 +112,23 @@ public abstract class MatrixMeasure implements Similarity {
 	    }
 	    prmatrix = new double[nbprop1+1][nbprop2+1];
 	    // Create individual lists
-	    for ( Iterator it = onto2.getIndividuals().iterator(); it.hasNext(); nbind2++ ){
-		indlist2.put( it.next(), new Integer(nbind2) );
+	    for ( Iterator it = onto2.getIndividuals().iterator(); it.hasNext();  ){
+		OWLIndividual o = (OWLIndividual)it.next();
+		//System.err.println( o );
+		// We suppress anonymous individuals... this is not legitimate
+		if ( o.getURI() != null ) {
+		    indlist2.put( o, new Integer(nbind2) );
+		    nbind2++;
+		}
 	    }
-	    for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); nbind1++ ){
-		indlist1.put( it.next(), new Integer(nbind1) );
+	    for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); ){
+		OWLIndividual o = (OWLIndividual)it.next();
+		//System.err.println( o );
+		// We suppress anonymous individuals... this is not legitimate
+		if ( o.getURI() != null ) {
+		    indlist1.put( o, new Integer(nbind1) );
+		    nbind1++;
+		}
 	    }
 	    indmatrix = new double[nbind1+1][nbind2+1];
 
@@ -137,9 +149,13 @@ public abstract class MatrixMeasure implements Similarity {
 	    // (this comes first because otherwise, it2 is defined)
 	    for ( Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ){
 		OWLIndividual ind2 = (OWLIndividual)it2.next();
-		for ( Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext(); ){
-		    OWLIndividual ind1 = (OWLIndividual)it1.next();
-		    indmatrix[((Integer)indlist1.get(ind1)).intValue()][((Integer)indlist2.get(ind2)).intValue()] = measure( ind1, ind2 );
+		if ( indlist2.get(ind2) != null ) {
+		    for ( Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext(); ){
+			OWLIndividual ind1 = (OWLIndividual)it1.next();
+			if ( indlist1.get(ind1) != null ) {
+			    indmatrix[((Integer)indlist1.get(ind1)).intValue()][((Integer)indlist2.get(ind2)).intValue()] = measure( ind1, ind2 );
+			}
+		    }
 		}
 	    }
 	    // Compute distances on properties

@@ -26,6 +26,7 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -64,8 +65,8 @@ public class PRecEvaluator extends BasicEvaluator {
     private int nbcorrect = 0; // nb of cells correctly identified
 
     /** Creation **/
-    public PRecEvaluator(Alignment align1, Alignment align2) {
-	super(align1, align2);
+    public PRecEvaluator(Alignment align1, Alignment align2) throws AlignmentException {
+	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
     }
 
     public void init(){

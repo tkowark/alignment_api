@@ -96,6 +96,9 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	extract( getType(), params );
     }
 
+    /**
+     * Prints the distance matrix
+     */
     public void printDistanceMatrix( Parameters params ){
 	System.out.println("\\documentclass{article}\n");
 	System.out.println("\\usepackage{graphics}\n");
@@ -107,6 +110,13 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	System.out.println("\\caption{Class distance with measure "+(String)params.getParameter("stringFunction")+"}");
 	System.out.println("\\end{figure}");
 	System.out.println("\n\\end{document}");
+    }
+
+    /**
+     * Suppresses the distance matrix
+     */
+    public void cleanUp() {
+	sim = null;
     }
 
     /**
@@ -186,16 +196,20 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	  if (  params.getParameter("noinst") == null ){
 	      for (Iterator it1 = ((OWLOntology)onto1).getIndividuals().iterator(); it1.hasNext();) {
 		  OWLIndividual ind1 = (OWLIndividual)it1.next();
-		  found = false; max = threshold; val = 0;
-		  OWLIndividual ind2 = null;
-		  for (Iterator it2 = ((OWLOntology)onto2).getIndividuals().iterator(); it2.hasNext(); ) {
-		      OWLIndividual current = (OWLIndividual)it2.next();
-		      val = 1 - sim.getIndividualSimilarity(ind1,current);
-		      if (val > max) {
-			  found = true; max = val; ind2 = current;
+		  if ( ind1.getURI() != null ) {
+		      found = false; max = threshold; val = 0;
+		      OWLIndividual ind2 = null;
+		      for (Iterator it2 = ((OWLOntology)onto2).getIndividuals().iterator(); it2.hasNext(); ) {
+			  OWLIndividual current = (OWLIndividual)it2.next();
+			  if ( current.getURI() != null ) {
+			      val = 1 - sim.getIndividualSimilarity(ind1,current);
+			      if (val > max) {
+				  found = true; max = val; ind2 = current;
+			      }
+			  }
 		      }
+		      if ( found ) addAlignCell(ind1,ind2, "=", max);
 		  }
-		  if ( found ) addAlignCell(ind1,ind2, "=", max);
 	      }
 	  }
       } catch (OWLException owlex) { owlex.printStackTrace(); }
@@ -393,12 +407,17 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	  if (  params.getParameter("noinst") == null ){
 	      for (Iterator it1 = ((OWLOntology)onto1).getIndividuals().iterator(); it1.hasNext();) {
 		  ent1 = (OWLIndividual)it1.next();
-		  for (Iterator it2 = ((OWLOntology)onto2).getIndividuals().iterator(); it2.hasNext(); ) {
-		      ent2 = (OWLIndividual)it2.next();
-		      val = 1 - sim.getIndividualSimilarity((OWLIndividual)ent1,(OWLIndividual)ent2);
-		      //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
-		      if ( val > threshold ){
-			  cellSet.add( new OWLAPICell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+		  if ( ent1.getURI() != null ) {
+
+		      for (Iterator it2 = ((OWLOntology)onto2).getIndividuals().iterator(); it2.hasNext(); ) {
+			  ent2 = (OWLIndividual)it2.next();
+			  if ( ent2.getURI() != null ) {
+			      val = 1 - sim.getIndividualSimilarity((OWLIndividual)ent1,(OWLIndividual)ent2);
+			      //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+			      if ( val > threshold ){
+				  cellSet.add( new OWLAPICell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+			      }
+			  }
 		      }
 		  }
 	      }

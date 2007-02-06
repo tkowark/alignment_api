@@ -245,7 +245,11 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
-	    align.addAlignCell( c.getId(), c.getObject1AsURI(), c.getObject2AsURI(), c.getRelation(), c.getStrength() );
+	    try {
+		align.addAlignCell( c.getId(), c.getObject1AsURI(), c.getObject2AsURI(), c.getRelation(), c.getStrength() );
+	    } catch (AlignmentException aex) {
+		// Sometimes URIs are null, this is ignore
+	    }
 	};
 	return align;
     }

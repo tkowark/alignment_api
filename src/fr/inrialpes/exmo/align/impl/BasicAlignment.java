@@ -436,6 +436,14 @@ public class BasicAlignment implements Alignment {
 	}
     };
 
+    /**
+     * Returns default exception for conversion to URIAlignments
+     *
+     */
+    public URIAlignment toURIAlignment() throws AlignmentException {
+	throw new AlignmentException("[BasicAlignment].toURIAlignment() cannot process");
+    }
+
     /***************************************************************************
      * The harden function acts like threshold but put all weights to 1.
      **************************************************************************/
@@ -562,6 +570,12 @@ public class BasicAlignment implements Alignment {
     public void render( AlignmentVisitor renderer ) throws AlignmentException {
 	accept(renderer);
     }
+
+    /**
+     * Can be used for reducing the amount of memory taken by an alignment
+     * Does nothing in BasicAlignment.
+     */
+    public void cleanUp() {}
 }
 
 class MEnumeration implements Enumeration {
