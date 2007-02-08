@@ -34,7 +34,7 @@
     <property name="debug" value="off"/>
     <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
     <!-- This should now be handled by GForge -->
-    <property name="FTPDir" value="/Volumes/Phata/Web/html/ftpexmo/software/ontoalign"/>
+    <property name="FTPDir" value="/Web/html/ftpexmo/software/ontoalign"/>
 
     <property name="classpath"  value="classes"/>
     
@@ -166,9 +166,11 @@
     <antcall target="jar"/>
     <antcall target="javadoc"/>
     <!-- may be useful to change directory -->
-    <!-- may be useful to exclude stuff like .svn -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
-      <fileset dir="." includes="**/*"/>
+      <fileset dir=".">
+	<include name="**/*"/>
+	<exclude name="**/.svn"/>
+      </fileset>
     </zip>
   </target>
 
