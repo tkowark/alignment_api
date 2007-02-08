@@ -58,13 +58,13 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     public StringDistAlignment() {
 	setSimilarity( new MatrixMeasure() {
 		public double measure( OWLClass cl1, OWLClass cl2 ) throws Exception{
-		    String[] params = { cl1.getURI().getFragment(), cl2.getURI().getFragment() };
+		    Object[] params = { cl1.getURI().getFragment(), cl2.getURI().getFragment() };
 		    if ( debug > 4 ) 
 			System.err.println( "CL:"+cl1.getURI().getFragment()+" ++ "+cl2.getURI().getFragment());
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
 		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws Exception{
-		    String[] params = { pr1.getURI().getFragment(), pr2.getURI().getFragment() };
+		    Object[] params = { pr1.getURI().getFragment(), pr2.getURI().getFragment() };
 		    if ( debug > 4 ) 
 			System.err.println( "PR:"+pr1.getURI().getFragment()+" ++ "+pr2.getURI().getFragment());
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
@@ -80,7 +80,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 		    String name2;
 		    if ( URI2 != null ) name2 = URI2.getFragment();
 		    else name2 = "";
-		    String[] params = { name1, name2 };
+		    Object[] params = { name1, name2 };
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
 	    } );
