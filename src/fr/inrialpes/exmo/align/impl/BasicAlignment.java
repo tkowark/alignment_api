@@ -84,7 +84,7 @@ public class BasicAlignment implements Alignment {
     /**
      * This is the URI of the place from which the ontology has been loaded!
      * This is NOT the Ontology URI which can be obtained by
-     * onto1.getLogicalURI();
+     * getOntology1URI()
      */
     protected URI uri1 = null;
 

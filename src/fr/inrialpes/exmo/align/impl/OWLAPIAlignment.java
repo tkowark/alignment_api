@@ -76,7 +76,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	if ( onto1 instanceof OWLOntology && onto2 instanceof OWLOntology ){
 	    super.init( onto1, onto2, ontologies );
 	} else if ( onto1 instanceof URI && onto2 instanceof URI ) {
-	    // JE: This apprently contains the File and not the URI!
+	    // JE: This contains the File and not the URI!
 	    setFile1( (URI)onto1 );
 	    setFile2( (URI)onto2 );
 	    try {

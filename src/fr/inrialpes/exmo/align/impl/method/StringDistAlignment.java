@@ -90,8 +90,6 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     /* Processing */
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	loadInit( alignment );
-	//ignore alignment;
-	//double threshold = 1.; // threshold above which distances are to high
 
 	// Get function from params
 	String f = (String)params.getParameter("stringFunction");
