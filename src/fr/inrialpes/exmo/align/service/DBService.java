@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) XX, 2006
+ * Copyright (C) Seungkeun Lee, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -27,10 +27,10 @@ import java.sql.SQLException;
 public interface DBService {
     public void init();
 
-    public void connect(String password) throws SQLException;                              // password in database
-    public void connect(String user, String password) throws SQLException;                              // password in database
-    public void connect(String port, String user, String password) throws SQLException;                              // password in database
-    public void connect(String IPAdress, String port, String user, String password) throws SQLException;    // with userID, password in database
+    public void connect(String password) throws SQLException; // password in database
+    public void connect(String user, String password) throws SQLException; // password in database
+    public void connect(String port, String user, String password) throws SQLException; // password in database
+    public void connect(String IPAdress, String port, String user, String password) throws SQLException; // with userID, password in database
     public void connect(String IPAdress, String port, String user, String password, String database) throws SQLException;    // with userID, password in database
     public Connection getConnection();
 

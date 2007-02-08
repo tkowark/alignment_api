@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) XX, 2006
+ * Copyright (C) Seungkeun Lee, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,7 +25,6 @@ import java.lang.IllegalAccessException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-//import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 

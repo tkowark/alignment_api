@@ -72,6 +72,9 @@ public class AlignmentService {
 	WSDL = "7777",
 	JXTA = "6666";
 
+    public static final String //IP Strings
+	HOST = "localhost";
+
     private int debug = 0;
     private String filename = null;
     private String outfile = null;
@@ -113,13 +116,13 @@ public class AlignmentService {
 	    Class serviceClass = Class.forName(name);
 	    //Object[] mparams = {(Object)onto1, (Object)onto2 };
 	    //Class[] cparams = { oClass, oClass };
-	    java.lang.reflect.Constructor constructor = serviceClass.getConstructor( null );
-	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( null );
+	    java.lang.reflect.Constructor constructor = serviceClass.getConstructor( (Class[])null );
+	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( (Object[])null );
 	    try {
 		serv.init( params, manager );
-		if ( debug > 0 ) System.err.println(name+" launched on http://localhost:"+params.getParameter( "http" )+"/html/");
+		if ( debug > 0 ) System.err.println(name+" launched on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/");
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't start "+name+" server on http://localhost:"+params.getParameter( "http" )+"/html/:\n");
+		System.err.println( "Couldn't start "+name+" server on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/:\n");
 		ex.printStackTrace();
 	    }
 	    services.put( name, serv );
@@ -152,6 +155,7 @@ public class AlignmentService {
 	params.setParameter( "dbmsuser", DBUSER );
 	params.setParameter( "dbmspass", DBPASS );
 	params.setParameter( "dbmsbase", DBBASE);
+	params.setParameter( "host", HOST );
 
 	// Read parameters
 
@@ -161,6 +165,7 @@ public class AlignmentService {
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'l');
+	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	//longopts[4] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	// Service parameters
 	longopts[5] = new LongOpt("html", LongOpt.OPTIONAL_ARGUMENT, null, 'H');
@@ -173,11 +178,11 @@ public class AlignmentService {
 	longopts[11] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
 	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
-	longopts[3] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[14] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
+	longopts[14] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	// Is there a way for that in LongOpt ???
-	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:d::l:D:H::A::W::P::m:s:u:p:b:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:S:d::l:D:H::A::W::P::m:s:u:p:b:i:", longopts);
 	int c;
 	String arg;
 
@@ -247,6 +252,11 @@ public class AlignmentService {
 		} else {
 		    params.setParameter( "jxta", JXTA );
 		}		    
+		break;
+	    case 'S' :
+		/* Server */
+		params.setParameter( "host", g.getOptarg() );
+		break;
 	    case 'm' :
 		params.setParameter( "dbmshost", g.getOptarg() );
 		break;

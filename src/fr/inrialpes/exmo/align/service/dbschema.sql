@@ -19,7 +19,18 @@ GRANT ALL PRIVILEGES ON AServDB.* TO adminAServ@localhost
 
 GRANT select ON AServ.*  TO alignserver@localhost IDENTIFIED BY 'adf342';
 
-// alignment info
+connect AServDB;
+
+# server info
+
+create table server (
+   host varchar(50),
+   port varchar(5),
+   edit varchar(5)
+);
+   
+
+# alignment info
 
 create table alignment (
    id varchar(100), 
@@ -33,7 +44,7 @@ create table alignment (
    uri2 varchar(100));
 
 
-// cell info
+# cell info
 
 create table cell(
    id varchar(100),
@@ -45,7 +56,7 @@ create table cell(
    relation varchar(5));
 
 
-// extension info
+# extension info
 
 create table extension(
    id varchar(100),

@@ -84,7 +84,8 @@ import java.lang.Integer;
 
 public class HTMLAServProfile implements AlignmentServiceProfile {
 
-    private int myTcpPort;
+    private int tcpPort;
+    private String tcpHost;
     private int debug = 0;
     private AServProtocolManager manager;
 
@@ -123,8 +124,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
 	try {
-	    myTcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
-	    final ServerSocket ss = new ServerSocket( myTcpPort );
+	    tcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
+	    tcpHost = (String)params.getParameter( "host" ) ;
+	    final ServerSocket ss = new ServerSocket( tcpPort );
 	    Thread t = new Thread( new Runnable() {
 		    public void run() {
 			try { while( true ) new HTTPSession( ss.accept());
