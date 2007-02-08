@@ -30,6 +30,7 @@ package fr.inrialpes.exmo.align.util;
 //import org.semanticweb.owl.model.OWLOntology;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
@@ -43,6 +44,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -50,6 +52,7 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import org.xml.sax.SAXException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -247,8 +250,10 @@ public class GroupOutput {
 	for ( int i=0; i<tests.length; i++ ){//size() or length
 	    if ( debug > 1 ) System.err.println("    tests: "+tests[i]);
 	    String prefix = dir.toURI().toString()+"/"+tests[i]+"/";
-	    PRecEvaluator evaluator = (PRecEvaluator)eval( prefix+"refalign.rdf", prefix+algo+".rdf");
-	    result = result + evaluator.getFmeasure();
+	    try {
+		PRecEvaluator evaluator = (PRecEvaluator)eval( prefix+"refalign.rdf", prefix+algo+".rdf");
+		result = result + evaluator.getFmeasure();
+	    } catch (AlignmentException aex ) { aex.printStackTrace(); }
 	}
 	// Unload the ontologies.
 	loaded.clear();
@@ -261,10 +266,10 @@ public class GroupOutput {
 	return (double)result/(double)tests.length;
     }
 
-    public Evaluator eval( String alignName1, String alignName2 ) {
+    public Evaluator eval( String alignName1, String alignName2 ) throws AlignmentException {
 	Evaluator eval = null;
+	int nextdebug;
 	try {
-	    int nextdebug;
 	    if ( debug < 3 ) nextdebug = 0;
 	    else nextdebug = debug - 3;
 	    // Load alignments
@@ -279,13 +284,15 @@ public class GroupOutput {
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;
-	} catch (Exception ex) { 
-	    // The returned value must be 0
-	    eval = new PRecEvaluator( (Alignment)null, (Alignment)null );
-	    ((PRecEvaluator)eval).init();
-	    System.err.println(ex); 
+	    return eval;
+	} catch (ParserConfigurationException pce) {
+	    throw new AlignmentException( "Cannot eval ", pce );
+	} catch (SAXException se) {
+	    throw new AlignmentException( "Cannot eval ", se );
+	} catch (IOException ioe) {
+	    throw new AlignmentException( "Cannot eval ", ioe );
 	}
-	return eval;
+
     }
 
     public void printPGFTeX( String algo, double[] cells ){
