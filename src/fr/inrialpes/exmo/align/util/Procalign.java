@@ -32,20 +32,8 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
-//*/3.0
-//import fr.inrialpes.exmo.align.impl.URIAlignment;
-//import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
-
-/*//3.0
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-import org.semanticweb.owl.io.ParserException;
-*/
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -105,12 +93,7 @@ $Id$
 
 public class Procalign {
 
-    //*/3.0
-    //Hashtable loadedOntologies = null;
     OntologyCache loadedOntologies = null;
-
-    //*/3.0
-    //OWLRDFErrorHandler handler = null;
 
     public static void main(String[] args) {
 	try { new Procalign().run( args ); }
@@ -118,9 +101,6 @@ public class Procalign {
     }
 
     public Alignment run(String[] args) throws Exception {
-	//*/3.0
-	//OWLOntology onto1 = null;
-	//OWLOntology onto2 = null;
 	URI onto1 = null;
 	URI onto2 = null;
 	AlignmentProcess result = null;
@@ -131,7 +111,6 @@ public class Procalign {
 	String filename = null;
 	String paramfile = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
-	//PrintStream writer = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
 	int debug = 0;
@@ -168,10 +147,6 @@ public class Procalign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		//try {
-		//    FileInputStream fis = new FileInputStream( paramfile );
-		//    System.setIn( fis );
-		//} catch (Exception e) { e.printStackTrace(); }
 		BasicParameters.read( params, paramfile);
 		break;
 	    case 'r' :
@@ -225,7 +200,6 @@ public class Procalign {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
 
-	//loadedOntologies = new Hashtable();
 	loadedOntologies = new OntologyCache();
 	if (debug > 0) {
 	    params.setParameter("debug", new Integer(debug));
@@ -249,64 +223,25 @@ public class Procalign {
 		System.exit(0);
 	    }
 
-	    /*
-	    //3.0
-	    handler = new OWLRDFErrorHandler() {
-		    public void owlFullConstruct(int code, String message)
-			throws SAXException {
-		    }
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		    public void error(String message) throws SAXException {
-			throw new SAXException(message.toString());
-		    }
-		    public void warning(String message) throws SAXException {
-			System.err.println("WARNING: " + message);
-		    }
-		};
-	    */
-
 	    if (debug > 0) System.err.println(" Handler set");
 
 	    // JE: Procalign could be rendered independent from the 
 	    // OWL-API by implementing a static class.NewIntance( u1, u2 );
 	    // method
 	    try {
-		//*/3.0
-		//if (uri1 != null) onto1 = loadOntology(uri1);
-		//if (uri2 != null) onto2 = loadOntology(uri2);
-		//if (debug > 0) System.err.println(" Ontology parsed");
 		if (initName != null) {
-		    // (otherwise)
-		    //AlignmentParser aparser = new OWLAPIAlignmentParser(debug);
 		    AlignmentParser aparser = new AlignmentParser(debug);
-		    //*/3.0 loadedOntologies useless
 		    Alignment al = aparser.parse( initName );
-		    //*/3.O useless
 		    init = al;
-		    //init = OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)al, loadedOntologies );
-		    //*/3.0
-		    //onto1 = (OWLOntology) init.getOntology1();
-		    //onto2 = (OWLOntology) init.getOntology2();
 		    if (debug > 0) System.err.println(" Init parsed");
 		}
 
 		// Create alignment object
-		//Object[] mparams = {(Object)onto1, (Object)onto2 };
 		Object[] mparams = {};
 		Class alignmentClass = Class.forName(alignmentClassName);
-		//*/3.0
-		//Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
-		//Class oClass = Class.forName("java.lang.Object");
-		//Class[] cparams = { oClass, oClass };
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		//*/3.0
-		//result.init( onto1, onto2 ); //3.0
-		//result.setFile1(uri1);
-		//result.setFile2(uri2);
 		result.init( uri1, uri2, loadedOntologies );
 	    } catch (Exception ex) {
 		System.err.println("Cannot create alignment "+alignmentClassName+"\n"
@@ -362,19 +297,6 @@ public class Procalign {
 	}
 	return result;
     }
-
-    /*
-    public OWLOntology loadOntology(URI uri)
-	throws ParserException, OWLException {
-	OWLOntology parsedOnt = null;
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setOWLRDFErrorHandler(handler);
-	parser.setConnection(OWLManager.getOWLConnection());
-	parsedOnt = parser.parseOntology(uri);
-	loadedOntologies.put(uri.toString(), parsedOnt);
-	return parsedOnt;
-    }
-    */
 
     public void usage() {
 	System.err.println("usage: Procalign [options] URI1 URI2");
