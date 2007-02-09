@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -84,6 +84,9 @@ public class AlignmentService {
     private AServProtocolManager manager;
 
     public static void main(String[] args) {
+	// Added this for not having an unpleasant message at startup
+	// We do not use graphic features anyway (this is useless anyway)
+	System.setProperty("sun.java2d.opengl", "false");
 	AlignmentService aserv = new AlignmentService();
 	try { aserv.run( args ); }
 	catch ( Exception ex ) { ex.printStackTrace(); };
