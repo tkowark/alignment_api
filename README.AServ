@@ -28,18 +28,23 @@ MYSQL FOR THE FIRST TIME
 ------------------------
 
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
-$ /usr/local/mysql/bin/mysqladmin -u root password mysqlpassword
-$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password mysqlpassword
-$ /usr/local/mysql/bin/mysql -u root -ppasswd
-sql> source dbschema.sql
+$ /usr/local/mysql/bin/mysqladmin -u root password <mysqlpassword>
+$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password <mysqlpassword>
+$ /usr/local/mysql/bin/mysql -u root -p<mysqlpassword>
+sql> CREATE DATABASE AServDB;
+sql> GRANT ALL PRIVILEGES ON AServDB.* TO adminAServ@localhost IDENTIFIED BY 'aaa345';
 sql> quit
 
-Sample saving of the server content:
+Of course, you are advised to use different user, password and database name. This can be achieved either:
+- by changing values of DBMSBASE, DBMSUSER and DBMSPASS in AlignmentServer and recompiling;
+- by passing parameters dbmsbase, dbmsuser and dbmspass to AlignmentServer.
 
+Sample backup of the server content:
 $ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
+
+And restoring:
 $ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
 sql> source toto.sql;
-
 
 LAUNCHING MYSQL AND LOADING SAMPLE DATABASE
 -------------------------------------------
