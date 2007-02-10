@@ -137,14 +137,15 @@ public class AlignmentService {
 	// Close services
 	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
-	    try { serv.close();
-	    } catch ( AServException ex ) {
+	    try { serv.close(); }
+	    catch ( AServException ex ) {
 		System.err.println("Cannot close "+serv);
 		ex.printStackTrace();
 	    }
 	}
 
 	// Shut down database connection
+	manager.close();
 	connection.close();
 	if ( debug > 0 ) System.err.println("Database connection closed");
     }

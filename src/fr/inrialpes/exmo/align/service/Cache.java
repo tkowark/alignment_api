@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) XX, 2006
+ * Copyright (C) Seungkeun Lee, 2006
  * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
@@ -27,9 +27,10 @@ import java.sql.SQLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 
 public interface Cache {
-    void init() throws SQLException;
+    void init( Parameters p ) throws SQLException;
     Alignment getMetadata( String id ) throws Exception;
     Alignment getAlignment( String id ) throws Exception;
     Set getAlignments( URI uri );

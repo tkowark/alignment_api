@@ -53,15 +53,15 @@ public class DBServiceImpl implements DBService{
     }
 	 	
     public void connect( String password ) throws SQLException {
-	connect( IPAddress, port, user, password );
+	connect( IPAddress, port, user, password, database );
     }
     
     public void connect( String user, String password ) throws SQLException {
-	connect( IPAddress, port, user, password );
+	connect( IPAddress, port, user, password, database );
     }
     
     public void connect( String port, String user, String password ) throws SQLException {
-	connect( IPAddress, port, user, password );
+	connect( IPAddress, port, user, password, database );
     }
     
     public void connect(String IPAddress, String port, String user, String password ) throws SQLException {

@@ -16,6 +16,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * A small part of this class (within the implementations() method) is:
+ * Copyright (C) Daniel Le Berre, 2001
+ * from his util.RTSI class
+ * which contains a few lines:
+ * Copyright (C) 2002-2005, FullSpan Software
+ * under BSD licence
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ *   this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ * - Neither the name of FullSpan Software nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package fr.inrialpes.exmo.align.service;
@@ -31,7 +62,6 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
-//*/3.0
 import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLException;
@@ -96,9 +126,9 @@ public class AServProtocolManager {
 
     public void init( DBService connection, Parameters p ) throws SQLException {
 	alignmentCache = new CacheImpl( connection );
-	alignmentCache.init();
+	alignmentCache.init( p );
 	// dummy string
-	myId = "localhost://alignserv";
+	myId = "http://"+p.getParameter("host")+":"+p.getParameter("port");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
@@ -121,6 +151,8 @@ public class AServProtocolManager {
     }
 
     public void close() {
+	try { alignmentCache.close(); }
+	catch (SQLException sqle) { sqle.printStackTrace(); }
     }
 
     private int newId() { return localId++; }
@@ -195,17 +227,11 @@ public class AServProtocolManager {
 	if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
 	    try {
 		//if (debug > 0) System.err.println(" Retrieving init");
-		//AlignmentParser aparser = new AlignmentParser(0);
-		//init = aparser.parse((String)params.getParameter("init"), loadedOntologies);
 		try {
 		    init = alignmentCache.getAlignment( (String)params.getParameter("init") );
 		} catch (Exception e) {
 		    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
 		}
-		// Not really useful
-		//onto1 = (OWLOntology)init.getOntology1();
-		//onto2 = (OWLOntology)init.getOntology2();
-		//if (debug > 0) System.err.println(" Init retrieved");
 	    } catch (Exception e) {
 		return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
 	    }
@@ -241,8 +267,6 @@ public class AServProtocolManager {
 		if ( method == null )
 		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 		Class alignmentClass = Class.forName(method);
-		//Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
-		//Class[] cparams = { oClass, oClass };
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
@@ -295,31 +319,13 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Parameters)null);
 	}; //done below
-	// This useless and is done only for launching the error
-	//OWLOntology onto1 = reachable( uri1 );
-	//OWLOntology onto2 = reachable( uri2 );
-	//if ( onto1 == null ){
-	    // Unreachable
-	//    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
-	//} else if ( onto2 == null ){
-	//    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
-	//} else {
-	//    try {
-		// find it
-	//	Set alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
-		Set alignments = alignmentCache.getAlignments( uri1, uri2 );
-		String msg = "";
-		for( Iterator it = alignments.iterator(); it.hasNext(); ){
-		    //ids.put( ((Alignment)it.next()).getExtension( "id" ) );
-		    msg += ((Alignment)it.next()).getExtension( "id" );
-		    msg += " ";
-		}
-		return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null);
-		//    } catch (Exception e) { // URI problems in gLU
-		//e.printStackTrace();
-		//return new ErrorMsg(newId(),mess,myId,mess.getSender(),"getlogicalURI problem on the ontologies",(Parameters)null);
-		//}
-		//}
+	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
+	String msg = "";
+	for( Iterator it = alignments.iterator(); it.hasNext(); ){
+	    msg += ((Alignment)it.next()).getExtension( "id" );
+	    msg += " ";
+	}
+	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null);
     }
 
     // ABSOLUTELY NOT IMPLEMENTED
