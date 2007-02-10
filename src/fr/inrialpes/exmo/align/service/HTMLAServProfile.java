@@ -213,7 +213,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else {
-	    return serveFile( uri, header, new File("."), true );
+	    //return serveFile( uri, header, new File("."), true );
+	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body><h1>Unkown commad</h1><hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
 	}
     }
 
@@ -452,8 +453,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer );
 	    } else {
-		msg = "<h1>Alignment loaded</h1>The alignment id is ";
-		msg += answer.getContent();
+		msg = "<h1>Alignment loaded</h1>";
+		msg += displayAnswer( answer );
 	    }
 	} else if ( perf.equals("prmtranslate") ) {
 	} else if ( perf.equals("translate") ) {
