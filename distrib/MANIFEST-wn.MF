@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Created-By: Jerome.Euzenat@inrialpes.fr 
 Class-Path: api.jar impl.jar io.jar rdfparser.jar jwnl.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar alignwn.jar
-Main-Class: fr/inrialpes/exmo/align/util/Procalign
+Main-Class: fr.inrialpes.exmo.align.util.Procalign
