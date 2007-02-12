@@ -214,8 +214,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else {
 	    //return serveFile( uri, header, new File("."), true );
-	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body><h1>Unkown commad</h1><hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
+	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
 	}
+    }
+
+    protected String about() {
+	return "<h1>Alignment Server</h1><center>$Id$<br />"
+	    + "(C) INRIA Rh&ocirc;ne-Alpes, 2007<br />"
+	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"
+	    + "</center>";
     }
 
     /**
@@ -255,10 +262,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("sqlquery") ){
 	    msg = "Not available yet";
 	} else if ( perf.equals("about") ){
-	    msg = "<h1>Alignment Server</h1><center>$Id$<br />";
-	    msg += "(C) INRIA Rh&ocirc;ne-Alpes, 2007<br />";
-	    msg += "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>";
-	    msg += "</center>";
+	    msg = about();
 	} else if ( perf.equals("shutdown") ){
 	    manager.close();
 	    msg = "Server shut down";
@@ -281,7 +285,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
 	    msg += "<li><form action=\"shutdown\"><input type=\"submit\" value=\"Shutdown\"/></form></li>";
-	    msg += "<li><form action=\"about\"><input type=\"submit\" value=\"About\"/></form></li>";
+	    msg += "<li><form action=\"..\"><input type=\"submit\" value=\"About\"/></form></li>";
 	    msg += "<li><form action=\"../html/\"><input type=\"submit\" value=\"User interface\"/></form></li>";
 	    msg += "</ul>";
 	} else {
