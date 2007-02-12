@@ -82,13 +82,13 @@ public class AlignmentService {
     private Hashtable services = null;
 
     private AServProtocolManager manager;
+    private DBService connection;
 
     public static void main(String[] args) {
 	// Added this for not having an unpleasant message at startup
 	// We do not use graphic features anyway (this is useless anyway)
 	System.setProperty("sun.java2d.opengl", "false");
-	AlignmentService aserv = new AlignmentService();
-	try { aserv.run( args ); }
+	try { new AlignmentService().run( args ); }
 	catch ( Exception ex ) { ex.printStackTrace(); };
     }
     
@@ -98,8 +98,12 @@ public class AlignmentService {
 	Parameters params = readParameters( args );
 	if ( debug > 0 ) System.err.println("Parameter parsed");
 
+	// Shut down hook
+	Runtime.getRuntime().addShutdownHook(new Thread(){
+		public void run() { close(); } });
+
 	// Connect database
-	DBService connection = new DBServiceImpl();
+	connection = new DBServiceImpl();
 	connection.init();
 	connection.connect((String)params.getParameter("dbmshost"), 
 			   (String)params.getParameter("dbmsport"), 
@@ -132,8 +136,11 @@ public class AlignmentService {
 	}
 
 	// Wait loop
-	try { System.in.read(); } catch( Throwable t ) {};
+	while ( true ) {}
+    }
 
+    protected void close(){
+	if (debug > 0 ) System.err.println("Shuting down server");
 	// Close services
 	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
@@ -143,11 +150,16 @@ public class AlignmentService {
 		ex.printStackTrace();
 	    }
 	}
-
+	
 	// Shut down database connection
 	manager.close();
 	connection.close();
 	if ( debug > 0 ) System.err.println("Database connection closed");
+    }
+
+    protected void finalize() throws Throwable {
+	try { close(); }
+	finally { super.finalize(); }
     }
 
     public Parameters readParameters( String[] args ) {
