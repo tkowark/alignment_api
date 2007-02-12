@@ -67,7 +67,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	writer.print("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" \n");
 	writer.print("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n\n");	
 	writer.print("  <owl:Ontology rdf:about=\"\">\n");
-	writer.print("    <rdfs:comment>Aligned ontollogies</rdfs:comment>\n");
+	writer.print("    <rdfs:comment>Matched ontologies</rdfs:comment>\n");
 	writer.print("    <owl:imports rdf:resource=\""+align.getOntology1URI().toString()+"\"/>\n");
 	writer.print("    <owl:imports rdf:resource=\""+align.getOntology2URI().toString()+"\"/>\n");
 	writer.print("  </owl:Ontology>\n\n");
