@@ -52,7 +52,9 @@
   <!-- tested -->
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
+    <property name="javacargs" value="-deprecation" />
     <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes">
+      <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
   </target>
@@ -64,6 +66,13 @@
       <fileset dir="classes" includes="**/*.class"/>
     </delete>
     <antcall target="compile"/>
+  </target>
+
+  <!-- tested -->
+  <target name="compilelint" depends="init">
+    <echo message="Setting property..."/>
+    <property name="javacargs" value="-Xlint:all" />
+    <antcall target="compileall"/>
   </target>
 
   <!-- tested -->
