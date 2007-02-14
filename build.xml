@@ -70,6 +70,7 @@
 
   <!-- tested -->
   <target name="compilelint" depends="init">
+    <!-- values: all, deprecation, unchecked, fallthrough, path, serial, finally -->
     <echo message="Setting property..."/>
     <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>
