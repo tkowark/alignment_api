@@ -203,22 +203,26 @@ public class ExtPREvaluator extends BasicEvaluator {
     public int isSuperClass( OWLClass class1, OWLClass class2, OWLOntology ontology ) throws OWLException {
 	URI uri1 = class1.getURI();
 	Set superclasses = new HashSet();
+	// required for avoiding java.util.ConcurrentModificationException
+	Set bufferedSuperClasses = null;
 	int level = 0;
 	superclasses.addAll(class2.getSuperClasses( ontology ));
 
 	while ( !superclasses.isEmpty() ){
-	    Iterator it = superclasses.iterator();
+	    bufferedSuperClasses = superclasses;
+	    superclasses = new HashSet();
+	    Iterator it = bufferedSuperClasses.iterator();
 	    level++;
-	    superclasses.clear();
 	    for( ; it.hasNext() ; ){
-		OWLClass entity = (OWLClass)it.next();
-		//x.contains( class2 );
-		URI uri2 = entity.getURI();	
-		//if ( entity == class2 ) return true;
-		if ( uri1.toString().equals(uri2.toString()) ) {
-		    return level;
-		} else {
-		    superclasses.addAll(entity.getSuperClasses( ontology ));
+		Object entity = it.next();
+		if ( entity instanceof OWLClass ){
+		    URI uri2 = ((OWLClass)entity).getURI();	
+		    //if ( entity == class2 ) return true;
+		    if ( uri1.toString().equals(uri2.toString()) ) {
+			return level;
+		    } else {
+			superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology ));
+		    }
 		}
 	    }
 	}
