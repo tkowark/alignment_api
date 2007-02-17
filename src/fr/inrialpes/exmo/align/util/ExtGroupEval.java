@@ -28,14 +28,14 @@
 */
 package fr.inrialpes.exmo.align.util;
 
-//import org.semanticweb.owl.model.OWLOntology;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
+import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
 
 import java.io.File;
@@ -100,7 +100,6 @@ public class ExtGroupEval {
     Vector listAlgo = null;
     int debug = 0;
     String color = null;
-    //Hashtable loaded = null;
     OntologyCache loaded = null;
 
     public static void main(String[] args) {
@@ -111,7 +110,6 @@ public class ExtGroupEval {
     public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[8];
-	//loaded = new Hashtable();
 	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -222,14 +220,6 @@ public class ExtGroupEval {
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
-	// Unload the ontologies.
-	loaded.clear();
-	//try {
-	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-	//	OWLOntology o = (OWLOntology)e.nextElement();
-	//	o.getOWLConnection().notifyOntologyDeleted( o );
-	//    }
-	//} catch (Exception ex) { System.err.println(ex); };
 	if ( ok == true ) return result;
 	else return (Vector)null;
     }
@@ -248,11 +238,20 @@ public class ExtGroupEval {
 	    Alignment align2 = aparser2.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
-	    eval = new ExtPREvaluator( align1, align2 );
+	    eval = new ExtPREvaluator(OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)align1, loaded ), 
+				      OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)align2, loaded ) );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;
-	} catch (Exception ex) { System.err.println(ex); }
+	    // Unload the ontologies.
+	    loaded.clear();
+	    //try {
+	    //    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
+	    //	OWLOntology o = (OWLOntology)e.nextElement();
+	    //	o.getOWLConnection().notifyOntologyDeleted( o );
+	    //    }
+	    //} catch (Exception ex) { System.err.println(ex); };
+	} catch (Exception ex) { ex.printStackTrace(); }
 	return eval;
     }
 
@@ -402,9 +401,7 @@ public class ExtGroupEval {
 	    writer.println("</tbody></table>");
 	    writer.println("</body></html>");
 	    writer.close();
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	}
+	} catch (Exception ex) { ex.printStackTrace();}
     }
 
     // Borrowed and enhanced from
