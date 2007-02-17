@@ -302,10 +302,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * but reserved if appears useful
      */
     public Response protocolAnswer( String uri, String perf, Properties header, Parameters params ) {
-	System.err.println("ASERV["+perf+"]");
+	//System.err.println("ASERV["+perf+"]");
 	String msg = "";
+	if ( perf.equals("WSDL") ) {
+	} else {
+	}
 	return new Response( HTTP_OK, MIME_HTML, msg );
-
     }
 
     /**
@@ -316,7 +318,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//System.err.println("HTML["+perf+"]");
 	String msg = "";
 	if ( perf.equals("prmstore") ) {
-	    msg = "<h1>Store an alignement</h1><form action=\"store\">";
+	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    // JE: only those non stored please (retrieve metadata + stored)
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
