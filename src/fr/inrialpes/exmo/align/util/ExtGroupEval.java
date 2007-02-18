@@ -220,6 +220,14 @@ public class ExtGroupEval {
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
+	// Unload the ontologies.
+	loaded.clear();
+	//try {
+	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
+	//	OWLOntology o = (OWLOntology)e.nextElement();
+	//	o.getOWLConnection().notifyOntologyDeleted( o );
+	//    }
+	//} catch (Exception ex) { System.err.println(ex); };
 	if ( ok == true ) return result;
 	else return (Vector)null;
     }
@@ -243,14 +251,6 @@ public class ExtGroupEval {
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;
-	    // Unload the ontologies.
-	    loaded.clear();
-	    //try {
-	    //    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-	    //	OWLOntology o = (OWLOntology)e.nextElement();
-	    //	o.getOWLConnection().notifyOntologyDeleted( o );
-	    //    }
-	    //} catch (Exception ex) { System.err.println(ex); };
 	} catch (Exception ex) { ex.printStackTrace(); }
 	return eval;
     }
