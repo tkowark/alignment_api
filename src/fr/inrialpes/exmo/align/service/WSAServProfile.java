@@ -115,23 +115,25 @@ public class WSAServProfile implements AlignmentServiceProfile {
      */
     public String protocolAnswer( String uri, String perf, Properties header, Parameters params ) {
 	System.err.println("SOAP MESSAGE [ "+perf+" ]\n"+params.getParameter("content"));
-	String msg = "";
+	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
 	if ( perf.equals("WSDL") ) {
-	} else if ( perf.equals("listalignment") ) {
-	} else if ( perf.equals("listmethods") ) {
-	} else if ( perf.equals("listrenderers") ) {
-	} else if ( perf.equals("listservices") ) {
-	} else if ( perf.equals("store") ) {
-	} else if ( perf.equals("cut") ) {
-	} else if ( perf.equals("align") ) {
-	} else if ( perf.equals("find") ) {
-	} else if ( perf.equals("retrieve") ) {
-	} else if ( perf.equals("metadata") ) {
-	} else if ( perf.equals("load") ) {
-	} else if ( perf.equals("loadfile") ) {
-	} else if ( perf.equals("translate") ) {
+	} else if ( perf.equals("listalignment") ) { // -> List of URI
+	} else if ( perf.equals("listmethods") ) { // -> List of String
+	} else if ( perf.equals("listrenderers") ) { // -> List of String
+	} else if ( perf.equals("listservices") ) { // -> List of String
+	} else if ( perf.equals("store") ) { // URI -> URI
+	} else if ( perf.equals("cut") ) { // URI * string * float -> URI
+	} else if ( perf.equals("align") ) { // URL * URL * URI * String * boolean * (params) -> URI
+	} else if ( perf.equals("find") ) { // URI * URI -> List of URI
+	} else if ( perf.equals("retrieve") ) { // URI -> XML
+	} else if ( perf.equals("metadata") ) { // URI -> XML
+	} else if ( perf.equals("load") ) { // URL -> URI
+	} else if ( perf.equals("loadfile") ) { // XML -> URI
+	} else if ( perf.equals("translate") ) { // XML * URI -> XML
 	} else {
+	    msg += "<UnRecognizedAction />";
 	}
+	msg += "  </SOAP-ENV:Body></SOAP-ENV:Envelope>";
 	return msg;
     }
 
