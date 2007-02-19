@@ -77,6 +77,8 @@ import java.net.URLDecoder;
 
 import java.lang.Integer;
 
+//import javax.servlet.http.HTTPServletRequest;
+
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
  * It embeds an HTTP server.
@@ -88,6 +90,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     private String tcpHost;
     private int debug = 0;
     private AServProtocolManager manager;
+    private WSAServProfile wsmanager;
 
     private String myId;
     private String serverId;
@@ -112,6 +115,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	MIME_PLAINTEXT = "text/plain",
 	MIME_HTML = "text/html",
 	MIME_DEFAULT_BINARY = "application/octet-stream";
+
+    public static final int MAX_FILE_SIZE = 10000;
 
     // ==================================================
     // Socket & server code
@@ -138,6 +143,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} catch (Exception e) {
 	    throw new AServException ( "Cannot launch HTTP Server" , e );
 	}
+	if ( params.getParameter( "wsdl" ) != null ){
+	    wsmanager = new WSAServProfile();
+	}
 	myId = "LocalHTMLInterface";
 	serverId = "dummy";
 	localId = 0;
@@ -147,6 +155,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Je//: should certainly do more than that!
      */
     public void close(){
+	if ( wsmanager != null ) wsmanager.close();
     }
     
     // ==================================================
@@ -207,7 +216,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    start = uri.length();
 	}
 	if ( oper.equals( "aserv" ) ){
-	    return protocolAnswer( uri, uri.substring(start), header, params );
+	    if ( wsmanager != null ) {
+		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+	    } else {
+		// This is not correct: I shoud return an error
+		return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
+	    }
 	} else if ( oper.equals( "admin" ) ){
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "html" ) ){
@@ -292,22 +306,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "Cannot understand: "+perf;
 	}
 	return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
-    }
-
-    /**
-     * HTTP protocol implementation
-     * each call of the protocol is a direct URL
-     * and the answer is through the resulting page (RDF? SOAP? HTTP?)
-     * Not implemented yet
-     * but reserved if appears useful
-     */
-    public Response protocolAnswer( String uri, String perf, Properties header, Parameters params ) {
-	//System.err.println("ASERV["+perf+"]");
-	String msg = "";
-	if ( perf.equals("WSDL") ) {
-	} else {
-	}
-	return new Response( HTTP_OK, MIME_HTML, msg );
     }
 
     /**
@@ -453,9 +451,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmload") ) {
 	    // Should certainly be good to offer store as well
 	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br /><input type=\"submit\" value=\"Load\"/></form>";
+	    msg += "<font color=\"red\">Experimental:</font><br />";
+	    //msg += "Alignment file: <form ENCTYPE=\"text/xml; charset=utf-8\" action=\"loadfile\" method=\"POST\">";
+	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"loadfile\" method=\"POST\">";
+	    msg += " <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
+	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
+	    msg += "<br /><small>NOTE: Max file size is"+(MAX_FILE_SIZE/1024)+"KB</small><br />";
+	    msg += " <input type=\"submit\" Value=\"Upload\">";
+	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
 	    // load
 	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer );
+	    } else {
+		msg = "<h1>Alignment loaded</h1>";
+		msg += displayAnswer( answer );
+	    }
+	} else if ( perf.equals("loadfile") ) {
+	    // load
+	    Message answer = manager.loadfile( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer );
 	    } else {
@@ -572,7 +587,24 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			if ( size > 0 ) read = in.read(buf);
 		    }
 		    postLine = postLine.trim();
-		    decodeParms( postLine, parms );
+		    // JE: it should not decode...
+		    //decodeParms( postLine, parms );
+		    // JE: Display the parameters to know what we have
+		    System.err.println("POST detected at "+uri);
+		    System.err.println(method+" [ "+header+" ] ");
+		    Enumeration e = header.propertyNames();
+		    while ( e.hasMoreElements()) {
+			String value = (String)e.nextElement();
+			System.err.println( "  HDR: '" + value + "' = '" +
+					    header.getProperty( value ) + "'" );
+		    }
+		    e = parms.propertyNames();
+		    while ( e.hasMoreElements()) {
+			String value = (String)e.nextElement();
+			System.err.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
+		    }
+		    System.err.println("The content is\n"+postLine);
+		    parms.put( "content", postLine );
 		}
 
 		// Ok, now do the serve()

@@ -252,7 +252,7 @@ public class AlignmentService {
 		services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", params.getParameter( "jade" ) );
 		break;
 	    case 'W' :
-		/* WSDL Server + port */
+		/* Web service + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
 		    params.setParameter( "wsdl", arg );
