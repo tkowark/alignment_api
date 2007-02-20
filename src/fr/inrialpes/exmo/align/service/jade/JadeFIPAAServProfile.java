@@ -1,8 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) Orange R&D, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,7 +36,9 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 
+
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
+
 
 	private AgentContainer mc;
 	private AgentController algagentcontroller;
@@ -45,10 +47,13 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 		int port = 8888;
 		int debug = 0;
-		Object args[] = new Object[1];
+		Object args[] = new Object[2];
 		
 		//set up the manager as an argument to pass to the JADEFIPAAServiceAgent
 		args[0]=manager;
+		
+		// set up the Parameters as an argument to pass to the JADEFIPAServiceAgent
+		args[1]=params;
 		
 		if ( params.getParameter( "jade" ) != null )
 			port = Integer.parseInt( (String)params.getParameter( "jade" ) );

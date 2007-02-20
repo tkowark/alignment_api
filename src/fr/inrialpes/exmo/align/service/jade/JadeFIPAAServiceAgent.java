@@ -1,8 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) Orange R&D, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -23,6 +23,8 @@
 package fr.inrialpes.exmo.align.service.jade;
 
 
+import java.util.StringTokenizer;
+
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -30,13 +32,13 @@ import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.ErrorMsg;
 import fr.inrialpes.exmo.align.service.Message;
 import jade.core.Agent;
-import jade.core.Profile;
-// Identify them
-import jade.core.behaviours.*;
-import jade.lang.acl.*;
-
-import jade.domain.*;
-import jade.domain.FIPAAgentManagement.*;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 import jade.util.Logger;
 
@@ -50,25 +52,27 @@ public class JadeFIPAAServiceAgent extends Agent {
 	private String serverId;
 	private AServProtocolManager manager;
 	private int localId=0;
+	private Parameters initialParameters;
 
 	protected void setup() {
-		myLogger.log(Logger.INFO, getAID().getName()+" started");
+		//myLogger.log(Logger.INFO, getAID().getName()+" started");
 
 		// Read arguments
 		Object[] args = getArguments();
 		if (args != null) {
-			for (int i = 0; i < args.length; ++i) {
+			/**for (int i = 0; i < args.length; ++i) {
 				myLogger.log(Logger.INFO, "Arg-"+i+" = "+args[i]);
-			}
+			}**/
 
 			manager=(AServProtocolManager) args[0];
+			initialParameters = (Parameters) args[1];
 		}
 
-		myId = "LocalHTMLInterface";
+		myId = "LocalJADEInterface";
 		serverId = "dummy";
 		localId = 0;
 
-		// Add initial behaviours
+		// Add initial behaviours to manage incoming message
 		addBehaviour(new CyclicBehaviour(this) {
 			public void action() {
 
@@ -76,15 +80,31 @@ public class JadeFIPAAServiceAgent extends Agent {
 				String info; //parameters
 
 				MessageTemplate tpl =MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-				//ACLMessage msg = myAgent.receive();
 				ACLMessage msg = myAgent.receive(tpl);
 				if (msg != null) {
 					//System.out.println("Alignement Agent " + myAgent.getLocalName() + " receive : " + msg.getContent() + " from "+ msg.getSender());
 					perf=msg.getContent().substring(0,msg.getContent().indexOf("::"));
 					info = msg.getContent().substring(msg.getContent().indexOf("::")+2, msg.getContent().length());
+
+//					---------------------------------------------------------					
 					//myLogger.log(Logger.INFO, "Received message: "+msg);
-					Parameters params = new BasicParameters();
+					//Parameters params = new BasicParameters();
+
+					/**StringTokenizer tokenizer = new StringTokenizer(info,"::");
+					int count = tokenizer.countTokens();
+					while (tokenizer.hasMoreTokens()){
+					    String token = tokenizer.nextToken();}**/
+					String[] result = info.split("::");
+					/**for (int x=0; x<result.length; x++)
+						System.out.println(":: --------------" + result[x]);**/
+
+					Parameters params = initialParameters;
+
 					if (perf.equals("ALIGN")){
+						params.setParameter("onto1", result[0]);
+						params.setParameter("onto2", result[1]);
+						//params.setParameter("id", result[2]);
+						//params.setParameter("method", result[3]);
 						Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
 						if(!(answer instanceof ErrorMsg)){
 							ACLMessage JADEanswer=msg.createReply();
@@ -93,9 +113,55 @@ public class JadeFIPAAServiceAgent extends Agent {
 							myAgent.send(JADEanswer);
 						}else{myLogger.log(Logger.WARNING, answer.getContent());}
 					}else if (perf.equals("LOAD")){
-						params.setParameter("url", info);
-						params.setParameter("id", info);
+						//params.setParameter("url", info);
+						//params.setParameter("id", info);
+						params.setParameter("url", result[0]);
+						//params.setParameter("id", result[0]);
 						Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
+						if(!(answer instanceof ErrorMsg)){
+							ACLMessage JADEanswer=msg.createReply();
+							msg.setPerformative(ACLMessage.INFORM);
+							JADEanswer.setContent(answer.getContent());
+							myAgent.send(JADEanswer);
+						}else{myLogger.log(Logger.WARNING, answer.getContent());}
+					}else if (perf.equals("RETRIEVE")){
+						params.setParameter("id", result[0]);
+						params.setParameter("method", result[1]);
+						Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
+						if(!(answer instanceof ErrorMsg)){
+							ACLMessage JADEanswer=msg.createReply();
+							msg.setPerformative(ACLMessage.INFORM);
+							JADEanswer.setContent(answer.getContent());
+							myAgent.send(JADEanswer);
+						}else{myLogger.log(Logger.WARNING, answer.getContent());}
+					}else if (perf.equals("TRANSLATE")){
+						//TODO
+					}else if (perf.equals("METADATA")){
+						//TODO
+					}else if (perf.equals("STORE")){
+						params.setParameter("id", result[0]);
+						Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,"",params));
+						if(!(answer instanceof ErrorMsg)){
+							ACLMessage JADEanswer=msg.createReply();
+							msg.setPerformative(ACLMessage.INFORM);
+							JADEanswer.setContent(answer.getContent());
+							myAgent.send(JADEanswer);
+						}else{myLogger.log(Logger.WARNING, answer.getContent());}
+					}else if (perf.equals("FIND")){
+						params.setParameter("onto1", result[0]);
+						params.setParameter("onto2", result[1]);
+						Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
+						if(!(answer instanceof ErrorMsg)){
+							ACLMessage JADEanswer=msg.createReply();
+							msg.setPerformative(ACLMessage.INFORM);
+							JADEanswer.setContent(answer.getContent());
+							myAgent.send(JADEanswer);
+						}else{myLogger.log(Logger.WARNING, answer.getContent());}
+					}else if (perf.equals("CUT")){
+						params.setParameter("id", result[0]);
+						params.setParameter("method", result[1]);
+						params.setParameter("threshold", result[2]);
+						Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
 						if(!(answer instanceof ErrorMsg)){
 							ACLMessage JADEanswer=msg.createReply();
 							msg.setPerformative(ACLMessage.INFORM);
@@ -112,12 +178,12 @@ public class JadeFIPAAServiceAgent extends Agent {
 					block();
 				}
 			}
-		});
+		});//end of CyclicBehaviour
 
 
 		// Register with the DF
 		registerWithDF();
-	}
+	}//end of Setup
 
 	protected void takeDown() {
 
@@ -133,9 +199,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 		sd.setType(SERVICE_TYPE);
 		dfd.addServices(sd);
 		try {
-			myLogger.log(Logger.INFO, "Registering with DF...");
+			//myLogger.log(Logger.INFO, "Registering with DF...");
 			DFService.register(this, dfd);
-			myLogger.log(Logger.INFO, "Registration OK.");
+			//myLogger.log(Logger.INFO, "Registration OK.");
 		}
 		catch (FIPAException fe) {
 			myLogger.log(Logger.WARNING, "Error registering with DF.", fe);
