@@ -54,6 +54,10 @@ public class OntologyCache {
 	ontologies.put((Object)uri,ontology);
     }
 
+    public OWLOntology getOntology( URI uri ){
+	return (OWLOntology)ontologies.get( uri );
+    }
+
     public void unloadOntology( URI uri, Object ontology ){
 	// used to be uri.toString();
 	Object o = ontologies.get((Object)uri);

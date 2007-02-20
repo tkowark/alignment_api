@@ -290,29 +290,33 @@ public class OWLAPIAlignment extends BasicAlignment {
     /** Can be used for loading the ontology if it is not available **/
     //private static OWLOntology loadOntology( URI ref, Hashtable ontologies ) throws SAXException, OWLException {
     private static OWLOntology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, OWLException {
-	OWLOntology parsedOnt = null;
-	OWLRDFParser parser = new OWLRDFParser();
-	OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-		public void owlFullConstruct( int code, String message ) 
-		    throws SAXException {
-		}
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		public void error( String message ) throws SAXException {
-		    throw new SAXException( message.toString() );
-		}
-		public void warning( String message ) throws SAXException {
-		    System.err.println("WARNING: " + message);
-		}
-	    };
-	parser.setOWLRDFErrorHandler( handler );
-	parser.setConnection( OWLManager.getOWLConnection() );
-	parsedOnt = parser.parseOntology( ref );
-	if ( ontologies != null )
-	    ontologies.recordOntology( ref, parsedOnt );
+	if ( (ontologies != null) && ( ontologies.getOntology( ref ) != null ) ) {
+	    return ontologies.getOntology( ref );
+	} else {
+	    OWLOntology parsedOnt = null;
+	    OWLRDFParser parser = new OWLRDFParser();
+	    OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
+		    public void owlFullConstruct( int code, String message ) 
+			throws SAXException {
+		    }
+		    public void owlFullConstruct(int code, String message, Object o)
+			throws SAXException {
+		    }
+		    public void error( String message ) throws SAXException {
+			throw new SAXException( message.toString() );
+		    }
+		    public void warning( String message ) throws SAXException {
+			System.err.println("WARNING: " + message);
+		    }
+		};
+	    parser.setOWLRDFErrorHandler( handler );
+	    parser.setConnection( OWLManager.getOWLConnection() );
+	    parsedOnt = parser.parseOntology( ref );
+	    if ( ontologies != null )
+		ontologies.recordOntology( ref, parsedOnt );
 	    //    ontologies.put( ref.toString(), parsedOnt );
-	return parsedOnt;
+	    return parsedOnt;
+	}
     }
 
 }
