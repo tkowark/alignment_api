@@ -23,14 +23,6 @@
 package fr.inrialpes.exmo.align.service.jade;
 
 
-import java.util.StringTokenizer;
-
-import org.semanticweb.owl.align.Parameters;
-
-import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.service.AServProtocolManager;
-import fr.inrialpes.exmo.align.service.ErrorMsg;
-import fr.inrialpes.exmo.align.service.Message;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -39,8 +31,13 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-
 import jade.util.Logger;
+
+import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.service.AServProtocolManager;
+import fr.inrialpes.exmo.align.service.ErrorMsg;
+import fr.inrialpes.exmo.align.service.Message;
 
 public class JadeFIPAAServiceAgent extends Agent {
 
@@ -78,100 +75,84 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 				String perf; // performative
 				String info; //parameters
+				Parameters params = initialParameters;
 
 				MessageTemplate tpl =MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 				ACLMessage msg = myAgent.receive(tpl);
 				if (msg != null) {
-					//System.out.println("Alignement Agent " + myAgent.getLocalName() + " receive : " + msg.getContent() + " from "+ msg.getSender());
-					perf=msg.getContent().substring(0,msg.getContent().indexOf("::"));
-					info = msg.getContent().substring(msg.getContent().indexOf("::")+2, msg.getContent().length());
+					if (msg.getContent()!=null){
+						if (!(msg.getContent().equals(""))){
+							//System.out.println("Alignement Agent " + myAgent.getLocalName() + " receive : " + msg.getContent() + " from "+ msg.getSender());
+							perf=msg.getContent().substring(0,msg.getContent().indexOf("::"));
+							info = msg.getContent().substring(msg.getContent().indexOf("::")+2, msg.getContent().length());
 
-//					---------------------------------------------------------					
-					//myLogger.log(Logger.INFO, "Received message: "+msg);
-					//Parameters params = new BasicParameters();
+//							---------------------------------------------------------					
+							//myLogger.log(Logger.INFO, "Received message: "+msg);
+							//Parameters params = new BasicParameters();
+							if (!(perf.equals(""))){
+								if(!(info.equals(""))){
+									params = decodeMessage(info,params);												
 
-					/**StringTokenizer tokenizer = new StringTokenizer(info,"::");
-					int count = tokenizer.countTokens();
-					while (tokenizer.hasMoreTokens()){
-					    String token = tokenizer.nextToken();}**/
-					String[] result = info.split("::");
-					/**for (int x=0; x<result.length; x++)
-						System.out.println(":: --------------" + result[x]);**/
-
-					Parameters params = initialParameters;
-
-					if (perf.equals("ALIGN")){
-						params.setParameter("onto1", result[0]);
-						params.setParameter("onto2", result[1]);
-						//params.setParameter("id", result[2]);
-						//params.setParameter("method", result[3]);
-						Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else if (perf.equals("LOAD")){
-						//params.setParameter("url", info);
-						//params.setParameter("id", info);
-						params.setParameter("url", result[0]);
-						//params.setParameter("id", result[0]);
-						Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else if (perf.equals("RETRIEVE")){
-						params.setParameter("id", result[0]);
-						params.setParameter("method", result[1]);
-						Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else if (perf.equals("TRANSLATE")){
-						//TODO
-					}else if (perf.equals("METADATA")){
-						//TODO
-					}else if (perf.equals("STORE")){
-						params.setParameter("id", result[0]);
-						Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else if (perf.equals("FIND")){
-						params.setParameter("onto1", result[0]);
-						params.setParameter("onto2", result[1]);
-						Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else if (perf.equals("CUT")){
-						params.setParameter("id", result[0]);
-						params.setParameter("method", result[1]);
-						params.setParameter("threshold", result[2]);
-						Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
-						if(!(answer instanceof ErrorMsg)){
-							ACLMessage JADEanswer=msg.createReply();
-							msg.setPerformative(ACLMessage.INFORM);
-							JADEanswer.setContent(answer.getContent());
-							myAgent.send(JADEanswer);
-						}else{myLogger.log(Logger.WARNING, answer.getContent());}
-					}else {
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-						myAgent.send(reply);
+									if (perf.equals("ALIGN")){
+										Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else if (perf.equals("LOAD")){
+										Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else if (perf.equals("RETRIEVE")){
+										Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else if (perf.equals("TRANSLATE")){
+										//TODO
+									}else if (perf.equals("METADATA")){
+										//TODO
+									}else if (perf.equals("STORE")){
+										Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else if (perf.equals("FIND")){
+										Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else if (perf.equals("CUT")){
+										Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
+										if(!(answer instanceof ErrorMsg)){
+											ACLMessage JADEanswer=msg.createReply();
+											msg.setPerformative(ACLMessage.INFORM);
+											JADEanswer.setContent(answer.getContent());
+											myAgent.send(JADEanswer);
+										}else{myLogger.log(Logger.WARNING, answer.getContent());}
+									}else {
+										ACLMessage reply = msg.createReply();
+										reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+										myAgent.send(reply);
+									}
+								}
+							}
+						}
 					}
 				}
 				else {
@@ -209,6 +190,18 @@ public class JadeFIPAAServiceAgent extends Agent {
 	}
 
 	private int newId(){return localId++;}
+
+	private Parameters decodeMessage(String info, Parameters param){
+
+		Parameters toReturn = param;
+		String[] result = info.split("::");
+		for(int i=0;i<result.length;i++){
+			String[] arg=result[i].split("=");
+			toReturn.setParameter(arg[0], arg[1]);
+		}
+
+		return toReturn;
+	}
 
 
 }

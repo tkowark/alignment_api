@@ -6,14 +6,9 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.Iterator;
-import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -103,7 +98,7 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 	private JPanel CUTAlignmentPane;
 	private JPanel CUTMethodPane;
 	private JPanel CUTThresholdPane;
-	
+
 	//METADATA PANE
 
 	//TRANSLATE PANE
@@ -143,7 +138,7 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		ReplyPane = new JPanel();
 		reply = new JTextArea(20,50);
 		reply.setEditable(false);
-		
+
 		main = new JPanel();
 		main.setLayout(new BoxLayout(main, BoxLayout.PAGE_AXIS));
 
@@ -258,7 +253,7 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		CUTMethodValue = new JTextField(30);
 		CUTThresholdLabel = new JLabel("Threshold");
 		CUTThresholdValue = new JTextField(30);
-		
+
 		CUTThresholdPane = new JPanel();
 		CUTAlignmentPane = new JPanel();
 		CUTMethodPane = new JPanel();
@@ -271,7 +266,7 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		CUTPane.add(CUTAlignmentPane);
 		CUTPane.add(CUTMethodPane);
 		CUTPane.add(CUTThresholdPane);
-		
+
 //		----------------					
 		//METADATA PANE
 
@@ -285,9 +280,9 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		onglets.addTab("Retrieve", RETRIEVEPane);
 		onglets.addTab("Store", STOREPane);
 		onglets.addTab("Find", FINDPane);
-		onglets.addTab("Cut", CUTPane);
 		onglets.addTab("Metadata", METADATAPane);
 		onglets.addTab("Translate", TRANSLATEPane);
+		onglets.addTab("Cut", CUTPane);
 		ReplyPane.add(reply);
 
 		main.add(onglets);		
@@ -308,7 +303,6 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 
 	public void actionPerformed(ActionEvent ae) {
 		int value=-1;
-		//String URLBase="file:///c:/FTRD/model/";
 		int ongletActif;
 		if (ae.getSource() == OKButton) {
 			ongletActif=onglets.getSelectedIndex()+1;
@@ -316,44 +310,45 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 			switch (ongletActif){
 			//LOAD
 			case LOAD :
-				ge.addParameter(LOADURLAlignmentValue.getText());					
+				ge.addParameter("url="+LOADURLAlignmentValue.getText());
+				ge.addParameter("id="+LOADURLAlignmentValue.getText());
 				break;
 				//ALIGN
 			case ALIGN :
-				ge.addParameter(ALIGNURLOnto1Value.getText());
-				ge.addParameter(ALIGNURLOnto2Value.getText());
-				ge.addParameter(ALIGNBaseAlignmentURLIDValue.getText());
-				ge.addParameter(ALIGNMethodValue.getText());
+				ge.addParameter("onto1="+ALIGNURLOnto1Value.getText());
+				ge.addParameter("onto2="+ALIGNURLOnto2Value.getText());
+				ge.addParameter("id="+ALIGNBaseAlignmentURLIDValue.getText());
+				ge.addParameter("method="+ALIGNMethodValue.getText());
 				break;
 				//RETRIEVE	
 			case RETRIEVE :
-				ge.addParameter(RETRIEVEAlignmentURLIDValue.getText());
-				ge.addParameter(RETRIEVERenderingMethodValue.getText());
+				ge.addParameter("id="+RETRIEVEAlignmentURLIDValue.getText());
+				ge.addParameter("method="+RETRIEVERenderingMethodValue.getText());
 				break;
 				//STORE	
 			case STORE :
-				ge.addParameter(STOREAlignmentURLIDValue.getText());
+				ge.addParameter("id="+STOREAlignmentURLIDValue.getText());
 				break;
 				//FIND	
 			case FIND :
-				ge.addParameter(FINDURLOnto1Value.getText());
-				ge.addParameter(FINDURLOnto1Value.getText());
+				ge.addParameter("onto1="+FINDURLOnto1Value.getText());
+				ge.addParameter("onto2="+FINDURLOnto1Value.getText());
 				break;
 				//CUT	
 			case CUT :
-				ge.addParameter(CUTAlignmentURLIDValue.getText());
-				ge.addParameter(CUTMethodValue.getText());
-				ge.addParameter(CUTThresholdValue.getText());
+				ge.addParameter("id="+CUTAlignmentURLIDValue.getText());
+				ge.addParameter("method="+CUTMethodValue.getText());
+				ge.addParameter("threshold="+CUTThresholdValue.getText());
 				break;
 				//TODO ! METADATA & TRANSLATE
 			}
-			
-			
+
+
 			myAgent.postGuiEvent(ge);
 		}else{
 			//???
 		}
-
+		cleanGUI();
 	}
 
 	void shutDown() {
@@ -381,11 +376,25 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 	}
 
 
-	private void CleanGUI(){
-//		TODO
+	private void cleanGUI(){
+
+		reply.setText("");
+		LOADURLAlignmentValue.setText("");
+		ALIGNURLOnto1Value.setText("");
+		ALIGNURLOnto2Value.setText("");
+		ALIGNMethodValue.setText("");
+		ALIGNBaseAlignmentURLIDValue.setText("");
+		RETRIEVEAlignmentURLIDValue.setText("");
+		RETRIEVERenderingMethodValue.setText("");
+		STOREAlignmentURLIDValue.setText("");
+		FINDURLOnto1Value.setText("");
+		FINDURLOnto2Value.setText("");
+		CUTAlignmentURLIDValue.setText("");
+		CUTMethodValue.setText("");
+		CUTThresholdValue.setText("");
 
 	}
-	
+
 	public void showReply(String toshow){
 		reply.setText(toshow);
 	}

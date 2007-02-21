@@ -21,20 +21,19 @@
 
 package fr.inrialpes.exmo.align.service.jade;
 
-import fr.inrialpes.exmo.align.service.jade.JadeFIPAAServiceAgent;
-import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
-import fr.inrialpes.exmo.align.service.AServProtocolManager;
-import fr.inrialpes.exmo.align.service.AServException;
-
-import org.semanticweb.owl.align.Parameters;
-
-import jade.core.Runtime;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
+import jade.core.Runtime;
 import jade.util.Logger;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
+
+import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.service.AServException;
+import fr.inrialpes.exmo.align.service.AServProtocolManager;
+import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
 
 
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {

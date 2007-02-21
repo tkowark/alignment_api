@@ -1,9 +1,7 @@
 package fr.inrialpes.exmo.align.service.jade;
 
-import org.semanticweb.owl.align.Parameters;
+import java.util.Iterator;
 
-import fr.inrialpes.exmo.align.service.ErrorMsg;
-import fr.inrialpes.exmo.align.service.Message;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -13,7 +11,6 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.gui.GuiAgent;
 import jade.gui.GuiEvent;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import jade.util.Logger;
 
 public class JADEFIPAASRequesterAgent extends GuiAgent{
@@ -112,44 +109,16 @@ public class JADEFIPAASRequesterAgent extends GuiAgent{
 		toSend.addReceiver(AlignementAgent);
 		command = ev.getType();
 		toSend = setPerformative(toSend, command);
-		
-		switch (command){
-		//LOAD
-		case LOAD :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));					
-			break;
-			//ALIGN
-		case ALIGN :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));
-			toSend=addArgument(toSend, (String)ev.getParameter(1));
-			toSend=addArgument(toSend, (String)ev.getParameter(2));
-			toSend=addArgument(toSend, (String)ev.getParameter(3));			
-			break;
-			//RETRIEVE	
-		case RETRIEVE :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));
-			toSend=addArgument(toSend, (String)ev.getParameter(1));
-			break;
-			//STORE	
-		case STORE :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));
-			break;
-			//FIND	
-		case FIND :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));
-			toSend=addArgument(toSend, (String)ev.getParameter(1));
-			break;
-		case CUT :
-			toSend=addArgument(toSend, (String)ev.getParameter(0));
-			toSend=addArgument(toSend, (String)ev.getParameter(1));
-			toSend=addArgument(toSend, (String)ev.getParameter(2));
-			break;
+		for(Iterator iter=ev.getAllParameter();iter.hasNext();){
+			//toSend=addArgument(toSend, (String)ev.getParameter(i));
+			String next=(String)iter.next();
 
-			//TODO ! METADATA & TRANSLATE
+			if (!(next.endsWith("="))){
+				toSend=addArgument(toSend,next);
+			}
 		}
 		myLogger.log(Logger.INFO, this.getLocalName() + "send : "+ toSend.getContent());
 		this.send(toSend);
-
 	}
 
 	void alertGui(Object response) {
