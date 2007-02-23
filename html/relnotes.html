@@ -18,13 +18,11 @@
 
 <p><ul compact="1">
 <li>Add full support for algebraic operations (meet/join/inv/compose)</li>
-<li>Implement level 2OML alignments (version 3);</li>
 <li>Implement better similarity/extractor</li>
 <li>Fully implement individual alignments</li>
-<li>Getting rid of property files and sql schemas by integrating these in the code</li>
+<li>Getting rid of property files</li>
 <li>-d directory</li>
 <li>Include additional tags;</li>
-<li>Add correspondence annotations</li>
 <li>Integrating tagging to the wordnet part</li>
 <li>Improve the metadata</li>
 <li>Build on unit tests</li>
@@ -33,9 +31,10 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Completing the reference manual</li>
-<li>Adding JADE (FIPA/ACL) Alignment server profile</li>
+<li>Add correspondence annotations</li>
 <li>Adding Web Service Alignment server profile</li>
+<li>Implement level 2OML alignments (version 3);</li>
+<li>Completing the reference manual</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
@@ -58,18 +57,25 @@ The main modification in this version is more independence from the
 <li><tt>AlignmentParser</tt> returns an <tt>URIAlignment</tt>, for
   obtaining an <tt>OWLAPIAlignment</tt>,
   use <tt>OWLAPIAlignment.toOWLAPIAlignemnent(URIAlignment)</tt>.</li>
+<li>Introduced an abstract notion of <tt>OntologyCache</tt> object in
+  place of the previous <tt>Hashtable</tt> (this is independent from
+  the OWL API)</li>
 <li>Based all implemented methods on <tt>OWLAPIAlignment</tt></li>
-<li>Implemented all renderer methods for <tt>URIAlignments</tt></li>
+<li>Implemented all renderer methods for <tt>URIAlignments</tt> (but
+  those requiring <tt>OWLAPIAlignment</tt>)</li>
 <li>Adapted all util functions to the relevant methods</li>
 <li>Added autodetection of renderers and methods in server</li>
 <li>Added menu of available alignments when possibles</li>
 <li>Added cut method in server</li>
+<li>Added JADE (FIPA/ACL) Alignment server profile</li>
 <li>Revised server database structure, implemented automatic creation
   of the database</li>
 <li>Protected database insertion with safe-quoting function</li>
 <li>Suppressed all useless import and imprecise catch</li>
-<li>Implemented an abstract notion of ontology cache</li>
-<li>Suppressed "localhost" from local URL in README, tutorial and documentation</li>
+<li>Suppressed "localhost" from local URL in README, tutorial and
+  documentation</li>
+<li>Renamed samples into examples; Slightly reorganised the example
+  directory</li>
 </ul></p>
 
 <h2>December 30th, 2006</h2>
