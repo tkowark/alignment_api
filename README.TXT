@@ -1,15 +1,18 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      10/07/2006, version 2.4+                       #
+#                      25/02/2007, version 3.0+                       #
 #######################################################################
 
 Copyright (C) 2003 The University of Manchester.
 Copyright (C) 2003 The University of Karlsruhe.
-Copyright (C) 2003-2006 INRIA Rhône-Alpes.
+Copyright (C) 2003-2007 INRIA Rhône-Alpes.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
-Copyright (C) 2006 CERT
+Copyright (C) 2006 CERT.
+Copyright (C) 2006 Seungkeun Lee.
+Copyright (C) 2001,2005-2006 Jarno Elonen.
+Copyright (C) 2006-2007 Orange R&D.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License
@@ -32,8 +35,6 @@ See also http://www.ontologymatching.org
 USING THE ONTOLOGY ALIGNMENT API IMPLEMENTATION
 -----------------------------------------------
 
-The Align API _implementation_ requires that you fetch the OWL-API
-
 Building:
 ---------
 
@@ -50,25 +51,25 @@ $ setenv CWD `pwd`
 
 $ java -jar lib/procalign.jar --help
 
-$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl
+$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl
 
-$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 
-$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o aligns/bibref.owl
+$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter rdf/srcalign.owl
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples/rdf/sample.rdf
 
-$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -a rdf/srcalign.owl
+$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf
 
-$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl
+$ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl
 
-$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance
+$ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
 
-$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4
+$ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/bibref.owl file://$CWD/rdf/srcalign.owl
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
 
-$ java -jar lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
+$ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > examples/rdf/matrix.tex
 
 Using with JWNL (Wordnet)
 -------------------------
@@ -77,7 +78,7 @@ Using with JWNL (Wordnet)
 - jwnl.jar commons-logging.jar must be in lib.
 - file_properties.xml must be in current directory
 
-$ java -jar lib/alignwn.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o aligns/JWNL.owl
+$ java -jar lib/alignwn.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
 
 LAST RELEASE
 ------------
@@ -98,10 +99,11 @@ FILES
 -----
 
 README.TXT	this file
+README.AServ	instructions for setting up an Alignment Server
 LICENSE.TXT	the terms under which the software is licensed to you.
 build.xml	the Ant build file for compiling and testing
 classes/	empty directory for compiling the sources
-distrib/	some files for generating a new jarfile
+distrib/	some files for generating new jarfiles
 dtd/		contains the ontoalign DTDs (and schemas)
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
@@ -109,8 +111,7 @@ html/tutorial/  web based tutorial
 javadoc/	javadoc API documentation in HTML (not very useful)
 lib/		contains align.jar, alignwn.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles
-rdf/		a few samples ontologies to align
-samples/	two example applications
+examples/	examples of use of the API and server
 src/		Java sources of ontoalign
 		org.semanticweb.owl.align: the API
 		fr.inrialpes.exmo.align.impl: basic implementation
