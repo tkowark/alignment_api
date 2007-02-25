@@ -22,16 +22,15 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import java.net.URI;
+import java.util.Enumeration;
 
 import org.xml.sax.ContentHandler;
-
-//*/3.0
-//import org.semanticweb.owl.model.OWLEntity;
 
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+import org.semanticweb.owl.align.Parameters;
 
 /**
  * Represents an ontology alignment correspondence. 
@@ -45,32 +44,15 @@ public class BasicCell implements Cell, Comparable {
         visitor.visit( this );
     }
 
-    String id = null;
-    String semantics = null;
-    //*/3.0
-    //OWLEntity object1 = null;
-    //OWLEntity object2 = null;
-    Object object1 = null;
-    Object object2 = null;
-    Relation relation = null;
-    double strength = 0;
+    protected String id = null;
+    protected String semantics = null;
+    protected Object object1 = null;
+    protected Object object2 = null;
+    protected Relation relation = null;
+    protected double strength = 0;
+    protected Parameters extensions = null;    
 
     /** Creation **/
-    //    public BasicCell( Object ob1, Object ob2 ) throws AlignmentException {
-    //	new BasicCell( (String)null, ob1, ob2, "=", 0 );
-    //    };
-
-//*/3.0
-//    public BasicCell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-//	throw new AlignmentException("BasicCell: must take two OWLEntity as argument");
-//    }
-//    public BasicCell( OWLEntity ob1, OWLEntity ob2, String rel, double m ) throws AlignmentException {
-//    public BasicCell( String id, Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-//	new BasicCell( id, ob1, ob2, BasicRelation.createRelation(rel), m );
-//    };
-
-//*/3.0
-//    public BasicCell( OWLEntity ob1, OWLEntity ob2, Relation rel, double m ) throws AlignmentException {
     public BasicCell( String id, Object ob1, Object ob2, Relation rel, double m ) throws AlignmentException {
 	setId( id ); 
 	object1 = ob1;
@@ -78,6 +60,7 @@ public class BasicCell implements Cell, Comparable {
 	relation = rel;
 	// No exception, just keep 0?
 	if ( m >= 0 && m <= 1 ) strength = m;
+	// extensions is only created on demand, otherwise, it is too expensive
     };
 
     // the strength must be compared with regard to abstract types
@@ -124,21 +107,9 @@ public class BasicCell implements Cell, Comparable {
 	}
     }
     public void setObject1( Object ob ) throws AlignmentException {
-//*/3.0
-//	if ( ob instanceof OWLEntity ) {
-//	    object1 = (OWLEntity)ob;
-//	} else {
-//	    throw new AlignmentException("BasicCell.setObject1: must have an OWLEntity as argument");
-//	}
 	object1 = ob;
     }
     public void setObject2( Object ob ) throws AlignmentException {
-//*/3.0
-//	if ( ob instanceof OWLEntity ) {
-//	    object2 = (OWLEntity)ob;
-//	} else {
-//	    throw new AlignmentException("BasicCell.setObject2: must have an OWLEntity as argument");
-//	}
 	object2 = ob;
     }
     public Relation getRelation(){ return relation; };
@@ -146,9 +117,36 @@ public class BasicCell implements Cell, Comparable {
     public double getStrength(){ return strength; };
     public void setStrength( double m ){ strength = m; };
 
+    public Parameters getExtensions(){ return extensions; }
+    public void setExtensions( Parameters p ){
+	extensions = p;
+    }
+
+    public void setExtension( String label, String value ) {
+	if ( extensions == null )
+	    extensions = new BasicParameters();
+	extensions.setParameter( label, value );
+    };
+
+    public String getExtension( String label ) {
+	if ( extensions != null ) {
+	    return (String)extensions.getParameter( label );
+	} else {
+	    return (String)null;
+	}
+    };
+
     public Cell inverse() throws AlignmentException {
-	return (Cell)new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
+	Cell result = (Cell)new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
+	if ( extensions != null ) {
+	    for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
+		String label = (String)e.nextElement();
+		result.setExtension( label, getExtension( label ) );
+	    }
+	}
+	result.getExtensions().unsetParameter( "id" );
 	// The sae should be done for the measure
+	return result;
     }
 
     /** Housekeeping **/

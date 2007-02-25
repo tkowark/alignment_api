@@ -247,7 +247,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	if ( debug > 0 ) System.err.println("ADMIN["+perf+"]");
 	String msg = "";
         if ( perf.equals("listalignments") ){
-	    msg = "<h1>Stored alignments</h1><ul compact=\"1\">";
+	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension("id");
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+id+"</a></li>";
@@ -272,15 +272,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
-	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Provide an id: <input type=\"textarea\" name=\"id\" size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query: <input type=\"textarea\" name=\"query\" rows=\"8\"size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
-	    msg = "Not available yet";
+	    String answer = manager.query( (String)params.getParameter("query") );
+	    msg = "<pre>"+answer+"</pre>";
 	} else if ( perf.equals("about") ){
 	    msg = about();
 	} else if ( perf.equals("shutdown") ){
 	    manager.close();
 	    msg = "Server shut down";
 	} else if ( perf.equals("prmreset") ){
+	    msg = perf;
+	} else if ( perf.equals("prmflush") ){
 	    msg = perf;
 	} else if ( perf.equals("addservice") ){
 	    msg = perf;
@@ -297,6 +300,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<li><form action=\"listrenderers\"><input type=\"submit\" value=\"Available renderers\"/></form></li>";
 	    msg += "<li><form action=\"listservices\"><input type=\"submit\" value=\"Available services\"/></form></li>";
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
+	    msg += "<li><form action=\"prmflush\"><input type=\"submit\" value=\"Flush caches\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
 	    msg += "<li><form action=\"shutdown\"><input type=\"submit\" value=\"Shutdown\"/></form></li>";
 	    msg += "<li><form action=\"..\"><input type=\"submit\" value=\"About\"/></form></li>";
@@ -321,7 +325,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // JE: only those non stored please (retrieve metadata + stored)
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension("id");
+		params.setParameter("id", id);
+		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
 		msg += "<option value=\""+id+"\">"+id+"</option>";
+		}
 	    }
 	    msg += "</select><br />";
 	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
@@ -428,12 +435,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension("id");
-		msg += "<option value=\""+id+"\">"+id+"</option>";
-	    }
-	    msg += "</select><br />";
-	    msg += "Rendering: <select name=\"method\">";
-	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
-		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";

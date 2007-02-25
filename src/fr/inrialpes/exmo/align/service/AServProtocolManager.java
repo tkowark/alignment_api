@@ -181,7 +181,12 @@ public class AServProtocolManager {
 	return alignmentCache.listAlignments();
     }
 
-    /*********************************************************************
+    public String query( String query ){
+	//return alignmentCache.query( query );
+	return "Not available yet";
+    }
+
+   /*********************************************************************
      * Basic protocol primitives
      *********************************************************************/
 
@@ -447,6 +452,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
+	// JE: Other possibility is to render the metadata through XMLMetadataRendererVisitor into content...
 	// Put all the local metadata in parameters
 	Parameters params = new BasicParameters();
 	params.setParameter( "file1", al.getFile1() );
@@ -529,6 +535,22 @@ public class AServProtocolManager {
     public Message compose( Message mess ){
 	// Retrieve alignments
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+    }
+
+    public boolean storedAlignment( Message mess ) {
+	// Retrieve the alignment
+	String id = (String)mess.getParameters().getParameter("id");
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return false;
+	}
+	if ( al.getExtension("fr.inrialpes.exmo.align.service.stored") != null && al.getExtension("fr.inrialpes.exmo.align.service.stored") != "" ) {
+	    return true;
+	} else {
+	    return false;
+	}
     }
 
     /*********************************************************************

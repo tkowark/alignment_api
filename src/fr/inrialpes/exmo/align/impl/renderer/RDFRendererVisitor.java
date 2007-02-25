@@ -23,11 +23,6 @@ package fr.inrialpes.exmo.align.impl.renderer;
 import java.util.Enumeration;
 import java.io.PrintWriter;
 
-//*/3.0
-//import org.semanticweb.owl.model.OWLOntology;
-//import org.semanticweb.owl.model.OWLEntity;
-//import org.semanticweb.owl.model.OWLException;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -68,51 +63,56 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    String tag = (String)e.nextElement();
 	    writer.print("  <"+tag+">"+align.getExtension(tag)+"</"+tag+">\n");
 	}
-	//	try {
-	    if ( align.getFile1() != null )
-		writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
-	    if ( align.getFile2() != null )
-		writer.print("  <onto2>"+align.getFile2().toString()+"</onto2>\n");
-	    writer.print("  <uri1>");
-	    writer.print( align.getOntology1URI().toString() );
-	    writer.print("</uri1>\n");
-	    writer.print("  <uri2>");
-	    writer.print( align.getOntology2URI().toString() );
-	    writer.print("</uri2>\n");
+	if ( align.getFile1() != null )
+	    writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
+	if ( align.getFile2() != null )
+	    writer.print("  <onto2>"+align.getFile2().toString()+"</onto2>\n");
+	writer.print("  <uri1>");
+	writer.print( align.getOntology1URI().toString() );
+	writer.print("</uri1>\n");
+	writer.print("  <uri2>");
+	writer.print( align.getOntology2URI().toString() );
+	writer.print("</uri2>\n");
 	    
-	    for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		c.accept( this );
-	    } //end for
-	    //	} catch (OWLException ex) { throw new AlignmentException( "getURI problem", ex); }
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	    Cell c = (Cell)e.nextElement();
+	    c.accept( this );
+	} //end for
 	writer.print("</Alignment>\n");
 	writer.print("</rdf:RDF>\n");
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	//	try {
 	    if ( cell.getObject1AsURI() != null &&
 		 cell.getObject2AsURI() != null ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
 	    if ( cell.getId() != null ){
-		writer.print(" rdf:about=\"#"+cell.getId()+"\"");
+		writer.print(" rdf:about=\""+cell.getId()+"\"");
 	    }
 	    writer.print(">\n      <entity1 rdf:resource='");
 	    writer.print( cell.getObject1AsURI().toString() );
 	    writer.print("'/>\n      <entity2 rdf:resource='");
 	    writer.print( cell.getObject2AsURI().toString() );
-	    writer.print("'/>\n      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
+	    writer.print("'/>\n      <relation>");
+	    cell.getRelation().accept( this );
+	    writer.print("</relation>\n");
+	    writer.print("      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
 	    writer.print( cell.getStrength() );
 	    writer.print("</measure>\n");
-	    if ( !cell.getSemantics().equals("first-order") )
+	    if ( cell.getSemantics() != null &&
+		 !cell.getSemantics().equals("") &&
+		 !cell.getSemantics().equals("first-order") )
 		writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
-	    writer.print("      <relation>");
-	    cell.getRelation().accept( this );
-	    writer.print("</relation>\n    </Cell>\n  </map>\n");
 	    }
-	    //	} catch ( OWLException e) { throw new AlignmentException( "getURI problem", e ); }
+	    if ( cell.getExtensions() != null ) {
+		// could certainly be done better
+		for ( Enumeration e = cell.getExtensions().getNames() ; e.hasMoreElements(); ){
+		    String label = (String)e.nextElement();
+		    writer.print("      <"+label+">"+cell.getExtension(label)+"</"+label+">\n");
+		}
+	    }
+	    writer.print("    </Cell>\n  </map>\n");
     }
     public void visit( Relation rel ) {
 	rel.write( writer );

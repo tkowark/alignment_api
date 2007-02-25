@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -61,6 +61,15 @@ public interface Cell
     public double getStrength();
     public void setStrength( double m );
     public boolean equals( Cell c );
+
+    /**
+     * Extensions are a way to read and add other information (metadata)
+     * to the Cell structure itself.
+     */
+    public Parameters getExtensions();
+    public void setExtensions( Parameters param );
+    public String getExtension( String label );
+    public void setExtension( String label, String value );
 
     public Cell inverse() throws AlignmentException;
 

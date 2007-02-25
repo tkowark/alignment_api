@@ -38,18 +38,13 @@ import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
 
-//*/3.0
-//import org.semanticweb.owl.util.OWLManager;
-//import org.semanticweb.owl.model.OWLOntology;
-//import org.semanticweb.owl.model.OWLEntity;
-//import org.semanticweb.owl.model.OWLException;
-//import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-//import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
+
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -75,15 +70,11 @@ public class AlignmentParser extends DefaultHandler {
     /**
      * the first Ontology 
      */
-    //*/3.0
-    // OWLOntology onto1 = null;
     Object onto1 = null;
     
     /**
      * the second Ontology 
      */
-    //*/3.0
-    // OWLOntology onto2 = null;
     Object onto2 = null;
 
     /**
@@ -97,8 +88,6 @@ public class AlignmentParser extends DefaultHandler {
      * This is a pitty but the idea of creating a particular alignment
      * is not in accordance with using an interface.
      */
-    //*/3.0
-    //protected BasicAlignment alignment = null;
     protected URIAlignment alignment = null;
     
     /**
@@ -109,15 +98,11 @@ public class AlignmentParser extends DefaultHandler {
     /**
      * the first entity of a cell
      */
-    //*/3.0
-    //protected OWLEntity cl1 = null;
     protected Object cl1 = null;
     
     /**
      * the second entity of a cell
      */
-    //*/3.0
-    //protected OWLEntity cl2 = null;
     protected Object cl2 = null;
     
     /**
@@ -141,6 +126,11 @@ public class AlignmentParser extends DefaultHandler {
     protected String sem = null;
 
     /**
+     * Cell extensions (default null)
+     */
+    protected Parameters extensions = null;
+
+    /**
      * the measure content as text...
      */
     protected String measure = null;
@@ -151,7 +141,8 @@ public class AlignmentParser extends DefaultHandler {
     protected SAXParser parser = null;
 
     /**
-     * The parsing level, if equal to 2 we are in the Alignment
+     * The parsing level, if equal to 3 we are in the Alignment
+     * if equal to 5 we are in a cell
      * and can find metadata
      */
     protected int parselevel = 0;
@@ -211,82 +202,58 @@ public class AlignmentParser extends DefaultHandler {
 	    System.err.println("startElement AlignmentParser : " + pName);
 	parselevel++;
 	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
-		    //*/3.0
-	    //try {
-		if (pName.equals("relation")) {
-		} else if (pName.equals("semantics")) {
-		} else if (pName.equals("measure")) {
-		} else if (pName.equals("entity2")) {
-		    if(debugMode > 2) 
-			System.err.println(" resource = " + atts.getValue("rdf:resource"));
-		    //*/3.0
-		    //cl2 = (OWLEntity)getEntity( onto2, atts.getValue("rdf:resource") );
-		    try {
-			cl2 = new URI( atts.getValue("rdf:resource") );
-		    } catch (URISyntaxException e) {
-			throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
-		    }
-		} else if (pName.equals("entity1")) {
-		    if(debugMode > 2) 
-			System.err.println(" resource = " + atts.getValue("rdf:resource"));
-		    //*/3.0
-		    //cl1 = (OWLEntity)getEntity( onto1, atts.getValue("rdf:resource") );
-		    try {
-			cl1 = new URI( atts.getValue("rdf:resource") );
-		    } catch (URISyntaxException e) {
-			throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
-		    }
-		} else if (pName.equals("Cell")) {
-		    if ( alignment == null )
-			{ throw new SAXException("No alignment provided"); };
-		    if ( atts.getValue("rdf:ID") != null ){
-			id = atts.getValue("rdf:ID");
-		    } else if ( atts.getValue("rdf:about") != null ){
-			id = atts.getValue("rdf:about");
-		    }
-		    sem = null;
-		    measure = null;
-		    relation = null;
-		    cl1 = null;
-		    cl2 = null;
-		} else if (pName.equals("map")) {
-		    try {
-			//*/3.0
-			//if ( onto2 == null ){
-			//    onto2 = loadOntology( alignment.getFile2() );
-			//    if ( onto2 == null ) {
-			//	throw new SAXException("Cannot find ontology"+alignment.getFile2());
-			//    }
-			//}
-			alignment.setOntology2( onto2 );
-			//*/3.0
-			//if ( onto1 == null ){
-			//    onto1 = loadOntology( alignment.getFile1() );
-			//    if ( onto1 == null ) {
-			//	throw new SAXException("Cannot find ontology"+alignment.getFile1());
-			//    }
-			//}
-			alignment.setOntology1( onto1 );
-		    } catch ( AlignmentException e ) {
-			throw new SAXException("Catched alignment exception", e );
-		    }
-		} else if (pName.equals("onto2")) {
-		} else if (pName.equals("onto1")) {
-		} else if (pName.equals("uri2")) {
-		} else if (pName.equals("uri1")) {
-		} else if (pName.equals("type")) {
-		} else if (pName.equals("level")) {
-		} else if (pName.equals("xml")) {
-		} else if (pName.equals("Alignment")) {
-		    //*/3.0
-		    //alignment = new BasicAlignment();
-		    alignment = new URIAlignment();
-		} else {
-		    if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
-		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
-		};
-		//*/3.0
-		//} catch ( OWLException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); }; 
+	    if (pName.equals("relation")) {
+	    } else if (pName.equals("semantics")) {
+	    } else if (pName.equals("measure")) {
+	    } else if (pName.equals("entity2")) {
+		if(debugMode > 2) 
+		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
+		try {
+		    cl2 = new URI( atts.getValue("rdf:resource") );
+		} catch (URISyntaxException e) {
+		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
+		}
+	    } else if (pName.equals("entity1")) {
+		if(debugMode > 2) 
+		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
+		try {
+		    cl1 = new URI( atts.getValue("rdf:resource") );
+		} catch (URISyntaxException e) {
+		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
+		}
+	    } else if (pName.equals("Cell")) {
+		if ( alignment == null )
+		    { throw new SAXException("No alignment provided"); };
+		if ( atts.getValue("rdf:ID") != null ){
+		    id = atts.getValue("rdf:ID");
+		} else if ( atts.getValue("rdf:about") != null ){
+		    id = atts.getValue("rdf:about");
+		}
+		sem = null;
+		measure = null;
+		relation = null;
+		extensions = null;
+		cl1 = null;
+		cl2 = null;
+	    } else if (pName.equals("map")) {
+		try {
+		    alignment.setOntology2( onto2 );
+		    alignment.setOntology1( onto1 );
+		} catch ( AlignmentException e ) {
+		    throw new SAXException("Catched alignment exception", e );
+		}
+	    } else if (pName.equals("onto2")) {
+	    } else if (pName.equals("onto1")) {
+	    } else if (pName.equals("uri2")) {
+	    } else if (pName.equals("uri1")) {
+	    } else if (pName.equals("type")) {
+	    } else if (pName.equals("level")) {
+	    } else if (pName.equals("xml")) {
+	    } else if (pName.equals("Alignment")) {
+		alignment = new URIAlignment();
+	    } else {
+		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
+	    };
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
@@ -295,21 +262,10 @@ public class AlignmentParser extends DefaultHandler {
 	}
     }
 
-    //*/3.0
-    //private OWLEntity getEntity( OWLOntology ontology, String name ) throws OWLException, SAXException {
     private Object getEntity( Object ontology, String name ) throws SAXException {
-	URI uri = null;
-
-	try { uri = new URI(name);}
-	catch (URISyntaxException e) {throw new SAXException("[AlignmentParser] bad URI syntax : "+name);}
-
-	//*/3.0
-	//OWLEntity result = (OWLEntity)ontology.getClass( uri );
-	//if ( result == null ) result = (OWLEntity)ontology.getDataProperty( uri );
-	//if ( result == null ) result = (OWLEntity)ontology.getObjectProperty( uri );
-	//if ( result == null ) result = (OWLEntity)ontology.getIndividual( uri );
-	//return result;
-	return uri;
+	try { return new URI( name );}
+	catch (URISyntaxException e) {
+	    throw new SAXException("[AlignmentParser] bad URI syntax : "+name);}
     }
 
     /**
@@ -322,7 +278,7 @@ public class AlignmentParser extends DefaultHandler {
     }
 
     /*
-    // Change proposed by Sabine Massmann
+    // Patch proposed by Sabine Massmann
     // If to be integrated, then put it in the proper place
     // There is no reasons to test for Double in characters
    public void characters(char ch[], int start, int length) {
@@ -385,18 +341,15 @@ public class AlignmentParser extends DefaultHandler {
 			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
 		    if ( id != null ) cell.setId( id );
 		    if ( sem != null ) cell.setSemantics( sem );
+		    if ( extensions != null ) cell.setExtensions( extensions );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
-		    //*/3.0
-		    //onto1 = (OWLOntology)ontologies.get( content );
 		    try {
 			onto1 = new URI( content );
 		    } catch (URISyntaxException e) {
 			throw new SAXException("uri1: malformed URI");
 		    }
 		} else if (pName.equals("uri2")) {
-		    //*/3.0
-		    //onto2 = (OWLOntology)ontologies.get( content );
 		    try {
 			onto2 = new URI( content );
 		    } catch (URISyntaxException e) {
@@ -421,54 +374,33 @@ public class AlignmentParser extends DefaultHandler {
 		    //	{ throw new SAXException("Non parseable alignment"); }
 		} else if (pName.equals("Alignment")) {
 		} else {
-		    if ( debugMode > 0 )
+		    if ( parselevel == 3 ){
+			alignment.setExtension( pName, content );
+		    } else if ( parselevel == 5 ) {
+			if ( extensions == null ) extensions = new BasicParameters();
+			//cell.setExtension( pName, content );
+			extensions.setParameter( pName, content );
+		    } else //if ( debugMode > 0 )
 			System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
-		//*/3.0
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] OWLException raised"); };
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    if ( parselevel == 2 ){
+	    if ( parselevel == 3 ){
 		alignment.setExtension( pName, content );
+	    } else if ( parselevel == 5 ) {
+		if ( extensions == null ) extensions = new BasicParameters();
+		//cell.setExtension( pName, content );
+		extensions.setParameter( pName, content );
 	    } else throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
 	parselevel--;
     } //end endElement
     
     /** Can be used for loading the ontology if it is not available **/
-    //*/3.0
-    /*
-    private OWLOntology loadOntology( URI ref ) throws SAXException, OWLException {
-	OWLOntology parsedOnt = null;
-	OWLRDFParser parser = new OWLRDFParser();
-	OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-		public void owlFullConstruct( int code, String message ) 
-		    throws SAXException {
-		}
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		public void error( String message ) throws SAXException {
-		    throw new SAXException( message.toString() );
-		}
-		public void warning( String message ) throws SAXException {
-		    System.out.println("WARNING: " + message);
-		}
-	    };
-	parser.setOWLRDFErrorHandler( handler );
-	parser.setConnection( OWLManager.getOWLConnection() );
-	try {
-	    parsedOnt = parser.parseOntology( ref );
-	    ontologies.put( ref.toString(), parsedOnt );
-	    return parsedOnt;
-	} catch ( Exception e ) {
-	    throw new SAXException("[AlignmentParser] Error during parsing : "+ref);
-	}
-    }
-*/
  
 }//end class
     

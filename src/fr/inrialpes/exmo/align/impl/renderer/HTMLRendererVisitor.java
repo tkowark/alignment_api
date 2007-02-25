@@ -52,7 +52,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
-	//alignment = align;
+	alignment = align;
 	writer.print("<html>\n<head></head>\n<body>\n");
 	writer.print("<h1></h1>\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
@@ -72,7 +72,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	}
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");
-	writer.print("<table><tr><td>Id</td><td>object1</td><td>relation</td><td>strength</td><td>object2</td></tr>\n");
+	writer.print("<table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
@@ -80,17 +80,26 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("</table>\n");
 	writer.print("</body>\n</html>\n");
     }
+
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	writer.print("  <tr>");
-	if ( cell.getId() != null ) writer.print("<td>"+cell.getId()+"</td>");
-	else writer.print("<td></td>");
 	writer.print("<td>"+cell.getObject1AsURI().toString()+"</td><td>");
 	cell.getRelation().accept( this );
 	writer.print("</td><td>"+cell.getStrength()+"</td>");
-	writer.print("<td>"+cell.getObject2AsURI().toString()+"</td></tr>");
+	writer.print("<td>"+cell.getObject2AsURI().toString()+"</td>");
+	if ( cell.getId() != null ) {
+	    String id = cell.getId();
+	    // Would be useful to test for the Alignment URI
+	    if ( id.startsWith( (String)alignment.getExtension( "id" ) ) ){
+		writer.print("<td>"+id.substring( id.indexOf( '#' ) )+"</td>");
+	    } else {
+		writer.print("<td>"+id+"</td>");
+	    }
+	} else writer.print("<td></td>");
 	//if ( !cell.getSemantics().equals("first-order") )
 	//	writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
+	writer.println("</tr>");
     }
     public void visit( Relation rel ) {
 	rel.write( writer );
