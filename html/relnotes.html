@@ -31,7 +31,6 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Add correspondence annotations</li>
 <li>Adding Web Service Alignment server profile</li>
 <li>Implement level 2OML alignments (version 3);</li>
 <li>Completing the reference manual</li>
@@ -39,7 +38,9 @@
 
 <h2>Current SVN trunk version</h2>
 
-<!--p><b>Version 3.0: ??/02/2007 - Hyderabad</b></p-->
+<h2>February 25th, 2007</h2>
+
+<p><b>Version 3.0: 25/02/2007 - Hyderabad</b></p>
 
 <p><font color="red">BEWARE:</font>
 The main modification in this version is more independence from the
@@ -68,14 +69,20 @@ The main modification in this version is more independence from the
 <li>Added menu of available alignments when possibles</li>
 <li>Added cut method in server</li>
 <li>Added JADE (FIPA/ACL) Alignment server profile</li>
+<li>Added correspondence annotations</li>
 <li>Revised server database structure, implemented automatic creation
   of the database</li>
 <li>Protected database insertion with safe-quoting function</li>
 <li>Suppressed all useless import and imprecise catch</li>
 <li>Suppressed "localhost" from local URL in README, tutorial and
   documentation</li>
-<li>Renamed samples into examples; Slightly reorganised the example
-  directory</li>
+<li>Reorganised the root directory (renamed samples into examples,
+  deleted rdf and aligns);</li>
+<li>Redefined the example suite in README.TXT;</li>
+<li><tt>PRecEvaluator</tt> now counts as false in
+  precision and recall, cells which previously were not acounted
+  because they raised an exception. This is because, alignments are
+  judged based on URI and not OWLAPI entities anymore.</li>
 </ul></p>
 
 <h2>December 30th, 2006</h2>
@@ -115,10 +122,10 @@ The main modification in this version is more independence from the
 
 <p>
 <ul compact="1">
-<li>Added HTMLRendererVisitor</li>
-<li>ProcAlign and GroupAlign automatically store "time" tag;</li>
-<li>StringDistAlignment and RDFRenderer protect the instances without URIs;</li>
-<li>GroupAlign default aligner becomes
+<li>Added <tt>HTMLRendererVisitor</tt></li>
+<li><tt>ProcAlign</tt> and <tt>GroupAlign</tt> automatically store "time" tag;</li>
+<li><tt>StringDistAlignment</tt> and <tt>RDFRenderer</tt> protect the instances without URIs;</li>
+<li><tt>GroupAlign</tt> default matcher becomes <tt>StringDistAlignment</tt>.</li>
 </ul></p>
 
 <h2>June 5th, 2006</h2>
