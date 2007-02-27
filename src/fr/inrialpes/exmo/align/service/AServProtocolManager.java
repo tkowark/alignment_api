@@ -276,7 +276,7 @@ public class AServProtocolManager {
 	    // Unexpected OWLException!
 	}
 	String id = null;
-	if ( alignments != null && params.getParameter("force") != null ) {
+	if ( alignments != null && params.getParameter("force") == null ) {
 	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
 		Alignment al = ((Alignment)it.next());
 		if ( al.getExtension( "method" ).equals(method) )
