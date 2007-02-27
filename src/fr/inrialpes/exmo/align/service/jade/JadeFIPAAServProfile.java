@@ -1,8 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) Orange R&D, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,6 +35,7 @@ import fr.inrialpes.exmo.align.service.AServException;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
 
+import java.io.File;
 
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 
@@ -88,12 +89,19 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	}
 
 	public void close(){
-		try{
-			algagentcontroller.kill();
-			mc.kill();
-			myLogger.log(Logger.INFO, "Agent Alignement close");
-		}
-		catch (ControllerException e){myLogger.log(Logger.WARNING, "Error killing the alignment agent."); }
+	    try{
+		algagentcontroller.kill();
+		mc.kill();
+		myLogger.log(Logger.INFO, "Agent Alignement close");
+	    } catch (ControllerException e) {
+		myLogger.log(Logger.WARNING, "Error killing the alignment agent."); }
+	    try {
+		// Destroy the files please (JE)
+		new File("APDescription.txt").delete();
+		new File("MTPs-Main-Container.txt").delete();
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
 	
 }
