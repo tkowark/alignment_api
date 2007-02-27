@@ -1,4 +1,4 @@
-package fr.inrialpes.exmo.align.service.jade;
+//package fr.inrialpes.exmo.align.service.jade;
 
 import jade.gui.GuiEvent;
 
