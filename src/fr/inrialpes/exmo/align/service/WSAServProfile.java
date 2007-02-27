@@ -20,12 +20,9 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
-
-import org.semanticweb.owl.align.Alignment;
+/*import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -39,7 +36,6 @@ import java.util.StringTokenizer;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Hashtable;
-import java.util.Properties;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -50,6 +46,25 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 
 import java.lang.Integer;
+*/
+
+import java.io.File;
+import java.util.Properties;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
@@ -114,9 +129,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
      * but reserved if appears useful
      */
     public String protocolAnswer( String uri, String perf, Properties header, Parameters params ) {
+	// The posted SOAP message is in the "content" parameter
 	System.err.println("SOAP MESSAGE [ "+perf+" ]\n"+params.getParameter("content"));
 	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
-	if ( perf.equals("WSDL") ) {
+	Parameters p = params;
+	if ( params.getParameter("content") != null )
+	    p = read( (String)params.getParameter("content"), params );
+	if ( perf.equals("WSDL") ) { // -> WSDL 
 	} else if ( perf.equals("listalignment") ) { // -> List of URI
 	} else if ( perf.equals("listmethods") ) { // -> List of String
 	} else if ( perf.equals("listrenderers") ) { // -> List of String
@@ -135,6 +154,41 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	}
 	msg += "  </SOAP-ENV:Body></SOAP-ENV:Envelope>";
 	return msg;
+    }
+
+    // JE//This would be supposed to read the SOAP message
+    // and add the read values as paramenters
+    public static Parameters read( String soapMessage, Parameters p ){
+	try {
+	    // open the stream
+	    DocumentBuilderFactory docBuilderFactory =
+		DocumentBuilderFactory.newInstance();
+	    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+	    // JE// We should parse the string here
+	    Document doc = docBuilder.parse(new File(soapMessage));
+
+	    // normalize text representation
+	    doc.getDocumentElement().normalize();
+
+	    // Get the params
+	    NodeList paramList = doc.getElementsByTagName("param");
+	    int totalParams = paramList.getLength();
+	    for (int s = 0; s < totalParams; s++) {
+		Element paramElement = (Element)paramList.item(s);
+		String paramName = paramElement.getAttribute("name");
+		NodeList paramContent = paramElement.getChildNodes();
+		String paramValue =((Node)paramContent.item(0)).getNodeValue().trim();
+		p.setParameter(paramName, paramValue); 
+	    }
+	} catch (SAXParseException err) {
+	    System.err.println("** Parsing error: ["+ err.getLineNumber()+"]: "+err.getSystemId()); 
+	    System.err.println(" " + err.getMessage());
+	} catch (SAXException e) {
+	    Exception x = e.getException();
+	    ((x == null) ? e : x).printStackTrace();
+	} catch (Throwable t) {	t.printStackTrace(); }
+
+	return p;
     }
 
 }
