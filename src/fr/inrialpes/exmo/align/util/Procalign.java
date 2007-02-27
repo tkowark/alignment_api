@@ -201,14 +201,8 @@ public class Procalign {
 	}
 
 	loadedOntologies = new OntologyCache();
-	if (debug > 0) {
-	    params.setParameter("debug", new Integer(debug));
-	} else if ( params.getParameter("debug") != null ) {
-	    debug = Integer.parseInt((String)params.getParameter("debug"));
-	}
 	
 	try {
-	    
 	    BasicConfigurator.configure();
 
 	    URI uri1 = null;
@@ -225,9 +219,6 @@ public class Procalign {
 
 	    if (debug > 0) System.err.println(" Handler set");
 
-	    // JE: Procalign could be rendered independent from the 
-	    // OWL-API by implementing a static class.NewIntance( u1, u2 );
-	    // method
 	    try {
 		if (initName != null) {
 		    AlignmentParser aparser = new AlignmentParser(debug);
