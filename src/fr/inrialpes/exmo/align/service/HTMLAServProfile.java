@@ -335,15 +335,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
 	    String id = (String)params.getParameter("id");
-	    String url = (String)params.getParameter("url");
-	    if ( url != null && !url.equals("") ) { // Load the URL
-		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
-		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer );
-		} else {
-		    id = answer.getContent();
-		}
-	    }
+	    //String url = (String)params.getParameter("url");
+	    //if ( url != null && !url.equals("") ) { // Load the URL
+	    //Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    //if ( answer instanceof ErrorMsg ) {
+	    //    msg = testErrorMessages( answer );
+	    //} else {
+	    //    id = answer.getContent();
+	    //}
+	    //}
 	    if ( id != null ){ // Store it
 		Message answer = manager.store( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {

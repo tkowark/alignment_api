@@ -122,7 +122,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 									}else if (perf.equals("METADATA")){
 										//TODO
 									}else if (perf.equals("STORE")){
-										Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,"",params));
+									    Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,(String)params.getParameter("id"),params));
 										if(!(answer instanceof ErrorMsg)){
 											ACLMessage JADEanswer=msg.createReply();
 											msg.setPerformative(ACLMessage.INFORM);
