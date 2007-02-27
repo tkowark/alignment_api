@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      25/02/2007, version 3.0+                       #
+#                      27/02/2007, version 3.0+                       #
 #######################################################################
 
 Copyright (C) 2003 The University of Manchester.
@@ -74,11 +74,13 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 Using with JWNL (Wordnet)
 -------------------------
 
-- Wordnet 2.0 should be installed
+- Wordnet 2.0 should be installed its directory to be put in $WNDIR
 - jwnl.jar commons-logging.jar must be in lib.
-- file_properties.xml must be in current directory
+(file_properties.xml need not anymore to be in current directory)
 
-$ java -jar lib/alignwn.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
+$ setenv WNDIR ../WordNet-2.0/dict
+
+$ java -jar lib/alignwn.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
 
 LAST RELEASE
 ------------

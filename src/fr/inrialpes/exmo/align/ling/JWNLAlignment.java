@@ -53,6 +53,9 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	public void init() throws AlignmentException {
 	    Dist.Initialize();
 	}
+	public void init( String wndict ) throws AlignmentException {
+	    Dist.Initialize( wndict );
+	}
 	public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
 	    String s1 = cl1.getURI().getFragment();
 	    String s2 = cl2.getURI().getFragment();
@@ -93,7 +96,7 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	loadInit( alignment );
 	SynonymMatrixMeasure sim = (SynonymMatrixMeasure)getSimilarity();
-	sim.init();
+	sim.init( (String)params.getParameter("wndict") );
 	sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
       if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);

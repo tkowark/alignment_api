@@ -24,8 +24,10 @@ package fr.inrialpes.exmo.align.ling;
 import fr.inrialpes.exmo.align.impl.method.StringDistances;
 import org.semanticweb.owl.align.AlignmentException;
 
+import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -86,12 +88,37 @@ public class JWNLDistances {
      * directory
      */
     public void Initialize() throws AlignmentException {
-        try { JWNL.initialize(new FileInputStream("./file_properties.xml"));
-        } catch ( JWNLException e ) {
+	Initialize( (String)null );
+    }
+
+    public void Initialize( String wordnetdir ) throws AlignmentException {
+	InputStream pptySource = null;
+	if ( wordnetdir == null ) {
+	    try {
+		pptySource = new FileInputStream( "./file_properties.xml" );
+	    } catch ( FileNotFoundException e ) {
+		throw new AlignmentException( "Cannot find WordNet dictionary: use -Dwndict or file_property.xml" );
+	    }
+	} else {
+	     String properties = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	     properties += "<jwnl_properties language=\"en\">";
+	     properties += "  <resource class=\"PrincetonResource\"/>";
+	     properties += "  <version publisher=\"Princeton\" number=\"2.0\" language=\"en\"/>";
+	     properties += "  <dictionary class=\"net.didion.jwnl.dictionary.FileBackedDictionary\">";
+	     properties += "     <param name=\"dictionary_element_factory\" value=\"net.didion.jwnl.princeton.data.PrincetonWN17FileDictionaryElementFactory\"/>";
+	     properties += "     <param name=\"file_manager\" value=\"net.didion.jwnl.dictionary.file_manager.FileManagerImpl\">";
+	     properties += "       <param name=\"file_type\" value=\"net.didion.jwnl.princeton.file.PrincetonRandomAccessDictionaryFile\"/>";
+	     properties += "       <param name=\"dictionary_path\" value=\""+wordnetdir+"\"/>";
+	     properties += "     </param>";
+	     properties += "  </dictionary>";
+	     properties += "</jwnl_properties>";
+	     // Sorry but this initialize wants to read a stream
+	     pptySource = new ByteArrayInputStream( properties.getBytes() );
+	}
+	try { JWNL.initialize( pptySource ); }
+	catch ( JWNLException e ) {
 	    throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
-        } catch ( FileNotFoundException e ) {
-	    throw new AlignmentException( "Cannot find WordNet property file (./file_properties.xml)", e );
-        }
+	}
     }
 
     /**
