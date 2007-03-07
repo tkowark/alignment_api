@@ -75,10 +75,10 @@ public class CacheImpl implements Cache {
     final int SUCCESS = 2;
     final int INIT_ERROR = 3;
 
-    final String CACHED = "http://exmo.inrialpes.fr/align/service:cached";
-    final String STORED = "http://exmo.inrialpes.fr/align/service:stored";
-    final String OURI1 = "http://exmo.inrialpes.fr/align/service:ouri1";
-    final String OURI2 = "http://exmo.inrialpes.fr/align/service:ouri2";
+    static public final String CACHED = "http://exmo.inrialpes.fr/align/service:cached";
+    static public final String STORED = "http://exmo.inrialpes.fr/align/service:stored";
+    static public final String OURI1 = "http://exmo.inrialpes.fr/align/service:ouri1";
+    static public final String OURI2 = "http://exmo.inrialpes.fr/align/service:ouri2";
 	
     //**********************************************************************
     public CacheImpl( DBService service ) {

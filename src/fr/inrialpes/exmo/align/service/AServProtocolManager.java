@@ -379,7 +379,7 @@ public class AServProtocolManager {
 	}
 	// Translate the query
 	try {
-	    String translation = QueryMediator.rewriteQuery( (String)params.getParameter("query"), al );
+	    String translation = QueryMediator.rewriteSPARQLQuery( (String)params.getParameter("query"), al );
 	    return new TranslatedMessage(newId(),mess,myId,mess.getSender(),translation,(Parameters)null);
 	} catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),e.toString(),(Parameters)null);
@@ -559,7 +559,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return false;
 	}
-	if ( al.getExtension("fr.inrialpes.exmo.align.service.stored") != null && al.getExtension("fr.inrialpes.exmo.align.service.stored") != "" ) {
+	if ( al.getExtension(CacheImpl.STORED) != null && al.getExtension(CacheImpl.STORED) != "" ) {
 	    return true;
 	} else {
 	    return false;
