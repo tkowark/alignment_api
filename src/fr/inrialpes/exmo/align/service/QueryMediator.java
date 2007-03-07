@@ -38,6 +38,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 
 import org.xml.sax.SAXException;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -55,6 +56,7 @@ import java.io.IOException;
  * against loss in generality.
  * 
  * @author Arun Sharma
+ * @author Jérôme Euzenat
  */
 public class QueryMediator implements QueryProcessor {
     
@@ -148,22 +150,23 @@ public class QueryMediator implements QueryProcessor {
      *    (use invert() in this case).
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {
-	return rewriteQuery( aQuery, alignment );
+	return rewriteSPARQLQuery( aQuery, alignment );
     }
 
-    public static String rewriteQuery( String aQuery, Alignment align ) throws AlignmentException {
+    public static String rewriteSPARQLQuery( String aQuery, Alignment align ) throws AlignmentException {
 	// The first part expands the prefixes of the query
-        aQuery = aQuery.replaceAll("PREFIX", "prefix");
+        //aQuery = aQuery.replaceFirst("^[ \t\n]+","").replaceAll("PREFIX", "prefix");
+	aQuery = aQuery.trim().replaceAll("PREFIX", "prefix");
         String mainQuery = ""; 
         if( aQuery.indexOf("prefix") != -1 )  {
             String[] pref = aQuery.split("prefix");               
-            for(int j =0; j < pref.length; j++)  {
+            for(int j=0; j < pref.length; j++)  {
                 String str = "";
                 if(!pref[0].equals(""))   
                     str = pref[0];
                 else
                     str = pref[pref.length-1];
-                mainQuery = str.substring(str.indexOf('>') +1, str.length());
+                mainQuery = str.substring(str.indexOf('>')+1, str.length());
             }
                 
             for(int i = 0; i < pref.length; i++)  {       
@@ -172,8 +175,9 @@ public class QueryMediator implements QueryProcessor {
                     int begin = currPrefix.indexOf('<');
                     int end = currPrefix.indexOf('>');
                     String ns = currPrefix.substring(0, begin).trim();
-                    String iri = currPrefix.substring(begin+1, end).trim();         
-                    mainQuery = mainQuery.replaceAll(ns, iri);            
+                    String iri = currPrefix.substring(begin+1, end).trim();
+		    mainQuery = Pattern.compile(ns+"([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"#$1>");
+		    //mainQuery = mainQuery.replaceAll(ns+"([A-Za-z0-9_-]+)", "<"+iri+"#$1>");
                 }
             }
         } else mainQuery = aQuery;

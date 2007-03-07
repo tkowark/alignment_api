@@ -32,6 +32,6 @@ public class TranslatedMessage extends Success {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString() {
-	return "Translated message: "+content;
+	return content;
     }
 }

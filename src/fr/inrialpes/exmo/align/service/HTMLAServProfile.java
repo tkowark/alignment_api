@@ -272,7 +272,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
-	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"60\" size=\"60\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
 	    String answer = manager.query( (String)params.getParameter("query") );
 	    msg = "<pre>"+answer+"</pre>";
@@ -438,15 +438,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
-	    msg += "Turtle query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"60\" size=\"60\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (turtle)<br /><small>A SPARQL query expressed in Turtle syntax (PREFIX prefix: &lt;URI&gt; SELECT variables FROM &lt;URL&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg += "SPARQL query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"80\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (turtle)<br /><small>A SPARQL query (PREFIX prefix: &lt;uri&gt; SELECT variables FROM &lt;url&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Translate\"/></form>";
 	} else if ( perf.equals("translate") ) {
 	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer );
 	    } else {
-		// Depending on the type we should change the MIME type
-		// This should be returned in answer.getParameters()
-		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+		msg = "<h1>Message translation</h1>";
+		msg += "<h2>Initial message</h2><pre>"+((String)params.getParameter("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
+		msg += "<h2>Translated message</h2><pre>";
+		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+		msg += "</pre>";
 	    }
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
