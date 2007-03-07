@@ -272,7 +272,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
-	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query: <input type=\"textarea\" name=\"query\" rows=\"8\"size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"60\" size=\"60\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
 	    String answer = manager.query( (String)params.getParameter("query") );
 	    msg = "<pre>"+answer+"</pre>";
@@ -430,6 +430,24 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
 	    }
 	    // Metadata not done yet
+	} else if ( perf.equals("prmtranslate") ) {
+	    msg = "<h1>Translate query</h1><form action=\"translate\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "Turtle query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"60\" size=\"60\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (turtle)<br /><small>A SPARQL query expressed in Turtle syntax (PREFIX prefix: &lt;URI&gt; SELECT variables FROM &lt;URL&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	} else if ( perf.equals("translate") ) {
+	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer );
+	    } else {
+		// Depending on the type we should change the MIME type
+		// This should be returned in answer.getParameters()
+		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+	    }
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
@@ -457,7 +475,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"loadfile\" method=\"POST\">";
 	    msg += " <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
 	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
-	    msg += "<br /><small>NOTE: Max file size is"+(MAX_FILE_SIZE/1024)+"KB</small><br />";
+	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB</small><br />";
 	    msg += " <input type=\"submit\" Value=\"Upload\">";
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
@@ -478,9 +496,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = "<h1>Alignment loaded</h1>";
 		msg += displayAnswer( answer );
 	    }
-	} else if ( perf.equals("prmtranslate") ) {
-	} else if ( perf.equals("translate") ) {
-	    // translate( mess )
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Available commands</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
@@ -488,7 +503,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
 	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
 	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
-	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from its id\"/></form></li>";
+	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from id\"/></form></li>";
+	    msg += "<li><form action=\"prmtranslate\"><input type=\"submit\" value=\"Translate a query\"/></form></li>";
 	    msg += "<li><form action=\"../admin/\"><input type=\"submit\" value=\"Server management\"/></form></li>";
 	    msg += "</ul>";
 	} else {

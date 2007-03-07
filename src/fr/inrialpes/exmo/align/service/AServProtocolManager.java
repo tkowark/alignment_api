@@ -355,6 +355,7 @@ public class AServProtocolManager {
 
     // ABSOLUTELY NOT IMPLEMENTED
     // Implements: find
+    // This may be useful when calling WATSON
     public Message find(Message mess){
     //\prul{search-success}{a - request ( find (O, T) ) \rightarrow S}{O' \Leftarrow Match(O,T)\\S - inform (O') \rightarrow a}{reachable(O)\wedge Match(O,T)\not=\emptyset}
 
@@ -365,12 +366,24 @@ public class AServProtocolManager {
     }
 
     // Implements: translate
+    // This should be applied to many more kind of messages with different kind of translation
     public Message translate(Message mess){
-
-//\prul{translate-success}{a - request ( translate ( M, n)) \rightarrow S}{\langle O, O', A\rangle \Leftarrow Retrieve(n)\\m'\Leftarrow Translate(m,A)\\S - inform ( m' ) \rightarrow a}{Retrieve(n)\not=\emptyset}
-
-//\prul{translate-unknown}{a - request ( translate ( M, n)) \rightarrow S}{S - failure ( unknown (n) )  \rightarrow a}{Retrieve(n)=\emptyset}
-	return new TranslatedMessage(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	Parameters params = mess.getParameters();
+	// Retrieve the alignment
+	String id = (String)params.getParameter("id");
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	}
+	// Translate the query
+	try {
+	    String translation = QueryMediator.rewriteQuery( (String)params.getParameter("query"), al );
+	    return new TranslatedMessage(newId(),mess,myId,mess.getSender(),translation,(Parameters)null);
+	} catch (AlignmentException e) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),e.toString(),(Parameters)null);
+	}
     }
 
     // DONE

@@ -148,6 +148,10 @@ public class QueryMediator implements QueryProcessor {
      *    (use invert() in this case).
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {
+	return rewriteQuery( aQuery, alignment );
+    }
+
+    public static String rewriteQuery( String aQuery, Alignment align ) throws AlignmentException {
 	// The first part expands the prefixes of the query
         aQuery = aQuery.replaceAll("PREFIX", "prefix");
         String mainQuery = ""; 
@@ -174,7 +178,7 @@ public class QueryMediator implements QueryProcessor {
             }
         } else mainQuery = aQuery;
 	// The second part replaces the named items by their counterparts
-	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
+	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell cell = (Cell)e.nextElement();
 	    mainQuery = mainQuery.replaceAll(
 					     cell.getObject1AsURI().toString(),
