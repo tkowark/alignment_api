@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.parser;
 
 //Imported SAX classes
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
@@ -32,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 //Imported JAVA classes
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.lang.Integer;
@@ -172,6 +174,7 @@ public class AlignmentParser extends DefaultHandler {
      * @deprecated use parse( URI ) instead
      */
     public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException {
+	//ontologies = loaded;
 	return parse( uri );
     }
 
@@ -183,8 +186,13 @@ public class AlignmentParser extends DefaultHandler {
      */
     public Alignment parse( String uri ) throws SAXException, IOException {
 	this.uri = uri;
-	//ontologies = loaded;
 	parser.parse(uri,this);
+	return alignment;
+    }
+
+    public Alignment parseString( String s ) throws SAXException, IOException {
+	parser.parse( new InputSource( new StringReader( s ) ),
+		      this );
 	return alignment;
     }
     
