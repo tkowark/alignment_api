@@ -165,6 +165,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		DocumentBuilderFactory.newInstance();
 	    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 	    // JE// We should parse the string here
+	    // JE: I assume that
+	    //     docBuilder.parse(new InputSource( new StringReader(soapMessage)));
+	    // would work
 	    Document doc = docBuilder.parse(new File(soapMessage));
 
 	    // normalize text representation
