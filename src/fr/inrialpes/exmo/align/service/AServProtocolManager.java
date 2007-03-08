@@ -214,20 +214,20 @@ public class AServProtocolManager {
     public Message loadfile( Message mess ) {
 	Parameters params = mess.getParameters();
 	// the alignment content is within the parameters
-	/*
-	Alignment init = null;
+	// ?? JE: rather in the content
+	Alignment al = null;
 	try {
 	    //if (debug > 0) System.err.println(" Parsing init");
 	    AlignmentParser aparser = new AlignmentParser(0);
-	    init = aparser.parse( name );
+	    al = aparser.parseString( mess.getContent() );
 	    //if (debug > 0) System.err.println(" Init parsed");
 	} catch (Exception e) {
-	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),name,(Parameters)null);
+	    // Maybe not this message
+	    // And (String)null may not be the best idea...
+	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),(String)null,(Parameters)null);
 	}
 	// register it
-	String id = alignmentCache.recordNewAlignment( init, true );
-	*/
-	String id = "dummyfortheloadfile";
+	String id = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
