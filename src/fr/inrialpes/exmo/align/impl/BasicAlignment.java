@@ -188,6 +188,12 @@ public class BasicAlignment implements Alignment {
     }
 
     /** Cell methods **/
+    public Cell addAlignCell( String id, Object ob1, Object ob2, Relation relation, double measure, Parameters extensions ) throws AlignmentException {
+	Cell cell = createCell( id, ob1, ob2, relation, measure);
+	cell.setExtensions( extensions );
+	addCell( cell );
+	return cell;
+    }
     public Cell addAlignCell( String id, Object ob1, Object ob2, Relation relation, double measure ) throws AlignmentException {
 	Cell cell = createCell( id, ob1, ob2, relation, measure);
 	addCell( cell );

@@ -140,6 +140,11 @@ public class OWLAPIAlignment extends BasicAlignment {
     };
 
     /** Cell methods **/
+    public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure, Parameters extensions ) throws AlignmentException {
+         if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
+            throw new AlignmentException("arguments must be OWLEntities");
+	 return super.addAlignCell( id, ob1, ob2, relation, measure, extensions);
+	};
     public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
          if ( !( ob1 instanceof OWLEntity && ob2 instanceof OWLEntity ) )
             throw new AlignmentException("arguments must be OWLEntities");
@@ -274,7 +279,8 @@ public class OWLAPIAlignment extends BasicAlignment {
 				    getEntity( onto1, c.getObject1AsURI() ),
 				    getEntity( onto2, c.getObject2AsURI() ),
 				    c.getRelation(), 
-				    c.getStrength() );
+				    c.getStrength(),
+				    c.getExtensions() );
 	};
 	return alignment;
     }
