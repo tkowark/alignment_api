@@ -10,7 +10,7 @@
 <center><h1>Upgrading an Alignment implementation from version 2.x to
     3.0 of the Alignment API</h1></center>
 
-<p>The version 3.0 of the Alignement API has been designed to provide
+<p>The version 3.0 of the Alignment API has been designed to provide
   matching algorithm designers more flexibility. In particular, the
   version 3.0 does not necessarily rely on the OWL API, so designers
   who want to use another OWL API can do so at no cost.</p>
@@ -66,7 +66,7 @@ From version 3, the sequence is the same except that the arguments for init() ar
 the <tt>URL</tt> where to find the ontologies instead of the ontology
 themselves. It is thus necessary for you to change your implementation
 of <tt>init()</tt> so that it loads the ontologies. Moreover, the init
-Alignent in <tt>align()</tt> is a <tt>URIAlignment</tt> and not
+Alignment in <tt>align()</tt> is a <tt>URIAlignment</tt> and not
 a <tt>OWLAPIAlignment</tt> so it may be necessary to change it as well.</p>
 
 <p>Fortunately, the <tt>OWLAPIAlignment</tt> class already provides
