@@ -106,6 +106,10 @@ public class BasicAlignment implements Alignment {
 	init( onto1, onto2, null );
     }
 
+    public static Parameters getParameters() {
+	return (Parameters)null;
+    }
+
     public int nbCells() {
 	int sum = 0;
 	for ( Enumeration e = hash1.elements(); e.hasMoreElements(); ) {

@@ -36,6 +36,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -117,4 +118,13 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	// Extract alignment
 	extract( type, params );
     }
+
+    public static Parameters getParameters() {
+	Parameters p = new BasicParameters();
+	p.setParameter("type","11");
+	p.setParameter("printMatrix",null);
+	p.setParameter("stringFunction","equalDistance");
+	return p;
+    }
+
 }

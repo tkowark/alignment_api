@@ -39,5 +39,17 @@ public interface AlignmentProcess extends Alignment
      */
     public void align( Alignment alignment, Parameters param ) throws AlignmentException;
 
+    /**
+     * Returns the parameters that the align() method is able to process.
+     * In spirit, this method does not need an instance so it should be
+     * implemented as a static. But this is not supported in interface
+     * declarations (it should!).
+     * This parameters set can be null if no parameters are interpreted or
+     * contains the list of entries accepted. These entries can be set and
+     * the Parameters passed to the align() method.
+     *
+     * public Parameters getParameters();
+     */
+
 }
 

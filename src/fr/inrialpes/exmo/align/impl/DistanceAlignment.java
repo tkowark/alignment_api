@@ -40,10 +40,6 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.Similarity;
-import fr.inrialpes.exmo.align.impl.HungarianAlgorithm;
-import fr.inrialpes.exmo.align.impl.ConcatenatedIterator;
-
 /**
  *
  * @author Jérôme Euzenat
@@ -94,6 +90,12 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	sim.compute( params );
 	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( getType(), params );
+    }
+
+    public static Parameters getParameters() {
+	Parameters p = new BasicParameters();
+	p.setParameter("type","11");
+	return p;
     }
 
     /**
