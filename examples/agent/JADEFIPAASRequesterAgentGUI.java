@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -38,11 +39,11 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 	private JPanel CUTPane;
 	private JPanel ReplyPane;
 	private JPanel main;
-
+	
 	private JTextArea reply;
+	private JScrollPane scrollReply;
 	private JTabbedPane onglets;
-
-
+	 
 	//LOAD PANE
 
 	private JLabel  LOADURLAlignmentLabel;
@@ -138,6 +139,7 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		ReplyPane = new JPanel();
 		reply = new JTextArea(20,50);
 		reply.setEditable(false);
+		scrollReply = new JScrollPane(reply,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		main = new JPanel();
 		main.setLayout(new BoxLayout(main, BoxLayout.PAGE_AXIS));
@@ -283,7 +285,8 @@ public class JADEFIPAASRequesterAgentGUI  extends  javax.swing.JFrame implements
 		onglets.addTab("Metadata", METADATAPane);
 		onglets.addTab("Translate", TRANSLATEPane);
 		onglets.addTab("Cut", CUTPane);
-		ReplyPane.add(reply);
+		//ReplyPane.add(reply);
+		ReplyPane.add(scrollReply);
 
 		main.add(onglets);		
 		main.add(ReplyPane);

@@ -23,6 +23,15 @@
 package fr.inrialpes.exmo.align.service.jade;
 
 
+import java.util.Iterator;
+
+import jade.content.ContentElement;
+import jade.content.ContentManager;
+import jade.content.Predicate;
+import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.Ontology;
+import jade.content.onto.OntologyException;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -38,6 +47,17 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.ErrorMsg;
 import fr.inrialpes.exmo.align.service.Message;
+import fr.inrialpes.exmo.align.service.jade.messageontology.ALIGN;
+import fr.inrialpes.exmo.align.service.jade.messageontology.Action;
+import fr.inrialpes.exmo.align.service.jade.messageontology.CUT;
+import fr.inrialpes.exmo.align.service.jade.messageontology.FIND;
+import fr.inrialpes.exmo.align.service.jade.messageontology.JADEFIPAAlignmentServerOntology;
+import fr.inrialpes.exmo.align.service.jade.messageontology.LOAD;
+import fr.inrialpes.exmo.align.service.jade.messageontology.METADATA;
+import fr.inrialpes.exmo.align.service.jade.messageontology.Parameter;
+import fr.inrialpes.exmo.align.service.jade.messageontology.RETRIEVE;
+import fr.inrialpes.exmo.align.service.jade.messageontology.STORE;
+import fr.inrialpes.exmo.align.service.jade.messageontology.TRANSLATE;
 
 public class JadeFIPAAServiceAgent extends Agent {
 
@@ -51,8 +71,26 @@ public class JadeFIPAAServiceAgent extends Agent {
 	private int localId=0;
 	private Parameters initialParameters;
 
+	//	FIPA ACL stuff
+
+	private ContentManager CTmanager=new ContentManager();
+	private SLCodec codec=new SLCodec();
+	private Ontology ontology=JADEFIPAAlignmentServerOntology.getInstance();
+
+
 	protected void setup() {
 		//myLogger.log(Logger.INFO, getAID().getName()+" started");
+		super.setup();
+		codec = new SLCodec();
+
+		// ontology =  ContextAgentManagerOntology.getInstance();
+		CTmanager = this.getContentManager();
+
+		//System.out.println("agent" + getAID() + " "+ getLocalName()+" is created");
+
+		CTmanager.registerOntology(ontology);
+		CTmanager.registerLanguage(codec);
+
 
 		// Read arguments
 		Object[] args = getArguments();
@@ -77,88 +115,104 @@ public class JadeFIPAAServiceAgent extends Agent {
 				String info; //parameters
 				Parameters params = initialParameters;
 
-				MessageTemplate tpl =MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+				MessageTemplate tpl =MessageTemplate.and(MessageTemplate.and(
+						MessageTemplate.MatchLanguage( codec.getName()),
+						MessageTemplate.MatchOntology( ontology.getName())),
+						MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+
 				ACLMessage msg = myAgent.receive(tpl);
 				if (msg != null) {
-					if (msg.getContent()!=null){
-						if (!(msg.getContent().equals(""))){
-							//System.out.println("Alignement Agent " + myAgent.getLocalName() + " receive : " + msg.getContent() + " from "+ msg.getSender());
-							perf=msg.getContent().substring(0,msg.getContent().indexOf("::"));
-							info = msg.getContent().substring(msg.getContent().indexOf("::")+2, msg.getContent().length());
+//					---------------------------------------------------------					
+					//myLogger.log(Logger.INFO, "Received message: "+msg.toString());
 
-//							---------------------------------------------------------					
-							//myLogger.log(Logger.INFO, "Received message: "+msg);
-							//Parameters params = new BasicParameters();
-							if (!(perf.equals(""))){
-								if(!(info.equals(""))){
-									params = decodeMessage(info,params);												
+					try{
+						ContentElement ce = null;
+						ce = CTmanager.extractContent(msg);
+						params = decodeMessage(ce,params);
 
-									if (perf.equals("ALIGN")){
-										Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else if (perf.equals("LOAD")){
-										Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else if (perf.equals("RETRIEVE")){
-										Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else if (perf.equals("TRANSLATE")){
-										//TODO
-									}else if (perf.equals("METADATA")){
-										//TODO
-									}else if (perf.equals("STORE")){
-									    Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,(String)params.getParameter("id"),params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else if (perf.equals("FIND")){
-										Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else if (perf.equals("CUT")){
-										Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
-										if(!(answer instanceof ErrorMsg)){
-											ACLMessage JADEanswer=msg.createReply();
-											msg.setPerformative(ACLMessage.INFORM);
-											JADEanswer.setContent(answer.getContent());
-											myAgent.send(JADEanswer);
-										}else{myLogger.log(Logger.WARNING, answer.getContent());}
-									}else {
-										ACLMessage reply = msg.createReply();
-										reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-										myAgent.send(reply);
-									}
-								}
-							}
+						//Parameters params = new BasicParameters();
+
+						if (ce instanceof ALIGN){
+							Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);								
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else if (ce instanceof LOAD){
+							Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else if (ce instanceof RETRIEVE){
+							Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else if (ce instanceof TRANSLATE){
+							//TODO
+						}else if (ce instanceof METADATA){
+							//TODO
+						}else if (ce instanceof STORE){
+							Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,(String)params.getParameter("id"),params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else if (ce instanceof FIND){
+							Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else if (ce instanceof CUT){
+							Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
+							if(!(answer instanceof ErrorMsg)){
+								ACLMessage JADEanswer=msg.createReply();
+								JADEanswer.setLanguage(codec.getName());
+								JADEanswer.setOntology(ontology.getName());
+								JADEanswer.setPerformative(ACLMessage.INFORM);
+								JADEanswer.setContent(answer.getContent());
+								myAgent.send(JADEanswer);
+							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+						}else {
+							ACLMessage JADEanswer=msg.createReply();
+							JADEanswer.setLanguage(codec.getName());
+							JADEanswer.setOntology(ontology.getName());
+							JADEanswer.setPerformative(ACLMessage.NOT_UNDERSTOOD);						
+							myAgent.send(JADEanswer);
 						}
 					}
-				}
-				else {
+
+					catch(CodecException ce){ce.printStackTrace();}
+					catch(OntologyException oe){oe.printStackTrace();}
+				}else {
 					block();
 				}
+				params = initialParameters;
 			}
+
 		});//end of CyclicBehaviour
 
 
@@ -191,15 +245,14 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 	private int newId(){return localId++;}
 
-	private Parameters decodeMessage(String info, Parameters param){
+	private Parameters decodeMessage(ContentElement ce, Parameters param){
 
 		Parameters toReturn = param;
-		String[] result = info.split("::");
-		for(int i=0;i<result.length;i++){
-			String[] arg=result[i].split("=");
-			toReturn.setParameter(arg[0], arg[1]);
+		Action action=(Action) ce;
+		for(Iterator<Parameter> iter=action.getAllHasParameter();iter.hasNext();){
+			Parameter OntoParam = (Parameter)iter.next();
+			toReturn.setParameter(OntoParam.getName(), OntoParam.getValue()); 
 		}
-
 		return toReturn;
 	}
 
