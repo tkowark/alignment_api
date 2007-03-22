@@ -17,36 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * A small part of this class (within the implementations() method) is:
- * Copyright (C) Daniel Le Berre, 2001
- * from his util.RTSI class
- * which contains a few lines:
- * Copyright (C) 2002-2005, FullSpan Software
- * under BSD licence
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * - Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * - Neither the name of FullSpan Software nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package fr.inrialpes.exmo.align.service;
@@ -76,25 +46,29 @@ import java.lang.ClassNotFoundException;
 import java.lang.InstantiationException;
 import java.lang.NoSuchMethodException;
 import java.lang.IllegalAccessException;
+import java.lang.NullPointerException;
+import java.lang.UnsatisfiedLinkError;
 import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
+import java.io.File;
 import java.net.URI;
+import java.net.URL;
+import java.net.JarURLConnection;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Enumeration;
 import java.util.Iterator;
-
-import java.io.File;
-import java.net.URL;
-import java.net.JarURLConnection;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes.Name;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.lang.UnsatisfiedLinkError;
 
 /**
  * This is the main class that control the behaviour of the Alignment Server
@@ -651,131 +625,131 @@ public class AServProtocolManager {
     }
 
     /*********************************************************************
-     * Utilities: Finding the subclasses of a class
+     * Utilities: Finding the implementation of an interface
      *********************************************************************/
 
-    /**
-     * Display all the classes inheriting or implementing a given
-     * class in the currently loaded packages.
-     * @param tosubclassname the name of the class to inherit from
-     */
-    public static Set implementations( String tosubclassname ) {
-	Set list = new HashSet();
-	try {
-	    Class tosubclass = Class.forName(tosubclassname);
-	    Package [] pcks = Package.getPackages();
-	    for (int i=0;i<pcks.length;i++) {
-		implementations( pcks[i].getName(), tosubclass, list );
-	    }
-	} catch (ClassNotFoundException ex) {
-	    System.err.println("Class "+tosubclassname+" not found!");
-	}
-	return list;
-    }
-
-    /**
-     * Display all the classes inheriting or implementing a given
-     * class in a given package.
-     * @param pckgname the fully qualified name of the package
-     * @param tosubclass the Class object to inherit from
-     */
-    public static Set implementations( String pckgname, Class tosubclass, Set list ) {
-	//if (debug > 0 ) System.err.println( "Searching in "+pckgname );
-	
-	// Code from JWhich
-	// ======
-	// Translate the package name into an absolute path
-	String name = new String(pckgname);
-	if (!name.startsWith("/")) {
-	    name = "/" + name;
-	}	
-	name = name.replace('.','/');
-
-  	// Get a File object for the package
-  	//URL url = RTSI.class.getResource(name);
-	URL url = tosubclass.getResource(name);
-	// URL url = ClassLoader.getSystemClassLoader().getResource(name);
-	//System.out.println(name+"->"+url);
-
-	// Happens only if the jar file is not well constructed, i.e.
-	// if the directories do not appear alone in the jar file like here:
-	// 
-	//          meta-inf/
-	//          meta-inf/manifest.mf
-	//          commands/                  <== IMPORTANT
-	//          commands/Command.class
-	//          commands/DoorClose.class
-	//          commands/DoorLock.class
-	//          commands/DoorOpen.class
-	//          commands/LightOff.class
-	//          commands/LightOn.class
-	//          RTSI.class
-	//
-	if ( url != null ) {
-	    File directory = new File(url.getFile());
-	    if ( directory != null && directory.exists()) {
-		// Get the list of the files contained in the package
-		String [] files = directory.list();
-		for (int i=0;i<files.length;i++) {
-		    // we are only interested in .class files
-		    if (files[i].endsWith(".class")) {
-			// removes the .class extension
-			String classname = files[i].substring(0,files[i].length()-6);
-			try {
-			    Class[] cls = Class.forName(pckgname+"."+classname).getInterfaces();
-			    for ( int j=0; j < cls.length ; j++ ){
-				if ( cls[j] == tosubclass ) {
-				    //if (debug > 0 ) System.err.println(" -d-> "+pckgname+"."+classname );
-				    list.add( pckgname+"."+classname );
+    public static void implementations( Class tosubclass, Set list , boolean debug ){
+	Set<String> visited = new HashSet();
+	String classPath = System.getProperty("java.class.path",".");
+	// Hack: this is not necessary
+	//classPath = classPath.substring(0,classPath.lastIndexOf(File.pathSeparatorChar));
+	if ( debug ) System.err.println(classPath);
+	StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
+	classPath = "";
+	while ( tk != null && tk.hasMoreTokens() ){
+	    StringTokenizer tk2 = tk;
+	    tk = null;
+	    // Iterate on Classpath
+	    while ( tk2.hasMoreTokens() ) {
+		try {
+		    File file = new File( tk2.nextToken() );
+		    if ( file.isDirectory() ) {
+			System.err.println("DIR "+file);
+			String subs[] = file.list();
+			for(int index = 0 ; index < subs.length ; index ++ ){
+			    if ( debug ) System.err.println("    "+subs[index]);
+			    // IF class
+			    if ( subs[index].endsWith(".class") ) {
+				String classname = subs[index].substring(0,subs[index].length()-6);
+				if (classname.startsWith(File.separator)) 
+				    classname = classname.substring(1);
+				classname = classname.replace(File.separatorChar,'.');
+				try {
+				    Class[] cls = Class.forName(classname).getInterfaces();
+				    for ( int i=0; i < cls.length ; i++ ){
+					if ( cls[i] == tosubclass ) {
+					    if (debug ) System.err.println(" -j-> "+classname);
+					    list.add( classname );
+					}
+					if ( debug ) System.err.println("       I> "+cls[i] );
+				    }
+				    // Not one of our classes
+				} catch ( NoClassDefFoundError ncdex ) {
+				} catch (ClassNotFoundException cnfex) {
+				} catch (UnsatisfiedLinkError ule) {
 				}
 			    }
-			// Not one of our classes
-			} catch (ClassNotFoundException cnfex) {
-			} catch (UnsatisfiedLinkError ule) {
 			}
-		    }
-		}
-	    } else {
-		try {
-		    // It does not work with the filesystem: we must
-		    // be in the case of a package contained in a jar file.
-		    JarURLConnection conn = (JarURLConnection)url.openConnection();
-		    String starts = conn.getEntryName();
-		    JarFile jfile = conn.getJarFile();
-		    Enumeration e = jfile.entries();
-		    while (e.hasMoreElements()) {
-			ZipEntry entry = (ZipEntry)e.nextElement();
-			String entryname = entry.getName();
-			if (entryname.startsWith(starts)
-			    //JE: suppressing this line
-			    // Without it, id does not follow subdirs
-			    //&& (entryname.lastIndexOf('/')<=starts.length())
-			    && entryname.endsWith(".class")) {
-			    String classname = entryname.substring(0,entryname.length()-6);
-			    if (classname.startsWith("/")) 
-				classname = classname.substring(1);
-			    classname = classname.replace('/','.');
-			    try {
-				Class[] cls = Class.forName(classname).getInterfaces();
-				for ( int i=0; i < cls.length ; i++ ){
-				    if ( cls[i] == tosubclass ) {
-					//if (debug > 0 ) System.err.println(" -j-> "+classname);
-					list.add( classname );
+		    } else if ( file.toString().endsWith(".jar") &&
+				!visited.contains( file.toString() ) &&
+				file.exists() ) {
+			if ( debug ) System.err.println("JAR "+file);
+			visited.add( file.toString() );
+			try { 
+			    JarFile jar = new JarFile( file );
+			    Enumeration enumeration = jar.entries();
+			    while( enumeration.hasMoreElements() ){
+				String classname = enumeration.nextElement().toString();
+				if ( debug ) System.err.println("    "+classname);
+				int len = classname.length()-6;
+				if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
+				    classname = classname.substring(0,len);
+				    classname = classname.replaceAll(File.separator,".");
+				    try {
+					if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
+					Class cl = Class.forName(classname);
+					//Class cl = Class.forName(classname);
+					Class[] ints = cl.getInterfaces();
+					for ( int i=0; i < ints.length ; i++ ){
+					    if ( ints[i] == tosubclass ) {
+						if (debug ) System.err.println(" -j-> "+classname);
+						list.add( classname );
+					    }
+					    if ( debug ) System.err.println("       I> "+ints[i] );
+					}
+				    } catch ( NoClassDefFoundError ncdex ) {
+				    } catch ( ClassNotFoundException cnfex ) {
+					if ( debug ) System.err.println("   ******** "+classname);
+				    } catch ( UnsatisfiedLinkError ule ) {
 				    }
 				}
-			    // Not one of our classes
-			    } catch ( NoClassDefFoundError ncdex ) {
-			    } catch (ClassNotFoundException cnfex) {
-			    } catch (UnsatisfiedLinkError ule) {
 			    }
+			    // Iterate on needed Jarfiles
+			    // JE(caveat): this deals naively with Jar files,
+			    // in particular it does not deal with section'ed MANISFESTs
+			    Attributes mainAttributes = jar.getManifest().getMainAttributes();
+			    String path = mainAttributes.getValue( Name.CLASS_PATH );
+			    if ( debug ) System.err.println("  >CP> "+path);
+			    if ( path != null && !path.equals("") ) {
+				// JE: Not sure where to find the other Jars:
+				// in the path or at the local place?
+				classPath += File.pathSeparator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+			    }
+			} catch (NullPointerException nullexp) { //Raised by JarFile
+			    System.err.println("Warning "+file+" unavailable");
 			}
 		    }
-		} catch (IOException ioex) {
-		    ioex.printStackTrace();
-		}	
+		} catch( IOException e ) {
+		    continue;
+		}
 	    }
+	    if ( !classPath.equals("") ) {
+		tk =  new StringTokenizer(classPath,File.pathSeparator);
+		classPath = "";
+	    }
+	}
+    }
+
+    /**
+     * Display all the classes inheriting or implementing a given
+     * interface in the currently loaded packages.
+     * @param interfaceName the name of the interface to implement
+     */
+    public static Set implementations( String interfaceName ) {
+	Set list = new HashSet();
+	try {
+	    Class toclass = Class.forName(interfaceName);
+	    //Package [] pcks = Package.getPackages();
+	    //for (int i=0;i<pcks.length;i++) {
+		//System.err.println(interfaceName+ ">> "+pcks[i].getName() );
+		//implementations( pcks[i].getName(), toclass, list );
+		//}
+	    implementations( toclass, list, false );
+	} catch (ClassNotFoundException ex) {
+	    System.err.println("Class "+interfaceName+" not found!");
 	}
 	return list;
     }
+
     
 }
