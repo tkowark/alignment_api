@@ -85,9 +85,6 @@ public class AlignmentService {
     private DBService connection;
 
     public static void main(String[] args) {
-	// Added this for not having an unpleasant message at startup
-	// We do not use graphic features anyway (this is useless anyway)
-	System.setProperty("sun.java2d.opengl", "false");
 	try { new AlignmentService().run( args ); }
 	catch ( Exception ex ) { ex.printStackTrace(); };
     }
