@@ -207,7 +207,7 @@ public class BasicAlignment implements Alignment {
     // JE: Why does this not allow to create cells with ids preserved?
     // This would be useful when the Alignements are cloned to preserve them
     public Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
-	return addAlignCell( (String)null, ob1, ob2, BasicRelation.createRelation("="), measure );
+	return addAlignCell( (String)null, ob1, ob2, BasicRelation.createRelation(relation), measure );
     };
 
     public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {

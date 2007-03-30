@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl;
 
 import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
 import fr.inrialpes.exmo.align.impl.rel.SubsumeRelation;
+import fr.inrialpes.exmo.align.impl.rel.SubsumedRelation;
 import fr.inrialpes.exmo.align.impl.rel.IncompatRelation;
 import fr.inrialpes.exmo.align.impl.rel.NonTransitiveImplicationRelation;
 
@@ -29,6 +30,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Relation;
 
+import java.lang.reflect.Constructor;
 import java.io.PrintWriter;
 
 import org.xml.sax.ContentHandler;
@@ -65,16 +67,23 @@ public class BasicRelation implements Relation
 	Relation relation = null;
 	if ( rel.equals("=") ) {
 	    relation = new EquivRelation();
-	} else if ( rel.equals("<") ) {
+	} else if ( rel.equals("<") || rel.equals("&lt;") ) {
 	    relation = new SubsumeRelation();
+	} else if ( rel.equals(">") || rel.equals("&gt;") ) {
+	    relation = new SubsumedRelation();
 	} else if ( rel.equals("%") ) {
 	    relation = new IncompatRelation();
-	} else if ( rel.equals("~>") ) {
+	} else if ( rel.equals("~>") || rel.equals("~&gt;") ) {
 	    relation = new NonTransitiveImplicationRelation();
 	} else {
-	    // I could use the class name for relation, 
-	    // this would be more extensible...
-	    relation = new BasicRelation("=");
+	    try {
+		// Create a relation from classname
+		Class relationClass = Class.forName(rel);
+		Constructor relationConstructor = relationClass.getConstructor((Class[])null);
+		relation = (Relation)relationConstructor.newInstance((Object[])null);
+	    } catch ( Exception ex ) {
+		ex.printStackTrace();
+	    }
 	};
 	return relation;
     }

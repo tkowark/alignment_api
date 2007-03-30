@@ -24,6 +24,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
+import java.io.PrintWriter;
+
 /**
  * Represents an OWL subsumption relation.
  *
@@ -45,6 +47,11 @@ public class SubsumedRelation extends BasicRelation
     public SubsumedRelation(){
 	super("<");
     }
+
+    public void write( PrintWriter writer ) {
+        writer.print("&lt;");
+    }
+
 }
 
 
