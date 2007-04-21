@@ -9,7 +9,7 @@
 
 <h1  class="titre">A format for ontology alignment</h1>
 
-<p>A format for expressing ontology alignment is provided here. Its
+<p>The Alignment API use a general Alignment format. Its
   goal is to be able to express an alignment in a consensual
   format. It can then be manipulated by various tools which will use
   it as imput for further alignment methods, transform it into axioms
@@ -72,22 +72,18 @@
   its implementation). Currently, the relation is expressed as a string.</p>
 
 <h2>JAVA implementation</h2>
-<p>There is a <a href="align.html">JAVA API</a>, extending the <a href="owlapi.html">OWL API</a> implementing this
-  format.</p>
-<p>We have implemented this API and provided tools for:
+<p>The Alignment API implements this format. In particular it provides tools for:
 <ul compact="1">
 <li>Outputing the RDF/XML format from the API;</li>
 <li>Parsing the RDF/XML format into the API;</li>
 <li>Processing alignment methods on ontologies and generating the
   alignment Cells.</li>
 </ul></p>
-<p>This API and its implementation could fairly easily be adapted to
-  other representation languages than OWL.</p>
 
 <p>There is a small stand-alone program that parses an alignment and
   displays it ($CWD is the directory where you are):
-<pre>
-$ java -jar lib/procalign file://localhost$$CWD/rdf/onto1.owl file://localhost$CWD/rdf/onto2.owl 
+<div class="fragment"><pre>
+$ java -jar lib/procalign file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl 
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
 &lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
 
@@ -97,8 +93,8 @@ $ java -jar lib/procalign file://localhost$$CWD/rdf/onto1.owl file://localhost$C
 &lt;Alignment>
   &lt;xml>yes&lt;/xml>
   &lt;type>11&lt;/type>
-  &lt;onto1>file://localhost$CWD/rdf/onto1.owl&lt;/onto1>
-  &lt;onto2>file://localhost$CWD/rdf/onto2.owl&lt;/onto2>
+  &lt;onto1>file://$CWD/rdf/onto1.owl&lt;/onto1>
+  &lt;onto2>file://$CWD/rdf/onto2.owl&lt;/onto2>
   &lt;map>
     &lt;Cell>
       &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
@@ -109,7 +105,7 @@ $ java -jar lib/procalign file://localhost$$CWD/rdf/onto1.owl file://localhost$C
   &lt;/map>
 &lt;/Alignment>
 &lt;/rdf:RDF>
-</pre>
+</pre></div>
 </p>
 
 <address>

@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>Alignment API: Server</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcolor="#ffffff">
+
+<h1 class="titre">Setting up an Alignment Server</h1>
+
+<p>An extensive presentation of the alignment API can be
+  found at <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>. We also have
+  an on-line <a href="tutorial">tutorial</a> on using it.</p>
+
+<h2>Requirements</h2>
+
+<p>Using the alignment server requires an SQL database server.
+We see here, how to use mysql (http://dev.mysql.com/doc/refman).</p>
+
+<h2>Creating the MySQL database</h2>
+
+<div class="fragment"><pre>
+$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+$ /usr/local/mysql/bin/mysqladmin -u root password <mysqlpassword>
+$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password <mysqlpassword>
+$ /usr/local/mysql/bin/mysql -u root -p<mysqlpassword>
+sql> CREATE DATABASE AServDB;
+sql> GRANT ALL PRIVILEGES ON AServDB.* TO adminAServ@localhost IDENTIFIED BY 'aaa345';
+sql> quit
+</pre></div>
+<p>
+Of course, you are advised to use different user, password and
+database name. This can be achieved either:
+<ul>
+<li>by changing values of DBMSBASE, DBMSUSER and DBMSPASS in AlignmentServer and recompiling;</li>
+<li>by passing parameters dbmsbase, dbmsuser and dbmspass to
+  AlignmentServer.</li>
+</ul>
+</p>
+
+<p>Sample backup of the server content:
+<div class="fragment"><pre>
+$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
+</pre></div>
+And restoring:
+<div class="fragment"><pre>
+$ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
+sql> source toto.sql;
+</pre></div>
+</p>
+
+<h2>Launching the Alignment server</h2>
+
+<p>The next time it is sufficient that mysql is running... (with the database loaded)
+
+<div class="fragment"><pre>
+$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+</pre></div>
+
+<div class="fragment"><pre>
+$ java -jar lib/alignsvc.jar -H
+</pre></div>
+
+The alignment server is then available through HTTP with:
+
+    	      http://localhost:8089/html/
+</p>
+
+<h2>Ports used by the Alignment Server (by default)</h2>
+
+<p>The alignment server is a communicating system that communicates through
+TCP sockets which are bound to ports on your machines. We provide here the
+list of default ports and options to change them as well as the necessity
+for the firewalls to open these ports:
+
+<center>
+<table>
+<th><td>default</td><td>option</td><td>open?</td></th>
+<tr><td>HTTP</td><td>8089</td><td>-H</td><td>Y</td></tr>
+<tr><td>Jade</td><td>8888</td><td>-A</td></tr>
+<tr><td>//</td><td>1099</td><td></td><td>? (RMI)</td></tr>
+<tr><td></td><td>7778</td><td></td><td>Y (MTP HTTP)</td></tr>
+<tr><td>WSDL</td><td>7777</td><td>-W</td></tr>
+<tr><td>JXTA</td><td>6666</td><td>-P</td></tr>
+<tr><td>MySQL</td><td>3306</td><td>--dbmsport</td><td>N (if on the same machine)</td></tr>
+</table>
+</center>
+</p>
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/aserv.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>

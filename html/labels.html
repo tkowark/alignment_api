@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>Alignment API: Annotation labels</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcolor="#ffffff">
+
+<center><h1>Alignment API: Declared annotation labels</h1></center>
+
+<p>The Alignment API provides the opportunity for applications to
+  attach additional information to the alignments and the
+  correspondences (Cell). This extension mechanism is also used
+  internally by the API for testing new techniques. We try to do our
+  best for honouring these extensions: they are rendered and parsed in
+  RDF/XML, they are stored in the Alignment Server database.</p>
+<p>In order to avoid conflicting use of the extension labels, it is
+  strongly advised to package them in a particular XML namespace and
+  to register them by us. Here is the list of currently known
+  extension labels.</p>
+
+<h2>Standard API tags</h2>
+
+<dl>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:xml</dd>
+<dd>BOOLEAN telling if the file can be read as XML</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:level</dd>
+<dd>STRING </dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:type</dd>
+<dd>STRING identifying the type of alignment (1:1, 1:*, ?:+...)</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri1</dd>
+<dd>URI the uri of the first ontology</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri2</dd>
+<dd>URI the uri of the second ontology</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:onto1</dd>
+<dd>URL the location of the first ontology</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:onto2</dd>
+<dd>URL the location of the second ontology</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:semantics</dd>
+<dd>STRING the intended interpretation of a correspondence</dd>
+</dl>
+
+<h2>Standard API extensions</h2>
+
+<dl>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:id</dd>
+<dd>URI identifying the alignment</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method</dd>
+<dd>CLASSNAME of the generating matching method</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time</dd>
+<dd>DURATION of the matching process</dd>
+</dl>
+
+<h2>Alignment server extensions</h2>
+
+<dl>
+<dt>http://exmo.inrialpes.fr/align/service:cached</dt>
+<dd>TIMESTAMP of the last time the alignment was read</dd>
+<dt>http://exmo.inrialpes.fr/align/service:stored</dt>
+<dd>TIMESTAMP of the time the alignment was stored in database</dd>
+<dt>http://exmo.inrialpes.fr/align/service:ouri1</dt>
+<dd>URI of the first ontology (temporary store)</dd>
+<dt>http://exmo.inrialpes.fr/align/service:ouri2</dt>
+<dd>URI of the second ontology (temporary store)</dd>
+</dl>
+
+<h2>Argumentation extensions</h2>
+
+<dl>
+<dt>http://ac.liv.ac.uk/just:reason</dt>
+<dd>STRING denoting an argument for the correspondence to be valid or invalid</dd>
+<dt>http://ac.liv.ac.uk/just:type</dt>
+<dd>STRING denoting the type of method used for supporting a
+  correspondence (this is a value in value argumentation framework)</dd>
+<dt>http://ac.liv.ac.uk/just:support</dt>
+<dd>BOOLEAN denoting if the argument is in favour or against</dd>
+<!--dt>http://ac.liv.ac.uk/just:type</dt>
+<dd>STRING denoting the type of method used for supporting a correspondence</dd-->
+</dl>
+
+<h2>OMV Metadata</h2>
+
+<!--dl>
+<dt>xxxx:type</dt>
+<dd>STRING denoting the type of method used for supporting a correspondence</dd>
+</dl-->
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/labels.html</center>
+<hr />
+$Id$
+</small>
+</body>
+</html>

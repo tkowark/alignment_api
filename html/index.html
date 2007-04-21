@@ -7,65 +7,110 @@
 </head>
 <body>
 
-<h1 class="titre">Alignment API and implementation</h1>
+[<a href="http://gforge.inria.fr/frs/?group_id=117">Download</a>]
+[<a href="align.html">Install &amp; use</a>]
+[<a href="tutorial/">Tutorial</a>]
+[<a
+    href="http://gforge.inria.fr/docman/view.php/117/251/align.pdf">Documentation</a>]
+[<a href="relnotes.html">Release notes</a>]
+[<a href="http://gforge.inria.fr/scm/?group_id=117">SVN access</a>]
+[<a href="aserv.html">Server</a>]
+
+<h1 class="titre">Alignment API and Alignment Server</h1>
+
+<p>The alignment API is an API and implementation for expressing and
+  sharing ontology alignments.</p>
+
+<p>Using ontologies is the priviledged way to achieve interoperability
+  among heterogeneous systems within the Semantic web. However, as the
+  ontologies underlying two systems are not necessarily compatible,
+  they may in turn need to be reconcilied.
+  Ontology reconciliation requires most of the time to find the
+  correspondences between entities (e.g., classes, objects,
+  properties) occuring in the ontologies. We call a set of such
+  correspondences an alignment.<!--/p-->
+
+<!--p-->We have designed a format for expressing alignments in a uniform
+  way. The goal of this format is to be able to share on the web the
+  available alignments. The format is expressed in <small>RDF</small>,
+  so it is freely extensible<!--, and has been defined by a <small>DTD</small> (for <small>RDF/XML</small>), an <small>OWL</small> ontology and an
+  <small>RDF</small> Schema. Aligned entities are
+  identified by their <small>URI</small>s-->.</p>
+
+<p>The Alignment API itself is a <i>Java</i> description of tools for accessing the common format. It defines four main interfaces (Alignment, Cell, Relation and Evaluator) and proposes the following services:
+<ul compact="1">
+<li>Storing, finding, and sharing alignments;</li>
+<li>Piping alignment algorithms (improving an existing alignment);</li>
+<li>Manipulating (thresholding and hardening);</li>
+<li>Generating processing output (transformations, axioms, rules);</li>
+<li>Comparing alignments.</li>
+</ul>
+</p>
+
+<!-- ******************************************************** -->
 
 <p>Here is the new alignment API and implementation homepage. It is
   hosted by gforge.inria.fr which helps the developement process (by
   integrating theses pages within the SVN repository for instance).</p>
-<p>We proposed an alignment format and API which is presented
-  technically below. A general overview can be found <a href="http://gforge.inria.fr/docman/view.php/117/251/align.pdf">here</a>.</p>
 
 <h2>Main resources</h2>
-<p>
-<dl compact="1">
-<dt><a href="format.html">Alignment format</a>
-<a href="http://gforge.inria.fr/docman/view.php/117/251/align.pdf">[<font color="red">Download PDF</font>]</a></dt>
-</dt>
-<dd>The alignment format in RDF/XML.</dd>
-<dt><a href="align.html">Alignment API</a>
-[<a
-   href="http://gforge.inria.fr/frs/?group_id=117"><font
-   color="red">Download page</font></a> + <a href="relnotes.html"><font
-   color="red">Release notes</font></a>]</dt>
-<dd>
-An alignment API in Java and implementation on top of the OWL
-API.</dd>
-<dt><a href="tutorial">A tutorial</a></dt><dd>on how to use the Alignment API implementation</dd>
-<dt><a href="alignwn.html">Using the API with wordnet</a>
-[Included with the API zip file]</dt>
-<dd>Demonstrate how to use wordnet within the API</dd>
-<dt><a href="owlapi.html">OWL-API</a> [Included with the API zip file]</dt>
-<dd>Starting quickly with OWL-API.</dd>
-<!--dt><a href="data.html">Ontologies</a></dt>
-<dd>Some data for aligning.</dd>
-<dt><a href="eval.html">Evaluators</a></dt>
-<dd>Evaluating alignments from the format.</dd-->
-<dt><a href="http://VisOn.gforge.inria.fr">[<font color="red">VisOn</font>]</a></dt>
-<dd>The VisOn ontology visualizer now works with any implementation of
-  the API. It provides the opportunity to load and display
-  ontologies, load, run, display and compare alignment algorithms.</dd>
-</dl></p>
-
-<h2>Related resources</h2>
-<p><dl compact="1">
-<dt><a href="http://ola.gforge.inria.fr">[<font color="red">The OLA algorithm</font>]</a></dt>
-<dd>A matching algorithm for OWL-Lite that measures distance between
-  all ontology components and perform an iterative fixpoint search
-  (University of Montr&eacute;al and INRIA Rh&ocirc;ne-Alpes).</dd>
-<dt><a href="http://align.deri.org">[<font color="red">OWL Ontology Aligner</font>]</a></dt>
-<dd>A server built around the API for processing, editing and
-  rendering alignments (University of Innsbruck).</dd>
-<dt><a
-       href="http://oaei.ontologymatching.org">[<font
-       color="red">Ontology Alignment Evaluation Initiative</font>]</a></dt>
-<dd>Benchmarks for evaluating ontology matchers and benchmarking
-  campaigns (since 2004).</dd>
-<dt><a
-       href="http://.ontologymatching.org">[<font
-       color="red">ontologymatching.org</font>]</a></dt>
-<dd>The central resource for ontology matching and alignment information.</dd>
+<p><dl>
+<dt><a href="http://gforge.inria.fr/frs/?group_id=117">Download page</a></dt>
+<dd>Official releases.</dd>
+<dt><a href="align.html">Install &amp; use</a></dt>
+<dd>Quick start with the API.</dd>
+<dt><a href="aserv.html">Alignment Server</a></dt>
+<dd>Installing a server that will generate and store alignments</dd>
+<dt><a href="tutorial/">Tutorial</a></dt>
+<dd>Walk through the Alignment API features</dd>
+<dt><a href="http://gforge.inria.fr/docman/view.php/117/251/align.pdf">Documentation</a></dt>
+<dd>Supposed to be a reference manual, but outdated. It could be
+  useful anyway.</dd>
 </dl>
 </p>
+
+<h2>Additional resources</h2>
+
+<p><dl>
+<dt><a href="relnotes.html">Release notes</a></dt>
+<dd></dd>
+<dt><a href="http://gforge.inria.fr/scm/?group_id=117">SVN access</a></dt>
+<dd></dd>
+<dt><a href="lib.html">Included libraries</a></dt>
+<dd></dd>
+<dt><a href="license.html">License</a></dt>
+<dd></dd>
+<dt><a href="credits.html">Credits</a></dt>
+<dd></dd>
+<!--dt><a href="impl.html">Systems using the API</a></dt>
+<dd></dd-->
+<!--dt><a href="other.html">Other extensions</a></dt>
+<dd></dd-->
+</dl></p>
+
+<h2>Technical information</h2>
+<p><dl>
+<dt><a href="alignwn.html">Wordnet extension</a></dt>
+<dd>How to use wordnet within the API</dd>
+<dt><a href="owlapi.html">OWL API extension</a></dt>
+<dd>Starting quickly with OWL-API (Outdated notes about the OWL API and its integration in the Alignment API).</dd>
+<dt><a href="format.html">Alignment format</a></dt>
+<dd>Presentation of the alignment format in RDF/XML.</dd>
+<dt><a href="labels.html">Registered annotations</a></dt>
+<dd>List of extension labels that are declared (and should not be
+  used by others)</dd>
+<dt><a href="eval.html">Eval</a></dt>
+<dd>Using the API for evaluating alignments.</dd>
+</dl></p>
+
+<h2>External resources</h2>
+<p><dl>
+<dt><a href="http://oaei.ontologymatching.org">OAEI</a></dt>
+<dd>The Ontology Alignment Evaluation Initiative: Benchmarks for evaluating ontology matchers and benchmarking campaigns (since 2004).</dd>
+<dt><a href="http://www.ontologymatching.org">ontologymatching.org</a></dt>
+<dd>The central resource for ontology matching and alignment information.</dd>
+</dl></p>
+
 
 <address>
 <small>

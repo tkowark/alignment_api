@@ -35,7 +35,7 @@ options are:
 </pre>
 or ($CWD is the current directory)
 <pre>
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://localhost$CWD/result/align1.owl file://localhost$CWD/result/align2.owl 
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://$CWD/result/align1.owl file://$CWD/result/align2.owl 
 </pre>
 </p>
 
@@ -49,9 +49,16 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://local
   class.</p>
 <p>The <tt>BasicEvaluator</tt> has the good taste of defining the storage
   sructures for alignment, but that is all.</p>
-<p>The <tt>PRecEvaluator</tt> class extends
-  the <tt>BasicEvaluator</tt> by computing a very basic
-  Precision/Recall rate.</p>
+<p>The <tt>BasicEvaluator</tt> has been extended so as to provide
+  different evaluation:
+<dl>
+<dt><tt>PRecEvaluator</tt></dt><dd>computes
+  Precision/Recall rates as well as derived measures.</dd>
+<dt><tt>ExtPRecEvaluator</tt></dt><dd>provide the relaxed precision
+    and recall as defined in a paper by Ehrig and Euzenat in 2005.</dd>
+<dt><tt></tt></dt><dd></dd>
+</dl>
+</p>
 </p>
 
 <address>

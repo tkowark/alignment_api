@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>Alignment API: Libraries</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcolor="#ffffff">
+
+<h1 class="titre">Alignment API: Libraries shipped with the package (release 3.0)</h1>
+
+<p>The Alignment API uses a number of external libraries. These libraries
+are shipped (in the lib directory) with the Alignment API. We provide
+here the list of these libraries together with the reason why they may
+be necessary within the API and some other information.</p>
+
+<h2>Required for the API implementation (procalign)</h2>
+
+<dl>
+<dt><a href="http://www.urbanophile.com/arenn/hacking/download.html">Gnu getopt</a>: getopt.jar [BSD/GPL]</dt>
+<dd>Gnu library for parsing command line arguments. Required
+  everywhere (included by OWL-API).</dd>
+<dt><a href="http://logging.apache.org/log4j">Apache Log4J</a>:
+  log4j.jar [Apache]</dt>
+<dd>Required by OWL-API -- maybe used by procalign.</dd>
+<!--dt><a href=""></a>: xerces.jar xml-apis.jar</dt>
+<dd>Certainly not required anymore...</dd-->
+</dl>
+
+<h3>Required for the OWL-API part</h3>
+
+<dl>
+<dt><a href="http://owl.man.ac.uk/api.shtml">OWL API</a> 1.4.3:
+  rdfapi.jar rdfparser.jar api.jar impl.jar io.jar [LGPL]</dt>
+<dd>Provide parsing and API to OWL entities. Used by
+  OWLAPIAlignments. api.jar is required for compiling, the others are
+  necessary for executing parts of the Alignment API which need the
+  OWL API.</dd>
+</dl>
+
+<h3>Required for the WSMO part</h3>
+
+<dl>
+<dt><a href="http://www.sourceforge.net/projects/mediation">WSMO Mapping API</a> 1.4.3:
+  mappingapi.jar mappingparser.jar mappingexported.jar [LGPL]</dt>
+<dd>Provide the implementation of an expressive alignment format which
+  is the basis for level 2OMWG alignments.</dd>
+</dl>
+
+<h2>Required for the WordNet addition</h2>
+
+<dl>
+<dt><a href="http://jwordnet.sourceforge.net/">JWordNet (JWNL)</a>
+  1.3: jwnl.jar [BSD]</dt>
+<dd>This also requires WordNet to be installed in the computer.</dd>
+<dt><a href="http://jakarta.apache.org/commons/logging/">Jakarta
+    Commons Logging</a>: commons-logging.jar [Apache]</dt>
+<dd>Necessary for alignwn.</dd>
+</dl>
+
+<h2>Required for the Alignment Server</h2>
+
+<dl>
+<dt><a
+       href="http://dev.mysql.com/downloads/connector/j/3.0.html">MySQL
+       JDBC Connectors</a> 5.0.3: mysql-connector-java-5.0.3-bin.jar [GPL]</dt>
+<dd>This also requires MySQL to be installed. Required for alignsvc.</dd>
+</dl>
+
+<h3>Required for the Agent/JADE part</h3>
+
+<dl>
+<dt><a href="http://jade.tilab.com/">Java Agent Development
+    Environment (JADE)</a> 3.3: jade.jar http.jar iiop.jar [LGPL]</dt>
+<dd>Required by alignsvc (Agent version).</dd>
+</dl>
+
+<h3>Required for the Web service part</h3>
+
+<dl>
+</dl>
+
+<h3>Required for the P2P/JXTA part</h3>
+
+<dl>
+</dl>
+
+<dl>
+<dd></dd>
+<dt><a href=""></a> </dt>
+<dd></dd>
+</dl>
+
+<!-- 
+commons-fileupload-1.1.1.jar
+jakarta-httpcore-4.0-alpha3.jar
+jakarta-httpcore-nio-4.0-alpha3.jar
+-->
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/lib.html</center>
+<hr />
+$Id$
+</small>
+</body>
+</html>

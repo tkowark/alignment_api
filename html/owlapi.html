@@ -116,7 +116,7 @@ given as argument and generates an output which can be:
 </p>
 <p>For instance:
 <pre>
-$ ./processor -a file://localhost/&lt;yourpath>/owl/resources/transitive2.owl
+$ ./processor -a file://&lt;yourpath>/owl/resources/transitive2.owl
 [Namespaces: 
   rdf   = http://www.w3.org/1999/02/22-rdf-syntax-ns#
   xsd   = http://www.w3.org/2001/XMLSchema#
@@ -135,7 +135,7 @@ Ontology(
 </pre>
 or
 <pre>
-$ ./processor --renderer=org.semanticweb.owl.io.owl_rdf.Renderer file://localhost/&lt;yourpath>/owl/resources/transitive2.owl
+$ ./processor --renderer=org.semanticweb.owl.io.owl_rdf.Renderer file://&lt;yourpath>/owl/resources/transitive2.owl
 &lt;?Xml version="1.0"?>
 &lt;!DOCTYPE owl [
 &lt;!ENTITY owl  "http://www.w3.org/2002/07/owl#" >
@@ -150,7 +150,7 @@ $ ./processor --renderer=org.semanticweb.owl.io.owl_rdf.Renderer file://localhos
  xmlns:a        ="http://www.example.org/ontology#"
 >
 &lt;!-- Need to support further ontology metadata, import still missing -->
-        &lt;owl:Ontology rdf:about="file://localhost/Volumes/Skratsh/JAVA/owlapi/owl/resources/transitive2.owl" />
+        &lt;owl:Ontology rdf:about="file:///Volumes/Skratsh/JAVA/owlapi/owl/resources/transitive2.owl" />
         &lt;owl:ObjectProperty rdf:about="http://www.example.org/ontology#p">
                 &lt;rdf:type rdf:resource="&amp;owl;TransitiveProperty" />
                 &lt;rdf:type rdf:resource="&amp;owl;FunctionalProperty" />
