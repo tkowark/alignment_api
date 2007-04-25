@@ -254,19 +254,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("listmethods") ){
-	    msg = "<h1>Available methods</h1><ul compact=\"1\">";
+	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	} else if ( perf.equals("listrenderers") ) {
-	    msg = "<h1>Available renderers</h1><ul compact=\"1\">";
+	    msg += "<h2>Renderers</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	} else if ( perf.equals("listservices") ) {
-	    msg = "<h1>Available services</h1><ul compact=\"1\">";
+	    msg += "<h2>Services</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
@@ -296,9 +294,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server administration</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"listalignments\"><input type=\"submit\" value=\"Available alignments\"/></form></li>";
-	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Available methods\"/></form></li>";
-	    msg += "<li><form action=\"listrenderers\"><input type=\"submit\" value=\"Available renderers\"/></form></li>";
-	    msg += "<li><form action=\"listservices\"><input type=\"submit\" value=\"Available services\"/></form></li>";
+	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Embedded classes\"/></form></li>";
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
 	    msg += "<li><form action=\"prmflush\"><input type=\"submit\" value=\"Flush caches\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
