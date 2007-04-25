@@ -456,7 +456,7 @@ public class CacheImpl implements Cache {
 		    "VALUES ('" + quote(id) + "','" +  quote(tag) + "','" + quote(s_method) + "')";
 		st.executeUpdate(query);
 	    }
-	    
+
 	    for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
 		Cell c = (Cell)e.nextElement();
 		String cellid = null;
@@ -485,7 +485,7 @@ public class CacheImpl implements Cache {
 			"VALUES ('" + quote(id) + "','" + quote(cellid) + "','" + quote(uri1) + "','" + quote(uri2) + "','" + quote(strength) + "','" + quote(sem) + "','" + quote(rel) + "')";
 		    st.executeUpdate(query);
 		}
-		if ( cellid != null && !cellid.equals("") ) {
+		if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
 		    // JE: I must now store all the extensions
 		    for( Enumeration e2 = c.getExtensions().getNames() ; e2.hasMoreElements() ; ){
 			String tag = (String)e2.nextElement();
