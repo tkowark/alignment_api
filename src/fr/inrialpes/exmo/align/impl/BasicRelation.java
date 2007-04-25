@@ -82,7 +82,9 @@ public class BasicRelation implements Relation
 		Constructor relationConstructor = relationClass.getConstructor((Class[])null);
 		relation = (Relation)relationConstructor.newInstance((Object[])null);
 	    } catch ( Exception ex ) {
-		ex.printStackTrace();
+		//ex.printStackTrace();
+		//Otherwise, just create a Basic relation
+		relation = (Relation)new BasicRelation( rel );
 	    }
 	};
 	return relation;

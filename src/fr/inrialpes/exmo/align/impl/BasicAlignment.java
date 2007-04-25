@@ -60,6 +60,11 @@ public class BasicAlignment implements Alignment {
 	visitor.visit(this);
     }
 
+    //public static String METHOD = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method";
+    public static String METHOD = "method";
+    //public static String TIME = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time";
+    public static String TIME = "time";
+
     protected Object onto1 = null;
 
     protected Object onto2 = null;
@@ -81,6 +86,8 @@ public class BasicAlignment implements Alignment {
 
     protected Parameters extensions = null;
 
+    protected Parameters namespaces = null;
+
     /**
      * This is the URI of the place from which the ontology has been loaded!
      * This is NOT the Ontology URI which can be obtained by
@@ -94,7 +101,8 @@ public class BasicAlignment implements Alignment {
 	hash1 = new Hashtable();
 	hash2 = new Hashtable();
 	extensions = new BasicParameters();
-	setExtension( "method", getClass().getName() );
+	namespaces = new BasicParameters();
+	setExtension( METHOD, getClass().getName() );
     }
 
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
@@ -177,6 +185,16 @@ public class BasicAlignment implements Alignment {
 
     public String getExtension( String label ) {
 	return (String)extensions.getParameter( label );
+    };
+
+    public Parameters getXNamespaces(){ return namespaces; }
+
+    public void setXNamespace( String label, String uri ) {
+	namespaces.setParameter( label, uri );
+    };
+
+    public String getXNamespace( String label ) {
+	return (String)namespaces.getParameter( label );
     };
 
     public Enumeration getElements() { 
@@ -525,6 +543,10 @@ public class BasicAlignment implements Alignment {
 	    result.setExtension( label, getExtension( label ) );
 	}
 	result.getExtensions().unsetParameter( "id" );
+	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
+	    String label = (String)e.nextElement();
+	    result.setXNamespace( label, getXNamespace( label ) );
+	}
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
 	    result.addCell(((Cell)e.nextElement()).inverse());
 	}
@@ -567,6 +589,10 @@ public class BasicAlignment implements Alignment {
 	    align.setExtension( label, getExtension( label ) );
 	}
 	align.getExtensions().unsetParameter( "id" );
+	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
+	    String label = (String)e.nextElement();
+	    align.setXNamespace( label, getXNamespace( label ) );
+	}
 	try { align.ingest( this ); }
 	catch (AlignmentException ex) { ex.printStackTrace(); }
 	return align;
