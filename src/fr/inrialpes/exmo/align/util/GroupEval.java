@@ -44,7 +44,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
-
+import java.util.Arrays; //VS
 import org.xml.sax.SAXException;
 
 import gnu.getopt.LongOpt;
@@ -208,6 +208,7 @@ public class GroupEval {
 	    usage();
 	}
 	int size = subdir.length;
+        Arrays.sort(subdir); //VS
 	result = new Vector(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
