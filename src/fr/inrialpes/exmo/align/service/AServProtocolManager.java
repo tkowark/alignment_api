@@ -48,6 +48,7 @@ import java.lang.NoSuchMethodException;
 import java.lang.IllegalAccessException;
 import java.lang.NullPointerException;
 import java.lang.UnsatisfiedLinkError;
+import java.lang.ExceptionInInitializerError;
 import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -667,6 +668,8 @@ public class AServProtocolManager {
 				} catch ( NoClassDefFoundError ncdex ) {
 				} catch (ClassNotFoundException cnfex) {
 				} catch (UnsatisfiedLinkError ule) {
+				} catch (ExceptionInInitializerError eiie) {
+				    // This one has been added for OMWG, this is a bad error
 				}
 			    }
 			}
@@ -701,6 +704,8 @@ public class AServProtocolManager {
 				    } catch ( ClassNotFoundException cnfex ) {
 					if ( debug ) System.err.println("   ******** "+classname);
 				    } catch ( UnsatisfiedLinkError ule ) {
+				    } catch (ExceptionInInitializerError eiie) {
+				    // This one has been added for OMWG, this is a bad error
 				    }
 				}
 			    }
