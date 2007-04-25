@@ -24,7 +24,7 @@ implementation described here. It is included in the
 <li>Displays the result.</li>
 </ul>
 Running the program is achieved through:
-<pre>
+<div class="fragment"><pre>
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign
 Require two alignement filenames
 usage: EvalAlign [options] file1 file2
@@ -32,11 +32,11 @@ options are:
         --debug[=n] -d[=n]              Report debug info at level ,
         --impl[=classname] -i classname Use classname for implementing Evaluator
         --help -h                       Print this message
-</pre>
+</pre></div>
 or ($CWD is the current directory)
-<pre>
+<div class="fragment"><pre>
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://$CWD/result/align1.owl file://$CWD/result/align2.owl 
-</pre>
+</pre></div>
 </p>
 
 <h2>Implementing and extending the API</h2>

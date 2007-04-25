@@ -34,23 +34,23 @@ contains the alignwn.jar file.</dd>
 This will depend on your distribution and will not be further 
 detailed here.</p>
 
-<p>Once installed, Wordnet usually has a "dict" directory.
-The file_properties.xml provided with jwnl must be put in the 
+<p>Once installed, Wordnet usually has a "dict" directory whose path
+  is $WNDIR.
+<!--The file_properties.xml provided with jwnl must be put in the 
 current directory with the "dictionary_path" parameter set to
 the path of this dict directory:
 <pre>
 &lt;param name="dictionary_path" value="$dict$"/&gt;
-</pre>
+</pre-->
 </p>
 
 <h2>Running</h2>
 
 <p>This usually can be obtained by:
-<pre>
+<div class="fragment"><pre>
 $ setenv CWD `pwd`
-$ java -jar lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
-</pre>
-
+$ java -jar lib/alignwn.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
+</pre></div>
 
 <address>
 <small>
