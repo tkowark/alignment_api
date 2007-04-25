@@ -36,6 +36,7 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -356,7 +357,7 @@ public class GroupAlign {
 	long time = System.currentTimeMillis();
 	result.align(init, params); // add opts
 	long newTime = System.currentTimeMillis();
-	result.setExtension( "time", Long.toString(newTime - time) );
+	result.setExtension( BasicAlignment.TIME, Long.toString(newTime - time) );
 
 	if (debug > 1) System.err.println(" Alignment performed");
 

@@ -32,6 +32,7 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
 
@@ -246,7 +247,7 @@ public class Procalign {
 	    long time = System.currentTimeMillis();
 	    result.align(  init, params ); // add opts
 	    long newTime = System.currentTimeMillis();
-	    result.setExtension( "time", Long.toString(newTime - time) );
+	    result.setExtension( BasicAlignment.TIME, Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
