@@ -318,8 +318,6 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( answer instanceof ErrorMsg ) {
 		msg += testErrorMessagesSOAP( answer );
 	    } else {
-		// Depending on the type we should change the MIME type
-		// This should be returned in answer.getParameters()
 		msg += "<result>" + answer.getContent() + "</result>";
 		}
 	} else if ( method.equals("load") ) { // URL -> URI
