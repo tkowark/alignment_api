@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rh?e-Alpes, 2006-2007
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -34,4 +34,8 @@ public class OntologyURI extends Success {
     public String HTMLString(){
 	return "Ontology URI: "+content;
     }
+    public String SOAPString(){
+	return "<uri>"+content+"</uri>";
+    }
+
 }

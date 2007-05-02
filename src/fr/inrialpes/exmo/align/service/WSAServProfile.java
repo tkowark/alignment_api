@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007.
+ * Copyright (C) INRIA Rh?e-Alpes, 2007.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,9 +20,12 @@
 
 package fr.inrialpes.exmo.align.service;
 
-/*import org.semanticweb.owl.align.Alignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
+
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -36,6 +39,7 @@ import java.util.StringTokenizer;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -46,25 +50,6 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 
 import java.lang.Integer;
-*/
-
-import java.io.File;
-import java.util.Properties;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import org.semanticweb.owl.align.Parameters;
-
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
@@ -111,7 +96,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
 	// This may register the WSDL file to some directory
-    }
+	myId = "LocalHTMLInterface";
+	serverId = "dummy";
+	localId = 0;	
+	}
 
     public void close(){
 	// This may unregister the WSDL file to some directory
@@ -128,70 +116,251 @@ public class WSAServProfile implements AlignmentServiceProfile {
      * Not implemented yet
      * but reserved if appears useful
      */
-    public String protocolAnswer( String uri, String perf, Properties header, Parameters params ) {
-	// The posted SOAP message is in the "content" parameter
-	System.err.println("SOAP MESSAGE [ "+perf+" ]\n"+params.getParameter("content"));
+    public String protocolAnswer( String uri, String perf, Properties header, Parameters param ) {
+	String method;
+	String message;
+//	System.err.println("SOAP MESSAGE [ "+perf+" ]\n"+params.getParameter("content"));
+	method = header.getProperty("SOAPAction");
+	message = (String) param.getParameter("content");
+
 	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
-	Parameters p = params;
-	if ( params.getParameter("content") != null )
-	    p = read( (String)params.getParameter("content"), params );
-	if ( perf.equals("WSDL") ) { // -> WSDL 
-	} else if ( perf.equals("listalignment") ) { // -> List of URI
-	} else if ( perf.equals("listmethods") ) { // -> List of String
-	} else if ( perf.equals("listrenderers") ) { // -> List of String
-	} else if ( perf.equals("listservices") ) { // -> List of String
-	} else if ( perf.equals("store") ) { // URI -> URI
-	} else if ( perf.equals("cut") ) { // URI * string * float -> URI
-	} else if ( perf.equals("align") ) { // URL * URL * URI * String * boolean * (params) -> URI
-	} else if ( perf.equals("find") ) { // URI * URI -> List of URI
-	} else if ( perf.equals("retrieve") ) { // URI -> XML
-	} else if ( perf.equals("metadata") ) { // URI -> XML
-	} else if ( perf.equals("load") ) { // URL -> URI
-	} else if ( perf.equals("loadfile") ) { // XML -> URI
-	} else if ( perf.equals("translate") ) { // XML * URI -> XML
+	if ( perf.equals("WSDL") ) {
+	} else if ( method.equals("listalignment") ) {
+		for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<uri>"+id+"</uri>";
+	    }
+		// -> List of URI
+	} else if ( method.equals("listmethods") ) { // -> List of String
+	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
+		msg += "<method>"+it.next()+"</method>";
+	    }
+	} else if ( method.equals("listrenderers") ) { // -> List of String
+	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
+		msg += "<renderer>"+it.next()+"</renderer>";
+	    }
+	} else if ( method.equals("listservices") ) { // -> List of String
+	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
+		msg += "<service>"+it.next()+"</service>";
+	    }
+	} else if ( method.equals("store") ) { // URI -> URI
+		int start;
+		int end;
+		String request_id;
+		String request_uri;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<id>");
+		end = message.indexOf("</id>");
+		request_id = message.substring(start+4, end);
+		start = message.indexOf("<uri>");
+		end = message.indexOf("</uri>");
+		request_uri = message.substring(start+5, end);
+
+		params.setParameter("id", request_id);
+		params.setParameter("uri", request_uri);
+
+	    if ( request_uri != null && !request_uri.equals("") ) { // Load the URL
+		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessagesSOAP( answer );
+		} else {
+		    request_id = answer.getContent();
+		}
+	    }
+	    if ( request_id != null ){ // Store it
+		Message answer = manager.store( new Message(newId(),(Message)null,myId,serverId, request_id, params) );
+		
+		if ( answer instanceof ErrorMsg ) {
+		    msg += testErrorMessagesSOAP( answer );
+		} else {
+			msg += displayAnswerSOAP( answer );
+		}
+	    }
+	} else if ( method.equals("cut") ) { // URI * string * float -> URI
+		int start;
+		int end;
+		String request_id;
+		String request_uri;
+		String request_threshold;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<id>");
+		end = message.indexOf("</id>");
+		request_id = message.substring(start+4, end);
+		start = message.indexOf("<uri>");
+		end = message.indexOf("</uri>");
+		request_uri = message.substring(start+5, end);
+		start = message.indexOf("<threshold>");
+		end = message.indexOf("</threshold>");
+		request_threshold = message.substring(start+10, end);
+		
+		params.setParameter("id", request_id);
+		params.setParameter("uri", request_uri);
+		params.setParameter("threshold", request_threshold);
+
+	    if ( request_id != null && !request_id.equals("") && request_threshold != null && !request_threshold.equals("") ){ // Trim it
+		Message answer = manager.cut( new Message(newId(),(Message)null,myId,serverId, request_id, params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessagesSOAP( answer );
+		} else {
+		    msg += displayAnswerSOAP( answer );
+		}
+	    }
+	} else if ( method.equals("align") ) { // URL * URL * URI * String * boolean * (params) -> URI
+		int start;
+		int end;
+
+		String request_url1;
+		String request_url2;
+		String request_method;
+		String request_force;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<url1>");
+		end = message.indexOf("</url1>");
+		request_url1 = message.substring(start+6, end);
+
+		start = message.indexOf("<url2>");
+		end = message.indexOf("</url2>");
+		request_url2 = message.substring(start+6, end);
+
+		start = message.indexOf("<method>");
+		end = message.indexOf("</method>");
+		request_method = message.substring(start+5, end);
+
+		start = message.indexOf("<force>");
+		end = message.indexOf("</force>");
+		request_force = message.substring(start+7, end);
+		
+		params.setParameter("onto1", request_url1);
+		params.setParameter("onto2", request_url2);
+		params.setParameter("method", request_method);
+		params.setParameter("force", request_force);
+
+		Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessagesSOAP( answer );
+	    } else {
+		msg += displayAnswerSOAP( answer );
+	    }
+	} else if ( method.equals("find") ) { // URI * URI -> List of URI
+		int start;
+		int end;
+
+		String request_url1;
+		String request_url2;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<url1>");
+		end = message.indexOf("</url1>");
+		request_url1 = message.substring(start+6, end);
+
+		start = message.indexOf("<url2>");
+		end = message.indexOf("</url2>");
+		request_url2 = message.substring(start+6, end);
+
+		params.setParameter("onto1", request_url1);
+		params.setParameter("onto2", request_url2);
+
+	    
+		Message answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessagesSOAP( answer );
+	    } else {
+		msg += displayAnswerSOAP( answer );
+	    }
+	} else if ( method.equals("retrieve") ) { // URI -> XML
+		int start;
+		int end;
+		String request_id;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<id>");
+		end = message.indexOf("</id>");
+		request_id = message.substring(start+4, end);
+	
+		params.setParameter("id", request_id);
+	
+		Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg += testErrorMessagesSOAP( answer );
+	    } else {
+		// Depending on the type we should change the MIME type
+		// This should be returned in answer.getParameters()
+		msg += "<result>" + answer.getContent() + "</result>";
+		}
+	} else if ( method.equals("metadata") ) { // URI -> XML
+		int start;
+		int end;
+		String request_id;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<id>");
+		end = message.indexOf("</id>");
+		request_id = message.substring(start+4, end);
+	
+		params.setParameter("id", request_id);
+	
+		Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg += testErrorMessagesSOAP( answer );
+	    } else {
+		// Depending on the type we should change the MIME type
+		// This should be returned in answer.getParameters()
+		msg += "<result>" + answer.getContent() + "</result>";
+		}
+	} else if ( method.equals("load") ) { // URL -> URI
+		int start;
+		int end;
+		String request_url;
+		Parameters params;
+
+		params = new BasicParameters();
+
+		start = message.indexOf("<url>");
+		end = message.indexOf("</url>");
+		request_url = message.substring(start+5, end);
+
+		params.setParameter("url", request_url);
+
+		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessagesSOAP( answer );
+	    } else {
+		msg += displayAnswerSOAP( answer );
+	    }
+	} else if ( method.equals("loadfile") ) { // XML -> URI
+	    Message answer = manager.loadfile( new Message(newId(),(Message)null,myId,serverId,"", param) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessagesSOAP( answer );
+	    } else {
+		msg += displayAnswerSOAP( answer );
+	    }
+	} else if ( method.equals("translate") ) { // XML * URI -> XML
 	} else {
 	    msg += "<UnRecognizedAction />";
 	}
 	msg += "  </SOAP-ENV:Body></SOAP-ENV:Envelope>";
 	return msg;
     }
-
-    // JE//This would be supposed to read the SOAP message
-    // and add the read values as paramenters
-    public static Parameters read( String soapMessage, Parameters p ){
-	try {
-	    // open the stream
-	    DocumentBuilderFactory docBuilderFactory =
-		DocumentBuilderFactory.newInstance();
-	    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-	    // JE// We should parse the string here
-	    // JE: I assume that
-	    //     docBuilder.parse(new InputSource( new StringReader(soapMessage)));
-	    // would work
-	    Document doc = docBuilder.parse(new File(soapMessage));
-
-	    // normalize text representation
-	    doc.getDocumentElement().normalize();
-
-	    // Get the params
-	    NodeList paramList = doc.getElementsByTagName("param");
-	    int totalParams = paramList.getLength();
-	    for (int s = 0; s < totalParams; s++) {
-		Element paramElement = (Element)paramList.item(s);
-		String paramName = paramElement.getAttribute("name");
-		NodeList paramContent = paramElement.getChildNodes();
-		String paramValue =((Node)paramContent.item(0)).getNodeValue().trim();
-		p.setParameter(paramName, paramValue); 
-	    }
-	} catch (SAXParseException err) {
-	    System.err.println("** Parsing error: ["+ err.getLineNumber()+"]: "+err.getSystemId()); 
-	    System.err.println(" " + err.getMessage());
-	} catch (SAXException e) {
-	    Exception x = e.getException();
-	    ((x == null) ? e : x).printStackTrace();
-	} catch (Throwable t) {	t.printStackTrace(); }
-
-	return p;
+	private String displayAnswerSOAP ( Message answer ) {
+	return answer.SOAPString();
+	}
+	private String testErrorMessagesSOAP( Message answer ) {
+	return answer.SOAPString();
     }
-
+    private int newId() { return localId++; }
 }

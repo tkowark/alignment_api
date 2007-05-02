@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007.
+ * Copyright (C) INRIA Rh?e-Alpes, 2006-2007.
  * Copyright (C) 2001,2005,2006 Jarno Elonen (elonen@iki.fi, http://iki.fi/elonen/)
  *
  * This code is based on NanoHTTPD from Jarno Elonen
@@ -52,6 +52,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -114,6 +115,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     public static final String
 	MIME_PLAINTEXT = "text/plain",
 	MIME_HTML = "text/html",
+	MIME_XML = "text/xml",
 	MIME_DEFAULT_BINARY = "application/octet-stream";
 
     public static final int MAX_FILE_SIZE = 10000;
@@ -146,6 +148,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	if ( params.getParameter( "wsdl" ) != null ){
 	    wsmanager = new WSAServProfile();
 	}
+	if(wsmanager != null) wsmanager.init(params, manager);
 	myId = "LocalHTMLInterface";
 	serverId = "dummy";
 	localId = 0;
@@ -216,7 +219,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    start = uri.length();
 	}
 	if ( oper.equals( "aserv" ) ){
-	    if ( wsmanager != null ) {
+		if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
 		// This is not correct: I shoud return an error
@@ -226,6 +229,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
+	} else if ( oper.equals( "wsdl" ) ){
+		return wsdlAnswer(uri, uri.substring(start), header, params);
 	} else {
 	    //return serveFile( uri, header, new File("."), true );
 	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
@@ -254,23 +259,25 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("listmethods") ){
-	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
+	    msg = "<h1>Available methods</h1><ul compact=\"1\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	    msg += "<h2>Renderers</h2><ul compact=\"1\">";
+	} else if ( perf.equals("listrenderers") ) {
+	    msg = "<h1>Available renderers</h1><ul compact=\"1\">";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	    msg += "<h2>Services</h2><ul compact=\"1\">";
+	} else if ( perf.equals("listservices") ) {
+	    msg = "<h1>Available services</h1><ul compact=\"1\">";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
-	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query: <input type=\"textarea\" name=\"query\" rows=\"8\"size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
 	    String answer = manager.query( (String)params.getParameter("query") );
 	    msg = "<pre>"+answer+"</pre>";
@@ -294,7 +301,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server administration</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"listalignments\"><input type=\"submit\" value=\"Available alignments\"/></form></li>";
-	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Embedded classes\"/></form></li>";
+	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Available methods\"/></form></li>";
+	    msg += "<li><form action=\"listrenderers\"><input type=\"submit\" value=\"Available renderers\"/></form></li>";
+	    msg += "<li><form action=\"listservices\"><input type=\"submit\" value=\"Available services\"/></form></li>";
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
 	    msg += "<li><form action=\"prmflush\"><input type=\"submit\" value=\"Flush caches\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
@@ -331,15 +340,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
 	    String id = (String)params.getParameter("id");
-	    //String url = (String)params.getParameter("url");
-	    //if ( url != null && !url.equals("") ) { // Load the URL
-	    //Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    //if ( answer instanceof ErrorMsg ) {
-	    //    msg = testErrorMessages( answer );
-	    //} else {
-	    //    id = answer.getContent();
-	    //}
-	    //}
+	    String url = (String)params.getParameter("url");
+	    if ( url != null && !url.equals("") ) { // Load the URL
+		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessages( answer );
+		} else {
+		    id = answer.getContent();
+		}
+	    }
 	    if ( id != null ){ // Store it
 		Message answer = manager.store( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -347,6 +356,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		} else {
 		    msg = "<h1>Alignment stored</h1>";
 		    msg += displayAnswer( answer );
+			System.out.println("msg ==== " + msg);
 		}
 	    }
 	} else if ( perf.equals("prmcut") ) {
@@ -426,26 +436,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
 	    }
 	    // Metadata not done yet
-	} else if ( perf.equals("prmtranslate") ) {
-	    msg = "<h1>Translate query</h1><form action=\"translate\">";
-	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension("id");
-		msg += "<option value=\""+id+"\">"+id+"</option>";
-	    }
-	    msg += "</select><br />";
-	    msg += "SPARQL query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"80\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (SPARQL)<br /><small>A SPARQL query (PREFIX prefix: &lt;uri&gt; SELECT variables FROM &lt;url&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Translate\"/></form>";
-	} else if ( perf.equals("translate") ) {
-	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
-	    } else {
-		msg = "<h1>Message translation</h1>";
-		msg += "<h2>Initial message</h2><pre>"+((String)params.getParameter("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
-		msg += "<h2>Translated message</h2><pre>";
-		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
-		msg += "</pre>";
-	    }
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
@@ -473,7 +463,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"loadfile\" method=\"POST\">";
 	    msg += " <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
 	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
-	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB</small><br />";
+	    msg += "<br /><small>NOTE: Max file size is"+(MAX_FILE_SIZE/1024)+"KB</small><br />";
 	    msg += " <input type=\"submit\" Value=\"Upload\">";
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
@@ -494,15 +484,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = "<h1>Alignment loaded</h1>";
 		msg += displayAnswer( answer );
 	    }
+	} else if ( perf.equals("prmtranslate") ) {
+	} else if ( perf.equals("translate") ) {
+	    // translate( mess )
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Alignment Server commands</h1><ul compact=\"1\">";
+	    msg = "<h1>Available commands</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Match ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
 	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
 	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
-	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from id\"/></form></li>";
-	    msg += "<li><form action=\"prmtranslate\"><input type=\"submit\" value=\"Translate a query\"/></form></li>";
+	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from its id\"/></form></li>";
 	    msg += "<li><form action=\"../admin/\"><input type=\"submit\" value=\"Server management\"/></form></li>";
 	    msg += "</ul>";
 	} else {
@@ -513,6 +505,28 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     // ===============================================
     // Util
+
+	public Response wsdlAnswer(String uri, String perf, Properties header, Parameters params  ) {
+		String msg = "";
+		try
+		{
+			FileReader fr = null;
+			String temp;
+			fr = new FileReader ("WSAlignSVC.wsdl");
+			BufferedReader inFile = new BufferedReader( fr );
+			while ((temp = inFile.readLine()) != null) {
+				//msg = msg + line + "\n";
+				msg =msg + temp;
+			}
+			if (fr != null)  fr.close();
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.toString());
+		}
+		return new Response( HTTP_OK, MIME_XML, msg );
+	}	 
+
 
     private String testErrorMessages( Message answer ) {
 	return "<h1>Alignment error</h1>"+answer.HTMLString();
@@ -1026,6 +1040,5 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	 */
 	public Properties header = new Properties();
     }
-
 }
 
