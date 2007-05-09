@@ -103,7 +103,7 @@ public class AServProtocolManager {
 	alignmentCache = new CacheImpl( connection );
 	alignmentCache.init( p );
 	// dummy string
-	myId = "http://"+p.getParameter("host")+":"+p.getParameter("port");
+	myId = "http://"+p.getParameter("host")+":"+p.getParameter("http");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
