@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh?e-Alpes, 2006-2007.
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2007.
  * Copyright (C) 2001,2005,2006 Jarno Elonen (elonen@iki.fi, http://iki.fi/elonen/)
  *
  * This code is based on NanoHTTPD from Jarno Elonen
@@ -61,6 +61,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
+import java.io.BufferedInputStream;
 
 import java.util.StringTokenizer;
 import java.util.Locale;
@@ -78,7 +79,22 @@ import java.net.URLDecoder;
 
 import java.lang.Integer;
 
-//import javax.servlet.http.HTTPServletRequest;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.Request;
+
+import org.mortbay.util.MultiMap;
+import org.mortbay.util.StringUtil;
+import org.mortbay.util.TypeUtil;
+
+import org.mortbay.jetty.handler.DefaultHandler;
+import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.jetty.handler.HandlerList;
+import org.mortbay.jetty.handler.ResourceHandler;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
@@ -90,6 +106,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     private int tcpPort;
     private String tcpHost;
     private int debug = 0;
+    private Server server;
     private AServProtocolManager manager;
     private WSAServProfile wsmanager;
 
@@ -130,9 +147,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
+	tcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
+	tcpHost = (String)params.getParameter( "host" ) ;
+
+	/*
 	try {
-	    tcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
-	    tcpHost = (String)params.getParameter( "host" ) ;
 	    final ServerSocket ss = new ServerSocket( tcpPort );
 	    Thread t = new Thread( new Runnable() {
 		    public void run() {
@@ -145,13 +164,77 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} catch (Exception e) {
 	    throw new AServException ( "Cannot launch HTTP Server" , e );
 	}
+	*/
+
+	// ********************************************************************
+	// JE: Jetty implementation
+	server = new Server(tcpPort);
+
+	Handler handler=new AbstractHandler(){
+		public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) 
+		    throws IOException, ServletException
+		{
+		    String method = request.getMethod();
+		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
+		    // Should be decoded?
+		    String uri = request.getPathInfo();
+		    Properties params = new Properties();
+		    try { decodeParms( request.getQueryString(), params ); }
+		    catch ( Exception e) {};
+		    // I do not decode them here because it is useless
+		    // See below how it is done.
+		    Properties header = new Properties();
+
+		    // Multi part?
+		    String mimetype = request.getContentType();
+		    if ( mimetype != null && mimetype.equals("multipart/form-data") ) {
+			System.err.println("Yeah, multipart content");
+			BufferedInputStream in = new BufferedInputStream(request.getInputStream());
+			String boundary="--"+value(mimetype.substring(mimetype.indexOf("boundary=")));
+			//byte[] byteBoundary=(boundary+"--").getBytes(StringUtil.__ISO_8859_1);
+			//MultiMap params = new MultiMap();
+		    }
+
+		    Response r = serve( uri, method, header, params );
+		    response.setContentType(r.getContentType());
+
+		    //response.setStatus(r.getStatus());
+		    response.setStatus(HttpServletResponse.SC_OK);
+		    response.getWriter().println(r.getData());
+		    // r.getStatus(); r.getContentType; r.getData();
+		    /*
+		    response.setContentType("text/html");
+		    response.setStatus(HttpServletResponse.SC_OK);
+		    response.getWriter().println("<h1>Alignment Server powered by Jetty</h1> for target "+target);
+		    response.getWriter().println("method: "+request.getMethod()+"<br />");
+		    response.getWriter().println("pathinfo: "+request.getPathInfo()+"<br />");
+		    response.getWriter().println("pathtranslated: "+request.getPathTranslated()+"<br />");
+		    response.getWriter().println("query: "+request.getQueryString()+"<br />");
+		    response.getWriter().println("URI: "+request.getRequestURI()+"<br />");
+		    response.getWriter().println("URL: "+request.getRequestURL()+"<br />");
+		    response.getWriter().println("servletPath: "+request.getServletPath()+"<br />");
+		    */
+		    ((Request)request).setHandled(true);
+		}
+	    };
+	server.setHandler(handler);
+
+	// Common part
+	try { server.start(); }
+	catch (Exception e) {
+	    throw new AServException ( "Cannot launch HTTP Server" , e );
+	}
+	//server.join();
+
+	// ********************************************************************
 	if ( params.getParameter( "wsdl" ) != null ){
 	    wsmanager = new WSAServProfile();
+	    if ( wsmanager != null ) wsmanager.init( params, manager );
 	}
-	if(wsmanager != null) wsmanager.init(params, manager);
 	myId = "LocalHTMLInterface";
 	serverId = "dummy";
 	localId = 0;
+
     }
 
     /**
@@ -159,6 +242,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public void close(){
 	if ( wsmanager != null ) wsmanager.close();
+	if ( server != null ) {
+	    try { server.stop(); }
+            catch (Exception e) { e.printStackTrace(); }
+	}
     }
     
     // ==================================================
@@ -215,9 +302,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    oper = uri.substring( start, end );
 	    start = end+1;
 	} else {
+	    // Old implementation
 	    oper = uri.substring( start );
 	    start = uri.length();
+	    // No '/' after the tag cause problems, send redirect
+	    //uri += "/";
+	    //Response r = new Response( HTTP_REDIRECT, MIME_HTML,
+	    // 			       "<html><body>Redirected: <a href=\""+uri+"\">" +uri+"</a></body></html>");
+	//r.addHeader( "Location", uri );
+	//return r;
 	}
+
 	if ( oper.equals( "aserv" ) ){
 		if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
@@ -230,7 +325,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "wsdl" ) ){
-		return wsdlAnswer(uri, uri.substring(start), header, params);
+	    return wsdlAnswer(uri, uri.substring(start), header, params);
 	} else {
 	    //return serveFile( uri, header, new File("."), true );
 	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
@@ -239,7 +334,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     protected String about() {
 	return "<h1>Alignment Server</h1><center>$Id$<br />"
-	    + "(C) INRIA Rh&ocirc;ne-Alpes, 2007<br />"
+	    + "<center><a href=\"/html/\">Access</a></center>"
+	    + "(C) INRIA Rh&ocirc;ne-Alpes, 2006-2007<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"
 	    + "</center>";
     }
@@ -259,25 +355,23 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("listmethods") ){
-	    msg = "<h1>Available methods</h1><ul compact=\"1\">";
+	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	} else if ( perf.equals("listrenderers") ) {
-	    msg = "<h1>Available renderers</h1><ul compact=\"1\">";
+	    msg += "<h2>Renderers</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
-	} else if ( perf.equals("listservices") ) {
-	    msg = "<h1>Available services</h1><ul compact=\"1\">";
+	    msg += "<h2>Services</h2><ul compact=\"1\">";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
-	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query: <input type=\"textarea\" name=\"query\" rows=\"8\"size=\"60\"/> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
+	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
 	    String answer = manager.query( (String)params.getParameter("query") );
 	    msg = "<pre>"+answer+"</pre>";
@@ -296,14 +390,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = perf;
 	} else if ( perf.equals("addrenderer") ){
 	    msg = perf;
-	} else if ( perf.equals("listservices") ){
-	    msg = perf;
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server administration</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"listalignments\"><input type=\"submit\" value=\"Available alignments\"/></form></li>";
-	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Available methods\"/></form></li>";
-	    msg += "<li><form action=\"listrenderers\"><input type=\"submit\" value=\"Available renderers\"/></form></li>";
-	    msg += "<li><form action=\"listservices\"><input type=\"submit\" value=\"Available services\"/></form></li>";
+	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Embedded classes\"/></form></li>";
 	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
 	    msg += "<li><form action=\"prmflush\"><input type=\"submit\" value=\"Flush caches\"/></form></li>";
 	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
@@ -356,7 +446,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		} else {
 		    msg = "<h1>Alignment stored</h1>";
 		    msg += displayAnswer( answer );
-			System.out.println("msg ==== " + msg);
 		}
 	    }
 	} else if ( perf.equals("prmcut") ) {
@@ -463,7 +552,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"loadfile\" method=\"POST\">";
 	    msg += " <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
 	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
-	    msg += "<br /><small>NOTE: Max file size is"+(MAX_FILE_SIZE/1024)+"KB</small><br />";
+	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB</small><br />";
 	    msg += " <input type=\"submit\" Value=\"Upload\">";
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
@@ -485,16 +574,52 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer );
 	    }
 	} else if ( perf.equals("prmtranslate") ) {
+	    msg = "<h1>Translate query</h1><form action=\"translate\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "SPARQL query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"80\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (SPARQL)<br /><small>A SPARQL query (PREFIX prefix: &lt;uri&gt; SELECT variables FROM &lt;url&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Translate\"/></form>";
 	} else if ( perf.equals("translate") ) {
-	    // translate( mess )
+	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer );
+	    } else {
+		msg = "<h1>Message translation</h1>";
+		msg += "<h2>Initial message</h2><pre>"+((String)params.getParameter("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
+		msg += "<h2>Translated message</h2><pre>";
+		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+		msg += "</pre>";
+	    }
+	} else if ( perf.equals("prmmetadata") ) {
+	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
+	} else if ( perf.equals("metadata") ) {
+	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    //System.err.println("Content: "+answer.getContent());
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer );
+	    } else {
+		// Depending on the type we should change the MIME type
+		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+	    }
+	    // render
+	    // Alignment in HTML can be rendre or metadata+tuples
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Available commands</h1><ul compact=\"1\">";
+	    msg = "<h1>Alignment Server commands</h1><ul compact=\"1\">";
 	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Match ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
 	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
 	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
-	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from its id\"/></form></li>";
+	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from id\"/></form></li>";
 	    msg += "<li><form action=\"../admin/\"><input type=\"submit\" value=\"Server management\"/></form></li>";
 	    msg += "</ul>";
 	} else {
@@ -507,24 +632,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // Util
 
 	public Response wsdlAnswer(String uri, String perf, Properties header, Parameters params  ) {
-		String msg = "";
-		try
-		{
-			FileReader fr = null;
-			String temp;
-			fr = new FileReader ("WSAlignSVC.wsdl");
-			BufferedReader inFile = new BufferedReader( fr );
-			while ((temp = inFile.readLine()) != null) {
-				//msg = msg + line + "\n";
-				msg =msg + temp;
-			}
-			if (fr != null)  fr.close();
+	    String msg = "";
+	    try {
+		FileReader fr = null;
+		String temp;
+		// JE: I would not... but absolutely not do this
+		fr = new FileReader ("WSAlignSVC.wsdl");
+		BufferedReader inFile = new BufferedReader( fr );
+		while ((temp = inFile.readLine()) != null) {
+		    //msg = msg + line + "\n";
+		    msg =msg + temp;
 		}
-		catch (IOException e)
-		{
-			System.err.println(e.toString());
-		}
-		return new Response( HTTP_OK, MIME_XML, msg );
+		if (fr != null)  fr.close();
+	    } catch (IOException e) { e.printStackTrace(); }
+	    return new Response( HTTP_OK, MIME_XML, msg );
 	}	 
 
 
@@ -538,6 +659,21 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private int newId() { return localId++; }
 
+	private void decodeParms( String parms, Properties p ) throws InterruptedException {
+	    if ( parms == null ) return;
+
+	    StringTokenizer st = new StringTokenizer( parms, "&" );
+	    while ( st.hasMoreTokens())	{
+		String next = st.nextToken();
+		int sep = next.indexOf( '=' );
+		if ( sep >= 0 )
+
+		try {
+		    p.put( URLDecoder.decode( next.substring( 0, sep ), "iso-8859-1" ).trim(),
+			   URLDecoder.decode( next.substring( sep+1 ), "iso-8859-1" ));
+		} catch (Exception e) {}; //never thrown
+	    }
+	}
     // ==================================================
     // HTTP Machinery
 
@@ -783,6 +919,53 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return newUri;
     }
 
+    /*
+    protected String file loadFile( req ){
+	DiskFileItemFactory factory = new DiskFileItemFactory();
+	//factory.setSizeThreshold(XXX);
+	//factory.setRepository("/tmp"); // System dependent
+	ServletFileUpload upload = new ServletFileUpload( factory );
+	//upload.setSizeMax(XXX);
+	List items = upload.parseRequest( req );
+    }
+
+    String mimetype=httpRequest.getMimeType();
+    HashMap multipartNVP=null;
+    if (mimetype!=null)
+    {   if(mimetype.equals("multipart/form-data"))
+    {   MultiPartRequest mpr=new MultiPartRequest(httpRequest);
+    String[] names=mpr.getPartNames();
+    multipartNVP=new HashMap(names.length);
+    for(int i=0; i<names.length;i++)
+    {   String filename=mpr.getFilename(names[i]);
+                     if(filename!=null)
+                     {   // uploaded file
+                        URIdentifier partURI = new URIdentifier(URI_UPLOAD+Integer.toString(i));
+                        requestURI.addArg(names[i],partURI.toString());
+                        requestArguments.put( partURI, ParameterUploadAspect.create(new AlwaysExpiredMeta("type/unknown",0), mpr,names[i], filename) );
+                        multipartNVP.put(names[i], new ByteArrayInputStream(filename.getBytes()));
+                     }
+                     else //Must be form data so add to NVP
+                     {   multipartNVP.put(names[i], mpr.getInputStream(names[i]));
+                     }
+                  }
+               }
+            }
+    */
+    // From Jetty
+     private String value(String nameEqualsValue) {
+	 String value=nameEqualsValue.substring(nameEqualsValue.indexOf('=')+1).trim();
+	 int i=value.indexOf(';');
+         if(i>0) value=value.substring(0,i);
+         if(value.startsWith("\"")) {
+             value=value.substring(1,value.indexOf('"',1));
+         } else {
+             i=value.indexOf(' ');
+             if(i>0) value=value.substring(0,i);
+	 }
+         return value;
+     }
+
     // ==================================================
     // File browsing stuff
     // JE: MOST OF THIS CODE WILL BE USELESS
@@ -823,8 +1006,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( !uri.endsWith( "/" )) {
 		uri += "/";
 		Response r = new Response( HTTP_REDIRECT, MIME_HTML,
-					   "<html><body>Redirected: <a href=\"" + uri + "\">" +
-					   uri + "</a></body></html>");
+					   "<html><body>Redirected: <a href=\""+uri+"\">" +uri+"</a></body></html>");
 		r.addHeader( "Location", uri );
 		return r;
 	    }
@@ -1010,6 +1192,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    this.status = status;
 	    this.mimeType = mimeType;
 	    this.data = new ByteArrayInputStream( txt.getBytes());
+	    // JE: Added
+	    this.msg = txt;
 	}
 
 	/**
@@ -1018,6 +1202,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	public void addHeader( String name, String value ) {
 	    header.put( name, value );
 	}
+
 
 	/**
 	 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
@@ -1039,6 +1224,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	 * to add lines.
 	 */
 	public Properties header = new Properties();
+	// JE: Added for testing Jetty
+	public String msg;
+	public String getStatus() { return status; };
+	public String getContentType() { return mimeType; }
+	public String getData() { return msg; }
+
     }
 }
 
