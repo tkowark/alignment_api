@@ -17,7 +17,6 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Adding Web Service Alignment server profile</li>
 <li>Implement level 2OMWG alignments (version 3);</li>
 <li>Completing the reference manual</li>
 </ul></p>
@@ -27,16 +26,20 @@
 <!--p><b>Version 3.1: xx/xx/2007 - ??</b></p-->
 
 <p><ul compact="1">
+<li>Added Web Service Alignment server profile</li>
 <li>Added a <tt>parseString( String )</tt> method in <tt>AlignmentParser</tt></li>
 <li>Implemented parsing of relations named by class name</li>
 <li>Got rid of the property file for wordnet</li>
 <li>In Server/FIPA, suppressed generated files on close()</li>
-<li>In Server/FIPA, suppressed printout</li>
+<li>In AlignmentService, suppressed all printouts (Jade or Jetty logging)</li>
+<li>In AlignmentService, added file logging option</li>
 <li>Completely rewritten autodetection of renderers and methods in server</li>
 <li>Modified interface of embedded methods</li>
 <li>Added guarantee that results displayed by GroupEval be sorted
   (thanks Vassilis Spiliopoulos)</li>
 <li>Added namespace support in BasicAlignment</li>
+<li>Forced trailing slash in HTML menu URLs</li>
+<li>Used Jetty as an embedded HTTP server</li>
 <li>Corrected an error on "force"-ing alignment in Server/HTML (was
   inverted)</li>
 <li>Corrected a bug concerning extension namespaces</li>

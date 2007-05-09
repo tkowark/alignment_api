@@ -26,10 +26,14 @@ import fr.inrialpes.exmo.queryprocessor.Type;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
+import fr.inrialpes.exmo.align.util.NullStream;
+
 import org.semanticweb.owl.align.Parameters;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.io.PrintStream;
+import java.io.File;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -93,6 +97,13 @@ public class AlignmentService {
 	services = new Hashtable();
 	// Read parameters
 	Parameters params = readParameters( args );
+	if ( outfile != null ) {
+	    // This redirects error outout to log file given by -o
+	    System.setErr( new PrintStream( outfile ) );
+	} else if ( debug <= 0 ){
+	    // This cancels all writing on the error output (default)
+	    System.setErr( new PrintStream( new NullStream() ) );
+	}
 	if ( debug > 0 ) System.err.println("Parameter parsed");
 
 	// Shut down hook
@@ -118,8 +129,6 @@ public class AlignmentService {
 	for ( Enumeration e = services.keys() ; e.hasMoreElements() ; ) {
 	    String name = (String)e.nextElement();
 	    Class serviceClass = Class.forName(name);
-	    //Object[] mparams = {(Object)onto1, (Object)onto2 };
-	    //Class[] cparams = { oClass, oClass };
 	    java.lang.reflect.Constructor constructor = serviceClass.getConstructor( (Class[])null );
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( (Object[])null );
 	    try {
@@ -152,6 +161,7 @@ public class AlignmentService {
 	manager.close();
 	connection.close();
 	if ( debug > 0 ) System.err.println("Database connection closed");
+	System.err.close();
     }
 
     protected void finalize() throws Throwable {
@@ -172,14 +182,13 @@ public class AlignmentService {
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[15];
+	LongOpt[] longopts = new LongOpt[16];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-	//longopts[4] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	// Service parameters
 	longopts[5] = new LongOpt("html", LongOpt.OPTIONAL_ARGUMENT, null, 'H');
 	longopts[6] = new LongOpt("jade", LongOpt.OPTIONAL_ARGUMENT, null, 'A');
@@ -192,10 +201,10 @@ public class AlignmentService {
 	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
 	longopts[14] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
-	longopts[14] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[15] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	// Is there a way for that in LongOpt ???
 
-	Getopt g = new Getopt("", args, "ho:S:d::l:D:H::A::W::P::m:s:u:p:b:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::m:s:u:p:b:i:", longopts);
 	int c;
 	String arg;
 
@@ -235,7 +244,8 @@ public class AlignmentService {
 		    params.setParameter( "http", arg );
 		} else {
 		    params.setParameter( "http", HTML );
-		}		    
+		}
+		// This shows that it does not work
 		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
 		break;
 	    case 'A' :
@@ -319,19 +329,19 @@ public class AlignmentService {
 	System.err.println("usage: AlignmentService [options]");
 	System.err.println("options are:");
 	//System.err.println("\t--load=filename -l filename\t\tInitialize the Service with the content of this ");
-	//System.err.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.err.println("\t--html[=port] -H [port]\t\t\tLaunch HTTP service");
-	System.err.println("\t--jade[=port] -A [port]\t\t\tLaunch Agent service");
-	System.err.println("\t--wsdl[=port] -W [port]\t\t\tLaunch Web service");
-	System.err.println("\t--jxta[=port] -P [port]\t\t\tLaunch P2P service");
+	System.err.println("\t--html[=port] -H[port]\t\t\tLaunch HTTP service");
+	System.err.println("\t--jade[=port] -A[port]\t\t\tLaunch Agent service");
+	System.err.println("\t--wsdl[=port] -W[port]\t\t\tLaunch Web service");
+	System.err.println("\t--jxta[=port] -P[port]\t\t\tLaunch P2P service");
 	System.err.println("\t--serv=class -i class\t\t\tLaunch service corresponding to fully qualified classname");
 	//System.err.println("\t--params=filename -p filename\tReads parameters from filename");
+	System.err.println("\t--output=filename -o filename\tRedirect output to filename");
 	System.err.println("\t--dbmshost=host -m host\t\t\tUse DBMS host");
 	System.err.println("\t--dbmsport=port -s port\t\t\tUse DBMS port");
 	System.err.println("\t--dbmsuser=name -u name\t\t\tUse DBMS user name");
 	System.err.println("\t--dbmspass=pwd -p pwd\t\t\tUse DBMS password");
 	System.err.println("\t--dbmsbase=name -b name\t\t\tUse Database name");
-	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
+	System.err.println("\t--debug[=n] -d[n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
 	System.err.println("\n$Id$\n");
