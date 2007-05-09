@@ -53,6 +53,7 @@ import java.util.StringTokenizer;
 
 import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -291,6 +292,8 @@ public class GroupOutput {
 	    throw new AlignmentException( "Cannot eval ", se );
 	} catch (IOException ioe) {
 	    throw new AlignmentException( "Cannot eval ", ioe );
+	} catch (XPathExpressionException ex) {
+	    throw new AlignmentException( "Cannot eval ", ex );
 	}
 
     }

@@ -48,6 +48,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -206,6 +207,8 @@ public class EvalAlign {
 	} catch (SAXException ex) {
 	    ex.printStackTrace();
 	} catch (ParserConfigurationException ex) {
+	    ex.printStackTrace();
+	} catch (XPathExpressionException ex) {
 	    ex.printStackTrace();
 	}
     }

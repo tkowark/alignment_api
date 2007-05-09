@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -75,7 +76,10 @@ public class QueryMediator implements QueryProcessor {
     public QueryMediator( QueryProcessor proc, String alignmentURI ) throws SAXException,ParserConfigurationException,IOException {
 	processor = proc;
 	AlignmentParser aparser = new AlignmentParser(0);
-	alignment = aparser.parse( alignmentURI );
+	try { alignment = aparser.parse( alignmentURI ); }
+	catch (XPathExpressionException xpee) {
+	    throw new ParserConfigurationException("Error on parsing");
+	}
     }
 
     public QueryMediator( Alignment a ) {
