@@ -61,6 +61,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     <pre>
         --inverse -i              Inverse first and second ontology
 	--renderer=className -r className  Use the given class for output.
+	--parser=className -p className  Use the given class for input.
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --help -h                       Print this message
@@ -90,9 +91,10 @@ public class ParserPrinter {
 	String filename = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
-	LongOpt[] longopts = new LongOpt[7];
+	LongOpt[] longopts = new LongOpt[8];
 	int debug = 0;
 	String rendererClass = null;
+	String parserClass = null;
 	boolean inverse = false;	
 	double threshold = 0;
 	String cutMethod = "hard";
@@ -101,11 +103,12 @@ public class ParserPrinter {
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[4] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
-	longopts[5] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[6] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
+	longopts[4] = new LongOpt("parser", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+	longopts[5] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
+	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
 	
-	Getopt g = new Getopt("", args, "hio:t:T:d::r:", longopts);
+	Getopt g = new Getopt("", args, "hio:t:T:d::r:p:", longopts);
 	int c;
 	String arg;
 
@@ -124,6 +127,10 @@ public class ParserPrinter {
 	    case 'r':
 		/* Use the given class for rendernig */
 		rendererClass = g.getOptarg();
+		break;
+	    case 'p':
+		/* Use the given class for rendernig */
+		parserClass = g.getOptarg();
 		break;
 	    case 't' :
 		/* Threshold */
@@ -155,7 +162,25 @@ public class ParserPrinter {
 	if ( debug > 1 ) System.err.println(" Filename"+initName);
 
 	try {
-	    AlignmentParser aparser = new AlignmentParser( debug );
+	    // Create parser
+	    AlignmentParser aparser = null;
+	    if ( parserClass == null ) aparser = new AlignmentParser( debug );
+	    // JE: I would be surprised that it works for the moment
+	    else {
+		try {
+		    Object[] mparams = { (Object)debug };
+		    java.lang.reflect.Constructor[] parserConstructors =
+			Class.forName(parserClass).getConstructors();
+		    aparser =
+			(AlignmentParser) parserConstructors[0].newInstance(mparams);
+		} catch (Exception ex) {
+		    System.err.println("Cannot create parser " + 
+				       parserClass + "\n" + ex.getMessage() );
+		    usage();
+		    return;
+		}
+	    }
+
 	    result = aparser.parse( initName );
 	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
 	    // Set output file
@@ -214,6 +239,7 @@ public class ParserPrinter {
 	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
 	System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
+	System.out.println("\t--parser=className -p\t\tUse the given class for input.");
 	System.out.println("\t--inverse -i\t\tInverse first and second ontology");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
