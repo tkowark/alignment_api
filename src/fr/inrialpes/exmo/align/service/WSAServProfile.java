@@ -341,7 +341,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswerSOAP( answer );
 	    }
 	} else if ( method.equals("loadfile") ) { // XML -> URI
-	    Message answer = manager.loadfile( new Message(newId(),(Message)null,myId,serverId,"", param) );
+	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", param) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessagesSOAP( answer );
 	    } else {
