@@ -168,9 +168,15 @@ public class AServProtocolManager {
     // DONE
     // Implements: store (different from store below)
     public Message load( Message mess ) {
+	boolean todiscard = false;
 	Parameters params = mess.getParameters();
 	// load the alignment
 	String name = (String)params.getParameter("url");
+	String file = null;
+	if ( name == null || name.equals("") ){
+	    file  = (String)params.getParameter("filename");
+	    if ( file != null && !file.equals("") ) name = "file://"+file;
+	}
 	//if (debgug > 0) System.err.println("Preparing for "+name);
 	Alignment init = null;
 	try {
@@ -183,26 +189,10 @@ public class AServProtocolManager {
 	}
 	// register it
 	String id = alignmentCache.recordNewAlignment( init, true );
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
-    }
-
-    public Message loadfile( Message mess ) {
-	Parameters params = mess.getParameters();
-	// the alignment content is within the parameters
-	// ?? JE: rather in the content
-	Alignment al = null;
-	try {
-	    //if (debug > 0) System.err.println(" Parsing init");
-	    AlignmentParser aparser = new AlignmentParser(0);
-	    al = aparser.parseString( mess.getContent() );
-	    //if (debug > 0) System.err.println(" Init parsed");
-	} catch (Exception e) {
-	    // Maybe not this message
-	    // And (String)null may not be the best idea...
-	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),(String)null,(Parameters)null);
+	// if the file has been uploaded: discard it
+	if ( init != null && file != null ) {
+	    // try unlink
 	}
-	// register it
-	String id = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
