@@ -2,33 +2,7 @@
  * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2006-2007.
- * Copyright (C) 2001,2005,2006 Jarno Elonen (elonen@iki.fi, http://iki.fi/elonen/)
  *
- * This code is based on NanoHTTPD from Jarno Elonen
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. Redistributions in
- * binary form must reproduce the above copyright notice, this list of
- * conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution. The name of the author may not
- * be used to endorse or promote products derived from this software without
- * specific prior written permission. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * Other part 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1
@@ -71,6 +45,7 @@ import java.util.Properties;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -80,6 +55,11 @@ import java.net.URLDecoder;
 import java.lang.Integer;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.ServletResponseWrapper;
+import javax.servlet.ServletRequestWrapper;
+import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -95,6 +75,8 @@ import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.handler.ResourceHandler;
+import org.mortbay.servlet.MultiPartFilter;
+import org.mortbay.jetty.servlet.Context.SContext;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
@@ -186,34 +168,35 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    Properties header = new Properties();
 
 		    // Multi part?
+		    // This is supposed to be only an uploaded file
+		    // We use jetty MultiPartFilter to decode this file,
+		    // and only this
 		    String mimetype = request.getContentType();
-		    if ( mimetype != null && mimetype.equals("multipart/form-data") ) {
-			System.err.println("Yeah, multipart content");
-			BufferedInputStream in = new BufferedInputStream(request.getInputStream());
-			String boundary="--"+value(mimetype.substring(mimetype.indexOf("boundary=")));
-			//byte[] byteBoundary=(boundary+"--").getBytes(StringUtil.__ISO_8859_1);
-			//MultiMap params = new MultiMap();
+		    if ( mimetype != null && mimetype.startsWith("multipart/form-data") ) {
+			MultiPartFilter filter = new MultiPartFilter();
+			// This is in fact useless
+			ParameterServletResponseWrapper dummyResponse =
+			    new ParameterServletResponseWrapper( response );
+			// In theory, the filter must be inited with a FilterConfig
+			// filter.init( new FilterConfig);
+			// This filter config must have a javax.servlet.context.tempdir attribute
+			// and a ServletConxtext with parameter "deleteFiles"
+			// Apparently the Jetty implementation uses System defaults
+			// if no FilterConfig
+			// e.g., it uses /tmp and keeps the files
+			filter.doFilter( request, dummyResponse, new Chain() );
+			// Extract parameters from response
+			if ( request.getAttribute("content") != null )
+			    params.setProperty( "filename", request.getAttribute("content").toString() );
+			filter.destroy();
 		    }
 
 		    Response r = serve( uri, method, header, params );
 		    response.setContentType(r.getContentType());
-
 		    //response.setStatus(r.getStatus());
 		    response.setStatus(HttpServletResponse.SC_OK);
 		    response.getWriter().println(r.getData());
 		    // r.getStatus(); r.getContentType; r.getData();
-		    /*
-		    response.setContentType("text/html");
-		    response.setStatus(HttpServletResponse.SC_OK);
-		    response.getWriter().println("<h1>Alignment Server powered by Jetty</h1> for target "+target);
-		    response.getWriter().println("method: "+request.getMethod()+"<br />");
-		    response.getWriter().println("pathinfo: "+request.getPathInfo()+"<br />");
-		    response.getWriter().println("pathtranslated: "+request.getPathTranslated()+"<br />");
-		    response.getWriter().println("query: "+request.getQueryString()+"<br />");
-		    response.getWriter().println("URI: "+request.getRequestURI()+"<br />");
-		    response.getWriter().println("URL: "+request.getRequestURL()+"<br />");
-		    response.getWriter().println("servletPath: "+request.getServletPath()+"<br />");
-		    */
 		    ((Request)request).setHandled(true);
 		}
 	    };
@@ -547,26 +530,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmload") ) {
 	    // Should certainly be good to offer store as well
 	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br /><input type=\"submit\" value=\"Load\"/></form>";
-	    msg += "<font color=\"red\">Experimental:</font><br />";
 	    //msg += "Alignment file: <form ENCTYPE=\"text/xml; charset=utf-8\" action=\"loadfile\" method=\"POST\">";
-	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"loadfile\" method=\"POST\">";
+	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"load\" method=\"POST\">";
 	    msg += " <input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
 	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
-	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB</small><br />";
+	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB; this is experimental but works</small><br />";
 	    msg += " <input type=\"submit\" Value=\"Upload\">";
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
 	    // load
 	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
-	    } else {
-		msg = "<h1>Alignment loaded</h1>";
-		msg += displayAnswer( answer );
-	    }
-	} else if ( perf.equals("loadfile") ) {
-	    // load
-	    Message answer = manager.loadfile( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer );
 	    } else {
@@ -1231,5 +1204,33 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	public String getData() { return msg; }
 
     }
+
+    /**
+     * Two private cclasses for retrieving parameters
+     */
+    private class ParameterServletResponseWrapper extends ServletResponseWrapper  {
+	private Map parameters;
+
+	public ParameterServletResponseWrapper( ServletResponse r ){
+	    super(r);
+	};
+
+	public Map getParameterMap(){ return parameters; }
+ 
+	public void setParameterMap( Map m ){ parameters = m; }
+ 
+     }
+
+    private class Chain implements FilterChain {
+ 
+	public void doFilter( ServletRequest request, ServletResponse response)
+	    throws IOException, ServletException {
+	    if ( response instanceof ParameterServletResponseWrapper &&
+		 request instanceof ServletRequestWrapper ) {
+		((ParameterServletResponseWrapper)response).setParameterMap( ((ServletRequestWrapper)request).getParameterMap() );
+	    }
+         }
+ 
+     }
 }
 
