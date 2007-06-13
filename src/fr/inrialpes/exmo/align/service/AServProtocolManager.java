@@ -635,7 +635,7 @@ public class AServProtocolManager {
 		try {
 		    File file = new File( tk2.nextToken() );
 		    if ( file.isDirectory() ) {
-			System.err.println("DIR "+file);
+			//System.err.println("DIR "+file);
 			String subs[] = file.list();
 			for(int index = 0 ; index < subs.length ; index ++ ){
 			    //if ( debug ) System.err.println("    "+subs[index]);

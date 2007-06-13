@@ -152,7 +152,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// JE: Jetty implementation
 	server = new Server(tcpPort);
 
-	Handler handler=new AbstractHandler(){
+	Handler handler = new AbstractHandler(){
 		public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) 
 		    throws IOException, ServletException
 		{
@@ -166,7 +166,13 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    // I do not decode them here because it is useless
 		    // See below how it is done.
 		    Properties header = new Properties();
+		    Enumeration headerNames = request.getHeaderNames();
+		    while(headerNames.hasMoreElements()) {
+			String headerName = (String)headerNames.nextElement();
+			header.setProperty( headerName, request.getHeader(headerName) );
+		    }
 
+		    // Get the content if any
 		    // Multi part?
 		    // This is supposed to be only an uploaded file
 		    // We use jetty MultiPartFilter to decode this file,
@@ -189,9 +195,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			if ( request.getAttribute("content") != null )
 			    params.setProperty( "filename", request.getAttribute("content").toString() );
 			filter.destroy();
+		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
+			// Most likely Web service request
+			int length = request.getContentLength();
+			char [] mess = new char[length+1];
+			try { 
+			    new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
+			} catch (Exception e) {
+			    e.printStackTrace(); // To clean up
+			}
+			params.setProperty( "content", new String( mess ) );
 		    }
 
+		    // Get the answer (HTTP)
 		    Response r = serve( uri, method, header, params );
+
+		    // Return it
 		    response.setContentType(r.getContentType());
 		    //response.setStatus(r.getStatus());
 		    response.setStatus(HttpServletResponse.SC_OK);
@@ -247,15 +266,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * @return HTTP response, see class Response for details
      */
     public Response serve( String uri, String method, Properties header, Properties parms ) {
-	// This should only be done for debugging
 	if ( debug >= 1 ) System.err.println( method + " '" + uri + "' " );
-	/*
-	Enumeration e = header.propertyNames();
-	while ( e.hasMoreElements()) {
-	    String value = (String)e.nextElement();
-	    System.err.println( "  HDR: '" + value + "' = '" +
-				header.getProperty( value ) + "'" );
+	Enumeration en = header.propertyNames();
+	while ( en.hasMoreElements()) {
+	    String value = (String)en.nextElement();
+	    //System.err.println( "  HDR: '" + value + "' = '" +
+	    //			header.getProperty( value ) + "'" );
 	}
+	/*
 	e = parms.propertyNames();
 	while ( e.hasMoreElements()) {
 	    String value = (String)e.nextElement();
@@ -297,7 +315,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	}
 
 	if ( oper.equals( "aserv" ) ){
-		if ( wsmanager != null ) {
+	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
 		// This is not correct: I shoud return an error
@@ -728,20 +746,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    // JE: it should not decode...
 		    //decodeParms( postLine, parms );
 		    // JE: Display the parameters to know what we have
-		    System.err.println("POST detected at "+uri);
-		    System.err.println(method+" [ "+header+" ] ");
+		    //System.err.println("POST detected at "+uri);
+		    //System.err.println(method+" [ "+header+" ] ");
 		    Enumeration e = header.propertyNames();
 		    while ( e.hasMoreElements()) {
 			String value = (String)e.nextElement();
-			System.err.println( "  HDR: '" + value + "' = '" +
-					    header.getProperty( value ) + "'" );
+			//System.err.println( "  HDR: '" + value + "' = '" +
+			//		    header.getProperty( value ) + "'" );
 		    }
 		    e = parms.propertyNames();
 		    while ( e.hasMoreElements()) {
 			String value = (String)e.nextElement();
-			System.err.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
+			//System.err.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
 		    }
-		    System.err.println("The content is\n"+postLine);
+		    //System.err.println("The content is\n"+postLine);
 		    parms.put( "content", postLine );
 		}
 

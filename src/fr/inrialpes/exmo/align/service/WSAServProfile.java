@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh?e-Alpes, 2007.
+ * Copyright (C) INRIA Rhône-Alpes, 2007.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -117,11 +117,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
      * but reserved if appears useful
      */
     public String protocolAnswer( String uri, String perf, Properties header, Parameters param ) {
-	String method;
-	String message;
-//	System.err.println("SOAP MESSAGE [ "+perf+" ]\n"+params.getParameter("content"));
-	method = header.getProperty("SOAPAction");
-	message = (String) param.getParameter("content");
+	String method = header.getProperty("SOAPAction");
+	String message = (String)param.getParameter("content");
 
 	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
 	if ( perf.equals("WSDL") ) {
@@ -197,7 +194,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		request_uri = message.substring(start+5, end);
 		start = message.indexOf("<threshold>");
 		end = message.indexOf("</threshold>");
-		request_threshold = message.substring(start+10, end);
+		request_threshold = message.substring(start+11, end);
 		
 		params.setParameter("id", request_id);
 		params.setParameter("uri", request_uri);
@@ -215,6 +212,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		int start;
 		int end;
 
+
 		String request_url1;
 		String request_url2;
 		String request_method;
@@ -226,6 +224,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		start = message.indexOf("<url1>");
 		end = message.indexOf("</url1>");
 		request_url1 = message.substring(start+6, end);
+		System.out.println(request_url1);
+		
 
 		start = message.indexOf("<url2>");
 		end = message.indexOf("</url2>");
@@ -233,7 +233,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 
 		start = message.indexOf("<method>");
 		end = message.indexOf("</method>");
-		request_method = message.substring(start+5, end);
+		request_method = message.substring(start+8, end);
 
 		start = message.indexOf("<force>");
 		end = message.indexOf("</force>");
@@ -318,6 +318,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( answer instanceof ErrorMsg ) {
 		msg += testErrorMessagesSOAP( answer );
 	    } else {
+		// Depending on the type we should change the MIME type
+		// This should be returned in answer.getParameters()
 		msg += "<result>" + answer.getContent() + "</result>";
 		}
 	} else if ( method.equals("load") ) { // URL -> URI
@@ -354,11 +356,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	msg += "  </SOAP-ENV:Body></SOAP-ENV:Envelope>";
 	return msg;
     }
-	private String displayAnswerSOAP ( Message answer ) {
-	return answer.SOAPString();
-	}
-	private String testErrorMessagesSOAP( Message answer ) {
+
+    private String displayAnswerSOAP ( Message answer ) {
 	return answer.SOAPString();
     }
+
+    private String testErrorMessagesSOAP( Message answer ) {
+	return answer.SOAPString();
+    }
+
     private int newId() { return localId++; }
 }
