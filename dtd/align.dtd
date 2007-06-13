@@ -34,25 +34,38 @@
 <!-- (11|1?|1+|1*|?1|??|?+|?*|+1|+?|++|+*|*1|*?|*+|**) -->
 <!ELEMENT type (#PCDATA)>
 <!ELEMENT level (#PCDATA)>
+<!-- uriX are only here for compatibility purposes -->
 <!ELEMENT uri1 (#PCDATA)><!-- uri -->
 <!ATTLIST uri1 rdf:resource %uri; #IMPLIED>
 <!ELEMENT uri2 (#PCDATA)><!-- uri -->
 <!ATTLIST uri2 rdf:resource %uri; #IMPLIED>
-<!ELEMENT onto1 (#PCDATA)><!-- uri -->
+<!ELEMENT onto1 (ANY)><!-- uri|Ontology -->
 <!ATTLIST onto1 rdf:resource %uri; #IMPLIED>
-<!ELEMENT onto2 (#PCDATA)><!-- uri -->
+<!ELEMENT onto2 (ANY)><!-- uri|Ontology -->
 <!ATTLIST onto2 rdf:resource %uri; #IMPLIED>
+
+<!ELEMENT Ontology (formalism)>
+<!ATTLIST Ontology rdf:about %uri; #IMPLIED>
+<!ELEMENT location (#PCDATA)>
+<!ELEMENT formalism (Formalism)>
+<!ELEMENT Formalism (EMPTY)>
+<!ATTLIST Formalism uri %uri; #IMPLIED
+	  name CDATA #REQUIRED>
+
 <!-- For compatibility reason it is authorized to put several Cells
-     in a map element. However, the result is not RDF however -->
+     in a map element. However, the result is not RDF anymore -->
 <!ELEMENT map (Cell*)>
 
 <!ELEMENT Cell (entity1|entity2|measure|relation)*>
+<!ATTLIST Cell id %uri; #IMPLIED>
 
-<!ELEMENT entity1 EMPTY>
-<!ATTLIST entity1 rdf:resource %uri; #REQUIRED>
+<!-- either object or URI -->
+<!ELEMENT entity1 ANY>
+<!ATTLIST entity1 rdf:resource %uri; #IMPLIED>
 
-<!ELEMENT entity2 EMPTY>
-<!ATTLIST entity2 rdf:resource %uri; #REQUIRED>
+<!-- either object or URI -->
+<!ELEMENT entity2 ANY>
+<!ATTLIST entity2 rdf:resource %uri; #IMPLIED>
 
 <!-- I should put the true value here -->
 <!ATTLIST measure rdf:datatype %uri; #REQUIRED>

@@ -20,6 +20,9 @@
 
 package fr.inrialpes.exmo.align.parser;
 
+// Imported OMWG classes
+import org.omwg.mediation.parser.alignment.XpathParser;
+
 //Imported SAX classes
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,10 +33,12 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 //Imported JAVA classes
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.lang.Integer;
@@ -45,6 +50,7 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.impl.Ontology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
@@ -58,7 +64,8 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
  */
 
 public class AlignmentParser extends DefaultHandler {
-	
+
+    protected static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment";
     /**
      * level of debug/warning information
      */
@@ -72,12 +79,13 @@ public class AlignmentParser extends DefaultHandler {
     /**
      * the first Ontology 
      */
-    Object onto1 = null;
+    Ontology onto1 = null;
+    Ontology curronto = null;
     
     /**
      * the second Ontology 
      */
-    Object onto2 = null;
+    Ontology onto2 = null;
 
     /**
      * The currently loaded ontologies
@@ -90,7 +98,9 @@ public class AlignmentParser extends DefaultHandler {
      * This is a pitty but the idea of creating a particular alignment
      * is not in accordance with using an interface.
      */
-    protected URIAlignment alignment = null;
+    protected Alignment alignment = null;
+    // Used by the OMWGAlignments
+    //protected URIAlignment alignment = null;
     
     /**
      * the content found as text...
@@ -173,7 +183,10 @@ public class AlignmentParser extends DefaultHandler {
      * @param loaded should be replaced by OntologyCache (by useless)
      * @deprecated use parse( URI ) instead
      */
-    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException {
+    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, XPathExpressionException {
+	// Determine which parser to use through the use of Xpath?
+	//private static final XPath XPATH = XPathFactory.newInstance().newXPath();
+	
 	//ontologies = loaded;
 	return parse( uri );
     }
@@ -184,13 +197,25 @@ public class AlignmentParser extends DefaultHandler {
      * parsed.
      * @param uri URI of the document to parse
      */
-    public Alignment parse( String uri ) throws SAXException, IOException {
+    public Alignment parse( String uri ) throws SAXException, IOException, XPathExpressionException {
 	this.uri = uri;
-	parser.parse(uri,this);
+	try { parser.parse(uri,this); }
+	catch (SAXException e) {
+	    if ( e.getMessage().equals("2OMWGAlignment") ) {
+		//alignment = new XpathParser().parse(((InputStream)new URL( uri ).openStream()));
+		alignment = new XpathParser().parse( new File( uri ) );
+	    } else {
+		throw e; // unfortunatelly
+	    }
+	}
 	return alignment;
     }
 
-    public Alignment parseString( String s ) throws SAXException, IOException {
+    /** 
+     * Parses a string instead of a URI
+     * @param s String the string to parse
+     */
+    public Alignment parseString( String s ) throws SAXException, IOException, XPathExpressionException {
 	parser.parse( new InputSource( new StringReader( s ) ),
 		      this );
 	return alignment;
@@ -209,7 +234,7 @@ public class AlignmentParser extends DefaultHandler {
 	if(debugMode > 2) 
 	    System.err.println("startElement AlignmentParser : " + pName);
 	parselevel++;
-	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
+	if(namespaceURI.equals(ALIGNNS))  {
 	    if (pName.equals("relation")) {
 	    } else if (pName.equals("semantics")) {
 	    } else if (pName.equals("measure")) {
@@ -245,13 +270,32 @@ public class AlignmentParser extends DefaultHandler {
 		cl2 = null;
 	    } else if (pName.equals("map")) {
 		try {
-		    alignment.setOntology2( onto2 );
-		    alignment.setOntology1( onto1 );
+		    // JE: OMWG1 //NOT SURE
+		    alignment.init( onto1, onto2 );
 		} catch ( AlignmentException e ) {
 		    throw new SAXException("Catched alignment exception", e );
 		}
+	    } else if (pName.equals("Formalism")) {
+		// JE: OMWG1 leave it alone for the moment
+		//if ( atts.getValue("uri") != null )
+		//    curronto.setFormalismURI( new URI(atts.getValue("uri")) );
+		if ( atts.getValue("name") != null )
+		    curronto.setFormalism( atts.getValue("name") );
+	    } else if (pName.equals("formalism")) {
+	    } else if (pName.equals("location")) {
+	    } else if (pName.equals("Ontology")) {
+		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
+			try {
+			    curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
+			    curronto.setUri( new URI( atts.getValue("rdf:about") ) );
+			} catch (URISyntaxException e) {
+			    throw new SAXException("onto2: malformed URI");
+			}
+		}
 	    } else if (pName.equals("onto2")) {
+		curronto = onto2;
 	    } else if (pName.equals("onto1")) {
+		curronto = onto1;
 	    } else if (pName.equals("uri2")) {
 	    } else if (pName.equals("uri1")) {
 	    } else if (pName.equals("type")) {
@@ -259,6 +303,8 @@ public class AlignmentParser extends DefaultHandler {
 	    } else if (pName.equals("xml")) {
 	    } else if (pName.equals("Alignment")) {
 		alignment = new URIAlignment();
+		onto1 = new Ontology();
+		onto2 = new Ontology();
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 	    };
@@ -266,7 +312,7 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    if ( parselevel != 2 ) throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
+	    if ( parselevel != 3 && parselevel != 5 ) throw new SAXException("[AlignmentParser("+parselevel+")] Unknown namespace : "+namespaceURI);
 	}
     }
 
@@ -318,10 +364,10 @@ public class AlignmentParser extends DefaultHandler {
      * @param pName 			The local name of the current element
      * @param qname					The name of the current element 
      */
-    public  void endElement(String namespaceURI,String pName, String qName ) throws SAXException {
+    public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("endElement AlignmentParser : " + pName);
-	if(namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment"))  {
+	if(namespaceURI.equals(ALIGNNS))  {
 	    try {
 		if (pName.equals("relation")) {
 		    relation = content;
@@ -352,31 +398,54 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( extensions != null ) cell.setExtensions( extensions );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
-		    try {
-			onto1 = new URI( content );
-		    } catch (URISyntaxException e) {
-			throw new SAXException("uri1: malformed URI");
+		    if ( onto1.getOntology() != null ){
+			try {
+			    // JE: OMWG1
+			    URI u = new URI( content );
+			    onto1.setOntology( u );
+			    onto1.setUri( u );
+			} catch (URISyntaxException e) {
+			    throw new SAXException("uri1: malformed URI");
+			}
 		    }
 		} else if (pName.equals("uri2")) {
-		    try {
-			onto2 = new URI( content );
-		    } catch (URISyntaxException e) {
-			throw new SAXException("uri2: malformed URI");
+		    if ( onto2.getOntology() != null ){
+			try {
+			    // JE: OMWG1
+			    URI u = new URI( content );
+			    onto2.setOntology( u );
+			    onto2.setUri( u );
+			} catch (URISyntaxException e) {
+			    throw new SAXException("uri2: malformed URI");
+			}
 		    }
-		} else if (pName.equals("onto2")) {
-		    try { alignment.setFile2( new URI( content ) );
+		// JE: OMWG1
+		} else if (pName.equals("Ontology")) {
+		} else if (pName.equals("location")) {
+		    try { curronto.setFile( new URI( content ) );
 		    } catch (URISyntaxException e) {
 			throw new SAXException("onto2: malformed URI");
 		    }
-		} else if (pName.equals("onto1")) {
-		    try { alignment.setFile1( new URI( content ) );
-		    } catch (URISyntaxException e) {
-			throw new SAXException("onto1: malformed URI");
-		    }
+		} else if (pName.equals("Formalism")) {
+		} else if (pName.equals("formalism")) {
+		} else if (pName.equals("onto1") || pName.equals("onto2")) {
+		    if ( curronto.getFile() == null && 
+			 content != null && !content.equals("") ) {
+			try { curronto.setFile( new URI( content ) );
+			} catch (URISyntaxException e) {
+			    throw new SAXException(pName+": malformed URI");
+			}
+		    };
+		    curronto = null;
 		} else if (pName.equals("type")) {
 		    alignment.setType( content );
 		} else if (pName.equals("level")) {
-		    alignment.setLevel( content );
+		    if ( content.equals("2OMWG") ) {
+			//throw new AlignmentException("2OMWGAlignment");
+			throw new SAXException("2OMWGAlignment");
+		    } else {
+			alignment.setLevel( content );
+		    }
 		} else if (pName.equals("xml")) {
 		    //if ( content.equals("no") )
 		    //	{ throw new SAXException("Non parseable alignment"); }
@@ -385,9 +454,7 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( parselevel == 3 ){
 			alignment.setExtension( pName, content );
 		    } else if ( parselevel == 5 ) {
-			if ( extensions == null ) extensions = new BasicParameters();
-			//cell.setExtension( pName, content );
-			extensions.setParameter( pName, content );
+			    extensions.setParameter( pName, content );
 		    } else //if ( debugMode > 0 )
 			System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
@@ -398,11 +465,12 @@ public class AlignmentParser extends DefaultHandler {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
 	    if ( parselevel == 3 ){
-		alignment.setExtension( pName, content );
+		alignment.setExtension( qName, content );
+		//alignment.addNamespace( namespaceURI, );
 	    } else if ( parselevel == 5 ) {
 		if ( extensions == null ) extensions = new BasicParameters();
-		//cell.setExtension( pName, content );
-		extensions.setParameter( pName, content );
+		extensions.setParameter( qName, content );
+		//alignment.addNamespace( namespaceURI, );
 	    } else throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
 	parselevel--;

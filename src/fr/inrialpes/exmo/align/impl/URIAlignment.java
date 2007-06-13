@@ -53,23 +53,23 @@ import org.semanticweb.owl.align.Parameters;
 
 public class URIAlignment extends BasicAlignment {
 
-    //protected URI onto1 = null;
+    public URIAlignment() {}
 
-    //protected URI onto2 = null;
-
-    public URIAlignment() {
-    }
-
-    public void init(URI onto1, URI onto2) throws AlignmentException {
-	if ( onto1 instanceof URI && onto2 instanceof URI ){
+    // JE: OMWG1, not sure it works...
+    public void init(Object o1, Object o2) throws AlignmentException {
+	if ( o1 instanceof Ontology && o2 instanceof Ontology ){
+	    super.init( o1, o2 );
+	} else if ( o1 instanceof URI && o2 instanceof URI ) {
 	    super.init( onto1, onto2 );
+	    this.onto1.setUri( (URI)o1 );
+	    this.onto2.setUri( (URI)o2 );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");
 	};
     }
 
     public void setOntology1(Object ontology) throws AlignmentException {
-	if ( ontology instanceof URI ){
+	if ( ontology instanceof URI || ontology instanceof Ontology ){
 	    super.setOntology1( ontology );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");
@@ -77,7 +77,7 @@ public class URIAlignment extends BasicAlignment {
     };
 
     public void setOntology2(Object ontology) throws AlignmentException {
-	if ( ontology instanceof URI ){
+	if ( ontology instanceof URI || ontology instanceof Ontology ){
 	    super.setOntology2( ontology );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");

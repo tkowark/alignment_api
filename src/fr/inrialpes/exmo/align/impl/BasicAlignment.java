@@ -65,9 +65,11 @@ public class BasicAlignment implements Alignment {
     //public static String TIME = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time";
     public static String TIME = "time";
 
-    protected Object onto1 = null;
-
-    protected Object onto2 = null;
+    // JE: OMWG1
+    //protected Object onto1 = null;
+    //protected Object onto2 = null;
+    protected Ontology onto1 = null;
+    protected Ontology onto2 = null;
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
     protected static boolean STRICT_IMPLEMENTATION = false;
@@ -93,9 +95,9 @@ public class BasicAlignment implements Alignment {
      * This is NOT the Ontology URI which can be obtained by
      * getOntology1URI()
      */
-    protected URI uri1 = null;
-
-    protected URI uri2 = null;
+    // JE: OMWG1
+    //protected URI uri1 = null;
+    //protected URI uri2 = null;
 
     public BasicAlignment() {
 	hash1 = new Hashtable();
@@ -103,11 +105,23 @@ public class BasicAlignment implements Alignment {
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
 	setExtension( METHOD, getClass().getName() );
+	// JE: OMWG1
+	onto1 = new Ontology();
+	onto2 = new Ontology();
     }
 
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
-	this.onto1 = onto1;
-	this.onto2 = onto2;
+	System.err.println( "ONTO1[init()] = " +onto1 );
+	// JE: OMWG1
+	//this.onto1 = onto1;
+	//this.onto2 = onto2;
+	if ( onto1 instanceof Ontology ) {
+	    this.onto1 = (Ontology)onto1;
+	    this.onto2 = (Ontology)onto2;
+	} else {
+	    this.onto1.setOntology( onto1 );
+	    this.onto2.setOntology( onto2 );
+	}
     }
 
     public void init( Object onto1, Object onto2 ) throws AlignmentException {
@@ -128,24 +142,28 @@ public class BasicAlignment implements Alignment {
 
     /** Alignment methods * */
     public Object getOntology1() {
-	return onto1;
+	return onto1.getOntology();
     };
 
     public Object getOntology2() {
-	return onto2;
+	return onto2.getOntology();
     };
 
     public URI getOntology1URI() throws AlignmentException {
-	if ( onto1 instanceof URI ) {
-	    return (URI)onto1;
+	// JE: OMWG1
+	Object ontology = onto1.getOntology();
+	if ( ontology != null && ontology instanceof URI ) {
+	    return (URI)ontology;
 	} else {
 	    throw new AlignmentException( "Cannot find URI for "+onto1 );
 	}
     };
 
     public URI getOntology2URI() throws AlignmentException {
-	if ( onto2 instanceof URI ) {
-	    return (URI)onto2;
+	// JE: OMWG1
+	Object ontology = onto2.getOntology();
+	if ( ontology != null && ontology instanceof URI ) {
+	    return (URI)ontology;
 	} else {
 	    throw new AlignmentException( "Cannot find URI for "+onto2 );
 	}
@@ -153,12 +171,16 @@ public class BasicAlignment implements Alignment {
 
     public void setOntology1(Object ontology) throws AlignmentException {
 	//*/onto1 = (OWLOntology)ontology;
-	onto1 = ontology;
+	// JE: OMWG1
+	//onto1 = ontology;
+	onto1.setOntology( ontology );
     };
 
     public void setOntology2(Object ontology) throws AlignmentException {
 	//*/onto2 = (OWLOntology)ontology;
-	onto2 = ontology;
+	// JE: OMWG1
+	//onto2 = ontology;
+	onto2.setOntology( ontology );
     };
 
     public void setType(String type) { this.type = type; };
@@ -169,13 +191,19 @@ public class BasicAlignment implements Alignment {
 
     public String getLevel() { return level; };
 
-    public URI getFile1() { return uri1; };
+    // JE: OMWG1
+    //public URI getFile1() { return uri1; };
+    //public void setFile1(URI u) { uri1 = u; };
+    //public URI getFile2() { return uri2; };
+    //public void setFile2(URI u) { uri2 = u; };
 
-    public void setFile1(URI u) { uri1 = u; };
+    public URI getFile1() { return onto1.getFile(); };
 
-    public URI getFile2() { return uri2; };
+    public void setFile1(URI u) { onto1.setFile( u ); };
 
-    public void setFile2(URI u) { uri2 = u; };
+    public URI getFile2() { return onto2.getFile(); };
+
+    public void setFile2(URI u) { onto2.setFile( u ); };
 
     public Parameters getExtensions(){ return extensions; }
 
@@ -613,6 +641,7 @@ public class BasicAlignment implements Alignment {
      */
     public void cleanUp() {}
 }
+
 
 class MEnumeration implements Enumeration {
     private Enumeration set = null; // The enumeration of sets

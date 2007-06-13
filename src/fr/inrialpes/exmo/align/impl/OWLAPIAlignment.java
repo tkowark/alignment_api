@@ -56,32 +56,32 @@ import org.semanticweb.owl.align.Parameters;
 
 public class OWLAPIAlignment extends BasicAlignment {
 
-    //protected OWLOntology onto1 = null;
-
-    //protected OWLOntology onto2 = null;
-
     protected OWLAPIAlignment init = null;
 
-    public OWLAPIAlignment() {
-    }
+    public OWLAPIAlignment() {}
 
     public void init(Object onto1, Object onto2) throws AlignmentException {
 	init( onto1, onto2, (OntologyCache)null );
     }
 
-    public void init(Object onto1, Object onto2, Object ontologies) throws AlignmentException {
+    public void init(Object o1, Object o2, Object ontologies) throws AlignmentException {
 	OntologyCache cache = null;
 	if ( ontologies instanceof OntologyCache ) cache = (OntologyCache)ontologies;
 	else cache = (OntologyCache)null;
-	if ( onto1 instanceof OWLOntology && onto2 instanceof OWLOntology ){
-	    super.init( onto1, onto2, ontologies );
-	} else if ( onto1 instanceof URI && onto2 instanceof URI ) {
+	if ( (o1 instanceof OWLOntology && o2 instanceof OWLOntology)
+	     || (o1 instanceof Ontology && o2 instanceof Ontology) ){
+	    super.init( o1, o2, ontologies );
+	} else if ( o1 instanceof URI && o2 instanceof URI ) {
 	    // JE: This contains the File and not the URI!
-	    setFile1( (URI)onto1 );
-	    setFile2( (URI)onto2 );
+	    setFile1( (URI)o1 );
+	    setFile2( (URI)o2 );
+	    ((Ontology)onto1).setFormalism( "OWL1.0" );
+	    ((Ontology)onto2).setFormalism( "OWL1.0" );
+	    //onto1.setFormalismURI();
+	    //onto2.setFormalismURI();
 	    try {
-		super.init( loadOntology( getFile1(), cache ),
-			    loadOntology( getFile2(), cache ) );
+		super.init( loadOntology( (URI)o1, cache ),
+			    loadOntology( (URI)o2, cache ) );
 	    } catch (OWLException e) {
 		throw new AlignmentException( "Cannot load ontologies", e );
 	    } catch (SAXException e) {
@@ -109,7 +109,8 @@ public class OWLAPIAlignment extends BasicAlignment {
 
     public URI getOntology1URI() throws AlignmentException {
 	try {
-	    return ((OWLOntology)onto1).getLogicalURI();
+	    // JE: OWMG1
+	    return ((OWLOntology)(onto1.getOntology())).getLogicalURI();
 	} catch ( OWLException e ) {
 	    throw new AlignmentException( "URI conversion error for "+onto1, e );
 	}
@@ -117,7 +118,8 @@ public class OWLAPIAlignment extends BasicAlignment {
 
     public URI getOntology2URI() throws AlignmentException {
 	try {
-	    return ((OWLOntology)onto2).getLogicalURI();
+	    // JE: OWMG1
+	    return ((OWLOntology)(onto2.getOntology())).getLogicalURI();
 	} catch ( OWLException e ) {
 	    throw new AlignmentException( "URI conversion error for "+onto2, e );
 	}
@@ -216,7 +218,7 @@ public class OWLAPIAlignment extends BasicAlignment {
     public Object clone() {
 	OWLAPIAlignment align = new OWLAPIAlignment();
 	try {
-	    align.init( (OWLOntology)getOntology1(), (OWLOntology)getOntology2() );
+	    align.init( onto1, onto2 );
 	} catch ( AlignmentException e ) {};
 	align.setType( getType() );
 	align.setLevel( getLevel() );
@@ -264,6 +266,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	OWLAPIAlignment alignment = new OWLAPIAlignment();
 	//alignment.setFile1( al.getFile1() );
 	//alignment.setFile2( al.getFile2() );
+	System.err.println( "TOA: " + al.getFile1()+ " -- " + al.getFile2());
 	alignment.init( al.getFile1(), al.getFile2(), ontologies );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
@@ -271,13 +274,16 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    String label = (String)e.nextElement();
 	    alignment.setExtension( label, al.getExtension( label ) );
 	}
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
+	OWLOntology o1 = (OWLOntology)alignment.getOntology1();
+	OWLOntology o2 = (OWLOntology)alignment.getOntology2();
+	System.err.println( o1 );
 	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
+	    System.err.println( c.getObject1AsURI() );
+	    System.err.println( c.getObject2AsURI() );
 	    alignment.addAlignCell( c.getId(), 
-				    getEntity( onto1, c.getObject1AsURI() ),
-				    getEntity( onto2, c.getObject2AsURI() ),
+				    getEntity( o1, c.getObject1AsURI() ),
+				    getEntity( o2, c.getObject2AsURI() ),
 				    c.getRelation(), 
 				    c.getStrength(),
 				    c.getExtensions() );
