@@ -19,6 +19,7 @@
 <p><ul compact="1">
 <li>Implement level 2OMWG alignments (version 3);</li>
 <li>Completing the reference manual</li>
+<li>Autogenerate wsdl</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
@@ -26,26 +27,32 @@
 <!--p><b>Version 3.1: xx/xx/2007 - ??</b></p-->
 
 <p><ul compact="1">
-<li>Added Web Service Alignment server profile</li>
-<li>Added a <tt>parseString( String )</tt> method in <tt>AlignmentParser</tt></li>
-<li>Implemented parsing of relations named by class name</li>
-<li>Got rid of the property file for wordnet</li>
-<li>In Server/FIPA, suppressed generated files on close()</li>
-<li>In AlignmentService, suppressed all printouts (Jade or Jetty logging)</li>
-<li>In AlignmentService, added file logging option</li>
-<li>Completely rewritten autodetection of renderers and methods in server</li>
+<li>Added more ontology information in format, changed the
+  implementation of ontology descriptions (format/parser/impl)</li>
+<li>Added Web Service Alignment server profile (service)</li>
+<li>Added a <tt>parseString( String )</tt> method
+  in <tt>AlignmentParser</tt> (parser)</li>
+<li>Implemented parsing of relations named by class name (parser)</li>
+<li>Got rid of the property file for wordnet (ling)</li>
+<li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (service)</li>
+<li>Suppressed all printouts (Jade or Jetty logging) (service)</li>
+<li>Added file logging option (service)</li>
+<li>Completely rewritten autodetection of renderers and methods in server (service)</li>
 <li>Modified interface of embedded methods</li>
-<li>Added guarantee that results displayed by GroupEval be sorted
-  (thanks Vassilis Spiliopoulos)</li>
-<li>Added namespace support in BasicAlignment</li>
-<li>Forced trailing slash in HTML menu URLs</li>
-<li>Used Jetty as an embedded HTTP server</li>
+<li>Added guarantee that results displayed by <tt>GroupEval</tt> be sorted
+  (thanks Vassilis Spiliopoulos) (util)</li>
+<li>Added namespace support in BasicAlignment (impl)</li>
+<li>Forced trailing slash in HTML menu URLs (service)</li>
+<li>Changed for Jetty as an embedded HTTP server (service)</li>
+<li>Implemented alignment upload (service)</li>
 <li>Corrected an error on "force"-ing alignment in Server/HTML (was
-  inverted)</li>
+  inverted) (service)</li>
 <li>Corrected a bug concerning extension namespaces</li>
-<li>Corrected bugs in relation writing/parsing</li>
-<li>Improved web pages (reorganisation)</li>
-<li>Transferred the TODOs to gforge</li>
+<li>Corrected bugs in relation writing/parsing (parser)</li>
+<li>Corrected a bug in <tt>SubsDistanceAlignment</tt> when URI have no
+  fragments (method)</li>
+<li>Improved web pages (reorganisation) (html)</li>
+<li>Transferred the TODOs to gforge (html)</li>
 </ul></p>
 
 <h2>February 25th, 2007</h2>
