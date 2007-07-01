@@ -17,7 +17,7 @@ public class JADEFIPAAlignmentServerOntology extends jade.content.onto.Ontology 
   // The singleton instance of this ontology
   private static ReflectiveIntrospector introspect = new ReflectiveIntrospector();
   private static Ontology theInstance = new JADEFIPAAlignmentServerOntology();
-  public static Ontology getInstance() {
+  public static Ontology getInstance() { 
      return theInstance;
   }
 
@@ -38,6 +38,7 @@ public class JADEFIPAAlignmentServerOntology extends jade.content.onto.Ontology 
     public static final String _NAME="name";
     public static final String _VALUE="value";
     public static final String parameter="parameter";
+    public static final String _RESULT="result";
 
   /**
    * Constructor
@@ -83,6 +84,7 @@ public class JADEFIPAAlignmentServerOntology extends jade.content.onto.Ontology 
     Schema.add(_VALUE, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
     Schema.add(_NAME, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
     actionSchema.add(ACTION_HASPARAMETER, Schema, 0, ObjectSchema.UNLIMITED);
+    actionSchema.add(_RESULT, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
 
     // adding name mappings
 

@@ -139,7 +139,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								//JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);								
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof LOAD){
@@ -149,7 +151,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
+								//JADEanswer.setContent(answer.getContent());
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof RETRIEVE){
@@ -159,7 +163,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								//JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof TRANSLATE){
@@ -173,7 +179,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								//JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof FIND){
@@ -183,7 +191,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								//JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof CUT){
@@ -193,7 +203,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								JADEanswer.setLanguage(codec.getName());
 								JADEanswer.setOntology(ontology.getName());
 								JADEanswer.setPerformative(ACLMessage.INFORM);
-								JADEanswer.setContent(answer.getContent());
+								//JADEanswer.setContent(answer.getContent());
+								((Action)ce).setResult(answer.getContent());
+								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else {

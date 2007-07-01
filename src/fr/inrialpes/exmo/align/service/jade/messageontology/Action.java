@@ -7,7 +7,7 @@ import jade.core.*;
 
 /**
 * Protege name: Action
-* @author ontology bean generator
+* @author ontology bean generator 
 * @version 2007/03/19, 17:12:29
 */
 public class Action implements Predicate {
@@ -32,5 +32,17 @@ public class Action implements Predicate {
    public Iterator getAllHasParameter() {return hasParameter.iterator(); }
    public List getHasParameter() {return hasParameter; }
    public void setHasParameter(List l) {hasParameter = l; }
+   
+   /**
+   * Protege name: Result
+      */
+      private String result;
+      public void setResult(String result) { 
+       this.result=result;
+      }
+      public String getResult() {
+        return this.result;
+      }
+   
 
 }
