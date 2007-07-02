@@ -142,7 +142,10 @@ public class AlignmentService {
 	}
 
 	// Wait loop
-	while ( true ) {}
+	while ( true ) {
+	    // do not exhaust CPU
+	    Thread.sleep(1000);
+	}
     }
 
     protected void close(){
