@@ -96,7 +96,9 @@ public class MyApp {
 	    // Evaluate them against the references
 	    // and choose the one with the best F-Measure
 	    AlignmentParser aparser = new AlignmentParser(0);
-	    Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
+	    // Changed by Angel for Windows
+	    //Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
+	    Alignment reference = aparser.parse( (new File ( "refalign.rdf" ) ) . toURL() . toString());
 	    Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
 	    double best = 0.;
