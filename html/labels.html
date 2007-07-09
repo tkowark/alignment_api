@@ -48,8 +48,16 @@
 <dd>URI identifying the alignment.</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method</dd>
 <dd>CLASSNAME of the generating matching method.</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:parameters</dd>
+<dd>STRING the parameters used with the generating method</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:certificate</dd>
+<dd>STRING a certificate from an issuing source</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time</dd>
 <dd>DURATION of the matching process.</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:limitations</dd>
+<dd>STRING the validity range of the correspondence</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:properties</dd>
+<dd>STRING the properties satisfied by an alignment or correspondences</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:pretty</dd>
 <dd>STRING providing a short descriptive name of the alignment.</dd>
 </dl>
@@ -71,6 +79,13 @@
 <dt>http://purl.org/dc/elements/1.1/:title</dt>
 <dd>Use
   http://knowledgeweb.semanticweb.org/heterogeneity/alignment:pretty instead.</dd>
+</dl>
+
+<h2>OMWG Extensions</h2>
+
+<dl>
+<dt>http://www.owmg.org/TR/d7/d7.2/:purpose</dt>
+<dd>STRING The purpose for which an alignment has been defined</dd>
 </dl>
 
 <h2>Alignment server extensions</h2>
@@ -102,10 +117,92 @@
 
 <h2>OMV Metadata</h2>
 
-<!--dl>
-<dt>xxxx:type</dt>
-<dd>STRING denoting the type of method used for supporting a correspondence</dd>
-</dl-->
+<p>Ontology Metadata Vocabulary being a metadata ontology introduces many
+different labels that can be used in Alignment and correspondences but
+also defines it own sorts of objects that can be annotated.</p>
+
+<h3>Basic alignment metadata</h3>
+<dl>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Mapping</dt>
+<dd>is the OMV type for all mapping objects, can be used as
+  annotation for specifying a subclass of omv:Mapping.</dd>
+
+<dt>http://omv.ontoware.org/2007/05/mappingomv#hasParameter</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:parameters instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#hasCreator</dt>
+<dd>Use http://purl.org/dc/elements/1.1/:creator instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#usedMethod</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#variety</dt>
+<dd>STRING denoting [??]</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#type</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:type instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#purpose</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#URI</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:id instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#processingTime</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#value</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#naturalLanguage</dt>
+<dd>Use http://purl.org/dc/elements/1.1/:language instead [??]</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#level</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:level instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#source</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri1 instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#creationDate</dt>
+<dd>Use http://purl.org/dc/elements/1.1/:date instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#version</dt>
+<dd>STRING denoting </dd>
+
+</dl>
+
+<h3>Matching method metadata</h3>
+<dl>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#MappingMethod</dt>
+<dd>is the OMV class of mapping methods</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#BasicMethod</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#ManualMethod</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method="manual" instead</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#CompoundMethod</dt>
+<dd>is a subclass of the previous one</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Parallel</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Sequence</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Parameter</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#composesMethod</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#aggregatesMethod</dt>
+<dd>STRING denoting </dd>
+</dl>
+
+<h3>Evidence metadata</h3>
+<dl>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#hasProperty</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Evidence</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Proof</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Property</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#hasEvidence</dt>
+<dd>STRING denoting </dd>
+</dl>
+
+<dl>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Filter</dt>
+<dd>STRING denoting </dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#filtersMethod</dt>
+<dd>STRING denoting </dd>
+
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Algorithm</dt>
+<dd>STRING denoting </dd>
+</dl>
 
 <address>
 <small>
