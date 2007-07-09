@@ -198,6 +198,12 @@ public class AServProtocolManager {
 
     // DONE
     // Implements: align
+    // JE: we should pass an argument "async" in case of asynchronous call
+    // In this case this is easy to implement with only calling :
+    // - id = generateAlignmentId()
+    // - recordNewAlignment( String id, Alignment al, boolean force )
+    // and a bit of multithreading (I guess)
+    // This can be here or in CacheImpl addition
     public Message align(Message mess){
 	Parameters params = mess.getParameters();
 	String method = (String)params.getParameter("method");
