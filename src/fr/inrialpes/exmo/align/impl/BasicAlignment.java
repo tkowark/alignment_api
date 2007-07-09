@@ -111,7 +111,6 @@ public class BasicAlignment implements Alignment {
     }
 
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
-	System.err.println( "ONTO1[init()] = " +onto1 );
 	// JE: OMWG1
 	//this.onto1 = onto1;
 	//this.onto2 = onto2;

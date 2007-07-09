@@ -158,9 +158,6 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
       boolean found = false;
       double val = 0;
 
-	System.err.println( "ONTO1[extract()] = " +onto1 );
-	System.err.println( "ONTO1[extract().gO()] = " +onto1.getOntology() );
-
       try {
 	  // Extract for properties
 	  ConcatenatedIterator pit1 = new 
