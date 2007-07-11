@@ -57,6 +57,7 @@ RUNNING THE ALIGNMENT SERVER
 ----------------------------
 
 $ java -jar lib/alignsvc.jar -H
+$ java -jar lib/alignsvc.jar -Dwndict=../WordNet-2.0/dict -H
 
 The alignment server is then available through HTTP with:
 
