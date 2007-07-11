@@ -470,6 +470,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg += displayAnswer( answer );
 		}
 	    }
+	} else if ( perf.equals("prminv") ) {
+	    msg ="<h1>Inverse alignment</h1><form action=\"inv\">";
+	    msg += "Alignment id:  <select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension("id");
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\"/><br /></form>";
+	} else if ( perf.equals("inv") ) {
+	    String id = (String)params.getParameter("id");
+	    if ( id != null && !id.equals("") ){ // Trim it
+		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessages( answer );
+		} else {
+		    msg = "<h1>Alignment inverted</h1>";
+		    msg += displayAnswer( answer );
+		}
+	    }
 	} else if ( perf.equals("prmalign") ) {
 	    msg ="<h1>Match ontologies</h1><form action=\"align\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
@@ -608,6 +628,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Match ontologies\"/></form></li>";
 	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
+	    msg += "<li><form action=\"prminv\"><input type=\"submit\" value=\"Invert an alignment\"/></form></li>";
 	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
 	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
 	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from id\"/></form></li>";

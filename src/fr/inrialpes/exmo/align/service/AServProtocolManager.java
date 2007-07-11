@@ -493,11 +493,11 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
 	}
+	// I think that this is useless because invert always copy the alignment
 	if ( params.getParameter("id") == null ){
 	    // Copy the alignment
 	}
 	// Invert it
-	//try { al = al.clone().inverse(); }
 	try { al.inverse(); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
