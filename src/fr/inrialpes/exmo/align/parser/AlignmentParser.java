@@ -199,7 +199,7 @@ public class AlignmentParser extends DefaultHandler {
      */
     public Alignment parse( String uri ) throws SAXException, IOException, XPathExpressionException {
 	this.uri = uri;
-	try { parser.parse(uri,this); }
+	try { parser.parse( uri, this ); }
 	catch (SAXException e) {
 	    if ( e.getMessage().equals("2OMWGAlignment") ) {
 		//alignment = new XpathParser().parse(((InputStream)new URL( uri ).openStream()));
@@ -398,7 +398,7 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( extensions != null ) cell.setExtensions( extensions );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
-		    if ( onto1.getOntology() != null ){
+		    if ( onto1.getOntology() == null ){
 			try {
 			    // JE: OMWG1
 			    URI u = new URI( content );
@@ -409,7 +409,7 @@ public class AlignmentParser extends DefaultHandler {
 			}
 		    }
 		} else if (pName.equals("uri2")) {
-		    if ( onto2.getOntology() != null ){
+		    if ( onto2.getOntology() == null ){
 			try {
 			    // JE: OMWG1
 			    URI u = new URI( content );
