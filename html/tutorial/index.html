@@ -43,10 +43,15 @@ div.logic {
 </dd>
 </dl>
 
-<p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid #AAAAAA; padding-top: 15px; padding-bottom: 15px;">Here is a small tutorial for the alignment <abbr>API</abbr>. Since the <abbr>API</abbr> has no dedicated <abbr title="Graphical User Interface">GUI</abbr>, most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely. The complete tutorial is also available as a self-contained <a href="script.sh" title="script for UNIX systems">script.sh</a> or <a href="script.bat" title="script for Windows systems">script.bat</a>
+<p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid
+	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">Here is a
+  small tutorial for the alignment <abbr>API</abbr>. Most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely. The complete tutorial is also available as a self-contained <a href="script.sh" title="script for UNIX systems">script.sh</a> or <a href="script.bat" title="script for Windows systems">script.bat</a>
 </p>
+<p>A small <a href="server.html">companion tutorial</a> has been designed for the Alignment
+  Server. It follows, as much as possible, the reasoning of this
+  tutorial but provides input and output through a web browser.</p>
 <small>This tutorial has been designed for the Alignment API version
-  2.4 (it has been updated to work with version 3.0)</small>
+  2.4 (it has been updated to work with version 3.0).</small>
 	
 <h2>Preparation</h2>
 	
@@ -210,9 +215,12 @@ $ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.Strin
 $ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/SMOA.rdf
 </pre></div>
 <div class="logic"><p><b>More work:</b> you can apply other available alignments classes. Look in the <a href="../../src/fr/inrialpes/exmo/align/impl/method">../../src/fr/inrialpes/exmo/align/impl/method</a> directory for more simple alignment methods. Also look in the <tt>StringDistances</tt> class the possible values for <tt>stringFunction</tt> (they are the names of methods).</p></div>
-<div class="logic"><p><b>Advanced:</b> You can also look at the instructions for installing WordNet and its Java interface and use a WordNet based distance provided with the <abbr>API</abbr> implementation by:</p>
+<div class="logic"><p><b>Advanced:</b> You can also look at the
+    instructions for installing WordNet and its Java interface and use
+    a WordNet based distance provided with the <abbr>API</abbr>
+    implementation by ($WNDIR is the directory where wordnet is installed):</p>
 <div class="fragment"><pre>
-$ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
+$ java -jar ../../lib/alignwn.jar -Dwndict=$WNDIR -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
 </pre></div>
 
 <p>See the output in <a href="jwnl.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="jwnl.html"><abbr>HTML</abbr></a>.</p></div>
@@ -305,7 +313,7 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter re
   &lt;/ruleml:imp&gt;
 </pre></div>
 	
-<p>Exchanging data can also be achieved more simply through <abbr>XLST</abbr> transformations which will transform the <acronym>OWL</acronym> instance files from one ontology to another:</p>
+<p>Exchanging data can also be achieved more simply through <abbr>XSLT</abbr> transformations which will transform the <acronym>OWL</acronym> instance files from one ontology to another:</p>
 <div class="fragment"><pre>
 $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
 </pre></div>
@@ -571,7 +579,7 @@ Planning:
 
 <hr />
 <small>
-<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial</p>
+<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/</p>
 </small>
 <hr />
 <p>$Id$</p>

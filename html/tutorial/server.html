@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>A tutorial companion for the Alignment server</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<meta name="Contributor" content="Antoine Zimmermann" />
+<link rel="stylesheet" type="text/css" href="../base.css" />
+<link rel="stylesheet" type="text/css" href="../style.css" />
+<script type="text/javascript">
+<!--
+function show(id) {
+	var element = document.getElementById(id);
+	element.style.display = "block";
+}
+function hide(id) {
+	var element = document.getElementById(id);
+	element.style.display = "none";
+}
+-->
+</script>
+<style type="text/css">
+<!--
+div.logic {
+	padding-left: 5px;
+	padding-right: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+-->
+</style>
+</head>
+<body style="background-color: #FFFFFF;">
+
+<h1>A tutorial companion for the Alignment server</h1>
+
+<dl>
+<dt>This version:</dt>
+<dd>http://alignapi.gforge.inria.fr/tutorial/</dd>
+<dt>Author:</dt>
+<dd><a href="http://exmo.inrialpes.fr/people/euzenat">J&eacute;r&ocirc;me Euzenat</a>, INRIA Rh&ocirc;ne-Alpes
+</dd>
+</dl>
+
+<p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid
+	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">
+Here is an illustration of the <A href="index.html">Alignment API
+    tutorial</a> using the alignment server.</p>
+<small>This tutorial has been designed for the Alignment API version
+  3.0.</small>
+	
+<h2>Launching the alignment server for the first time</h2>
+
+<p>This tutorial can be used by locally launching an Alignment server
+  or by using a publicly available Alignment server. We explain here
+  how to install the alignment server.</p>
+	
+<h2>Connecting through the server with an HTTP client</h2>
+	
+<p>Once the server has been installed, it can be accessed using
+  http://localhost:8089/html/. This provides access to two menus.
+The first one is the user menu:
+<center><img src="server/interf.png"/></center>
+The second one is the management menu:
+<center><img src="server/interf2.png" /></center>
+You can browse in these menus to see what is available.</p>
+
+<h2>The data</h2>
+	
+<p>The data is the same as that of the <a href="index.html">genuine
+    tutorial</a>. We will, however, use the versions which are
+    available on the web at http://alignapi.gforge.inria.fr. They can be seen here:</p>
+<dl>
+  <dt>edu.mit.visus.bibtex.owl</dt>
+  <dd>is a relatively faithfull transcription of BibTeX as an ontology. It can be seen here in <a href="edu.mit.visus.bibtex.owl"><abbr title="Ressource Description Framework">RDF</abbr>/<abbr title="eXtansible Markup Language">XML</abbr></a> or <a href="edu.mit.visus.bibtex.html"><abbr>HTML</abbr></a>.</dd>
+  <dt>myOnto.owl</dt>
+  <dd>is an extension of the previous one that contains a number of supplementary concepts. It can be seen here in <a href="myOnto.owl"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="myOnto.html"><abbr>HTML</abbr></a>.</dd>
+</dl>
+
+<h2>Matching</h2>
+	
+<p>Your firts matching task can be achieved by selecting the "Match
+  ontology" button in the user menu:
+<center><img src="server/matching1.png" /></center>
+As most of the tasks through the Alignment server, it provides a
+result under that form:
+<center><img src="server/result1.png" /></center>
+By clicking on the link, one can obtain the HTML display of the
+obtained alignment:
+<center><img src="server/align1.png" width="100%" /></center>
+</p>
+<p>We will see later how to obtain the same result in different
+  formats.</p>
+
+<p>Other algorithms can be used by selecting other algorithm names or
+  by passing different arguments to the same algorithm. The two
+  algorithms used in the tutorial can be called as follows:
+<center><img src="server/match2.png" /></center>
+Ticking the "force" checkbox is necessary, otherwise the server will
+return the existing alignment using the same algorithm (i.e., the one
+previously computed).
+<center><img src="server/align2.png" width="100%" /></center>
+</p>
+
+<p>Look at the results: how are they different from before?</p>
+<div class="button">
+	<input type="button" onclick="show('qu1')" value="Show Discussion"/>
+	<input type="button" onclick="hide('qu1')" value="Hide Discussion"/>
+</div>
+<div class="explain" id="qu1">
+<p>We can see that the correspondences now contain confidence factors different than <tt>1.0</tt>, they also match strings which are not the same and indeed far more correspondences are available.</p></div>
+
+<p>We can do the same with the other measure (the smoaDistance):</p>
+<center><img src="server/match3.png" /></center>
+<center><img src="server/align3.png" width="100%" /></center>
+
+<!--div class="logic"><p><b>Advanced:</b> You can also look at the instructions for installing WordNet and its Java interface and use a WordNet based distance provided with the <abbr>API</abbr> implementation by:</p>
+<div class="fragment"><pre>
+$ java -jar ../../lib/alignwn.jar -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
+</pre></div-->
+	
+<h2>Manipulating</h2>
+	
+<p>As can be seen there are some correspondences that do not really
+  make sense. Fortunately, they also have very low confidence
+  values. It is thus interesting to use a threshold for eliminating
+  these values. Let's try a threshold of <tt>.33</tt> over the
+  alignment (with the <tt>-t</tt> switch):
+<center><img src="server/trim1.png" /></center>
+Trimming, as most operations in the server, generate a new alignment:
+<center><img src="server/align4.png" width="100%" /></center>
+</p>
+<p>As expected we have suppressed some of these inaccurate correspondences. But did we also suppressed accurate ones?</p>
+<div class="button">
+	<input type="button" onclick="show('qu4')" value="Show Discussion"/>
+	<input type="button" onclick="hide('qu4')" value="Hide Discussion"/>
+</div>
+<div class="explain" id="qu4"><p>This operation has contributed eliminating a number of innacurate correspondences like Journal-Conference or Composite-Conference. However, there remains some unaccurate correspondences like Institution-InCollection and Published-UnPublished!</p></div>	
+
+<p>We can also apply this treatment to other methods available:</p>
+<center><img src="server/trim2.png" /></center>
+<center><img src="server/align5.png" width="100%" /></center></p>
+<div class="logic"><p><b>More work:</b> There is another switch (<tt>-T</tt>) in Procalign that specifies the way a threshold is applied (hard|perc|prop|best|span) the default being "hard". The curious reader can apply these and see the difference in results. How they work is explained in the Alignment <abbr>API</abbr> documentation.</p></div>
+
+<p><b>Other manipulations:</b> It is possible to invert an alignment with the following command:</p>
+<b>WE NEED A SCREEN DUMP HERE</b></p>
+	
+<h2>Output</h2>
+	
+<p>From the server, it is possible to generate all the formats
+  available at the command line (depending on your browser, this may
+  require to see the source of returned documents). This is achieved
+  by using the "Retrieve an alignment" button of the user menu:
+<center><img src="server/retr1.png" /></center>
+Here is a result in OWL:
+<center><img src="server/format1.png" width="100%" /></center>
+</p>
+
+<p>One can ask for the result as SWRL:
+<center><img src="server/retr2.png" /></center>
+<center><img src="server/format2.png" width="100%" /></center>
+Or in XSLT:	
+<center><img src="server/retr3.png" /></center>
+<center><img src="server/format3.png" width="100%" /></center>
+</p>
+	
+<h2>Evaluating</h2>
+	
+<p><b>This part is not yet available through the server</b></p>
+
+<h2>Embedding</h2>
+	
+<p>If you want to embed matching solutions in an applications, then
+  you should look at the <a href="index.html">genuine
+  tutorial</a>.</p>
+
+<p><b>TODO: Explain embedding of a matching system in the alignment server.</b></p>
+	
+<h2>Further exercises</h2>
+	
+<p>More info: <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a></p>
+	
+<!--
+Planning:
+- Alignment server (incl. DB storage, agents, WSDL service)
+- Extensive composition operators (with comp. tables)
+- Expressive alignment language (with SEKT/Fran篩s Sharffe)
+-->
+	
+<h2>Acknowledgements</h2>
+	
+<p>The format of this tutorial has been shamelessly borrowed from Sean Bechhofer's <a href="http://owl.man.ac.uk/2005/07/sssw/"><acronym>OWL</acronym> tutorial</a>.</p>	
+
+<hr />
+<small>
+<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/server.html</p>
+</small>
+<hr />
+<p>$Id: index.html 384 2007-02-02 11:09:40Z euzenat $</p>
+</body>
+</html>
