@@ -222,6 +222,7 @@ public class ParserPrinter {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
 		// if the renderer needs an OWLAPIALignment: give it
+		//aex.printStackTrace();
 		result = OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)result, (OntologyCache)null );
 		result.render( renderer );
 	    }
