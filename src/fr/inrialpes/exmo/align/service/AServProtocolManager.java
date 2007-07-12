@@ -205,101 +205,16 @@ public class AServProtocolManager {
     // and a bit of multithreading (I guess)
     // This can be here or in CacheImpl addition
     public Message align(Message mess){
-	Parameters params = mess.getParameters();
-	String method = (String)params.getParameter("method");
-	// find and access o, o'
-	URI uri1 = null;
-	URI uri2 = null;
-	OWLOntology onto1 = null;
-	OWLOntology onto2 = null;
-	try {
-	    uri1 = new URI((String)params.getParameter("onto1"));
-	    uri2 = new URI((String)params.getParameter("onto2"));
-	} catch (Exception e) {
-	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
-	};
-	// find n
-	Alignment init = null;
-	if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
-	    try {
-		//if (debug > 0) System.err.println(" Retrieving init");
-		try {
-		    init = alignmentCache.getAlignment( (String)params.getParameter("init") );
-		} catch (Exception e) {
-		    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
-		}
-	    } catch (Exception e) {
-		return new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
-	    }
-	}
-	if ( ( onto1 = reachable( uri1 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
-	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
-	}
-
-	// Try to retrieve first
-	Set alignments = null;
-	try {
-	    // This is OWLAPI specific but there is no other way...
-	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
-	} catch (OWLException e) {
-	    // Unexpected OWLException!
-	}
-	String id = null;
-	if ( alignments != null && params.getParameter("force") == null ) {
-	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
-		Alignment al = ((Alignment)it.next());
-		if ( al.getExtension( "method" ).equals(method) )
-		    id = al.getExtension( "id" );
-	    }
-	}
-	// Otherwise compute
-	if ( id == null ){
-	    // Create alignment object
-	    try {
-		//Object[] mparams = {(Object)onto1, (Object)onto2 };
-		Object[] mparams = {};
-		if ( method == null )
-		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-		Class alignmentClass = Class.forName(method);
-		Class[] cparams = {};
-		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
-		AlignmentProcess result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		result.init( uri1, uri2, loadedOntologies );
-		//result.setFile1(uri1);
-		//result.setFile2(uri2);
-		// call alignment algorithm
-		long time = System.currentTimeMillis();
-		try {
-		    result.align( init, params ); // add opts
-
-		} catch (AlignmentException e) {
-			return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
-		}
-		long newTime = System.currentTimeMillis();
-		result.setExtension( "time", Long.toString(newTime - time) );
-		// ask to store A'
-		id = alignmentCache.recordNewAlignment( result, true );
-	    } catch (ClassNotFoundException e) {
-		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
-	    } catch (NoSuchMethodException e) {
-		return new RunTimeError(newId(),mess,myId,mess.getSender(),"No such method: "+method+"(Object, Object)",(Parameters)null);
-	    } catch (InstantiationException e) {
-		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Instantiation",(Parameters)null);
-	    } catch (IllegalAccessException e) {
-		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Cannot access",(Parameters)null);
-	    } catch (InvocationTargetException e) {
-		return new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Parameters)null);
-	    } catch (AlignmentException e) {
-		return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
-	    }
-	}
-
-	// JE: In non OWL-API-based version, here unload ontologies
-	loadedOntologies.clear(); // not always necessary
+	Aligner althread = new Aligner( mess );
+	Thread th = new Thread(althread);
+	th.start();
+	// Basically if we want to be asynchronous, 
+	// The ID generation part should be out of the thread
+	// The thread should not be waited for completion
+	try{ th.join(); }
+	catch ( InterruptedException is ) {};
+        return althread.getResult();
 	// return A' surrogate
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
     // DONE
@@ -749,6 +664,123 @@ public class AServProtocolManager {
 	    System.err.println("Class "+interfaceName+" not found!");
 	}
 	return list;
+    }
+
+    protected class Aligner implements Runnable {
+	private Message mess = null;
+	private Message result = null;
+
+	public Aligner( Message m ) {
+	    mess = m;
+	}
+
+	public Message getResult() {
+	    return result;
+	}
+
+	public void run() {
+	Parameters params = mess.getParameters();
+	String method = (String)params.getParameter("method");
+	// find and access o, o'
+	URI uri1 = null;
+	URI uri2 = null;
+	OWLOntology onto1 = null;
+	OWLOntology onto2 = null;
+	try {
+	    uri1 = new URI((String)params.getParameter("onto1"));
+	    uri2 = new URI((String)params.getParameter("onto2"));
+	} catch (Exception e) {
+	    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+	    return;
+	};
+	// find n
+	Alignment init = null;
+	if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
+	    try {
+		//if (debug > 0) System.err.println(" Retrieving init");
+		try {
+		    init = alignmentCache.getAlignment( (String)params.getParameter("init") );
+		} catch (Exception e) {
+		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
+		    return;
+		}
+	    } catch (Exception e) {
+		result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
+		return;
+	    }
+	}
+	if ( ( onto1 = reachable( uri1 ) ) == null ){
+	    result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+	    return;
+	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
+	    result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+	    return;
+	}
+
+	// Try to retrieve first
+	Set alignments = null;
+	try {
+	    // This is OWLAPI specific but there is no other way...
+	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
+	} catch (OWLException e) {
+	    // Unexpected OWLException!
+	}
+	String id = null;
+	if ( alignments != null && params.getParameter("force") == null ) {
+	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
+		Alignment al = ((Alignment)it.next());
+		if ( al.getExtension( "method" ).equals(method) )
+		    id = al.getExtension( "id" );
+	    }
+	}
+	// Otherwise compute
+	if ( id == null ){
+	    // Create alignment object
+	    try {
+		//Object[] mparams = {(Object)onto1, (Object)onto2 };
+		Object[] mparams = {};
+		if ( method == null )
+		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+		Class alignmentClass = Class.forName(method);
+		Class[] cparams = {};
+		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+		aresult.init( uri1, uri2, loadedOntologies );
+		//aresult.setFile1(uri1);
+		//aresult.setFile2(uri2);
+		// call alignment algorithm
+		long time = System.currentTimeMillis();
+		try {
+		    aresult.align( init, params ); // add opts
+
+		} catch (AlignmentException e) {
+		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+		    return;
+
+		}
+		long newTime = System.currentTimeMillis();
+		aresult.setExtension( "time", Long.toString(newTime - time) );
+		// ask to store A'
+		id = alignmentCache.recordNewAlignment( aresult, true );
+	    } catch (ClassNotFoundException e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
+	    } catch (NoSuchMethodException e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"No such method: "+method+"(Object, Object)",(Parameters)null);
+	    } catch (InstantiationException e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Instantiation",(Parameters)null);
+	    } catch (IllegalAccessException e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Cannot access",(Parameters)null);
+	    } catch (InvocationTargetException e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Parameters)null);
+	    } catch (AlignmentException e) {
+		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+	    }
+	}
+
+	// JE: In non OWL-API-based version, here unload ontologies
+	loadedOntologies.clear(); // not always necessary
+	result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	}
     }
 
     
