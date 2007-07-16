@@ -558,7 +558,7 @@ public class BasicAlignment implements Alignment {
 
     public Alignment inverse () throws AlignmentException {
 	BasicAlignment result = new BasicAlignment();
-	result.init( onto2, onto1 );
+	result.init( onto2, onto1 ); //getOntology1(), getOntology2()??
 	result.setFile1( getFile2() );
 	result.setFile2( getFile1() );
 	// We must inverse getType
