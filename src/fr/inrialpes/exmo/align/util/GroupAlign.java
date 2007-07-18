@@ -314,9 +314,13 @@ public class GroupAlign {
 	    };
 	*/
 
-	if (debug > 1) System.err.println(" Handler set");
-	if (debug > 1) System.err.println(" URI1: "+uri11);
-	if (debug > 1) System.err.println(" URI2: "+uri2);
+	//if (debug > 1) System.err.println(" Handler set");
+	//if (debug > 1) System.err.println(" URI1: "+uri11);
+	//if (debug > 1) System.err.println(" URI2: "+uri2);
+	    
+	System.err.println(" Handler set");
+	System.err.println(" URI1: "+uri11);
+	System.err.println(" URI2: "+uri2);
 
 	//try {
 	//    if (uri11 != null) onto1 = loadOntology(uri11);
