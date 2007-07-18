@@ -266,7 +266,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	OWLAPIAlignment alignment = new OWLAPIAlignment();
 	//alignment.setFile1( al.getFile1() );
 	//alignment.setFile2( al.getFile2() );
-	System.err.println( "TOA: " + al.getFile1()+ " -- " + al.getFile2());
+	//System.err.println( "TOA: " + al.getFile1()+ " -- " + al.getFile2());
 	alignment.init( al.getFile1(), al.getFile2(), ontologies );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
@@ -276,11 +276,11 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
 	OWLOntology o1 = (OWLOntology)alignment.getOntology1();
 	OWLOntology o2 = (OWLOntology)alignment.getOntology2();
-	System.err.println( o1 );
+	//System.err.println( o1 );
 	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
-	    System.err.println( c.getObject1AsURI() );
-	    System.err.println( c.getObject2AsURI() );
+	    //System.err.println( c.getObject1AsURI() );
+	    //System.err.println( c.getObject2AsURI() );
 	    alignment.addAlignCell( c.getId(), 
 				    getEntity( o1, c.getObject1AsURI() ),
 				    getEntity( o2, c.getObject2AsURI() ),
