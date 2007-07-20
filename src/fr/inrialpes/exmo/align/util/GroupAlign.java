@@ -292,7 +292,7 @@ public class GroupAlign {
 	BasicConfigurator.configure();
 	//System.err.println("Before: uri1= "+uri1+", uri11= "+uri11);
 	if ( uri1 == null ) {uri1 = new URI(prefix+source);}
-	if (source != null && target != null){uri1 = new URI(prefix+source);}
+	if (!source.equalsIgnoreCase("onto1.rdf") && !target.equalsIgnoreCase("onto1.rdf")){uri1 = new URI(prefix+source);}
 	//else{uri11 = uri1;}
 	URI uri2 = new URI(prefix+target);
 	System.err.println(" uri1= "+uri1+"\n uri2= "+uri2);
