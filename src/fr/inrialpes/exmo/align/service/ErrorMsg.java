@@ -34,4 +34,7 @@ public class ErrorMsg extends Message {
     public String HTMLString(){
 	return "Generic error: "+content;
     }
+    public String SOAPString(){
+	return "<ErrorMsg><id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content></ErrorMsg>";
+    }
 }

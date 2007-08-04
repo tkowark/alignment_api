@@ -35,8 +35,18 @@ public class AlignmentIds extends Success {
 	String result = "Alignment Ids: <ul>";
 	String id[] = content.split(" ");
 	for ( int i = id.length-1; i >= 0; i-- ){
-	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a></lI>";
+	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a></li>";
 	}
 	return result += "</ul>";
     }
+    public String SOAPString(){
+	String msg = "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>";
+	String id[] = content.split(" ");
+	for ( int i = id.length-1; i >= 0; i-- ){
+	    msg += "<uri>"+id[i]+"</uri>";
+	}	
+	msg += "</content>";
+	return msg;
+    }
+
 }

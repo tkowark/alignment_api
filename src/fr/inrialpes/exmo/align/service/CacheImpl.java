@@ -330,7 +330,7 @@ public class CacheImpl implements Cache {
      */
     public String recordNewAlignment( Alignment alignment, boolean force ) {
 	try { return recordNewAlignment( generateAlignmentId(), alignment, force );
-	} catch (Exception e) { return (String)null; }
+	} catch (AlignmentException ae) { return (String)null; }
     }
 
     /**

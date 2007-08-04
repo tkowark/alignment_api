@@ -384,9 +384,10 @@ public class AServProtocolManager {
 	}
 	// get the cut parameters
 	String method = (String)mess.getParameters().getParameter("method");
+	if ( method == null ) method = "hard";
 	double threshold = Double.parseDouble((String)mess.getParameters().getParameter("threshold"));
 	al = (BasicAlignment)((BasicAlignment)al).clone();
-	try { al.cut( method, threshold ); }
+	try { al.cut( method, threshold );}
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
@@ -408,12 +409,8 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
 	}
-	// I think that this is useless because invert always copy the alignment
-	if ( params.getParameter("id") == null ){
-	    // Copy the alignment
-	}
 	// Invert it
-	try { al.inverse(); }
+	try { al = al.inverse(); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
@@ -659,7 +656,7 @@ public class AServProtocolManager {
 		//System.err.println(interfaceName+ ">> "+pcks[i].getName() );
 		//implementations( pcks[i].getName(), toclass, list );
 		//}
-	    implementations( toclass, list, true );
+	    implementations( toclass, list, false );
 	} catch (ClassNotFoundException ex) {
 	    System.err.println("Class "+interfaceName+" not found!");
 	}
