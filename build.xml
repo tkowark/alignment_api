@@ -99,8 +99,10 @@
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/alignsvc.jar"/>
+    <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
     <jar jarfile="lib/alignsvc.jar" manifest="distrib/MANIFEST-svc.MF">
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
