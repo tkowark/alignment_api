@@ -60,7 +60,7 @@ public class URIAlignment extends BasicAlignment {
 	if ( o1 instanceof Ontology && o2 instanceof Ontology ){
 	    super.init( o1, o2 );
 	} else if ( o1 instanceof URI && o2 instanceof URI ) {
-	    super.init( onto1, onto2 );
+	    super.init( o1, o2 );
 	    this.onto1.setUri( (URI)o1 );
 	    this.onto2.setUri( (URI)o2 );
 	} else {
@@ -164,14 +164,10 @@ public class URIAlignment extends BasicAlignment {
      * Generate a copy of this alignment object
      */
     // JE: this is a mere copy of the method in BasicAlignement
-    // It has two difficulties
-    // - it should call the current init() and not that of BasicAlignement
-    // - it should catch the AlignmentException that it is supposed to raise
     public Object clone() {
 	URIAlignment align = new URIAlignment();
-	try {
-	    align.init( (URI)getOntology1(), (URI)getOntology2() );
-	} catch ( AlignmentException e ) {};
+	try { align.init( (URI)getOntology1(), (URI)getOntology2() ); }
+	catch ( AlignmentException e ) {};
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
