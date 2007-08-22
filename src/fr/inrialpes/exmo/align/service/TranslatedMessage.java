@@ -34,4 +34,7 @@ public class TranslatedMessage extends Success {
     public String HTMLString() {
 	return content;
     }
+    public String SOAPString(){
+	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><message>"+content+"</message>";	
+    }
 }

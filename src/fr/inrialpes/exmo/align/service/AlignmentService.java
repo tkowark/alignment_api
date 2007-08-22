@@ -84,6 +84,7 @@ public class AlignmentService {
     private String outfile = null;
     private String paramfile = null;
     private Hashtable services = null;
+    private Hashtable directories = null;
 
     private AServProtocolManager manager;
     private DBService connection;
@@ -95,6 +96,7 @@ public class AlignmentService {
     
     public void run(String[] args) throws Exception {
 	services = new Hashtable();
+	directories = new Hashtable();
 	// Read parameters
 	Parameters params = readParameters( args );
 	if ( outfile != null ) {
@@ -141,6 +143,25 @@ public class AlignmentService {
 	    services.put( name, serv );
 	}
 
+	// [Directory]: register to directories
+	for ( Enumeration e = directories.keys() ; e.hasMoreElements() ; ) {
+	    String name = (String)e.nextElement();
+	    System.err.println( name );
+	    Class dirClass = Class.forName(name);
+	    System.err.println( dirClass );
+	    java.lang.reflect.Constructor constructor = dirClass.getConstructor( (Class[])null );
+	    Directory dir = (Directory)constructor.newInstance( (Object[])null );
+	    try {
+		dir.open( params );
+		if ( debug > 0 ) System.err.println(name+" connected.");
+	    } catch ( AServException ex ) {
+		System.err.println( "Couldn't connect to "+name+" directory");
+		ex.printStackTrace();
+	    }
+	    directories.put( name, dir );
+	}
+
+
 	// Wait loop
 	while ( true ) {
 	    // do not exhaust CPU
@@ -150,6 +171,16 @@ public class AlignmentService {
 
     protected void close(){
 	if (debug > 0 ) System.err.println("Shuting down server");
+	// [Directory]: unregister to directories
+	for ( Enumeration e = directories.elements() ; e.hasMoreElements() ; ) {
+	    Directory dir = (Directory)e.nextElement();
+	    try { dir.close(); }
+	    catch ( AServException ex ) {
+		System.err.println("Cannot unregister to "+dir);
+		ex.printStackTrace();
+	    }
+	}
+
 	// Close services
 	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
@@ -185,7 +216,7 @@ public class AlignmentService {
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[16];
+	LongOpt[] longopts = new LongOpt[18];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -197,17 +228,19 @@ public class AlignmentService {
 	longopts[6] = new LongOpt("jade", LongOpt.OPTIONAL_ARGUMENT, null, 'A');
 	longopts[7] = new LongOpt("wsdl", LongOpt.OPTIONAL_ARGUMENT, null, 'W');
 	longopts[8] = new LongOpt("jxta", LongOpt.OPTIONAL_ARGUMENT, null, 'P');
+	longopts[9] = new LongOpt("oyster", LongOpt.OPTIONAL_ARGUMENT, null, 'O');
+	longopts[10] = new LongOpt("uddi", LongOpt.OPTIONAL_ARGUMENT, null, 'U');
 	// DBMS Server parameters
-	longopts[9] = new LongOpt("dbmshost", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-	longopts[10] = new LongOpt("dbmsport", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[11] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
-	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
-	longopts[14] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
-	longopts[15] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[11] = new LongOpt("dbmshost", LongOpt.REQUIRED_ARGUMENT, null, 'm');
+	longopts[12] = new LongOpt("dbmsport", LongOpt.REQUIRED_ARGUMENT, null, 's');
+	longopts[13] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
+	longopts[14] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+	longopts[15] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
+	longopts[16] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
+	longopts[17] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	// Is there a way for that in LongOpt ???
 
-	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::m:s:u:p:b:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::O::U::m:s:u:p:b:i:", longopts);
 	int c;
 	String arg;
 
@@ -282,6 +315,26 @@ public class AlignmentService {
 	    case 'S' :
 		/* Server */
 		params.setParameter( "host", g.getOptarg() );
+		break;
+	    case 'O' :
+		/* Oyster directory + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "oyster", arg );
+		} else {
+		    params.setParameter( "oyster", JADE );
+		}		    
+		directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", params.getParameter( "oyster" ) );
+		break;
+	    case 'U' :
+		/* UDDI directory + port */
+		arg = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "uddi", arg );
+		} else {
+		    params.setParameter( "uddi", JADE );
+		}		    
+		directories.put( "fr.inrialpes.exmo.align.service.UDDIDirectory", params.getParameter( "uddi" ) );
 		break;
 	    case 'm' :
 		params.setParameter( "dbmshost", g.getOptarg() );

@@ -234,9 +234,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( wsmanager != null ) wsmanager.init( params, manager );
 	}
 	myId = "LocalHTMLInterface";
-	serverId = "dummy";
+	serverId = manager.serverURL()+"/html/";
 	localId = 0;
-
     }
 
     /**

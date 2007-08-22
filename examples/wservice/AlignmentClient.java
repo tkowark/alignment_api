@@ -112,21 +112,21 @@ public class AlignmentClient {
 	if ( cmd.equals("list" ) ) {
 	    String arg = (String)params.getParameter( "arg1" );
 	    if ( arg.equals("methods" ) ){
-		SOAPAction = "listmethods";
+		SOAPAction = "listmethodsRequest";
 	    } else if ( arg.equals("renderers" ) ){
-		SOAPAction = "listrenderers";
+		SOAPAction = "listrenderersRequest";
 	    } else if ( arg.equals("services" ) ){
-		SOAPAction = "listservices";
+		SOAPAction = "listservicesRequest";
 	    } else if ( arg.equals("alignments" ) ){
-		SOAPAction = "listalignments";
+		SOAPAction = "listalignmentsRequest";
 	    } else {
 		usage();
 		System.exit(-1);
 	    }
 	} else if ( cmd.equals("wsdl" ) ) {
-	    SOAPAction = "wsdl";
+	    SOAPAction = "wsdlRequest";
 	} else if ( cmd.equals("find" ) ) {
-	    SOAPAction = "find";
+	    SOAPAction = "findRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
 	    if ( uri2 == null ){
@@ -135,7 +135,7 @@ public class AlignmentClient {
 	    }
 	    messageBody = "<uri1>"+uri1+"</uri1><uri2>"+uri2+"</uri2>";
 	} else if ( cmd.equals("match" ) ) {
-	    SOAPAction = "align";
+	    SOAPAction = "matchRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
 	    if ( uri2 == null ){
@@ -155,7 +155,7 @@ public class AlignmentClient {
 	    if ( arg3 != null )
 		messageBody += "<force>"+arg3+"</force>";
 	} else if ( cmd.equals("trim" ) ) {
-	    SOAPAction = "cut";
+	    SOAPAction = "cutRequest";
 	    String id = (String)params.getParameter( "arg1" );
 	    String thres = (String)params.getParameter( "arg2" );
 	    if ( thres == null ){
@@ -167,33 +167,44 @@ public class AlignmentClient {
 	    if ( arg3 != null ) {
 		method = thres; thres = arg3;
 	    }
-	    messageBody = "<id>"+id+"</id><threshold>"+thres+"</threshold>";
+	    messageBody = "<alid>"+id+"</alid><threshold>"+thres+"</threshold>";
 	    if ( method != null )
 		messageBody += "<method>"+method+"</method>";
 	} else if ( cmd.equals("invert" ) ) {
-	    SOAPAction = "invert";
+	    SOAPAction = "invertRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<id>"+uri+"</id>";
+	    messageBody = "<alid>"+uri+"</alid>";
 	} else if ( cmd.equals("store" ) ) {
-	    SOAPAction = "store";
+	    SOAPAction = "storeRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<id>"+uri+"</id>";
+	    messageBody = "<alid>"+uri+"</alid>";
 	} else if ( cmd.equals("load" ) ) {
-	    SOAPAction = "load";
 	    String url = (String)params.getParameter( "arg1" );
 	    if ( url == null ){
-		usage();
-		System.exit(-1);
+		SOAPAction = "loadRequest";
+		//usage();
+		//System.exit(-1);
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		String line;
+		String content = "";
+		while ((line = in.readLine()) != null) {
+		    content += line + "\n";
+		}
+		if (in != null) in.close();
+		System.err.println(content);
+		messageBody = "<content>"+content+"</content>";
+	    } else {
+		SOAPAction = "loadfileRequest";
+		messageBody = "<url>"+url+"</url>";
 	    }
-	    messageBody = "<url>"+url+"</url>";
 	    /* This may read the input stream!
 			// Most likely Web service request
 			int length = request.getContentLength();
@@ -205,23 +216,15 @@ public class AlignmentClient {
 			}
 			params.setProperty( "content", new String( mess ) );
 	    */
-	    /* Or even better:
-	    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-		wsdlSpec += line + "\n";
-	    }
-	    if (in != null) in.close();
-	     */
 	} else if ( cmd.equals("retrieve" ) ) {
-	    SOAPAction = "retrieve";
+	    SOAPAction = "retrieveRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    String method = (String)params.getParameter( "arg2" );
 	    if ( method == null ){
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<id>"+uri+"</id><method>"+method+"</method>";
+	    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
 	} else if ( cmd.equals("metadata" ) ) {
 	    SOAPAction = "metadata";
 	    String uri = (String)params.getParameter( "arg1" );
@@ -230,7 +233,7 @@ public class AlignmentClient {
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<id>"+uri+"</id><key>"+key+"</key>";
+	    messageBody = "<alid>"+uri+"</alid><key>"+key+"</key>";
 	} else {
 	    usage();
 	    System.exit(-1);

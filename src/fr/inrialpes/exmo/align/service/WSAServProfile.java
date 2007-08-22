@@ -34,10 +34,20 @@ import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 import java.util.jar.JarFile;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
+import java.util.jar.Attributes.Name;
+
+//import java.net.JarURLConnection;
 
 import java.lang.NullPointerException;
 
@@ -73,10 +83,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
     private String tcpHost;
     private int debug = 0;
     private AServProtocolManager manager;
-    private static String wsdlSpec = "";
+    private static String wsdlSpec = null;
 
     private String myId;
-    private String serverId;
+    private String serverURL;
     private int localId = 0;
 
     private static DocumentBuilder BUILDER = null;
@@ -89,8 +99,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
     public void init( Parameters params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
 	// This may register the WSDL file to some directory
+	serverURL = manager.serverURL()+"/aserv/";
 	myId = "SOAPoverHTTPInterface";
-	serverId = "dummy";
 	localId = 0;	
 
 	// New XML parsing stuff
@@ -101,18 +111,70 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	catch (ParserConfigurationException e) {
 	    throw new AServException( "Cannot initialize SOAP message parsing", e );
 	}
+
 	// Read the WSDL specification
 	try {
-	    // JE: This is to be modified so that we look for this file in the
-	    // classpath
-	    JarFile archive = new JarFile ( "/Java/alignapi/lib/alignsvc.jar" );
-	    InputStream is = archive.getInputStream( archive.getJarEntry("fr/inrialpes/exmo/align/service/aserv.wsdl") );
-	    BufferedReader in = new BufferedReader(new InputStreamReader(is));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-		wsdlSpec += line + "\n";
+	    String classPath = System.getProperty("java.class.path",".");
+	    StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
+	    Set<String> visited = new HashSet();
+	    classPath = "";
+	    while ( tk != null && tk.hasMoreTokens() ){
+		StringTokenizer tk2 = tk;
+		tk = null;
+		// Iterate on Classpath
+		while ( tk2 != null && tk2.hasMoreTokens() ) {
+		    File file = new File( tk2.nextToken() );
+		    if ( file.isDirectory() ) {
+		    } else if ( file.toString().endsWith(".jar") &&
+				!visited.contains( file.toString() ) &&
+				file.exists() ) {
+			visited.add( file.toString() );
+			try { 
+			    JarFile jar = new JarFile( file );
+			    Enumeration enumeration = jar.entries();
+			    while( enumeration != null && enumeration.hasMoreElements() ){
+				JarEntry entry = (JarEntry)enumeration.nextElement();
+				String classname = entry.toString();
+				if ( classname.equals("fr/inrialpes/exmo/align/service/aserv.wsdl") ){
+				    // Parse it
+				    InputStream is = jar.getInputStream( entry );
+				    BufferedReader in = new BufferedReader(new InputStreamReader(is));
+				    String line;
+				    while ((line = in.readLine()) != null) {
+					wsdlSpec += line + "\n";
+				    }
+				    if (in != null) in.close();
+				    wsdlSpec = wsdlSpec.replace( "%%ASERVADDRESS%%", serverURL );
+				    // exit
+				    enumeration = null;
+				    tk2 = null;
+				    tk = null;
+				    classPath = "";
+				}
+			    }
+			    if ( wsdlSpec == null ){
+				// Iterate on needed Jarfiles
+				// JE(caveat): this deals naively with Jar files,
+				// in particular it does not deal with section'ed MANISFESTs
+				Attributes mainAttributes = jar.getManifest().getMainAttributes();
+				String path = mainAttributes.getValue( Name.CLASS_PATH );
+				if ( debug > 0 ) System.err.println("  >CP> "+path);
+				if ( path != null && !path.equals("") ) {
+				    // JE: Not sure where to find the other Jars:
+				    // in the path or at the local place?
+				    classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+				}
+			    }
+			} catch (NullPointerException nullexp) { //Raised by JarFile
+			    System.err.println("Warning "+file+" unavailable");
+			}
+		    }
+		}
+		if ( !classPath.equals("") ) {
+		    tk =  new StringTokenizer(classPath,File.pathSeparator);
+		    classPath = "";
+		}
 	    }
-	    if (in != null) in.close();
 	} catch (IOException ioex) {
 	    ioex.printStackTrace();
 	}
@@ -149,30 +211,40 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    saxex.printStackTrace();
 	}
 
+	// JE: Certainly putting an explicit xmlns="" xml:base="" should be usefull
 	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
-	if ( perf.equals("WSDL") || method.equals("wsdl") ) {
+	if ( perf.equals("WSDL") || method.equals("wsdlRequest") ) {
 	    msg += wsdlAnswer();
-	} else if ( method.equals("listalignments") ) {
+	} else if ( method.equals("listalignmentsRequest") ) {
+	    msg += "<listalignmentsResponse><alignmentList>";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension("id");
-		msg += "<uri>"+id+"</uri>";
+		msg += "<alid>"+id+"</alid>";
 	    }
+	    msg += "</alignmentList></listalignmentsResponse>";
 	    // -> List of URI
-	} else if ( method.equals("listmethods") ) { // -> List of String
+	} else if ( method.equals("listmethodsRequest") ) { // -> List of String
+	    msg += "<listmethodsResponse><classList>";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		msg += "<method>"+it.next()+"</method>";
 	    }
-	} else if ( method.equals("listrenderers") ) { // -> List of String
+	    msg += "</classList></listmethodsResponse>";
+	} else if ( method.equals("listrenderersRequest") ) { // -> List of String
+	    msg += "<listrenderersResponse><classList>";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		msg += "<renderer>"+it.next()+"</renderer>";
 	    }
-	} else if ( method.equals("listservices") ) { // -> List of String
+	    msg += "</classList></listrenderersResponse>";
+	} else if ( method.equals("listservicesRequest") ) { // -> List of String
+	    msg += "<listservicesResponse><classList>";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
 		msg += "<service>"+it.next()+"</service>";
 	    }
-	} else if ( method.equals("store") ) { // URI -> URI
+	    msg += "</classList></listservicesResponse>";
+	} else if ( method.equals("storeRequest") ) { // URI -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<storeResponse>";
 
 	    getParameter( domMessage, message, params, "id", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
@@ -180,33 +252,37 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 
 	    if ( answer == null )
-		answer = manager.store( new Message(newId(),(Message)null,myId,serverId,(String)params.getParameter( "id" ), params) );
+		answer = manager.store( new Message(newId(),(Message)null,myId,serverURL,(String)params.getParameter( "id" ), params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("invert") ) { // URI -> URI
+	    msg += "</storeResponse>";
+	} else if ( method.equals("invertRequest") ) { // URI -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<invertResponse>";
 
-	    getParameter( domMessage, message, params, "id", "id" );
+	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
 
 	    if ( answer == null )
-		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId, (String)params.getParameter( "id" ), params) );
+		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverURL, (String)params.getParameter( "id" ), params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("cut") ) { // URI * string * float -> URI
+	    msg += "</invertResponse>";
+	} else if ( method.equals("cutRequest") ) { // URI * string * float -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<cutResponse>";
 
-	    getParameter( domMessage, message, params, "id", "id" );
+	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -222,15 +298,17 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 
 	    if ( answer == null )
-		answer = manager.cut( new Message(newId(),(Message)null,myId,serverId,(String)params.getParameter( "id" ), params) );
+		answer = manager.cut( new Message(newId(),(Message)null,myId,serverURL,(String)params.getParameter( "id" ), params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("align") ) { // URL * URL * URI * String * boolean * (params) -> URI
+	    msg += "</cutResponse>";
+	} else if ( method.equals("matchRequest") ) { // URL * URL * URI * String * boolean * (params) -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<matchResponse>";
 
 	    getParameter( domMessage, message, params, "url1", "onto1" );
 	    if ( params.getParameter( "onto1" ) == null ) {
@@ -246,15 +324,17 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    getParameter( domMessage, message, params, "force", "force" );
 
 	    if ( answer == null )
-		answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("find") ) { // URI * URI -> List of URI
+	    msg += "</matchResponse>";
+	} else if ( method.equals("findRequest") ) { // URI * URI -> List of URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<findResponse>";
 
 	    getParameter( domMessage, message, params, "uri1", "onto1" );
 	    if ( params.getParameter( "onto1" ) == null ) {
@@ -267,17 +347,19 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 
 	    if ( answer == null )
-		answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("retrieve") ) { // URI * method -> XML
+	    msg += "</findResponse>";
+	} else if ( method.equals("retrieveRequest") ) { // URI * method -> XML
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<retrieveResponse>";
 
-	    getParameter( domMessage, message, params, "id", "id" );
+	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -287,7 +369,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 
 	    if ( answer == null )
-		answer = manager.render( new Message(newId(),(Message)null,myId,serverId, "", params) );
+		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
@@ -296,9 +378,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		// JE: This should also suppress the <?xml... statement
 		msg += "<result>" + answer.getContent() + "</result>";
 	    }
-	} else if ( method.equals("metadata") ) { // URI -> XML
+	    msg += "</retrieveResponse>";
+	} else if ( method.equals("metadataRequest") ) { // URI -> XML
+	    msg += "<metadataResponse>";
 	    // Not done yet
-	} else if ( method.equals("load") ) { // URL -> URI
+	    msg += "</metadataResponse>";
+	} else if ( method.equals("loadRequest") ) { // URL -> URI
+	    msg += "<loadResponse>";
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
 
@@ -316,29 +402,34 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	    if ( answer == null )
-		answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("loadfile") ) { // XML -> URI
+	    msg += "</loadResponse>";
+	} else if ( method.equals("loadfileRequest") ) { // XML -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
+	    msg += "<loadResponse>";
 
 	    getParameter( domMessage, message, params, "url", "url" );
 	    if ( params.getParameter( "url" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
 	    if ( answer == null )
-		answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	} else if ( method.equals("translate") ) { // XML * URI -> XML
+	    msg += "</loadResponse>";
+	} else if ( method.equals("translateRequest") ) { // XML * URI -> XML
+	    msg += "<translateResponse>";
 	    // Not done yet
+	    msg += "</translateResponse>";
 	} else {
 	    msg += "<UnRecognizedAction />";
 	}

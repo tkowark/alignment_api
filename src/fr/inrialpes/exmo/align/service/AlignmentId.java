@@ -34,4 +34,9 @@ public class AlignmentId extends Success {
     public String HTMLString(){
 	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getContent()+"</a>";
     }
+    public String SOAPString(){
+	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
+	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><alid>"+content+"</alid>";	
+    }
+
 }

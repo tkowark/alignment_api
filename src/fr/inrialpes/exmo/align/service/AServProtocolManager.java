@@ -102,7 +102,6 @@ public class AServProtocolManager {
     public void init( DBService connection, Parameters p ) throws SQLException {
 	alignmentCache = new CacheImpl( connection );
 	alignmentCache.init( p );
-	// dummy string
 	myId = "http://"+p.getParameter("host")+":"+p.getParameter("http");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
@@ -136,22 +135,18 @@ public class AServProtocolManager {
      * Extra administration primitives
      *********************************************************************/
 
-    // DONE
     public Set listmethods (){
 	return methods;
     }
 
-    // DONE
     public Set listrenderers(){
 	return renderers;
     }
 
-    // DONE
     public Set listservices(){
 	return services;
     }
 
-    // DONE
     public Enumeration alignments(){
 	return alignmentCache.listAlignments();
     }
@@ -159,6 +154,10 @@ public class AServProtocolManager {
     public String query( String query ){
 	//return alignmentCache.query( query );
 	return "Not available yet";
+    }
+
+    public String serverURL(){
+	return myId;
     }
 
    /*********************************************************************

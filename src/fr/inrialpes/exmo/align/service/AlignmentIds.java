@@ -40,12 +40,14 @@ public class AlignmentIds extends Success {
 	return result += "</ul>";
     }
     public String SOAPString(){
-	String msg = "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>";
+	String msg = "<id>"+surrogate+"</id><in-reply-to>"+inReplyTo+"</in-reply-to>"+"<alignmentList>";
 	String id[] = content.split(" ");
 	for ( int i = id.length-1; i >= 0; i-- ){
-	    msg += "<uri>"+id[i]+"</uri>";
+	    if ( id[i].trim() != "" ) {
+		msg += "<alid>"+id[i].trim()+"</alid>";
+	    }
 	}	
-	msg += "</content>";
+	msg += "</alignmentList>";
 	return msg;
     }
 

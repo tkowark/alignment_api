@@ -35,4 +35,7 @@ public class AlignmentMetadata extends Success {
     public String HTMLString() {
 	return "Metadata not implemented";
     }
+    public String SOAPString(){
+	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><metadata>"+content+"</metadata>";	
+    }
 }

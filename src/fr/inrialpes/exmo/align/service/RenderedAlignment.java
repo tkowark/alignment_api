@@ -31,4 +31,7 @@ public class RenderedAlignment extends Success {
     public RenderedAlignment ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
+    public String SOAPString(){
+	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><alignment>"+content+"</alignment>";	
+    }
 }
