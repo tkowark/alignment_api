@@ -277,7 +277,6 @@ public class GroupAlign {
 	if ( urlprefix != null ){
 	    prefix = urlprefix+"/"+dir.getName()+"/";
 	} else {
-	    //prefix = "file://localhost"+dir.toString()+"/";
 	    // sounds like the only way to have something portable
 	    // This is the modification for acomodating the HCONE 
 	    prefix = dir.toURI().toString();
@@ -290,39 +289,14 @@ public class GroupAlign {
 	//System.err.println("Here it is "+prefix+" (end by /?)");
 
 	BasicConfigurator.configure();
-	//System.err.println("Before: uri1= "+uri1+", uri11= "+uri11);
 	if ( uri1 == null ) {uri1 = new URI(prefix+source);}
 	if (!source.equalsIgnoreCase("onto1.rdf") && !target.equalsIgnoreCase("onto1.rdf")){uri1 = new URI(prefix+source);}
-	//else{uri11 = uri1;}
 	URI uri2 = new URI(prefix+target);
-	System.err.println(" uri1= "+uri1+"\n uri2= "+uri2);
-
-	/*
-	handler = new OWLRDFErrorHandler() {
-		public void owlFullConstruct(int code, String message)
-		    throws SAXException {
-		}
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		public void error(String message) throws SAXException {
-		    throw new SAXException(message.toString());
-		}
-		public void warning(String message) throws SAXException {
-		    System.err.println("WARNING: " + message);
-		}
-	    };
-	*/
 
 	if (debug > 1) System.err.println(" Handler set");
 	if (debug > 1) System.err.println(" URI1: "+uri1);
 	if (debug > 1) System.err.println(" URI2: "+uri2);
-	    
-	//try {
-	//    if (uri11 != null) onto1 = loadOntology(uri11);
-	//    if (uri2 != null) onto2 = loadOntology(uri2);
-	//} catch (Exception e) { return ;};
-	//if (debug > 1) System.err.println(" Ontology parsed");
+
 	try {
 	    if (initName != null) {
 		AlignmentParser aparser = new AlignmentParser(debug-1);
