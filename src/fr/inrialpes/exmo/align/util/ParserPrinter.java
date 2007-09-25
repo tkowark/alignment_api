@@ -59,9 +59,11 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
     where the options are:
     <pre>
-        --inverse -i              Inverse first and second ontology
 	--renderer=className -r className  Use the given class for output.
 	--parser=className -p className  Use the given class for input.
+        --inverse -i              Inverse first and second ontology
+	--threshold=threshold -t threshold      Trim the alugnment with regard to threshold
+	--cutmethod=method -T method      Use method as triming method
         --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --help -h                       Print this message
@@ -242,6 +244,8 @@ public class ParserPrinter {
 	System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
 	System.out.println("\t--parser=className -p\t\tUse the given class for input.");
 	System.out.println("\t--inverse -i\t\tInverse first and second ontology");
+	System.out.println("\t--threshold=threshold -t threshold\t\tTrim the alugnment with regard to threshold");
+	System.out.println("\t--cutmethod=method -T method\t\tUse method as triming method");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 
