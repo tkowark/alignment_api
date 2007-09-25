@@ -525,6 +525,11 @@ which the program does...
 		writer.println("</tr>");
 	    }
 	    writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
+	    // Here we are computing a sheer average.
+	    // While in the column results we print NaN when the returned
+	    // alignment is empty,
+	    // here we use the real values, i.e., add 0 to both correctVect and
+	    // foundVect, so this is OK for computing the average.
 	    int k = 0;
 	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
 		e.nextElement();
@@ -554,6 +559,8 @@ which the program does...
 	    }
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");
+	    writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
+	    writer.println("NaN: division per zero, likely due to empty alignent.</small></p>");
 	    if ( embedded != true ) writer.println("</body></html>");
 	    writer.close();
 	} catch (Exception ex) {
