@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,9 @@
 package fr.inrialpes.exmo.align.parser;
 
 // Imported OMWG classes
-import org.omwg.mediation.parser.alignment.XpathParser;
+//import org.omwg.mediation.parser.alignment.XpathParser;
+import org.omwg.mediation.parser.rdf.RDFParser;
+import org.omwg.mediation.parser.rdf.RDFParserException;
 
 //Imported SAX classes
 import org.xml.sax.InputSource;
@@ -183,7 +185,7 @@ public class AlignmentParser extends DefaultHandler {
      * @param loaded should be replaced by OntologyCache (by useless)
      * @deprecated use parse( URI ) instead
      */
-    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, XPathExpressionException {
+    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, RDFParserException {//, XPathExpressionException
 	// Determine which parser to use through the use of Xpath?
 	//private static final XPath XPATH = XPathFactory.newInstance().newXPath();
 	
@@ -197,13 +199,14 @@ public class AlignmentParser extends DefaultHandler {
      * parsed.
      * @param uri URI of the document to parse
      */
-    public Alignment parse( String uri ) throws SAXException, IOException, XPathExpressionException {
+    public Alignment parse( String uri ) throws SAXException, IOException, RDFParserException { //, XPathExpressionException
 	this.uri = uri;
 	try { parser.parse( uri, this ); }
 	catch (SAXException e) {
 	    if ( e.getMessage().equals("2OMWGAlignment") ) {
 		//alignment = new XpathParser().parse(((InputStream)new URL( uri ).openStream()));
-		alignment = new XpathParser().parse( new File( uri ) );
+		//alignment = new XpathParser().parse( new File( uri ) );
+		alignment = new RDFParser().parse( new File( uri ) );
 	    } else {
 		throw e; // unfortunatelly
 	    }
@@ -287,7 +290,7 @@ public class AlignmentParser extends DefaultHandler {
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
 			try {
 			    curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
-			    curronto.setUri( new URI( atts.getValue("rdf:about") ) );
+			    curronto.setURI( new URI( atts.getValue("rdf:about") ) );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("onto2: malformed URI");
 			}
@@ -305,6 +308,9 @@ public class AlignmentParser extends DefaultHandler {
 		alignment = new URIAlignment();
 		onto1 = new Ontology();
 		onto2 = new Ontology();
+		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
+		    alignment.setExtension( "id", atts.getValue("rdf:about") );
+		};
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 	    };
@@ -403,7 +409,7 @@ public class AlignmentParser extends DefaultHandler {
 			    // JE: OMWG1
 			    URI u = new URI( content );
 			    onto1.setOntology( u );
-			    onto1.setUri( u );
+			    onto1.setURI( u );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("uri1: malformed URI");
 			}
@@ -414,7 +420,7 @@ public class AlignmentParser extends DefaultHandler {
 			    // JE: OMWG1
 			    URI u = new URI( content );
 			    onto2.setOntology( u );
-			    onto2.setUri( u );
+			    onto2.setURI( u );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("uri2: malformed URI");
 			}
