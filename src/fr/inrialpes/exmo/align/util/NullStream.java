@@ -27,7 +27,7 @@ import java.io.OutputStream;
  * The goal of this class is to simulate /dev/null by doing nothing on output.
  * It is used as:
  * System.setErr( new PrintStream( new NullStream() ) );
- * It justs does nothing!
+ * It just does nothing!
  */
 public class NullStream extends OutputStream {
 
