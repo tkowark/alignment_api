@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2007, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -50,10 +50,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
-
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -270,32 +266,26 @@ public class GroupOutput {
     public Evaluator eval( String alignName1, String alignName2 ) throws AlignmentException {
 	Evaluator eval = null;
 	int nextdebug;
+	if ( debug < 3 ) nextdebug = 0;
+	else nextdebug = debug - 3;
+	// Load alignments
+	Alignment align1=null, align2=null;
 	try {
-	    if ( debug < 3 ) nextdebug = 0;
-	    else nextdebug = debug - 3;
-	    // Load alignments
 	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
-	    Alignment align1 = aparser1.parse( alignName1 );
+	    align1 = aparser1.parse( alignName1 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
 	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
-	    Alignment align2 = aparser2.parse( alignName2 );
+	    align2 = aparser2.parse( alignName2 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
-	    // Create evaluator object
-	    eval = new PRecEvaluator( align1, align2 );
-	    // Compare
-	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params, loaded ) ;
-	    return eval;
-	} catch (ParserConfigurationException pce) {
-	    throw new AlignmentException( "Cannot eval ", pce );
-	} catch (SAXException se) {
-	    throw new AlignmentException( "Cannot eval ", se );
-	} catch (IOException ioe) {
-	    throw new AlignmentException( "Cannot eval ", ioe );
-	} catch (XPathExpressionException ex) {
-	    throw new AlignmentException( "Cannot eval ", ex );
+	} catch (Exception ex) {
+	    throw new AlignmentException( "Cannot parse ", ex );
 	}
-
+	// Create evaluator object
+	eval = new PRecEvaluator( align1, align2 );
+	// Compare
+	params.setParameter( "debug", new Integer( nextdebug ) );
+	eval.eval( params, loaded ) ;
+	return eval;
     }
 
     public void printPGFTeX( String algo, double[] cells ){

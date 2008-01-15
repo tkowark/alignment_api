@@ -277,7 +277,14 @@ public class GenPlot {
 	    //	OWLOntology o = (OWLOntology)e.nextElement();
 	    //	o.getOWLConnection().notifyOntologyDeleted( o );
 	    //}
-	} catch (Exception ex) { ex.printStackTrace(); };
+	} catch (Exception ex) { 
+	    if ( debug > 1 ) {
+		ex.printStackTrace();
+	    } else {
+		System.err.println("GenPlot: "+ex);
+		System.err.println(alignName1+ " - "+alignName2 );
+	    };
+	};
 	return eval;
     }
 
