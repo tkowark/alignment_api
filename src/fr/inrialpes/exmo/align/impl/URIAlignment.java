@@ -61,8 +61,8 @@ public class URIAlignment extends BasicAlignment {
 	    super.init( o1, o2 );
 	} else if ( o1 instanceof URI && o2 instanceof URI ) {
 	    super.init( o1, o2 );
-	    this.onto1.setUri( (URI)o1 );
-	    this.onto2.setUri( (URI)o2 );
+	    this.onto1.setURI( (URI)o1 );
+	    this.onto2.setURI( (URI)o2 );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");
 	};
