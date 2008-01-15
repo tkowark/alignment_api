@@ -34,7 +34,7 @@ import org.semanticweb.owl.align.Relation;
  * Renders an alignment in its RDF format
  *
  * @author Jérôme Euzenat
- * @version $Id: RDFRendererVisitor.java 384 2007-02-02 11:09:40Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class XMLMetadataRendererVisitor implements AlignmentVisitor
