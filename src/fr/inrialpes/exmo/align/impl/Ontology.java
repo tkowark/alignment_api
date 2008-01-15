@@ -36,13 +36,13 @@ public class Ontology {
 
     public Ontology() {};
 
-    public URI getUri() { return uri; }
+    public URI getURI() { return uri; }
     public URI getFile() { return file; }
     public Object getOntology() { return onto; }
     public URI getFormURI() { return formalismURI; }
     public String getFormalism() { return formalism; }
 
-    public void setUri( URI uri ) { this.uri = uri; }
+    public void setURI( URI uri ) { this.uri = uri; }
     public void setFile( URI file ) { this.file = file; }
     public void setOntology( Object o ) { this.onto = o; }
     public void setFormURI( URI u ) { formalismURI = u; }
