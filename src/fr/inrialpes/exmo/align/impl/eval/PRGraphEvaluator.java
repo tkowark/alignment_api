@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,6 +51,12 @@ import java.net.URI;
  * 
  * Mooney also provides the averaging of these graphs over several queries:
  * unfortunatelly, the resulting graph is not anymore a Precision/Recall graph
+ *
+ * This works perfectly correctly. I mention below the point which are
+ * mentionned as design points in a forecoming Exmotto entry:
+ * [R=0%] What should be P when R is 0% (obviously 100%)
+ * [R=100%] What should be P when R=100% is unreachable
+ * [Interp.] How is a chaotic curve interpolated
  */
 
 public class PRGraphEvaluator extends BasicEvaluator {
@@ -89,33 +95,21 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	}
 	precisions = new double[ STEP+1 ];
 
-      //TreeSet could be replaced by something else
-      //The comparator must always tell that things are different!
-      /*SortedSet cellSet = new TreeSet(
-			    new Comparator() {
-				public int compare( Object o1, Object o2 )
-				    throws ClassCastException{
-				    if ( o1 instanceof Cell
-					 && o2 instanceof Cell ) {
-					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
-					    return -1;
-					} else { return 1; }
-				    } else {
-					throw new ClassCastException();
-					}}});*/
+      // Create a sorted structure in which putting the cells
+      // TreeSet could be replaced by something else
       SortedSet cellSet = new TreeSet(
 			    new Comparator() {
 				public int compare( Object o1, Object o2 )
 				    throws ClassCastException{
 				    try {
 					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
-	  //*/3.0
-				    if ( o1 instanceof Cell
-					 && o2 instanceof Cell ) {
+					//*/3.0
+				    if ( o1 instanceof Cell && o2 instanceof Cell ) {
 					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
 					    return -1;
 					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
 					    return 1;
+					//The comparator must always tell that things are different!
 					} else if ( (((Cell)o1).getObject1AsURI().getFragment() == null)
 						    || (((Cell)o2).getObject1AsURI().getFragment() == null) ) {
 					    return -1;
@@ -142,25 +136,23 @@ public class PRGraphEvaluator extends BasicEvaluator {
       }
 
       // Collect the points that change recall
-      // (the other provide lower precision from the same recall
-      //  and are not considered)
-      points.add( new Pair( 0., 1. ) );
+      // (the other provide lower precision from the same recall and are not considered)
+      points.add( new Pair( 0., 1. ) ); // [R=0%]
       for( Iterator it = cellSet.iterator(); it.hasNext(); ){
 	  nbfound++;
 	  Cell c2 = (Cell)it.next();
-	  //*/3.0
 	  Set s1 = (Set)align1.getAlignCells1( c2.getObject1() );
-	  if( s1 != null ){
+	  if( s1 != null ){ // for all cells matching our first entity
 	      for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
 		  Cell c1 = (Cell)it1.next();
 		  URI uri1 = c1.getObject2AsURI();
 		  URI uri2 = c2.getObject2AsURI();	
-		  // if (c1.getobject2 == c2.getobject2)
-		  if (uri1.toString().equals(uri2.toString())) {
+		  if (uri1.toString().equals(uri2.toString())) { //This cell matches a correct one
 		      nbcorrect++;
 		      double recall = (double)nbcorrect / (double)nbexpected;
 		      double precision = (double)nbcorrect / (double)nbfound;
 		      // Create a new pair to put in the list
+		      // It records real precision and recall at that point
 		      points.add( new Pair( recall, precision ) );
 		      c2 = null; // out of the loop.
 		  }
@@ -172,12 +164,14 @@ public class PRGraphEvaluator extends BasicEvaluator {
       // for that purpose, and for each other bound we add a point with the worse
       // precision which is the required recall level divided with the maximum
       // cardinality possible (i.e., the multiplication of the ontology sizes).
+      // JE[R=100%]: that's a fine idea! Unfortunately SIZEOFO1 and SIZEOFO2 are undefined values
+      //points.add( new Pair( 1., (double)nbexpected/(double)(SIZEOFO1*SIZEOFA2) ) );
       points.add( new Pair( 1.0, 0. ) ); // useless because 
 
-      // Interpolate curve points at each n-recall level
+      // [Interp.] Interpolate curve points at each n-recall level
       // This is inspired form Ray Mooney's program
       // It works backward in the vector,
-      //  (in the same spirit as before, the maximum value so far is retained)
+      //  (in the same spirit as before, the maximum value so far -best- is retained)
       int j = points.size()-1; // index in recall-ordered vector of points
       int i = STEP; // index of the current recall interval
       double level = (double)i/STEP; // max level of that interval
@@ -192,7 +186,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	  if ( precrec.getY() > best ) best = precrec.getY();
 	  j--;
       }
-      precisions[0] = best; // It should be 1. that's why it is now added in points.
+      precisions[0] = best; // It should be 1. that's why it is now added in points. [R=0%]
 
       return 0.0; // useless
       }
