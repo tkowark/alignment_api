@@ -142,7 +142,7 @@ public class AlignmentService {
 	    }
 	    services.put( name, serv );
 	}
-
+	/*
 	// [Directory]: register to directories
 	for ( Enumeration e = directories.keys() ; e.hasMoreElements() ; ) {
 	    String name = (String)e.nextElement();
@@ -160,7 +160,7 @@ public class AlignmentService {
 	    }
 	    directories.put( name, dir );
 	}
-
+	*/
 
 	// Wait loop
 	while ( true ) {
@@ -170,6 +170,7 @@ public class AlignmentService {
     }
 
     protected void close(){
+	/*
 	if (debug > 0 ) System.err.println("Shuting down server");
 	// [Directory]: unregister to directories
 	for ( Enumeration e = directories.elements() ; e.hasMoreElements() ; ) {
@@ -180,7 +181,7 @@ public class AlignmentService {
 		ex.printStackTrace();
 	    }
 	}
-
+	*/
 	// Close services
 	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
