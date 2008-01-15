@@ -1,3 +1,23 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
 package fr.inrialpes.exmo.align.plugin.neontk; 
 
 import java.io.*;
@@ -21,21 +41,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-//import edu.stanford.smi.protege.util.*;
-import fr.inrialpes.exmo.align.parser.*;
-import fr.inrialpes.exmo.align.util.*;
-import fr.inrialpes.exmo.align.impl.*;
-import fr.inrialpes.exmo.align.impl.method.*;
 import org.semanticweb.owl.align.*;
-import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
+
+import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
  
@@ -369,70 +382,32 @@ public class SWTInterface extends JPanel {
 				  
 				  if(online == false) {
 					  
-					  OWLOntology onto1 = null;
-					  OWLOntology onto2 = null;
-					  Parameters p = new BasicParameters();
-					  Parameters p2 = new BasicParameters();
-					  AlignmentProcess A1 = null;
-					  AlignmentProcess A2 = null;
+				      //OWLOntology onto1 = null;
+				      //OWLOntology onto2 = null;
+				      Parameters p = new BasicParameters();
+				      AlignmentProcess A1 = null;
+					  
+				      try {
+					  //OWLRDFParser parser = new OWLRDFParser();
+					  //parser.setConnection(OWLManager.getOWLConnection());
+					  //onto1 =  parser.parseOntology((URI)uris.get(0));
+					  //onto2 =  parser.parseOntology((URI)uris.get(1));
 					  
 					  try {
-					  OWLRDFParser parser = new OWLRDFParser();
-					  parser.setConnection(OWLManager.getOWLConnection());
-					  onto1 =  parser.parseOntology((URI)uris.get(0));
-					  onto2 =  parser.parseOntology((URI)uris.get(1));
-					  
-					  
-					  if( matching_method.equals("fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment") ) {
-						 
-					    A1 = new SubsDistNameAlignment(onto1, onto2);
-					    A2 = new SubsDistNameAlignment(onto1, onto2);
-					    A1.align((Alignment)null,p);
-					    A2.align((Alignment)null,p2);
-					  } 
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.NameEqAlignment") ) {
-						A1 = new NameEqAlignment(onto1, onto2);
-						A2 = new NameEqAlignment(onto1, onto2);
-						A1.align((Alignment)null,p);
-						A2.align((Alignment)null,p2);
+					      // Create alignment object
+					      Object[] mparams = {};
+					      Class alignmentClass = Class.forName(matching_method);
+					      Class[] cparams = {};
+					      java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+					      A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+					      A1.init( (URI)uris.get(0), (URI)uris.get(1), (OntologyCache)null );
+					  } catch (Exception ex) {
+					      System.err.println("Cannot create alignment "+matching_method+"\n"+ex.getMessage());
+					      throw ex;
 					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment") ) {
-							A1 = new StringDistAlignment(onto1, onto2);
-							A2 = new StringDistAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.SMOANameAlignment") ) {
-							A1 = new SMOANameAlignment(onto1, onto2);
-							A2 = new SMOANameAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment") ) {
-							A1 = new StrucSubsDistAlignment(onto1, onto2);
-							A2 = new StrucSubsDistAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment") ) {
-							A1 = new NameAndPropertyAlignment(onto1, onto2);
-							A2 = new NameAndPropertyAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.ClassStructAlignment") ) {
-							A1 = new ClassStructAlignment(onto1, onto2);
-							A2 = new ClassStructAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-					  else if (matching_method.equals("fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment") ) {
-							A1 = new EditDistNameAlignment(onto1, onto2);
-							A2 = new EditDistNameAlignment(onto1, onto2);
-							A1.align((Alignment)null,p);
-							A2.align((Alignment)null,p2);
-					  }
-						  
+
+					  A1.align((Alignment)null,p);
+
 					  //for storing
 					  FileWriter owlF = new FileWriter(new File( "align.owl"));
 					  AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
@@ -446,7 +421,7 @@ public class SWTInterface extends JPanel {
 					  AlignmentVisitor V1 = new HTMLRendererVisitor(
 							    new PrintWriter ( htmlF ) );
 					  
-					  A2.render(V1);
+					  A1.render(V1);
 					  htmlF.close();
 					  
 					  String htmlString = fileToString(new File ("align.html"));
