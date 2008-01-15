@@ -251,7 +251,14 @@ public class ExtGroupEval {
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;
-	} catch (Exception ex) { ex.printStackTrace(); }
+	} catch (Exception ex) {
+	    if ( debug > 1 ) {
+		ex.printStackTrace();
+	    } else {
+		System.err.println("ExtGroupEval: "+ex);
+		System.err.println(alignName1+ " - "+alignName2 );
+	    }
+	};
 	return eval;
     }
 
@@ -343,12 +350,16 @@ public class ExtGroupEval {
 			    oexpected = expected;
 			    expected = oexpected + nexpected;
 			}
-			int nfound = eval.getFound();
-			int ofound = foundVect[k];
-			foundVect[k] = ofound + nfound;
-			double ncorrect = eval.getSymSimilarity();
-			double ocorrect = correctVect[k];
-			correctVect[k] = ocorrect + ncorrect;
+			// JE: Until the end of "//" for NEWSET
+			// If foundVect is -1 then results are invalid
+			if ( foundVect[k] != -1 )
+			    foundVect[k] += eval.getFound();
+			//int nfound = eval.getFound();
+			//int ofound = foundVect[k];
+			//foundVect[k] = ofound + nfound;
+			//double ncorrect = eval.getSymSimilarity();
+			//double ocorrect = correctVect[k];
+			//correctVect[k] = ocorrect + ncorrect;
 
 			for ( int i = 0 ; i < fsize; i++){
 			    writer.print("<td>");
@@ -356,19 +367,26 @@ public class ExtGroupEval {
 				printFormat(writer,eval.getSymPrecision());
 				System.out.print("</td><td>");
 				printFormat(writer,eval.getSymRecall());
+				// JE: Until the end of "//" for NEWSET
+				correctVect[k] += eval.getFound() * eval.getSymPrecision();
 			    } else if ( format.charAt(i) == 'e' ) {
 				printFormat(writer,eval.getEffPrecision());
 				System.out.print("</td><td>");
 				printFormat(writer,eval.getEffRecall());
+				// JE: Until the end of "//" for NEWSET
+				correctVect[k] += eval.getFound() * eval.getEffPrecision();
 			    } else if ( format.charAt(i) == 'o' ) {
 				printFormat(writer,eval.getOrientPrecision());
 				System.out.print("</td><td>");
 				printFormat(writer,eval.getOrientRecall());
+				// JE: Until the end of "//" for NEWSET
+				correctVect[k] += eval.getFound() * eval.getOrientPrecision();
 			    }
 			    writer.println("</td>");
 			}
 		    } else {
 			writer.println("<td>n/a</td><td>n/a</td>");
+			foundVect[k] = -1;
 		    }
 		}
 		writer.println("</tr>");
@@ -377,31 +395,38 @@ public class ExtGroupEval {
 	    int k = 0;
 	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
 		e.nextElement();
-		double precision = (double)correctVect[k]/foundVect[k];
-		double recall = (double)correctVect[k]/expected;
-		for ( int i = 0 ; i < fsize; i++){
-		    writer.print("<td>");
-		    if ( format.charAt(i) == 's' ) {
+		if ( foundVect[k] != -1 ){
+		    double precision = (double)correctVect[k]/foundVect[k];
+		    double recall = (double)correctVect[k]/expected;
+		    // JE: 7/10/2007: this is ridiculous
+		    //for ( int i = 0 ; i < fsize; i++){
+			writer.print("<td>");
+			//if ( format.charAt(i) == 's' ) {
 			printFormat(writer,precision);
 			System.out.print("</td><td>");
 			printFormat(writer,recall);
-		    } else if ( format.charAt(i) == 'o' ) {
-			printFormat(writer,precision);
-			System.out.print("</td><td>");
-			printFormat(writer,recall);
-		    } else if ( format.charAt(i) == 'e' ) {
-			printFormat(writer,precision);
-			System.out.print("</td><td>");
-			printFormat(writer,recall);
-		    }
-		    writer.println("</td>");
-		};
+			//} else if ( format.charAt(i) == 'o' ) {
+			//printFormat(writer,precision);
+			//System.out.print("</td><td>");
+			//printFormat(writer,recall);
+			//} else if ( format.charAt(i) == 'e' ) {
+			//printFormat(writer,precision);
+			//System.out.print("</td><td>");
+			//printFormat(writer,recall);
+			//}
+			writer.println("</td>");
+		} else {
+		    writer.println("<td colspan='2'><center>Error</center></td>");
+		}
+		//};
 	    }
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");
+	    writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
+	    writer.println("NaN: division per zero, likely due to empty alignent.</small></p>");
 	    writer.println("</body></html>");
 	    writer.close();
-	} catch (Exception ex) { ex.printStackTrace();}
+	} catch (Exception ex) {  ex.printStackTrace(); }
     }
 
     // Borrowed and enhanced from

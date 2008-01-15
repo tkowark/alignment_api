@@ -272,7 +272,14 @@ public class GroupEval {
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;
-	} catch (Exception ex) { System.err.println(ex); }
+	} catch (Exception ex) {
+	    if ( debug > 1 ) {
+		ex.printStackTrace();
+	    } else {
+		System.err.println("GroupEval: "+ex);
+		System.err.println(alignName1+ " - "+alignName2 );
+	    }
+	};
 	return eval;
     }
 

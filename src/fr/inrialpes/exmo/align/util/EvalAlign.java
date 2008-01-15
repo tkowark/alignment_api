@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -45,10 +45,6 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
-
-import org.xml.sax.SAXException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -149,15 +145,19 @@ public class EvalAlign {
 
 	if ( debug > 1 ) System.err.println(" Filename"+alignName1+"/"+alignName2);
 
+	Alignment align1=null, align2 = null;
 	try {
 	    // Load alignments
 	    Hashtable loaded = new Hashtable();
 	    AlignmentParser aparser1 = new AlignmentParser( debug );
-	    Alignment align1 = aparser1.parse( alignName1 );
+	    align1 = aparser1.parse( alignName1 );
 	    if ( debug > 0 ) System.err.println(" Alignment structure1 parsed");
 	    AlignmentParser aparser2 = new AlignmentParser( debug );
-	    Alignment align2 = aparser2.parse( alignName2 );
+	    align2 = aparser2.parse( alignName2 );
 	    if ( debug > 0 ) System.err.println(" Alignment structure2 parsed");
+	} catch ( Exception ex ) { ex.printStackTrace(); }
+
+	try {
 	    // Create evaluator object
 	    if ( classname != null ) {
 		try {
@@ -184,8 +184,10 @@ public class EvalAlign {
 
 	    // Compare
 	    eval.eval(params) ;
-
-	    // Set output file
+	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	
+	// Set output file
+	try {
 	    OutputStream stream;
 	    if (filename == null) {
 		//writer = (PrintStream) System.out;
@@ -200,15 +202,7 @@ public class EvalAlign {
 	    eval.write( writer );
 	    writer.flush();
 	    
-	} catch (IOException ex) {
-	    ex.printStackTrace();
-	} catch (AlignmentException ex) {
-	    ex.printStackTrace();
-	} catch (SAXException ex) {
-	    ex.printStackTrace();
-	} catch (ParserConfigurationException ex) {
-	    ex.printStackTrace();
-	} catch (XPathExpressionException ex) {
+	} catch ( IOException ex ) {
 	    ex.printStackTrace();
 	}
     }
