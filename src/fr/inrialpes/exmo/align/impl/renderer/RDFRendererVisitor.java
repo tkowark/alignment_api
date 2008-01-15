@@ -34,6 +34,7 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
+//import org.omwg.mediation.language.export.rdf.RdfSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
 import org.omwg.mediation.language.objectmodel.api.Expression;
 
@@ -51,6 +52,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
     Alignment alignment = null;
     Cell cell = null;
     OmwgSyntaxFormat oMWGformatter = null;
+    //RdfSyntaxFormat oMWGformatter = null;
 
     public RDFRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -79,6 +81,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print( align.getLevel() );
 	if ( align.getLevel().equals("2OMWG") ) {
 	    oMWGformatter = new OmwgSyntaxFormat();
+	    //oMWGformatter = new RdfSyntaxFormat();
 	    // This is a trick for having namespaces output
 	    oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
 	}
@@ -138,7 +141,6 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	       alignment.getLevel().equals("2OMWG") ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
-	    // JE: I do not think that this should be it...
 	    if ( cell.getId() != null ){
 		writer.print(" rdf:about=\""+cell.getId()+"\"");
 	    }
