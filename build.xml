@@ -5,7 +5,7 @@
 	
   <!-- tested -->
   <target name="usage" depends="init">
-    <echo message="sh ant _target_ _options_"/>
+    <echo message="ant _target_ _options_"/>
     <echo/>
     <echo message="usage: this message"/>
     <echo message="init: sets necessary variables"/>
@@ -17,7 +17,7 @@
     <echo message="javadoc: generates documentation"/>
     <echo message="release: releases a new version"/>
     <echo message="svnbranch: copy the version under svn"/>
-    <echo message="clean: clean-up the release directory"/>
+    <echo message="clean: clean-up before release"/>
     <echo/>
     <echo message="	-Dversion=${version}"/>
   </target>
@@ -169,19 +169,28 @@
   </target>
 
   <!-- tested -->
+  <target name="plugins" depends="init">
+    <echo message="Generating plugins..."/>
+    <ant dir="plugins" target="release"/>
+  </target>
+
+  <!-- tested -->
   <target name="zip" depends="init">
     <echo message="Ziping..."/>
     <!--echo message="Are you sure that everything is OK (update/ci/compile)?"/-->
+    <antcall target="clean"/>
     <!-- Unfortunately commit is not functional -->
     <!--antcall target="commit"/-->
     <antcall target="compileall"/>
     <antcall target="jar"/>
     <antcall target="javadoc"/>
+    <antcall target="plugins"/>
     <!-- may be useful to change directory -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir=".">
 	<include name="**/*"/>
 	<exclude name="**/.svn"/>
+	<exclude name="plugins/lib"/>
       </fileset>
     </zip>
   </target>
@@ -256,6 +265,11 @@
 
   <target name="clean">
     <echo message="Cleaning..."/>
+    <delete>
+      <fileset dir="classes" includes="**/*.class"/>
+      <fileset dir="examples" includes="**/*.class"/>
+      <fileset dir="examples" includes="**/*.jar"/>
+    </delete>
   </target>
 
 </project>
