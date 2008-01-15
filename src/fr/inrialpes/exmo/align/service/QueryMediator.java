@@ -77,7 +77,7 @@ public class QueryMediator implements QueryProcessor {
 	processor = proc;
 	AlignmentParser aparser = new AlignmentParser(0);
 	try { alignment = aparser.parse( alignmentURI ); }
-	catch (XPathExpressionException xpee) {
+	catch ( Exception ex ) {
 	    throw new ParserConfigurationException("Error on parsing");
 	}
     }
