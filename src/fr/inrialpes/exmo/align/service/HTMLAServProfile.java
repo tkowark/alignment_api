@@ -1,4 +1,4 @@
-/*
+ /*
  * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2006-2007.
@@ -324,6 +324,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
+	} else if ( oper.equals( "alid" ) ){
+	    return returnAlignment( uri );
 	} else if ( oper.equals( "wsdl" ) ){
 	    return wsdlAnswer(uri, uri.substring(start), header, params);
 	} else {
@@ -405,6 +407,21 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "Cannot understand: "+perf;
 	}
 	return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
+    }
+
+    /**
+     * Returns the alignment in RDF/XML
+     */
+    public Response returnAlignment( String uri ) {
+	Parameters params = new BasicParameters();
+	params.setParameter("id", manager.serverURL()+uri);
+	params.setParameter( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	if ( answer instanceof ErrorMsg ) {
+	    return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
+	} else {
+	    return new Response( HTTP_OK, MIME_XML, answer.getContent() );
+	}
     }
 
     /**
