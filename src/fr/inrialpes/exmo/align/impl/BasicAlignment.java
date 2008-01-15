@@ -36,6 +36,7 @@ import org.xml.sax.ContentHandler;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
@@ -104,7 +105,7 @@ public class BasicAlignment implements Alignment {
 	hash2 = new Hashtable();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
-	setExtension( METHOD, getClass().getName() );
+	if ( this instanceof AlignmentProcess ) setExtension( METHOD, getClass().getName() );
 	// JE: OMWG1
 	onto1 = new Ontology();
 	onto2 = new Ontology();
@@ -146,6 +147,14 @@ public class BasicAlignment implements Alignment {
 
     public Object getOntology2() {
 	return onto2.getOntology();
+    };
+
+    public Ontology getOntologyObject1() {
+	return onto1;
+    };
+
+    public Ontology getOntologyObject2() {
+	return onto2;
     };
 
     public URI getOntology1URI() throws AlignmentException {
