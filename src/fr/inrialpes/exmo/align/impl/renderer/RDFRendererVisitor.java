@@ -33,10 +33,14 @@ import org.semanticweb.owl.align.Relation;
 // using the namespace facility of BasicAlignment
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
-import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
-//import org.omwg.mediation.language.export.rdf.RdfSyntaxFormat;
+//import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
+import org.omwg.mediation.language.export.rdf.RdfSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
 import org.omwg.mediation.language.objectmodel.api.Expression;
+
+// JE: we need jena... only for this renderer!
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * Renders an alignment in its RDF format
@@ -51,11 +55,13 @@ public class RDFRendererVisitor implements AlignmentVisitor
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
-    OmwgSyntaxFormat oMWGformatter = null;
-    //RdfSyntaxFormat oMWGformatter = null;
+    //OmwgSyntaxFormat oMWGformatter = null;
+    RdfSyntaxFormat oMWGformatter = null;
+    Model model = null;
 
     public RDFRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
+	Model model = ModelFactory.createDefaultModel();
     }
 
     public void visit( Alignment align ) throws AlignmentException {
@@ -80,10 +86,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	if ( align.getLevel().equals("2OMWG") ) {
-	    oMWGformatter = new OmwgSyntaxFormat();
-	    //oMWGformatter = new RdfSyntaxFormat();
+	    //oMWGformatter = new OmwgSyntaxFormat();
+	    oMWGformatter = new RdfSyntaxFormat();
 	    // This is a trick for having namespaces output
-	    oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
+	    //oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
 	}
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
@@ -149,9 +155,11 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    // But this should be it! (at least for this one)
 	    if ( alignment.getLevel().equals("2OMWG") ) {
 		writer.print("      <entity1>");
-		writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
+		//writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
+		writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject1(), model ) );
 		writer.print("</entity1>\n      <entity2>");
-		writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
+		//writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
+		writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject2(), model ) );
 		writer.print("</entity2>\n      <relation>");
 		//writer.print(cell.getRelation().getRelation());
 		cell.getRelation().accept( this );
