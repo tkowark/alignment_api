@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.io.PrintWriter;
+//import java.util.Set;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -33,7 +34,7 @@ import org.semanticweb.owl.align.Relation;
 // using the namespace facility of BasicAlignment
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
-//import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
+import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
 import org.omwg.mediation.language.export.rdf.RdfSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
 import org.omwg.mediation.language.objectmodel.api.Expression;
@@ -41,6 +42,41 @@ import org.omwg.mediation.language.objectmodel.api.Expression;
 // JE: we need jena... only for this renderer!
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+
+// Instead
+import org.omwg.mediation.language.objectmodel.api.Arity;
+import org.omwg.mediation.language.objectmodel.api.AttributeExpr;
+import org.omwg.mediation.language.objectmodel.api.ClassExpr;
+import org.omwg.mediation.language.objectmodel.api.ComplexExpression;
+import org.omwg.mediation.language.objectmodel.api.Expression;
+import org.omwg.mediation.language.objectmodel.api.ExpressionDefinition;
+import org.omwg.mediation.language.objectmodel.api.IRI;
+import org.omwg.mediation.language.objectmodel.api.Id;
+import org.omwg.mediation.language.objectmodel.api.InstanceExpr;
+import org.omwg.mediation.language.objectmodel.api.Level;
+import org.omwg.mediation.language.objectmodel.api.MappingDocument;
+import org.omwg.mediation.language.objectmodel.api.MappingRule;
+import org.omwg.mediation.language.objectmodel.api.OntologyId;
+import org.omwg.mediation.language.objectmodel.api.Path;
+import org.omwg.mediation.language.objectmodel.api.RelationExpr;
+import org.omwg.mediation.language.objectmodel.api.SimpleValue;
+import org.omwg.mediation.language.objectmodel.api.TransfService;
+import org.omwg.mediation.language.objectmodel.api.ComplexExpression.Operator;
+import org.omwg.mediation.language.objectmodel.api.MappingRule.Direction;
+import org.omwg.mediation.language.objectmodel.api.RelationExpr.RelationId;
+import org.omwg.mediation.language.objectmodel.api.conditions.AttributeCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.AttributeOccurenceCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.AttributeTypeCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.AttributeValueCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.CoDomainRelationCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.Condition;
+import org.omwg.mediation.language.objectmodel.api.conditions.DomainAttributeCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.DomainRelationCondition;
+import org.omwg.mediation.language.objectmodel.api.conditions.Restriction;
+import org.omwg.mediation.language.objectmodel.api.conditions.TypeCondition;
+import org.omwg.mediation.parser.alignment.ComparatorMapping;
+import org.omwg.mediation.parser.alignment.OperatorMapping;
+import org.omwg.mediation.parser.rdf.Omwg;
 
 /**
  * Renders an alignment in its RDF format
@@ -55,8 +91,8 @@ public class RDFRendererVisitor implements AlignmentVisitor
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
-    //OmwgSyntaxFormat oMWGformatter = null;
-    RdfSyntaxFormat oMWGformatter = null;
+    OmwgSyntaxFormat oMWGformatter = null;
+    //RdfSyntaxFormat oMWGformatter = null;
     Model model = null;
 
     public RDFRendererVisitor( PrintWriter writer ){
@@ -68,7 +104,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	alignment = align;
 	writer.print("<?xml version='1.0' encoding='utf-8");
 	writer.print("' standalone='no'?>\n");
-	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xml:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'\n");
+	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'\n");
 	if ( align instanceof BasicAlignment ) {
 	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
@@ -86,10 +122,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	if ( align.getLevel().equals("2OMWG") ) {
-	    //oMWGformatter = new OmwgSyntaxFormat();
-	    oMWGformatter = new RdfSyntaxFormat();
+	    oMWGformatter = new OmwgSyntaxFormat();
+	    //oMWGformatter = new RdfSyntaxFormat();
 	    // This is a trick for having namespaces output
-	    //oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
+	    oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
 	}
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
@@ -155,11 +191,13 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    // But this should be it! (at least for this one)
 	    if ( alignment.getLevel().equals("2OMWG") ) {
 		writer.print("      <entity1>");
-		//writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
-		writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject1(), model ) );
+		//print( (Expression)cell.getObject1() , 4 );
+		writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
+		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject1(), model ) );
 		writer.print("</entity1>\n      <entity2>");
-		//writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
-		writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject2(), model ) );
+		writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
+		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject2(), model ) );
+		//print( (Expression)cell.getObject2() , 4 );
 		writer.print("</entity2>\n      <relation>");
 		//writer.print(cell.getRelation().getRelation());
 		cell.getRelation().accept( this );
@@ -194,4 +232,92 @@ public class RDFRendererVisitor implements AlignmentVisitor
     public void visit( Relation rel ) {
 	rel.write( writer );
     };
+
+    public void	print( Expression expr, int ind ) {
+	if ( expr instanceof ClassExpr ) { // I hate this dispatch
+	    print( (ClassExpr)expr, ind );
+	} else if ( expr instanceof AttributeExpr ) {
+	    print( (AttributeExpr)expr, ind );
+	} else if ( expr instanceof RelationExpr ) {
+	    print( (RelationExpr)expr, ind );
+	} else if ( expr instanceof InstanceExpr ) {
+	    print( (InstanceExpr)expr, ind );
+	} else {
+	    System.err.println("Strange: an expression");
+	}
+    }
+    public void	print( ClassExpr expr, int ind ) {
+	ExpressionDefinition def = expr.getExpresionDefinition();
+	// dummy: to be suppressed
+	Object conds = null;
+	//Set<Condition> conds = expr.getConditions();
+	if ( def.isComplexExpression() || conds != null ) {
+	    writer.println();
+	    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+	    writer.print( "<"+Omwg.Class);
+	    if ( !def.isComplexExpression() ) { // strange
+		writer.print(" rdf:resource=\""+((Id)def).plainText()+"\">");
+	    } else {
+		writer.println(">"); ind++;
+		for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+		ComplexExpression ce = (ComplexExpression)def;
+		Operator op = ce.getOperator();
+		switch (op){
+		case NOT:
+		    writer.print("<"+Omwg.not+" rdf:parseType=\"Collection\">");
+		    print( (ClassExpr)(ce.getSubExpressions().iterator().next()), ind+1 );
+		    writer.println();
+		    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+		    writer.print("</"+Omwg.not+"\">");
+		    break;
+		case AND:
+		    writer.print("<"+Omwg.and+" rdf:parseType=\"Collection\">");
+		    writer.println();
+		    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+		    writer.print("</"+Omwg.and+"\">");
+		    break;
+		case OR:
+		    writer.print("<"+Omwg.or+" rdf:parseType=\"Collection\">");
+		    writer.println();
+		    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+		    writer.print("</"+Omwg.or+"\">");
+		    break;
+		};
+		ind--;
+	    }
+	    // Deal with operators
+	    // Deal with restrictions
+	    writer.print( "</"+Omwg.Class+">");
+	} else {
+	    writer.print( "<"+Omwg.Class+" rdf:resource=\""+((Id)def).plainText()+"\"/>" );
+	}
+    }
+    public void	print( AttributeExpr expr, int ind ) {
+	ExpressionDefinition def = expr.getExpresionDefinition();
+	if (def.isComplexExpression()) {
+	    writer.println();
+	    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+	} else {
+	    writer.print( "<"+Omwg.Attribute+" rdf:resource=\""+((Id)def).plainText()+"\"/>" );
+	}
+    }
+    public void	print( RelationExpr expr, int ind ) {
+	ExpressionDefinition def = expr.getExpresionDefinition();
+	if (def.isComplexExpression()) {
+	    writer.println();
+	    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+	} else {
+	    writer.print( "<"+Omwg.Relation+" rdf:resource=\""+((Id)def).plainText()+"\"/>" );
+	}
+    }
+    public void	print( InstanceExpr expr, int ind ) {
+	ExpressionDefinition def = expr.getExpresionDefinition();
+	if (def.isComplexExpression()) {
+	    writer.println();
+	    for ( int i = ind; i > 0; i-- ) writer.print( "  " );
+	} else {
+	    writer.print( "<"+Omwg.Instance+" rdf:resource=\""+((Id)def).plainText()+"\"/>" );
+	}
+    }
+
 }
