@@ -88,10 +88,12 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	if ( align.getLevel().equals("2OMWG") ) {
-	    oMWGformatter = new OmwgSyntaxFormat();
+	    oMWGformatter = new OmwgSyntaxFormat( true, "  " );
 	    //oMWGformatter = new RdfSyntaxFormat();
-	    // This is a trick for having namespaces output
+	    // Provide the list of declared namespaces (should be related to above)
 	    oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
+	    // Set the offset at which element starts (fortunately always the same)
+	    oMWGformatter.setPrefixCount(4);
 	}
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
@@ -159,10 +161,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 		writer.print("      <entity1>");
 		writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
 		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject1(), model ) );
-		writer.print("</entity1>\n      <entity2>");
+		writer.print("\n      </entity1>\n      <entity2>");
 		writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
 		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject2(), model ) );
-		writer.print("</entity2>\n      <relation>");
+		writer.print("\n      </entity2>\n      <relation>");
 		cell.getRelation().accept( this );
 		writer.print("</relation>\n");
 	    } else {
