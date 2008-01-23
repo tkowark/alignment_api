@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2008
  * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ package fr.inrialpes.exmo.align.impl;
 // import java classes
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Collection;
 import java.io.PrintStream;
 import java.io.File;
 
@@ -74,6 +75,10 @@ public class BasicParameters implements Parameters {
 
   public Enumeration getNames(){
     return parameters.keys();
+  }
+
+  public Collection getValues(){
+    return parameters.values();
   }
 
     public void write(){
