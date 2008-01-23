@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -68,8 +68,8 @@ public interface Cell
      */
     public Parameters getExtensions();
     public void setExtensions( Parameters param );
-    public String getExtension( String label );
-    public void setExtension( String label, String value );
+    public String getExtension( String uri, String label );
+    public void setExtension( String uri, String label, String value );
 
     public Cell inverse() throws AlignmentException;
 
