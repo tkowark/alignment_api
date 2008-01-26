@@ -11,10 +11,21 @@ div.owl {
   background: #edd;
   border:1pt solid;
 }
+div.terminal {
+// JE: This may be a bit too much but I like it.
+// Invert color when selecting is not good.
+// I must do something for it to print correctly
+	color: #63FF00;
+	background: #000;
+	font: normal 12px "bitstream vera sans mono", monaco "lucida console", "courier new", courier, serif;
+	overflow: auto;
+}
 div.fragment {
-  background: #dde;
-  border:1pt solid;
-  overflow-y: scroll;
+    margin: 0.9em 0; padding: 8px;
+    border: 1pt solid;
+    background: #dde;
+    border:1pt solid;
+    overflow: auto;
 }
 div.logic {
   background: #ded;
