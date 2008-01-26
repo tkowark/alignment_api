@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -224,11 +224,10 @@ public class OWLAPIAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    align.setExtension( label, getExtension( label ) );
+	for ( Object ext : ((BasicParameters)extensions).getValues() ){
+	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	align.getExtensions().unsetParameter( "id" );
+	align.getExtensions().unsetParameter( ALIGNNS+"id" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }
@@ -246,9 +245,8 @@ public class OWLAPIAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    align.setExtension( label, getExtension( label ) );
+	for ( Object ext : ((BasicParameters)extensions).getValues() ){
+	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
@@ -270,9 +268,8 @@ public class OWLAPIAlignment extends BasicAlignment {
 	alignment.init( al.getFile1(), al.getFile2(), ontologies );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
-	for ( Enumeration e = al.getExtensions().getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    alignment.setExtension( label, al.getExtension( label ) );
+	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
+	    alignment.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
 	OWLOntology o1 = (OWLOntology)alignment.getOntology1();
 	OWLOntology o2 = (OWLOntology)alignment.getOntology2();

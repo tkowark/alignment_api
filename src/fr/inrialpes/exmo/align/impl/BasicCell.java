@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -122,15 +122,16 @@ public class BasicCell implements Cell, Comparable {
 	extensions = p;
     }
 
-    public void setExtension( String label, String value ) {
+    public void setExtension( String uri, String label, String value ) {
 	if ( extensions == null )
 	    extensions = new BasicParameters();
-	extensions.setParameter( label, value );
+	String [] ext = { uri, label, value };
+	extensions.setParameter( uri+label, ext );
     };
 
-    public String getExtension( String label ) {
+    public String getExtension( String uri, String label ) {
 	if ( extensions != null ) {
-	    return (String)extensions.getParameter( label );
+	    return ((String [])extensions.getParameter( uri+label ))[2];
 	} else {
 	    return (String)null;
 	}
@@ -139,12 +140,11 @@ public class BasicCell implements Cell, Comparable {
     public Cell inverse() throws AlignmentException {
 	Cell result = (Cell)new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
 	if ( extensions != null ) {
-	    for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-		String label = (String)e.nextElement();
-		result.setExtension( label, getExtension( label ) );
+	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
+		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
 	}
-	result.getExtensions().unsetParameter( "id" );
+	result.getExtensions().unsetParameter( BasicAlignment.ALIGNNS+BasicAlignment.ID );
 	// The sae should be done for the measure
 	return result;
     }

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2007, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -247,7 +247,7 @@ public class Procalign {
 	    long time = System.currentTimeMillis();
 	    result.align(  init, params ); // add opts
 	    long newTime = System.currentTimeMillis();
-	    result.setExtension( BasicAlignment.TIME, Long.toString(newTime - time) );
+	    result.setExtension( BasicAlignment.ALIGNNS, BasicAlignment.TIME, Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );

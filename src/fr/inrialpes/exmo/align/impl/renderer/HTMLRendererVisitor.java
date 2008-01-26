@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,9 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * Renders an alignment in HTML
@@ -66,9 +69,8 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("<tr><td>level</td><td>"+align.getLevel()+"</td></tr>\n" );
 	writer.print("<tr><td>type</td><td>"+align.getType()+"</td></tr>\n" );
 	// Get the keys of the parameter
-	for( Enumeration e = align.getExtensions().getNames() ; e.hasMoreElements() ; ){
-	    String tag = (String)e.nextElement();
-	    writer.print("<tr><td>"+tag+"</td><td>"+align.getExtension(tag)+"</td></tr>\n");
+	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
+	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td>"+((String[])ext)[2]+"</td></tr>\n");
 	}
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");
@@ -91,7 +93,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	if ( cell.getId() != null ) {
 	    String id = cell.getId();
 	    // Would be useful to test for the Alignment URI
-	    if ( id.startsWith( (String)alignment.getExtension( "id" ) ) ){
+	    if ( id.startsWith( (String)alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) ) ){
 		writer.print("<td>"+id.substring( id.indexOf( '#' ) )+"</td>");
 	    } else {
 		writer.print("<td>"+id+"</td>");

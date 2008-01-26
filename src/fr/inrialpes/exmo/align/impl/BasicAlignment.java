@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,14 +61,11 @@ public class BasicAlignment implements Alignment {
 	visitor.visit(this);
     }
 
-    //public static String METHOD = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method";
+    public static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
     public static String METHOD = "method";
-    //public static String TIME = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time";
     public static String TIME = "time";
+    public static String ID = "id";
 
-    // JE: OMWG1
-    //protected Object onto1 = null;
-    //protected Object onto2 = null;
     protected Ontology onto1 = null;
     protected Ontology onto2 = null;
 
@@ -96,25 +93,18 @@ public class BasicAlignment implements Alignment {
      * This is NOT the Ontology URI which can be obtained by
      * getOntology1URI()
      */
-    // JE: OMWG1
-    //protected URI uri1 = null;
-    //protected URI uri2 = null;
 
     public BasicAlignment() {
 	hash1 = new Hashtable();
 	hash2 = new Hashtable();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
-	if ( this instanceof AlignmentProcess ) setExtension( METHOD, getClass().getName() );
-	// JE: OMWG1
+	if ( this instanceof AlignmentProcess ) setExtension( ALIGNNS, METHOD, getClass().getName() );
 	onto1 = new Ontology();
 	onto2 = new Ontology();
     }
 
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
-	// JE: OMWG1
-	//this.onto1 = onto1;
-	//this.onto2 = onto2;
 	if ( onto1 instanceof Ontology ) {
 	    this.onto1 = (Ontology)onto1;
 	    this.onto2 = (Ontology)onto2;
@@ -158,7 +148,6 @@ public class BasicAlignment implements Alignment {
     };
 
     public URI getOntology1URI() throws AlignmentException {
-	// JE: OMWG1
 	Object ontology = onto1.getOntology();
 	if ( ontology != null && ontology instanceof URI ) {
 	    return (URI)ontology;
@@ -168,7 +157,6 @@ public class BasicAlignment implements Alignment {
     };
 
     public URI getOntology2URI() throws AlignmentException {
-	// JE: OMWG1
 	Object ontology = onto2.getOntology();
 	if ( ontology != null && ontology instanceof URI ) {
 	    return (URI)ontology;
@@ -178,16 +166,10 @@ public class BasicAlignment implements Alignment {
     };
 
     public void setOntology1(Object ontology) throws AlignmentException {
-	//*/onto1 = (OWLOntology)ontology;
-	// JE: OMWG1
-	//onto1 = ontology;
 	onto1.setOntology( ontology );
     };
 
     public void setOntology2(Object ontology) throws AlignmentException {
-	//*/onto2 = (OWLOntology)ontology;
-	// JE: OMWG1
-	//onto2 = ontology;
 	onto2.setOntology( ontology );
     };
 
@@ -199,12 +181,6 @@ public class BasicAlignment implements Alignment {
 
     public String getLevel() { return level; };
 
-    // JE: OMWG1
-    //public URI getFile1() { return uri1; };
-    //public void setFile1(URI u) { uri1 = u; };
-    //public URI getFile2() { return uri2; };
-    //public void setFile2(URI u) { uri2 = u; };
-
     public URI getFile1() { return onto1.getFile(); };
 
     public void setFile1(URI u) { onto1.setFile( u ); };
@@ -215,12 +191,14 @@ public class BasicAlignment implements Alignment {
 
     public Parameters getExtensions(){ return extensions; }
 
-    public void setExtension( String label, String value ) {
-	extensions.setParameter( label, value );
+    public void setExtension( String uri, String label, String value ) {
+	final String[] ext = { uri, label, value };
+	extensions.setParameter( uri+label, ext);
     };
 
-    public String getExtension( String label ) {
-	return (String)extensions.getParameter( label );
+    public String getExtension( String uri, String label ) {
+	String [] ext = (String [])extensions.getParameter( uri+label );
+	return (ext==null)?(String)null:ext[2];
     };
 
     public Parameters getXNamespaces(){ return namespaces; }
@@ -574,11 +552,10 @@ public class BasicAlignment implements Alignment {
 	result.setType( getType() );
 	result.setLevel( getLevel() );
 	// Must add an inverse to the method extension
-	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    result.setExtension( label, getExtension( label ) );
+	for ( Object ext : ((BasicParameters)extensions).getValues() ){
+	    result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	result.getExtensions().unsetParameter( "id" );
+	result.getExtensions().unsetParameter( ALIGNNS+"id" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    result.setXNamespace( label, getXNamespace( label ) );
@@ -620,11 +597,10 @@ public class BasicAlignment implements Alignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    align.setExtension( label, getExtension( label ) );
+	for ( Object ext : ((BasicParameters)extensions).getValues() ){
+	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	align.getExtensions().unsetParameter( "id" );
+	align.getExtensions().unsetParameter( ALIGNNS+"id" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );

@@ -68,9 +68,15 @@ public class PRGraphEvaluator extends BasicEvaluator {
 
     private Vector points;
 
-    /** Creation **/
+    /** Creation:
+     * A priori, evaluators can deal with any kind of alignments.
+     * However, it will not work if these are not of the same type.
+     **/
     public PRGraphEvaluator(Alignment align1, Alignment align2) {
 	super(align1, align2);
+	if ( align1.getClass() != align2.getClass() ) {
+	    // This should throw an exception...
+	}
 	points = new Vector();
     }
 

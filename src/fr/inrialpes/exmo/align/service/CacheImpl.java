@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -39,6 +39,7 @@ import java.sql.SQLException;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
 
@@ -62,10 +63,11 @@ public class CacheImpl implements Cache {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 	
-    final int VERSION = 302; // Version of the API to be stored in the database
+    final int VERSION = 310; // Version of the API to be stored in the database
     /* 300: initial database format
        301: added alignment id as primary key
        302: changed cached/stored/ouri tag forms
+       310: changed extension table with added URIs and method -> val 
      */
 
     Statement st = null; // JE: not sure that this should persist
@@ -75,10 +77,11 @@ public class CacheImpl implements Cache {
     final int SUCCESS = 2;
     final int INIT_ERROR = 3;
 
-    static public final String CACHED = "http://exmo.inrialpes.fr/align/service:cached";
-    static public final String STORED = "http://exmo.inrialpes.fr/align/service:stored";
-    static public final String OURI1 = "http://exmo.inrialpes.fr/align/service:ouri1";
-    static public final String OURI2 = "http://exmo.inrialpes.fr/align/service:ouri2";
+    static public final String SVCNS = "http://exmo.inrialpes.fr/align/service";
+    static public final String CACHED = "cached";
+    static public final String STORED = "stored";
+    static public final String OURI1 = "ouri1";
+    static public final String OURI2 = "ouri2";
 	
     //**********************************************************************
     public CacheImpl( DBService service ) {
@@ -166,7 +169,7 @@ public class CacheImpl implements Cache {
 	String query;
 	ResultSet rs;
 	String tag;
-	String method;
+	String value;
 
 	Alignment result = new URIAlignment();
 		
@@ -178,8 +181,8 @@ public class CacheImpl implements Cache {
 		// Either uri1 or file1
 		result.setFile1( new URI( rs.getString("file1") ) ); 
 		result.setFile2( new URI( rs.getString("file2") ) );
-		result.setExtension( OURI1, rs.getString("owlontology1") );
-		result.setExtension( OURI2, rs.getString("owlontology2") );
+		result.setExtension( SVCNS, OURI1, rs.getString("owlontology1") );
+		result.setExtension( SVCNS, OURI2, rs.getString("owlontology2") );
 		result.setLevel(rs.getString("level"));
 		result.setType(rs.getString("type"));	
 	    }
@@ -189,8 +192,8 @@ public class CacheImpl implements Cache {
 	    rs = (ResultSet) st.executeQuery(query);
 	    while(rs.next()) {
 		tag = rs.getString("tag");
-		method = rs.getString("method");
-		result.setExtension(tag, method);
+		value = rs.getString("val");
+		result.setExtension( rs.getString("ns"), tag, value);
 	    }
 	} catch (Exception e) { // URI exception that should not occur
 	    System.err.println("Unlikely URI exception!");
@@ -198,9 +201,9 @@ public class CacheImpl implements Cache {
 	    return null;
 	}
 	// should be there
-	//result.setExtension(STORED, "DATE");
+	//result.setExtension( SVCNS, STORED, "DATE");
 	// not yet cached
-	result.setExtension(CACHED, "");
+	result.setExtension(SVCNS, CACHED, "");
 	return result;
     }
 
@@ -218,8 +221,8 @@ public class CacheImpl implements Cache {
 	URI ent1 = null, ent2 = null;
 	Cell cell = null;
 
-	alignment.setOntology1( new URI( alignment.getExtension( OURI1 ) ) );
-	alignment.setOntology2( new URI( alignment.getExtension( OURI2 ) ) );
+	alignment.setOntology1( new URI( alignment.getExtension( SVCNS, OURI1 ) ) );
+	alignment.setOntology2( new URI( alignment.getExtension( SVCNS, OURI2 ) ) );
 
 	// Get cells
 	query = "SELECT * FROM cell WHERE id = '" + id + "'";
@@ -242,8 +245,9 @@ public class CacheImpl implements Cache {
 		query = "SELECT * FROM extension WHERE id = '" + cid + "'";
 		ResultSet rse = (ResultSet) st.executeQuery(query);
 		while ( rse.next() ){
-		    cell.setExtension( rse.getString("tag"), 
-				       rse.getString("method") );
+		    cell.setExtension( rse.getString("ns"), 
+				       rse.getString("tag"), 
+				       rse.getString("val") );
 		}
 	    }
 	}
@@ -297,8 +301,8 @@ public class CacheImpl implements Cache {
 	    throw new Exception("getAlignment: Cannot find alignment");
 
 	// If not cached, retrieve it now
-	if ( result.getExtension(CACHED) == "" 
-	     && result.getExtension(STORED) != "") {
+	if ( result.getExtension( SVCNS, CACHED) == "" 
+	     && result.getExtension(SVCNS, STORED) != "") {
 	    retrieveAlignment( id, result );
 	}
 	
@@ -317,7 +321,7 @@ public class CacheImpl implements Cache {
 	    for( Iterator it = potentials.iterator(); it.hasNext(); ) {
 		Alignment al = (Alignment)it.next();
 		// This is not the best because URI are not resolved here...
-		if ( al.getExtension(OURI2).equals( uri2.toString() ) ) result.add( al );
+		if ( al.getExtension(SVCNS, OURI2).equals( uri2.toString() ) ) result.add( al );
 	    }
 	}
 	return result;
@@ -338,12 +342,12 @@ public class CacheImpl implements Cache {
      */
     public String recordNewAlignment( String id, Alignment al, boolean force ) throws AlignmentException {
 	Alignment alignment = al;
-	alignment.setExtension(OURI1, alignment.getOntology1URI().toString());
-	alignment.setExtension(OURI2, alignment.getOntology2URI().toString());
+	alignment.setExtension(SVCNS, OURI1, alignment.getOntology1URI().toString());
+	alignment.setExtension(SVCNS, OURI2, alignment.getOntology2URI().toString());
 	// Index
 	recordAlignment( id, alignment, force );
 	// Not yet stored
-	alignment.setExtension(STORED, "");
+	alignment.setExtension(SVCNS, STORED, "");
 	// Cached now
 	resetCacheStamp(alignment);
 	return id;
@@ -354,12 +358,12 @@ public class CacheImpl implements Cache {
      */
     public String recordAlignment( String id, Alignment alignment, boolean force ){
 	// record the Id!
-	if ( alignment.getExtension("id") == null )
-	    alignment.setExtension( "id", id );
+	if ( alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) == null )
+	    alignment.setExtension(  BasicAlignment.ALIGNNS, BasicAlignment.ID, id );
 	// Store it
 	try {
-	    URI ouri1 = new URI( alignment.getExtension(OURI1) );
-	    URI ouri2 = new URI( alignment.getExtension(OURI2) );
+	    URI ouri1 = new URI( alignment.getExtension( SVCNS, OURI1) );
+	    URI ouri2 = new URI( alignment.getExtension( SVCNS, OURI2) );
 	    if ( force || alignmentTable.get( id ) == null ) {
 		Set s1 = (Set)ontologyTable.get( ouri1 );
 		if ( s1 == null ) {
@@ -421,13 +425,13 @@ public class CacheImpl implements Cache {
 	alignment = getAlignment( id );
 
 	// We store stored date
-	alignment.setExtension(STORED, new Date().toString());
+	alignment.setExtension( SVCNS, STORED, new Date().toString());
 	// We empty cached date
-	alignment.setExtension(CACHED, "");
+	alignment.setExtension( SVCNS, CACHED, "");
 
 	try {
-	    String s_O1 = alignment.getExtension(OURI1);
-	    String s_O2 = alignment.getExtension(OURI2);
+	    String s_O1 = alignment.getExtension(SVCNS, OURI1);
+	    String s_O2 = alignment.getExtension(SVCNS, OURI2);
 	    
 	    // file attribute
 	    String s_File1 = null;
@@ -448,12 +452,13 @@ public class CacheImpl implements Cache {
 		"(id, owlontology1, owlontology2, type, level, file1, file2, uri1, uri2) " +
 		"VALUES ('" + quote(id) + "','" +  quote(s_O1) + "','" + quote(s_O2) + "','" + quote(type) + "','" + quote(level) + "','" + quote(s_File1) + "','" + quote(s_File2) + "','" + quote(s_uri1) + "','" + quote(s_uri2) + "')";
 	    st.executeUpdate(query);
-	    for( Enumeration e = alignment.getExtensions().getNames() ; e.hasMoreElements() ; ){
-		String tag = (String)e.nextElement();
-		String s_method = alignment.getExtension(tag);
+	    for ( Object ext : ((BasicParameters)alignment.getExtensions()).getValues() ){
+		String uri = ((String[])ext)[0];
+		String tag = ((String[])ext)[1];
+		String val = ((String[])ext)[2];
 		query = "INSERT INTO extension " + 
-		    "(id, tag, method) " +
-		    "VALUES ('" + quote(id) + "','" +  quote(tag) + "','" + quote(s_method) + "')";
+		    "(id, uri, tag, val) " +
+		    "VALUES ('" + quote(id) + "','" +  quote(uri) + "','" +  quote(tag) + "','" + quote(val) + "')";
 		st.executeUpdate(query);
 	    }
 
@@ -464,7 +469,7 @@ public class CacheImpl implements Cache {
 		    cellid = c.getId();
 		    if ( cellid != null ){
 			if ( cellid.startsWith("#") ) {
-			    cellid = alignment.getExtension("id") + cellid;
+			    cellid = alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) + cellid;
 			}
 		    } else if ( c.getExtensions() != null ) {
 			// JE: In case of extensions create an ID
@@ -487,12 +492,14 @@ public class CacheImpl implements Cache {
 		}
 		if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
 		    // JE: I must now store all the extensions
-		    for( Enumeration e2 = c.getExtensions().getNames() ; e2.hasMoreElements() ; ){
-			String tag = (String)e2.nextElement();
-			String s_method = c.getExtension(tag);
+		    // JE:EXT
+		    for ( Object ext : ((BasicParameters)c.getExtensions()).getValues() ){
+			String uri = ((String[])ext)[0];
+			String tag = ((String[])ext)[1];
+			String val = ((String[])ext)[2];
 			query = "INSERT INTO extension " + 
-			    "(id, tag, method) " +
-			    "VALUES ('" + quote(cellid) + "','" +  quote(tag) + "','" + quote(s_method) + "')";
+			    "(id, uri, tag, val) " +
+			    "VALUES ('" + quote(cellid) + "','" +  quote(uri) + "','" +  quote(tag) + "','" + quote(val) + "')";
 			st.executeUpdate(query);
 		    }
 		}
@@ -505,13 +512,13 @@ public class CacheImpl implements Cache {
     //**********************************************************************
     // CACHE MANAGEMENT (Not implemented yet)
     public void resetCacheStamp( Alignment result ){
-	result.setExtension(CACHED, new Date().toString() );
+	result.setExtension(SVCNS, CACHED, new Date().toString() );
     }
 
     public void cleanUpCache() {
 	// for each alignment in the table
 	// set currentDate = Date();
-	// if ( DateFormat.parse( result.getExtension(CACHED) ).before( ) ) {
+	// if ( DateFormat.parse( result.getExtension(SVCNS, CACHED) ).before( ) ) {
 	// - for each ontology if no other alignment => unload
 	// - clean up cells
 	// }
@@ -559,7 +566,7 @@ public class CacheImpl implements Cache {
       create table extension(
       id varchar(100),
       tag varchar(100),
-      method varchar(500));
+      val varchar(500));
 
     */
 
@@ -567,7 +574,7 @@ public class CacheImpl implements Cache {
 	// Create tables
 	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), owlontology1 VARCHAR(250), owlontology2 VARCHAR(250), type VARCHAR(5), level VARCHAR(1), file1 VARCHAR(250), file2 VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), primary key (id))");
 	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(5))");
-	st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), tag VARCHAR(100), method VARCHAR(500))");
+	st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), edit BOOLEAN, version VARCHAR(5))");
 	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('dbms', 'port', 0, '"+VERSION+"')");
     }

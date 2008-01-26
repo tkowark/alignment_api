@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -172,11 +172,10 @@ public class URIAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Enumeration e = extensions.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    align.setExtension( label, getExtension( label ) );
-	}
-	align.getExtensions().unsetParameter( "id" );
+	for ( Object ext : ((BasicParameters)extensions).getValues() ){
+	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
+	    }
+	align.getExtensions().unsetParameter( ALIGNNS+"id" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

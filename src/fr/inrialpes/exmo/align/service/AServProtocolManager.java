@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -232,7 +232,7 @@ public class AServProtocolManager {
 	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
 	String msg = "";
 	for( Iterator it = alignments.iterator(); it.hasNext(); ){
-	    msg += ((Alignment)it.next()).getExtension( "id" );
+	    msg += ((Alignment)it.next()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
 	    msg += " ";
 	}
 	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null);
@@ -355,12 +355,10 @@ public class AServProtocolManager {
 	Parameters params = new BasicParameters();
 	params.setParameter( "file1", al.getFile1() );
 	params.setParameter( "file2", al.getFile2() );
-	params.setParameter( "level", al.getLevel() );
-	params.setParameter( "type", al.getType() );
-	Parameters extensions = al.getExtensions();
-	for ( Enumeration e = extensions.getNames(); e.hasMoreElements(); ){
-	    String name = (String)e.nextElement();
-	    params.setParameter( name, extensions.getParameter( name ) );
+	params.setParameter( BasicAlignment.ALIGNNS+"level", al.getLevel() );
+	params.setParameter( BasicAlignment.ALIGNNS+"type", al.getType() );
+	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
+	    params.setParameter( ((String[])ext)[0]+((String[])ext)[1], ((String[])ext)[2] );
 	}
 	return new AlignmentMetadata(newId(),mess,myId,mess.getSender(),id,params);
     }
@@ -441,7 +439,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return false;
 	}
-	if ( al.getExtension(CacheImpl.STORED) != null && al.getExtension(CacheImpl.STORED) != "" ) {
+	if ( al.getExtension(CacheImpl.SVCNS, CacheImpl.STORED) != null && al.getExtension(CacheImpl.SVCNS, CacheImpl.STORED) != "" ) {
 	    return true;
 	} else {
 	    return false;
@@ -725,8 +723,8 @@ public class AServProtocolManager {
 	if ( alignments != null && params.getParameter("force") == null ) {
 	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
 		Alignment al = ((Alignment)it.next());
-		if ( al.getExtension( "method" ).equals(method) )
-		    id = al.getExtension( "id" );
+		if ( al.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.METHOD ).equals(method) )
+		    id = al.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
 	    }
 	}
 	// Otherwise compute
@@ -755,7 +753,7 @@ public class AServProtocolManager {
 
 		}
 		long newTime = System.currentTimeMillis();
-		aresult.setExtension( "time", Long.toString(newTime - time) );
+		aresult.setExtension( BasicAlignment.ALIGNNS, BasicAlignment.TIME, Long.toString(newTime - time) );
 		// ask to store A'
 		id = alignmentCache.recordNewAlignment( aresult, true );
 	    } catch (ClassNotFoundException e) {

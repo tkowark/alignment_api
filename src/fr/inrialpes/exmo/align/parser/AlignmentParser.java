@@ -55,6 +55,7 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.impl.Ontology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -67,7 +68,7 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 public class AlignmentParser extends DefaultHandler {
 
-    protected static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment";
+    private static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
     /**
      * level of debug/warning information
      */
@@ -160,7 +161,7 @@ public class AlignmentParser extends DefaultHandler {
      * and can find metadata
      */
     protected int parselevel = 0;
-    
+
     /** 
      * Creates an XML Parser.
      * @param debugMode The value of the debug mode
@@ -309,7 +310,7 @@ public class AlignmentParser extends DefaultHandler {
 		onto1 = new Ontology();
 		onto2 = new Ontology();
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
-		    alignment.setExtension( "id", atts.getValue("rdf:about") );
+		    alignment.setExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID, atts.getValue("rdf:about") );
 		};
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
@@ -458,9 +459,10 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("Alignment")) {
 		} else {
 		    if ( parselevel == 3 ){
-			alignment.setExtension( pName, content );
+			alignment.setExtension( namespaceURI, pName, content );
 		    } else if ( parselevel == 5 ) {
-			    extensions.setParameter( pName, content );
+			String[] ext = {namespaceURI, pName, content};
+			extensions.setParameter( namespaceURI+pName, ext );
 		    } else //if ( debugMode > 0 )
 			System.err.println("[AlignmentParser] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
@@ -471,12 +473,11 @@ public class AlignmentParser extends DefaultHandler {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
 	    if ( parselevel == 3 ){
-		alignment.setExtension( qName, content );
-		//alignment.addNamespace( namespaceURI, );
+		alignment.setExtension( namespaceURI, pName, content );
 	    } else if ( parselevel == 5 ) {
 		if ( extensions == null ) extensions = new BasicParameters();
-		extensions.setParameter( qName, content );
-		//alignment.addNamespace( namespaceURI, );
+		String[] ext = {namespaceURI, pName, content};
+		extensions.setParameter( namespaceURI+pName, ext );
 	    } else throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
 	parselevel--;

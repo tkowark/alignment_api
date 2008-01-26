@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -133,7 +133,7 @@ public class PRecEvaluator extends BasicEvaluator {
 	fmeasure = 2 * precision * recall / (precision + recall);
 	overall = recall * (2 - (1 / precision));
 	result = recall / precision;
-	String timeExt = align2.getExtension("time");
+	String timeExt = align2.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
 	return (result);

@@ -22,7 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.io.PrintWriter;
-//import java.util.Set;
+import java.util.Hashtable;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -33,15 +33,11 @@ import org.semanticweb.owl.align.Relation;
 // JE: this has been introduced here for the sole purpose of
 // using the namespace facility of BasicAlignment
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
-//import org.omwg.mediation.language.export.rdf.RdfSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
 import org.omwg.mediation.language.objectmodel.api.Expression;
-
-// JE: we need jena... only for this renderer!
-//import com.hp.hpl.jena.rdf.model.Model;
-//import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 
 /**
@@ -58,39 +54,60 @@ public class RDFRendererVisitor implements AlignmentVisitor
     Alignment alignment = null;
     Cell cell = null;
     OmwgSyntaxFormat oMWGformatter = null;
-    //RdfSyntaxFormat oMWGformatter = null;
-    //Model model = null;
+    Hashtable nslist = null;
 
     public RDFRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
-	//Model model = ModelFactory.createDefaultModel();
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	String extensionString = "";
 	alignment = align;
+	nslist = new Hashtable();
+	nslist.put(BasicAlignment.ALIGNNS,"align");
+	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
+	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
+	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
+	// Get the keys of the parameter
+	int gen = 0;
+	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
+	    String prefix = ((String[])ext)[0];
+	    String name = ((String[])ext)[1];
+	    String tag = (String)nslist.get(prefix);
+	    if ( tag == null ) {
+		tag = "ns"+gen++;
+		nslist.put( prefix, tag );
+	    }
+	    if ( tag.equals("align") ) { tag = name; }
+	    else { tag += ":"+name; }
+	    extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
+	}
 	writer.print("<?xml version='1.0' encoding='utf-8");
 	writer.print("' standalone='no'?>\n");
-	writer.print("<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'\n         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'\n");
+	writer.print("<rdf:RDF xmlns='"+BasicAlignment.ALIGNNS+"'");
+	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
+	    String k = (String)e.nextElement();
+	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
+	}
 	if ( align instanceof BasicAlignment ) {
 	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    if ( !label.equals("rdf") && !label.equals("xsd")
 		 && !label.equals("<default>") ) 
-		writer.print("         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'\n");
+		writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
 	    }
 	}
 	writer.print(">\n");
 	writer.print("<Alignment");
-	if ( align.getExtension("id") != null ) {
-	    writer.print(" rdf:about=\""+align.getExtension("id")+"\"");
+	String idext = align.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
+	if ( idext != null ) {
+	    writer.print(" rdf:about=\""+idext+"\"");
 	}
 	writer.print(">\n  <xml>yes</xml>\n");
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	if ( align.getLevel().equals("2OMWG") ) {
 	    oMWGformatter = new OmwgSyntaxFormat( true, "  " );
-	    //oMWGformatter = new RdfSyntaxFormat();
-	    // Provide the list of declared namespaces (should be related to above)
 	    oMWGformatter.setDefaultNamespace( NamespaceDefs.ALIGNMENT );
 	    // Set the offset at which element starts (fortunately always the same)
 	    oMWGformatter.setPrefixCount(4);
@@ -98,25 +115,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("</level>\n  <type>");
 	writer.print( align.getType() );
 	writer.print("</type>\n");
-	// Get the keys of the parameter
-	for( Enumeration e = align.getExtensions().getNames() ; e.hasMoreElements() ; ){
-	    String tag = (String)e.nextElement();
-	    // Here I should reverse namespace
-	    writer.print("  <"+tag+">"+align.getExtension(tag)+"</"+tag+">\n");
-	}
-	// JE: real new version of the format...
-	/*
-	if ( align.getFile1() != null )
-	    writer.print("  <onto1>"+align.getFile1().toString()+"</onto1>\n");
-	if ( align.getFile2() != null )
-	    writer.print("  <onto2>"+align.getFile2().toString()+"</onto2>\n");
-	writer.print("  <uri1>");
-	writer.print( align.getOntology1URI().toString() );
-	writer.print("</uri1>\n");
-	writer.print("  <uri2>");
-	writer.print( align.getOntology2URI().toString() );
-	writer.print("</uri2>\n");
-	*/
+	writer.print(extensionString);
 	writer.print("  <onto1>\n    <Ontology");
 	if ( align.getOntology1URI() != null ) {
 	    writer.print(" rdf:about=\""+align.getOntology1URI()+"\">");
@@ -133,7 +132,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	}
 	writer.print("\n      <location>"+align.getFile2()+"</location>");
 	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject2().getFormalism() != null ) {
-	    writer.print("\n      <formalism>\n        <Formalism name=\""+((BasicAlignment)align).getOntologyObject2().getFormalism()+"\" uri=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/>\n      </formalism>");
+	    writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject2().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/>\n      </formalism>");
 	    
 	}
 	writer.print("\n    </Ontology>\n  </onto2>\n");
@@ -185,10 +184,17 @@ public class RDFRendererVisitor implements AlignmentVisitor
 		writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
 	    if ( cell.getExtensions() != null ) {
 		// could certainly be done better
-		for ( Enumeration e = cell.getExtensions().getNames() ; e.hasMoreElements(); ){
-		    String label = (String)e.nextElement();
+		for ( Object ext : ((BasicParameters)cell.getExtensions()).getValues() ){
+		    String uri = ((String[])ext)[0];
+		    String tag = (String)nslist.get( uri );
+		    if ( tag == null ){
+			tag = ((String[])ext)[1];
+		    } else {
+			tag += ":"+((String[])ext)[1];
+		    }
+		    // JE: Bug: namespace may not have been declared!
 		    // Here I should reverse namespace
-		    writer.print("      <"+label+">"+cell.getExtension(label)+"</"+label+">\n");
+		    writer.print("      <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n");
 		}
 	    }
 	    writer.print("    </Cell>\n  </map>\n");
