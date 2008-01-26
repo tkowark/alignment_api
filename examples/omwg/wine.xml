@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE rdf:RDF [
+<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+<!ENTITY wine "http://www.w3.org/TR/2003/CR-owl-guide-20030818/wine#">
+<!ENTITY vin "http://ontology.deri.org/vin#">
+<!ENTITY proton "http://proton.semanticweb.org/">
+]>
+
+<!-- JE: NOTE this is not complete with regard to 2.2.10:
+     would be good to do it. This is also not correct for the
+     relations 
+-->
+<rdf:RDF xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment#"
+	 xml:base="http://oms.omwg.org/wine-vin/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	 xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ex="http://example.org"
+	 xmlns:wine="http://www.w3.org/TR/2003/CR-owl-guide-20030818/wine#"
+	 xmlns:vin="http://ontology.deri.org/vin#"
+	 xmlns:proton="http://proton.semanticweb.org/"
+         xmlns:omwg="http://www.omwg.org/TR/d7/ontology/alignment/">
+  
+  <Alignment rdf:about="http://oms.omwg.org/wine-vin/"> 
+    <xml>yes</xml>
+    <dc:creator>http://www.scharffe.fr/foaf.rdf</dc:creator>
+    <dc:date>2006/06/07</dc:date>
+    <method>manual</method>
+    <purpose>example</purpose>
+    <level>2OMWG</level>
+    <type>**</type>    
+    <onto1>
+      <Ontology rdf:about="&wine;">
+      <formalism>
+	<Formalism>
+	 <uri>http://www.w3.org/TR/owl-guide/</uri>
+	 <name>owl</name>
+	</Formalism>
+      </formalism>
+      </Ontology>
+    </onto1> 
+    <onto2>
+      <Ontology rdf:about="&vin;">
+      <location>http://www.scharffe.fr/ontologies/OntologieDuVin.wsml</location>
+      <formalism>
+	<Formalism>
+	 <uri>http://www.wsmo.org/wsml/wsml-syntax/wsml-dl</uri>
+	 <name>wsml</name>
+	</Formalism>
+      </formalism>
+      </Ontology>
+    </onto2>
+    <map>
+     <Cell rdf:about="MappingRule_0">
+
+	<entity1><omwg:Class rdf:about="&wine;VintageYear"/></entity1>
+        <entity2><omwg:Class rdf:about="&vin;Millesime"/></entity2>
+        <measure rdf:datatype="&xsd;float">1.0</measure>
+        <relation>Equivalence</relation>
+     </Cell>
+     </map>
+     <map>
+     <Cell rdf:about="MappingRule_1">
+        <entity1><omwg:Attribute rdf:about="&wine;yearValue"/></entity1>
+        <entity2><omwg:Attribute rdf:about="&vin;anneeMillesime"/></entity2>
+        <measure rdf:datatype="&xsd;float">1.0</measure>
+        <relation>Equivalence</relation>
+     </Cell>
+     </map>
+     <map>
+     <Cell rdf:about="MappingRule_2">
+	<entity1><omwg:Relation rdf:about="&wine;locatedIn"/></entity1>
+        <entity2><omwg:Relation rdf:about="&vin;hasTerroir"/></entity2>
+        <measure rdf:datatype="&xsd;float">1.0</measure>
+        <relation>SubsumedBy</relation>
+    </Cell>
+    </map>
+    <!--map>
+    <Cell rdf:about="MappingRule_3">
+	<entity1><omwg:Class rdf:about="&wine;Bordeaux"/></entity1>
+	<entity2> 
+	 <omwg:Class rdf:about="&vin;Vin">	
+	  <omwg:attributeValueCondition> 
+	    <omwg:Restriction>
+             <omwg:onProperty>
+	      <omwg:Path>
+               <omwg:first><omwg:Relation rdf:about="&vin;hasTerroir"/></omwg:first>
+               <omwg:next><omwg:Relation rdf:about="&proton;locatedIn"/></omwg:next>
+              </omwg:Path>
+	     </omwg:onProperty>
+             <omwg:comparator rdf:resource="&xsd;equals"/>
+  	     <omwg:value>loc:Aquitaine</omwg:value>
+            </omwg:Restriction>
+	  </omwg:attributeValueCondition>	  
+	 </omwg:Class>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+    </Cell>
+    </map-->
+    <map>
+    <Cell rdf:about="MappingRule_4">
+	<entity1>
+ 	  <omwg:Class>
+	    <omwg:or>
+	      <omwg:Collection>
+               <omwg:item><omwg:Class rdf:about="&vin;Acidite"/></omwg:item>
+	       <omwg:item><omwg:Class rdf:about="&vin;Astreingence"/></omwg:item>
+	       <omwg:item><omwg:Class rdf:about="&vin;Amertume"/></omwg:item>
+	      </omwg:Collection>
+            </omwg:or>
+    	  </omwg:Class>
+	</entity1>
+	<entity2>
+ 	  <omwg:Class rdf:about="&wine;WineFlavor"/>
+	</entity2>
+        <measure rdf:datatype='&xsd;float'>1.</measure>
+        <relation>SubsumedBy</relation>
+   </Cell>
+   </map>
+  </Alignment>
+ </rdf:RDF>
