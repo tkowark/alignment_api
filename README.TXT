@@ -5,7 +5,7 @@
 
 Copyright (C) 2003 The University of Manchester.
 Copyright (C) 2003 The University of Karlsruhe.
-Copyright (C) 2003-2007 INRIA Rhône-Alpes.
+Copyright (C) 2003-2008 INRIA Rhône-Alpes.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
