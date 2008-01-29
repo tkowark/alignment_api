@@ -99,7 +99,7 @@ public class AServProtocolManager {
     public AServProtocolManager () {
     }
 
-    public void init( DBService connection, Parameters p ) throws SQLException {
+    public void init( DBService connection, Parameters p ) throws SQLException, AlignmentException {
 	alignmentCache = new CacheImpl( connection );
 	alignmentCache.init( p );
 	myId = "http://"+p.getParameter("host")+":"+p.getParameter("http");
