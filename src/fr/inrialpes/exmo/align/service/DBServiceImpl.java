@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -76,24 +77,6 @@ public class DBServiceImpl implements DBService{
     public Connection getConnection() {
 	return conn;
     }
-	
-    // JE: I think that there is no interest now
-/*  public synchronized long nextID(){
-	long id = 0;
-	try {
-	    st.executeUpdate("insert into id_seq (aa) values ('a')");
-	    rs = (ResultSet) st.executeQuery("select max(id) from id_seq");
-	    //System.err.println(rs.toString());
-	    while(rs.next()) {
-		id = rs.getInt(1);
-	    }
-	    //id = rs.getBigDecimal(1).longValue();
-	} catch(Exception ex){
-	    ex.printStackTrace();
-	    return -1;
-	}
-	return id;
-    } */
 	
     public void close() {
 	try {
