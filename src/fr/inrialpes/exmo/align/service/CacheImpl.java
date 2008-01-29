@@ -55,7 +55,7 @@ import org.semanticweb.owl.align.Parameters;
  * It 
  */
 
-public class CacheImpl implements Cache {
+public class CacheImpl {
     Hashtable alignmentTable = null;
     Hashtable ontologyTable = null;
 
@@ -100,12 +100,16 @@ public class CacheImpl implements Cache {
      * loads the alignment descriptions from the database and put them in the
      * alignmentTable hashtable
      */
-    public void init( Parameters p ) throws SQLException  {
+    public void init( Parameters p ) throws SQLException, AlignmentException {
 	port = (String)p.getParameter("http"); // bad idea
 	host = (String)p.getParameter("host");
 	// test if a database is here, otherwise create it
 	ResultSet rs = (ResultSet)st.executeQuery("SHOW TABLES LIKE 'server'");
-	if ( !rs.next() ) initDatabase();
+	if ( !rs.next() ) {
+	    initDatabase();
+	} else {
+	    updateDatabase(); // in case it is necessart to upgrade
+	}
 	// register by the database
 	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('"+host+"','"+port+"','"+rights+"',"+VERSION+")");
 	// load alignment descriptions
@@ -607,11 +611,27 @@ public class CacheImpl implements Cache {
 	rs.next();
 	int version = rs.getInt("version") ;
 	if ( version <= VERSION ) {
-	    throw new AlignmentException("Database must be upgraded ("+version+" -> "+VERSION+")");
+	    if ( version >= 302 ) {
+		// Change database
+		st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
+		// Modify extensions
+		ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
+		while ( rse.next() ){
+		    String tag = rse.getString("tag");
+		    // Analyse into namespace and tag
+		    // FOR THE MOMENT, THIS ERASES
+		    st.executeUpdate("UPDATE extension SET tag='"+"' AND uri='"+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
+		}
+		// Change version
+		st.executeUpdate("UPDATE server SET version='"+VERSION+"' WHERE port='port'");
+	    } else {
+		throw new AlignmentException("Database must be upgraded ("+version+" -> "+VERSION+")");
+	    }
 	    // In theory it is possible to:
 	    // - fully load all the database
 	    // - resetDatabase( false );
 	    // - completely save the database
 	}
     }
+
 }
