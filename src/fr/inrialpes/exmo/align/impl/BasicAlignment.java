@@ -252,7 +252,6 @@ public class BasicAlignment implements Alignment {
 
     protected void addCell( Cell c ) throws AlignmentException {
 	boolean found = false;
-	//*/ HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
 	HashSet s1 = (HashSet)hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
@@ -263,11 +262,9 @@ public class BasicAlignment implements Alignment {
 	} else {
 	    s1 = new HashSet();
 	    s1.add( c );
-	    //*/hash1.put((OWLEntity)c.getObject1(),s1);
 	    hash1.put(c.getObject1(),s1);
 	}
 	found = false;
-	//*/HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
 	HashSet s2 = (HashSet)hash2.get(c.getObject2());
 	if( s2 != null ){
 	    // I must check that there is no one here
@@ -278,17 +275,14 @@ public class BasicAlignment implements Alignment {
 	} else {
 	    s2 = new HashSet();
 	    s2.add( c );
-	    //*/hash2.put((OWLEntity)c.getObject2(),s2);
 	    hash2.put(c.getObject2(),s2);
 	}
     }
 
     public Set getAlignCells1(Object ob) throws AlignmentException {
-	//*/return (HashSet)hash1.get((OWLEntity)ob);
 	return (HashSet)hash1.get( ob );
     }
     public Set getAlignCells2(Object ob) throws AlignmentException {
-	//*/return (HashSet)hash2.get((OWLEntity)ob);
 	return (HashSet)hash2.get( ob );
     }
 
@@ -300,7 +294,6 @@ public class BasicAlignment implements Alignment {
 	if ( STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
-	    //*/Set s2 = (Set)hash1.get((OWLEntity)ob);
 	    Set s2 = (Set)hash1.get(ob);
 	    Cell bestCell = null;
 	    double bestStrength = 0.;
@@ -322,7 +315,6 @@ public class BasicAlignment implements Alignment {
 	if ( STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
-	    //*/Set s1 = (Set)hash2.get((OWLEntity) ob);
 	    Set s1 = (Set)hash2.get(ob);
 	    Cell bestCell = null;
 	    double bestStrength = 0.;
@@ -397,17 +389,13 @@ public class BasicAlignment implements Alignment {
     // JE: beware this does only remove the exact equal cell
     // not those with same value
     public void removeAlignCell(Cell c) throws AlignmentException {
-	//*/HashSet s1 = (HashSet)hash1.get((OWLEntity)c.getObject1());
 	HashSet s1 = (HashSet)hash1.get(c.getObject1());
-	//*/HashSet s2 = (HashSet)hash2.get((OWLEntity)c.getObject2());
 	HashSet s2 = (HashSet)hash2.get(c.getObject2());
 	s1.remove(c);
 	s2.remove(c);
 	if (s1.isEmpty())
-	    //*/hash1.remove((OWLEntity)c.getObject1());
 	    hash1.remove(c.getObject1());
 	if (s2.isEmpty())
-	    //*/hash2.remove((OWLEntity)c.getObject2());
 	    hash2.remove(c.getObject2());
     }
 
