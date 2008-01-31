@@ -39,7 +39,7 @@ public class DBServiceImpl implements DBService{
     static String database = "AServDB";
     String driverPrefix = "jdbc:mysql";
     Statement st = null;
-    Cache cache = null;
+    CacheImpl cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 	Class.forName("com.mysql.jdbc.Driver").newInstance();
