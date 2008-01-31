@@ -41,15 +41,6 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** 3.0
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-import org.semanticweb.owl.io.ParserException;
-*/
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -104,9 +95,7 @@ public class GroupAlign {
     String target = "onto.rdf";
     URI uri1 = null;
     String initName = null;
-    //Hashtable loadedOntologies = null;
     OntologyCache loadedOntologies = null;
-    //OWLRDFErrorHandler handler = null;
     int debug = 0;
     String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
@@ -120,7 +109,6 @@ public class GroupAlign {
     public void run(String[] args) throws Exception {
 
 	LongOpt[] longopts = new LongOpt[13];
-	//loadedOntologies = new Hashtable();
 	loadedOntologies = new OntologyCache();
 	params = new BasicParameters();
 
@@ -251,15 +239,7 @@ public class GroupAlign {
 		    if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
 		    align( subdir[i] );
 		    // Unload the ontologies
-		    // (this is a pitty but helps avoiding memory full)
 		    loadedOntologies.clear();
-		    /*
-		    try {
-			for ( Enumeration e = loadedOntologies.elements() ; e.hasMoreElements();  ){
-			    OWLOntology o = (OWLOntology)e.nextElement();
-			    o.getOWLConnection().notifyOntologyDeleted( o );
-			}
-			} catch (Exception ex) { System.err.println(ex); };*/
 		} catch (Exception e) { 
 		    if ( debug > 1 ) e.printStackTrace(); }
 	    }
@@ -271,8 +251,6 @@ public class GroupAlign {
 	// toURI(). is not very good
 	AlignmentProcess result = null;
 	Alignment init = null;
-	//OWLOntology onto1 = null;
-	//OWLOntology onto2 = null;
 
 	if ( urlprefix != null ){
 	    prefix = urlprefix+"/"+dir.getName()+"/";
@@ -308,18 +286,13 @@ public class GroupAlign {
 	    }
 
 	    // Create alignment object
-	    //Object[] mparams = { (Object)onto1, (Object)onto2 };
 	    Object[] mparams = {};
-	    //Class oClass = Class.forName("org.semanticweb.owl.model.OWLOntology");
-	    //Class[] cparams = { oClass, oClass };
 	    Class[] cparams = {};
 	    Class alignmentClass = Class.forName(alignmentClassName);
 	    java.lang.reflect.Constructor alignmentConstructor =
 		alignmentClass.getConstructor(cparams);
 	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 	    result.init( uri1, uri2 );
-	    //result.setFile1(uri11);
-	    //result.setFile2(uri2);
 	} catch (Exception ex) {
 	    System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
 	    throw ex;
@@ -363,18 +336,6 @@ public class GroupAlign {
 	// JE: This instruction is very important
 	writer.close();
     }
-
-    /*
-    public OWLOntology loadOntology(URI uri)
-	throws ParserException, OWLException {
-	OWLOntology parsedOnt = null;
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setOWLRDFErrorHandler(handler);
-	parser.setConnection(OWLManager.getOWLConnection());
-	parsedOnt = parser.parseOntology(uri);
-	loadedOntologies.put(uri.toString(), parsedOnt);
-	return parsedOnt;
-	}*/
 
     public void usage() {
 	System.err.println("usage: GroupAlign [options]");

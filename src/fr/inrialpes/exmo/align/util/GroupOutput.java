@@ -27,8 +27,6 @@
 */
 package fr.inrialpes.exmo.align.util;
 
-//import org.semanticweb.owl.model.OWLOntology;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
@@ -254,12 +252,7 @@ public class GroupOutput {
 	}
 	// Unload the ontologies.
 	loaded.clear();
-	//try {
-	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-	//	OWLOntology o = (OWLOntology)e.nextElement();
-	//	o.getOWLConnection().notifyOntologyDeleted( o );
-	//    }
-	//} catch (Exception ex) { System.err.println(ex); };
+
 	return (double)result/(double)tests.length;
     }
 

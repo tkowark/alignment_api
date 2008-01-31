@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2007, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,6 @@
 /* This program evaluates the results of several ontology aligners in a row.
 */
 package fr.inrialpes.exmo.align.util;
-
-//import org.semanticweb.owl.model.OWLOntology;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
@@ -244,12 +242,7 @@ public class GroupEval {
 	}
 	// Unload the ontologies.
 	loaded.clear();
-	//try {
-	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-	//	OWLOntology o = (OWLOntology)e.nextElement();
-	//	o.getOWLConnection().notifyOntologyDeleted( o );
-	//    }
-	//} catch (Exception ex) { System.err.println(ex); };
+
 	if ( ok == true ) return result;
 	else return (Vector)null;
     }
@@ -579,7 +572,6 @@ which the program does...
     // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
     // What a pity that it is not in Java... (wait for 1.5)
     public void printFormat(PrintStream w, double f){
-	// JE: Must add the test is the value is Not a number, print NaN.
 	if ( f != f ) {
 	    w.print("NaN");
 	} else {

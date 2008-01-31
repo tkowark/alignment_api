@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, 2007 INRIA Rhône-Alpes
+ * Copyright (C) 2003-2005, 2007-2008 INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -222,12 +222,7 @@ public class ExtGroupEval {
 	}
 	// Unload the ontologies.
 	loaded.clear();
-	//try {
-	//    for ( Enumeration e = loaded.elements() ; e.hasMoreElements();  ){
-	//	OWLOntology o = (OWLOntology)e.nextElement();
-	//	o.getOWLConnection().notifyOntologyDeleted( o );
-	//    }
-	//} catch (Exception ex) { System.err.println(ex); };
+
 	if ( ok == true ) return result;
 	else return (Vector)null;
     }
