@@ -36,10 +36,8 @@
  * [Created in Eclipse 3.1M6 (www.eclipse.org).]
  * 
  * Modifications by Jérôme Euzenat for integrating within Alignment API:
- * (C) INRIA Rhône-Alpes, 2005, 2007
- * 1) suppressed Java 1.5 dependencies (marked //JE1.5:)
- * 1') suppressed all the testing features (main)
- * 2) stripped some i/o stuff and main (JEstrip)
+ * (C) INRIA Rhône-Alpes, 2005, 2007-2008
+ * 1) suppressed all the testing features and main
  * 3) included under package fr.inrialpes.exmo.align.impl
  * 4) Suppressed the copy of the structure (we use a fresh structure for that)
  * 5) connected with alignment generation
@@ -102,8 +100,6 @@ public class HungarianAlgorithm {
 	    return new int[0][0];
 	}
 
-	// System.err.println("size = " + costPrm.length + " x " + costPrm[0].length);
-
 	// do we need to extend?
 	int columnNb = Math.max(costPrm.length, costPrm[0].length);
 	double[][] cost = new double[costPrm.length][columnNb]; // The real cost array
@@ -118,14 +114,6 @@ public class HungarianAlgorithm {
 		cost[a][b] = 0.0;
 	}
     	
-	/*	
-    	for ( int a = 0; a<cost.length; a++){
-    		double[] line = cost[a];
-    		for ( int b=0; b< line.length; b++) System.err.print(", "+cost[a][b]);
-    		System.err.println();
-    	}
-	*/
-		
 	//	System.err.println("HG-1");
 	if (sumType.equalsIgnoreCase("max")){	//Then array is weight array. Must change to cost.
 	    double maxWeight = findLargest(cost);
@@ -447,20 +435,4 @@ public class HungarianAlgorithm {
 	return minval;
     }
 	
-    
-    public static void main (String args[]) {
-    	
-	double[][] cost = {};
-	//{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}}
-	int[][] resultat;
-        
-	resultat = hgAlgorithm (cost, "min");
-    	
-	for (int i=0; i<resultat.length; i++){		
-	    for (int j=0; j<resultat[i].length; j++){
-		System.err.print(" " + resultat[i][j]);
-	    }
-	    System.err.println();
-	}
-    }
 }
