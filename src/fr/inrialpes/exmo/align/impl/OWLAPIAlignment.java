@@ -27,6 +27,9 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.net.URI;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+
 import org.xml.sax.SAXException;
 
 import org.semanticweb.owl.model.OWLOntology;
@@ -35,6 +38,7 @@ import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.util.OWLManager;
 import org.semanticweb.owl.util.OWLConnection;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
+import org.semanticweb.owl.io.owl_rdf.OWLConsumer;
 import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
 import org.semanticweb.owl.align.Alignment;
@@ -318,6 +322,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 			System.err.println("WARNING: " + message);
 		    }
 		};
+	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
 	    parser.setOWLRDFErrorHandler( handler );
 	    parser.setConnection( OWLManager.getOWLConnection() );
 	    parsedOnt = parser.parseOntology( ref );
