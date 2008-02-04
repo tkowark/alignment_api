@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) University of Montréal, 2004-2005
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
@@ -115,7 +118,9 @@ public class JWNLDistances {
 	     // Sorry but this initialize wants to read a stream
 	     pptySource = new ByteArrayInputStream( properties.getBytes() );
 	}
-	try { JWNL.initialize( pptySource ); }
+	try { 
+	    Logger.getLogger("net.didion.jwnl").setLevel(Level.ERROR);
+	    JWNL.initialize( pptySource ); }
 	catch ( JWNLException e ) {
 	    throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
 	}
