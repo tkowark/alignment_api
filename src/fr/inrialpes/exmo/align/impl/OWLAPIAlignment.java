@@ -81,8 +81,11 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    setFile2( (URI)o2 );
 	    ((Ontology)onto1).setFormalism( "OWL1.0" );
 	    ((Ontology)onto2).setFormalism( "OWL1.0" );
-	    //onto1.setFormalismURI();
-	    //onto2.setFormalismURI();
+	    try {
+		URI u = new URI("http://www.w3.org/2002/07/owl#");
+		((Ontology)onto1).setFormURI( u );
+		((Ontology)onto2).setFormURI( u );
+	    } catch (Exception e) {}; // does not happen
 	    try {
 		super.init( loadOntology( (URI)o1, cache ),
 			    loadOntology( (URI)o2, cache ) );
