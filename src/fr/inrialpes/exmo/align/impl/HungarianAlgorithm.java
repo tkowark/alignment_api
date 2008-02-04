@@ -94,29 +94,29 @@ public class HungarianAlgorithm {
     // JEcopy: use the same structure
     // PV whenever necessary, extends the data matrix to a length >= height 
     public static int[][] hgAlgorithm(double[][] costPrm, String sumType) {
-		// JEcopy: use the same structure
-		// double[][] cost = copyOf(array); //Create the cost matrix
-	// JEguard:
-	if ( costPrm.length == 0 || costPrm[1].length == 0 ){
+	// JEcopy: use the same structure
+	// double[][] cost = copyOf(array); //Create the cost matrix
+	// JEguard: changed costPrm[1] to costPrm[0]
+	if ( costPrm.length == 0 || costPrm[0].length == 0 ){
 	    // Maybe the best would be to return null
 	    return new int[0][0];
 	}
 
-		// System.err.println("size = " + costPrm.length + " x " + costPrm[0].length);
+	// System.err.println("size = " + costPrm.length + " x " + costPrm[0].length);
 
-		// do we need to extend?
-		int columnNb = Math.max(costPrm.length, costPrm[0].length);
-		double[][] cost = new double[costPrm.length][columnNb]; // The real cost array
+	// do we need to extend?
+	int columnNb = Math.max(costPrm.length, costPrm[0].length);
+	double[][] cost = new double[costPrm.length][columnNb]; // The real cost array
 
-		// the tentative extension
-		for (int a = 0; a < costPrm.length; a++) {
-			double[] line = costPrm[a];
-			for (int b = 0; b < line.length; b++)
-				cost[a][b] = costPrm[a][b];
-			// add zeroes at the end of the line
-			for (int b = line.length; b < columnNb; b++)
-				cost[a][b] = 0.0;
-		}
+	// the tentative extension
+	for (int a = 0; a < costPrm.length; a++) {
+	    double[] line = costPrm[a];
+	    for (int b = 0; b < line.length; b++)
+		cost[a][b] = costPrm[a][b];
+	    // add zeroes at the end of the line
+	    for (int b = line.length; b < columnNb; b++)
+		cost[a][b] = 0.0;
+	}
     	
 	/*	
     	for ( int a = 0; a<cost.length; a++){
@@ -126,7 +126,7 @@ public class HungarianAlgorithm {
     	}
 	*/
 		
-    //	System.err.println("HG-1");
+	//	System.err.println("HG-1");
 	if (sumType.equalsIgnoreCase("max")){	//Then array is weight array. Must change to cost.
 	    double maxWeight = findLargest(cost);
 	    for (int i=0; i<cost.length; i++){		//Generate cost by subtracting.
@@ -189,7 +189,9 @@ public class HungarianAlgorithm {
 	int[][] assignment = new int[cost.length][2];	//Create the returned array.
 	for (int i=0; i<mask.length; i++){
 	    for (int j=0; j<mask[i].length; j++){
-		if (mask[i][j] == 1){
+		//JE: suppress the elements that have been added
+		if ( mask[i][j] == 1 && j < costPrm[0].length ){
+		//if ( mask[i][j] == 1 ){
 		    assignment[i][0] = i;
 		    assignment[i][1] = j;
 		}
