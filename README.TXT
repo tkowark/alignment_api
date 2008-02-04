@@ -11,7 +11,6 @@ Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
 Copyright (C) 2006 CERT.
 Copyright (C) 2006 Seungkeun Lee.
-Copyright (C) 2001,2005-2006 Jarno Elonen.
 Copyright (C) 2006-2007 Orange R&D.
 
 This program is free software; you can redistribute it and/or
