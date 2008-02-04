@@ -610,7 +610,7 @@ public class CacheImpl {
 	ResultSet rs = (ResultSet) st.executeQuery("SELECT version FROM server WHERE port='port'");
 	rs.next();
 	int version = rs.getInt("version") ;
-	if ( version <= VERSION ) {
+	if ( version < VERSION ) {
 	    if ( version >= 302 ) {
 		// Change database
 		st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
