@@ -618,19 +618,26 @@ public class CacheImpl {
 		ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
 		while ( rse.next() ){
 		    String tag = rse.getString("tag");
-		    // Analyse into namespace and tag
-		    // FOR THE MOMENT, THIS ERASES
-		    st.executeUpdate("UPDATE extension SET tag='"+"' AND uri='"+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
+		    if ( !tag.equals("") ){
+			int pos = tag.lastIndexOf('#');
+			String ns;
+			String name;
+			if ( pos != -1 ) {
+			    ns = tag.substring( 0, pos );
+			    name = tag.substring( pos+1 );
+			} else {
+			    pos = tag.lastIndexOf('/');
+			    ns = tag.substring( 0, pos+1 );
+			    name = tag.substring( pos+1 );
+			}
+			st.executeUpdate("UPDATE extension SET tag='"+name+"' AND uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
+		    }
 		}
 		// Change version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"' WHERE port='port'");
 	    } else {
 		throw new AlignmentException("Database must be upgraded ("+version+" -> "+VERSION+")");
 	    }
-	    // In theory it is possible to:
-	    // - fully load all the database
-	    // - resetDatabase( false );
-	    // - completely save the database
 	}
     }
 
