@@ -197,7 +197,7 @@ public class CacheImpl {
 	    while(rs.next()) {
 		tag = rs.getString("tag");
 		value = rs.getString("val");
-		result.setExtension( rs.getString("ns"), tag, value);
+		result.setExtension( rs.getString("uri"), tag, value);
 	    }
 	} catch (Exception e) { // URI exception that should not occur
 	    System.err.println("Unlikely URI exception!");
@@ -249,7 +249,7 @@ public class CacheImpl {
 		query = "SELECT * FROM extension WHERE id = '" + cid + "'";
 		ResultSet rse = (ResultSet) st.executeQuery(query);
 		while ( rse.next() ){
-		    cell.setExtension( rse.getString("ns"), 
+		    cell.setExtension( rse.getString("uri"), 
 				       rse.getString("tag"), 
 				       rse.getString("val") );
 		}
@@ -569,7 +569,8 @@ public class CacheImpl {
       
       create table extension(
       id varchar(100),
-      tag varchar(100),
+      uri varchar(200),
+      tag varchar(50),
       val varchar(500));
 
     */
