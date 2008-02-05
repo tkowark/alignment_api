@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -93,32 +93,32 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	double pia1 = 1.; // relation weight for name
 	//double pia2 = 0.; // relation weight for domain
 	//double pia3 = 0.; // relation weight for range
-	double epsillon = 0.05; // stoping condition
-        	
+	double epsillon = 0.05; // stoping condition 
+       	
 	if ( params.getParameter("debug") != null )
 	    debug = ((Integer)params.getParameter("debug")).intValue();
 
 	try {
 	    // Create property lists and matrix
-	    for ( Iterator it = ((OWLOntology)onto1).getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology1()).getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
 		proplist1.add( it.next() );
 	    }
-	    for ( Iterator it = ((OWLOntology)onto1).getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology1()).getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
 		proplist1.add( it.next() );
 	    }
-	    for ( Iterator it = ((OWLOntology)onto2).getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology2()).getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
 		proplist2.add( it.next() );
 	    }
-	    for ( Iterator it = ((OWLOntology)onto2).getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology2()).getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
 		proplist2.add( it.next() );
 	    }
 	    propmatrix = new double[nbprop1+1][nbprop2+1];
 	
 	    // Create class lists
-	    for ( Iterator it = ((OWLOntology)onto2).getClasses().iterator(); it.hasNext(); nbclass2++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology2()).getClasses().iterator(); it.hasNext(); nbclass2++ ){
 		classlist2.add( it.next() );
 	    }
-	    for ( Iterator it = ((OWLOntology)onto1).getClasses().iterator(); it.hasNext(); nbclass1++ ){
+	    for ( Iterator it = ((OWLOntology)getOntology1()).getClasses().iterator(); it.hasNext(); nbclass1++ ){
 		classlist1.add( it.next() );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
@@ -181,13 +181,13 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		//  / nbatts of c[i] + nbatts of c[j]
 
 		for ( i=0; i<nbclass1; i++ ){
-		    Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)onto1) );
+		    Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)getOntology1()) );
 		    
 		    int nba1 = properties1.size();
 		    if ( nba1 > 0 ) { // if not, keep old values...
 			//Set correspondences = new HashSet();
 			for ( j=0; j<nbclass2; j++ ){
-			    Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)onto2) );
+			    Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)getOntology2()) );
 			    //int nba2 = properties1.size();
 			    //double attsum = 0.;
 			    // check that there is a correspondance
