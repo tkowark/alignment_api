@@ -17,22 +17,45 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Implement level 2OMWG alignments (version 3);</li>
 <li>Completing the reference manual</li>
-<li>Autogenerate wsdl</li>
+<li>Online evaluation (server)</li>
+<li>Connecion to Oyster directory (server)</li>
+<li>Upgrade to OWL 1.1 (impl)</li>
+<li>Restructuring language dependent alignments</li>
+<li>Clean-up NeOn plug-in (plugin)</li>
+<li>Implement database store for OMWG Language (server)</li>
+<li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
 
-<!--p><b>Version 3.1: xx/07/2007 - O sole mio</b></p-->
+<!--h2>Version 3.2: xx/yy/2008 - O sole mio</h2-->
 
-<p><ul compact="1">
-<li>Added more ontology information in format, changed the
-  implementation of ontology descriptions (format/parser/impl)</li>
-<li>Added Web Service Alignment server profile (service)</li>
+<h2>Version 3.1 (614): 05/02/2008 - Klippekort</h2>
+
+<p><font color="red">BEWARE:</font>
+For better conforming with RDF practice, we have
+<ul compact="1">
+<li>Changed the Alignment namespace by adding a '#' at its end (format).</li>
+<li>Modified the extension mechanism so that getExtension and
+  setExtension take a namespace URI as first argument (api).</li>
+<li>Modified the service database extension format for recording this
+  URI (service).</li>
+</ul></p>
+
+<p>
+Other improvements include:
+<ul compact="1">
+<li>Implement level 2OMWG alignments by using OMWG Mapping API (impl)</li>
+<li>Integrated first NeOn toolkit plugin (plugin)</li>
 <li>Added a <tt>parseString( String )</tt> method
   in <tt>AlignmentParser</tt> (parser)</li>
 <li>Implemented parsing of relations named by class name (parser)</li>
+<li>Added more ontology information in format, changed the
+  implementation of ontology descriptions (format/parser/impl)</li>
+<li>Modified the Alignement namespace by adding a '#'(format)</li>
+<li>Separated namespace from pName in extension keys</li>
+<li>Added Web Service Alignment server profile (service)</li>
 <li>Multithreaded matching in Services (service)</li>
 <li>Got rid of the property file for wordnet (ling)</li>
 <li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (service)</li>
@@ -45,11 +68,14 @@
   (thanks Vassilis Spiliopoulos) (util)</li>
 <li>Added namespace support in BasicAlignment (impl)</li>
 <li>Forced trailing slash in HTML menu URLs (service)</li>
+<li>Added fetching alignments from URIs (service)</li>
 <li>Changed for Jetty as an embedded HTTP server (service)</li>
 <li>Implemented alignment upload (service)</li>
 <li>Corrected an error on "force"-ing alignment in Server/HTML (was
   inverted) (service)</li>
-<li>Corrected a bug concerning extension namespaces</li>
+<li>Corrected a bug concerning extension namespaces (impl)</li>
+<li>Corrected a bug in the DistanceAlignment Hungarian method
+  extraction (impl)</li>
 <li>Corrected bugs in relation writing/parsing (parser)</li>
 <li>Corrected a bug in <tt>SubsDistanceAlignment</tt> when URI have no
   fragments (method)</li>
@@ -60,9 +86,7 @@
 <li>Added a server-based tutorial (tutorial)</li>
 </ul></p>
 
-<h2>February 25th, 2007</h2>
-
-<p><b>Version 3.0: 25/02/2007 - Hyderabad</b></p>
+<h2>Version 3.0 (436): 25/02/2007 - Hyderabad</h2>
 
 <p><font color="red">BEWARE:</font>
 The main modification in this version is more independence from the
@@ -107,9 +131,7 @@ The main modification in this version is more independence from the
   judged based on URI and not OWLAPI entities anymore.</li>
 </ul></p>
 
-<h2>December 30th, 2006</h2>
-
-<p><b>Version 2.5: 30/12/2006 - Thalia</b></p>
+<h2>Version 2.5 (375): 30/12/2006 - Thalia</h2>
 
 <p><ul compact="1">
 <li>Added Alignment server</li>
@@ -122,9 +144,7 @@ The main modification in this version is more independence from the
 <li>Improved Weighted harmonic means computation in GroupEval</li>
 </ul></p>
 
-<h2>July 10th, 2006</h2>
-
-<p><b>Version 2.4: 10/07/2006 - Cercedilla noches</b></p>
+<h2>Version 2.4 (302): 10/07/2006 - Cercedilla noches</h2>
 
 <p><ul compact="1">
 <li>Added a <a href="tutorial">tutorial</a> in the html pages.</li>
@@ -138,9 +158,7 @@ The main modification in this version is more independence from the
 <li>Suppressed a printout in MatrixMeasure</li>
 </ul></p>
 
-<h2>June 15th, 2006</h2>
-
-<p><b>Version 2.3: 15/06/2006 - OAEI-2006 ready</b></p>
+<h2>Version 2.3 (271): 15/06/2006 - OAEI-2006 ready</h2>
 
 <p>
 <ul compact="1">
@@ -150,9 +168,7 @@ The main modification in this version is more independence from the
 <li><tt>GroupAlign</tt> default matcher becomes <tt>StringDistAlignment</tt>.</li>
 </ul></p>
 
-<h2>June 5th, 2006</h2>
-
-<p><b>Version 2.2: 05/06/2006 - Onyeari's version a.k.a. may GForge be with you</b></p>
+<h2>Version 2.2 (263): 05/06/2006 - Onyeari's version a.k.a. may GForge be with you</h2>
 
 <p>Upgraded to OWL-API 06-04-12 (1.4.3)<br />
 <font color="red"></font> No problem encountered.
@@ -177,9 +193,8 @@ The main modification in this version is more independence from the
 <li>GenPlot generates directly gnuplot output and LaTeX/PGF inclusion.</li>
 </ul></p>
 
-<h2>February 17th, 2006</h2>
+<h2>Version 2.1: 17/02/2006 - pre GForge</h2>
 
-<p><b>Version 2.1: 17/02/2006 - pre GForge</b></p>
 <p>New version featuring:
 <ul compact="1">
 <li>Fixed SEKT renderer problem;</li>
@@ -195,9 +210,8 @@ The main modification in this version is more independence from the
 <li>Corrected mistakes in align.owl and align.rdfs (thanks to Antoine Isaac);</li>
 </ul>
 
-<h2>October 1st, 2005</h2>
+<h2>Version 2: 1/10/2005 - Raphael's version a.k.a. AC385 version</h2>
 
-<p><b>Version 2: 1/10/2005 - Raphael's version a.k.a. AC385 version</b></p>
 <p><font color="red">BEWARE:</font> <tt>Alignment</tt> methods <tt>getAlignCell1</tt>, <tt>getAlignCell2</tt>, <tt>getAlignedObject1</tt>, <tt>getAlignedObject2</tt>, <tt>getStrength1</tt>, <tt>getStrength2</tt>, <tt>getRelation1</tt>
       and <tt>getRelation2</tt> deprecated (implementation is still
       provided however).
@@ -217,9 +231,7 @@ The main modification in this version is more independence from the
 <li>Added extension mechnism for alignments (any extra-annotation stored).</li>
 </ul>
 
-<h2>July 4th, 2005</h2>
-
-<p><b>Version 1.4: 04/07/2005 - OAEI 2005 facilities</b></p>
+<h2>Version 1.4: 04/07/2005 - OAEI 2005 facilities</h2>
 
 <p>New version featuring:
 <ul compact="1">
@@ -228,11 +240,9 @@ The main modification in this version is more independence from the
 <li>Added freeing of ontology from memory between tests in GroupAlign</li>
 </ul></p>
 
-<h2>June 15th, 2005</h2>
+<h2>Version 1.3: 15/06/2005 - Ready for OAEI 2005</h2>
 
-<p><b>Version 1.3: 15/06/2005 - Ready for OAEI 2005</b></p>
-
-<p>Upgraded to OWL-API 05-03-21<br />
+<p>Upgraded to OWL-API 05-03-21 (1.4.2)<br />
 <font color="red">BEWARE:</font> if you experience problems
 recompiling after upgrading to this version of the OWL-API, this is
 because it requires and additional method:
@@ -260,9 +270,7 @@ because it requires and additional method:
 <li>Started reengineering matrix-based distance alignments</li>
 </ul>
 
-<h2>November 23th, 2004</h2>
-
-<p><b>Version 1.2: 23/11/2004 - ISWC suggestions and improvements</b></p>
+<h2>Version 1.2: 23/11/2004 - ISWC suggestions and improvements</h2>
 
 <p>New version featuring:
 <ul compact="1">
@@ -273,9 +281,7 @@ because it requires and additional method:
 <li>Fully implemented the parser and the printer so that onto tags contains file info and uri tags contain URI info.</li>
 </ul></p>
 
-<h2>November 5th, 2004</h2>
-
-<p><b>Version 1.1: 5/11/2004 - Lessons from EON</b></p>
+<h2>Version 1.1: 5/11/2004 - Lessons from EON</h2>
 
 <p>New version featuring:
 <ul compact="1">
@@ -317,11 +323,9 @@ because it requires and additional method:
 <li>Changed name: Evaluator.evaluate() --> Evaluator.eval();</li>
 </ul>
 
-<h2>April 4th, 2004</h2>
+<h2>Version 1.0: 4/4/2004 - First complete version</h2>
 
-<p><b>Version 1.0: 4/4/2004 - First complete version</b></p>
-
-<p>This uses the 090304 version of the OWL API.</p>
+<p>This uses the 090304 (1.2.0) version of the OWL API.</p>
 
 <p>New version featuring:
 <ul compact="1">
@@ -344,9 +348,7 @@ because it requires and additional method:
 </ul>
 </p>
 
-<h2>December 2003</h2>
-
-<p><b>Version 0.1: 12/12/2003 - First release</b></p>
+<h2>Version 0.1: 12/12/2003 - First release</h2>
 
 <address>
 <small>
