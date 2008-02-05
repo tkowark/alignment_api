@@ -77,7 +77,7 @@ public class CacheImpl {
     final int SUCCESS = 2;
     final int INIT_ERROR = 3;
 
-    static public final String SVCNS = "http://exmo.inrialpes.fr/align/service";
+    static public final String SVCNS = "http://exmo.inrialpes.fr/align/service#";
     static public final String CACHED = "cached";
     static public final String STORED = "stored";
     static public final String OURI1 = "ouri1";
@@ -614,24 +614,33 @@ public class CacheImpl {
 	if ( version < VERSION ) {
 	    if ( version >= 302 ) {
 		// Change database
+		st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
 		st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
 		// Modify extensions
 		ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
+		Statement st2 = (Statement) conn.createStatement();
 		while ( rse.next() ){
 		    String tag = rse.getString("tag");
+		    System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
 		    if ( !tag.equals("") ){
-			int pos = tag.lastIndexOf('#');
+			int pos;
 			String ns;
 			String name;
-			if ( pos != -1 ) {
+			if ( (pos = tag.lastIndexOf('#')) != -1 ) {
 			    ns = tag.substring( 0, pos );
 			    name = tag.substring( pos+1 );
-			} else {
-			    pos = tag.lastIndexOf('/');
+			} else if ( (pos = tag.lastIndexOf(':')) != -1 && pos > 5 ) {
+			    ns = tag.substring( 0, pos )+"#";
+			    name = tag.substring( pos+1 );
+			} else if ( (pos = tag.lastIndexOf('/')) != -1 ) {
 			    ns = tag.substring( 0, pos+1 );
 			    name = tag.substring( pos+1 );
+			} else {
+			    ns = BasicAlignment.ALIGNNS;
+			    name = tag;
 			}
-			st.executeUpdate("UPDATE extension SET tag='"+name+"' AND uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
+			System.err.println("  >> "+ns+" : "+name);
+			st2.executeUpdate("UPDATE extension SET tag='"+name+"', uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
 		    }
 		}
 		// Change version
