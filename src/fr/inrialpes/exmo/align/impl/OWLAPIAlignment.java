@@ -325,6 +325,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 			System.err.println("WARNING: " + message);
 		    }
 		};
+	    Level lev = Logger.getLogger("org.semanticweb.owl").getLevel();
 	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
 	    parser.setOWLRDFErrorHandler( handler );
 	    parser.setConnection( OWLManager.getOWLConnection() );
@@ -332,6 +333,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    if ( ontologies != null )
 		ontologies.recordOntology( ref, parsedOnt );
 	    //    ontologies.put( ref.toString(), parsedOnt );
+	    Logger.getLogger("org.semanticweb.owl").setLevel(lev);
 	    return parsedOnt;
 	}
     }
