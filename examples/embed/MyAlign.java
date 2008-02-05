@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2005, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2005, 2008, INRIA Rhône-Alpes
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -33,18 +33,13 @@ import org.semanticweb.owl.align.Evaluator;
 
 // Align API Implementation
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment;
-import fr.inrialpes.exmo.align.impl.method.PropSubsDistAlignment;
+import fr.inrialpes.exmo.align.impl.method.SMOANameAlignment;
 import fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor;
-
-// OWL API and implementation
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
 // Java classes
 import java.io.PrintWriter;
@@ -64,16 +59,18 @@ public class MyAlign {
 
     public static void main(String[] args) {
 	try {
-	    String CWD = "/Volumes/Phata/JAVA/ontoalign";
+	    String CWD = "/Java/alignapi/examples";
 	    URI uri1 = new URI("file://localhost"+CWD+"/rdf/edu.umbc.ebiquity.publication.owl");
 	    URI uri2 = new URI("file://localhost"+CWD+"/rdf/edu.mit.visus.bibtex.owl");
 
 	    Parameters p = new BasicParameters();
-	    OWLOntology O1 = loadOntology(uri1);
-	    OWLOntology O2 = loadOntology(uri2);
-	    AlignmentProcess A1 = new SubsDistNameAlignment(O1, O2);
-	    AlignmentProcess A2 = new PropSubsDistAlignment(O1,O2); 
-	    AlignmentProcess A3 = new NameAndPropertyAlignment(O1,O2); 
+	    OntologyCache cache = new OntologyCache();
+	    AlignmentProcess A1 = new SubsDistNameAlignment();
+	    A1.init( uri1, uri2, cache );
+	    AlignmentProcess A2 = new SMOANameAlignment();
+	    A2.init( uri1, uri2, cache ); 
+	    AlignmentProcess A3 = new NameAndPropertyAlignment();
+	    A3.init( uri1, uri2, cache ); 
 	    A1.align((Alignment)null,p); A1.cut("prop", .5); 
 	    A2.align((Alignment)null,p); A3.align(A2,p); 
 	    Evaluator E = new PRecEvaluator(A1, A3); 
@@ -85,13 +82,6 @@ public class MyAlign {
 							          "UTF-8" )),
                                        true)); 
 	    if ( ((PRecEvaluator)E).getPrecision() > .6 ) A3.render(V); 
-	} catch (Exception e) {};
+	} catch (Exception e) { e.printStackTrace(); };
     }
-
-    public static OWLOntology loadOntology(URI uri) throws Exception {
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setConnection(OWLManager.getOWLConnection());
-	return parser.parseOntology(uri);
-    }
-
 }
