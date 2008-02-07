@@ -69,6 +69,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 public class AlignmentParser extends DefaultHandler {
 
     private static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
+
     /**
      * level of debug/warning information
      */
@@ -238,7 +239,8 @@ public class AlignmentParser extends DefaultHandler {
 	if(debugMode > 2) 
 	    System.err.println("startElement AlignmentParser : " + pName);
 	parselevel++;
-	if(namespaceURI.equals(ALIGNNS))  {
+	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
+	    || namespaceURI.equals(ALIGNNS) )  {
 	    if (pName.equals("relation")) {
 	    } else if (pName.equals("semantics")) {
 	    } else if (pName.equals("measure")) {
@@ -374,7 +376,8 @@ public class AlignmentParser extends DefaultHandler {
     public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("endElement AlignmentParser : " + pName);
-	if(namespaceURI.equals(ALIGNNS))  {
+	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
+	    || namespaceURI.equals(ALIGNNS) )  {
 	    try {
 		if (pName.equals("relation")) {
 		    relation = content;
