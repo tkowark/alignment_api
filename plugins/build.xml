@@ -13,9 +13,6 @@
     <echo message="compileall: recompiles all sources"/>
     <echo message="jar: archives compiled code"/>
     <echo message="test: performs unit tests [nyi]"/>
-    <echo message="zip: creates a new zip file"/>
-    <echo message="javadoc: generates documentation"/>
-    <echo message="release: releases a new version"/>
     <echo message="svnbranch: copy the version under svn"/>
     <echo message="clean: clean-up before release"/>
     <echo/>
@@ -26,7 +23,7 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="version" value="3.0"/>
+    <property name="piversion" value="1"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
@@ -57,7 +54,7 @@
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes">
+    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="neonalign">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
@@ -66,49 +63,56 @@
   <!-- tested -->
   <target name="compileall" depends="init">
     <echo message="Erasing..."/>
-    <delete>
-      <fileset dir="classes" includes="**/*.class"/>
-    </delete>
+    <delete dir="neonalign" />
+    <mkdir dir="neonalign" />
     <antcall target="compile"/>
   </target>
 
   <!-- tested -->
-  <target name="compilelint" depends="init">
-    <!-- values: all, deprecation, unchecked, fallthrough, path, serial, finally -->
-    <echo message="Setting property..."/>
-    <property name="javacargs" value="-Xlint:all" />
-    <antcall target="compileall"/>
-  </target>
-
-  <!-- tested -->
-  <target name="jar" depends="compile">
+  <target name="jar" depends="compileall">
     <echo message="Jarchiving..."/>
-    <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
-    <delete file="lib/align.jar"/>
-    <jar jarfile="lib/align.jar" manifest="distrib/MANIFEST.MF">
-      <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <delete file="lib/procalign.jar"/>
-    <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST-pr.MF">
-      <fileset dir="classes" includes="org/ivml/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <delete file="lib/alignwn.jar"/>
-    <jar jarfile="lib/alignwn.jar" manifest="distrib/MANIFEST-wn.MF">
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <delete file="lib/alignsvc.jar"/>
-    <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
-    <jar jarfile="lib/alignsvc.jar" manifest="distrib/MANIFEST-svc.MF">
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
+    <copy file="../distrib/LICENSE.TXT" tofile="neonalign/LICENSE.TXT" filtering="true"/>
+    <copy file="distrib/plugin.xml" tofile="neonalign/plugin.xml" filtering="true"/>
+    <copy todir="neonalign/icons" filtering="false">
+      <fileset dir="distrib" includes="*.gif"/>
+    </copy>
+    <copy todir="neonalign/lib">
+      <fileset dir="../lib">
+	<include name="align.jar"/>
+	<!--include name="alignsvc.jar"/-->
+	<include name="alignwn.jar"/>
+	<include name="api.jar"/>
+	<include name="commons-logging.jar"/>
+	<!--include name="getopt.jar"/-->
+	<include name="http.jar"/>
+	<include name="icu4j_3_4.jar"/>
+	<include name="iiop.jar"/>
+	<include name="impl.jar"/>
+	<include name="io.jar"/>
+	<include name="iri.jar"/>
+	<!--include name="jade.jar"/-->
+	<include name="jena.jar"/>
+	<!--include name="jetty.jar"/-->
+	<!--include name="jetty-util.jar"/-->
+	<include name="jwnl.jar"/>
+	<include name="log4j.jar"/>
+	<include name="mappingapilite.jar"/>
+	<include name="mtj.jar"/>
+	<!--include name="mysql-connector-java-5.0.3-bin.jar"/-->
+	<!--include name="oyster2.jar"/-->
+	<include name="procalign.jar"/>
+	<include name="rdfapi.jar"/>
+	<include name="rdfparser.jar"/>
+	<!--include name="sboa.jar"/-->
+	<!--include name="servlet-api.jar"/-->
+	<include name="wsmo-api-0.6.1.jar"/>
+	<include name="xercesImpl.jar"/>
+      </fileset>
+    </copy>
+    <!-- could be useful to take version # into account -->
+    <delete file="neonalign.jar"/>
+    <jar jarfile="neonalign.jar" manifest="distrib/MANIFEST.MF">
+      <fileset dir="neonalign" includes="**/*.*"/>
     </jar>
   </target>
 
