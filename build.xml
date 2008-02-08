@@ -66,6 +66,7 @@
       <fileset dir="classes" includes="**/*.class"/>
     </delete>
     <antcall target="compile"/>
+    <ant dir="plugins" target="compileall" />
   </target>
 
   <!-- tested -->
@@ -138,20 +139,26 @@
   </target>
 
   <!-- tested -->
-  <target name="javadoc">
+  <target name="javadoc" depends="init">
    <echo message="Javadocing..."/>
    <javadoc
-      sourcepath="src" destdir="javadoc"
-      packagenames="fr.inrialpes.*,org.semanticweb.owl.align.*,org.ivml.alimo.*"
+      destdir="javadoc"
+      author="true"
+      version="true"
       Use="true" Splitindex="true" private="true"
-      Windowtitle="Ontology Alignment API"
-      Doctitle="alignmebr" Header="INRIA &amp; friends"
-      bottom="..no bottom yet..."
+      Windowtitle="Alignment API and Server"
+      doctitle="Alignment API and Server ${version}" 
+      header="Alignment API and Server ${version}"
+      bottom="(C) INRIA &amp; friends, 2003-2008"
       >
-      <!--link href="http://www.inrialpes.fr/exmo/local/doc/jdk1.3-doc/api"/>
-      <link href="http://www.inrialpes.fr/exmo/local/doc/xerces-doc/apiDocs"/>
-      <link href="http://www.inrialpes.fr/exmo/local/doc/xalan-doc/apidocs"/>
-      <link href="http://www.inrialpes.fr/exmo/local/doc/SAX2-doc/javadoc"/-->
+     <classpath refid="classpath"/>
+     <packageset dir="src" defaultexcludes="yes">
+       <include name="org/semanticweb/owl/align/**"/>
+       <include name="fr/inrialpes/**"/>
+       <include name="org/ivml/alimo/**"/>
+       <!--exclude name="org/semanticweb/owl/**"/-->
+     </packageset>
+     <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
     </javadoc>
   </target>
 
@@ -169,12 +176,6 @@
   </target>
 
   <!-- tested -->
-  <target name="plugins" depends="init">
-    <echo message="Generating plugins..."/>
-    <ant dir="plugins" target="release"/>
-  </target>
-
-  <!-- tested -->
   <target name="zip" depends="init">
     <echo message="Ziping..."/>
     <!--echo message="Are you sure that everything is OK (update/ci/compile)?"/-->
@@ -184,7 +185,9 @@
     <antcall target="compileall"/>
     <antcall target="jar"/>
     <antcall target="javadoc"/>
-    <!--antcall target="plugins"/-->
+    <ant dir="plugins" target="jar">
+      <property name="version" value="${version}"/>
+    </ant>
     <!-- may be useful to change directory -->
     <zip zipfile="${FTPDir}/align-${version}.zip">
       <fileset dir=".">
