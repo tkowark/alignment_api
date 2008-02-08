@@ -158,6 +158,10 @@
        <include name="org/ivml/alimo/**"/>
        <!--exclude name="org/semanticweb/owl/**"/-->
      </packageset>
+     <!-- This works but the classpath is not set correctly -->
+     <!--packageset dir="plugins/src" defaultexcludes="yes">
+	 <include name="fr/inrialpes/**"/>
+     </packageset-->
      <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
     </javadoc>
   </target>
