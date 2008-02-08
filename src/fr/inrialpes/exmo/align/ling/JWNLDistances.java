@@ -239,46 +239,6 @@ public class JWNLDistances {
         // return sim;
     }
     
-    /**
-     * Updates the values contained in specified mask and results matrix.
-     * @param hash1 First hashtable (<i>eg.</i> containing the nouns
-     * of the first ontology).
-     * @param hash2 Second hashtable (<i>eg.</i> containing the nouns
-     * of the second ontology).
-     * @param mask A mask matrix.
-     * @param results A result matrix.
-     * @deprecated The use of a mask is deprecated.
-    private void updateMaskAndResults(Hashtable hash1, Hashtable hash2, double[][] mask, double[][] results) {
-        Enumeration enum1, enum2;
-        String token1, token2;
-        IndexWord index1, index2;
-        int x, y;
-        double nb1, nb2;
-        
-        x = 0;
-        y = 0;
-        enum1 = hash1.keys();
-        while (enum1.hasMoreElements()) {
-            token1 = (String) enum1.nextElement();
-            index1 = (IndexWord) hash1.get(token1);
-            enum2 = hash2.keys();
-            while (enum2.hasMoreElements()) {
-                token2 = (String) enum2.nextElement();
-                index2 = (IndexWord) hash2.get(token2);
-                
-                nb1 = getNumberOfOccurences(token1, 1);
-                nb2 = getNumberOfOccurences(token2, 2);
-                
-                mask[x][y] = 2 / (nb1 + nb2);
-                results[x][y] = computeTokenSimilarity(index1, index2);
-                
-                y++;
-            }
-            x++;
-        }
-    }
-     */
-
     public double compareComponentNames(String s1, String s2) {
         Vector s1Tokens;
         Vector s2Tokens;
@@ -741,7 +701,6 @@ public class JWNLDistances {
     /**
      * TODO Look up for other things than nouns
      * @param word
-     * @return
      */
     public void lookUpWord(String word, Hashtable nouns, Hashtable adjectives,
             Hashtable verbs) {
@@ -844,7 +803,6 @@ public class JWNLDistances {
     }
 
     /**
-     * @author Philippe Guégan
      * @param token A token.
      * @param n The number of the ontology (typically 1 or 2).
      * @return the number of occurences of the token in the hashtables

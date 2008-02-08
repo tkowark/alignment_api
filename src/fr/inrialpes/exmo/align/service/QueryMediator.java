@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -95,7 +95,7 @@ public class QueryMediator implements QueryProcessor {
     /**
      * @param query -- The query string
      * @param type -- The query type, can be one of SELECT, ASK, CONSTRUCT, or DESCRIBE
-     * @returns Result, result form depends on type
+     * @return Result, result form depends on type
      */
     // JE: There is a flaw in the query API: it should be defined with
     // throws QueryException because if something fails, this will be
@@ -119,7 +119,7 @@ public class QueryMediator implements QueryProcessor {
 
     /**
      *@param query -- The query string
-     *@returns query results as string
+     *@return query results as string
      */
     public String queryWithStringResults(String query) {
 	try {
@@ -130,7 +130,7 @@ public class QueryMediator implements QueryProcessor {
     
     /**
      *@param query -- the query string
-     *@returns the type of the query
+     *@return the type of the query
      */
     public int getType(String query){
 	return processor.getType( query );
@@ -141,9 +141,8 @@ public class QueryMediator implements QueryProcessor {
     }
     
     /**
-     * @param aQuery query to be re-written
-     * @param a the alignment used for rewriting the query Alignment
-     * @ return -- rewritten query:
+     * @param aQuery -- query to be re-written
+     * @return -- rewritten query:
      * - replaces all the prefix namespaces, if present, in the query by actual IRIs
      * - replaces all entity IRI by their counterpart in the ontology
      *

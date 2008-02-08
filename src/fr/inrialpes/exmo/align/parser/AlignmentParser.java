@@ -371,7 +371,7 @@ public class AlignmentParser extends DefaultHandler {
      *
      * @param namespaceURI 	The namespace of the current element
      * @param pName 			The local name of the current element
-     * @param qname					The name of the current element 
+     * @param qName					The name of the current element 
      */
     public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
 	if(debugMode > 2) 

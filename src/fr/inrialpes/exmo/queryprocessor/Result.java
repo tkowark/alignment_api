@@ -1,8 +1,21 @@
 /*
- * Result.java
+ * $Id$
  *
- * Created on March 20, 2006, 10:55 AM
+ * Copyright (C) INRIA Rhône-Alpes, 2006, 2008
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 package fr.inrialpes.exmo.queryprocessor;
@@ -14,24 +27,24 @@ import java.util.Collection;
  * @author Arun Sharma
  */
 public interface Result {
-    /**@returns the type of the result set
+    /**@return the type of the result set
      */
     public int getType();
     
-    /**@returns the reslut for ASK type queries
+    /**@return the reslut for ASK type queries
      */
     public boolean getAskResult() throws QueryTypeMismatchException;
     
     /**
-     *@returns the RDF graph for construct queries
+     *@return the RDF graph for construct queries
      */
     public RDFGraph getConstructResult() throws QueryTypeMismatchException;
     
-    /**@returns a collection set for SELECT queries
+    /**@return a collection set for SELECT queries
      */
     public Collection getSelectResult() throws QueryTypeMismatchException;
 
-    /**@returns an XML string for the SELECT queries
+    /**@return an XML string for the SELECT queries
      */
     public String getSelectResultasXML() throws QueryTypeMismatchException;
 

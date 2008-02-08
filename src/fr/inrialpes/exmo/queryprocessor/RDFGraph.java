@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,11 @@ package fr.inrialpes.exmo.queryprocessor;
  */
 public interface RDFGraph {
     /**
-     *@returns RDF/XML representation of the graph
+     *@return RDF/XML representation of the graph
      */
     public String getXML();
     
-    /**@returns rdf triples
+    /**@return rdf triples
      */
     public Triple[] getTriples();
     
