@@ -23,95 +23,95 @@
 <h2>Standard API tags</h2>
 
 <dl>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:xml</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#xml</dd>
 <dd>BOOLEAN telling if the file can be read as XML</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:level</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#level</dd>
 <dd>STRING </dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:type</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#type</dd>
 <dd>STRING identifying the type of alignment (1:1, 1:*, ?:+...)</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri1</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#uri1</dd>
 <dd>URI the uri of the first ontology</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri2</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#uri2</dd>
 <dd>URI the uri of the second ontology</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:onto1</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#onto1</dd>
 <dd>URL the location of the first ontology</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:onto2</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#onto2</dd>
 <dd>URL the location of the second ontology</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:semantics</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#semantics</dd>
 <dd>STRING the intended interpretation of a correspondence</dd>
 </dl>
 
 <h2>Standard API extensions</h2>
 
 <dl>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:id</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id</dd>
 <dd>URI identifying the alignment.</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method</dd>
 <dd>CLASSNAME of the generating matching method.</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:parameters</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#parameters</dd>
 <dd>STRING the parameters used with the generating method</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:certificate</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#certificate</dd>
 <dd>STRING a certificate from an issuing source</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#time</dd>
 <dd>DURATION of the matching process.</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:limitations</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#limitations</dd>
 <dd>STRING the validity range of the correspondence</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:properties</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#properties</dd>
 <dd>STRING the properties satisfied by an alignment or correspondences</dd>
-<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment:pretty</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#pretty</dd>
 <dd>STRING providing a short descriptive name of the alignment.</dd>
 </dl>
 
 <h2>Dublin core extensions</h2>
 
 <dl> 
-<dt>http://purl.org/dc/elements/1.1/:creator</dt>
+<dt>http://purl.org/dc/elements/1.1/creator</dt>
 <dd>STRING identifying an entity primarily responsible for making the alignment.</dd>
-<dt>http://purl.org/dc/elements/1.1/:date</dt>
+<dt>http://purl.org/dc/elements/1.1/date</dt>
 <dd>TIMESTAMP of an event in the lifecycle of the alignment.</dd>
-<dt>http://purl.org/dc/elements/1.1/:description</dt>
+<dt>http://purl.org/dc/elements/1.1/description</dt>
 <dd>STRING describing the alignment.</dd>
-<dt>http://purl.org/dc/elements/1.1/:identifier</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:id
+<dt>http://purl.org/dc/elements/1.1/identifier</dt>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id
   instead.</dd>
-<dt>http://purl.org/dc/elements/1.1/:rights</dt>
+<dt>http://purl.org/dc/elements/1.1/rights</dt>
 <dd>STRING providing information about rights held in and over the alignment.</dd>
-<dt>http://purl.org/dc/elements/1.1/:title</dt>
+<dt>http://purl.org/dc/elements/1.1/title</dt>
 <dd>Use
-  http://knowledgeweb.semanticweb.org/heterogeneity/alignment:pretty instead.</dd>
+  http://knowledgeweb.semanticweb.org/heterogeneity/alignment#pretty instead.</dd>
 </dl>
 
 <h2>OMWG Extensions</h2>
 
 <dl>
-<dt>http://www.owmg.org/TR/d7/d7.2/:purpose</dt>
+<dt>http://www.owmg.org/TR/d7/d7.2/purpose</dt>
 <dd>STRING The purpose for which an alignment has been defined</dd>
 </dl>
 
 <h2>Alignment server extensions</h2>
 
 <dl>
-<dt>http://exmo.inrialpes.fr/align/service:cached</dt>
+<dt>http://exmo.inrialpes.fr/align/service#cached</dt>
 <dd>TIMESTAMP of the last time the alignment was read</dd>
-<dt>http://exmo.inrialpes.fr/align/service:stored</dt>
+<dt>http://exmo.inrialpes.fr/align/service#stored</dt>
 <dd>TIMESTAMP of the time the alignment was stored in database</dd>
-<dt>http://exmo.inrialpes.fr/align/service:ouri1</dt>
+<dt>http://exmo.inrialpes.fr/align/service#ouri1</dt>
 <dd>URI of the first ontology (temporary store)</dd>
-<dt>http://exmo.inrialpes.fr/align/service:ouri2</dt>
+<dt>http://exmo.inrialpes.fr/align/service#ouri2</dt>
 <dd>URI of the second ontology (temporary store)</dd>
 </dl>
 
 <h2>Argumentation extensions</h2>
 
 <dl>
-<dt>http://ac.liv.ac.uk/just:reason</dt>
+<dt>http://ac.liv.ac.uk/just#reason</dt>
 <dd>STRING denoting an argument for the correspondence to be valid or invalid</dd>
-<dt>http://ac.liv.ac.uk/just:type</dt>
+<dt>http://ac.liv.ac.uk/just#type</dt>
 <dd>STRING denoting the type of method used for supporting a
   correspondence (this is a value in value argumentation framework)</dd>
-<dt>http://ac.liv.ac.uk/just:support</dt>
+<dt>http://ac.liv.ac.uk/just#support</dt>
 <dd>BOOLEAN denoting if the argument is in favour or against</dd>
-<!--dt>http://ac.liv.ac.uk/just:type</dt>
+<!--dt>http://ac.liv.ac.uk/just#type</dt>
 <dd>STRING denoting the type of method used for supporting a correspondence</dd-->
 </dl>
 
@@ -128,29 +128,29 @@ also defines it own sorts of objects that can be annotated.</p>
   annotation for specifying a subclass of omv:Mapping.</dd>
 
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasParameter</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:parameters instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#parameters instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasCreator</dt>
 <dd>Use http://purl.org/dc/elements/1.1/:creator instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#usedMethod</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#variety</dt>
 <dd>STRING denoting [??]</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#type</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:type instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#type instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#purpose</dt>
 <dd>STRING denoting </dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#URI</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:id instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#processingTime</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:time instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#time instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#value</dt>
 <dd>STRING denoting </dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#naturalLanguage</dt>
 <dd>Use http://purl.org/dc/elements/1.1/:language instead [??]</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#level</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:level instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#level instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#source</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:uri1 instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#uri1 instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#creationDate</dt>
 <dd>Use http://purl.org/dc/elements/1.1/:date instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#version</dt>
@@ -165,7 +165,7 @@ also defines it own sorts of objects that can be annotated.</p>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#BasicMethod</dt>
 <dd>STRING denoting </dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#ManualMethod</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment:method="manual" instead</dd>
+<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method="manual" instead</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#CompoundMethod</dt>
 <dd>is a subclass of the previous one</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Parallel</dt>
