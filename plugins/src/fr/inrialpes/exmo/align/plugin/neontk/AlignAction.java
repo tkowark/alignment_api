@@ -1,32 +1,30 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
+
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.jface.action.IAction;
 //import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-//import org.eclipse.jface.viewers.TreeSelection;
-//import org.eclipse.swt.SWT;
-//import org.eclipse.swt.SWTError;
-//import org.eclipse.swt.browser.Browser;
-//import org.eclipse.swt.browser.LocationEvent;
-//import org.eclipse.swt.browser.LocationListener;
-//import org.eclipse.swt.browser.ProgressEvent;
-//import org.eclipse.swt.browser.ProgressListener;
-//import org.eclipse.swt.browser.StatusTextEvent;
-//import org.eclipse.swt.browser.StatusTextListener;
-//import org.eclipse.swt.layout.GridData;
-//import org.eclipse.swt.layout.GridLayout;
-//import org.eclipse.swt.widgets.Display;
-//import org.eclipse.swt.widgets.Event;
-//import org.eclipse.swt.widgets.Label;
-//import org.eclipse.swt.widgets.Listener;
-//import org.eclipse.swt.widgets.MessageBox;
-//import org.eclipse.swt.widgets.ProgressBar;
-//import org.eclipse.swt.widgets.Shell;
-//import org.eclipse.swt.widgets.Text;
-//import org.eclipse.swt.widgets.ToolBar;
-//import org.eclipse.swt.widgets.ToolItem;
-//import org.eclipse.ui.IFolderLayout;
-//import org.eclipse.ui.IPageLayout;
+ 
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
