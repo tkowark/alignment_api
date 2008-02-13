@@ -47,6 +47,8 @@ public class NonTransitiveImplicationRelation extends BasicRelation
     public NonTransitiveImplicationRelation(){
 	super("~>");
     }
+    
+    
 }
 
 

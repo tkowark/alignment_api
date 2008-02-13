@@ -8,12 +8,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -48,10 +48,10 @@ import org.semanticweb.owl.align.Parameters;
  * NOTE(JE): hashtabale are indexed by URI.
  * This is strange, but there might be a reason
  * NOTE(JE): I do not think that this is the case anymore
- * 
+ *
  * In version 3.0 this class is virtually abstract.
  * But it cannot be declared abstract because it uses its own constructor.
- * 
+ *
  * @author Jérôme Euzenat, David Loup, Raphaël Troncy
  * @version $Id$
  */
@@ -211,7 +211,7 @@ public class BasicAlignment implements Alignment {
 	return (String)namespaces.getParameter( label );
     };
 
-    public Enumeration getElements() { 
+    public Enumeration getElements() {
 	return new MEnumeration( hash1 );
     }
 
@@ -521,7 +521,21 @@ public class BasicAlignment implements Alignment {
      */
     public Alignment compose(Alignment align) throws AlignmentException {
 	BasicAlignment result = new BasicAlignment();
-	result.init(onto1,onto2);
+	result.init(onto1,((BasicAlignment) align).getOntologyObject2());
+	// TODO type and level
+	// TODO extension
+	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
+		Cell c1 = (Cell) e.nextElement();
+		Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
+		if (cells2 !=null) {
+			for (Cell c2 : cells2) {
+				Cell newCell = c1.compose(c2);
+				if (newCell != null) {
+					result.addCell(newCell);
+				}
+			}
+		}
+	}
 	return result;
     }
 
