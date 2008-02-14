@@ -43,11 +43,12 @@ import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 
 public class OfflineAlign {
 	
-   String matchAndExportAlign (int alignId, String method, String selectedNeOnOnto1, String selectedNeOnOnto2, String proj) {	 
+   String matchAndExportAlign (String method, String selectedNeOnOnto1, String selectedNeOnOnto2) {	 
+	  
 	  //export ontologies
       ImportExportControl ieControl = new ImportExportControl();
-      Integer name1 = new Integer(alignId);  
-	  Integer name2 = new Integer(alignId);
+      Integer name1 = new Integer(SWTInterface.alignId++);  
+	  Integer name2 = new Integer(SWTInterface.alignId++);
 	  File f1 = new File("onto-" + name1.toString() + ".owl");
 	  File f2 = new File("onto-" + name2.toString() + ".owl");
 	  String fname1 = "file:" + f1.getAbsolutePath();
@@ -66,9 +67,10 @@ public class OfflineAlign {
       
       Parameters p = new BasicParameters();
       AlignmentProcess A1 = null;
-      String htmlString = null;
-      Vector corrList = new Vector();
-	  
+      //String htmlString = null;
+      //Vector corrList = new Vector();
+      Integer name = new Integer(SWTInterface.alignId++);
+      
       try {
   	
     	  Vector<URI> uris = new Vector<URI>();
@@ -85,10 +87,12 @@ public class OfflineAlign {
 	   
 
 	  	A1.align((Alignment)null,p);
-
+	  	
+	  	SWTInterface.alignObjects.clear();
+	  	SWTInterface.alignObjects.add(A1);
 	  
-	  //for exporting to NeonToolkit
-	  	Integer name = new Integer(alignId++);
+	  	//for exporting to NeonToolkit
+	  	
 	  
 	  	FileWriter owlF = new FileWriter(new File( "align-" + name.toString()+ ".owl" ));
 	  	AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
@@ -117,19 +121,18 @@ public class OfflineAlign {
 		  	if(i != ss2.length-1 ) s3 = s3  + "xmlns";
 	  	}
 		
-	  	try {
-			File owlFile = new File( "align-" + name.toString()+ ".owl"  );
-			FileWriter out = new FileWriter( owlFile );
-			out.write( s3 + s2 );
+	  	
+		File owlFile = new File( "align-" + name.toString()+ ".owl"  );
+		FileWriter out = new FileWriter( owlFile );
+		out.write( s3 + s2 );
 			//out.write( answer );
-			out.close();  
-	  	} 
-		catch ( Exception ex ) { ex.printStackTrace();};
+		out.close();  
+	  	 
 
 	  	
-	  	String[] importedModules = ieControl.importFileSystem(proj, "align-" + name.toString()+ ".owl", null, null);
-	  	ieControl.addOntologies2Project(importedModules, proj);
-	  
+	  	//String[] importedModules = ieControl.importFileSystem(proj, "align-" + name.toString()+ ".owl", null, null);
+	  	//ieControl.addOntologies2Project(importedModules, proj);
+	    
 	  	//for displaying
 	  	FileWriter htmlF = new FileWriter( "align.html" );
 	  	AlignmentVisitor V1 = new HTMLRendererVisitor(
@@ -138,18 +141,80 @@ public class OfflineAlign {
 	  	A1.render(V1);
 	  	htmlF.close();
 	  
-	  	htmlString = fileToString(new File ("align.html"));
-	  
-	  	//System.out.println("htmlString =" + htmlString);
-	  
-	  	
-	  
 	  } catch ( Exception ex ) { ex.printStackTrace(); };
 	  
-	  return htmlString;
+	  return "align-" + name.toString()+ ".owl";
    }
    
-   private String fileToString(File f){
+   
+   String trimAndExportAlign (Double thres) {	 
+		  
+	  
+	      //String htmlString = null;
+	      //Vector corrList = new Vector();
+	      Integer name = new Integer(SWTInterface.alignId++);
+	      
+	      AlignmentProcess A1 = SWTInterface.alignObjects.get(0);
+	      
+	      try {
+	    	 
+	      A1.cut(thres);
+	      SWTInterface.alignObjects.clear();
+		  SWTInterface.alignObjects.add(A1);
+	       
+		  	
+		  
+		  FileWriter owlF = new FileWriter(new File( "align-" + name.toString()+ ".owl" ));
+		  AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
+				     
+		  A1.render(V);
+		  owlF.close();
+		
+		  	
+		  String str1 =  fileToString(new File("align-" + name.toString()+ ".owl") );
+			 
+			
+			//Add URI to OWL file : rethink !!!
+		  File f0 = new File( "align-" + name.toString()+ ".owl" );
+		  String s1 = str1.substring(0, str1.indexOf('>') + 1 );
+		  String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
+			
+		  String[] ss2 = s1.split("xmlns");
+		  String s3 = "<?xml version=\"1.0\"?>\n" + ss2[0] + " ";
+	     						
+		  s3 = s3 + "xmlns=\"" + "file:" + f0.getAbsolutePath() + "#\"\n ";
+		  s3 = s3 + "xml:base=\"" + "file:" + f0.getAbsolutePath() + "\"\n ";
+		  s3 = s3 + "xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n " + "xmlns";
+			
+		  for(int i=2; i<ss2.length;i++) {
+				s3 = s3 + ss2[i];
+			  	if(i != ss2.length-1 ) s3 = s3  + "xmlns";
+		  	}
+			
+		  
+				File owlFile = new File( "align-" + name.toString()+ ".owl"  );
+				FileWriter out = new FileWriter( owlFile );
+				out.write( s3 + s2 );
+				//out.write( answer );
+				out.close();  
+		  	
+		 
+		    
+		  	//for displaying
+		  FileWriter htmlF = new FileWriter( "align.html" );
+		  AlignmentVisitor V1 = new HTMLRendererVisitor(
+				    new PrintWriter ( htmlF ) );
+		  
+		  A1.render(V1);
+		  htmlF.close();
+		  
+		  } 
+		  catch ( Exception ex ) { ex.printStackTrace();};
+		  
+		  return "align-" + name.toString()+ ".owl";
+	   }
+   
+   public static String fileToString(File f){
 	    String texto = "";
 	int i=0;
 	try{

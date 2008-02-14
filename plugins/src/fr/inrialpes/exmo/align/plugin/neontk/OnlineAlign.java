@@ -57,6 +57,43 @@ public class OnlineAlign {
 	    	//ws = new AlignmentClient(htmlPort, host);
 	    }
 	    
+	    public String trimAlign(String alignId, String thres) {
+	    	
+			String answer = null;
+			try {
+				// Read parameters
+				 
+				Parameters params = new BasicParameters();
+				params.setParameter( "host", HOST );
+				//params.setParameter( "http", PORT );
+				//params.setParameter( "wsdl", WSDL );
+				params.setParameter( "command","trim");
+				params.setParameter( "arg1",alignId);
+				params.setParameter( "arg2",thres);
+					
+				// Create the SOAP message
+				String message = createMessage( params );
+				  
+				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				System.out.println("Message :"+ message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+				System.out.println("Trim Align="+ answer);
+			}
+			catch ( Exception ex ) { ex.printStackTrace(); };
+			
+			if(connected == false) {
+					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
+					return null;
+				} 
+			else	{
+				   
+				return answer;
+			}
+			
+	    }
+	    
 	    public String getMethods() {
 	    	
 			String answer = null;
@@ -70,6 +107,77 @@ public class OnlineAlign {
 				//params.setParameter( "wsdl", WSDL );
 				params.setParameter( "command","list");
 				params.setParameter( "arg1","methods");
+					
+				// Create the SOAP message
+				String message = createMessage( params );
+				  
+				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				System.out.println("Message :"+ message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+			}
+			catch ( Exception ex ) { ex.printStackTrace(); };
+			
+			if(connected == false) {
+					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
+					return null;
+				} 
+			else	{
+				   
+				return answer;
+			}
+				 
+			
+	    }
+	    
+	    public String findAlignForOntos(String onto1, String onto2) {
+	    	
+			String answer = null;
+		     
+			try {
+				// Read parameters 
+				Parameters params = new BasicParameters();
+				params.setParameter( "host", HOST );
+				//params.setParameter( "http", PORT );
+				//params.setParameter( "wsdl", WSDL );
+				params.setParameter( "command","find");
+				params.setParameter( "arg1", onto1);
+				params.setParameter( "arg2", onto2);	
+				// Create the SOAP message
+				String message = createMessage( params );
+				  
+				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				System.out.println("Message :"+ message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+			}
+			catch ( Exception ex ) { ex.printStackTrace(); };
+			
+			if(connected == false) {
+					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
+					return null;
+				} 
+			else	{
+				   
+				return answer;
+			}
+	    }
+	    
+	    public String getAllAlign() {
+	    	
+			String answer = null;
+		     
+			try {
+				// Read parameters
+				 
+				Parameters params = new BasicParameters();
+				params.setParameter( "host", HOST );
+				//params.setParameter( "http", PORT );
+				//params.setParameter( "wsdl", WSDL );
+				params.setParameter( "command","list");
+				params.setParameter( "arg1","alignments");
 					
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -113,9 +221,6 @@ public class OnlineAlign {
 				
 			    try {
 			    	// Read parameters
-			 
-			    	 
-			
 			    	// Create the SOAP message
 			    	String message = createMessage( params );
 			  
@@ -162,24 +267,34 @@ public class OnlineAlign {
 			
 			// Send message
 			answer = sendMessage( message, params );
-		} catch ( Exception ex ) { ex.printStackTrace(); System.out.println("problem  of align. retrieve");};
+			
+			System.out.println("OwlAlign="+ answer);
+			
+		} catch ( Exception ex ) { ex.printStackTrace();  };
 			 
 			 
 			// Cut SOAP header
 		String []  cutResult = answer.split("result");
+		
+		if(cutResult==null) return null;
 			
 		String str = "";
 			
 		for(int i= 0; i< cutResult.length; i++){
-					if(i >= 1 && i <= cutResult.length -2)
+		  	
+			if(i >= 1 && i <= cutResult.length -2)
 					str = str + cutResult[i];
-				}
+		}
 			
+		//System.out.println("OwlAlign STR ="+ str);
+		
+		if(str.equals("")) return null;
+		
 		String str1 = str.substring(1, str.length() - 3);
 			
 			//extract id from "alid" 
-		String []  sali = alignId.split("/");
-		String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
+		//String []  sali = alignId.split("/");
+		//String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
 			
 			
 			//Add URI to OWL file : rethink !!!
@@ -231,17 +346,52 @@ public class OnlineAlign {
 				// Send message
 				answer = sendMessage( message, params );
 				 
-				  
 				//corrList = getCorresFromAnswer( answer, "tr", "#" );
-				 
-				
 		    	
 			}
-			catch ( Exception ex ) { ex.printStackTrace(); System.out.println("problem  of align. retrieve");};
+			catch ( Exception ex ) { ex.printStackTrace();  };
 			
 			return answer;
 			
-	   }  
+	   }
+	    
+	    public String storeAlign(String alignId) {
+			
+	    	//retrieve alignment for displaying
+			
+			Parameters params = new BasicParameters();
+			params.setParameter( "host", HOST );
+			//params.setParameter( "http", PORT );
+			//params.setParameter( "wsdl", WSDL );
+			params.setParameter( "command","store");
+			params.setParameter( "arg1", alignId);
+			 
+			 
+			String answer = null;
+			
+			try {
+				// Read parameters
+				 
+				//Parameters params = ws.readParameters( aservArgRetrieve );
+				
+				// Create the SOAP message
+				String message = createMessage( params );
+				  
+				System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
+				System.out.println("Message :"+ message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+				 
+				System.out.println("Store Align="+ answer);
+				//corrList = getCorresFromAnswer( answer, "tr", "#" );
+		    	
+			}
+			catch ( Exception ex ) { ex.printStackTrace() ;};
+			
+			return answer;
+			
+	   }  	
 	    
 	    public String createMessage( Parameters params ) throws Exception {
 	        String messageBegin = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
@@ -301,7 +451,7 @@ public class OnlineAlign {
 		    String thres = (String)params.getParameter( "arg2" );
 		    if ( thres == null ){
 			//usage();
-			System.exit(-1);
+			//System.exit(-1);
 		    }
 		    String method = null;
 		    String arg3 = (String)params.getParameter( "arg3" );
@@ -316,7 +466,7 @@ public class OnlineAlign {
 		    String uri = (String)params.getParameter( "arg1" );
 		    if ( uri == null ){
 			//usage();
-			System.exit(-1);
+			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("store" ) ) {
@@ -324,7 +474,7 @@ public class OnlineAlign {
 		    String uri = (String)params.getParameter( "arg1" );
 		    if ( uri == null ){
 			//usage();
-			System.exit(-1);
+			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("load" ) ) {
@@ -363,7 +513,7 @@ public class OnlineAlign {
 		    String method = (String)params.getParameter( "arg2" );
 		    if ( method == null ){
 			//usage();
-			System.exit(-1);
+			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
 		} else if ( cmd.equals("metadata" ) ) {
@@ -372,12 +522,12 @@ public class OnlineAlign {
 		    String key = (String)params.getParameter( "arg2" );
 		    if ( key == null ){
 			//usage();
-			System.exit(-1);
+			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid><key>"+key+"</key>";
 		} else {
 		    //usage();
-		    System.exit(-1);
+		    //System.exit(-1);
 		}
 			// Create input message and URL
 		String messageEnd = "</SOAP-ENV:Body>"+"</SOAP-ENV:Envelope>";
@@ -400,7 +550,7 @@ public class OnlineAlign {
 
 	            byte[] b = message.getBytes();
 
-	    	// Create HTTP Request
+	            // Create HTTP Request
 	            httpConn.setRequestProperty( "Content-Length",
 	                                         String.valueOf( b.length ) );
 	            httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
