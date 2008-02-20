@@ -300,7 +300,10 @@ public class AlignmentService {
 		    params.setParameter( "wsdl", WSDL );
 		};
 		// The WSDL extension requires HTTP server (and the same one).
-		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
+		// Put the default port, may be overriden
+		if ( params.getParameter( "http" ) == null )
+		    params.setParameter( "http", HTML );
+		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", HTML );
 		break;
 	    case 'P' :
 		/* JXTA Server + port */
