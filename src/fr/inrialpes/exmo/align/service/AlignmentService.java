@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -142,7 +142,6 @@ public class AlignmentService {
 	    }
 	    services.put( name, serv );
 	}
-	/*
 	// [Directory]: register to directories
 	for ( Enumeration e = directories.keys() ; e.hasMoreElements() ; ) {
 	    String name = (String)e.nextElement();
@@ -160,7 +159,6 @@ public class AlignmentService {
 	    }
 	    directories.put( name, dir );
 	}
-	*/
 
 	// Wait loop
 	while ( true ) {
@@ -170,7 +168,6 @@ public class AlignmentService {
     }
 
     protected void close(){
-	/*
 	if (debug > 0 ) System.err.println("Shuting down server");
 	// [Directory]: unregister to directories
 	for ( Enumeration e = directories.elements() ; e.hasMoreElements() ; ) {
@@ -181,7 +178,6 @@ public class AlignmentService {
 		ex.printStackTrace();
 	    }
 	}
-	*/
 	// Close services
 	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
 	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
@@ -302,7 +298,9 @@ public class AlignmentService {
 		    params.setParameter( "wsdl", arg );
 		} else {
 		    params.setParameter( "wsdl", WSDL );
-		}		    
+		};
+		// The WSDL extension requires HTTP server (and the same one).
+		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
 		break;
 	    case 'P' :
 		/* JXTA Server + port */
@@ -318,7 +316,7 @@ public class AlignmentService {
 		params.setParameter( "host", g.getOptarg() );
 		break;
 	    case 'O' :
-		/* Oyster directory + port */
+		/* [JE: Currently not working]: Oyster directory + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
 		    params.setParameter( "oyster", arg );
@@ -328,7 +326,7 @@ public class AlignmentService {
 		directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", params.getParameter( "oyster" ) );
 		break;
 	    case 'U' :
-		/* UDDI directory + port */
+		/* [JE: Currently not working]: UDDI directory + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
 		    params.setParameter( "uddi", arg );
