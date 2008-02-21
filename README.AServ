@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      21/10/2006, version 3.0+                       #
+#                      21/02/2008, version 3.1+                       #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
@@ -17,12 +17,16 @@ for the firewalls to open these ports:
     	default	  option  open?
 HTTP	8089	  -H	  Y
 Jade	8888	  -A
-//	1099			? (RMI)
-	7778			Y (MTP HTTP)
+//	1099		  ? (RMI) 
+	7778		  Y (MTP HTTP)
 WSDL	7777	  -W
 JXTA	6666	  -P
+Oyster	1099	  -O	  Y (RMI/Kaon2)
 
 mysql	3306	--dbmsport	No if on the same machine
+
+Both Jade and Oyster/Kaon2 use rmi connection and the default 1099 port.
+Moreover, concerning Oyster, this port must be open to the outside.
 
 MYSQL FOR THE FIRST TIME
 ------------------------
@@ -52,6 +56,28 @@ LAUNCHING MYSQL AND LOADING SAMPLE DATABASE
 The next time it is sufficient that mysql is running... (with the database loaded)
 
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+
+LAUNCHING THE ALIGNMENT SERVER WITH OYSTER REGISTERY
+----------------------------------------------------
+
+The alignment API is already compiled with Oyster support. However, it is not ready to be launched. The instructions to do so are:
+
+1) get the Oyster2 package from www.ontoware.org
+2) copy the four libraries in lib/ (or at least in the classpath)
+3) copy the O2serverfiles directory
+4) copy the "new store" config file
+5) edit the "new store" config file for it to use the correct environent
+6) launch kaon2.jar
+
+java -cp lib/kaon2.jar org.semanticweb.kaon2.server.ServerMain -registry -rmi -ontologies O2serverfiles
+
+[use -registryport for using another port than 1099,
+ then the "new store" configuration file must be edited]
+
+7) launch the server
+
+java -jar lib/alignsvc.jar -O -d 4
+
 
 RUNNING THE ALIGNMENT SERVER
 ----------------------------
