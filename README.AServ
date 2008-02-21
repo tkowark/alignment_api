@@ -62,7 +62,7 @@ LAUNCHING THE ALIGNMENT SERVER WITH OYSTER REGISTERY
 
 The alignment API is already compiled with Oyster support. However, it is not ready to be launched. The instructions to do so are:
 
-1) get the Oyster2 package from www.ontoware.org
+1) get the Oyster2 package from http://ontoware.org/projects/oyster2
 2) copy the four libraries in lib/ (or at least in the classpath)
 3) copy the O2serverfiles directory
 4) copy the "new store" config file
