@@ -246,8 +246,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
 	    msg += "<storeResponse>";
-
-	    getParameter( domMessage, message, params, "id", "id" );
+		//CLD: the fourth parameter : "id" -> "alid"
+	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
