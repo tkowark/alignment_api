@@ -76,11 +76,13 @@ public class OWLAPIAlignment extends BasicAlignment {
 	     || (o1 instanceof Ontology && o2 instanceof Ontology) ){
 	    super.init( o1, o2, ontologies );
 	} else if ( o1 instanceof URI && o2 instanceof URI ) {
-	    // JE: This contains the File and not the URI!
+	    // The URI is set below
 	    setFile1( (URI)o1 );
 	    setFile2( (URI)o2 );
+	    // JE: newOnto ---
 	    ((Ontology)onto1).setFormalism( "OWL1.0" );
 	    ((Ontology)onto2).setFormalism( "OWL1.0" );
+	    // JE: newOnto ---
 	    try {
 		URI u = new URI("http://www.w3.org/2002/07/owl#");
 		((Ontology)onto1).setFormURI( u );
@@ -89,6 +91,9 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    try {
 		super.init( loadOntology( (URI)o1, cache ),
 			    loadOntology( (URI)o2, cache ) );
+		// Not sure it should be here or in super.init()
+		onto1.setURI( ((OWLOntology)(onto1.getOntology())).getLogicalURI() );
+		onto2.setURI( ((OWLOntology)(onto1.getOntology())).getLogicalURI() );
 	    } catch (OWLException e) {
 		throw new AlignmentException( "Cannot load ontologies", e );
 	    } catch (SAXException e) {
@@ -114,39 +119,50 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
     }
 
-    public URI getOntology1URI() throws AlignmentException {
-	try {
+    // JE: --- post-3.1
+    public URI getOntology1URI() //throws AlignmentException 
+{
+	//try {
 	    // JE: OWMG1
-	    return ((OWLOntology)(onto1.getOntology())).getLogicalURI();
-	} catch ( OWLException e ) {
-	    throw new AlignmentException( "URI conversion error for "+onto1, e );
-	}
+	    //return ((OWLOntology)(onto1.getOntology())).getLogicalURI();
+	    return onto1.getURI();
+	    //} catch ( OWLException e ) {
+	    //throw new AlignmentException( "URI conversion error for "+onto1, e );
+	    //}
     };
 
-    public URI getOntology2URI() throws AlignmentException {
-	try {
+    // JE: --- post-3.1
+    public URI getOntology2URI() //throws AlignmentException 
+    {
+	//try {
 	    // JE: OWMG1
-	    return ((OWLOntology)(onto2.getOntology())).getLogicalURI();
-	} catch ( OWLException e ) {
-	    throw new AlignmentException( "URI conversion error for "+onto2, e );
-	}
+	    //return ((OWLOntology)(onto2.getOntology())).getLogicalURI();
+	    return onto2.getURI();
+	    //} catch ( OWLException e ) {
+	    //throw new AlignmentException( "URI conversion error for "+onto2, e );
+	    //}
     };
 
-    public void setOntology1(Object ontology) throws AlignmentException {
-	if ( ontology instanceof OWLOntology ){
-	    super.setOntology1( ontology );
-	} else {
-	    throw new AlignmentException("arguments must be OWLOntology");
-	};
-    };
+    // JE: --- post-3.1
+    //public void setOntology1(Object ontology) throws AlignmentException {
+	//if ( ontology instanceof OWLOntology ){
+	//super.setOntology1( ontology );
+	//onto1.setOntology( ontology );
+	    //} else {
+	    //throw new AlignmentException("arguments must be OWLOntology");
+	    //};
+    //};
 
-    public void setOntology2(Object ontology) throws AlignmentException {
-	if ( ontology instanceof OWLOntology ){
-	    super.setOntology2( ontology );
-	} else {
-	    throw new AlignmentException("arguments must be OWLOntology");
-	};
-    };
+    // JE: --- post-3.1
+    //public void setOntology2(Object ontology) throws AlignmentException {
+	// JE: tonewOnto
+	//if ( ontology instanceof OWLOntology ){
+	//super.setOntology2( ontology );
+	//onto2.setOntology( ontology );
+	//} else {
+	//throw new AlignmentException("arguments must be OWLOntology");
+	//};
+    //};
 
     /** Cell methods **/
     public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure, Parameters extensions ) throws AlignmentException {
@@ -192,7 +208,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 
     // Deprecated: implement as the one retrieving the highest strength correspondence (
     public Cell getAlignCell1(Object ob) throws AlignmentException {
-	if ( BasicAlignment.STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("deprecated (use getAlignCells1 instead)");
 	} else {
 	    if ( ob instanceof OWLEntity ){
@@ -204,7 +220,7 @@ public class OWLAPIAlignment extends BasicAlignment {
     }
 
     public Cell getAlignCell2(Object ob) throws AlignmentException {
-	if ( BasicAlignment.STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("deprecated (use getAlignCells2 instead)");
 	} else {
 	    if ( ob instanceof OWLEntity ){
@@ -234,7 +250,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	align.getExtensions().unsetParameter( ALIGNNS+"id" );
+	align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }
@@ -295,6 +311,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return alignment;
     }
 
+    // JE: newOnto ---
     private static OWLEntity getEntity( OWLOntology ontology, URI uri ) throws OWLException, SAXException {
 	OWLEntity result = (OWLEntity)ontology.getClass( uri );
 	if ( result == null ) result = (OWLEntity)ontology.getDataProperty( uri );
@@ -303,6 +320,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return result;
     }
 
+    // JE: newOnto ---
     /** Can be used for loading the ontology if it is not available **/
     //private static OWLOntology loadOntology( URI ref, Hashtable ontologies ) throws SAXException, OWLException {
     private static OWLOntology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, OWLException {
