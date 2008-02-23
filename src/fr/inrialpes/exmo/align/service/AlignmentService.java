@@ -123,7 +123,7 @@ public class AlignmentService {
 	if ( debug > 0 ) System.err.println("Database connected");
 
 	// Create a AServProtocolManager
-	manager = new AServProtocolManager();
+	manager = new AServProtocolManager( directories );
 	manager.init( connection, params );
 	if ( debug > 0 ) System.err.println("Manager created");
 
@@ -145,9 +145,7 @@ public class AlignmentService {
 	// [Directory]: register to directories
 	for ( Enumeration e = directories.keys() ; e.hasMoreElements() ; ) {
 	    String name = (String)e.nextElement();
-	    System.err.println( name );
 	    Class dirClass = Class.forName(name);
-	    System.err.println( dirClass );
 	    java.lang.reflect.Constructor constructor = dirClass.getConstructor( (Class[])null );
 	    Directory dir = (Directory)constructor.newInstance( (Object[])null );
 	    try {
@@ -391,6 +389,8 @@ public class AlignmentService {
 	System.err.println("\t--jade[=port] -A[port]\t\t\tLaunch Agent service");
 	System.err.println("\t--wsdl[=port] -W[port]\t\t\tLaunch Web service");
 	System.err.println("\t--jxta[=port] -P[port]\t\t\tLaunch P2P service");
+	System.err.println("\t--oyster -O\t\t\tRegister to Oyster directory");
+	//System.err.println("\t--uddi -U\t\t\tRegister to Oyster directory");
 	System.err.println("\t--serv=class -i class\t\t\tLaunch service corresponding to fully qualified classname");
 	//System.err.println("\t--params=filename -p filename\tReads parameters from filename");
 	System.err.println("\t--output=filename -o filename\tRedirect output to filename");
