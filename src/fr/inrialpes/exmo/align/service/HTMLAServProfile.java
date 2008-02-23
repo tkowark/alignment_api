@@ -21,7 +21,7 @@
 package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.Annotations;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
@@ -353,7 +353,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
         if ( perf.equals("listalignments") ){
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID );
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+id+"</a></li>";
 	    }
 	    msg += "</ul>";
@@ -437,7 +437,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment id:  <select name=\"id\">";
 	    // JE: only those non stored please (retrieve metadata + stored)
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		params.setParameter("id", id);
 		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
 		msg += "<option value=\""+id+"\">"+id+"</option>";
@@ -470,7 +470,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg ="<h1>Trim alignments</h1><form action=\"cut\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
@@ -491,7 +491,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg ="<h1>Inverse alignment</h1><form action=\"inv\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
@@ -515,11 +515,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br />Initial alignment id:  <select name=\"id\"><option value=\"\" selected=\"1\"></option>";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
-	    msg += "<input type=\"submit\" name=\"action\" value=\"Match\"/>  <input type=\"checkbox\" name=\"force\" /> Force<br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Match\"/>";
+	    msg += "  <input type=\"checkbox\" name=\"force\" /> Force <input type=\"checkbox\" name=\"async\" /> Asynchronous<br />";
 	    msg += "Additional parameters:<br /><input type=\"text\" name=\"paramn1\" size=\"15\"/> = <input type=\"text\" name=\"paramv1\" size=\"65\"/><br /><input type=\"text\" name=\"paramn2\" size=\"15\"/> = <input type=\"text\" name=\"paramv2\" size=\"65\"/><br /><input type=\"text\" name=\"paramn3\" size=\"15\"/> = <input type=\"text\" name=\"paramv3\" size=\"65\"/><br /><input type=\"text\" name=\"paramn4\" size=\"15\"/> = <input type=\"text\" name=\"paramv4\" size=\"65\"/></form>";
 	} else if ( perf.equals("align") ) {
 	    Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
@@ -543,7 +544,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
@@ -567,7 +568,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
@@ -605,7 +606,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Translate query</h1><form action=\"translate\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />";
@@ -625,7 +626,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";

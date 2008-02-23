@@ -38,7 +38,7 @@ import java.sql.Statement;
 import java.sql.SQLException;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
@@ -70,7 +70,6 @@ public class CacheImpl {
        310: changed extension table with added URIs and method -> val 
      */
 
-    Statement st = null; // JE: not sure that this should persist
     Connection conn = null;
 	
     final int CONNECTION_ERROR = 1;
@@ -87,7 +86,6 @@ public class CacheImpl {
     public CacheImpl( DBService service ) {
 	try {
 	    this.conn = service.getConnection();
-	    st = (Statement) conn.createStatement();
 	} catch(Exception e) {
 	    // Rather raise an exception
 	    System.err.println(e.toString());
@@ -103,6 +101,7 @@ public class CacheImpl {
     public void init( Parameters p ) throws SQLException, AlignmentException {
 	port = (String)p.getParameter("http"); // bad idea
 	host = (String)p.getParameter("host");
+	Statement st = (Statement) conn.createStatement();
 	// test if a database is here, otherwise create it
 	ResultSet rs = (ResultSet)st.executeQuery("SHOW TABLES LIKE 'server'");
 	if ( !rs.next() ) {
@@ -117,6 +116,7 @@ public class CacheImpl {
     }
 
     public void close() throws SQLException  {
+	Statement st = (Statement) conn.createStatement();
 	// unregister by the database
 	st.executeUpdate("DELETE FROM server WHERE host='"+host+"' AND port='"+port+"'");
     }
@@ -143,6 +143,7 @@ public class CacheImpl {
 	String id = null;
 	Alignment alignment = null;
 	Vector idInfo = new Vector();
+	Statement st = (Statement) conn.createStatement();
 	
 	if (force) {
 	    // Retrieve the alignment ids
@@ -178,6 +179,7 @@ public class CacheImpl {
 	Alignment result = new URIAlignment();
 		
 	try {
+	    Statement st = (Statement) conn.createStatement();
 	    // Get basic ontology metadata
 	    query = "SELECT * FROM alignment WHERE id = '" + id  +"'";
 	    rs = (ResultSet) st.executeQuery(query);
@@ -225,6 +227,8 @@ public class CacheImpl {
 	URI ent1 = null, ent2 = null;
 	Cell cell = null;
 
+	Statement st = (Statement) conn.createStatement();
+
 	alignment.setOntology1( new URI( alignment.getExtension( SVCNS, OURI1 ) ) );
 	alignment.setOntology2( new URI( alignment.getExtension( SVCNS, OURI2 ) ) );
 
@@ -260,8 +264,9 @@ public class CacheImpl {
 
 	return alignment;
     }
-
-    private String generateAlignmentId() {
+    
+    // Public because this is now used by AServProtocolManager
+    public String generateAlignmentId() {
 	// Generate an id based on a URI prefix + Date + random number
 	return "http://"+host+":"+port+"/alid/" + new Date().getTime() + "/" + randomNum();
     }
@@ -317,15 +322,16 @@ public class CacheImpl {
 	return (Set)ontologyTable.get( uri );
     }
 
-    public Set getAlignments( URI uri1, URI uri2 ) {
+    public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
 	// Create the set and compare
-	Set result = new HashSet();
-	Set potentials = (Set)ontologyTable.get( uri1 );
+	Set<Alignment> result = new HashSet();
+	Set<Alignment> potentials = (Set<Alignment>)ontologyTable.get( uri1 );
 	if ( potentials != null ) {
+	    String uri2String = uri2.toString();
 	    for( Iterator it = potentials.iterator(); it.hasNext(); ) {
 		Alignment al = (Alignment)it.next();
 		// This is not the best because URI are not resolved here...
-		if ( al.getExtension(SVCNS, OURI2).equals( uri2.toString() ) ) result.add( al );
+		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) result.add( al );
 	    }
 	}
 	return result;
@@ -362,8 +368,8 @@ public class CacheImpl {
      */
     public String recordAlignment( String id, Alignment alignment, boolean force ){
 	// record the Id!
-	if ( alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) == null )
-	    alignment.setExtension(  BasicAlignment.ALIGNNS, BasicAlignment.ID, id );
+	if ( alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) == null )
+	    alignment.setExtension(  Annotations.ALIGNNS, Annotations.ID, id );
 	// Store it
 	try {
 	    URI ouri1 = new URI( alignment.getExtension( SVCNS, OURI1) );
@@ -424,9 +430,8 @@ public class CacheImpl {
 
     public void storeAlignment( String id ) throws Exception {
 	String query = null;
-	Alignment alignment = null;
-
-	alignment = getAlignment( id );
+	Alignment alignment = getAlignment( id );
+	Statement st = (Statement) conn.createStatement();
 
 	// We store stored date
 	alignment.setExtension( SVCNS, STORED, new Date().toString());
@@ -473,7 +478,7 @@ public class CacheImpl {
 		    cellid = c.getId();
 		    if ( cellid != null ){
 			if ( cellid.startsWith("#") ) {
-			    cellid = alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) + cellid;
+			    cellid = alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) + cellid;
 			}
 		    } else if ( c.getExtensions() != null ) {
 			// JE: In case of extensions create an ID
@@ -576,6 +581,7 @@ public class CacheImpl {
     */
 
     public void initDatabase() throws SQLException {
+	Statement st = (Statement) conn.createStatement();
 	// Create tables
 	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), owlontology1 VARCHAR(250), owlontology2 VARCHAR(250), type VARCHAR(5), level VARCHAR(1), file1 VARCHAR(250), file2 VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), primary key (id))");
 	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(5))");
@@ -585,6 +591,7 @@ public class CacheImpl {
     }
 
     public void resetDatabase( boolean force ) throws SQLException, AlignmentException {
+	Statement st = (Statement) conn.createStatement();
 	// Check that no one else is connected...
 	if ( force != true ){
 	    ResultSet rs = (ResultSet) st.executeQuery("SELECT COUNT(*) AS rowcount FROM server WHERE edit=1");
@@ -607,6 +614,7 @@ public class CacheImpl {
     }
 
     public void updateDatabase( ) throws SQLException, AlignmentException {
+	Statement st = (Statement) conn.createStatement();
 	// get the version number
 	ResultSet rs = (ResultSet) st.executeQuery("SELECT version FROM server WHERE port='port'");
 	rs.next();
@@ -636,7 +644,7 @@ public class CacheImpl {
 			    ns = tag.substring( 0, pos+1 );
 			    name = tag.substring( pos+1 );
 			} else {
-			    ns = BasicAlignment.ALIGNNS;
+			    ns = Annotations.ALIGNNS;
 			    name = tag;
 			}
 			System.err.println("  >> "+ns+" : "+name);
