@@ -28,19 +28,19 @@
 
 <!--h2>Version 3.3 (): xx/yy/2008 - O sole mio</h2-->
 
-<!--h2>Version 3.2 (): xx/02/2008 - Blejsko jezero</h2-->
+<!--h2>Version 3.2 (650): xx/02/2008 - Blejsko jezero</h2-->
 <p>
 <ul compact="1">
 <li>Connection to Oyster directory (server)</li>
 <li>Added the opportunity to run matchers asynchronously (server)</li>
 <li>Made sure that http server is launched when wsdl option is chosen
-  (service)</li>
+  (server)</li>
 <li>Moved NeOn toolkit plugin in the plugins/neon (plugin)</li>
 <li>Cleaned-up working NeOn plug-in (plugin)</li>
 <li>Introduced abstract directories (server)</li>
-<li>Reinstated the possibility to use old namespace in the parser (parser)</li>
+<li>Reinstated the possibility to use the old namespace in the parser (parser)</li>
 <li>Corrected a bug that prevented to store alignments in Web service
-  interface (service)</li>
+  interface (server)</li>
 <li>Created an Annotation class for storing static strings (impl)</li>
 <li>Enriched Ontology objects (impl)</li>
 <li>Progressed in the implementation of alignment composition (impl)</li>
@@ -59,7 +59,7 @@ For better conforming with RDF practice, we have
 <li>Modified the extension mechanism so that getExtension and
   setExtension take a namespace URI as first argument (api).</li>
 <li>Modified the service database extension format for recording this
-  URI (service).</li>
+  URI (server).</li>
 </ul></p>
 
 <p>
@@ -74,24 +74,24 @@ Other improvements include:
   implementation of ontology descriptions (format/parser/impl)</li>
 <li>Modified the Alignement namespace by adding a '#'(format)</li>
 <li>Separated namespace from pName in extension keys</li>
-<li>Added Web Service Alignment server profile (service)</li>
-<li>Multithreaded matching in Services (service)</li>
+<li>Added Web Service Alignment server profile (server)</li>
+<li>Multithreaded matching in Services (server)</li>
 <li>Got rid of the property file for wordnet (ling)</li>
-<li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (service)</li>
-<li>Suppressed all printouts (Jade or Jetty logging) (service)</li>
-<li>Added file logging option (service)</li>
-<li>Added the inverse operation (service)</li>
-<li>Completely rewritten autodetection of renderers and methods in server (service)</li>
+<li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (server)</li>
+<li>Suppressed all printouts (Jade or Jetty logging) (server)</li>
+<li>Added file logging option (server)</li>
+<li>Added the inverse operation (server)</li>
+<li>Completely rewritten autodetection of renderers and methods in server (server)</li>
 <li>Modified interface of embedded methods</li>
 <li>Added guarantee that results displayed by <tt>GroupEval</tt> be sorted
   (thanks Vassilis Spiliopoulos) (util)</li>
 <li>Added namespace support in BasicAlignment (impl)</li>
-<li>Forced trailing slash in HTML menu URLs (service)</li>
-<li>Added fetching alignments from URIs (service)</li>
-<li>Changed for Jetty as an embedded HTTP server (service)</li>
-<li>Implemented alignment upload (service)</li>
+<li>Forced trailing slash in HTML menu URLs (server)</li>
+<li>Added fetching alignments from URIs (server)</li>
+<li>Changed for Jetty as an embedded HTTP server (server)</li>
+<li>Implemented alignment upload (server)</li>
 <li>Corrected an error on "force"-ing alignment in Server/HTML (was
-  inverted) (service)</li>
+  inverted) (server)</li>
 <li>Corrected a bug concerning extension namespaces (impl)</li>
 <li>Corrected a bug in the DistanceAlignment Hungarian method
   extraction (impl)</li>
