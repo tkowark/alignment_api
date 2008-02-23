@@ -144,7 +144,7 @@ public class BasicCell implements Cell, Comparable {
 		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
 	}
-	result.getExtensions().unsetParameter( BasicAlignment.ALIGNNS+BasicAlignment.ID );
+	result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
 	// The sae should be done for the measure
 	return result;
     }

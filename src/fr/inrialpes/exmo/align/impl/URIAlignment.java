@@ -129,7 +129,7 @@ public class URIAlignment extends BasicAlignment {
 
     // Deprecated: implement as the one retrieving the highest strength correspondence (
     public Cell getAlignCell1(Object ob) throws AlignmentException {
-	if ( BasicAlignment.STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
 	    if ( ob instanceof URI ){
@@ -141,7 +141,7 @@ public class URIAlignment extends BasicAlignment {
     }
 
     public Cell getAlignCell2(Object ob) throws AlignmentException {
-	if ( BasicAlignment.STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
 	    if ( ob instanceof URI ){
@@ -175,7 +175,7 @@ public class URIAlignment extends BasicAlignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
-	align.getExtensions().unsetParameter( ALIGNNS+"id" );
+	align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,10 +72,6 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 	    writer.println("    xmlns:"+namespaces.get(ns)+"=\""+ns+"\"");
 	}
 	writer.println("  >\n");
-	//	writer.println("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"");
-	//writer.println("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
-	//writer.println("    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" ");
-	//writer.println("    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n");	
 
 	for ( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
@@ -99,16 +95,7 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	// This was here for avoiding to treat individuals...
-	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	//try {
-	//    URI entity1URI = ((OWLEntity)cell.getObject1()).getURI();
-	//    if ( ((OWLEntity)onto1.getClass( entity1URI ) != null )
-	//	 || ((OWLEntity)onto1.getDataProperty( entity1URI ) != null)
-	//	 || ((OWLEntity)onto1.getObjectProperty( entity1URI ) != null )) { 
-		cell.getRelation().accept( this );
-		//    }
-		//} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	cell.getRelation().accept( this );
     }
 
     private void collectURIs ( Cell cell ) throws AlignmentException {

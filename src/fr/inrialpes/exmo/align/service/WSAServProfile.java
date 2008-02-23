@@ -21,7 +21,7 @@
 package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.Annotations;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
@@ -219,7 +219,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	} else if ( method.equals("listalignmentsRequest") ) {
 	    msg += "<listalignmentsResponse><alignmentList>";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension(BasicAlignment.ALIGNNS, BasicAlignment.ID);
+		String id = ((Alignment)e.nextElement()).getExtension(Annotations.ALIGNNS, Annotations.ID);
 		msg += "<alid>"+id+"</alid>";
 	    }
 	    msg += "</alignmentList></listalignmentsResponse>";

@@ -29,7 +29,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
@@ -93,7 +93,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	if ( cell.getId() != null ) {
 	    String id = cell.getId();
 	    // Would be useful to test for the Alignment URI
-	    if ( id.startsWith( (String)alignment.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID ) ) ){
+	    if ( id.startsWith( (String)alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) ) ){
 		writer.print("<td>"+id.substring( id.indexOf( '#' ) )+"</td>");
 	    } else {
 		writer.print("<td>"+id+"</td>");

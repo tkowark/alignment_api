@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
- * Copyright (C) CNR Pisa, 2005
+ * Copyright (C) INRIA Rhône-Alpes, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by

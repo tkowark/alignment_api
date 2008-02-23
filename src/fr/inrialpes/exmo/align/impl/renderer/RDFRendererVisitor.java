@@ -30,8 +30,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-// JE: this has been introduced here for the sole purpose of
-// using the namespace facility of BasicAlignment
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
@@ -64,7 +63,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	String extensionString = "";
 	alignment = align;
 	nslist = new Hashtable();
-	nslist.put(BasicAlignment.ALIGNNS,"align");
+	nslist.put(Annotations.ALIGNNS,"align");
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
@@ -84,7 +83,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	}
 	writer.print("<?xml version='1.0' encoding='utf-8");
 	writer.print("' standalone='no'?>\n");
-	writer.print("<rdf:RDF xmlns='"+BasicAlignment.ALIGNNS+"'");
+	writer.print("<rdf:RDF xmlns='"+Annotations.ALIGNNS+"'");
 	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
 	    String k = (String)e.nextElement();
 	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
@@ -99,7 +98,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	}
 	writer.print(">\n");
 	writer.print("<Alignment");
-	String idext = align.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
+	String idext = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
 	if ( idext != null ) {
 	    writer.print(" rdf:about=\""+idext+"\"");
 	}

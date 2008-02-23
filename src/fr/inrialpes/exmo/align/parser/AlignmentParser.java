@@ -55,7 +55,7 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.impl.Ontology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.Annotations;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -312,7 +312,7 @@ public class AlignmentParser extends DefaultHandler {
 		onto1 = new Ontology();
 		onto2 = new Ontology();
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
-		    alignment.setExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID, atts.getValue("rdf:about") );
+		    alignment.setExtension( Annotations.ALIGNNS, Annotations.ID, atts.getValue("rdf:about") );
 		};
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);

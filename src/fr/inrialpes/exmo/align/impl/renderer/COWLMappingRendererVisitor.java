@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -84,7 +84,6 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	//OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
 	writer.print("    <cowl:bridgeRule>\n");
 	cell.getRelation().accept( this );
 	writer.print("    </cowl:bridgeRule>\n");
@@ -166,7 +165,6 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
 	} catch (InvocationTargetException e) { 
 	    e.printStackTrace();
 	}
-	//	} catch (OWLException e) { throw new AlignmentException("Dispatching problem ", e); };
     }
 
     public void printObject( URI uri, OWLOntology onto ) throws OWLException {
