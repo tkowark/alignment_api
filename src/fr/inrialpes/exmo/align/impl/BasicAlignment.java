@@ -61,16 +61,8 @@ public class BasicAlignment implements Alignment {
 	visitor.visit(this);
     }
 
-    public static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
-    public static String METHOD = "method";
-    public static String TIME = "time";
-    public static String ID = "id";
-
     protected Ontology onto1 = null;
     protected Ontology onto2 = null;
-
-    /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
-    protected static boolean STRICT_IMPLEMENTATION = false;
 
     protected int debug = 0;
 
@@ -99,7 +91,7 @@ public class BasicAlignment implements Alignment {
 	hash2 = new Hashtable();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
-	if ( this instanceof AlignmentProcess ) setExtension( ALIGNNS, METHOD, getClass().getName() );
+	if ( this instanceof AlignmentProcess ) setExtension( Annotations.ALIGNNS, Annotations.METHOD, getClass().getName() );
 	onto1 = new Ontology();
 	onto2 = new Ontology();
     }
@@ -291,7 +283,7 @@ public class BasicAlignment implements Alignment {
      * @deprecated
      */
     public Cell getAlignCell1(Object ob) throws AlignmentException {
-	if ( STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
 	    Set s2 = (Set)hash1.get(ob);
@@ -312,7 +304,7 @@ public class BasicAlignment implements Alignment {
     }
 
     public Cell getAlignCell2(Object ob) throws AlignmentException {
-	if ( STRICT_IMPLEMENTATION == true ){
+	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
 	    Set s1 = (Set)hash2.get(ob);
@@ -557,7 +549,7 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	result.getExtensions().unsetParameter( ALIGNNS+"id" );
+	result.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    result.setXNamespace( label, getXNamespace( label ) );
@@ -602,7 +594,7 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	align.getExtensions().unsetParameter( ALIGNNS+"id" );
+	align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );
