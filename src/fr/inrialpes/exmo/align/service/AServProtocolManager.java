@@ -22,6 +22,7 @@
 package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
@@ -87,6 +88,7 @@ public class AServProtocolManager {
 
     OntologyCache loadedOntologies = null;
     OWLRDFErrorHandler handler = null;
+    Hashtable<String,Directory> directories = null;
 
     // This should be stored somewhere
     int localId = 0; // surrogate of emitted messages
@@ -96,7 +98,8 @@ public class AServProtocolManager {
      * Initialization and constructor
      *********************************************************************/
 
-    public AServProtocolManager () {
+    public AServProtocolManager ( Hashtable<String,Directory> dir ) {
+	directories = dir;
     }
 
     public void init( DBService connection, Parameters p ) throws SQLException, AlignmentException {
@@ -195,25 +198,64 @@ public class AServProtocolManager {
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
-    // DONE
     // Implements: align
-    // JE: we should pass an argument "async" in case of asynchronous call
-    // In this case this is easy to implement with only calling :
-    // - id = generateAlignmentId()
-    // - recordNewAlignment( String id, Alignment al, boolean force )
-    // and a bit of multithreading (I guess)
-    // This can be here or in CacheImpl addition
     public Message align(Message mess){
-	Aligner althread = new Aligner( mess );
+	Message result = null;
+	// Do the fast part (retrieve)
+	result = retrieveAlignment( mess );
+	if ( result != null ) return result;
+	String id = alignmentCache.generateAlignmentId();
+
+	Aligner althread = new Aligner( mess, id );
 	Thread th = new Thread(althread);
-	th.start();
-	// Basically if we want to be asynchronous, 
-	// The ID generation part should be out of the thread
-	// The thread should not be waited for completion
-	try{ th.join(); }
-	catch ( InterruptedException is ) {};
-        return althread.getResult();
-	// return A' surrogate
+	// Do the slow part (align)
+	if ( mess.getParameters().getParameter("async") != null ) {
+	    th.start();
+	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	} else {
+	    th.start();
+	    try{ th.join(); }
+	    catch ( InterruptedException is ) {};
+	    return althread.getResult();
+	}
+    }
+
+    private Message retrieveAlignment( Message mess ){
+	Parameters params = mess.getParameters();
+	String method = (String)params.getParameter("method");
+	// find and access o, o'
+	URI uri1 = null;
+	URI uri2 = null;
+	OWLOntology onto1 = null;
+	OWLOntology onto2 = null;
+	try {
+	    uri1 = new URI((String)params.getParameter("onto1"));
+	    uri2 = new URI((String)params.getParameter("onto2"));
+	} catch (Exception e) {
+	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+	};
+	if ( ( onto1 = reachable( uri1 ) ) == null ){
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+	}
+	// Try to retrieve first
+	Set alignments = null;
+	try {
+	    // This is OWLAPI specific but there is no other way...
+	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
+	} catch (OWLException e) {
+	    // Unexpected OWLException!
+	}
+	if ( alignments != null && params.getParameter("force") == null ) {
+	    for ( Iterator it = alignments.iterator(); it.hasNext() ; ){
+		Alignment al = ((Alignment)it.next());
+		if ( al.getExtension( Annotations.ALIGNNS, Annotations.METHOD ).equals(method) )
+		    return new AlignmentId(newId(),mess,myId,mess.getSender(),al.getExtension( Annotations.ALIGNNS, Annotations.ID ),(Parameters)null);
+
+	    }
+	}
+	return (Message)null;
     }
 
     // DONE
@@ -232,7 +274,7 @@ public class AServProtocolManager {
 	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
 	String msg = "";
 	for( Iterator it = alignments.iterator(); it.hasNext(); ){
-	    msg += ((Alignment)it.next()).getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
+	    msg += ((Alignment)it.next()).getExtension( Annotations.ALIGNNS, Annotations.ID );
 	    msg += " ";
 	}
 	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null);
@@ -325,7 +367,6 @@ public class AServProtocolManager {
      * Extended protocol primitives
      *********************************************************************/
 
-    // DONE
     // Implementation specific
     public Message store( Message mess ){
 	String id = mess.getContent();
@@ -334,6 +375,19 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
+	// Retrieve the alignment
+	Alignment al = null;
+	try { al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	}
+	// for all directories...
+	for ( Directory d : directories.values() ){
+	    // Declare the alignment in the directory
+	    try { d.register( al ); }
+	    catch (AServException e) { e.printStackTrace(); }// ignore
+	}
+	// register by them
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
@@ -355,8 +409,8 @@ public class AServProtocolManager {
 	Parameters params = new BasicParameters();
 	params.setParameter( "file1", al.getFile1() );
 	params.setParameter( "file2", al.getFile2() );
-	params.setParameter( BasicAlignment.ALIGNNS+"level", al.getLevel() );
-	params.setParameter( BasicAlignment.ALIGNNS+"type", al.getType() );
+	params.setParameter( Annotations.ALIGNNS+"level", al.getLevel() );
+	params.setParameter( Annotations.ALIGNNS+"type", al.getType() );
 	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
 	    params.setParameter( ((String[])ext)[0]+((String[])ext)[1], ((String[])ext)[2] );
 	}
@@ -663,9 +717,11 @@ public class AServProtocolManager {
     protected class Aligner implements Runnable {
 	private Message mess = null;
 	private Message result = null;
+	private String id = null;
 
-	public Aligner( Message m ) {
+	public Aligner( Message m, String id ) {
 	    mess = m;
+	    this.id = id;
 	}
 
 	public Message getResult() {
@@ -673,65 +729,42 @@ public class AServProtocolManager {
 	}
 
 	public void run() {
-	Parameters params = mess.getParameters();
-	String method = (String)params.getParameter("method");
-	// find and access o, o'
-	URI uri1 = null;
-	URI uri2 = null;
-	OWLOntology onto1 = null;
-	OWLOntology onto2 = null;
-	try {
-	    uri1 = new URI((String)params.getParameter("onto1"));
-	    uri2 = new URI((String)params.getParameter("onto2"));
-	} catch (Exception e) {
-	    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
-	    return;
-	};
-	// find n
-	Alignment init = null;
-	if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
+	    Parameters params = mess.getParameters();
+	    String method = (String)params.getParameter("method");
+	    // find and access o, o'
+	    URI uri1 = null;
+	    URI uri2 = null;
+	    OWLOntology onto1 = null;
+	    OWLOntology onto2 = null;
+
 	    try {
-		//if (debug > 0) System.err.println(" Retrieving init");
+		uri1 = new URI((String)params.getParameter("onto1"));
+		uri2 = new URI((String)params.getParameter("onto2"));
+	    } catch (Exception e) {
+		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+		return;
+	    };
+	    // The unreachability test has already been done
+
+	    // find initial alignment
+	    Alignment init = null;
+	    if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
 		try {
-		    init = alignmentCache.getAlignment( (String)params.getParameter("init") );
+		    //if (debug > 0) System.err.println(" Retrieving init");
+		    try {
+			init = alignmentCache.getAlignment( (String)params.getParameter("init") );
+		} catch (Exception e) {
+			result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
+			return;
+		    }
 		} catch (Exception e) {
 		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
 		    return;
 		}
-	    } catch (Exception e) {
-		result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
-		return;
 	    }
-	}
-	if ( ( onto1 = reachable( uri1 ) ) == null ){
-	    result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
-	    return;
-	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
-	    result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
-	    return;
-	}
-
-	// Try to retrieve first
-	Set alignments = null;
-	try {
-	    // This is OWLAPI specific but there is no other way...
-	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
-	} catch (OWLException e) {
-	    // Unexpected OWLException!
-	}
-	String id = null;
-	if ( alignments != null && params.getParameter("force") == null ) {
-	    for ( Iterator it = alignments.iterator(); it.hasNext() && (id == null); ){
-		Alignment al = ((Alignment)it.next());
-		if ( al.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.METHOD ).equals(method) )
-		    id = al.getExtension( BasicAlignment.ALIGNNS, BasicAlignment.ID );
-	    }
-	}
-	// Otherwise compute
-	if ( id == null ){
+	    
 	    // Create alignment object
 	    try {
-		//Object[] mparams = {(Object)onto1, (Object)onto2 };
 		Object[] mparams = {};
 		if ( method == null )
 		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
@@ -740,22 +773,17 @@ public class AServProtocolManager {
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 		aresult.init( uri1, uri2, loadedOntologies );
-		//aresult.setFile1(uri1);
-		//aresult.setFile2(uri2);
-		// call alignment algorithm
 		long time = System.currentTimeMillis();
 		try {
 		    aresult.align( init, params ); // add opts
-
 		} catch (AlignmentException e) {
 		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
 		    return;
-
 		}
 		long newTime = System.currentTimeMillis();
-		aresult.setExtension( BasicAlignment.ALIGNNS, BasicAlignment.TIME, Long.toString(newTime - time) );
+		aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		// ask to store A'
-		id = alignmentCache.recordNewAlignment( aresult, true );
+		alignmentCache.recordNewAlignment( id, aresult, true );
 	    } catch (ClassNotFoundException e) {
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
 	    } catch (NoSuchMethodException e) {
@@ -769,11 +797,9 @@ public class AServProtocolManager {
 	    } catch (AlignmentException e) {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
 	    }
-	}
-
-	// JE: In non OWL-API-based version, here unload ontologies
-	loadedOntologies.clear(); // not always necessary
-	result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    // JE: In non OWL-API-based version, here unload ontologies
+	    loadedOntologies.clear(); // not always necessary
+	    result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
     }
 
