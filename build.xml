@@ -66,7 +66,7 @@
       <fileset dir="classes" includes="**/*.class"/>
     </delete>
     <antcall target="compile"/>
-    <ant dir="plugins" target="compileall" />
+    <ant dir="plugins/neon" target="compileall" />
   </target>
 
   <!-- tested -->
@@ -159,7 +159,7 @@
        <!--exclude name="org/semanticweb/owl/**"/-->
      </packageset>
      <!-- This works but the classpath is not set correctly -->
-     <!--packageset dir="plugins/src" defaultexcludes="yes">
+     <!--packageset dir="plugins/neon/src" defaultexcludes="yes">
 	 <include name="fr/inrialpes/**"/>
      </packageset-->
      <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
@@ -189,7 +189,7 @@
     <antcall target="compileall"/>
     <antcall target="jar"/>
     <antcall target="javadoc"/>
-    <ant dir="plugins" target="jar">
+    <ant dir="plugins/neon" target="jar">
       <property name="version" value="${version}"/>
     </ant>
     <!-- may be useful to change directory -->
@@ -197,7 +197,7 @@
       <fileset dir=".">
 	<include name="**/*"/>
 	<exclude name="**/.svn"/>
-	<exclude name="plugins/lib"/>
+	<exclude name="plugins/neon/lib"/>
       </fileset>
     </zip>
   </target>

@@ -42,7 +42,7 @@
       <fileset dir="./lib">
 	<include name="*.jar"/>
       </fileset>
-      <fileset dir="../lib">
+      <fileset dir="../../lib">
 	<include name="align.jar"/>
 	<include name="procalign.jar"/>
       </fileset>
@@ -71,13 +71,13 @@
   <!-- tested -->
   <target name="jar" depends="compileall">
     <echo message="Jarchiving..."/>
-    <copy file="../distrib/LICENSE.TXT" tofile="neonalign/LICENSE.TXT" filtering="true"/>
+    <copy file="../../distrib/LICENSE.TXT" tofile="neonalign/LICENSE.TXT" filtering="true"/>
     <copy file="distrib/plugin.xml" tofile="neonalign/plugin.xml" filtering="true"/>
     <copy todir="neonalign/icons" filtering="false">
       <fileset dir="distrib" includes="*.gif"/>
     </copy>
     <copy todir="neonalign/lib">
-      <fileset dir="../lib">
+      <fileset dir="../../lib">
 	<include name="align.jar"/>
 	<include name="alignwn.jar"/>
 	<include name="api.jar"/>
