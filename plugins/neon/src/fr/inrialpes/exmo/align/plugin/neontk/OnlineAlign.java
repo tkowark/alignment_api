@@ -47,16 +47,34 @@ public class OnlineAlign {
 		URL SOAPUrl = null;
 		String SOAPAction = null;
 		
-	    public OnlineAlign(String htmlPort, String host)  {
-	        HOST = host;
-	        PORT = htmlPort;
-	    	try{
+		
+	    public OnlineAlign( String htmlPort, String host)  {
+	    	try {
+	    		HOST = host;
+	    		PORT = htmlPort;
+	    		
 	    		SOAPUrl = new URL( "http://" + host + ":" + htmlPort + "/aserv" );
-	    	}
-	        catch ( Exception ex ) { ex.printStackTrace(); };
-	    	//ws = new AlignmentClient(htmlPort, host);
+	    		
+	    	} catch ( Exception ex ) { ex.printStackTrace(); };
+	    	
 	    }
-	    
+	    /*
+	    public boolean isConnected() {
+	    	boolean conn = true;
+	    	try {
+	    		connection = SOAPUrl.openConnection();
+	    		httpConn = (HttpURLConnection) connection;
+	    		httpConn.setDoOutput(true);
+		        httpConn.setDoInput(true);
+
+		         
+		        OutputStream out = httpConn.getOutputStream();
+	    		 
+	    	} catch ( Exception ex ) { conn = false; ex.printStackTrace(); };
+	    	
+            return conn;
+	    }
+	    */
 	    public String trimAlign(String alignId, String thres) {
 	    	
 			String answer = null;
@@ -79,18 +97,12 @@ public class OnlineAlign {
 				
 				// Send message
 				answer = sendMessage( message, params );
+				
 				System.out.println("Trim Align="+ answer);
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
-			
-			if(connected == false) {
-					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
-					return null;
-				} 
-			else	{
-				   
-				return answer;
-			}
+			if(! connected ) return null; 
+			return answer;
 			
 	    }
 	    
@@ -118,15 +130,9 @@ public class OnlineAlign {
 				answer = sendMessage( message, params );
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
-			
-			if(connected == false) {
-					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
-					return null;
-				} 
-			else	{
-				   
-				return answer;
-			}
+			if(! connected ) return null; 
+			return answer;
+		 
 				 
 			
 	    }
@@ -154,15 +160,10 @@ public class OnlineAlign {
 				answer = sendMessage( message, params );
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
-			
-			if(connected == false) {
-					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
-					return null;
-				} 
-			else	{
+			if(! connected ) return null; 
 				   
-				return answer;
-			}
+		    return answer;
+			 
 	    }
 	    
 	    public String getAllAlign() {
@@ -190,14 +191,10 @@ public class OnlineAlign {
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			
-			if(connected == false) {
-					JOptionPane.showMessageDialog(null, "Impossible Connection !","Warning",2);
-					return null;
-				} 
-			else	{
+			if(! connected ) return null; 
 				   
-				return answer;
-			}
+			return answer;
+			 
 				 
 			
 	    }
@@ -234,7 +231,7 @@ public class OnlineAlign {
 			    	System.out.println("alignId="+ answer);
 			    }
 			    catch ( Exception ex ) { ex.printStackTrace(); };
-		
+			    if(! connected ) return null; 
 			    return answer;
 			 
 	    }
@@ -267,6 +264,7 @@ public class OnlineAlign {
 			
 			// Send message
 			answer = sendMessage( message, params );
+			if(! connected ) return null; 
 			
 			System.out.println("OwlAlign="+ answer);
 			
@@ -350,7 +348,7 @@ public class OnlineAlign {
 		    	
 			}
 			catch ( Exception ex ) { ex.printStackTrace();  };
-			
+			if(! connected ) return null; 
 			return answer;
 			
 	   }
@@ -388,6 +386,8 @@ public class OnlineAlign {
 		    	
 			}
 			catch ( Exception ex ) { ex.printStackTrace() ;};
+			
+			if(! connected ) return null; 
 			
 			return answer;
 			
@@ -535,22 +535,19 @@ public class OnlineAlign {
 		return message;
 	    }
 	    
-	    public String sendMessage( String message, Parameters param ) throws Exception {
+	    public String sendMessage( String message, Parameters param )   {
 	    	// Create the connection
 	        	 
-	            URLConnection connection = SOAPUrl.openConnection();
-	            if(connection==null) {
-	            	connected = false;
-	            }
-	            else {
-	            	connected = true;
-	            	System.out.println("Connected to Server !");
-	            }
-	            HttpURLConnection httpConn = (HttpURLConnection) connection;
-
-	            byte[] b = message.getBytes();
-
+	    
+    		
+	        byte[] b = message.getBytes();
+	        
+	        String answer = "";
 	            // Create HTTP Request
+	        try {
+	        	 
+	    		URLConnection connection = SOAPUrl.openConnection();
+	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
 	            httpConn.setRequestProperty( "Content-Length",
 	                                         String.valueOf( b.length ) );
 	            httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
@@ -561,22 +558,23 @@ public class OnlineAlign {
 
 	            // Send the request through the connection
 	            OutputStream out = httpConn.getOutputStream();
-	            out.write( b );    
-	            out.close();
+	       
+	        	out.write( b );    
+	        	out.close();
 
 	            // Read the response and write it to standard output
 	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
 	            BufferedReader in = new BufferedReader(isr);
-	    	String answer = "";
-	    	String line;
-	    	while ((line = in.readLine()) != null) {
-	    	    answer += line + "\n";
-	    	}
-	    	if (in != null) in.close();
-
-	    	return answer;
-	        }
 	        
-	    
+	            String line;
+	            while ((line = in.readLine()) != null) {
+	            	answer += line + "\n";
+	            }
+	            if (in != null) in.close();
+	        } catch  (Exception ex) { connected= false; ex.printStackTrace() ; return null;}
+	        
+	        connected = true;
+	    	return answer;
+	    }
 	    
 }

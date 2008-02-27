@@ -78,20 +78,24 @@ public class SWTInterface extends JPanel {
 	//private URL SOAPUrl = null;
 	//private String SOAPAction = null;
 
-	JLabel hostName, portName, thresLabel;
-	JComboBox hostList, portList;
+	JLabel hostName, portName, thresLabel, alignProjLabel;
+	
+	//JComboBox hostList, portList;
+	
 	String selectedHost  =  null;
 	String selectedPort  =  null;
+	
 	String selectedOnto1 =  null;
 	String selectedOnto2 =  null;
 	String selectedAlign =  null;
 	String selectedNeOnOnto1 =  null;
 	String selectedNeOnOnto2 =  null;
 	
-	String[] hostNames = new String[2];
-	String[] ports = new String[2];
+	//String[] hostNames = new String[2];
+	//String[] ports = new String[2];
 	
-	int hostInd, portInd;
+	//int hostInd, portInd;
+	
 	public static int alignId = 0;
 	public static Vector<AlignmentProcess> alignObjects = new Vector<AlignmentProcess>();
 	
@@ -99,7 +103,7 @@ public class SWTInterface extends JPanel {
 	//Parameters p = new BasicParameters();
 
 	public JComponent phrases, phrases1, Res=null;
-    public JTextField fileName1, fileName2, threshold;
+    public JTextField fileName1, fileName2, threshold, hostField, portField, alignProj;
     public SWTInterface frame;
     //public JFileChooser open;
     //public JLabel explain;
@@ -138,10 +142,13 @@ public class SWTInterface extends JPanel {
     boolean online = false;
 	//boolean chosenPort = false;
     String defaultHost = "aserv.inrialpes.fr";
-    String defaultPort = "8089";
+    //String defaultPort = "8089";
+    String defaultPort = "80";
     String matchMethod = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
     //rethink
+    
 	String alignProject = "AlignmentProject";
+	
 	public OnlineAlign   onAlign  = null;
 	public OfflineAlign  offAlign = null;
     
@@ -157,8 +164,8 @@ public class SWTInterface extends JPanel {
     			
     			online = false;
     			offAlign = new OfflineAlign();
-    			//openbutton1.setEnabled(true);
-				//openbutton2.setEnabled(true);
+  
+    			
     			ontoBox1.setEnabled(true);
 				ontoBox2.setEnabled(true);
 				ontoRefresh.setEnabled(true);
@@ -172,6 +179,9 @@ public class SWTInterface extends JPanel {
 				threshold.setEnabled(true);
 				alignTrimButton.setEnabled(true);
 				
+				alignProject = alignProj.getText();
+				alignProj.setEnabled(false);
+				
 				alignFindButton.setEnabled(false);
 				allAlignButton.setEnabled(false);
 				
@@ -180,8 +190,8 @@ public class SWTInterface extends JPanel {
 				
 				offlineButton.setEnabled(false);
 				disconnButton.setEnabled(false);
-				hostList.setEnabled(false);
-				portList.setEnabled(false);
+				hostField.setEnabled(false);
+				portField.setEnabled(false);
 				connButton.setEnabled(false);
 				
 				strategy.removeAllItems();
@@ -216,14 +226,26 @@ public class SWTInterface extends JPanel {
 				strategy.addItem("ClassStructAlignment");
 				methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
 				strategy.addItem("EditDistNameAlignment");
+				methodList[8] = "fr.inrialpes.exmo.align.ling.JWNLAlignment";
+				strategy.addItem("JWNLAlignment");
 				
 				alignObjects = new Vector<AlignmentProcess>();
 				
 				try {
 					
-					//IProject project = DatamodelPlugin.getDefault().getProject(alignProject);
-					//if(project==null)
-					ProjectControl.getDefault().createNewOntologyProject(alignProject, new String[0]);
+					String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+    				if(projects!=null) {
+    				boolean found = false;	
+    				
+    				for(int i=0; i < projects.length; i++) {
+    					if(projects[i].equals(alignProject)) { 
+    						found = true;break;
+    					}
+    				}
+    				
+    				if(!found)
+    					ProjectControl.getDefault().createNewOntologyProject(alignProject, new String[0]);
+    			    }
 				} 
 				catch ( Exception ex ) { ex.printStackTrace(); };
 				 
@@ -239,9 +261,14 @@ public class SWTInterface extends JPanel {
     			online = true;
     			
     			
+    			alignProject = alignProj.getText();
+				alignProj.setEnabled(false);
+				
+			
+				
 				offlineButton.setEnabled(true);
-				hostList.setEnabled(true);
-				portList.setEnabled(true);
+				hostField.setEnabled(true);
+				portField.setEnabled(true);
 				connButton.setEnabled(true);
 				
 				onlineButton.setEnabled(false);
@@ -312,8 +339,8 @@ public class SWTInterface extends JPanel {
 				strategy.setEnabled(false);
 				mapButton.setEnabled(false);
 				disconnButton.setEnabled(false);
-				hostList.setEnabled(false);
-				portList.setEnabled(false);
+				hostField.setEnabled(false);
+				portField.setEnabled(false);
 				connButton.setEnabled(false);
 				threshold.setEnabled(false);
 				
@@ -339,16 +366,13 @@ public class SWTInterface extends JPanel {
         };
     	});
     	
-	hostNames[0] = defaultHost;
-	selectedHost = hostNames[0];
-	ports[0] 	 = defaultPort;
-	selectedPort = ports[0];
-	
+	selectedHost = defaultHost;
 	hostName = new JLabel( "Host name" );
+	hostField = new JTextField( defaultHost, 15 );
+	hostField.setEnabled(false);
+	hostField.setEditable( true );
 	
-	hostList = new JComboBox( hostNames );
-	hostList.setEnabled(false);
-	hostList.setEditable( true );
+	/*
 	hostList.setMaximumRowCount(20);
 	hostList.addItemListener(new ItemListener() {
 	public void itemStateChanged(ItemEvent event)
@@ -359,8 +383,15 @@ public class SWTInterface extends JPanel {
 	    
 	}
 	});
+	*/
 	
-	portName = new JLabel("Port");
+	selectedPort = defaultPort;
+	portName = new JLabel( "Port" );
+	portField = new JTextField( defaultPort, 4 );
+	portField.setEnabled(false);
+	portField.setEditable( true );
+	
+	/*
 	portList = new JComboBox( ports );
 	portList.setEnabled(false);
 	portList.setEditable( true );
@@ -373,11 +404,17 @@ public class SWTInterface extends JPanel {
 	     
 	}
 	});
+	*/
 	
 	thresLabel = new JLabel("Threshold");
-	threshold = new JTextField("1.0");
+	threshold = new JTextField("1.0", 4);
 	threshold.setEnabled(false);
 	threshold.setEditable( true );
+	
+	alignProjLabel = new JLabel("Alignment project name ");
+	alignProj = new JTextField(alignProject, 10);
+	alignProj.setEnabled(true);
+	alignProj.setEditable( true );
 	
 	connButton = new JButton("Connect",null);
 	connButton.setEnabled(false);
@@ -385,12 +422,23 @@ public class SWTInterface extends JPanel {
 		public void actionPerformed(ActionEvent e) {
         		if (e.getSource() == connButton) {
         			
-        			// for connecting to server 
-        			onAlign = new OnlineAlign(selectedPort, selectedHost);
-        			 
-        			String[] list = getResultsFromAnswer( onAlign.getMethods(), "method", "." ); 
+        			// for connecting to server
+        			selectedHost = hostField.getText();
+    				selectedPort = portField.getText();
+    				onAlign = new OnlineAlign(selectedPort, selectedHost);
+    				
+    				/*
+        			if(! onAlign.isConnected() ) 
+        				JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+        			else {
+        			*/	
+        			String mt = onAlign.getMethods();
+        			if(mt == null) 
+				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+				    else {  
+				    	    			
+        			String[] list = getResultsFromAnswer( mt, "method", "." ); 
         		 
-        			
         			methodList = new String[list.length];
         			strategy.removeAllItems();
         							
@@ -419,23 +467,38 @@ public class SWTInterface extends JPanel {
     				threshold.setEnabled(true);
     				//alignRetrieveButton.setEnabled(true);
     				alignStoreButton.setEnabled(true);
-        							
-        			hostList.setEnabled(false);
-        			portList.setEnabled(false);
+        			
+        			hostField.setEnabled(false);
+        			portField.setEnabled(false);
+        			
         			connButton.setEnabled(false);
         							
         			try {
-        			//IProject project = DatamodelPlugin.getDefault().getProject(alignProject);
-        			//if(project == null)
-        			ProjectControl.getDefault().createNewOntologyProject(alignProject, new String[0]);
+        			
+        				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+        				if(projects!=null) {
+        				boolean found = false;	
+        				
+        				for(int i=0; i < projects.length; i++) {
+        					if(projects[i].equals(alignProject)) { 
+        						found = true;break;
+        					}
+        				}
+        				
+        				if(!found)
+        					ProjectControl.getDefault().createNewOntologyProject(alignProject, new String[0]);
+        			    }
+        				
+        			
         			}   catch ( Exception ex ) { ex.printStackTrace(); };
-        							
+        			
+				    }//connect
             	}
 			
 		};
         });
 	
-	alignLabel  = new JLabel("Alignments found (from server) : ");
+	alignLabel  = new JLabel("Alignments found : ");
 	alignBox    = new JComboBox(alignIdList);
 	alignBox.setEnabled(false);
 	alignBox  = new JComboBox(alignIdList);
@@ -455,7 +518,7 @@ public class SWTInterface extends JPanel {
 		}
 	});
     
-	alignImportButton = new JButton("Import To Toolkit",null);
+	alignImportButton = new JButton("Export To Ontology Navigator",null);
 	alignImportButton.setEnabled(false);
 	alignImportButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
@@ -472,7 +535,7 @@ public class SWTInterface extends JPanel {
         				
         			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
         			 
-					if(owlalignStr==null)  JOptionPane.showMessageDialog(null, "Alignment can not be imported.","Warning",2);
+					if(owlalignStr==null)  JOptionPane.showMessageDialog(null, "Alignment can not be exported.","Warning",2);
 					else {
 					
 					//extract id from "alid" 
@@ -514,7 +577,7 @@ public class SWTInterface extends JPanel {
 		};
         });
 	
-	allAlignButton = new JButton("Available alignments", null);
+	allAlignButton = new JButton("Fetch available alignments", null);
 	allAlignButton.setEnabled(false);
 	allAlignButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
@@ -522,9 +585,11 @@ public class SWTInterface extends JPanel {
         			
         			// for connecting to server
         			//onAlign = new OnlineAlign(selectedPort, selectedHost);
-        			
-						
-        			String[] list = getResultsFromAnswer( onAlign.getAllAlign(), "alid", null ); 
+        			String aa = onAlign.getAllAlign();
+        			if(aa == null) 
+				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+				    else {  
+        			String[] list = getResultsFromAnswer( aa , "alid", null ); 
         			
         			alignIdList = new String[list.length];
         			alignBox.removeAllItems();
@@ -539,6 +604,7 @@ public class SWTInterface extends JPanel {
         			}
         			
 					}
+        		}
 		};
         });
 	
@@ -553,8 +619,12 @@ public class SWTInterface extends JPanel {
         			if(selectedNeOnOnto1 == null || selectedNeOnOnto2 == null ) 
 					    	JOptionPane.showMessageDialog(null, "Choose two ontologies from lists!","Warning",2);
 					else {      
-						
-        			String[] list = getResultsFromAnswer( onAlign.findAlignForOntos(selectedOnto1, selectedOnto2), "alid", null ); 
+					
+					String ao =  onAlign.findAlignForOntos(selectedOnto1, selectedOnto2);
+	        		if(ao == null) 
+					    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+					else {  
+        			String[] list = getResultsFromAnswer(ao, "alid", null ); 
         			
         			alignIdList = new String[list.length];
         			alignBox.removeAllItems();
@@ -568,6 +638,7 @@ public class SWTInterface extends JPanel {
         				selectedAlign = alignIdList[0];
         			}
         			
+					}
 					}
             	}
 			
@@ -586,8 +657,11 @@ public class SWTInterface extends JPanel {
     					if(online) {
     						//onAlign = new OnlineAlign(selectedPort, selectedHost);
         				   
-						
-        					String[] list = getResultsFromAnswer( onAlign.trimAlign(selectedAlign, threshold.getText()), "alid", null ); 
+    						String at = onAlign.trimAlign(selectedAlign, threshold.getText());  
+    		        		if(at == null) 
+    						    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+    						else {  
+        					String[] list = getResultsFromAnswer( at, "alid", null ); 
         			
         					alignIdList = new String[list.length];
         					alignBox.removeAllItems();
@@ -600,7 +674,7 @@ public class SWTInterface extends JPanel {
         					if(alignIdList.length > 0) { 
         						selectedAlign = alignIdList[0];
         					}
-        			
+    						}
         				}
     					else { //offline
     						String resId  = offAlign.trimAndExportAlign( new Double(threshold.getText()) );
@@ -635,7 +709,10 @@ public class SWTInterface extends JPanel {
 					    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
 					else {      
 						
-        			onAlign.storeAlign(selectedAlign); 
+					String sto = onAlign.storeAlign(selectedAlign);  
+		        	if(sto == null) 
+						    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+						  
         			
         			
 					}
@@ -674,7 +751,7 @@ public class SWTInterface extends JPanel {
 						else {
 						
 						alignIdList = getResultsFromAnswer( answer, "alid", null );
-						if(alignIdList[0].equals("null"))  JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
+						if(alignIdList==null || alignIdList[0].equals("null"))  JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
 						else {
 							
 		        			alignBox.removeAllItems();
@@ -691,7 +768,7 @@ public class SWTInterface extends JPanel {
 						
 						//retrieve alignment for displaying
 						String res = onAlign.getHTMLAlignment( alignIdList[0] );
-						corrList = getCorresFromAnswer( res, "tr", "#" );	
+						corrList = getCorresFromAnswer( res, "tr", null ); //"#"	
 								
 						System.out.println("corrList Size="+corrList.size());
 								
@@ -735,7 +812,7 @@ public class SWTInterface extends JPanel {
         			  
         		  	System.out.println("htmlString =" + htmlString);
         			
-					corrList = getCorresFromAnswer( htmlString, "tr", "#" );
+					corrList = getCorresFromAnswer( htmlString, "tr", null );
 					  
 					System.out.println("corrList Size="+corrList.size());
 					  
@@ -767,8 +844,7 @@ public class SWTInterface extends JPanel {
 	});
 	
     //retrieve all available onto. in Ontology Navigator
-   
-     
+    
     ontoLabel1 = new JLabel("Ontology 1 :");
     ontoBox1  = new JComboBox(ontoList);
     ontoBox1.setEnabled(false);
@@ -873,13 +949,15 @@ private JPanel createPhraseList () {
 
 	minusLabel.add(onlineButton);
 	minusLabel.add(offlineButton);
-	
-	zeroLabel.add(hostList);
+	minusLabel.add(alignProjLabel);
+	minusLabel.add(alignProj);
 	
 	zeroLabel.add(hostName);
-	zeroLabel.add(hostList);
+	
+	zeroLabel.add(hostField);
 	zeroLabel.add(portName);
-	zeroLabel.add(portList);
+	zeroLabel.add(portField);
+	
 	zeroLabel.add(connButton);
 	zeroLabel.add(disconnButton);
 	
@@ -957,7 +1035,7 @@ private void refreshOntoList() {
 	    if( ! projects[i].equals(alignProject)) {
 	    	NeOnOntoList = DatamodelPlugin.getDefault().getProjectOntologies(projects[i]);
 	    	for(int j=0; j < NeOnOntoList.length; j++) {
-	    		//System.out.printf("Project Onto = " + st[j] );
+	    		//System.out.printf("Project Onto = " + NeOnOntoList[j] );
 	    		vec.add(NeOnOntoList[j]);
 	    	}
 	    }
@@ -972,13 +1050,29 @@ private void refreshOntoList() {
 	for(int j=0; j < vec.size(); j++) {
 		
 		String str = vec.get(j);
+		
+		String st1 = str.replace('\"',' ');
+		st1 = st1.replace('\'',' ');
+		st1 = st1.replace('#',' ');
+		String[] stSplit = st1.split(" ");
+		String st="";
+		for(int i=0; i <stSplit.length; i++)
+			st=st+stSplit[i];
+		
+		//		rethink !!!
+		stSplit = st.split(".owl");
+		st = stSplit[0]+ ".owl";
+		
+		//System.out.printf("res st = " + stSplit[0] );
+		
+		/*
 		//rethink !!!
 		String str1 = str.substring(1, str.length() - 1);
 		int ins = str1.lastIndexOf('/');
 		String str2 = str1.substring(0, ins + 1);
 		String str3 = str1.substring(ins + 4, str1.length());
 		String st = str2.concat(str3);
-		
+		*/
 		ontoBox1.addItem(st);
 		ontoBox2.addItem(st);
 		ontoList[j] = st;

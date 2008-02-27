@@ -21,19 +21,13 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.widgets.Composite;
- 
 import org.eclipse.ui.part.ViewPart;
-
 import org.eclipse.swt.awt.SWT_AWT;
-
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import java.awt.Frame;
  
-
-
 public class View extends ViewPart {
 
 	public static final String ID = "fr.inrialpes.exmo.align.plugin.neontk.view";
@@ -41,19 +35,15 @@ public class View extends ViewPart {
 	public void setFocus() {
 	}
 	
-	public void createPartControl(Composite parent) {
-	
-		
+	public void createPartControl(Composite parent) {	
 		final Composite composite = new Composite(parent, SWT.EMBEDDED);
 		final Frame f = SWT_AWT.new_Frame(composite);
 	 
 		JPanel panel = new JPanel(new BorderLayout());
-		
 		f.add(panel);
 		SWTInterface  lo= new SWTInterface();
 		lo.run();
-		f.add(lo);
-		
+		f.add(lo);	
 	}
 	
 }
