@@ -82,6 +82,7 @@ import java.util.zip.ZipEntry;
 public class AServProtocolManager {
 
     CacheImpl alignmentCache = null;
+    Parameters commandLineParams = null;
     Set renderers = null;
     Set methods = null;
     Set services = null;
@@ -104,6 +105,7 @@ public class AServProtocolManager {
 
     public void init( DBService connection, Parameters p ) throws SQLException, AlignmentException {
 	alignmentCache = new CacheImpl( connection );
+	commandLineParams = p;
 	alignmentCache.init( p );
 	myId = "http://"+p.getParameter("host")+":"+p.getParameter("http");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
@@ -201,6 +203,13 @@ public class AServProtocolManager {
     // Implements: align
     public Message align(Message mess){
 	Message result = null;
+	Parameters p = mess.getParameters();
+	for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
+	    String key = e.nextElement();
+	    if ( p.getParameter( key ) == null ){
+		p.setParameter( key , commandLineParams.getParameter( key ) );
+	    }
+	}
 	// Do the fast part (retrieve)
 	result = retrieveAlignment( mess );
 	if ( result != null ) return result;
