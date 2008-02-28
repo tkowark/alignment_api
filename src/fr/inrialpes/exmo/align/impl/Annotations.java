@@ -28,6 +28,6 @@ public class Annotations {
     public static String ID = "id";
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
-    protected static boolean STRICT_IMPLEMENTATION = false;
+    public static boolean STRICT_IMPLEMENTATION = false;
 
 }
