@@ -28,19 +28,20 @@
     <property name="doing" value="running"/>
     <property name="version" value="3.1"/>
     <property name="date" value="${TODAY}"/>
-    <property name="login" value="euzenat"/>
+    <property name="login" value="${user.name}"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
     <property name="libdir"  value="lib" />
     <property name="debug" value="off"/>
     <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
     <!-- This should now be handled by GForge -->
     <property name="FTPDir" value="/Web/html/ftpexmo/software/ontoalign"/>
-
     <property name="classpath"  value="classes"/>
     
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
+    <property name="jarclasspath" value="mappingapilite.jar icu4j_3_4.jar iri.jar xercesImpl.jar jena.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar"/>
+
     <path id="classpath">
       <fileset dir="./lib">
 	<include name="*.jar"/>
@@ -82,12 +83,28 @@
     <echo message="Jarchiving..."/>
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
     <delete file="lib/align.jar"/>
-    <jar jarfile="lib/align.jar" manifest="distrib/MANIFEST.MF">
+    <jar jarfile="lib/align.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+	<section name="Alignment API">
+	  <attribute name="Specification-Title" value="Alignment API"/>
+	  <attribute name="Specification-Version" value="${version}"/>
+	</section>
+      </manifest>
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/procalign.jar"/>
-    <jar jarfile="lib/procalign.jar" manifest="distrib/MANIFEST-pr.MF">
+    <jar jarfile="lib/procalign.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
+        <attribute name="Class-Path" value="${jarclasspath}"/>
+	<section name="Alignment API implementation">
+	  <attribute name="Implementation-Title" value="Alignment API implementation"/>
+	  <attribute name="Implementation-Version" value="${version}"/> 
+	</section>
+      </manifest>
       <fileset dir="classes" includes="org/ivml/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
@@ -95,13 +112,31 @@
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/alignwn.jar"/>
-    <jar jarfile="lib/alignwn.jar" manifest="distrib/MANIFEST-wn.MF">
+    <jar jarfile="lib/alignwn.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
+        <attribute name="Class-Path" value="procalign.jar jwnl.jar"/>
+	<section name="Alignment API WordNet support">
+	  <attribute name="Implementation-Title" value="Alignment API WordNet support"/>
+	  <attribute name="Implementation-Version" value="${version}"/> 
+	</section>
+      </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
     <delete file="lib/alignsvc.jar"/>
     <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
-    <jar jarfile="lib/alignsvc.jar" manifest="distrib/MANIFEST-svc.MF">
+    <jar jarfile="lib/alignsvc.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
+        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade.jar iiop.jar http.jar mysql-connector-java-5.0.3-bin.jar servlet-api.jar jetty.jar jetty-util.jar"/>
+	<section name="Alignment server">
+	  <attribute name="Implementation-Title" value="Alignment server"/>
+	  <attribute name="Implementation-Version" value="${version}"/> 
+	</section>
+      </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
