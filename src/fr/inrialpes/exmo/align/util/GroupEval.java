@@ -599,6 +599,8 @@ which the program does...
 	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.print("\n"+GroupEval.class.getPackage().getImplementationTitle()+" "+GroupEval.class.getPackage().getImplementationVersion());
+	System.err.println(" ($Id$)\n");
     }
 }
 

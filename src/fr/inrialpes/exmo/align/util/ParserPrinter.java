@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2004, 2007 INRIA Rhône-Alpes.
+ * Copyright (C) 2003-2004, 2007-2008 INRIA Rhône-Alpes.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -248,6 +248,8 @@ public class ParserPrinter {
 	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\t\tMethod to use for triming");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.print("\n"+ParserPrinter.class.getPackage().getImplementationTitle()+" "+ParserPrinter.class.getPackage().getImplementationVersion());
+	System.err.println(" ($Id$)\n");
 
     }
 }

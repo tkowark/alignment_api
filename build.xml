@@ -40,7 +40,7 @@
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
-    <property name="jarclasspath" value="mappingapilite.jar icu4j_3_4.jar iri.jar xercesImpl.jar jena.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar"/>
+    <property name="jarclasspath" value="mappingapilite.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar"/>
 
     <path id="classpath">
       <fileset dir="./lib">
@@ -71,7 +71,7 @@
   </target>
 
   <!-- tested -->
-  <target name="compilelint" depends="init">
+  <target name="lint" depends="init">
     <!-- values: all, deprecation, unchecked, fallthrough, path, serial, finally -->
     <echo message="Setting property..."/>
     <property name="javacargs" value="-Xlint:all" />
@@ -86,10 +86,8 @@
     <jar jarfile="lib/align.jar">
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
-	<section name="Alignment API">
-	  <attribute name="Specification-Title" value="Alignment API"/>
-	  <attribute name="Specification-Version" value="${version}"/>
-	</section>
+	<attribute name="Specification-Title" value="Alignment API"/>
+	<attribute name="Specification-Version" value="${version}"/>
       </manifest>
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
@@ -100,10 +98,8 @@
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
         <attribute name="Class-Path" value="${jarclasspath}"/>
-	<section name="Alignment API implementation">
-	  <attribute name="Implementation-Title" value="Alignment API implementation"/>
-	  <attribute name="Implementation-Version" value="${version}"/> 
-	</section>
+	<attribute name="Implementation-Title" value="Alignment API implementation"/>
+	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
       <fileset dir="classes" includes="org/ivml/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
@@ -117,10 +113,8 @@
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
         <attribute name="Class-Path" value="procalign.jar jwnl.jar"/>
-	<section name="Alignment API WordNet support">
-	  <attribute name="Implementation-Title" value="Alignment API WordNet support"/>
-	  <attribute name="Implementation-Version" value="${version}"/> 
-	</section>
+	<attribute name="Implementation-Title" value="Alignment API WordNet support"/>
+	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
@@ -132,15 +126,29 @@
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
         <attribute name="Class-Path" value="procalign.jar alignwn.jar jade.jar iiop.jar http.jar mysql-connector-java-5.0.3-bin.jar servlet-api.jar jetty.jar jetty-util.jar"/>
-	<section name="Alignment server">
-	  <attribute name="Implementation-Title" value="Alignment server"/>
-	  <attribute name="Implementation-Version" value="${version}"/> 
-	</section>
+	<attribute name="Implementation-Title" value="Alignment server"/>
+	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
+    </jar>
+  </target>
+
+  <!-- tested -->
+  <target name="aserv" depends="init">
+    <echo message="Setting property..."/>
+    <jar jarfile="lib/aserv.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
+	<!-- usually each MANIFEST knows what it needs -->
+	<!-- oyster2.jar, semanticmapper-0.1.jar -->
+        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.1.jar"/>
+	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
+	<attribute name="Implementation-Version" value="${version}"/> 
+      </manifest>
     </jar>
   </target>
 

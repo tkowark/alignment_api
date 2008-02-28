@@ -336,7 +336,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     }
 
     protected String about() {
-	return "<h1>Alignment Server</h1><center>$Id$<br />"
+	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"/html/\">Access</a></center>"
 	    + "(C) INRIA Rh&ocirc;ne-Alpes, 2006-2008<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"

@@ -214,7 +214,8 @@ public class EvalAlign {
 	System.err.println("\t--impl=className -i classname\t\tUse the given evaluator implementation.");
 	System.err.println("\t--output=filename -o filename\tOutput the result in filename");
 	System.err.println("\t--help -h\t\t\tPrint this message");
-	System.err.println("\n$Id$\n");
+	System.err.print("\n"+EvalAlign.class.getPackage().getImplementationTitle()+" "+EvalAlign.class.getPackage().getImplementationVersion());
+	System.err.println(" ($Id$)\n");
 
     }
 }
