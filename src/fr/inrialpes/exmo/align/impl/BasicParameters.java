@@ -55,25 +55,25 @@ import org.semanticweb.owl.align.Parameters;
 public class BasicParameters implements Parameters {
  
   /** The list of unlinked out  XML_Port */
-  Hashtable parameters = null;
+  Hashtable<String,Object> parameters = null;
     
   public BasicParameters() {
-    parameters = new Hashtable();
+      parameters = new Hashtable<String,Object>();
   }
   
   public void setParameter(String name, Object value){
-    parameters.put((Object)name,value);
+    parameters.put(name,value);
   }
 
   public void unsetParameter(String name){
-    parameters.remove((Object)name);
+    parameters.remove(name);
   }
 
   public Object getParameter(String name){
-    return parameters.get((Object)name);
+    return parameters.get(name);
   }
 
-  public Enumeration getNames(){
+  public Enumeration<String> getNames(){
     return parameters.keys();
   }
 
