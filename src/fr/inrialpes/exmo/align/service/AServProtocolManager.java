@@ -616,7 +616,7 @@ public class AServProtocolManager {
 			//System.err.println("DIR "+file);
 			String subs[] = file.list();
 			for(int index = 0 ; index < subs.length ; index ++ ){
-			    //if ( debug ) System.err.println("    "+subs[index]);
+			    if ( debug ) System.err.println("    "+subs[index]);
 			    // IF class
 			    if ( subs[index].endsWith(".class") ) {
 				String classname = subs[index].substring(0,subs[index].length()-6);
@@ -624,13 +624,18 @@ public class AServProtocolManager {
 				    classname = classname.substring(1);
 				classname = classname.replace(File.separatorChar,'.');
 				try {
+				    // JE: Here there is a bug that is that it is not possible
+				    // to have ALL interfaces with this function!!!
+				    // This is really stupid but that's life
+				    // So it is compulsory that AlignmentProcess be declared 
+				    // as implemented
 				    Class[] cls = Class.forName(classname).getInterfaces();
 				    for ( int i=0; i < cls.length ; i++ ){
 					if ( cls[i] == tosubclass ) {
-					    //if (debug ) System.err.println(" -j-> "+classname);
+					    if (debug ) System.err.println(" -j-> "+classname);
 					    list.add( classname );
 					}
-					//if ( debug ) System.err.println("       I> "+cls[i] );
+					if ( debug ) System.err.println("       I> "+cls[i] );
 				    }
 				    // Not one of our classes
 				} catch ( NoClassDefFoundError ncdex ) {
@@ -651,7 +656,7 @@ public class AServProtocolManager {
 			    Enumeration enumeration = jar.entries();
 			    while( enumeration.hasMoreElements() ){
 				String classname = enumeration.nextElement().toString();
-				//if ( debug ) System.err.println("    "+classname);
+				if ( debug ) System.err.println("    "+classname);
 				int len = classname.length()-6;
 				if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
 				    classname = classname.substring(0,len);
@@ -665,7 +670,7 @@ public class AServProtocolManager {
 						if (debug ) System.err.println(" -j-> "+classname);
 						list.add( classname );
 					    }
-					    //if ( debug ) System.err.println("       I> "+ints[i] );
+					    if ( debug ) System.err.println("       I> "+ints[i] );
 					}
 				    } catch ( NoClassDefFoundError ncdex ) {
 				    } catch ( ClassNotFoundException cnfex ) {
