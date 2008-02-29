@@ -93,7 +93,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 			    loadOntology( (URI)o2, cache ) );
 		// Not sure it should be here or in super.init()
 		onto1.setURI( ((OWLOntology)(onto1.getOntology())).getLogicalURI() );
-		onto2.setURI( ((OWLOntology)(onto1.getOntology())).getLogicalURI() );
+		onto2.setURI( ((OWLOntology)(onto2.getOntology())).getLogicalURI() );
 	    } catch (OWLException e) {
 		throw new AlignmentException( "Cannot load ontologies", e );
 	    } catch (SAXException e) {
