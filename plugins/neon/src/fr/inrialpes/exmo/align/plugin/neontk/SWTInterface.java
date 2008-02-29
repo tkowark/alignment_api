@@ -211,23 +211,23 @@ public class SWTInterface extends JPanel {
 				
 				methodList = new String[9];
 				methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
-				strategy.addItem("NameEqAlignment");
+				strategy.addItem(methodList[0]);
 				methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-				strategy.addItem("StringDistAlignment");
+				strategy.addItem(methodList[1]);
 				methodList[2] = "fr.inrialpes.exmo.align.impl.method.SMOANameAlignment";
-				strategy.addItem("SMOANameAlignment");
+				strategy.addItem(methodList[2]);
 				methodList[3] = "fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment";
-				strategy.addItem("SubsDistNameAlignment");
+				strategy.addItem(methodList[3]);
 				methodList[4] = "fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment";
-				strategy.addItem("StrucSubsDistAlignment");
+				strategy.addItem(methodList[4]);
 				methodList[5] = "fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment";
-				strategy.addItem("NameAndPropertyAlignment");
+				strategy.addItem(methodList[5]);
 				methodList[6] = "fr.inrialpes.exmo.align.impl.method.ClassStructAlignment";
-				strategy.addItem("ClassStructAlignment");
+				strategy.addItem(methodList[6]);
 				methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
-				strategy.addItem("EditDistNameAlignment");
+				strategy.addItem(methodList[7]);
 				methodList[8] = "fr.inrialpes.exmo.align.ling.JWNLAlignment";
-				strategy.addItem("JWNLAlignment");
+				strategy.addItem(methodList[8]);
 				
 				alignObjects = new Vector<AlignmentProcess>();
 				
@@ -437,17 +437,15 @@ public class SWTInterface extends JPanel {
 				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
 				    else {  
 				    	    			
-        			String[] list = getResultsFromAnswer( mt, "method", "." ); 
+        			String[] list = getResultsFromAnswer( mt, "method", null ); //"." 
         		 
         			methodList = new String[list.length];
         			strategy.removeAllItems();
         							
         			for(int i=0; i< list.length; i++){
-        				if(selectedHost.equals(defaultHost)) {
-        							    methodList[i]= "fr.inrialpes.exmo.align.impl.method." + list[i];
-        								strategy.addItem(list[i]);
-        				}
-        								
+        			 
+        				methodList[i]= list[i];//"fr.inrialpes.exmo.align.impl.method." + list[i];
+        				strategy.addItem(list[i]);					
         			}	
         			
         			//openbutton1.setEnabled(true);
@@ -1173,7 +1171,6 @@ private void refreshOntoList() {
  		NodeList methods = cor.getElementsByTagName(type);
  		
  		System.out.println( "length lines ="+ methods.getLength());
- 		//rethink of this constant
  		
  		
  		for (int i=0; i< methods.getLength(); i++) {
@@ -1213,7 +1210,7 @@ private void refreshOntoList() {
  	
  	} catch (Exception e) {
          //compilerError(Compiler.XML, e.getMessage());
- 		System.out.println("Error="+e.getMessage());
+ 		System.out.println("Error="+e.getMessage() + "xml parser prob.");
      }
  	
   
