@@ -42,8 +42,10 @@ import java.net.URI;
  * @version $Id: JWNLAlignment.java,v 1.0 2004/08/04 
  */
 
-public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
-{
+public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess {
+
+    final static String WNVERS = "3.0";
+
     protected class SynonymMatrixMeasure extends MatrixMeasure {
 	protected JWNLDistances Dist = null;
 
@@ -53,8 +55,11 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	public void init() throws AlignmentException {
 	    Dist.Initialize();
 	}
+	public void init( String wndict, String wnvers ) throws AlignmentException {
+	    Dist.Initialize( wndict, wnvers );
+	}
 	public void init( String wndict ) throws AlignmentException {
-	    Dist.Initialize( wndict );
+	    Dist.Initialize( wndict, WNVERS );
 	}
 	public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
 	    String s1 = cl1.getURI().getFragment();
@@ -96,7 +101,9 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	loadInit( alignment );
 	SynonymMatrixMeasure sim = (SynonymMatrixMeasure)getSimilarity();
-	sim.init( (String)params.getParameter("wndict") );
+	String wnvers = (String)params.getParameter("wnvers");
+	if ( wnvers == null ) wnvers = WNVERS;
+	sim.init( (String)params.getParameter("wndict"), wnvers );
 	sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
 	getSimilarity().compute( params );
       if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);

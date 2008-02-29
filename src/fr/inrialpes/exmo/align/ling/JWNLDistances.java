@@ -91,10 +91,10 @@ public class JWNLDistances {
      * directory
      */
     public void Initialize() throws AlignmentException {
-	Initialize( (String)null );
+	Initialize( (String)null, (String)null );
     }
 
-    public void Initialize( String wordnetdir ) throws AlignmentException {
+    public void Initialize( String wordnetdir, String wordnetversion ) throws AlignmentException {
 	InputStream pptySource = null;
 	if ( wordnetdir == null ) {
 	    try {
@@ -106,7 +106,7 @@ public class JWNLDistances {
 	     String properties = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	     properties += "<jwnl_properties language=\"en\">";
 	     properties += "  <resource class=\"PrincetonResource\"/>";
-	     properties += "  <version publisher=\"Princeton\" number=\"2.0\" language=\"en\"/>";
+	     properties += "  <version publisher=\"Princeton\" number=\""+wordnetversion+"\" language=\"en\"/>";
 	     properties += "  <dictionary class=\"net.didion.jwnl.dictionary.FileBackedDictionary\">";
 	     properties += "     <param name=\"dictionary_element_factory\" value=\"net.didion.jwnl.princeton.data.PrincetonWN17FileDictionaryElementFactory\"/>";
 	     properties += "     <param name=\"file_manager\" value=\"net.didion.jwnl.dictionary.file_manager.FileManagerImpl\">";
