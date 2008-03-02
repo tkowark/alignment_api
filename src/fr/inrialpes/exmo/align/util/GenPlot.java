@@ -92,7 +92,7 @@ public class GenPlot {
 
     int STEP = 10;
     Parameters params = null;
-    Vector listAlgo;
+    Vector<String> listAlgo;
     String fileNames = "";
     String outFile = null;
     String type = "tsv";
@@ -148,7 +148,7 @@ public class GenPlot {
 	}
 
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
-	listAlgo = new Vector();
+	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(fileNames,",");
 	while (st.hasMoreTokens()) {
 	    listAlgo.add(st.nextToken());

@@ -39,7 +39,7 @@ import org.semanticweb.owl.align.Parameters;
  * @version $Id$
  */
 
-public class BasicCell implements Cell, Comparable {
+public class BasicCell implements Cell, Comparable<Cell> {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
@@ -76,10 +76,10 @@ public class BasicCell implements Cell, Comparable {
      * Used to order the cells in an alignment:
      * -- this > c iff this.getStrength() < c.getStrength() --
      */
-    public int compareTo( Object c ){
+    public int compareTo( Cell c ){
 	//if ( ! (c instanceof Cell) ) return 1;
-	if ( ((Cell)c).getStrength() > getStrength() ) return 1;
-	if ( getStrength() > ((Cell)c).getStrength() ) return -1;
+	if ( c.getStrength() > getStrength() ) return 1;
+	if ( getStrength() > c.getStrength() ) return -1;
 	return 0;
     }
 

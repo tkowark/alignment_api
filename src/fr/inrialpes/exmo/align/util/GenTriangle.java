@@ -94,7 +94,7 @@ public class GenTriangle {
     String type = "html";
     boolean embedded = false;
     String dominant = "s";
-    Vector listAlgo = null;
+    Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
     //Hashtable loaded = null;
@@ -179,7 +179,7 @@ public class GenTriangle {
 	}
 
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
-	listAlgo = new Vector();
+	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(listFile,",");
 	while (st.hasMoreTokens()) {
 	    listAlgo.add(st.nextToken());
@@ -191,8 +191,8 @@ public class GenTriangle {
 	print( iterateDirectories() );
     }
 
-    public Vector iterateDirectories (){
-	Vector result = null;
+    public Vector<Object> iterateDirectories (){
+	Vector<Object> result = null;
 	File [] subdir = null;
 	try {
 		if(ontoDir == null){
@@ -206,7 +206,7 @@ public class GenTriangle {
 	    usage();
 	}
 	int size = subdir.length;
-	result = new Vector(size);
+	result = new Vector<Object>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
@@ -225,7 +225,7 @@ public class GenTriangle {
 
     public Vector iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
-	Vector result = new Vector();
+	Vector<Object> result = new Vector<Object>();
 	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
 	int i = 1;

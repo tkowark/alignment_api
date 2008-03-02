@@ -12,6 +12,7 @@ import jade.core.*;
 */
 public class Parameter implements Concept {
 
+    private static final long serialVersionUID = 330;
    /**
 * Protege name: value
    */

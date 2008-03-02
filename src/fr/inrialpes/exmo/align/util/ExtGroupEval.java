@@ -97,7 +97,7 @@ public class ExtGroupEval {
     int fsize = 2;
     String type = "html";
     String dominant = "s";
-    Vector listAlgo = null;
+    Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
     OntologyCache loaded = null;
@@ -165,7 +165,7 @@ public class ExtGroupEval {
 	}
 
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
-	listAlgo = new Vector();
+	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(listFile,",");
 	while (st.hasMoreTokens()) {
 	    listAlgo.add(st.nextToken());
@@ -177,8 +177,8 @@ public class ExtGroupEval {
 	print( iterateDirectories() );
     }
 
-    public Vector iterateDirectories (){
-	Vector result = null;
+    public Vector<Object> iterateDirectories (){
+	Vector<Object> result = null;
 	File [] subdir = null;
 	try {
 	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
@@ -187,7 +187,7 @@ public class ExtGroupEval {
 	    usage();
 	}
 	int size = subdir.length;
-	result = new Vector(size);
+	result = new Vector<Object>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
@@ -204,19 +204,19 @@ public class ExtGroupEval {
 	return result;
     }
 
-    public Vector iterateAlignments ( File dir ) {
+    public Vector<Object> iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
-	Vector result = new Vector();
+	Vector<Object> result = new Vector<Object>();
 	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
 	int i = 1;
 	// for all alignments there,
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
 	    // call eval
 	    // store the resul in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+"refalign.rdf", prefix+(String)e.nextElement()+".rdf");
+	    Evaluator evaluator = (Evaluator)eval( prefix+"refalign.rdf", prefix+e.nextElement()+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -224,7 +224,7 @@ public class ExtGroupEval {
 	loaded.clear();
 
 	if ( ok == true ) return result;
-	else return (Vector)null;
+	else return null;
     }
 
     public Evaluator eval( String alignName1, String alignName2 ) {
@@ -281,18 +281,18 @@ public class ExtGroupEval {
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
 		writer.println("<colgroup align='center' span='"+fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;) {
-		writer.println("<th colspan='"+(fsize+1)+"'>"+(String)e.nextElement()+"</th>");
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;) {
+		writer.println("<th colspan='"+(fsize+1)+"'>"+e.nextElement()+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
 		for ( int i = 0; i < fsize; i++){
 		    writer.print("<td>");
 		    if ( format.charAt(i) == 's' ) {
@@ -388,7 +388,7 @@ public class ExtGroupEval {
 	    }
 	    writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
 	    int k = 0;
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
 		e.nextElement();
 		if ( foundVect[k] != -1 ){
 		    double precision = (double)correctVect[k]/foundVect[k];

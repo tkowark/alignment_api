@@ -109,7 +109,7 @@ public class GroupOutput {
 			    {254,260,261},//i=14
 			    {262,265,266} };//emptyset=15
     Parameters params = null;
-    Vector listAlgo;
+    Vector<String> listAlgo;
     String fileNames = "";
     String outFile = null;
     String type = "tex";
@@ -174,7 +174,7 @@ public class GroupOutput {
 	}
 
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
-	listAlgo = new Vector();
+	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(fileNames,",");
 	while (st.hasMoreTokens()) {
 	    listAlgo.add(st.nextToken());

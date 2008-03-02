@@ -40,8 +40,7 @@ import org.xml.sax.SAXException;
  */
 
 
-public interface Cell
-{
+public interface Cell extends Comparable<Cell> {
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
     /** Creation **/

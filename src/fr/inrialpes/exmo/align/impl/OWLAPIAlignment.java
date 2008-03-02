@@ -191,14 +191,14 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return (Cell)new OWLAPICell( id, (OWLEntity)ob1, (OWLEntity)ob2, relation, measure);
     }
 
-    public Set getAlignCells1(Object ob) throws AlignmentException {
+    public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
 	if ( ob instanceof OWLEntity ){
 	    return super.getAlignCells1( ob );
 	} else {
 	    throw new AlignmentException("argument must be OWLEntity");
 	}
     }
-    public Set getAlignCells2(Object ob) throws AlignmentException {
+    public Set<Cell> getAlignCells2(Object ob) throws AlignmentException {
 	if ( ob instanceof OWLEntity ){
 	    return super.getAlignCells2( ob );
 	} else {

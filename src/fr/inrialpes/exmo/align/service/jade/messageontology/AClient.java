@@ -1,8 +1,6 @@
 package fr.inrialpes.exmo.align.service.jade.messageontology;
 
-import jade.content.*;
-import jade.util.leap.*;
-import jade.core.*;
+import jade.core.AID;
 
 /**
 * Protege name: AClient
@@ -11,4 +9,5 @@ import jade.core.*;
 */
 public class AClient extends AID{ 
 
+    private static final long serialVersionUID = 330;
 }

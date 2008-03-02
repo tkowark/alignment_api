@@ -42,6 +42,7 @@
     
     <property name="jarclasspath" value="mappingapilite.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar"/>
 
+    <!-- this is useful but introduces, Xlint:path warnings -->
     <path id="classpath">
       <fileset dir="./lib">
 	<include name="*.jar"/>
@@ -72,7 +73,7 @@
 
   <!-- tested -->
   <target name="lint" depends="init">
-    <!-- values: all, deprecation, unchecked, fallthrough, path, serial, finally -->
+    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, finally -->
     <echo message="Setting property..."/>
     <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>

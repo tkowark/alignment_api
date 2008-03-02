@@ -110,17 +110,17 @@ public class URIAlignment extends BasicAlignment {
     }
 
     // Actually I should search them with equals() but this is what is supposed to be used
-    public Set getAlignCells1(Object ob) throws AlignmentException {
+    public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
 	if ( ob instanceof URI ){
-	    return (HashSet)hash1.get( (URI)ob );
+	    return hash1.get( (URI)ob );
 	//	    return super.getAlignCells1( ob );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");
 	}
     }
-    public Set getAlignCells2(Object ob) throws AlignmentException {
+    public Set<Cell> getAlignCells2(Object ob) throws AlignmentException {
 	if ( ob instanceof URI ){
-	    return (HashSet)hash2.get( (URI)ob );
+	    return hash2.get( (URI)ob );
 	//	    return super.getAlignCells2( ob );
 	} else {
 	    throw new AlignmentException("arguments must be URIs");

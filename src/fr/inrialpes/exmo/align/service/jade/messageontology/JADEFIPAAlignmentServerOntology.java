@@ -13,6 +13,7 @@ import jade.core.CaseInsensitiveString;
  */
 public class JADEFIPAAlignmentServerOntology extends jade.content.onto.Ontology  {
   //NAME
+    private static final long serialVersionUID = 330;
   public static final String ONTOLOGY_NAME = "JADEFIPAAlignmentServerOntology";
   // The singleton instance of this ontology
   private static ReflectiveIntrospector introspect = new ReflectiveIntrospector();

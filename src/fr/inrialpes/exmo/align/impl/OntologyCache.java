@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -44,14 +44,14 @@ public class OntologyCache {
    * URI --> Ontology
    * This is the ontology URI, NOT its filename
    */
-  Hashtable ontologies = null;
+    Hashtable<URI,Object> ontologies = null;
     
     public OntologyCache() {
-	ontologies = new Hashtable();
+	ontologies = new Hashtable<URI,Object>();
     }
   
     public void recordOntology( URI uri, Object ontology ){
-	ontologies.put((Object)uri,ontology);
+	ontologies.put(uri,ontology);
     }
 
     public OWLOntology getOntology( URI uri ){
@@ -60,7 +60,7 @@ public class OntologyCache {
 
     public void unloadOntology( URI uri, Object ontology ){
 	// used to be uri.toString();
-	Object o = ontologies.get((Object)uri);
+	Object o = ontologies.get(uri);
 	try {
 	    if ( o instanceof OWLOntology && o == ontology )
 		((OWLOntology)o).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)o) );

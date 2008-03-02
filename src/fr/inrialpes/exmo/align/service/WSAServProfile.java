@@ -117,7 +117,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	try {
 	    String classPath = System.getProperty("java.class.path",".");
 	    StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
-	    Set<String> visited = new HashSet();
+	    Set<String> visited = new HashSet<String>();
 	    classPath = "";
 	    while ( tk != null && tk.hasMoreTokens() ){
 		StringTokenizer tk2 = tk;

@@ -94,7 +94,7 @@ public class GroupEval {
     String type = "html";
     boolean embedded = false;
     String dominant = "s";
-    Vector listAlgo = null;
+    Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
     //Hashtable loaded = null;
@@ -179,7 +179,7 @@ public class GroupEval {
 	}
 
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
-	listAlgo = new Vector();
+	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(listFile,",");
 	while (st.hasMoreTokens()) {
 	    listAlgo.add(st.nextToken());
@@ -191,8 +191,8 @@ public class GroupEval {
 	print( iterateDirectories() );
     }
 
-    public Vector iterateDirectories (){
-	Vector result = null;
+    public Vector<Object> iterateDirectories (){
+	Vector<Object> result = null;
 	File [] subdir = null;
 	try {
 		if(ontoDir == null){
@@ -207,7 +207,7 @@ public class GroupEval {
 	}
 	int size = subdir.length;
         Arrays.sort(subdir); //VS
-	result = new Vector(size);
+	result = new Vector<Object>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
@@ -224,14 +224,14 @@ public class GroupEval {
 	return result;
     }
 
-    public Vector iterateAlignments ( File dir ) {
+    public Vector<Object> iterateAlignments ( File dir ) {
 	String prefix = dir.toURI().toString()+"/";
-	Vector result = new Vector();
+	Vector<Object> result = new Vector<Object>();
 	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
 	int i = 1;
 	// for all alignments there,
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
 	    // call eval
 	    // store the resul in a record
 	    // return the record.
@@ -244,7 +244,7 @@ public class GroupEval {
 	loaded.clear();
 
 	if ( ok == true ) return result;
-	else return (Vector)null;
+	else return null;
     }
 
     public Evaluator eval( String alignName1, String alignName2 ) {
@@ -341,7 +341,7 @@ public class GroupEval {
 	    //System.out.println("\\draw (10,-0.3) node {1.}; ");
 	    System.out.println("% Plots");
 	    int k = 0;
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
 		double precision = (double)correctVect[k]/foundVect[k];
 		double recall = (double)correctVect[k]/expected;
 		double prec2 = precision*precision;
@@ -427,18 +427,18 @@ which the program does...
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
 		writer.println("<colgroup align='center' span='"+fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;) {
-		writer.println("<th colspan='"+fsize+"'>"+(String)e.nextElement()+"</th>");
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;) {
+		writer.println("<th colspan='"+fsize+"'>"+e.nextElement()+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
 		for ( int i = 0; i < fsize; i++){
 		    writer.print("<td>");
 		    if ( format.charAt(i) == 'p' ) {
@@ -531,7 +531,7 @@ which the program does...
 	    // here we use the real values, i.e., add 0 to both correctVect and
 	    // foundVect, so this is OK for computing the average.
 	    int k = 0;
-	    for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
+	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
 		e.nextElement();
 		double precision = (double)correctVect[k]/foundVect[k];
 		double recall = (double)correctVect[k]/expected;

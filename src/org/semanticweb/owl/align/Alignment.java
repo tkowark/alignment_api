@@ -138,8 +138,8 @@ public interface Alignment extends Cloneable
      * Some implementations might act cleverly (retrieving the best value).
      * Basic implementations may raise the exception
      */
-    public Set getAlignCells1( Object ob ) throws AlignmentException;
-    public Set getAlignCells2( Object ob ) throws AlignmentException;
+    public Set<Cell> getAlignCells1( Object ob ) throws AlignmentException;
+    public Set<Cell> getAlignCells2( Object ob ) throws AlignmentException;
 
     /**
      * Extensions are a way to read and add other information (metadata)
@@ -149,7 +149,7 @@ public interface Alignment extends Cloneable
     public String getExtension( String uri, String label );
     public void setExtension( String uri, String label, String value );
 
-    public Enumeration getElements();
+    public Enumeration<Cell> getElements();
     public int nbCells();
 
     public void cut( String method, double threshold ) throws AlignmentException;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhï¿½ne-Alpes, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,7 +72,9 @@ import com.ontoprise.ontostudio.gui.navigator.project.ProjectControl;
 //import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SWTInterface extends JPanel {
-	 
+
+    private static final long serialVersionUID = 330;
+    
 	private static JSplitPane _mainSplitter = new JSplitPane (JSplitPane.VERTICAL_SPLIT);
 
 	//private URL SOAPUrl = null;
@@ -1145,9 +1147,9 @@ private void refreshOntoList() {
  }
  
  
- public static Vector getCorresFromAnswer( String answer, String type ,String separator) {
+ public static Vector<String[]> getCorresFromAnswer( String answer, String type ,String separator) {
  	Document doc=null;
- 	Vector names= new Vector();
+ 	Vector<String[]> names = new Vector<String[]>();
  	//File message=null;
  	//System.out.println( "displaying XML ..." );
  	answer =   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + answer;

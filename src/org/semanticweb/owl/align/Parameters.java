@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -43,7 +43,7 @@ public interface Parameters {
     public void setParameter(String name, Object value);
     public void unsetParameter(String name);
     public Object getParameter(String name);
-    public Enumeration getNames();
+    public Enumeration<String> getNames();
 
     public void write();
     //public static Parameters read(String filename);

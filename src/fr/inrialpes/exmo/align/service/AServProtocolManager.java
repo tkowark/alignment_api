@@ -83,9 +83,9 @@ public class AServProtocolManager {
 
     CacheImpl alignmentCache = null;
     Parameters commandLineParams = null;
-    Set renderers = null;
-    Set methods = null;
-    Set services = null;
+    Set<String> renderers = null;
+    Set<String> methods = null;
+    Set<String> services = null;
 
     OntologyCache loadedOntologies = null;
     OWLRDFErrorHandler handler = null;
@@ -140,15 +140,15 @@ public class AServProtocolManager {
      * Extra administration primitives
      *********************************************************************/
 
-    public Set listmethods (){
+    public Set<String> listmethods (){
 	return methods;
     }
 
-    public Set listrenderers(){
+    public Set<String> listrenderers(){
 	return renderers;
     }
 
-    public Set listservices(){
+    public Set<String> listservices(){
 	return services;
     }
 
@@ -597,8 +597,8 @@ public class AServProtocolManager {
      * Utilities: Finding the implementation of an interface
      *********************************************************************/
 
-    public static void implementations( Class tosubclass, Set list , boolean debug ){
-	Set<String> visited = new HashSet();
+    public static void implementations( Class tosubclass, Set<String> list , boolean debug ){
+	Set<String> visited = new HashSet<String>();
 	String classPath = System.getProperty("java.class.path",".");
 	// Hack: this is not necessary
 	//classPath = classPath.substring(0,classPath.lastIndexOf(File.pathSeparatorChar));
@@ -712,8 +712,8 @@ public class AServProtocolManager {
      * interface in the currently loaded packages.
      * @param interfaceName the name of the interface to implement
      */
-    public static Set implementations( String interfaceName ) {
-	Set list = new HashSet();
+    public static Set<String> implementations( String interfaceName ) {
+	Set<String> list = new HashSet<String>();
 	try {
 	    Class toclass = Class.forName(interfaceName);
 	    //Package [] pcks = Package.getPackages();

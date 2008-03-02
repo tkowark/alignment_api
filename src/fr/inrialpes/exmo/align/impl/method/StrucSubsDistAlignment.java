@@ -80,13 +80,13 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	//int l1, l2 = 0;   // length of strings (for normalizing)
 	int nbclass1 = 0; // number of classes in onto1
 	int nbclass2 = 0; // number of classes in onto2
-	Vector classlist2 = new Vector(10); // onto2 classes
-	Vector classlist1 = new Vector(10); // onto1 classes
+	Vector<OWLClass> classlist2 = new Vector<OWLClass>(10); // onto2 classes
+	Vector<OWLClass> classlist1 = new Vector<OWLClass>(10); // onto1 classes
 	double classmatrix[][];   // class distance matrix
 	int nbprop1 = 0; // number of properties in onto1
 	int nbprop2 = 0; // number of properties in onto2
-	Vector proplist2 = new Vector(10); // onto2 properties
-	Vector proplist1 = new Vector(10); // onto1 properties
+	Vector<OWLProperty> proplist2 = new Vector<OWLProperty>(10); // onto2 properties
+	Vector<OWLProperty> proplist1 = new Vector<OWLProperty>(10); // onto1 properties
 	double propmatrix[][];   // properties distance matrix
 	double pic1 = 0.5; // class weigth for name
 	double pic2 = 0.5; // class weight for properties
@@ -101,35 +101,35 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	try {
 	    // Create property lists and matrix
 	    for ( Iterator it = ((OWLOntology)onto1).getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( it.next() );
+		proplist1.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)onto1).getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( it.next() );
+		proplist1.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)onto2).getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( it.next() );
+		proplist2.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)onto2).getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( it.next() );
+		proplist2.add( (OWLProperty)it.next() );
 	    }
 	    propmatrix = new double[nbprop1+1][nbprop2+1];
 	
 	    // Create class lists
 	    for ( Iterator it = ((OWLOntology)onto1).getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.add( it.next() );
+		classlist1.add( (OWLClass)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)onto2).getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.add( it.next() );
+		classlist2.add( (OWLClass)it.next() );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
 
 	    if (debug > 0) System.err.println("Initializing property distances");
 	    for ( i=0; i<nbprop1; i++ ){
-		OWLProperty cl = (OWLProperty)proplist1.get(i);
+		OWLProperty cl = proplist1.get(i);
 		String s1 = cl.getURI().getFragment();
 		if ( s1 != null ) s1 = s1.toLowerCase();
 		for ( j=0; j<nbprop2; j++ ){
-		    cl = (OWLProperty)proplist2.get(j);
+		    cl = proplist2.get(j);
 		    String s2 = cl.getURI().getFragment();
 		    if ( s2 != null ) s2 = s2.toLowerCase();
 		    if ( s1 == null || s2 == null ) { propmatrix[i][j] = pia1; }
@@ -142,11 +142,11 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	    if (debug > 0) System.err.println("Initializing class distances");
 	    // Initialize class distances
 	    for ( i=0; i<nbclass1; i++ ){
-		OWLClass cl = (OWLClass)classlist1.get(i);
+		OWLClass cl = classlist1.get(i);
 		for ( j=0; j<nbclass2; j++ ){
 		    classmatrix[i][j] = pic1 * StringDistances.subStringDistance(
 										 cl.getURI().getFragment().toLowerCase(),
-										 ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
+										 classlist2.get(j).getURI().getFragment().toLowerCase());
 		}
 	    }
 
@@ -170,7 +170,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 			    max = propmatrix[i][j];
 			}
 		    }
-		    if ( found ) { addAlignDistanceCell( (OWLProperty)proplist1.get(i), (OWLProperty)proplist2.get(best), "=", max ); }
+		    if ( found ) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
 		}
 		
 		if (debug > 0) System.err.print("Computing class distances\n");
@@ -183,12 +183,12 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 		//  (sigma (att in c[i]) getAllignCell... )
 		//  / nbatts of c[i] + nbatts of c[j]
 		for ( i=0; i<nbclass1; i++ ){
-		    Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)onto1) );
+		    Set properties1 = getProperties( classlist1.get(i), ((OWLOntology)onto1) );
 		    int nba1 = properties1.size();
 		    if ( nba1 > 0 ) { // if not, keep old values...
 			//Set correspondences = new HashSet();
 			for ( j=0; j<nbclass2; j++ ){
-			    Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)onto2) );
+			    Set properties2 = getProperties( classlist2.get(j), ((OWLOntology)onto2) );
 			    int nba2 = properties2.size();
 			    double attsum = 0.;
 			    // check that there is a correspondance
@@ -238,14 +238,14 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 			max = classmatrix[i][j];
 		    }
 		}
-		if ( found ) { addAlignDistanceCell( (OWLClass)classlist1.get(i), (OWLClass)classlist2.get(best), "=", max ); }
+		if ( found ) { addAlignDistanceCell( classlist1.get(i), classlist2.get(best), "=", max ); }
 	    }
 	} catch (OWLException e) {
 	    throw new AlignmentException( "OWLException during alignment", e );
 	}
     }
     
-    public void getProperties( OWLDescription desc, OWLOntology o, Set list, Set accu){
+    public void getProperties( OWLDescription desc, OWLOntology o, Set<OWLProperty> list, Set<Object> accu){
 	// I am Jerome Euzenat and I am sure that there is some problem here...
 	// DISPATCHING MANUALLY !
 	try {
@@ -271,13 +271,13 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	    e.printStackTrace();
 	}
     }
-    public void getProperties( OWLRestriction rest, OWLOntology o, Set list, Set accu) throws OWLException {
+    public void getProperties( OWLRestriction rest, OWLOntology o, Set<OWLProperty> list, Set<Object> accu) throws OWLException {
 	if ( !accu.contains( (Object)rest ) ) {
 	    accu.add((Object)rest);
-	    list.add( (Object)rest.getProperty() );
+	    list.add( rest.getProperty() );
 	}
     }
-    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set list, Set accu) throws OWLException {
+    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set<OWLProperty> list, Set<Object> accu) throws OWLException {
 	if ( !accu.contains( (Object)d ) ) {
 	    accu.add((Object)d);
 	    for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
@@ -285,7 +285,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	    }
 	}
     }
-    public void getProperties( OWLClass cl, OWLOntology o, Set list, Set accu) throws OWLException {
+    public void getProperties( OWLClass cl, OWLOntology o, Set<OWLProperty> list, Set<Object> accu) throws OWLException {
 	if ( !accu.contains( (Object)cl ) ) {
 	    accu.add((Object)cl);
 	    for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
@@ -299,9 +299,9 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	}
     }
 
-    private Set getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
-	Set resultSet = new HashSet();
-	Set accu = new HashSet();
+    private Set<OWLProperty> getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
+	Set<OWLProperty> resultSet = new HashSet<OWLProperty>();
+	Set<Object> accu = new HashSet<Object>();
 	getProperties( cl, o, resultSet, accu );
 	return resultSet;
     }

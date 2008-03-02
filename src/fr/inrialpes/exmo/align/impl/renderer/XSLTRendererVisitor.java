@@ -48,12 +48,12 @@ public class XSLTRendererVisitor implements AlignmentVisitor
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
-    Hashtable namespaces = null;
+    Hashtable<String,String> namespaces = null;
     int nsrank = 0;
 
     public XSLTRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
-	namespaces = new Hashtable();
+	namespaces = new Hashtable<String,String>();
 	namespaces.put( "http://www.w3.org/1999/XSL/Transform", "xsl" );
 	namespaces.put( "http://www.w3.org/2002/07/owl#", "owl" );
 	namespaces.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );

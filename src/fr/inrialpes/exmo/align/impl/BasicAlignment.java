@@ -70,9 +70,9 @@ public class BasicAlignment implements Alignment {
 
     protected String type = "**";
 
-    protected Hashtable hash1 = null;
+    protected Hashtable<Object,Set<Cell>> hash1 = null;
 
-    protected Hashtable hash2 = null;
+    protected Hashtable<Object,Set<Cell>> hash2 = null;
 
     protected long time = 0;
 
@@ -87,8 +87,8 @@ public class BasicAlignment implements Alignment {
      */
 
     public BasicAlignment() {
-	hash1 = new Hashtable();
-	hash2 = new Hashtable();
+	hash1 = new Hashtable<Object,Set<Cell>>();
+	hash2 = new Hashtable<Object,Set<Cell>>();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
 	if ( this instanceof AlignmentProcess ) setExtension( Annotations.ALIGNNS, Annotations.METHOD, getClass().getName() );
@@ -117,7 +117,7 @@ public class BasicAlignment implements Alignment {
     public int nbCells() {
 	int sum = 0;
 	for ( Enumeration e = hash1.elements(); e.hasMoreElements(); ) {
-	    sum += ((HashSet)e.nextElement()).size();
+	    sum += ((Set)e.nextElement()).size();
 	}
 	return sum;
     }
@@ -203,12 +203,12 @@ public class BasicAlignment implements Alignment {
 	return (String)namespaces.getParameter( label );
     };
 
-    public Enumeration getElements() {
-	return new MEnumeration( hash1 );
+    public Enumeration<Cell> getElements() {
+	return new MEnumeration<Cell>( hash1 );
     }
 
-    public ArrayList getArrayElements() {
-	ArrayList array = new ArrayList();
+    public ArrayList<Cell> getArrayElements() {
+	ArrayList<Cell> array = new ArrayList<Cell>();
 	for (Enumeration e = getElements(); e.hasMoreElements(); ) {
 	    array.add( (BasicCell)e.nextElement() );
 	}
@@ -244,7 +244,7 @@ public class BasicAlignment implements Alignment {
 
     protected void addCell( Cell c ) throws AlignmentException {
 	boolean found = false;
-	HashSet s1 = (HashSet)hash1.get(c.getObject1());
+	Set<Cell> s1 = (Set<Cell>)hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
 	    for (Iterator i = s1.iterator(); !found && i.hasNext(); ) {
@@ -252,12 +252,12 @@ public class BasicAlignment implements Alignment {
 	    }
 	    if (!found) s1.add( c );
 	} else {
-	    s1 = new HashSet();
+	    s1 = new HashSet<Cell>();
 	    s1.add( c );
 	    hash1.put(c.getObject1(),s1);
 	}
 	found = false;
-	HashSet s2 = (HashSet)hash2.get(c.getObject2());
+	Set<Cell> s2 = (Set<Cell>)hash2.get(c.getObject2());
 	if( s2 != null ){
 	    // I must check that there is no one here
 	    for (Iterator i=s2.iterator(); !found && i.hasNext(); ) {
@@ -265,17 +265,17 @@ public class BasicAlignment implements Alignment {
 	    }
 	    if (!found)	s2.add( c );
 	} else {
-	    s2 = new HashSet();
+	    s2 = new HashSet<Cell>();
 	    s2.add( c );
 	    hash2.put(c.getObject2(),s2);
 	}
     }
 
-    public Set getAlignCells1(Object ob) throws AlignmentException {
-	return (HashSet)hash1.get( ob );
+    public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
+	return hash1.get( ob );
     }
-    public Set getAlignCells2(Object ob) throws AlignmentException {
-	return (HashSet)hash2.get( ob );
+    public Set<Cell> getAlignCells2(Object ob) throws AlignmentException {
+	return hash2.get( ob );
     }
 
     /*
@@ -381,8 +381,8 @@ public class BasicAlignment implements Alignment {
     // JE: beware this does only remove the exact equal cell
     // not those with same value
     public void removeAlignCell(Cell c) throws AlignmentException {
-	HashSet s1 = (HashSet)hash1.get(c.getObject1());
-	HashSet s2 = (HashSet)hash2.get(c.getObject2());
+	Set<Cell> s1 = hash1.get(c.getObject1());
+	Set<Cell> s2 = hash2.get(c.getObject2());
 	s1.remove(c);
 	s2.remove(c);
 	if (s1.isEmpty())
@@ -428,7 +428,7 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException( "Not a percentage or threshold : "+threshold );
 	// Create a sorted list of cells
 	// For sure with sorted lists, we could certainly do far better
-	List buffer = getArrayElements();
+	List<Cell> buffer = getArrayElements();
 	Collections.sort( buffer );
 	int size = buffer.size();
 	boolean found = false;
@@ -517,7 +517,7 @@ public class BasicAlignment implements Alignment {
 	// TODO type and level
 	// TODO extension
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
-		Cell c1 = (Cell) e.nextElement();
+		Cell c1 = (Cell)e.nextElement();
 		Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
 		if (cells2 !=null) {
 			for (Cell c2 : cells2) {
@@ -621,26 +621,26 @@ public class BasicAlignment implements Alignment {
 }
 
 
-class MEnumeration implements Enumeration {
-    private Enumeration set = null; // The enumeration of sets
-    private Iterator current = null; // The current set's enumeration
+class MEnumeration<T> implements Enumeration<T> {
+    private Enumeration<Set<T>> set = null; // The enumeration of sets
+    private Iterator<T> current = null; // The current set's enumeration
 
-    MEnumeration( Hashtable s ){
+    MEnumeration( Hashtable<Object,Set<T>> s ){
 	set = s.elements();
 	while( set.hasMoreElements() && current == null ){
-	    current = ((Set)set.nextElement()).iterator();
+	    current = set.nextElement().iterator();
 	    if( !current.hasNext() ) current = null;
 	}
     }
     public boolean hasMoreElements(){
 	return ( current != null);
     }
-    public Object nextElement(){
-	Object val = current.next();
+    public T nextElement(){
+	T val = current.next();
 	if( !current.hasNext() ){
 	    current = null;
 	    while( set.hasMoreElements() && current == null ){
-		current = ((Set)set.nextElement()).iterator();
+		current = set.nextElement().iterator();
 		if( !current.hasNext() ) current = null;
 	    }
 	}

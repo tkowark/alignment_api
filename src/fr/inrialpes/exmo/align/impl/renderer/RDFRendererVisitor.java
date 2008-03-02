@@ -53,7 +53,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
     Alignment alignment = null;
     Cell cell = null;
     OmwgSyntaxFormat oMWGformatter = null;
-    Hashtable nslist = null;
+    Hashtable<String,String> nslist = null;
 
     public RDFRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -62,7 +62,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
     public void visit( Alignment align ) throws AlignmentException {
 	String extensionString = "";
 	alignment = align;
-	nslist = new Hashtable();
+	nslist = new Hashtable<String,String>();
 	nslist.put(Annotations.ALIGNNS,"align");
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");

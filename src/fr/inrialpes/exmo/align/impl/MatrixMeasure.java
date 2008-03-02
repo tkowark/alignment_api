@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -59,12 +59,12 @@ public abstract class MatrixMeasure implements Similarity {
     public int nbind2 = 0; // number of individuals in onto2
     public int i, j = 0;     // index for onto1 and onto2 classes
     public int l1, l2 = 0;   // length of strings (for normalizing)
-    public HashMap classlist2 = null; // onto2 classes
-    public HashMap classlist1 = null; // onto1 classes
-    public HashMap proplist2 = null; // onto2 properties
-    public HashMap proplist1 = null; // onto1 properties
-    public HashMap indlist2 = null; // onto2 individuals
-    public HashMap indlist1 = null; // onto1 individuals
+    public HashMap<OWLClass,Integer> classlist2 = null; // onto2 classes
+    public HashMap<OWLClass,Integer> classlist1 = null; // onto1 classes
+    public HashMap<OWLProperty,Integer> proplist2 = null; // onto2 properties
+    public HashMap<OWLProperty,Integer> proplist1 = null; // onto1 properties
+    public HashMap<OWLIndividual,Integer> indlist2 = null; // onto2 individuals
+    public HashMap<OWLIndividual,Integer> indlist1 = null; // onto1 individuals
 
     private NumberFormat numFormat = null; // printing
 
@@ -80,35 +80,35 @@ public abstract class MatrixMeasure implements Similarity {
     public void initialize( OWLOntology o1, OWLOntology o2 ){
 	onto1 = o1;
 	onto2 = o2;
-	classlist2 = new HashMap(); // onto2 classes
-	classlist1 = new HashMap(); // onto1 classes
-	proplist2 = new HashMap(); // onto2 properties
-	proplist1 = new HashMap(); // onto1 properties
-	indlist2 = new HashMap(); // onto2 instances
-	indlist1 = new HashMap(); // onto1 instances
+	classlist2 = new HashMap<OWLClass,Integer>(); // onto2 classes
+	classlist1 = new HashMap<OWLClass,Integer>(); // onto1 classes
+	proplist2 = new HashMap<OWLProperty,Integer>(); // onto2 properties
+	proplist1 = new HashMap<OWLProperty,Integer>(); // onto1 properties
+	indlist2 = new HashMap<OWLIndividual,Integer>(); // onto2 instances
+	indlist1 = new HashMap<OWLIndividual,Integer>(); // onto1 instances
 
 	try {
 	    // Create class lists
 	    for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.put( it.next(), new Integer(nbclass2) );
+		classlist2.put( (OWLClass)it.next(), new Integer(nbclass2) );
 	    }
 	    for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.put( it.next(), new Integer(nbclass1)  );
+		classlist1.put( (OWLClass)it.next(), new Integer(nbclass1)  );
 	    }
 	    clmatrix = new double[nbclass1+1][nbclass2+1];
 
 	    // Create property lists
 	    for ( Iterator it = onto2.getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.put( it.next(), new Integer(nbprop2) );
+		proplist2.put( (OWLProperty)it.next(), new Integer(nbprop2) );
 	    }
 	    for ( Iterator it = onto2.getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.put( it.next(), new Integer(nbprop2)  );
+		proplist2.put( (OWLProperty)it.next(), new Integer(nbprop2)  );
 	    }
 	    for ( Iterator it = onto1.getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.put( it.next(), new Integer(nbprop1) );
+		proplist1.put( (OWLProperty)it.next(), new Integer(nbprop1) );
 	    }
 	    for ( Iterator it = onto1.getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.put( it.next(), new Integer(nbprop1) );
+		proplist1.put( (OWLProperty)it.next(), new Integer(nbprop1) );
 	    }
 	    prmatrix = new double[nbprop1+1][nbprop2+1];
 	    // Create individual lists

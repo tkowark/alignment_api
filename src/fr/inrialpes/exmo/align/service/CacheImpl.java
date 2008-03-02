@@ -56,8 +56,8 @@ import org.semanticweb.owl.align.Parameters;
  */
 
 public class CacheImpl {
-    Hashtable alignmentTable = null;
-    Hashtable ontologyTable = null;
+    Hashtable<String,Alignment> alignmentTable = null;
+    Hashtable<URI,Set<Alignment>> ontologyTable = null;
 
     String host = null;
     String port = null;
@@ -90,8 +90,8 @@ public class CacheImpl {
 	    // Rather raise an exception
 	    System.err.println(e.toString());
 	}
-	alignmentTable = new Hashtable();
-	ontologyTable = new Hashtable();
+	alignmentTable = new Hashtable<String,Alignment>();
+	ontologyTable = new Hashtable<URI,Set<Alignment>>();
     }
 
     /**
@@ -142,7 +142,7 @@ public class CacheImpl {
 	String query = null;
 	String id = null;
 	Alignment alignment = null;
-	Vector idInfo = new Vector();
+	Vector<String> idInfo = new Vector<String>();
 	Statement st = (Statement) conn.createStatement();
 	
 	if (force) {
@@ -155,14 +155,14 @@ public class CacheImpl {
 	    
 	    // For each alignment id store metadata
 	    for( int i = 0; i < idInfo.size(); i ++ ) {
-		id = (String)idInfo.get(i);
+		id = idInfo.get(i);
 		alignment = retrieveDescription( id );
 		recordAlignment( id, alignment, true );
 	    }							
 	}
     }
 
-    protected Enumeration listAlignments() {
+    protected Enumeration<Alignment> listAlignments() {
 	return alignmentTable.elements();
     }
 
@@ -294,7 +294,7 @@ public class CacheImpl {
      * disreagarding if it is complete o only metadata
      */
     public Alignment getMetadata( String id ) throws Exception {
-	Alignment result = (Alignment)alignmentTable.get( id );
+	Alignment result = alignmentTable.get( id );
 	if ( result == null )
 	    throw new Exception("getMetadata: Cannot find alignment");
 	return result;
@@ -304,7 +304,7 @@ public class CacheImpl {
      * retrieve full alignment from id (and cache it)
      */
     public Alignment getAlignment( String id ) throws Exception {
-	Alignment result = (Alignment)alignmentTable.get( id );
+	Alignment result = alignmentTable.get( id );
 	
 	if ( result == null )
 	    throw new Exception("getAlignment: Cannot find alignment");
@@ -318,14 +318,14 @@ public class CacheImpl {
 	return result;
     }
 	
-    public Set getAlignments( URI uri ) {
-	return (Set)ontologyTable.get( uri );
+    public Set<Alignment> getAlignments( URI uri ) {
+	return ontologyTable.get( uri );
     }
 
     public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
 	// Create the set and compare
-	Set<Alignment> result = new HashSet();
-	Set<Alignment> potentials = (Set<Alignment>)ontologyTable.get( uri1 );
+	Set<Alignment> result = new HashSet<Alignment>();
+	Set<Alignment> potentials = ontologyTable.get( uri1 );
 	if ( potentials != null ) {
 	    String uri2String = uri2.toString();
 	    for( Iterator it = potentials.iterator(); it.hasNext(); ) {
@@ -375,15 +375,15 @@ public class CacheImpl {
 	    URI ouri1 = new URI( alignment.getExtension( SVCNS, OURI1) );
 	    URI ouri2 = new URI( alignment.getExtension( SVCNS, OURI2) );
 	    if ( force || alignmentTable.get( id ) == null ) {
-		Set s1 = (Set)ontologyTable.get( ouri1 );
+		Set<Alignment> s1 = ontologyTable.get( ouri1 );
 		if ( s1 == null ) {
-		    s1 = new HashSet();
+		    s1 = new HashSet<Alignment>();
 		    ontologyTable.put( ouri1, s1 );
 		}
 		s1.add( alignment );
-		Set s2 = (Set)ontologyTable.get( ouri2 );
+		Set<Alignment> s2 = ontologyTable.get( ouri2 );
 		if ( s2 == null ) {
-		    s2 = new HashSet();
+		    s2 = new HashSet<Alignment>();
 		    ontologyTable.put( ouri2, s2 );
 		}
 		s2.add( alignment );
@@ -393,7 +393,7 @@ public class CacheImpl {
 	} catch (Exception e) {
 	    System.err.println("Unlikely URI exception!");
 	    e.printStackTrace();
-	    return (String)null;
+	    return null;
 	}
     }
 

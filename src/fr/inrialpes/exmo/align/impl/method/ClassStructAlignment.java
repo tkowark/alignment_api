@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLClass;
+import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLRestriction;
 import org.semanticweb.owl.model.OWLDescription;
 import org.semanticweb.owl.model.OWLNaryBooleanDescription;
@@ -76,8 +77,8 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	//int l1, l2 = 0;   // length of strings (for normalizing)
 	int nbclass1 = 0; // number of classes in onto1
 	int nbclass2 = 0; // number of classes in onto2
-	Vector classlist2 = new Vector(10); // onto2 classes
-	Vector classlist1 = new Vector(10); // onto1 classes
+	Vector<OWLClass> classlist2 = new Vector<OWLClass>(10); // onto2 classes
+	Vector<OWLClass> classlist1 = new Vector<OWLClass>(10); // onto1 classes
 	double classmatrix[][];   // class distance matrix
 	double pic1 = 0.5; // class weigth for name
 	double pic2 = 0.5; // class weight for properties
@@ -86,10 +87,10 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	try {
 	    // Create class lists
 	    for ( Iterator it = ((OWLOntology)onto2).getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.add( it.next() );
+		classlist2.add( (OWLClass)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)onto1).getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.add( it.next() );
+		classlist1.add( (OWLClass)it.next() );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
 	
@@ -114,23 +115,23 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	    //  (sigma (att in c[i]) getAllignCell... )
 	    //  / nbatts of c[i] + nbatts of c[j]
 	    for ( i=0; i<nbclass1; i++ ){
-		Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)onto1) );
+		Set<OWLProperty> properties1 = getProperties( classlist1.get(i), ((OWLOntology)onto1) );
 		int nba1 = properties1.size();
 		if ( nba1 > 0 ) { // if not, keep old values...
 		    //Set correspondences = new HashSet();
 		    for ( j=0; j<nbclass2; j++ ){
-			Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)onto2) );
+			Set<OWLProperty> properties2 = getProperties( classlist2.get(j), ((OWLOntology)onto2) );
 			int nba2 = properties1.size();
 			double attsum = 0.;
 			// check that there is a correspondance
 			// in list of class2 atts and add their weights
-			for ( Iterator prp = properties1.iterator(); prp.hasNext(); ){
-			    Set s2 = getAlignCells1( (OWLEntity)prp.next() );
+			for ( OWLProperty prp : properties1 ){
+			    Set<Cell> s2 = (Set<Cell>)getAlignCells1( prp );
 			    // Find the property with the higest similarity
 			    // that is matched here
 			    double currentValue = 0.;
-			    for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
-				Cell c2 = (Cell)it2.next();
+			    for( Iterator<Cell> it2 = s2.iterator(); it2.hasNext(); ){
+				Cell c2 = it2.next();
 				if ( properties2.contains((Object)c2.getObject2() ) ) {
 				    double val = c2.getStrength();
 				    if ( val > currentValue )
@@ -152,7 +153,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	}
     }
 
-    public void getProperties( OWLDescription desc, OWLOntology o, Set list){
+    public void getProperties( OWLDescription desc, OWLOntology o, Set<OWLProperty> list){
 	// I am Jerome Euzenat and I am sure that there is some problem here...
 	// DISPATCHING MANUALLY !
 	try {
@@ -185,15 +186,15 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	    e.printStackTrace();
 	}
     }
-    public void getProperties( OWLRestriction rest, OWLOntology o, Set list) throws OWLException {
-	list.add( (Object)rest.getProperty() );
+    public void getProperties( OWLRestriction rest, OWLOntology o, Set<OWLProperty> list) throws OWLException {
+	list.add( rest.getProperty() );
     }
-    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set list) throws OWLException {
+    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set<OWLProperty> list) throws OWLException {
 	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
 	    getProperties( (OWLDescription)it.next(), o, list );
 	}
     }
-    public void getProperties( OWLClass cl, OWLOntology o, Set list) throws OWLException {
+    public void getProperties( OWLClass cl, OWLOntology o, Set<OWLProperty> list) throws OWLException {
 	for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
 	    OWLDescription dsc = (OWLDescription)it.next();
 	    getProperties( dsc, o, list );
@@ -204,8 +205,8 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	}
     }
 
-    private Set getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
-	Set resultSet = new HashSet(); 
+    private Set<OWLProperty> getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
+	Set<OWLProperty> resultSet = new HashSet<OWLProperty>(); 
 	getProperties( cl, o, resultSet );
 	return resultSet;
     }

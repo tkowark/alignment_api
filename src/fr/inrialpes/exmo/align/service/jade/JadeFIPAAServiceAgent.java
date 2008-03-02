@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006, 2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -61,6 +61,7 @@ import fr.inrialpes.exmo.align.service.jade.messageontology.TRANSLATE;
 
 public class JadeFIPAAServiceAgent extends Agent {
 
+    private static final long serialVersionUID = 330;
 	public static final String SERVICE_NAME = "Alignment";
 	public static final String SERVICE_TYPE = "Alignment-service";
 
@@ -109,6 +110,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 		// Add initial behaviours to manage incoming message
 		addBehaviour(new CyclicBehaviour(this) {
+			private static final long serialVersionUID = 330;
 			public void action() {
 
 				String perf; // performative

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -338,35 +338,30 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 				    } else {
 					throw new ClassCastException();
 					}}});*/
-      SortedSet cellSet = new TreeSet(
-			    new Comparator() {
-				public int compare( Object o1, Object o2 )
+      SortedSet<Cell> cellSet = new TreeSet<Cell>(
+			    new Comparator<Cell>() {
+				public int compare( Cell o1, Cell o2 )
 				    throws ClassCastException{
 				    try {
-					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
-				    if ( o1 instanceof Cell
-					 && o2 instanceof Cell ) {
-					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					//System.err.println(o1.getObject1()+" -- "+o1.getObject2()+" // "+o2.getObject1()+" -- "+o2.getObject2());
+					if ( o1.getStrength() > o2.getStrength() ){
 					    return -1;
-					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
+					} else if ( o1.getStrength() < o2.getStrength() ){
 					    return 1;
-					} else if ( (((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment() == null)
-						    || (((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment() == null) ) {
+					} else if ( (((OWLEntity)o1.getObject1()).getURI().getFragment() == null)
+						    || (((OWLEntity)o2.getObject1()).getURI().getFragment() == null) ) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) > 0) {
+					} else if ( ((OWLEntity)o1.getObject1()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject1()).getURI().getFragment()) > 0) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject1()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject1()).getURI().getFragment()) < 0 ) {
+					} else if ( ((OWLEntity)o1.getObject1()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject1()).getURI().getFragment()) < 0 ) {
 					    return 1;
-					} else if ( (((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment() == null)
-						    || (((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment() == null) ) {
+					} else if ( (((OWLEntity)o1.getObject2()).getURI().getFragment() == null)
+						    || (((OWLEntity)o2.getObject2()).getURI().getFragment() == null) ) {
 					    return -1;
-					} else if ( ((OWLEntity)((Cell)o1).getObject2()).getURI().getFragment().compareTo(((OWLEntity)((Cell)o2).getObject2()).getURI().getFragment()) > 0) {
+					} else if ( ((OWLEntity)o1.getObject2()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject2()).getURI().getFragment()) > 0) {
 					    return -1;
 					// On va supposer qu'ils n'ont pas le meme nom
 					} else { return 1; }
-				    } else {
-					throw new ClassCastException();
-				    }
 				    } catch ( OWLException e) { 
 					e.printStackTrace(); return 0;}
 				}

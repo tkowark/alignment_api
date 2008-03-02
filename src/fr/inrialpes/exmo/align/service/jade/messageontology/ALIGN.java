@@ -1,9 +1,6 @@
 package fr.inrialpes.exmo.align.service.jade.messageontology;
 
-
-import jade.content.*;
-import jade.util.leap.*;
-import jade.core.*;
+import jade.content.Predicate;
 
 /**
 * Protege name: ALIGN
@@ -12,4 +9,5 @@ import jade.core.*;
 */
 public class ALIGN  extends Action implements Predicate{
 
+    private static final long serialVersionUID = 330;
 }

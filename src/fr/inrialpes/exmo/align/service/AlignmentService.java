@@ -25,18 +25,19 @@ import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-
 import fr.inrialpes.exmo.align.util.NullStream;
 
 import org.semanticweb.owl.align.Parameters;
+
+import gnu.getopt.LongOpt;
+import gnu.getopt.Getopt;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.io.File;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * AlignmentService
@@ -83,8 +84,8 @@ public class AlignmentService {
     private String filename = null;
     private String outfile = null;
     private String paramfile = null;
-    private Hashtable services = null;
-    private Hashtable directories = null;
+    private Hashtable<String,AlignmentServiceProfile> services = null;
+    private Hashtable<String,Directory> directories = null;
 
     private AServProtocolManager manager;
     private DBService connection;
@@ -95,8 +96,8 @@ public class AlignmentService {
     }
     
     public void run(String[] args) throws Exception {
-	services = new Hashtable();
-	directories = new Hashtable();
+	services = new Hashtable<String,AlignmentServiceProfile>();
+	directories = new Hashtable<String,Directory>();
 	// Read parameters
 	Parameters params = readParameters( args );
 	if ( outfile != null ) {
@@ -128,34 +129,27 @@ public class AlignmentService {
 	if ( debug > 0 ) System.err.println("Manager created");
 
 	// Launch services
-	for ( Enumeration e = services.keys() ; e.hasMoreElements() ; ) {
-	    String name = (String)e.nextElement();
-	    Class serviceClass = Class.forName(name);
-	    java.lang.reflect.Constructor constructor = serviceClass.getConstructor( (Class[])null );
-	    AlignmentServiceProfile serv = (AlignmentServiceProfile)constructor.newInstance( (Object[])null );
+	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try {
 		serv.init( params, manager );
-		if ( debug > 0 ) System.err.println(name+" launched on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/");
+		if ( debug > 0 ) System.err.println(serv+" launched on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/");
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't start "+name+" server on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/:\n");
+		System.err.println( "Couldn't start "+serv+" server on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/:\n");
+		// Ideally remove the service
 		ex.printStackTrace();
 	    }
-	    services.put( name, serv );
 	}
-	// [Directory]: register to directories
-	for ( Enumeration e = directories.keys() ; e.hasMoreElements() ; ) {
-	    String name = (String)e.nextElement();
-	    Class dirClass = Class.forName(name);
-	    java.lang.reflect.Constructor constructor = dirClass.getConstructor( (Class[])null );
-	    Directory dir = (Directory)constructor.newInstance( (Object[])null );
+	// Register to directories
+	for ( Directory dir : directories.values() ) {
 	    try {
 		dir.open( params );
-		if ( debug > 0 ) System.err.println(name+" connected.");
+		if ( debug > 0 ) System.err.println(dir+" connected.");
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't connect to "+name+" directory");
+		System.err.println( "Couldn't connect to "+dir+" directory");
+		// JE: this has to be done
+		//directories.remove( name, dir );
 		ex.printStackTrace();
 	    }
-	    directories.put( name, dir );
 	}
 
 	// Wait loop
@@ -168,8 +162,7 @@ public class AlignmentService {
     protected void close(){
 	if (debug > 0 ) System.err.println("Shuting down server");
 	// [Directory]: unregister to directories
-	for ( Enumeration e = directories.elements() ; e.hasMoreElements() ; ) {
-	    Directory dir = (Directory)e.nextElement();
+	for ( Directory dir : directories.values() ) {
 	    try { dir.close(); }
 	    catch ( AServException ex ) {
 		System.err.println("Cannot unregister to "+dir);
@@ -177,8 +170,7 @@ public class AlignmentService {
 	    }
 	}
 	// Close services
-	for ( Enumeration e = services.elements() ; e.hasMoreElements() ; ) {
-	    AlignmentServiceProfile serv = (AlignmentServiceProfile)e.nextElement();
+	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try { serv.close(); }
 	    catch ( AServException ex ) {
 		System.err.println("Cannot close "+serv);
@@ -197,6 +189,13 @@ public class AlignmentService {
 	try { close(); }
 	finally { super.finalize(); }
     }
+
+    protected Object loadInstance( String className) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+	Class cl = Class.forName(className);
+	java.lang.reflect.Constructor constructor = cl.getConstructor( (Class[])null );
+	return constructor.newInstance( (Object[])null );
+    }
+
 
     public Parameters readParameters( String[] args ) {
 	Parameters params = new BasicParameters();
@@ -244,6 +243,7 @@ public class AlignmentService {
 	    case 'h' :
 		usage();
 		System.exit(0);
+		break;
 	    case 'o' :
 		/* Use filename instead of stdout */
 		outfile = g.getOptarg();
@@ -266,7 +266,12 @@ public class AlignmentService {
 	    case 'i' :
 		/* external service */
 		arg = g.getOptarg();
-		services.put( arg, arg );
+		try {
+		    services.put( arg, (AlignmentServiceProfile)loadInstance( arg ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create service for "+arg);
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'H' :
 		/* HTTP Server + port */
@@ -277,7 +282,12 @@ public class AlignmentService {
 		    params.setParameter( "http", HTML );
 		}
 		// This shows that it does not work
-		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
+		try {
+		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create service for HTMLAServProfile");
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'A' :
 		/* JADE Server + port */
@@ -287,7 +297,12 @@ public class AlignmentService {
 		} else {
 		    params.setParameter( "jade", JADE );
 		}		    
-		services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", params.getParameter( "jade" ) );
+		try {
+		    services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile" ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create service for JadeFIPAAServProfile");
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'W' :
 		/* Web service + port */
@@ -301,7 +316,12 @@ public class AlignmentService {
 		// Put the default port, may be overriden
 		if ( params.getParameter( "http" ) == null )
 		    params.setParameter( "http", HTML );
-		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", HTML );
+		try {
+		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create service for Web services");
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'P' :
 		/* JXTA Server + port */
@@ -323,8 +343,13 @@ public class AlignmentService {
 		    params.setParameter( "oyster", arg );
 		} else {
 		    params.setParameter( "oyster", JADE );
-		}		    
-		directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", params.getParameter( "oyster" ) );
+		}
+		try {
+		    directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.OysterDirectory" ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create directory for Oyster");
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'U' :
 		/* [JE: Currently not working]: UDDI directory + port */
@@ -334,7 +359,12 @@ public class AlignmentService {
 		} else {
 		    params.setParameter( "uddi", JADE );
 		}		    
-		directories.put( "fr.inrialpes.exmo.align.service.UDDIDirectory", params.getParameter( "uddi" ) );
+		try {
+		    directories.put( "fr.inrialpes.exmo.align.service.UDDIDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.UDDIDirectory" ) );
+		} catch (Exception ex) {
+		    System.err.println("Cannot create directory for UDDI");
+		    ex.printStackTrace();
+		}
 		break;
 	    case 'm' :
 		params.setParameter( "dbmshost", g.getOptarg() );

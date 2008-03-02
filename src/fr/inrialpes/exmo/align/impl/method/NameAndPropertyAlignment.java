@@ -80,13 +80,13 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	//int l1, l2 = 0;   // length of strings (for normalizing)
 	int nbclass1 = 0; // number of classes in onto1
 	int nbclass2 = 0; // number of classes in onto2
-	Vector classlist2 = new Vector(10); // onto2 classes
-	Vector classlist1 = new Vector(10); // onto1 classes
+	Vector<OWLClass> classlist2 = new Vector<OWLClass>(10); // onto2 classes
+	Vector<OWLClass> classlist1 = new Vector<OWLClass>(10); // onto1 classes
 	double classmatrix[][];   // class distance matrix
 	int nbprop1 = 0; // number of properties in onto1
 	int nbprop2 = 0; // number of properties in onto2
-	Vector proplist2 = new Vector(10); // onto2 properties
-	Vector proplist1 = new Vector(10); // onto1 properties
+	Vector<OWLProperty> proplist2 = new Vector<OWLProperty>(10); // onto2 properties
+	Vector<OWLProperty> proplist1 = new Vector<OWLProperty>(10); // onto1 properties
 	double propmatrix[][];   // properties distance matrix
 	double pic1 = 0.5; // class weigth for name
 	//double pic2 = 0.5; // class weight for properties
@@ -101,25 +101,25 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	try {
 	    // Create property lists and matrix
 	    for ( Iterator it = ((OWLOntology)getOntology1()).getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( it.next() );
+		proplist1.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)getOntology1()).getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( it.next() );
+		proplist1.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)getOntology2()).getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( it.next() );
+		proplist2.add( (OWLProperty)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)getOntology2()).getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( it.next() );
+		proplist2.add( (OWLProperty)it.next() );
 	    }
 	    propmatrix = new double[nbprop1+1][nbprop2+1];
 	
 	    // Create class lists
 	    for ( Iterator it = ((OWLOntology)getOntology2()).getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.add( it.next() );
+		classlist2.add( (OWLClass)it.next() );
 	    }
 	    for ( Iterator it = ((OWLOntology)getOntology1()).getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.add( it.next() );
+		classlist1.add( (OWLClass)it.next() );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
 
@@ -234,7 +234,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	}
     }
     
-    public void getProperties( OWLDescription desc, OWLOntology o, Set list){
+    public void getProperties( OWLDescription desc, OWLOntology o, Set<OWLProperty> list){
 	// I am Jerome Euzenat and I am sure that there is some problem here...
 	// DISPATCHING MANUALLY !
 	try {
@@ -260,15 +260,15 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    e.printStackTrace();
 	}
     }
-    public void getProperties( OWLRestriction rest, OWLOntology o, Set list) throws OWLException {
-	list.add( (Object)rest.getProperty() );
+    public void getProperties( OWLRestriction rest, OWLOntology o, Set<OWLProperty> list) throws OWLException {
+	list.add( rest.getProperty() );
     }
-    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set list) throws OWLException {
+    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set<OWLProperty> list) throws OWLException {
 	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
 	    getProperties( (OWLDescription)it.next(), o, list );
 	}
     }
-    public void getProperties( OWLClass cl, OWLOntology o, Set list) throws OWLException {
+    public void getProperties( OWLClass cl, OWLOntology o, Set<OWLProperty> list) throws OWLException {
 	for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
 	    OWLDescription dsc = (OWLDescription)it.next();
 	    getProperties( dsc, o, list );
@@ -279,8 +279,8 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	}
     }
 
-    private Set getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
-	Set resultSet = new HashSet(); 
+    private Set<OWLProperty> getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
+	Set<OWLProperty> resultSet = new HashSet<OWLProperty>(); 
 	getProperties( cl, o, resultSet );
 	return resultSet;
     }

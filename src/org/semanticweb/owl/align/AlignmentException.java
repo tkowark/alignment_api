@@ -1,6 +1,7 @@
 /*
  * $Id$
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004
+ *
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,7 +33,7 @@ import java.lang.Exception;
 public class AlignmentException extends Exception 
 {
 
-    static final long serialVersionID = 100;
+    private static final long serialVersionUID = 330;
 
     public AlignmentException( String message )
     {

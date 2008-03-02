@@ -66,7 +66,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
     // The eleven values of precision and recall
     private double[] precisions = null;
 
-    private Vector points;
+    private Vector<Pair> points;
 
     /** Creation:
      * A priori, evaluators can deal with any kind of alignments.
@@ -77,7 +77,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	if ( align1.getClass() != align2.getClass() ) {
 	    // This should throw an exception...
 	}
-	points = new Vector();
+	points = new Vector<Pair>();
     }
 
     /**
@@ -103,9 +103,9 @@ public class PRGraphEvaluator extends BasicEvaluator {
 
       // Create a sorted structure in which putting the cells
       // TreeSet could be replaced by something else
-      SortedSet cellSet = new TreeSet(
-			    new Comparator() {
-				public int compare( Object o1, Object o2 )
+      SortedSet<Cell> cellSet = new TreeSet<Cell>(
+			    new Comparator<Cell>() {
+				public int compare( Cell o1, Cell o2 )
 				    throws ClassCastException{
 				    try {
 					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
@@ -138,7 +138,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 
       // Set the found cells in the sorted structure
       for (Enumeration e = align2.getElements(); e.hasMoreElements();) {
-	  cellSet.add( e.nextElement() );
+	  cellSet.add( (Cell)e.nextElement() );
       }
 
       // Collect the points that change recall
@@ -183,7 +183,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
       double level = (double)i/STEP; // max level of that interval
       double best = 0.; // best value found for that interval
       while( j >= 0 ){
-	  Pair precrec = (Pair)points.get(j);
+	  Pair precrec = points.get(j);
 	  while ( precrec.getX() < level ){
 	      precisions[i] = best;
 	      i--;
@@ -220,7 +220,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
      */
     public void writeFullPlot(PrintWriter writer) throws java.io.IOException {
 	for( int j = 0; j < points.size(); j++ ){
-	    Pair precrec = (Pair)points.get(j);
+	    Pair precrec = points.get(j);
 	    writer.println( precrec.getX()+" "+precrec.getY() );
 	}
     }

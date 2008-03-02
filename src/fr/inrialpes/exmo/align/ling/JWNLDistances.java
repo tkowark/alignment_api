@@ -506,148 +506,143 @@ public class JWNLDistances {
 	}
 	
 
-	// the new tokenizer
-	// firsst looks for non-alphanumeric chars in the string
-	// if any, they will be taken as the only delimiters
-	// otherwise the standard naming convention will be assumed:
-	// words start with a capital letter
-	// substring of capital letters will be seen as a whole
-	// if it is a suffix
-	// otherwise the last letter will be taken as the new token
-	// start
-	public Vector tokenize(String s) {
-		String str1 = s;
-		int sLength = s.length();
-		Vector vTokens = new Vector();
+    // the new tokenizer
+    // first looks for non-alphanumeric chars in the string
+    // if any, they will be taken as the only delimiters
+    // otherwise the standard naming convention will be assumed:
+    // words start with a capital letter
+    // substring of capital letters will be seen as a whole
+    // if it is a suffix
+    // otherwise the last letter will be taken as the new token
+    // start
+    public Vector<String> tokenize(String s) {
+	String str1 = s;
+	int sLength = s.length();
+	Vector<String> vTokens = new Vector<String>();
 		
-		// 1. detect possible delimiters
-		// starts on the first character of the string
-		int tkStart = 0;
-		int tkEnd = 0;
+	// 1. detect possible delimiters
+	// starts on the first character of the string
+	int tkStart = 0;
+	int tkEnd = 0;
 		
-		// looks for the first delimiter
-		// while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
-		while (tkStart < sLength  && isAlphaNum (str1.charAt(tkStart))) {
-			tkStart++;
-		}
-		
-		// if there is one then the tokens will be the
-		// substrings between delimiters
-		if (tkStart < sLength){
-			
-			// reset start and look for the first token
-			tkStart = 0;
-
-			// ignore leading separators
-			// while (tkStart < sLength && ! isAlpha (str1.charAt(tkStart))) {
-			while (tkStart < sLength  && ! isAlphaNum (str1.charAt(tkStart))) {
-				tkStart++;
-			}
-
-			tkEnd = tkStart;
-
-			while (tkStart < sLength) {
-
-				// consumption of the Alpha/Num token
-				if (isAlpha (str1.charAt(tkEnd))) {
-					while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
-						tkEnd++;
-					}
-				} else {
-					while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
-						tkEnd++;
-					}					
-				}
-				
-				// consumption of the Num token
-				vTokens.add(str1.substring(tkStart, tkEnd));
-
-				// ignoring intermediate delimiters
-				while (tkEnd < sLength  && !isAlphaNum (str1.charAt(tkEnd))) {
-					tkEnd++;
-				}			
-				tkStart=tkEnd;
-			}			
-		}
-		
-		// else the standard naming convention will be used
-		//
-		// 
-		else{
-			// start at the beginning of the string
-			tkStart = 0;			
-			tkEnd = tkStart;
-
-			while (tkStart < sLength) {
-
-				// the beginning of a token
-				if (isAlpha (str1.charAt(tkEnd))){
-					
-					if (isAlphaCap (str1.charAt(tkEnd))){
-						
-						// This starts with a Cap
-						// IS THIS an Abbreviaton ???
-						// lets see how maqny Caps
-						while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
-							tkEnd++;
-						}
-			
-						// The pointer is at:
-						// a) string end: make a token and go on
-						// b) number: make a token and go on
-						// c) a small letter:
-						// if there are at least 3 Caps,
-						// separate them up to the second last one and move the
-						// tkStart to tkEnd-1
-						// otherwise
-						// go on
-
-						if (tkEnd == sLength || isNum (str1.charAt(tkEnd))) {
-							vTokens.add(str1.substring(tkStart, tkEnd));
-							tkStart=tkEnd;									
-						} else {
-							// small letter
-							if (tkEnd - tkStart > 2) {
-								// If at least 3
-								vTokens.add(str1.substring(tkStart, tkEnd-1));
-								tkStart=tkEnd-1;									
-							}
-						}
-						// if (isAlphaSmall (str1.charAt(tkEnd))){}
-					} else {
-						// it is a small letter that follows a number : go on
-						// relaxed
-						while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
-							tkEnd++;
-						}
-						vTokens.add(str1.substring(tkStart, tkEnd));
-						tkStart=tkEnd;										
-					}
-				} else {
-				
-					// Here is the numerical token processing
-					while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
-						tkEnd++;
-					}
-					vTokens.add(str1.substring(tkStart, tkEnd));
-					tkStart=tkEnd;			
-				}
-			}	
-		}
-		// PV: Debug 
-		//System.err.println("Tokens = "+ vTokens.toString());		
-			return vTokens;
+	// looks for the first delimiter
+	// while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
+	while (tkStart < sLength  && isAlphaNum (str1.charAt(tkStart))) {
+	    tkStart++;
 	}
-	
-    
+		
+	// if there is one then the tokens will be the
+	// substrings between delimiters
+	if (tkStart < sLength){
+			
+	    // reset start and look for the first token
+	    tkStart = 0;
+	    
+	    // ignore leading separators
+	    // while (tkStart < sLength && ! isAlpha (str1.charAt(tkStart))) {
+	    while (tkStart < sLength  && ! isAlphaNum (str1.charAt(tkStart))) {
+		tkStart++;
+	    }
+
+	    tkEnd = tkStart;
+
+	    while (tkStart < sLength) {
+
+		// consumption of the Alpha/Num token
+		if (isAlpha (str1.charAt(tkEnd))) {
+		    while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }
+		} else {
+		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }					
+		}
+		
+		// consumption of the Num token
+		vTokens.add(str1.substring(tkStart, tkEnd));
+		
+		// ignoring intermediate delimiters
+		while (tkEnd < sLength  && !isAlphaNum (str1.charAt(tkEnd))) {
+		    tkEnd++;
+		}			
+		tkStart=tkEnd;
+	    }			
+	}
+		
+	// else the standard naming convention will be used
+	else{
+	    // start at the beginning of the string
+	    tkStart = 0;			
+	    tkEnd = tkStart;
+
+	    while (tkStart < sLength) {
+
+		// the beginning of a token
+		if (isAlpha (str1.charAt(tkEnd))){
+					
+		    if (isAlphaCap (str1.charAt(tkEnd))){
+						
+			// This starts with a Cap
+			// IS THIS an Abbreviaton ???
+			// lets see how maqny Caps
+			while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
+			    tkEnd++;
+			}
+			
+			// The pointer is at:
+			// a) string end: make a token and go on
+			// b) number: make a token and go on
+			// c) a small letter:
+			// if there are at least 3 Caps,
+			// separate them up to the second last one and move the
+			// tkStart to tkEnd-1
+			// otherwise
+			// go on
+
+			if (tkEnd == sLength || isNum (str1.charAt(tkEnd))) {
+			    vTokens.add(str1.substring(tkStart, tkEnd));
+			    tkStart=tkEnd;
+			} else {
+			    // small letter
+			    if (tkEnd - tkStart > 2) {
+				// If at least 3
+				vTokens.add(str1.substring(tkStart, tkEnd-1));
+				tkStart=tkEnd-1;
+			    }
+			}
+			// if (isAlphaSmall (str1.charAt(tkEnd))){}
+		    } else {
+			// it is a small letter that follows a number : go on
+			// relaxed
+			while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
+			    tkEnd++;
+			}
+			vTokens.add(str1.substring(tkStart, tkEnd));
+			tkStart=tkEnd;
+		    }
+		} else {
+		    // Here is the numerical token processing
+		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }
+		    vTokens.add(str1.substring(tkStart, tkEnd));
+		    tkStart=tkEnd;			
+		}
+	    }	
+	}
+	// PV: Debug 
+	//System.err.println("Tokens = "+ vTokens.toString());		
+	return vTokens;
+    }
     
     // PG: The method now returns an instance of Vector.
     /**
      * @param s A string.
      * @return a vector containing a collection of tokens.
      */
-    public Vector tokenizeDep(String s) {
-        Vector sTokens = new Vector();
+    public Vector<String> tokenizeDep(String s) {
+        Vector<String> sTokens = new Vector<String>();
         String str1 = s;
         
         // starts on the second character of the string
@@ -702,8 +697,8 @@ public class JWNLDistances {
      * TODO Look up for other things than nouns
      * @param word
      */
-    public void lookUpWord(String word, Hashtable nouns, Hashtable adjectives,
-            Hashtable verbs) {
+    public void lookUpWord(String word, Hashtable<String,IndexWord> nouns, Hashtable<String,IndexWord> adjectives,
+            Hashtable<String,IndexWord> verbs) {
         IndexWord index = null;
         
         try {

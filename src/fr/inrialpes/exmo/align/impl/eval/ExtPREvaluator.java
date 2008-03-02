@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -202,15 +202,16 @@ public class ExtPREvaluator extends BasicEvaluator {
 
     public int isSuperClass( OWLClass class1, OWLClass class2, OWLOntology ontology ) throws OWLException {
 	URI uri1 = class1.getURI();
-	Set superclasses = new HashSet();
+	Set<OWLEntity> superclasses = new HashSet<OWLEntity>();
 	// required for avoiding java.util.ConcurrentModificationException
-	Set bufferedSuperClasses = null;
+	Set<OWLEntity> bufferedSuperClasses = null;
 	int level = 0;
-	superclasses.addAll(class2.getSuperClasses( ontology ));
+	// [Warning:unchecked] due to OWL API not serving generic types
+	superclasses.addAll(  class2.getSuperClasses( ontology )); // [W:unchecked]
 
 	while ( !superclasses.isEmpty() ){
 	    bufferedSuperClasses = superclasses;
-	    superclasses = new HashSet();
+	    superclasses = new HashSet<OWLEntity>();
 	    Iterator it = bufferedSuperClasses.iterator();
 	    level++;
 	    for( ; it.hasNext() ; ){
@@ -221,7 +222,8 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    if ( uri1.toString().equals(uri2.toString()) ) {
 			return level;
 		    } else {
-			superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology ));
+			// [Warning:unchecked] due to OWL API not serving generic types
+			superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology )); // [W:unchecked]
 		    }
 		}
 	    }

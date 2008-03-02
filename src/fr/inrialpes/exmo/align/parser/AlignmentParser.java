@@ -21,7 +21,6 @@
 package fr.inrialpes.exmo.align.parser;
 
 // Imported OMWG classes
-//import org.omwg.mediation.parser.alignment.XpathParser;
 import org.omwg.mediation.parser.rdf.RDFParser;
 import org.omwg.mediation.parser.rdf.RDFParserException;
 
@@ -92,20 +91,13 @@ public class AlignmentParser extends DefaultHandler {
     Ontology onto2 = null;
 
     /**
-     * The currently loaded ontologies
-     */
-    //protected Hashtable ontologies = null;
-    
-    /**
      * the alignment that is parsed
      * We always create a URIAlignment (we could also use a BasicAlignment).
      * This is a pitty but the idea of creating a particular alignment
      * is not in accordance with using an interface.
      */
     protected Alignment alignment = null;
-    // Used by the OMWGAlignments
-    //protected URIAlignment alignment = null;
-    
+
     /**
      * the content found as text...
      */
@@ -187,6 +179,7 @@ public class AlignmentParser extends DefaultHandler {
      * @param loaded should be replaced by OntologyCache (by useless)
      * @deprecated use parse( URI ) instead
      */
+    @Deprecated
     public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, RDFParserException {//, XPathExpressionException
 	// Determine which parser to use through the use of Xpath?
 	//private static final XPath XPATH = XPathFactory.newInstance().newXPath();
@@ -201,13 +194,11 @@ public class AlignmentParser extends DefaultHandler {
      * parsed.
      * @param uri URI of the document to parse
      */
-    public Alignment parse( String uri ) throws SAXException, IOException, RDFParserException { //, XPathExpressionException
+    public Alignment parse( String uri ) throws SAXException, IOException, RDFParserException {
 	this.uri = uri;
 	try { parser.parse( uri, this ); }
 	catch (SAXException e) {
 	    if ( e.getMessage().equals("2OMWGAlignment") ) {
-		//alignment = new XpathParser().parse(((InputStream)new URL( uri ).openStream()));
-		//alignment = new XpathParser().parse( new File( uri ) );
 		alignment = new RDFParser().parse( new File( uri ) );
 	    } else {
 		throw e; // unfortunatelly
@@ -276,7 +267,6 @@ public class AlignmentParser extends DefaultHandler {
 		cl2 = null;
 	    } else if (pName.equals("map")) {
 		try {
-		    // JE: OMWG1 //NOT SURE
 		    alignment.init( onto1, onto2 );
 		} catch ( AlignmentException e ) {
 		    throw new SAXException("Catched alignment exception", e );
@@ -410,7 +400,6 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("uri1")) {
 		    if ( onto1.getOntology() == null ){
 			try {
-			    // JE: OMWG1
 			    URI u = new URI( content );
 			    onto1.setOntology( u );
 			    onto1.setURI( u );
@@ -421,7 +410,6 @@ public class AlignmentParser extends DefaultHandler {
 		} else if (pName.equals("uri2")) {
 		    if ( onto2.getOntology() == null ){
 			try {
-			    // JE: OMWG1
 			    URI u = new URI( content );
 			    onto2.setOntology( u );
 			    onto2.setURI( u );
@@ -429,7 +417,6 @@ public class AlignmentParser extends DefaultHandler {
 			    throw new SAXException("uri2: malformed URI");
 			}
 		    }
-		// JE: OMWG1
 		} else if (pName.equals("Ontology")) {
 		} else if (pName.equals("location")) {
 		    try { curronto.setFile( new URI( content ) );
@@ -451,7 +438,6 @@ public class AlignmentParser extends DefaultHandler {
 		    alignment.setType( content );
 		} else if (pName.equals("level")) {
 		    if ( content.equals("2OMWG") ) {
-			//throw new AlignmentException("2OMWGAlignment");
 			throw new SAXException("2OMWGAlignment");
 		    } else {
 			alignment.setLevel( content );
