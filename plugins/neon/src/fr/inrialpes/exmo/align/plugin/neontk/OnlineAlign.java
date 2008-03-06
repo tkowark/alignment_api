@@ -21,7 +21,7 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
- 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -36,7 +36,6 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
  
-
 public class OnlineAlign {
 		
 		//public AlignmentClient ws = null;
@@ -46,6 +45,7 @@ public class OnlineAlign {
 		public  boolean connected = false;
 		URL SOAPUrl = null;
 		String SOAPAction = null;
+		String uploadFile = null;
 		
 		
 	    public OnlineAlign( String htmlPort, String host)  {
@@ -75,6 +75,37 @@ public class OnlineAlign {
             return conn;
 	    }
 	    */
+	    
+	    public String uploadAlign(String alignId) {
+	    	
+			String answer = null;
+			try {
+				Parameters params = new BasicParameters();
+				params.setParameter( "host", HOST );
+				//params.setParameter( "http", PORT );
+				//params.setParameter( "wsdl", WSDL );
+				params.setParameter( "command","load");
+				//params.setParameter( "arg1", alignId);
+				
+				uploadFile = alignId;
+				
+					
+				// Create the SOAP message
+				String message = createMessage( params );
+				  
+				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				System.out.println("Message :"+ message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+				
+				System.out.println("Loaded Align="+ answer);
+				
+			} catch ( Exception ex ) { ex.printStackTrace(); };
+			if(! connected ) return null; 
+			return answer;
+	    }
+	    
 	    public String trimAlign(String alignId, String thres) {
 	    	
 			String answer = null;
@@ -483,14 +514,19 @@ public class OnlineAlign {
 			SOAPAction = "loadRequest";
 			//usage();
 			//System.exit(-1);
+			/*
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			String line;
-			String content = "";
+			//String line;
+			//String content = "";
 			while ((line = in.readLine()) != null) {
 			    content += line + "\n";
 			}
 			if (in != null) in.close();
 			System.err.println(content);
+			*/
+			
+			String content = OfflineAlign.fileToString(new File(uploadFile));
+			
 			messageBody = "<content>"+content+"</content>";
 		    } else {
 			SOAPAction = "loadfileRequest";

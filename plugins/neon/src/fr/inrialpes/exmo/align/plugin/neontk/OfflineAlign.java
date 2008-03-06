@@ -27,9 +27,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Vector;
+import java.util.Enumeration;
+
+import org.omwg.mediation.parser.rdf.RDFParser;
+import org.omwg.mediation.parser.rdf.RDFParserException;
+//import javax.xml.parsers.SAXParser;
+//import javax.xml.parsers.SAXParserFactory;
 
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
@@ -38,10 +45,20 @@ import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.OntologyCache;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 
 public class OfflineAlign {
+	
+	File  alignFolder = null;
+	File  ontoFolder  = null;
+	
+	public OfflineAlign(File on, File al) {
+		ontoFolder  = on; 
+		alignFolder = al;
+	}
 	
    String matchAndExportAlign (String method, String selectedNeOnOnto1, String selectedNeOnOnto2) {	 
 	  
@@ -49,8 +66,8 @@ public class OfflineAlign {
       ImportExportControl ieControl = new ImportExportControl();
       Integer name1 = new Integer(SWTInterface.alignId++);  
 	  Integer name2 = new Integer(SWTInterface.alignId++);
-	  File f1 = new File("onto-" + name1.toString() + ".owl");
-	  File f2 = new File("onto-" + name2.toString() + ".owl");
+	  File f1 = new File( ontoFolder.getAbsolutePath() + ontoFolder.separator + name1.toString() + ".owl");
+	  File f2 = new File( ontoFolder.getAbsolutePath() + ontoFolder.separator + name2.toString() + ".owl");
 	  String fname1 = "file:" + f1.getAbsolutePath();
 	  String fname2 = "file:" + f2.getAbsolutePath();
 	  
@@ -85,27 +102,32 @@ public class OfflineAlign {
 	  	A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 	  	A1.init( (URI)uris.get(0), (URI)uris.get(1), (OntologyCache)null );
 	   
-
 	  	A1.align((Alignment)null,p);
 	  	
-	  	SWTInterface.alignObjects.clear();
-	  	SWTInterface.alignObjects.add(A1);
+	  	//SWTInterface.alignObjects.clear();
+	  	SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString(), (Alignment)A1 );
 	  
-	  	//for exporting to NeonToolkit
 	  	
-	  
-	  	FileWriter owlF = new FileWriter(new File( "align-" + name.toString()+ ".owl" ));
+	  	//	  for saving locally
+	  	FileWriter rdfF = new FileWriter(new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".rdf" ));
+	  	AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
+	  	A1.render(rdfV);
+	  	rdfF.close();
+	  	
+	  	//	  for exporting to NeonToolkit
+	  	FileWriter owlF    = new FileWriter(new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl" ));
+	  	
 	  	AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
-			     
+	  	
+	  	
 	  	A1.render(V);
 	  	owlF.close();
 	
-	  	
-	  	String str1 =  fileToString(new File("align-" + name.toString()+ ".owl") );
+	  	String str1 =  fileToString(new File(alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl") );
 		 
 		
 		//Add URI to OWL file : rethink !!!
-	  	File f0 = new File( "align-" + name.toString()+ ".owl" );
+	  	File f0 = new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl" );
 	  	String s1 = str1.substring(0, str1.indexOf('>') + 1 );
 	  	String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
 		
@@ -122,19 +144,14 @@ public class OfflineAlign {
 	  	}
 		
 	  	
-		File owlFile = new File( "align-" + name.toString()+ ".owl"  );
+		File owlFile = new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl"  );
 		FileWriter out = new FileWriter( owlFile );
 		out.write( s3 + s2 );
 			//out.write( answer );
 		out.close();  
-	  	 
-
-	  	
-	  	//String[] importedModules = ieControl.importFileSystem(proj, "align-" + name.toString()+ ".owl", null, null);
-	  	//ieControl.addOntologies2Project(importedModules, proj);
 	    
 	  	//for displaying
-	  	FileWriter htmlF = new FileWriter( "align.html" );
+	  	FileWriter htmlF = new FileWriter( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString() + ".html" );
 	  	AlignmentVisitor V1 = new HTMLRendererVisitor(
 			    new PrintWriter ( htmlF ) );
 	  
@@ -143,39 +160,44 @@ public class OfflineAlign {
 	  
 	  } catch ( Exception ex ) { ex.printStackTrace(); };
 	  
-	  return "align-" + name.toString()+ ".owl";
+	  return alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString();
    }
    
    
-   String trimAndExportAlign (Double thres) {	 
+   String trimAndExportAlign (Double thres, String id) {	 
 		  
-	  
 	      //String htmlString = null;
 	      //Vector corrList = new Vector();
 	      Integer name = new Integer(SWTInterface.alignId++);
 	      
-	      AlignmentProcess A1 = SWTInterface.alignObjects.get(0);
+	      Alignment A1 = SWTInterface.alignmentTable.get( id );
+	      Alignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
 	      
 	      try {
 	    	 
-	      A1.cut(thres);
-	      SWTInterface.alignObjects.clear();
-		  SWTInterface.alignObjects.add(A1);
+	      clonedA1.cut(thres);
+	      SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString(), clonedA1 );
+	      //SWTInterface.alignObjects.clear();
+		  //SWTInterface.alignmentTable.put(A1);
 	       
 		  	
+		  FileWriter rdfF = new FileWriter(new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".rdf" ));
+		  AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
+		  clonedA1.render(rdfV);
+		  rdfF.close();
 		  
-		  FileWriter owlF = new FileWriter(new File( "align-" + name.toString()+ ".owl" ));
+		  FileWriter owlF = new FileWriter(new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl" ));
 		  AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
 				     
-		  A1.render(V);
+		  clonedA1.render(V);
 		  owlF.close();
 		
 		  	
-		  String str1 =  fileToString(new File("align-" + name.toString()+ ".owl") );
+		  String str1 =  fileToString(new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl") );
 			 
 			
 			//Add URI to OWL file : rethink !!!
-		  File f0 = new File( "align-" + name.toString()+ ".owl" );
+		  File f0 = new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl" );
 		  String s1 = str1.substring(0, str1.indexOf('>') + 1 );
 		  String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
 			
@@ -192,27 +214,69 @@ public class OfflineAlign {
 		  	}
 			
 		  
-				File owlFile = new File( "align-" + name.toString()+ ".owl"  );
+				File owlFile = new File( alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString()+ ".owl"  );
 				FileWriter out = new FileWriter( owlFile );
 				out.write( s3 + s2 );
 				//out.write( answer );
 				out.close();  
 		  	
-		 
-		    
 		  	//for displaying
-		  FileWriter htmlF = new FileWriter( "align.html" );
+		  FileWriter htmlF = new FileWriter( alignFolder.getAbsolutePath()+ ontoFolder.separator + name.toString()+ ".html" );
 		  AlignmentVisitor V1 = new HTMLRendererVisitor(
 				    new PrintWriter ( htmlF ) );
 		  
-		  A1.render(V1);
+		  clonedA1.render(V1);
 		  htmlF.close();
 		  
 		  } 
 		  catch ( Exception ex ) { ex.printStackTrace();};
 		  
-		  return "align-" + name.toString()+ ".owl";
+		  return alignFolder.getAbsolutePath() + ontoFolder.separator + name.toString();
 	   }
+   
+   public String[] getAllAlign() {
+	   //Enumeration ls = SWTInterface.alignmentTable.keys();
+	   //getAllAlignFromFiles();
+	   if (SWTInterface.alignmentTable.keys()==null) return null;
+	   Vector<String> v = new Vector<String>();
+	   
+	   for (Enumeration e = SWTInterface.alignmentTable.keys() ; e.hasMoreElements() ;) {
+	       v.add((String)e.nextElement()); 
+	   }
+	   
+	   String[] ls = new String[v.size()];
+	   for(int i=0; i< v.size(); i++) ls[i] = v.get(i);
+	   
+	   return ls;
+	  
+   }
+   
+   public void getAllAlignFromFiles() {
+	   //Enumeration ls = SWTInterface.alignmentTable.keys();
+	   //if (SWTInterface.alignmentTable.keys()==null) return null;
+	   String[] nameL = alignFolder.list();
+       Vector<String> v = new Vector<String>();
+	   
+       for(int i=0; i< nameL.length; i++) 
+    	   if(nameL[i].contains(".rdf"))  v.add(nameL[i]);
+       
+       try {
+    	   	 
+    	    AlignmentParser parser = new AlignmentParser( 0 );
+    	   	
+    	   	for(int i=0; i< v.size(); i++) {
+    	   		
+    	   		String key = v.get(i).replace(".rdf", "");
+    	   		System.out.println("Path ="+   alignFolder.getAbsolutePath() + alignFolder.separator  + v.get(i) );
+    	   		SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + alignFolder.separator + key , 
+    	   				parser.parse(alignFolder.getAbsolutePath() + alignFolder.separator  + v.get(i)) );
+    	   	}
+			   
+       } catch ( Exception ex ) { ex.printStackTrace();};
+	      
+   }
+   
+   
    
    public static String fileToString(File f){
 	    String texto = "";
