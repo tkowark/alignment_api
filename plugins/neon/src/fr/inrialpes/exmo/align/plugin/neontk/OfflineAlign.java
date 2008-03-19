@@ -31,8 +31,6 @@ import java.util.Enumeration;
 
 import org.omwg.mediation.parser.rdf.RDFParser;
 import org.omwg.mediation.parser.rdf.RDFParserException;
-//import javax.xml.parsers.SAXParser;
-//import javax.xml.parsers.SAXParserFactory;
 
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
@@ -44,11 +42,11 @@ import org.semanticweb.owl.align.Parameters;
 import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 public class OfflineAlign {
 	
