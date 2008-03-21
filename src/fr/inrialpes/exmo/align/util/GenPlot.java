@@ -30,8 +30,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -289,7 +289,7 @@ public class GenPlot {
 	output.println();
 	output.println("\\usepackage{pgf}");
 	output.println("\\usepackage{tikz}");
-	output.println("\\usepackage{pgflibraryplotmarks}");
+	output.println("\\usetikzlibrary{plotmarks}");
 	output.println();
 	output.println("\\begin{document}");
 	output.println("\\date{today}");
