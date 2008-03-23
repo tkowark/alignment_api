@@ -134,7 +134,7 @@
       </swrl:individualPropertyAtom>
     </ruleml:_body>
     <ruleml:_head>
-      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasTitle"/>
+      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasBooktitle"/>
         <ruleml:var>x</ruleml:var>
         <ruleml:var>y</ruleml:var>
       </swrl:datavaluedPropertyAtom>
@@ -149,7 +149,7 @@
       </swrl:individualPropertyAtom>
     </ruleml:_body>
     <ruleml:_head>
-      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasBooktitle"/>
+      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasTitle"/>
         <ruleml:var>x</ruleml:var>
         <ruleml:var>y</ruleml:var>
       </swrl:datavaluedPropertyAtom>
@@ -659,7 +659,7 @@
       <swrl:datavaluedPropertyAtom>
     </ruleml:_body>
     <ruleml:_head>
-      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasNumber"/>
+      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasMrnumber"/>
         <ruleml:var>x</ruleml:var>
         <ruleml:var>y</ruleml:var>
       </swrl:datavaluedPropertyAtom>
@@ -674,7 +674,7 @@
       <swrl:datavaluedPropertyAtom>
     </ruleml:_body>
     <ruleml:_head>
-      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasMrnumber"/>
+      <swrl:datavaluedPropertyAtom swrlx:property="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasNumber"/>
         <ruleml:var>x</ruleml:var>
         <ruleml:var>y</ruleml:var>
       </swrl:datavaluedPropertyAtom>

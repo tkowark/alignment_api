@@ -51,7 +51,7 @@ div.logic {
   Server. It follows, as much as possible, the reasoning of this
   tutorial but provides input and output through a web browser.</p>
 <small>This tutorial has been designed for the Alignment API version
-  2.4 (it has been updated to work with version 3.0).</small>
+  2.4 (it has been updated to work with version 3.2).</small>
 	
 <h2>Preparation</h2>
 	
@@ -80,16 +80,18 @@ output" onclick="hide('qu3')"/></form></div-->
 <div class="explain" id="qu3"><pre>
 usage: Procalign [options] URI1 URI2
 options are:
-        --impl=className -i classname           Use the given alignment implementation.
-        --renderer=className -r className       Specifies the alignment renderer
-        --output=filename -o filename   Output the alignment in filename
-        --params=filename -p filename   Reads parameters from filename
-        --alignment=filename -a filename Start from an XML alignment file
-        --threshold=double -t double    Filters the similarities under threshold
-        --cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span        method for computing the threshold
-        --debug[=n] -d [n]              Report debug info at level n
-        -Dparam=value                   Set parameter
-        --help -h                       Print this message
+	--impl=className -i classname		Use the given alignment implementation.
+	--renderer=className -r className	Specifies the alignment renderer
+	--output=filename -o filename	Output the alignment in filename
+	--params=filename -p filename	Reads parameters from filename
+	--alignment=filename -a filename Start from an XML alignment file
+	--threshold=double -t double	Filters the similarities under threshold
+	--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span	method for computing the threshold
+	--debug[=n] -d [n]		Report debug info at level n
+	-Dparam=value			Set parameter
+	--help -h			Print this message
+
+Alignment API implementation 3.2 ($Id$)
 </pre></div>
 
 <p>The above command outputs the command line usage of the Procalign class. We do not detail it here, this tutorial will present it entirelly.</p>
@@ -161,25 +163,33 @@ $ java -jar ../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.v
 <p>The result is expressed in the Alignment format. This format, in <abbr>RDF</abbr>/<abbr>XML</abbr>, is made of a header containing "metadata" about the alignment:
 </p>
 <div class="owl"><pre>
-&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
-&lt;rdf:RDF xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment"
-         xml:base="http://knowledgeweb.semanticweb.org/heterogeneity/alignment"
-         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"&gt;
-&lt;Alignment&gt;
-  &lt;xml&gt;yes&lt;/xml&gt;
-  &lt;level&gt;0&lt;/level&gt;
-  &lt;type&gt;**&lt;/type&gt;
-  &lt;time&gt;66&lt;/time&gt;
-  &lt;owl:Class rdf:about="Techreport"&gt;
-    &lt;owl:equivalentClass rdf:resource="Techreport"/&gt;
-  &lt;/owl:Class&gt;
-
-  &lt;method&gt;fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/method&gt;
-  &lt;onto1&gt;file://localhost/JAVA/alignapi/html/tutorial/myOnto.owl&lt;/onto1&gt;
-  &lt;onto2&gt;file://localhost/JAVA/alignapi/html/tutorial/edu.mit.visus.bibtex.owl&lt;/onto2&gt;
-  &lt;uri1&gt;http://alignapi.gforge.inria.fr/tutorial/myOnto.owl&lt;/uri1&gt;
-  &lt;uri2&gt;http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl&lt;/uri2&gt;
+&lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
+&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
+         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
+         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
+&lt;Alignment>
+  &lt;xml>yes&lt;/xml>
+  &lt;level>0&lt;/level>
+  &lt;type>**&lt;/type>
+  &lt;method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/method>
+  &lt;time>18&lt;/time>
+  &lt;onto1>
+    &lt;Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl">
+      &lt;location>file:///Java/alignapi/html/tutorial/myOnto.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto1>
+  &lt;onto2>
+    &lt;Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl">
+      &lt;location>file:///Java/alignapi/html/tutorial/edu.mit.visus.bibtex.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto2>
 </pre></div>
 <p>and the corresponding set of correspondences:</p>
 <div class="owl"><pre>
@@ -389,7 +399,7 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r ref
 </pre></div>
 
 <p>The results are displayed in the <a href="results/eval.html">results/eval.html</a> file whose main content is the table:</p>
-<center>
+<center style="font-size: 82%;">
 <table border='2' frame='sides' rules='groups'>
 <colgroup align='center' />
 <colgroup align='center' span='3' />

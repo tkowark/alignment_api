@@ -1,19 +1,24 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
-<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
-         xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'
+<rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
->
+         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
 <Alignment>
   <xml>yes</xml>
   <level>0</level>
   <type>**</type>
-  <time>47</time>
   <method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</method>
-  <onto1>file:///Java/alignapi/html/tutorial/edu.mit.visus.bibtex.owl</onto1>
-  <onto2>file:///Java/alignapi/html/tutorial/myOnto.owl</onto2>
-  <uri1>http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl</uri1>
-  <uri2>http://alignapi.gforge.inria.fr/tutorial/myOnto.owl</uri2>
+  <time>42</time>
+  <onto1>
+    <Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl">
+      <location>file:///Java/alignapi/html/tutorial/edu.mit.visus.bibtex.owl</location>
+    </Ontology>
+  </onto1>
+  <onto2>
+    <Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl">
+      <location>file:///Java/alignapi/html/tutorial/myOnto.owl</location>
+    </Ontology>
+  </onto2>
   <map>
     <Cell>
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasNumber'/>
@@ -49,17 +54,17 @@
   <map>
     <Cell>
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Book'/>
-      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#BookPart'/>
+      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Book'/>
       <relation>=</relation>
-      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.9</measure>
+      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
     </Cell>
   </map>
   <map>
     <Cell>
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Book'/>
-      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Book'/>
+      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#BookPart'/>
       <relation>=</relation>
-      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
+      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.9</measure>
     </Cell>
   </map>
   <map>
@@ -249,6 +254,14 @@
   <map>
     <Cell>
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Phdthesis'/>
+      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Thesis'/>
+      <relation>=</relation>
+      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.9</measure>
+    </Cell>
+  </map>
+  <map>
+    <Cell>
+      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Phdthesis'/>
       <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#PhdThesis'/>
       <relation>=</relation>
       <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
@@ -256,8 +269,8 @@
   </map>
   <map>
     <Cell>
-      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Phdthesis'/>
-      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Thesis'/>
+      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasAuthor'/>
+      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#author'/>
       <relation>=</relation>
       <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.9</measure>
     </Cell>
@@ -268,14 +281,6 @@
       <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#short'/>
       <relation>=</relation>
       <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.5693581780538302</measure>
-    </Cell>
-  </map>
-  <map>
-    <Cell>
-      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasAuthor'/>
-      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#author'/>
-      <relation>=</relation>
-      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.9</measure>
     </Cell>
   </map>
   <map>
@@ -347,7 +352,7 @@
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasPrice'/>
       <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#price'/>
       <relation>=</relation>
-      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.8846153846153846</measure>
+      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.0</measure>
     </Cell>
   </map>
   <map>
@@ -377,6 +382,14 @@
   <map>
     <Cell>
       <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Unpublished'/>
+      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Unpublished'/>
+      <relation>=</relation>
+      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
+    </Cell>
+  </map>
+  <map>
+    <Cell>
+      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Unpublished'/>
       <entity2 rdf:resource='http://www.w3.org/1999/02/22-rdf-syntax-ns#List'/>
       <relation>=</relation>
       <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.600990099009901</measure>
@@ -388,14 +401,6 @@
       <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Published'/>
       <relation>=</relation>
       <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.95</measure>
-    </Cell>
-  </map>
-  <map>
-    <Cell>
-      <entity1 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Unpublished'/>
-      <entity2 rdf:resource='http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Unpublished'/>
-      <relation>=</relation>
-      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
     </Cell>
   </map>
   <map>
