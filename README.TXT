@@ -73,7 +73,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 Using with JWNL (Wordnet)
 -------------------------
 
-- Wordnet 2.0 should be installed its directory to be put in $WNDIR
+- Wordnet 2.0 (or 3.0) should be installed its directory to be put in $WNDIR
 - jwnl.jar commons-logging.jar must be in lib.
 (file_properties.xml need not anymore to be in current directory)
 
