@@ -44,6 +44,8 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.onto.Ontology;
+
 /**
  * Represents an ontology alignment relating entities identified by their URIs
  *
@@ -52,8 +54,6 @@ import org.semanticweb.owl.align.Parameters;
  */
 
 public class URIAlignment extends BasicAlignment {
-
-    public URIAlignment() {}
 
     // JE: OMWG1, not sure it works...
     public void init(Object o1, Object o2) throws AlignmentException {

@@ -27,7 +27,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
-import fr.inrialpes.exmo.align.impl.Ontology;
+
+import fr.inrialpes.exmo.align.onto.Ontology;
 
 import org.neon_toolkit.registry.api.Oyster2Manager;
 import org.neon_toolkit.registry.api.Oyster2Connection;

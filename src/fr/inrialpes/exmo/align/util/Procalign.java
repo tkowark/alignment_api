@@ -34,7 +34,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -218,7 +218,7 @@ public class Procalign {
 		System.exit(0);
 	    }
 
-	    if (debug > 0) System.err.println(" Handler set");
+	    if (debug > 0) System.err.println(" Ready");
 
 	    try {
 		if (initName != null) {

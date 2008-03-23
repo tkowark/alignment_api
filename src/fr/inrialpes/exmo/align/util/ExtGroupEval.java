@@ -33,10 +33,11 @@ import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -51,8 +52,6 @@ import org.xml.sax.SAXException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
-
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A basic class for synthesizing the results of a set of alignments provided
     by different algorithms. The output is a table showing various generalisations

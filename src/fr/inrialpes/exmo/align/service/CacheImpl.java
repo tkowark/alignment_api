@@ -127,16 +127,6 @@ public class CacheImpl {
      * loads the alignment descriptions from the database and put them in the
      * alignmentTable hashtable
      * index them under the ontology URIs
-     *
-     * Beware, the Alignment API has two attributes:
-     * onto1 is the OWLOntology object
-     * uri1 is the URI object from which loading the ontologies
-     * In the database we store:
-     * owlontology1 the URI string of the ontology
-     * file1 the URI string from which loading the ontologies
-     * uri1 which should be the same as the last one...
-     * Since alignments are indexed by the URI of the ontologies, we use
-     * the "ouri1" temporary extension to contain this URI.
      */
     private void loadAlignments( boolean force ) throws SQLException {
 	String query = null;
@@ -169,6 +159,16 @@ public class CacheImpl {
     /**
      * loads the description of alignments from the database and set them
      * in an alignment object
+     *
+     * Beware, the Alignment API has two attributes:
+     * onto1 is the OWLOntology object
+     * uri1 is the URI object from which loading the ontologies
+     * In the database we store:
+     * owlontology1 the URI string of the ontology
+     * file1 the URI string from which loading the ontologies
+     * uri1 which should be the same as the last one...
+     * Since alignments are indexed by the URI of the ontologies, we use
+     * the "ouri1" temporary extension to contain this URI.
      */
     protected Alignment retrieveDescription( String id ){
 	String query;
@@ -176,7 +176,7 @@ public class CacheImpl {
 	String tag;
 	String value;
 
-	Alignment result = new URIAlignment();
+	URIAlignment result = new URIAlignment();
 		
 	try {
 	    Statement st = (Statement) conn.createStatement();
@@ -187,6 +187,8 @@ public class CacheImpl {
 		// Either uri1 or file1
 		result.setFile1( new URI( rs.getString("file1") ) ); 
 		result.setFile2( new URI( rs.getString("file2") ) );
+		result.getOntologyObject1().setURI( new URI(rs.getString("owlontology1"))  );
+		result.getOntologyObject2().setURI( new URI(rs.getString("owlontology2"))  );
 		result.setExtension( SVCNS, OURI1, rs.getString("owlontology1") );
 		result.setExtension( SVCNS, OURI2, rs.getString("owlontology2") );
 		result.setLevel(rs.getString("level"));
@@ -426,6 +428,13 @@ public class CacheImpl {
 	} else {
 	    return s;
 	}
+    }
+
+    public boolean isAlignmentStored( Alignment alignment ) {
+	if ( alignment.getExtension( SVCNS, STORED ) != null &&
+	     !alignment.getExtension( SVCNS, STORED ).equals("") )
+	    return false;
+	else return true;
     }
 
     public void storeAlignment( String id ) throws Exception {

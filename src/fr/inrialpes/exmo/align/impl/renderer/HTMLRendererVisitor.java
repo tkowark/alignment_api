@@ -60,12 +60,12 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("<h1></h1>\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
 	writer.print("<table border=\"0\">\n");
-	writer.print("<tr><td>uri1</td><td>"+align.getOntology1URI().toString()+"</td></tr>\n" );
-	writer.print("<tr><td>uri2</td><td>"+align.getOntology2URI().toString()+"</td></tr>\n" );
+	writer.print("<tr><td>uri1</td><td>"+align.getOntology1URI()+"</td></tr>\n" );
+	writer.print("<tr><td>uri2</td><td>"+align.getOntology2URI()+"</td></tr>\n" );
 	if ( align.getFile1() != null )
-	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile1().toString()+"\">"+align.getFile1().toString()+"</a></td></tr>\n" );
+	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile1()+"\">"+align.getFile1()+"</a></td></tr>\n" );
 	if ( align.getFile2() != null )
-	    writer.print("<tr><td>ontofile2</td><td><a href=\""+align.getFile2().toString()+"\">"+align.getFile2().toString()+"</a></td></tr>\n" );
+	    writer.print("<tr><td>ontofile2</td><td><a href=\""+align.getFile2()+"\">"+align.getFile2()+"</a></td></tr>\n" );
 	writer.print("<tr><td>level</td><td>"+align.getLevel()+"</td></tr>\n" );
 	writer.print("<tr><td>type</td><td>"+align.getType()+"</td></tr>\n" );
 	// Get the keys of the parameter

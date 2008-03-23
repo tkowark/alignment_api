@@ -11,6 +11,7 @@
     <echo message="init: sets necessary variables"/>
     <echo message="compile: incrementaly compiles sources"/>
     <echo message="compileall: recompiles all sources"/>
+    <echo message="lint: compiles all sources with bug flags on"/>
     <echo message="jar: archives compiled code"/>
     <echo message="test: performs unit tests [nyi]"/>
     <echo message="zip: creates a new zip file"/>
@@ -104,6 +105,7 @@
       </manifest>
       <fileset dir="classes" includes="org/ivml/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/onto/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>

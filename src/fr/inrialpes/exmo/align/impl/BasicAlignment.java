@@ -41,6 +41,9 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
+import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.align.onto.BasicOntology;
+
 /**
  * Represents a basic ontology alignment, i.e., a fully functionnal alignment
  * for wich the type of aligned objects is not known.
@@ -61,8 +64,8 @@ public class BasicAlignment implements Alignment {
 	visitor.visit(this);
     }
 
-    protected Ontology onto1 = null;
-    protected Ontology onto2 = null;
+    protected Ontology<Object> onto1 = null;
+    protected Ontology<Object> onto2 = null;
 
     protected int debug = 0;
 
@@ -80,26 +83,21 @@ public class BasicAlignment implements Alignment {
 
     protected Parameters namespaces = null;
 
-    /**
-     * This is the URI of the place from which the ontology has been loaded!
-     * This is NOT the Ontology URI which can be obtained by
-     * getOntology1URI()
-     */
-
     public BasicAlignment() {
 	hash1 = new Hashtable<Object,Set<Cell>>();
 	hash2 = new Hashtable<Object,Set<Cell>>();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
 	if ( this instanceof AlignmentProcess ) setExtension( Annotations.ALIGNNS, Annotations.METHOD, getClass().getName() );
-	onto1 = new Ontology();
-	onto2 = new Ontology();
+	onto1 = new BasicOntology<Object>();
+	onto2 = new BasicOntology<Object>();
     }
 
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
+	// JE: Onto I am not sure this works
 	if ( onto1 instanceof Ontology ) {
-	    this.onto1 = (Ontology)onto1;
-	    this.onto2 = (Ontology)onto2;
+	    this.onto1 = (Ontology<Object>)onto1;
+	    this.onto2 = (Ontology<Object>)onto2;
 	} else {
 	    this.onto1.setOntology( onto1 );
 	    this.onto2.setOntology( onto2 );
@@ -139,22 +137,12 @@ public class BasicAlignment implements Alignment {
 	return onto2;
     };
 
-    public URI getOntology1URI() throws AlignmentException {
-	Object ontology = onto1.getOntology();
-	if ( ontology != null && ontology instanceof URI ) {
-	    return (URI)ontology;
-	} else {
-	    throw new AlignmentException( "Cannot find URI for "+onto1 );
-	}
+    public URI getOntology1URI() {
+	return onto1.getURI();
     };
 
-    public URI getOntology2URI() throws AlignmentException {
-	Object ontology = onto2.getOntology();
-	if ( ontology != null && ontology instanceof URI ) {
-	    return (URI)ontology;
-	} else {
-	    throw new AlignmentException( "Cannot find URI for "+onto2 );
-	}
+    public URI getOntology2URI() {
+	return onto2.getURI();
     };
 
     public void setOntology1(Object ontology) throws AlignmentException {

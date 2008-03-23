@@ -51,7 +51,9 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.Ontology;
+import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.align.onto.BasicOntology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
@@ -66,8 +68,6 @@ import fr.inrialpes.exmo.align.impl.Annotations;
  */
 
 public class AlignmentParser extends DefaultHandler {
-
-    private static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
 
     /**
      * level of debug/warning information
@@ -231,7 +231,7 @@ public class AlignmentParser extends DefaultHandler {
 	    System.err.println("startElement AlignmentParser : " + pName);
 	parselevel++;
 	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
-	    || namespaceURI.equals(ALIGNNS) )  {
+	    || namespaceURI.equals(Annotations.ALIGNNS) )  {
 	    if (pName.equals("relation")) {
 	    } else if (pName.equals("semantics")) {
 	    } else if (pName.equals("measure")) {
@@ -282,7 +282,8 @@ public class AlignmentParser extends DefaultHandler {
 	    } else if (pName.equals("Ontology")) {
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
 			try {
-			    curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
+			    // JE: Onto
+			    //curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
 			    curronto.setURI( new URI( atts.getValue("rdf:about") ) );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("onto2: malformed URI");
@@ -299,8 +300,9 @@ public class AlignmentParser extends DefaultHandler {
 	    } else if (pName.equals("xml")) {
 	    } else if (pName.equals("Alignment")) {
 		alignment = new URIAlignment();
-		onto1 = new Ontology();
-		onto2 = new Ontology();
+		onto1 = ((URIAlignment)alignment).getOntologyObject1();
+		onto2 = ((URIAlignment)alignment).getOntologyObject2();
+		System.err.println(">>>>>>> "+onto1);
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
 		    alignment.setExtension( Annotations.ALIGNNS, Annotations.ID, atts.getValue("rdf:about") );
 		};
@@ -367,7 +369,7 @@ public class AlignmentParser extends DefaultHandler {
 	if(debugMode > 2) 
 	    System.err.println("endElement AlignmentParser : " + pName);
 	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
-	    || namespaceURI.equals(ALIGNNS) )  {
+	    || namespaceURI.equals(Annotations.ALIGNNS) )  {
 	    try {
 		if (pName.equals("relation")) {
 		    relation = content;
@@ -398,20 +400,22 @@ public class AlignmentParser extends DefaultHandler {
 		    if ( extensions != null ) cell.setExtensions( extensions );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
-		    if ( onto1.getOntology() == null ){
+		    if ( onto1.getURI() == null ){//JE: Onto
 			try {
 			    URI u = new URI( content );
-			    onto1.setOntology( u );
+			    // JE: Onto
+			    //onto1.setOntology( u );
 			    onto1.setURI( u );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("uri1: malformed URI");
 			}
 		    }
 		} else if (pName.equals("uri2")) {
-		    if ( onto2.getOntology() == null ){
+		    if ( onto2.getURI() == null ){//JE: Onto
 			try {
 			    URI u = new URI( content );
-			    onto2.setOntology( u );
+			    // JE: Onto
+			    //onto2.setOntology( u );
 			    onto2.setURI( u );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("uri2: malformed URI");

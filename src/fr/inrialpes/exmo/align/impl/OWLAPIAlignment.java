@@ -35,11 +35,6 @@ import org.xml.sax.SAXException;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.util.OWLConnection;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLConsumer;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -47,6 +42,11 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -72,34 +72,13 @@ public class OWLAPIAlignment extends BasicAlignment {
 	OntologyCache cache = null;
 	if ( ontologies instanceof OntologyCache ) cache = (OntologyCache)ontologies;
 	else cache = (OntologyCache)null;
+	// JE: why should this happen now? Never?
 	if ( (o1 instanceof OWLOntology && o2 instanceof OWLOntology)
 	     || (o1 instanceof Ontology && o2 instanceof Ontology) ){
 	    super.init( o1, o2, ontologies );
 	} else if ( o1 instanceof URI && o2 instanceof URI ) {
-	    // The URI is set below
-	    setFile1( (URI)o1 );
-	    setFile2( (URI)o2 );
-	    // JE: newOnto ---
-	    ((Ontology)onto1).setFormalism( "OWL1.0" );
-	    ((Ontology)onto2).setFormalism( "OWL1.0" );
-	    // JE: newOnto ---
-	    try {
-		URI u = new URI("http://www.w3.org/2002/07/owl#");
-		((Ontology)onto1).setFormURI( u );
-		((Ontology)onto2).setFormURI( u );
-	    } catch (Exception e) {}; // does not happen
-	    try {
-		super.init( loadOntology( (URI)o1, cache ),
-			    loadOntology( (URI)o2, cache ) );
-		// Not sure it should be here or in super.init()
-		onto1.setURI( ((OWLOntology)(onto1.getOntology())).getLogicalURI() );
-		onto2.setURI( ((OWLOntology)(onto2.getOntology())).getLogicalURI() );
-	    } catch (OWLException e) {
-		throw new AlignmentException( "Cannot load ontologies", e );
-	    } catch (SAXException e) {
-		throw new AlignmentException( "Cannot load ontologies", e );
-	    }
-	    // We should set the URI to that of the ontologies
+	    super.init( loadOntology( (URI)o1, cache ),
+			loadOntology( (URI)o2, cache ) );
 	} else {
 	    throw new AlignmentException("arguments must be OWLOntology or URI");
 	};
@@ -119,50 +98,9 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
     }
 
-    // JE: --- post-3.1
-    public URI getOntology1URI() //throws AlignmentException 
-{
-	//try {
-	    // JE: OWMG1
-	    //return ((OWLOntology)(onto1.getOntology())).getLogicalURI();
-	    return onto1.getURI();
-	    //} catch ( OWLException e ) {
-	    //throw new AlignmentException( "URI conversion error for "+onto1, e );
-	    //}
-    };
+    public URI getOntology1URI() { return onto1.getURI(); };
 
-    // JE: --- post-3.1
-    public URI getOntology2URI() //throws AlignmentException 
-    {
-	//try {
-	    // JE: OWMG1
-	    //return ((OWLOntology)(onto2.getOntology())).getLogicalURI();
-	    return onto2.getURI();
-	    //} catch ( OWLException e ) {
-	    //throw new AlignmentException( "URI conversion error for "+onto2, e );
-	    //}
-    };
-
-    // JE: --- post-3.1
-    //public void setOntology1(Object ontology) throws AlignmentException {
-	//if ( ontology instanceof OWLOntology ){
-	//super.setOntology1( ontology );
-	//onto1.setOntology( ontology );
-	    //} else {
-	    //throw new AlignmentException("arguments must be OWLOntology");
-	    //};
-    //};
-
-    // JE: --- post-3.1
-    //public void setOntology2(Object ontology) throws AlignmentException {
-	// JE: tonewOnto
-	//if ( ontology instanceof OWLOntology ){
-	//super.setOntology2( ontology );
-	//onto2.setOntology( ontology );
-	//} else {
-	//throw new AlignmentException("arguments must be OWLOntology");
-	//};
-    //};
+    public URI getOntology2URI() { return onto2.getURI(); };
 
     /** Cell methods **/
     public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure, Parameters extensions ) throws AlignmentException {
@@ -285,9 +223,6 @@ public class OWLAPIAlignment extends BasicAlignment {
     // Here it becomes necessary to load OWL
     static public OWLAPIAlignment toOWLAPIAlignment( URIAlignment al, OntologyCache ontologies ) throws AlignmentException, SAXException, OWLException {
 	OWLAPIAlignment alignment = new OWLAPIAlignment();
-	//alignment.setFile1( al.getFile1() );
-	//alignment.setFile2( al.getFile2() );
-	//System.err.println( "TOA: " + al.getFile1()+ " -- " + al.getFile2());
 	alignment.init( al.getFile1(), al.getFile2(), ontologies );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
@@ -311,7 +246,14 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return alignment;
     }
 
-    // JE: newOnto ---
+    private static LoadedOntology loadOntology( URI ref, OntologyCache ontologies ) {
+	OntologyFactory factory = OntologyFactory.newInstance();
+	LoadedOntology onto = factory.loadOntology( ref );
+	if ( ontologies != null ) ontologies.recordOntology( ref, onto );
+	return onto; 
+    }
+
+    // JE: newOnto --- Onto: should be discarded
     private static OWLEntity getEntity( OWLOntology ontology, URI uri ) throws OWLException, SAXException {
 	OWLEntity result = (OWLEntity)ontology.getClass( uri );
 	if ( result == null ) result = (OWLEntity)ontology.getDataProperty( uri );
@@ -320,8 +262,9 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return result;
     }
 
-    // JE: newOnto ---
+    // JE: newOnto --- Onto: should be discarded
     /** Can be used for loading the ontology if it is not available **/
+    /*
     //private static OWLOntology loadOntology( URI ref, Hashtable ontologies ) throws SAXException, OWLException {
     private static OWLOntology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, OWLException {
 	if ( (ontologies != null) && ( ontologies.getOntology( ref ) != null ) ) {
@@ -355,6 +298,6 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    return parsedOnt;
 	}
     }
-
+    */
 }
 

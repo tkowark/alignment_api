@@ -25,7 +25,10 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
@@ -33,14 +36,6 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
-import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
-import org.semanticweb.owl.io.ParserException;
-
-import org.xml.sax.SAXException;
 import java.sql.SQLException;
 
 import java.lang.ClassNotFoundException;
@@ -88,7 +83,6 @@ public class AServProtocolManager {
     Set<String> services = null;
 
     OntologyCache loadedOntologies = null;
-    OWLRDFErrorHandler handler = null;
     Hashtable<String,Directory> directories = null;
 
     // This should be stored somewhere
@@ -113,20 +107,6 @@ public class AServProtocolManager {
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
 	services = implementations( "fr.inrialpes.exmo.align.service.AlignmentServiceProfile" );
 	loadedOntologies = new OntologyCache();
-	handler = new OWLRDFErrorHandler() {
-		public void owlFullConstruct(int code, String message)
-		    throws SAXException {
-		}
-		public void owlFullConstruct(int code, String message, Object o)
-		    throws SAXException {
-		}
-		public void error(String message) throws SAXException {
-		    throw new SAXException(message.toString());
-		}
-		public void warning(String message) throws SAXException {
-		    System.err.println("WARNING: " + message);
-		}
-	    };
     }
 
     public void close() {
@@ -235,8 +215,8 @@ public class AServProtocolManager {
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
-	OWLOntology onto1 = null;
-	OWLOntology onto2 = null;
+	Ontology onto1 = null;
+	Ontology onto2 = null;
 	try {
 	    uri1 = new URI((String)params.getParameter("onto1"));
 	    uri2 = new URI((String)params.getParameter("onto2"));
@@ -249,13 +229,7 @@ public class AServProtocolManager {
 	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
 	}
 	// Try to retrieve first
-	Set alignments = null;
-	try {
-	    // This is OWLAPI specific but there is no other way...
-	    alignments = alignmentCache.getAlignments( onto1.getLogicalURI(), onto2.getLogicalURI() );
-	} catch (OWLException e) {
-	    // Unexpected OWLException!
-	}
+	Set alignments = alignmentCache.getAlignments( onto1.getURI(), onto2.getURI() );
 	if ( alignments != null && params.getParameter("force") == null ) {
 	    for ( Iterator it = alignments.iterator(); it.hasNext() ; ){
 		Alignment al = ((Alignment)it.next());
@@ -380,24 +354,25 @@ public class AServProtocolManager {
     public Message store( Message mess ){
 	String id = mess.getContent();
 	try {
-	    alignmentCache.storeAlignment( id );
+	    Alignment al = alignmentCache.getAlignment( id );
+	    // Be sure it is not already stored
+	    if ( !alignmentCache.isAlignmentStored( al ) ){
+		alignmentCache.storeAlignment( id );
+		// Retrieve the alignment again
+		al = alignmentCache.getAlignment( id );
+		// for all directories...
+		for ( Directory d : directories.values() ){
+		    // Declare the alignment in the directory
+		    try { d.register( al ); }
+		    catch (AServException e) { e.printStackTrace(); }// ignore
+		}
+	    }
+	    // register by them
+	    // Could also be an AlreadyStoredAlignment error
+	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
-	// Retrieve the alignment
-	Alignment al = null;
-	try { al = alignmentCache.getAlignment( id );
-	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
-	}
-	// for all directories...
-	for ( Directory d : directories.values() ){
-	    // Declare the alignment in the directory
-	    try { d.register( al ); }
-	    catch (AServException e) { e.printStackTrace(); }// ignore
-	}
-	// register by them
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
     }
 
     /*
@@ -573,24 +548,21 @@ public class AServProtocolManager {
      * Utilities: reaching and loading ontologies
      *********************************************************************/
 
-    public OWLOntology reachable( URI uri ){
+    public LoadedOntology reachable( URI uri ){
 	try { return loadOntology( uri ); }
 	catch (Exception e) {
 	    e.printStackTrace();
-	    return (OWLOntology)null;
+	    return null;
 	}
     }
 
-    public OWLOntology loadOntology( URI uri ) throws ParserException, OWLException {
+    public LoadedOntology loadOntology( URI uri ) {
 	// Test if not loaded...
-	OWLOntology parsedOnt = null;
-	OWLRDFParser parser = new OWLRDFParser();
-	parser.setOWLRDFErrorHandler(handler);
-	parser.setConnection(OWLManager.getOWLConnection());
-	parsedOnt = parser.parseOntology( uri );
+	OntologyFactory factory = OntologyFactory.newInstance();
+	LoadedOntology onto = factory.loadOntology( uri );
 	if ( loadedOntologies != null )
-	    loadedOntologies.recordOntology( uri, parsedOnt );
-	return parsedOnt;
+	    loadedOntologies.recordOntology( uri, onto );
+	return onto; 
     }
 
     /*********************************************************************
@@ -748,8 +720,6 @@ public class AServProtocolManager {
 	    // find and access o, o'
 	    URI uri1 = null;
 	    URI uri2 = null;
-	    OWLOntology onto1 = null;
-	    OWLOntology onto2 = null;
 
 	    try {
 		uri1 = new URI((String)params.getParameter("onto1"));
@@ -811,7 +781,6 @@ public class AServProtocolManager {
 	    } catch (AlignmentException e) {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
 	    }
-	    // JE: In non OWL-API-based version, here unload ontologies
 	    loadedOntologies.clear(); // not always necessary
 	    result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
