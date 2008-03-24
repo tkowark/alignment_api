@@ -23,12 +23,33 @@ package fr.inrialpes.exmo.align.onto;
 import java.net.URI;
 import java.util.Set;
 
+import org.semanticweb.owl.align.AlignmentException;
 
 public interface LoadedOntology<O> extends Ontology<O> {
 
-    public Set<Entity> getEntities();
-    public Set<Entity> getClasses();
-    public Set<Entity> getProperties();
-    public boolean contains(Entity e);
+    public Object getEntity( URI u ) throws AlignmentException;
+
+    public URI getEntityURI( Object o ) throws AlignmentException;
+    public String getEntityName( Object o ) throws AlignmentException;
+
+    public boolean isEntity( Object o );
+    public boolean isClass( Object o );
+    public boolean isProperty( Object o );
+    public boolean isDatatypeProperty( Object o );
+    public boolean isObjectProperty( Object o );
+    public boolean isIndividual( Object o );
+
+    public Set<Object> getEntities();
+    public Set<Object> getClasses();
+    public Set<Object> getProperties();
+    public Set<Object> getObjectProperties();
+    public Set<Object> getDatatypeProperties();
+    public Set<Object> getIndividuals();
+
+    public int nbClasses();
+    public int nbDataProperties();
+    public int nbObjectProperties();
+    public int nbInstances();
+
     public void unload();
 }

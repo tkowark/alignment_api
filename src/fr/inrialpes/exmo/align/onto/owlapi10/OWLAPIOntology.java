@@ -28,9 +28,8 @@ import java.lang.UnsupportedOperationException;
 
 import org.semanticweb.owl.align.AlignmentException;
 
-import fr.inrialpes.exmo.align.onto.ConcreteOntology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
-import fr.inrialpes.exmo.align.onto.Entity;
+import fr.inrialpes.exmo.align.onto.BasicOntology;
 
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLProperty;
@@ -51,7 +50,8 @@ import org.semanticweb.owl.model.OWLException;
 //}
 
 
-public class OWLAPIOntology extends ConcreteOntology<OWLOntology> implements LoadedOntology<OWLOntology> {
+public class OWLAPIOntology extends BasicOntology<OWLOntology> implements LoadedOntology<OWLOntology> {
+
     public OWLAPIOntology() {
 	setFormalism( "OWL1.0" );
 	try {
@@ -62,142 +62,6 @@ public class OWLAPIOntology extends ConcreteOntology<OWLOntology> implements Loa
     public OWLOntology getOntology() { return onto; }
 
     public void setOntology( OWLOntology o ) { this.onto = o; }
-
-    // Here it shoud be better to report exception
-    // JE: Onto this does not work at all, of course...
-    public Set<Entity> getEntities() {
-	try {
-	    return (Set<Entity>)((OWLOntology)onto).getClasses(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    return null;
-	}
-    }
-
-    public Set<Entity> getClasses() {
-	try {
-	    return (Set<Entity>)((OWLOntology)onto).getClasses(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    return null;
-	}
-    }
-
-    public Set<Entity> getProperties() {
-	try {
-	    return (Set<Entity>)((OWLOntology)onto).getClasses(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    return null;
-	}
-    }
-
-    public Set<Entity> getIndividuals() {
-	try {
-	    return (Set<Entity>)((OWLOntology)onto).getIndividuals(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    return null;
-	}
-    }
-
-    // The only point is if I should return OWLProperties or names...
-    // I guess that I will return names (ns+name) because otherwise I will need a full
-    // Abstract ontology interface and this is not the rule...
-    public Iterator<Object> getObjectProperties() throws AlignmentException {
-	try {
-	    // [Warning:unchecked] due to OWL API not serving generic types
-	    return ((OWLOntology)onto).getObjectProperties().iterator(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object properties", ex );
-	}
-    }
-
-    // JE: these are really specific methods I guess
-    public Iterator<URI> getObjectPropertyNames() throws AlignmentException {
-	try {
-	    return new URIIterator(((OWLOntology)onto).getObjectProperties().iterator());
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object properties", ex );
-	}
-    }
-
-    public Iterator<URI> getDataPropertyNames() throws AlignmentException {
-	try {
-	    return new URIIterator(((OWLOntology)onto).getDataProperties().iterator());
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object properties", ex );
-	}
-    }
-
-    public Iterator<URI> getClassNames() throws AlignmentException {
-	try {
-	    return new URIIterator(((OWLOntology)onto).getClasses().iterator());
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object properties", ex );
-	}
-    }
-
-    public Iterator<URI> getInstanceNames() throws AlignmentException {
-	try {
-	    return new URIIterator(((OWLOntology)onto).getIndividuals().iterator());
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object properties", ex );
-	}
-    }
-
-    public int nbClasses() throws AlignmentException {
-	try {
-	    return ((OWLOntology)onto).getClasses().size();
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get class number" );
-	}
-    }
-
-    public int nbObjectProperties() throws AlignmentException {
-	try {
-	    return ((OWLOntology)onto).getObjectProperties().size();
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get object property number" );
-	}
-    }
-
-    public int nbDataProperties() throws AlignmentException {
-	try {
-	    return ((OWLOntology)onto).getDataProperties().size();
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get data property number" );
-	}
-    }
-
-    public int nbInstances() throws AlignmentException {
-	try {
-	    return ((OWLOntology)onto).getIndividuals().size();
-	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot get individual number" );
-	}
-    }
-
-    public boolean contains(Entity e) {
-	if ( e instanceof OWLEntity ){
-	    if ( e instanceof OWLClass ) {
-		for ( Object o : getClasses() ){
-		    if ( o == e ) return true;
-		}
-	    } else if ( e instanceof OWLDataProperty ) {
-		for ( Object o : getProperties() ){
-		    if ( o == e ) return true;
-		}
-	    } else if ( e instanceof OWLIndividual ) {
-		for ( Object o : getIndividuals() ){
-		    if ( o == e ) return true;
-		}
-	    }
-	};
-	return false;
-    }
-
-    public void unload() {
-	try {
-	    ((OWLOntology)onto).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)onto) );
-	} catch (OWLException ex) { System.err.println(ex); };
-    }
 
     public Object getEntity( URI uri ) throws AlignmentException {
 	try {
@@ -211,23 +75,136 @@ public class OWLAPIOntology extends ConcreteOntology<OWLOntology> implements Loa
 	}
     }
 
-}
-
-final class URIIterator implements Iterator<URI> {
-    private Iterator it = null;
-
-    public URIIterator ( Iterator i ){
-	it = i;
-    }
-    public boolean hasNext() { return it.hasNext(); }
-    public URI next() throws NoSuchElementException {
-	try{ 
-	    return ((OWLEntity)it.next()).getURI();
-	} catch (OWLException ex) {
-	    throw new NoSuchElementException(ex.toString()); // cannot encapsulate!
+    public URI getEntityURI( Object o ) throws AlignmentException {
+	try {
+	    return ((OWLEntity)o).getURI();
+	} catch (OWLException oex) {
+	    throw new AlignmentException( "Cannot get URI ", oex );
 	}
     }
-    public void remove() throws UnsupportedOperationException {
-	throw new UnsupportedOperationException();
+    public String getEntityName( Object o ) throws AlignmentException {
+	return "Dummt";
+    };
+
+    public boolean isEntity( Object o ){
+	if ( o instanceof OWLEntity ) return true;
+	else return false;
+    };
+    public boolean isClass( Object o ){
+	if ( o instanceof OWLClass ) return true;
+	else return false;
+    };
+    public boolean isProperty( Object o ){
+	if ( o instanceof OWLProperty ) return true;
+	else return false;
+    };
+    public boolean isDatatypeProperty( Object o ){
+	if ( o instanceof OWLDataProperty ) return true;
+	else return false;
+    };
+    public boolean isObjectProperty( Object o ){
+	if ( o instanceof OWLObjectProperty ) return true;
+	else return false;
+    };
+    public boolean isIndividual( Object o ){
+	if ( o instanceof OWLIndividual ) return true;
+	else return false;
+    };
+
+    // Here it shoud be better to report exception
+    // JE: Onto this does not work at all, of course...!!!!
+    public Set<Object> getEntities() {
+	try {
+	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    return null;
+	}
     }
+
+    public Set<Object> getClasses() {
+	try {
+	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    return null;
+	}
+    }
+
+    public Set<Object> getProperties() {
+	try {
+	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    return null;
+	}
+    }
+
+    // The only point is if I should return OWLProperties or names...
+    // I guess that I will return names (ns+name) because otherwise I will need a full
+    // Abstract ontology interface and this is not the rule...
+    public Set<Object> getObjectProperties() {
+	try {
+	    // [Warning:unchecked] due to OWL API not serving generic types
+	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    //throw new AlignmentException( "Cannot get object properties", ex );
+	    return null;
+	}
+    }
+
+    public Set<Object> getDatatypeProperties() {
+	try {
+	    // [Warning:unchecked] due to OWL API not serving generic types
+	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    //throw new AlignmentException( "Cannot get object properties", ex );
+	    return null;
+	}
+    }
+
+    public Set<Object> getIndividuals() {
+	try {
+	    return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
+	} catch (OWLException ex) {
+	    return null;
+	}
+    }
+
+    // JE: particularly inefficient
+    public int nbClasses() {
+	try {
+	    return ((OWLOntology)onto).getClasses().size();
+	} catch (OWLException oex) {
+	    return 0;
+	}
+    }
+
+    public int nbObjectProperties() {
+	try {
+	    return ((OWLOntology)onto).getObjectProperties().size();
+	} catch (OWLException oex) {
+	    return 0;
+	}
+    }
+
+    public int nbDataProperties() {
+	try {
+	    return ((OWLOntology)onto).getDataProperties().size();
+	} catch (OWLException oex) {
+	    return 0;
+	}
+    }
+
+    public int nbInstances() {
+	try {
+	    return ((OWLOntology)onto).getIndividuals().size();
+	} catch (OWLException oex) {
+	    return 0;
+	}
+    }
+
+    public void unload() {
+	try {
+	    ((OWLOntology)onto).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)onto) );
+	} catch (OWLException ex) { System.err.println(ex); };
+    }
+
 }
