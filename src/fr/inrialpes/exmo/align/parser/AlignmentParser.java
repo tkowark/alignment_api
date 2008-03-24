@@ -302,7 +302,6 @@ public class AlignmentParser extends DefaultHandler {
 		alignment = new URIAlignment();
 		onto1 = ((URIAlignment)alignment).getOntologyObject1();
 		onto2 = ((URIAlignment)alignment).getOntologyObject2();
-		System.err.println(">>>>>>> "+onto1);
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
 		    alignment.setExtension( Annotations.ALIGNNS, Annotations.ID, atts.getValue("rdf:about") );
 		};
