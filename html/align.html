@@ -32,15 +32,21 @@ library, required libraries.</p>
 <p>Running the program is achieved through:
 <div class="fragment"><pre>
 $ java -jar lib/procalign.jar
+Two URIs required
 usage: Procalign [options] URI1 URI2
 options are:
-        --impl=className -i classname           Use the given alignment implementation.
-        --renderer=className -r className       Specifies the alignment renderer
-        --output=filename -o filename   Output the alignment in filename
-        --alignment=filename -a filename Start from an XML alignment file
-        --threshold=double -t double    Filters the similarities under threshold
-        --debug[=n] -d [n]              Report debug info at level n
-        --help -h                       Print this message
+	--impl=className -i classname		Use the given alignment implementation.
+	--renderer=className -r className	Specifies the alignment renderer
+	--output=filename -o filename	Output the alignment in filename
+	--params=filename -p filename	Reads parameters from filename
+	--alignment=filename -a filename Start from an XML alignment file
+	--threshold=double -t double	Filters the similarities under threshold
+	--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span	method for computing the threshold
+	--debug[=n] -d [n]		Report debug info at level n
+	-Dparam=value			Set parameter
+	--help -h			Print this message
+
+Alignment API implementation 3.2 ($Id$)
 </pre></div>
 Congratutalations, you are done. We
 advise you to learn more by using the <a href="tutorial">tutorial</a>
@@ -217,32 +223,40 @@ documentation. If you are familiar with CVS, the move is straightforward.)
   distance on class names. It thus have to build a matrix of distance
   and to choose the alignment from the distance. It can be called by:
 <div class="fragment"><pre>
-$ java -jar lib/procalign.jar file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment
-</pre></div>
-which returns:
-<div class="code"><pre>
+$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
-&lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
-
-&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment'>
+&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
+         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
+         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
 &lt;Alignment>
   &lt;xml>yes&lt;/xml>
   &lt;level>0&lt;/level>
-  &lt;type>11&lt;/type>
-  &lt;onto1>file://$CWD/rdf/onto1.owl&lt;/onto1>
-  &lt;onto2>file://$CWD/rdf/onto2.owl&lt;/onto2>
+  &lt;type>**&lt;/type>
+  &lt;method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/method>
+  &lt;time>4&lt;/time>
+  &lt;onto1>
+    &lt;Ontology rdf:about="http://www.example.org/ontology1">
+      &lt;location>file:///Java/alignapi/examples/rdf/onto1.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto1>
+  &lt;onto2>
+    &lt;Ontology rdf:about="http://www.example.org/ontology2">
+      &lt;location>file:///Java/alignapi/examples/rdf/onto2.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto2>
   &lt;map>
-    &lt;Cell>
-      &lt;entity1 rdf:resource='http://www.example.org/ontology1#reviewedarticle'/>
-      &lt;entity2 rdf:resource='http://www.example.org/ontology2#article'/>
-      &lt;measure rdf:datatype='xsd:float'>0.5333333333333333&lt;/measure>
-      &lt;relation>=&lt;/relation>
-    &lt;/Cell>
     &lt;Cell>
       &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
       &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
-      &lt;measure rdf:datatype='xsd:float'>0.0&lt;/measure>
       &lt;relation>=&lt;/relation>
+      &lt;measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0&lt;/measure>
     &lt;/Cell>
   &lt;/map>
 &lt;/Alignment>
