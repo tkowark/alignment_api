@@ -40,15 +40,17 @@ import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
+/*
+ * JE: BEWARE, THIS HAS NOT BEEN FULLY IMPLEMENTED SO FAR!!!!
+ * TO BE CHECKED
+ * getEntities() and getProperties() ARE INCORRECT
+ * nbXxxx() ARE INNEFICIENT
+ */
+
 /**
  * Store the information regarding ontologies in a specific structure
  * Acts as an interface with regard to an ontology APY
  */
-
-//private class OWLAPIOntology extends OntologyAdapter<OWLOntology> {
-//    private OWLAPIOntology() {super();}
-//}
-
 
 public class OWLAPIOntology extends BasicOntology<OWLOntology> implements LoadedOntology<OWLOntology> {
 
@@ -59,10 +61,12 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (Exception e) {}; // does not happen
     };
 
+    // Ontology interface
     public OWLOntology getOntology() { return onto; }
 
     public void setOntology( OWLOntology o ) { this.onto = o; }
 
+    // LoadedOntology interface
     public Object getEntity( URI uri ) throws AlignmentException {
 	try {
 	    OWLEntity result = ((OWLOntology)onto).getClass( uri );
@@ -83,7 +87,14 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
     public String getEntityName( Object o ) throws AlignmentException {
-	return "Dummt";
+	try {
+	    // Try to get labels first...
+	    URI u = ((OWLEntity)o).getURI();
+	    if ( u != null ) return u.getFragment();
+	    else return "";
+	} catch (OWLException oex) {
+	    return null;
+	}
     };
 
     public boolean isEntity( Object o ){
@@ -98,7 +109,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	if ( o instanceof OWLProperty ) return true;
 	else return false;
     };
-    public boolean isDatatypeProperty( Object o ){
+    public boolean isDataProperty( Object o ){
 	if ( o instanceof OWLDataProperty ) return true;
 	else return false;
     };
@@ -145,17 +156,14 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	    // [Warning:unchecked] due to OWL API not serving generic types
 	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
 	} catch (OWLException ex) {
-	    //throw new AlignmentException( "Cannot get object properties", ex );
 	    return null;
 	}
     }
 
-    public Set<Object> getDatatypeProperties() {
+    public Set<Object> getDataProperties() {
 	try {
-	    // [Warning:unchecked] due to OWL API not serving generic types
 	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
 	} catch (OWLException ex) {
-	    //throw new AlignmentException( "Cannot get object properties", ex );
 	    return null;
 	}
     }
@@ -168,6 +176,72 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
+    /*
+    private Set<Object> getEntities( Class<? extends OWLEntity> c ){
+	OWLEntityCollector ec = new OWLEntityCollector();
+	try {
+	    getOntology().accept(ec);
+	    Set<Object> entities = new HashSet<Object>();
+	    for (Object obj : ec.entities()) {
+		if (c.isInstance(obj) && (((OWLEntity) obj).getURI() != null) &&
+		    ((OWLEntity) obj).getURI().getSchemeSpecificPart().equals(ont.getURI().getSchemeSpecificPart())){
+		    //System.out.println(((OWLEntity) obj).getURI().getSchemeSpecificPart()+" - "+ont.getURI().getSchemeSpecificPart());
+		    //System.out.println(((OWLEntity) obj).getURI()+" : "+ont.getOntology().contains(obj));
+		    entities.add(new OWLAPIEntity((OWLEntity)obj, ont, ((OWLEntity)obj).getURI() ));
+		}
+	    }
+	    return entities;
+	} catch (OWLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return null;
+    }
+    */
+    /*
+    private void addAnnotations(OWLAPIEntity ent) {
+	for (String[] a : getAnnotations(ent.getObject(),(OWLOntology)ent.getOntology().getOntology())) {
+	    ent.getAnnotations().add(a[0]);
+	    if (a[1]!=null) {
+		ent.getLangToAnnot(EntityAdapter.LANGUAGES.valueOf(a[1])).add(a[0]);
+	    }
+	    if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getComment())) {
+		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
+	    }
+	    else if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getLabel())) {
+		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
+	    }
+	}
+    }
+    */
+    /*
+	private Set<String[]> getAnnotations(OWLEntity e, OWLOntology o)  {
+		Set<String[]> res = new HashSet<String[]>();
+		Set annots;
+		try {
+			annots = e.getAnnotations(o);
+			for (Object annot : annots) {
+				OWLAnnotationInstance annInst = ((OWLAnnotationInstance) annot);
+				String val;
+				String lang=null;
+				String annotUri = annInst.getProperty().getURI().toString();
+				if ( annInst.getContent() instanceof OWLDataValue ) {
+				    OWLDataValue odv = (OWLDataValue) annInst.getContent();
+				    val = odv.toString();
+				    lang = odv.getLang();
+				}
+				else
+					val= (String) annInst.getContent();
+				res.add(new String[]{val,lang,annotUri});
+			}
+		}
+		catch (OWLException oe) {
+			oe.printStackTrace();
+		}
+		return Collections.unmodifiableSet(res);
+	}
+    */
+
     // JE: particularly inefficient
     public int nbClasses() {
 	try {
@@ -175,6 +249,10 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (OWLException oex) {
 	    return 0;
 	}
+    }
+
+    public int nbProperties() {
+	return nbObjectProperties()+nbDataProperties();
     }
 
     public int nbObjectProperties() {

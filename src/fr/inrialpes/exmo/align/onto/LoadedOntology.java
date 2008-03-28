@@ -35,7 +35,7 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public boolean isEntity( Object o );
     public boolean isClass( Object o );
     public boolean isProperty( Object o );
-    public boolean isDatatypeProperty( Object o );
+    public boolean isDataProperty( Object o );
     public boolean isObjectProperty( Object o );
     public boolean isIndividual( Object o );
 
@@ -43,10 +43,11 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public Set<Object> getClasses();
     public Set<Object> getProperties();
     public Set<Object> getObjectProperties();
-    public Set<Object> getDatatypeProperties();
+    public Set<Object> getDataProperties();
     public Set<Object> getIndividuals();
 
     public int nbClasses();
+    public int nbProperties();
     public int nbDataProperties();
     public int nbObjectProperties();
     public int nbInstances();

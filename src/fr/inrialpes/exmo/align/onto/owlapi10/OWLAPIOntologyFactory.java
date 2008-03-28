@@ -31,34 +31,22 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
-import org.xml.sax.SAXException;
-
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.EntityAdapter;
-import fr.inrialpes.exmo.align.onto.Entity;
-import fr.inrialpes.exmo.align.onto.EntityAdapter.TYPE;
 import fr.inrialpes.exmo.align.onto.Ontology;
-import fr.inrialpes.exmo.align.onto.ConcreteOntology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
-import org.semanticweb.owl.io.vocabulary.RDFSVocabularyAdapter;
-import org.semanticweb.owl.model.OWLAnnotationInstance;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLDataValue;
-import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.helper.OWLEntityCollector;
 import org.semanticweb.owl.util.OWLConnection;
 import org.semanticweb.owl.util.OWLManager;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFParser;
-import org.semanticweb.owl.io.owl_rdf.OWLRDFErrorHandler;
 
+/*
+ * JE: everything should be asked to the Ontoogy, not to the factory...
+ * So I suppress many initial methods
+ */
 public class OWLAPIOntologyFactory extends OntologyFactory {
 
     private URI formalismUri = null;
@@ -76,7 +64,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	return instance;
     }
 
-    public LoadedOntology loadOntology( URI physicalURI ) {
+    public LoadedOntology loadOntology( URI uri ) throws AlignmentException {
 	OWLConnection connection = null;
 	Map parameters = new HashMap();
 	parameters.put(OWLManager.OWL_CONNECTION,
@@ -85,28 +73,27 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    connection = OWLManager.getOWLConnection(parameters);
 	    Level lev = Logger.getLogger("org.semanticweb.owl").getLevel();
 	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
-	    OWLOntology ontology = connection.loadOntologyPhysical(physicalURI);
+	    OWLOntology ontology = connection.loadOntologyPhysical(uri);
 	    Logger.getLogger("org.semanticweb.owl").setLevel(lev);
 	    OWLAPIOntology onto = new OWLAPIOntology();
 	    // It may be possible to fill this as final in OWLAPIOntology...
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( ontology );
-	    onto.setFile( physicalURI );
+	    onto.setFile( uri );
 	    try {
-		onto.setURI( ontology.getLogicalURI() );//getURI();
+		onto.setURI( ontology.getLogicalURI() );
 	    } catch (OWLException e) {
 		// Better put in the AlignmentException of loaded
 		e.printStackTrace();
 	    }
 	    return onto;
-	} catch (OWLException e) {
-	    e.printStackTrace();
+	} catch (OWLException e) { 
+	    throw new AlignmentException("Cannot load "+uri, e );
 	}
-	return null;
     }
 
-    /** Can be used for loading the ontology if it is not available **/
+    /* Can be used for loading the ontology if it is not available
     // JE: Onto: check that the structure is properly filled (see build...)
     public Ontology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, AlignmentException {
 	Ontology onto = null;
@@ -146,7 +133,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	}
 	return onto;
     }
-
+ */
     // JE: Onto: I am not sure of the meaning of this "get"
     /*
 	private Ontology getOntology(OWLOntology ont) {
@@ -172,70 +159,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	}
     */
 
-    private Set<Entity> getEntities(LoadedOntology<OWLOntology> ont, Class<? extends OWLEntity> c){
-	OWLEntityCollector ec = new OWLEntityCollector();
-	try {
-	    ont.getOntology().accept(ec);
-	    Set<Entity> entities = new HashSet<Entity>();
-	    for (Object obj : ec.entities()) {
-		if (c.isInstance(obj) && (((OWLEntity) obj).getURI() != null) &&
-		    ((OWLEntity) obj).getURI().getSchemeSpecificPart().equals(ont.getURI().getSchemeSpecificPart())){
-		    //System.out.println(((OWLEntity) obj).getURI().getSchemeSpecificPart()+" - "+ont.getURI().getSchemeSpecificPart());
-		    //System.out.println(((OWLEntity) obj).getURI()+" : "+ont.getOntology().contains(obj));
-		    entities.add(new OWLAPIEntity((OWLEntity)obj, ont, ((OWLEntity)obj).getURI() ));
-		}
-	    }
-	    return entities;
-	} catch (OWLException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	return null;
-    }
-
-    private void addAnnotations(OWLAPIEntity ent) {
-	for (String[] a : getAnnotations(ent.getObject(),(OWLOntology)ent.getOntology().getOntology())) {
-	    ent.getAnnotations().add(a[0]);
-	    if (a[1]!=null) {
-		ent.getLangToAnnot(EntityAdapter.LANGUAGES.valueOf(a[1])).add(a[0]);
-	    }
-	    if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getComment())) {
-		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
-	    }
-	    else if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getLabel())) {
-		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
-	    }
-	}
-    }
-
-
-	private Set<String[]> getAnnotations(OWLEntity e, OWLOntology o)  {
-		Set<String[]> res = new HashSet<String[]>();
-		Set annots;
-		try {
-			annots = e.getAnnotations(o);
-			for (Object annot : annots) {
-				OWLAnnotationInstance annInst = ((OWLAnnotationInstance) annot);
-				String val;
-				String lang=null;
-				String annotUri = annInst.getProperty().getURI().toString();
-				if ( annInst.getContent() instanceof OWLDataValue ) {
-				    OWLDataValue odv = (OWLDataValue) annInst.getContent();
-				    val = odv.toString();
-				    lang = odv.getLang();
-				}
-				else
-					val= (String) annInst.getContent();
-				res.add(new String[]{val,lang,annotUri});
-			}
-		}
-		catch (OWLException oe) {
-			oe.printStackTrace();
-		}
-		return Collections.unmodifiableSet(res);
-	}
-
-
+    /*
     private class OWLAPIEntity extends EntityAdapter<OWLEntity> {
 	//private boolean toLoad=true;
 
@@ -253,5 +177,6 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    return super.getAnnotations(lang, type);
 	}
     }
+    */
 
 }

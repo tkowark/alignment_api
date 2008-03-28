@@ -43,32 +43,38 @@ public class OntologyCache {
    * This is the ontology URI, NOT its filename
    */
     Hashtable<URI,LoadedOntology> ontologies = null;
+    Hashtable<URI,LoadedOntology> ontologyUris = null;
     
     public OntologyCache() {
 	ontologies = new Hashtable<URI,LoadedOntology>();
+	ontologyUris = new Hashtable<URI,LoadedOntology>();
     }
   
     public void recordOntology( URI uri, LoadedOntology ontology ){
-	ontologies.put(uri,ontology);
+	ontologies.put( uri, ontology );
+	ontologyUris.put( ontology.getURI(), ontology );
     }
 
-    public Ontology getOntology( URI uri ){
+    public LoadedOntology getOntology( URI uri ){
 	return ontologies.get( uri );
     }
 
+    public LoadedOntology getOntologyFromURI( URI uri ){
+	return ontologyUris.get( uri );
+    }
+
     public void unloadOntology( URI uri, LoadedOntology ontology ){
-	LoadedOntology o = ontologies.get(uri);
+	LoadedOntology o = ontologyUris.get(uri);
 	o.unload();
+	ontologyUris.remove( uri );
 	ontologies.remove( uri );
     }
 
     public void clear(){
-	// JE: Onto [Is this correct ??]
-	//for ( Enumeration e = ontologies.elements() ; e.hasMoreElements();  ){
-	//    Ontology o = (Ontology)e.nextElement();
 	for ( LoadedOntology o : ontologies.values() ){
 	    o.unload();
 	}
+	ontologyUris.clear();
 	ontologies.clear();
     }
 

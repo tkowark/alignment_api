@@ -26,14 +26,22 @@ import java.util.Map;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.AlignmentException;
+
 public abstract class OntologyFactory {
 
     protected static OntologyFactory instance;
     
     private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory";
 
-    protected static Map<URI,Ontology> loadedOntos= new HashMap<URI,Ontology>();
-    protected static Map<URI,Ontology> loadedOntosLogical= new HashMap<URI,Ontology>();
+    public static String getDefaultFactory(){
+	return API_NAME;
+    }
+
+    public void setDefaultFactory( String className ){
+	API_NAME = className;
+    }
+
     public static OntologyFactory newInstance() {
 	return newInstance(API_NAME);
     }
@@ -59,23 +67,45 @@ public abstract class OntologyFactory {
 	return instance;
     }
 
-    public abstract LoadedOntology loadOntology( URI physicalURI );
+    /**
+     * Load an ontology, cache enabled
+     */
+    public abstract LoadedOntology loadOntology( URI uri ) throws AlignmentException;
+    /**
+     * Load an ontology, cache enabled if true, disabled otherwise
+     */
+    public LoadedOntology loadOntology( URI uri, OntologyCache ontologies ) throws AlignmentException {
+	LoadedOntology onto = null;
+	if ( ontologies != null ) {
+	    onto = ontologies.getOntologyFromURI( uri );
+	    if ( onto != null ) return onto;
+	    onto = ontologies.getOntology( uri );
+	    if ( onto != null ) return onto;
+	};
+	onto = loadOntology( uri );
+	if ( ontologies != null ) ontologies.recordOntology( uri, onto );
+	return onto;
+    };
 
-    // JE: This is not really usefule since it doubles OntologyCache...
+    /* JE: this is a reimplementation of OntologyCache
+    // JE: This is not really useful since it doubles OntologyCache...
     // This may be included as well...
-    public Ontology getOntologyFromFile(URI physicalURI) {
-	Ontology onto;
-	if (loadedOntos.containsKey(physicalURI))
-	    onto = loadedOntos.get(physicalURI);
-	else {
-	    onto = loadOntology( physicalURI );
-	    loadedOntos.put(physicalURI, onto);
-	    loadedOntosLogical.put(onto.getURI(), onto);
-		}
+    protected static Map<URI,LoadedOntology> loadedOntos = new HashMap<URI,LoadedOntology>();
+    protected static Map<URI,LoadedOntology> loadedOntosLogical = new HashMap<URI,LoadedOntology>();
+    public LoadedOntology getOntologyFromCache( URI uri ) {
+	LoadedOntology onto;
+	if ( loadedOntos.containsKey( uri ) ) {
+	    onto = loadedOntos.get( uri );
+	} else {
+	    onto = loadOntology( uri );
+	    loadedOntos.put( uri, onto );
+	    loadedOntosLogical.put( onto.getURI(), onto);
+	}
 	return onto;
     }
 
     public static Ontology getOntologyFromURI(URI logicalURI) {
 	return loadedOntosLogical.get(logicalURI);
     }
+    */
 }
