@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 
 <project name="align" default="compile" basedir=".">
-	
+
   <!-- tested -->
   <target name="usage" depends="init">
     <echo message="ant _target_ _options_"/>
@@ -50,6 +50,9 @@
       </fileset>
     </path>
     
+    <taskdef name="testng" classpathref="classpath"
+             classname="org.testng.TestNGAntTask" />
+
   </target>
 
   <!-- tested -->
@@ -68,7 +71,8 @@
     <delete>
       <fileset dir="classes" includes="**/*.class"/>
     </delete>
-    <antcall target="compile"/>
+    <antcall target="cleanjar"/>
+    <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
   </target>
 
@@ -140,6 +144,15 @@
   </target>
 
   <!-- tested -->
+  <target name="cleanjar" depends="init">
+    <echo message="Erasing..."/>
+    <delete file="lib/align.jar"/>
+    <delete file="lib/alignsvc.jar"/>
+    <delete file="lib/alignwn.jar"/>
+    <delete file="lib/procalign.jar"/>
+  </target>
+
+  <!-- tested -->
   <target name="aserv" depends="init">
     <echo message="Setting property..."/>
     <jar jarfile="lib/aserv.jar">
@@ -155,33 +168,32 @@
     </jar>
   </target>
 
-  <!-- not tested -->
+  <!-- tested -->
   <target name="test" depends="init">
     <echo message="Testing..."/>
-   <!--  <javac srcdir="test/fr/fluxmedia/transmorpher/graph/rules"
-    debug="on" destdir="classes">
-     <classpath refid="classpath"/>
-    </javac> -->
-    <javac srcdir="test/fr/fluxmedia/" debug="on" destdir="classes">
+    <javac srcdir="test/src" destdir="test/classes" debug="on">
       <classpath refid="classpath"/>
     </javac>
-    <antcall target="jar"/>
-    <junit printsummary="yes" fork="yes" haltonfailure="no">
-      <batchtest todir="test/reports/xml/">
-			<fileset dir="classes/">
-				<include name="**/*Test.class"/>
-				<exclude name="**/Test.class"/>
-			</fileset>
-      <formatter type="xml"/>
-	</batchtest>
-      <classpath refid="classpath"/>
-    </junit>
-    <junitreport todir="test/reports">
-      <fileset dir="test/reports/xml/">
-	<include name="TEST-*.xml"/>
-      </fileset>
-      <report todir="test/reports/html/"/>
-    </junitreport>
+    <testng
+	    sourcedir="test/src"
+	    outputDir="test/html"
+	    haltOnFailure="true" verbose="1">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="test/classes"/>
+      </classpath>
+      <!--xmlfileset dir="${test14.dir}" includes="testng.xml"/-->
+      <classfileset dir="test" includes="classes/**/*.class"/>
+    </testng>
+  </target>
+
+  <!-- tested -->
+  <target name="cleantest" depends="init">
+    <echo message="Cleaning tests..."/>
+    <delete>
+      <fileset dir="test/classes" includes="**/*.class"/>
+      <fileset dir="test/html" includes="**/*.html"/>
+    </delete>
   </target>
 
   <!-- tested -->
@@ -234,6 +246,8 @@
     <!--antcall target="commit"/-->
     <antcall target="compileall"/>
     <antcall target="jar"/>
+    <antcall target="test"/>
+    <antcall targer="cleantests"/>
     <antcall target="javadoc"/>
     <ant dir="plugins/neon" target="jar">
       <property name="version" value="${version}"/>
