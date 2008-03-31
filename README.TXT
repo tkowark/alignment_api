@@ -38,6 +38,12 @@ Building:
 ---------
 
 $ ant jar
+(or ant compileall; ant jar)
+
+Testing
+-------
+
+$ ant test
 
 Running:
 --------

@@ -43,14 +43,20 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.util.NullStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+/**
+ * These tests corresponds to the README file in the main directory
+ */
 
 public class READMETest {
 
@@ -194,33 +200,24 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	assertNotNull( align2 );
 	Parameters params = new BasicParameters();
 	assertNotNull( params );
-	Evaluator eval = new PRecEvaluator( align1, align2 );
+	PRecEvaluator eval = new PRecEvaluator( align1, align2 );
 	assertNotNull( eval );
 	eval.eval( params ) ;
-	    /*
-		stream = new FileOutputStream(filename);
-	    }
-	    writer = new PrintWriter (
-			  new BufferedWriter(
-			       new OutputStreamWriter( stream, "UTF-8" )), true);
-	    eval.write( writer );
-	    writer.flush();
-	    */
-	/*
-<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
-  <map:output rdf:about=''>
-    <map:input1 rdf:resource="http://ebiquity.umbc.edu/v2.1/ontology/publication.owl#publication"/>
-    <map:input2 rdf:resource="file:examples/rdf/edu.mit.visus.bibtex.owl"/>
-    <map:precision>0.8372093023255814</map:precision>
-    <map:recall>1.0</map:recall>
-    <fallout>0.16279069767441862</fallout>
-    <map:fMeasure>0.9113924050632911</map:fMeasure>
-    <map:oMeasure>0.8055555555555556</map:oMeasure>
-    <result>1.1944444444444444</result>
-  </map:output>
-</rdf:RDF>
-	*/
+
+	// This only output the result to check that this is possible
+	OutputStream stream = new NullStream();
+	PrintWriter writer = new PrintWriter (
+				  new BufferedWriter(
+					new OutputStreamWriter( stream, "UTF-8" )), true);
+	eval.write( writer );
+	writer.flush();
+	writer.close();
+	assertEquals( eval.getPrecision(), 0.7441860465116279 );
+	assertEquals( eval.getRecall(), 1.0 );
+	assertEquals( eval.getFallout(), 0.2558139534883721 );
+	assertEquals( eval.getFmeasure(), 0.8533333333333333 );
+	assertEquals( eval.getOverall(), 0.65625 );
+	//assertEquals( eval.getResult(), 1.34375 );
     }
 
     @Test(groups = { "full", "impl" })
