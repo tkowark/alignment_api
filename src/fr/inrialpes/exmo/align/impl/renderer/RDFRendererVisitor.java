@@ -148,7 +148,6 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
 	    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
 	} else {
-	    System.err.println( cell );
 	    u1 = cell.getObject1AsURI();
 	    u2 = cell.getObject2AsURI();
 	}
