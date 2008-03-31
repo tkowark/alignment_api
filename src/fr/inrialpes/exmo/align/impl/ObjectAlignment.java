@@ -1,5 +1,5 @@
 /*
- * $Id: ObjectAlignment.java 677 2008-03-23 22:58:22Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
@@ -51,7 +51,7 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
  * objects.
  *
  * @author Jérôme Euzenat
- * @version $Id: ObjectAlignment.java 677 2008-03-23 22:58:22Z euzenat $
+ * @version $Id$
  */
 
 public class ObjectAlignment extends BasicAlignment {

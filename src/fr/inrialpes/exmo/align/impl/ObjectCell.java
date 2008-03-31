@@ -1,5 +1,5 @@
 /*
- * $Id: BasicCell.java 670 2008-03-02 00:06:16Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
@@ -36,7 +36,7 @@ import org.semanticweb.owl.align.Parameters;
  * Represents an ontology alignment correspondence.
  *
  * @author Jérôme Euzenat
- * @version $Id: BasicCell.java 670 2008-03-02 00:06:16Z euzenat $
+ * @version $Id$
  */
 
 public class ObjectCell extends BasicCell {

@@ -1,5 +1,5 @@
 /*
- * $Id: Ontology.java 643 2008-02-23 11:16:09Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *

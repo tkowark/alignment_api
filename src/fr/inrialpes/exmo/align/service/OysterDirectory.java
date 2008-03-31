@@ -1,5 +1,5 @@
 /*
- * $Id: OysterDirectory.java 360 2006-10-29 14:58:49Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *

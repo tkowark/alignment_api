@@ -1,5 +1,5 @@
 /*
- * $Id: OntologyCache.java 670 2008-03-02 00:06:16Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
@@ -33,7 +33,7 @@ import java.net.URI;
  * NOTE[3.2]: This class may be obsoleted and its code go to OntolofyFactory
  *
  * @author Jérôme Euzenat
- * @version $Id: OntologyCache.java 670 2008-03-02 00:06:16Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class OntologyCache {
