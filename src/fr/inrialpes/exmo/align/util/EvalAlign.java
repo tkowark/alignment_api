@@ -37,7 +37,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.lang.Integer;
 import java.lang.Double;
-import java.util.Hashtable;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -148,7 +147,6 @@ public class EvalAlign {
 	Alignment align1=null, align2 = null;
 	try {
 	    // Load alignments
-	    Hashtable loaded = new Hashtable();
 	    AlignmentParser aparser1 = new AlignmentParser( debug );
 	    align1 = aparser1.parse( alignName1 );
 	    if ( debug > 0 ) System.err.println(" Alignment structure1 parsed");
@@ -201,7 +199,7 @@ public class EvalAlign {
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
 	    eval.write( writer );
 	    writer.flush();
-	    
+	    writer.close();
 	} catch ( IOException ex ) {
 	    ex.printStackTrace();
 	}

@@ -50,7 +50,8 @@ public class AlignmentClient {
 	WSDL = "7777";
 
     public static final String //IP Strings
-	HOST = "localhost";
+//	HOST = "localhost";
+	HOST = "aserv.inrialpes.fr";
 
     private int debug = 0;
     private String filename = null;

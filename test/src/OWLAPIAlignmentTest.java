@@ -62,14 +62,9 @@ public class OWLAPIAlignmentTest {
     private Ontology onto1 = null;
     private Ontology onto2 = null;
 
-    @BeforeClass(groups = { "fast" })
+    @BeforeClass(groups = { "full" })
     private void init(){
 	alignment = new OWLAPIAlignment();
-    }
-
-    @Test(groups = { "fast" })
-    public void aFastTest() {
-	assertNotNull( alignment, "Alignment was null" );
     }
 
     @Test(groups = { "full" })

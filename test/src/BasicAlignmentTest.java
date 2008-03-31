@@ -33,12 +33,12 @@ import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 public class BasicAlignmentTest {
     private OWLAPIAlignment alignment = null;
 
-    @BeforeClass(groups = { "fast" })
+    @BeforeClass(groups = { "full" })
     private void init(){
 	alignment = new OWLAPIAlignment();
     }
 
-    @Test(groups = { "fast" })
+    @Test(groups = { "full" })
     public void aFastTest() {
 	assertNotNull( alignment, "Alignment was null" );
     }

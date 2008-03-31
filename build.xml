@@ -174,7 +174,8 @@
     <javac srcdir="test/src" destdir="test/classes" debug="on">
       <classpath refid="classpath"/>
     </javac>
-    <testng
+    <!-- possible groups: impl, serv, ling, onto, full -->
+    <testng groups="full"
 	    sourcedir="test/src"
 	    outputDir="test/html"
 	    haltOnFailure="true" verbose="1">
@@ -194,7 +195,7 @@
       <fileset dir="test/classes" includes="**/*.class"/>
       <fileset dir="test/html" includes="**/*.html,**/*.xml,**/*.css"/>
     </delete>
-    <delete file="test/html/Ant\ suite"/>
+    <delete dir="test/html/Ant suite"/>
   </target>
 
   <!-- tested -->
@@ -263,7 +264,7 @@
     </zip>
   </target>
 
-<target name="svnCommit">
+  <target name="svnCommit">
     <property name="source-root" value="/usr/src"/>
     <property name="repository.URL" value="http://sources.example.com"/>
     <java classname="org.tmatesoft.svn.cli.SVN"
@@ -331,12 +332,17 @@
     </java>
   </target>
 
+  <!-- tested -->
   <target name="clean">
     <echo message="Cleaning..."/>
+    <antcall target="cleantest"/>
     <delete>
       <fileset dir="classes" includes="**/*.class"/>
       <fileset dir="examples" includes="**/*.class"/>
+      <fileset dir="examples/omwg" includes="wine?.xml"/>
       <fileset dir="examples" includes="**/*.jar"/>
+      <fileset dir="html/tutorial" includes="**/*.class"/>
+      <fileset dir="plugins/neon" includes="neonalign*"/>
     </delete>
   </target>
 
