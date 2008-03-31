@@ -192,8 +192,9 @@
     <echo message="Cleaning tests..."/>
     <delete>
       <fileset dir="test/classes" includes="**/*.class"/>
-      <fileset dir="test/html" includes="**/*.html"/>
+      <fileset dir="test/html" includes="**/*.html,**/*.xml,**/*.css"/>
     </delete>
+    <delete file="test/html/Ant\ suite"/>
   </target>
 
   <!-- tested -->

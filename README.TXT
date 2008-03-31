@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      29/02/2008, version 3.2+                       #
+#                      29/02/2008, version 3.3                        #
 #######################################################################
 
 Copyright (C) 2003 The University of Manchester.
@@ -106,17 +106,19 @@ build.xml	the Ant build file for compiling and testing
 classes/	empty directory for compiling the sources
 distrib/	some files for generating new jarfiles
 dtd/		contains the ontoalign DTDs (and schemas)
+examples/	examples of use of the API and server
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
 html/tutorial/  web based tutorial
 javadoc/	javadoc API documentation in HTML (not very useful)
 lib/		contains align.jar, alignwn.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles
-examples/	examples of use of the API and server
+plugins/neon/	Plug-in for the NeOn toolkit
 src/		Java sources of ontoalign
 		org.semanticweb.owl.align: the API
 		fr.inrialpes.exmo.align.impl: basic implementation
 		fr.inrialpes.exmo.align.util: utility wrapper functions
 		fr.inrialpes.exmo.align.ling: WordNet-based implementation
 		fr.inrialpes.exmo.align.service: Alignment Service
-
+		fr.inrialpes.exmo.align.onto: Abstract ontology layer
+test/		Unit tests for testng

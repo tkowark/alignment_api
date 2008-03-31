@@ -23,19 +23,32 @@
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
 
+import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class READMETest {
 
@@ -49,97 +62,124 @@ public class READMETest {
     }
 
     @Test(groups = { "full", "routine" })
-    public void routineTest2() {
-	alignment = new StringDistAlignment();
-	assertEquals( alignment.nbCells(), 0 );
-	assertNotNull( alignment, "ObjectAlignment should not be null" );
-	//alignment.init( , );
-	//alignment.align( (Alignment)null, );
-	assertEquals( alignment.nbCells(), 0 );
+    public void routineTest2() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl
-
 	*/
+	Parameters params = new BasicParameters();
+	alignment = new StringDistAlignment();
+	assertNotNull( alignment, "ObjectAlignment should not be null" );
+	assertEquals( alignment.nbCells(), 0 );
+	alignment.init( new URI("file:examples/rdf/onto1.owl"), new URI("file:examples/rdf/onto2.owl"));
+	alignment.align( (Alignment)null, params );
+	assertEquals( alignment.nbCells(), 1 );
     }
 
     @Test(groups = { "full", "routine" })
-    public void routineTest3() {
+    public void routineTest3() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
-
 	*/
-    }
-
-    @Test(groups = { "full", "routine" })
-    public void routineTest4() {
+	Parameters params = new BasicParameters();
+	params.setParameter( "stringFunction", "levenshteinDistance");
+	alignment = new StringDistAlignment();
+	assertNotNull( alignment, "ObjectAlignment should not be null" );
+	assertEquals( alignment.nbCells(), 0 );
+	alignment.init( new URI("file:examples/rdf/onto1.owl"), new URI("file:examples/rdf/onto2.owl"));
+	alignment.align( (Alignment)null, params );
+	assertEquals( alignment.nbCells(), 3 );
+	// Rendering
+	// Playing with threshold
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
-
 	*/
+	alignment.cut( "hard", 0.4 );
+	assertEquals( alignment.nbCells(), 2 );
     }
 
     @Test(groups = { "full", "routine" })
-    public void routineTest5() {
+    public void routineTest5() throws Exception {
 	/*
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples/rdf/newsample.rdf
-
 	*/
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	assertNotNull( aparser, "AlignmentParser was null" );
+	Alignment result = aparser.parse( "file:examples/rdf/newsample.rdf" );
+	assertNotNull( result, "URIAlignment(result) was null" );
+	assertTrue( result instanceof URIAlignment );
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	//FileOutputStream stream = new FileOutputStream("result.rdf");
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new RDFRendererVisitor( writer );
+	result.render( renderer );
+	writer.flush();
+	writer.close();
+	assertEquals( stream.toString().length(), 1740, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "routine" })
-    public void routineTest6() {
+    @Test(groups = { "full", "routine" }, dependsOnMethods = {"routineTest3"})
+    public void routineTest6() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf
 
 	*/
     }
 
-    @Test(groups = { "full", "routine" })
-    public void routineTest7() {
+    @Test(groups = { "full", "routine" }, dependsOnMethods = {"routineTest3"})
+    public void routineTest7() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl
-
 	*/
+	Parameters params = new BasicParameters();
+	alignment = new StringDistAlignment();
+	assertNotNull( alignment, "ObjectAlignment should not be null" );
+	assertEquals( alignment.nbCells(), 0 );
+	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	alignment.align( (Alignment)null, params );
+	assertEquals( alignment.nbCells(), 10 );
     }
 
-    @Test(groups = { "full", "routine" })
-    public void routineTest8() {
+    @Test(groups = { "full", "routine" }, dependsOnMethods = {"routineTest7"})
+    public void routineTest8() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
-
 	*/
-    }
-
-    @Test(groups = { "full", "routine" })
-    public void routineTest9() {
+	Parameters params = new BasicParameters();
+	params.setParameter( "stringFunction", "levenshteinDistance");
+	alignment = new StringDistAlignment();
+	assertNotNull( alignment, "ObjectAlignment should not be null" );
+	assertEquals( alignment.nbCells(), 0 );
+	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	alignment.align( (Alignment)null, params );
+	assertEquals( alignment.nbCells(), 43 );
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
-
 	*/
+	alignment.cut( "hard", 0.4 );
+	assertEquals( alignment.nbCells(), 35 ); /* Why does it get 36 ?? */
     }
 
     @Test(groups = { "full", "routine" })
-    public void routineEvalTest() {
+    public void routineEvalTest() throws Exception {
 	/*
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
-
 	*/
     }
 
     @Test(groups = { "full", "routine" })
-    public void routineMatrixTest() {
+    public void routineMatrixTest() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > examples/rdf/matrix.tex
-*/
+	*/
     }
 
-    @Test(groups = { "full", "routine" })
-    public void routineJWNLTest() {
-    /* For JWNL Readme
-
+    @Test(groups = { "full", "routine" }, dependsOnMethods = {"routineTest3"})
+    public void routineJWNLTest() throws Exception {
+    /*
 $ setenv WNDIR ../WordNet-2.0/dict
 $ java -jar lib/alignwn.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
-
     */
     }
 }
