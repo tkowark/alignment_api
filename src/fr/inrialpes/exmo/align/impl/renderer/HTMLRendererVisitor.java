@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -31,6 +32,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectCell;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Renders an alignment in HTML
@@ -85,11 +89,20 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
+	URI u1, u2;
+	if ( cell instanceof ObjectCell ) {
+	    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
+	    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
+	} else {
+	    System.err.println( cell );
+	    u1 = cell.getObject1AsURI();
+	    u2 = cell.getObject2AsURI();
+	}
 	writer.print("  <tr>");
-	writer.print("<td>"+cell.getObject1AsURI().toString()+"</td><td>");
+	writer.print("<td>"+u1+"</td><td>");
 	cell.getRelation().accept( this );
 	writer.print("</td><td>"+cell.getStrength()+"</td>");
-	writer.print("<td>"+cell.getObject2AsURI().toString()+"</td>");
+	writer.print("<td>"+u2+"</td>");
 	if ( cell.getId() != null ) {
 	    String id = cell.getId();
 	    // Would be useful to test for the Alignment URI
