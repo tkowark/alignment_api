@@ -33,7 +33,7 @@ import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -240,8 +240,8 @@ public class ExtGroupEval {
 	    Alignment align2 = aparser2.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
-	    eval = new ExtPREvaluator(OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)align1, loaded ), 
-				      OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)align2, loaded ) );
+	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1, loaded ), 
+				      ObjectAlignment.toObjectAlignment( (URIAlignment)align2, loaded ) );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
 	    eval.eval( params, loaded ) ;

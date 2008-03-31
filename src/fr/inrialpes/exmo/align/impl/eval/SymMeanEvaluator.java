@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,10 +26,8 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
-
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import java.lang.Math;
 import java.util.Enumeration;
@@ -52,15 +50,17 @@ import java.io.PrintWriter;
  * @version $Id$ 
  */
 
-public class SymMeanEvaluator extends BasicEvaluator
-{
+public class SymMeanEvaluator extends BasicEvaluator {
     private double classScore = 0.;
     private double propScore = 0.;
     private double indScore = 0.;
 
     /** Creation **/
-    public SymMeanEvaluator( Alignment align1, Alignment align2 ){
+    public SymMeanEvaluator( Alignment align1, Alignment align2 ) throws AlignmentException {
 	super(align1,align2);
+	if ( !( align1 instanceof ObjectAlignment ) ||
+	     !( align2 instanceof ObjectAlignment ) )
+	    throw new AlignmentException( "Alignments should be ObjectAlignments, try to " );
     }
 
     public double eval(Parameters params) throws AlignmentException {
@@ -74,40 +74,32 @@ public class SymMeanEvaluator extends BasicEvaluator
 	classScore = 0.;
 	propScore = 0.;
 	indScore = 0.;
+	LoadedOntology onto1 = (LoadedOntology)((ObjectAlignment)align1).getOntologyObject1();
+	LoadedOntology onto2 = (LoadedOntology)((ObjectAlignment)align2).getOntologyObject1();
 	
+	//for ( Cell c1 : align1.getElements() ){
 	for (Enumeration e = align1.getElements() ; e.hasMoreElements() ;) {
 	    Cell c1 = (Cell)e.nextElement();
-	    if ( c1.getObject1() instanceof OWLClass ) nbClassCell++;
-	    else if ( c1.getObject1() instanceof OWLProperty ) nbPropCell++;
+	    if ( onto1.isClass( c1.getObject1() ) ) nbClassCell++;
+	    else if ( onto1.isProperty( c1.getObject1() ) ) nbPropCell++;
 	    else nbIndCell++;
-	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
+	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
-		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
-		    Cell c2 = (Cell)it2.next();
-			if ( c1.getObject2() == c2.getObject2() ) {
-			    if ( c1.getObject2() instanceof OWLClass ) {
-				classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			    } else if ( c1.getObject2() instanceof OWLProperty ) {
-				propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			    } else {
-				indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}}}
+		for ( Cell c2: s2 ){
+		    if ( c1.getObject2() == c2.getObject2() ) {
+			if ( onto2.isClass( c1.getObject2() ) ) {
+			    classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+			} else if ( onto2.isProperty( c1.getObject2() ) ) {
+			    propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+			} else {
+			    indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}}}
 		
+	//for( Cell c2: align2.getElements() ) {
 	for (Enumeration e = align2.getElements() ; e.hasMoreElements() ;) {
 	    Cell c2 = (Cell)e.nextElement();
-	    if ( c2.getObject1() instanceof OWLClass ) nbClassCell++ ;
-	    else if ( c2.getObject1() instanceof OWLProperty ) nbPropCell++;
+	    if ( onto1.isClass( c2.getObject1() ) ) nbClassCell++ ;
+	    else if ( onto1.isProperty( c2.getObject1() ) ) nbPropCell++;
 	    else nbIndCell++;
-	    //Set s1 = (Set)align1.getAlignCells2((OWLEntity)c2.getObject1());
-	    //if( s1 != null ){
-	    //	for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
-	    //	    Cell c1 = (Cell)it1.next();
-	    //		if ( c2.getObject1() == c1.getObject1() ) {
-	    //		    if ( c2.getObject1() instanceof OWLClass ) {
-	    //			classScore = classScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-	    //		    } else if ( c2.getObject1() instanceof OWLProperty ) {
-	    //			propScore = propScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());
-	    //		    } else {
-	    //			indScore = indScore + 1 - Math.abs(c1.getStrength() - c2.getStrength());}}}}
 	}
 		
 	// Beware, this must come first

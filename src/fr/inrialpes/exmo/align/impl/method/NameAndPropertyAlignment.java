@@ -22,20 +22,8 @@
 package fr.inrialpes.exmo.align.impl.method; 
 
 import java.lang.Integer;
-import java.util.Iterator;
 import java.util.Vector;
 import java.util.Set;
-import java.util.HashSet;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLRestriction;
-import org.semanticweb.owl.model.OWLDescription;
-import org.semanticweb.owl.model.OWLNaryBooleanDescription;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -43,7 +31,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-
+import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
 
 /** This class has been built for ISWC experiments with bibliography.
  * It implements a non iterative (one step) OLA algorithms based on
@@ -62,89 +50,95 @@ import fr.inrialpes.exmo.align.impl.DistanceAlignment;
  * @version $Id$ 
  */
 
+public class NameAndPropertyAlignment extends DistanceAlignment implements AlignmentProcess {
 
-public class NameAndPropertyAlignment extends DistanceAlignment implements AlignmentProcess
-{
+    private HeavyLoadedOntology<Object> honto1 = null;
+    private HeavyLoadedOntology<Object> honto2 = null;
+
     /** Creation **/
     public NameAndPropertyAlignment(){
 	setType("**");
     };
 
-
     /** Processing **/
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	loadInit( alignment );
-	//ignore alignment;
+	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
+	honto2 = (HeavyLoadedOntology<Object>)getOntologyObject2();
 	double threshold = 1.; // threshold above which distances are too high
 	int i, j = 0;     // index for onto1 and onto2 classes
-	//int l1, l2 = 0;   // length of strings (for normalizing)
 	int nbclass1 = 0; // number of classes in onto1
 	int nbclass2 = 0; // number of classes in onto2
-	Vector<OWLClass> classlist2 = new Vector<OWLClass>(10); // onto2 classes
-	Vector<OWLClass> classlist1 = new Vector<OWLClass>(10); // onto1 classes
+	Vector<Object> classlist2 = new Vector<Object>(10); // onto2 classes
+	Vector<Object> classlist1 = new Vector<Object>(10); // onto1 classes
 	double classmatrix[][];   // class distance matrix
 	int nbprop1 = 0; // number of properties in onto1
 	int nbprop2 = 0; // number of properties in onto2
-	Vector<OWLProperty> proplist2 = new Vector<OWLProperty>(10); // onto2 properties
-	Vector<OWLProperty> proplist1 = new Vector<OWLProperty>(10); // onto1 properties
+	Vector<Object> proplist2 = new Vector<Object>(10); // onto2 properties
+	Vector<Object> proplist1 = new Vector<Object>(10); // onto1 properties
 	double propmatrix[][];   // properties distance matrix
 	double pic1 = 0.5; // class weigth for name
-	//double pic2 = 0.5; // class weight for properties
 	double pia1 = 1.; // relation weight for name
-	//double pia2 = 0.; // relation weight for domain
-	//double pia3 = 0.; // relation weight for range
 	double epsillon = 0.05; // stoping condition 
        	
 	if ( params.getParameter("debug") != null )
 	    debug = ((Integer)params.getParameter("debug")).intValue();
 
-	try {
 	    // Create property lists and matrix
-	    for ( Iterator it = ((OWLOntology)getOntology1()).getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( (OWLProperty)it.next() );
+	    for ( Object prop : honto1.getObjectProperties() ){
+		nbprop1++;
+		proplist1.add( prop );
 	    }
-	    for ( Iterator it = ((OWLOntology)getOntology1()).getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.add( (OWLProperty)it.next() );
+	    for ( Object prop : honto1.getDataProperties() ){
+		nbprop1++;
+		proplist1.add( prop );
 	    }
-	    for ( Iterator it = ((OWLOntology)getOntology2()).getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( (OWLProperty)it.next() );
+	    for ( Object prop : honto2.getObjectProperties() ){
+		nbprop2++;
+		proplist2.add( prop );
 	    }
-	    for ( Iterator it = ((OWLOntology)getOntology2()).getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.add( (OWLProperty)it.next() );
+	    for ( Object prop : honto2.getDataProperties() ){
+		nbprop2++;
+		proplist2.add( prop );
 	    }
 	    propmatrix = new double[nbprop1+1][nbprop2+1];
 	
 	    // Create class lists
-	    for ( Iterator it = ((OWLOntology)getOntology2()).getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.add( (OWLClass)it.next() );
+	    for ( Object cl : honto1.getClasses() ){
+		nbclass1++;
+		classlist1.add( cl );
 	    }
-	    for ( Iterator it = ((OWLOntology)getOntology1()).getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.add( (OWLClass)it.next() );
+	    for ( Object cl : honto2.getClasses() ){
+		nbclass2++;
+		classlist2.add( cl );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
 
 	    if (debug > 0) System.err.println("Initializing property distances");
+
 	    for ( i=0; i<nbprop1; i++ ){
-		OWLProperty cl = (OWLProperty)proplist1.get(i);
-		String st1=new String();
-		String st2=new String();
-		if (cl.getURI().getFragment()!=null){ st1 = cl.getURI().getFragment().toLowerCase();}
+		Object cl1 = proplist1.get(i);
+		String st1 = honto1.getEntityName( cl1 );
+		if ( st1 != null) st1 = st1.toLowerCase();
 		for ( j=0; j<nbprop2; j++ ){
-		    cl = (OWLProperty)proplist2.get(j);
-		    if(cl.getURI().getFragment()!=null){st2 = cl.getURI().getFragment().toLowerCase() ;}
-		    propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
-		    
+		    Object cl2 = proplist2.get(j);
+		    String st2 = honto2.getEntityName( cl2 );
+		    if( st2 != null ) st2 = st2.toLowerCase();
+		    if ( st1 != null || st2 != null ) {
+			propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
+		    } else {
+			propmatrix[i][j] = 1.;
+		    }
 		}
 	    }
 
 	    if (debug > 0) System.err.println("Initializing class distances");
+
 	    // Initialize class distances
 	    for ( i=0; i<nbclass1; i++ ){
-		OWLClass cl = (OWLClass)classlist1.get(i);
+		Object cl1 = classlist1.get(i);
 		for ( j=0; j<nbclass2; j++ ){
-		    classmatrix[i][j] = pic1*StringDistances.subStringDistance(
-										  cl.getURI().getFragment().toLowerCase(),
-										  ((OWLClass)classlist2.get(j)).getURI().getFragment().toLowerCase());
+		    classmatrix[i][j] = pic1*StringDistances.subStringDistance( honto1.getEntityName( cl1 ).toLowerCase(), honto2.getEntityName( classlist2.get(j) ).toLowerCase());
 		}
 	    }
 
@@ -168,7 +162,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 			    max = propmatrix[i][j];
 			}
 		    }
-		    if ( found && max < 0.5) { addAlignDistanceCell( (OWLProperty)proplist1.get(i), (OWLProperty)proplist2.get(best), "=", max ); }
+		    if ( found && max < 0.5) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
 		}
 		if (debug > 0) System.err.print("Computing class distances\n");
 		// Compute classes distances
@@ -181,13 +175,13 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		//  / nbatts of c[i] + nbatts of c[j]
 
 		for ( i=0; i<nbclass1; i++ ){
-		    Set properties1 = getProperties( (OWLClass)classlist1.get(i), ((OWLOntology)getOntology1()) );
+		    Set<Object> properties1 = honto1.getProperties( classlist1.get(i) );
 		    
 		    int nba1 = properties1.size();
 		    if ( nba1 > 0 ) { // if not, keep old values...
 			//Set correspondences = new HashSet();
 			for ( j=0; j<nbclass2; j++ ){
-			    Set properties2 = getProperties( (OWLClass)classlist2.get(j), ((OWLOntology)getOntology2()) );
+			    Set<Object> properties2 = honto2.getProperties( classlist2.get(j) );
 			    //int nba2 = properties1.size();
 			    //double attsum = 0.;
 			    // check that there is a correspondance
@@ -196,7 +190,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 			    // Make a local alignment with the properties.
 			    double moy_align_loc = alignLocal(properties1,properties2);
 
-			    if (moy_align_loc>0.7){
+			    if (moy_align_loc > 0.7){
 				classmatrix[i][j] = (classmatrix[i][j] + 2* moy_align_loc)/3;
 			    }
 			}
@@ -207,9 +201,6 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		// -- FirstExp: nothing to be done: one pass
 		factor = 0.;
 	    }
-	} catch (OWLException e) {
-	    throw new AlignmentException( "OWLException during alignment", e );
-	}
 	// This mechanism should be parametric!
 	// Select the best match
 	// There can be many algorithm for these:
@@ -230,95 +221,51 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		    max = classmatrix[i][j];
 		}
 	    }
-	    if ( found && max < 0.5) { addAlignDistanceCell( (OWLClass)classlist1.get(i), (OWLClass)classlist2.get(best), "=", max ); }
+	    if ( found && max < 0.5) { addAlignDistanceCell( classlist1.get(i), classlist2.get(best), "=", max ); }
 	}
     }
     
-    public void getProperties( OWLDescription desc, OWLOntology o, Set<OWLProperty> list){
-	// I am Jerome Euzenat and I am sure that there is some problem here...
-	// DISPATCHING MANUALLY !
-	try {
-	    Method mm = null;
-	    if ( Class.forName("org.semanticweb.owl.model.OWLRestriction").isInstance(desc) ){
-		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLRestriction"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
-	    } else if (Class.forName("org.semanticweb.owl.model.OWLClass").isInstance(desc) ) {
-		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLClass"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
-	    } else if (Class.forName("org.semanticweb.owl.model.OWLNaryBooleanDescription").isInstance(desc) ) {
-		mm = this.getClass().getMethod("getProperties",
-					       new Class [] {Class.forName("org.semanticweb.owl.model.OWLNaryBooleanDescription"),Class.forName("org.semanticweb.owl.model.OWLOntology"),Class.forName("java.util.Set")});
-	    }
-	    if ( mm != null ) mm.invoke(this,new Object[] {desc,o,list});
-	} catch (IllegalAccessException e) {
-	    e.printStackTrace();
-	} catch (ClassNotFoundException e) {
-	    e.printStackTrace();
-	} catch (NoSuchMethodException e) {
-	    e.printStackTrace();
-	} catch (InvocationTargetException e) { 
-	    e.printStackTrace();
-	}
-    }
-    public void getProperties( OWLRestriction rest, OWLOntology o, Set<OWLProperty> list) throws OWLException {
-	list.add( rest.getProperty() );
-    }
-    public void getProperties( OWLNaryBooleanDescription d, OWLOntology o, Set<OWLProperty> list) throws OWLException {
-	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
-	    getProperties( (OWLDescription)it.next(), o, list );
-	}
-    }
-    public void getProperties( OWLClass cl, OWLOntology o, Set<OWLProperty> list) throws OWLException {
-	for ( Iterator it = cl.getSuperClasses(o).iterator(); it.hasNext(); ){
-	    OWLDescription dsc = (OWLDescription)it.next();
-	    getProperties( dsc, o, list );
-	}
-	// JE: I suspect that this can be a cause for looping!!
-	for ( Iterator it = cl.getEquivalentClasses(o).iterator(); it.hasNext(); ){
-	    getProperties( (OWLDescription)it.next(), o, list );
-	}
-    }
-
-    private Set<OWLProperty> getProperties( OWLClass cl, OWLOntology o ) throws OWLException {
-	Set<OWLProperty> resultSet = new HashSet<OWLProperty>(); 
-	getProperties( cl, o, resultSet );
-	return resultSet;
-    }
-
-    private double alignLocal( Set prop1, Set prop2) throws OWLException {
-	// make a local alignement
-	// return an average of all the property alignement 
-
-	double propmatrix[] [];
- 	int nbprop1=prop1.size();
-	int nbprop2=prop2.size();
-	//int best=0;
-	double max =0.0;
-	double moy=0.0;
-	int i=0;
-	int j=0;
-	propmatrix = new double[nbprop1+1][nbprop2+1];
+    /**
+     * Make a local alignement
+     * @return an average of all the property alignement 
+     */
+    private double alignLocal( Set<Object> prop1, Set<Object> prop2) {
+ 	int nbprop1 = prop1.size();
+	int nbprop2 = prop2.size();
+	double max = 0.0;
+	double moy= 0.0;
+	int i = 0;
+	int j = 0;
+	String s1 = null;
+	String s2 = null;
+	double[][] propmatrix = new double[nbprop1+1][nbprop2+1];
 
 	
-	for ( Iterator prp1 = prop1.iterator(); prp1.hasNext();i++ ){
-	    OWLProperty  property1 = (OWLProperty)prp1.next();
-	    String s1 = property1.getURI().getFragment().toLowerCase();
-	    for ( Iterator prp2 = prop2.iterator(); prp2.hasNext();j++ ){
-		OWLProperty  property2 = (OWLProperty)prp2.next();
-		String s2 = property2.getURI().getFragment().toLowerCase();
-	       	propmatrix[i][j] =  StringDistances.subStringDistance( s1, s2 );
+	for ( Object property1 : prop1 ){
+	    i++;
+	    try {
+		s1 = honto1.getEntityName( property1 ).toLowerCase();
+	    } catch (AlignmentException aex) { s1 = null; };
+	    for ( Object property2 : prop2 ) {
+		j++;
+		try {
+		    s2 = honto2.getEntityName( property2 ).toLowerCase();
+		    propmatrix[i][j] =  1.0-StringDistances.subStringDistance( s1, s2 );
+		} catch (AlignmentException aex) {
+		    propmatrix[i][j] =  0.0;
+		}
 	    }
 	    j=0;
 	}
 	
-	for (i=0; i< nbprop1; i++){
-	    for(j=0;j<nbprop2;j++){
-		if (1.0-propmatrix[i][j]>max){
-		    max=1.0-propmatrix[i][j];
+	for ( i=0; i< nbprop1; i++ ) {
+	    for ( j=0; j<nbprop2; j++ ) {
+		if ( propmatrix[i][j] > max ) {
+		    max = propmatrix[i][j];
 		}
 	    }
-	    moy=moy+max;
-	    max=0.0;
+	    moy = moy+max;
+	    max = 0.0;
 	}
 	return moy;
     }

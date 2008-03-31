@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2006-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,13 +20,10 @@
 
 package fr.inrialpes.exmo.align.impl;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
+
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Represents the implementation of a similarity measure
@@ -42,12 +39,13 @@ public interface Similarity
     // It would be better if they where explicit...
     // Apparently the initialize also compute the similarity
 
-    public void initialize( OWLOntology onto1, OWLOntology onto2 );
-    public void initialize( OWLOntology onto1, OWLOntology onto2, Alignment align );
+	// JE: OntoRewr: This should not be in init
+    public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2 );
+    public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align );
     public void compute( Parameters p );
-    public double getClassSimilarity( OWLClass c1, OWLClass c2 );
-    public double getPropertySimilarity( OWLProperty p1, OWLProperty p2);
-    public double getIndividualSimilarity( OWLIndividual i1, OWLIndividual i2 );
+    public double getClassSimilarity( Object c1, Object c2 );
+    public double getPropertySimilarity( Object p1, Object p2);
+    public double getIndividualSimilarity( Object i1, Object i2 );
 
     public void printClassSimilarityMatrix( String type );
     public void printPropertySimilarityMatrix( String type );
@@ -59,8 +57,10 @@ public interface Similarity
     // the abstract matrix class provides the get- accessors and the 
     // concrete classes implement measure as their computation function.
     // This is not clean. What should be done is:
-    public double measure( OWLClass c1, OWLClass c2 ) throws Exception;
-    public double measure( OWLProperty p1, OWLProperty p2) throws Exception;
-    public double measure( OWLIndividual i1, OWLIndividual i2 ) throws Exception;
+	// JE: OntoRewr: to be suppressed
+    public double measure( Object c1, Object c2 ) throws Exception;
+    public double classMeasure( Object c1, Object c2 ) throws Exception;
+    public double propertyMeasure( Object p1, Object p2) throws Exception;
+    public double individualMeasure( Object i1, Object i2 ) throws Exception;
 }
 

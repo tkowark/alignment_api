@@ -26,8 +26,7 @@ import java.lang.UnsupportedOperationException;
 
 /**
  * This class builds a composite iterator from two iterators
- * This helps writing more concise code especially since
- * the OWL API does not impements Iterator getProperties() in OWL Ontologies 
+ * This helps writing more concise code.
  *
  * This is the naive implementation (can be optimized)
  *

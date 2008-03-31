@@ -56,9 +56,13 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
  *
  * @author Jérôme Euzenat
  * @version $Id$
+ * @deprecated OWLAPIAlignment has been deprecated to the profit of ObjectAlignment
+ * It remains here for compatibility purposes and is reimplemented in terms
+ * of ObjectAlignment.
  */
 
-public class OWLAPIAlignment extends BasicAlignment {
+@Deprecated
+public class OWLAPIAlignment extends ObjectAlignment {
 
     protected OWLAPIAlignment init = null;
 
@@ -126,7 +130,7 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return super.addAlignCell( ob1, ob2 );
     };
     public Cell createCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
-	return (Cell)new OWLAPICell( id, (OWLEntity)ob1, (OWLEntity)ob2, relation, measure);
+	return (Cell)new OWLAPICell( id, (OWLEntity)ob1, (OWLEntity)ob2, relation, measure); //[W:Deprecated]
     }
 
     public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
@@ -144,7 +148,10 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
     }
 
-    // Deprecated: implement as the one retrieving the highest strength correspondence (
+    /**
+     * @deprecated implemented as the one retrieving the highest strength correspondence
+     */
+    @Deprecated
     public Cell getAlignCell1(Object ob) throws AlignmentException {
 	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("deprecated (use getAlignCells1 instead)");
@@ -157,6 +164,10 @@ public class OWLAPIAlignment extends BasicAlignment {
 	}
     }
 
+    /**
+     * @deprecated implemented as the one retrieving the highest strength correspondence
+     */
+    @Deprecated
     public Cell getAlignCell2(Object ob) throws AlignmentException {
 	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("deprecated (use getAlignCells2 instead)");
@@ -210,17 +221,17 @@ public class OWLAPIAlignment extends BasicAlignment {
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
-	    Cell c = (Cell)e.nextElement();
+	    OWLAPICell c = (OWLAPICell)e.nextElement(); //[W:Deprecated]
 	    try {
 		align.addAlignCell( c.getId(), c.getObject1AsURI(), c.getObject2AsURI(), c.getRelation(), c.getStrength() );
 	    } catch (AlignmentException aex) {
-		// Sometimes URIs are null, this is ignore
+		// Sometimes URIs are null, this is ignored
 	    }
 	};
 	return align;
     }
 
-    // Here it becomes necessary to load OWL
+    // Here it becomes necessary to load OWL: This is done by init().
     static public OWLAPIAlignment toOWLAPIAlignment( URIAlignment al, OntologyCache ontologies ) throws AlignmentException, SAXException, OWLException {
 	OWLAPIAlignment alignment = new OWLAPIAlignment();
 	alignment.init( al.getFile1(), al.getFile2(), ontologies );
@@ -246,13 +257,6 @@ public class OWLAPIAlignment extends BasicAlignment {
 	return alignment;
     }
 
-    private static LoadedOntology loadOntology( URI ref, OntologyCache ontologies ) {
-	OntologyFactory factory = OntologyFactory.newInstance();
-	LoadedOntology onto = factory.loadOntology( ref );
-	if ( ontologies != null ) ontologies.recordOntology( ref, onto );
-	return onto; 
-    }
-
     // JE: newOnto --- Onto: should be discarded
     private static OWLEntity getEntity( OWLOntology ontology, URI uri ) throws OWLException, SAXException {
 	OWLEntity result = (OWLEntity)ontology.getClass( uri );
@@ -261,43 +265,5 @@ public class OWLAPIAlignment extends BasicAlignment {
 	if ( result == null ) result = (OWLEntity)ontology.getIndividual( uri );
 	return result;
     }
-
-    // JE: newOnto --- Onto: should be discarded
-    /** Can be used for loading the ontology if it is not available **/
-    /*
-    //private static OWLOntology loadOntology( URI ref, Hashtable ontologies ) throws SAXException, OWLException {
-    private static OWLOntology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, OWLException {
-	if ( (ontologies != null) && ( ontologies.getOntology( ref ) != null ) ) {
-	    return ontologies.getOntology( ref );
-	} else {
-	    OWLOntology parsedOnt = null;
-	    OWLRDFParser parser = new OWLRDFParser();
-	    OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-		    public void owlFullConstruct( int code, String message ) 
-			throws SAXException {
-		    }
-		    public void owlFullConstruct(int code, String message, Object o)
-			throws SAXException {
-		    }
-		    public void error( String message ) throws SAXException {
-			throw new SAXException( message.toString() );
-		    }
-		    public void warning( String message ) throws SAXException {
-			System.err.println("WARNING: " + message);
-		    }
-		};
-	    Level lev = Logger.getLogger("org.semanticweb.owl").getLevel();
-	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
-	    parser.setOWLRDFErrorHandler( handler );
-	    parser.setConnection( OWLManager.getOWLConnection() );
-	    parsedOnt = parser.parseOntology( ref );
-	    if ( ontologies != null )
-		ontologies.recordOntology( ref, parsedOnt );
-	    //    ontologies.put( ref.toString(), parsedOnt );
-	    Logger.getLogger("org.semanticweb.owl").setLevel(lev);
-	    return parsedOnt;
-	}
-    }
-    */
 }
 

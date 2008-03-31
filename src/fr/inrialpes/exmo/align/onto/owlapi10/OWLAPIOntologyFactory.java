@@ -67,7 +67,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
     public LoadedOntology loadOntology( URI uri ) throws AlignmentException {
 	OWLConnection connection = null;
 	Map parameters = new HashMap();
-	parameters.put(OWLManager.OWL_CONNECTION,
+	parameters.put(OWLManager.OWL_CONNECTION, // [W:unchecked]
 		       "org.semanticweb.owl.impl.model.OWLConnectionImpl");
 	try {
 	    connection = OWLManager.getOWLConnection(parameters);

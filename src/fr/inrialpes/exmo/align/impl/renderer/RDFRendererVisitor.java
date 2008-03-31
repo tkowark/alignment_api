@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2006, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,9 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Enumeration;
-import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.io.PrintWriter;
+import java.net.URI;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -32,7 +33,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectCell;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
@@ -132,21 +135,25 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("\n      <location>"+align.getFile2()+"</location>");
 	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject2().getFormalism() != null ) {
 	    writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject2().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/>\n      </formalism>");
-	    
 	}
 	writer.print("\n    </Ontology>\n  </onto2>\n");
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
-	    c.accept( this );
-	} //end for
+	for( Cell c : align ){ c.accept( this ); };
 	writer.print("</Alignment>\n");
 	writer.print("</rdf:RDF>\n");
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	if ( ( cell.getObject1AsURI() != null &&
-	       cell.getObject2AsURI() != null) ||
-	       alignment.getLevel().equals("2OMWG") ){
+	URI u1, u2;
+	if ( cell instanceof ObjectCell ) {
+	    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
+	    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
+	} else {
+	    System.err.println( cell );
+	    u1 = cell.getObject1AsURI();
+	    u2 = cell.getObject2AsURI();
+	}
+	if ( ( u1 != null && u2 != null)
+	     || alignment.getLevel().equals("2OMWG") ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
 	    if ( cell.getId() != null ){
@@ -158,22 +165,19 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    if ( alignment.getLevel().equals("2OMWG") ) {
 		writer.print("      <entity1>");
 		writer.print( oMWGformatter.export( (Expression)cell.getObject1() ) );
-		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject1(), model ) );
 		writer.print("\n      </entity1>\n      <entity2>");
 		writer.print( oMWGformatter.export( (Expression)cell.getObject2() ) );
-		//writer.print( oMWGformatter.getExprNode( (Expression)cell.getObject2(), model ) );
-		writer.print("\n      </entity2>\n      <relation>");
-		cell.getRelation().accept( this );
-		writer.print("</relation>\n");
+		writer.print("\n      </entity2>\n");
 	    } else {
 		writer.print("      <entity1 rdf:resource='");
-		writer.print( cell.getObject1AsURI().toString() );
+		writer.print( u1.toString() );
 		writer.print("'/>\n      <entity2 rdf:resource='");
-		writer.print( cell.getObject2AsURI().toString() );
-		writer.print("'/>\n      <relation>");
-		cell.getRelation().accept( this );
-		writer.print("</relation>\n");
+		writer.print( u2.toString() );
+		writer.print("'/>\n");
 	    }
+	    writer.print("      <relation>");
+	    cell.getRelation().accept( this );
+	    writer.print("</relation>\n");
 	    writer.print("      <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>");
 	    writer.print( cell.getStrength() );
 	    writer.print("</measure>\n");

@@ -32,7 +32,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 
@@ -167,7 +167,6 @@ public class ParserPrinter {
 	    // Create parser
 	    AlignmentParser aparser = null;
 	    if ( parserClass == null ) aparser = new AlignmentParser( debug );
-	    // JE: I would be surprised that it works for the moment
 	    else {
 		try {
 		    Object[] mparams = { (Object)debug };
@@ -223,9 +222,9 @@ public class ParserPrinter {
 	    try {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		// if the renderer needs an OWLAPIALignment: give it
+		// if the renderer needs an ObjectALignment: give it
 		//aex.printStackTrace();
-		result = OWLAPIAlignment.toOWLAPIAlignment( (URIAlignment)result, (OntologyCache)null );
+		result = ObjectAlignment.toObjectAlignment( (URIAlignment)result, (OntologyCache)null );
 		result.render( renderer );
 	    }
 	    writer.flush();

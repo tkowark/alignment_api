@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,55 +20,20 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
-
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-
-import org.semanticweb.owl.align.AlignmentProcess;
-
 /**
  * This class aligns ontology with regard to the editing distance between 
  * class names.
+ * THIS CLASS IS ONLY HERE FOR COMPATIBILITY PURPOSES
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
-public class SMOANameAlignment extends DistanceAlignment implements AlignmentProcess
-{
+public class SMOANameAlignment extends StringDistAlignment {
+
     /** Creation **/
     public SMOANameAlignment(){
-	setSimilarity( new MatrixMeasure() {
-		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
-		    String s1 = cl1.getURI().getFragment();
-		    String s2 = cl2.getURI().getFragment();
-		    if ( s1 == null || s2 == null ) return 1.;
-		    else return StringDistances.smoaDistance(
-							s1.toLowerCase(),
-							s2.toLowerCase());
-		}
-		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws OWLException{
-		    String s1 = pr1.getURI().getFragment();
-		    String s2 = pr2.getURI().getFragment();
-		    if ( s1 == null || s2 == null ) return 1.;
-		    else return StringDistances.smoaDistance(
-							s1.toLowerCase(),
-							s2.toLowerCase());
-		}
-		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws OWLException{
-		    String s1 = id1.getURI().getFragment();
-		    String s2 = id2.getURI().getFragment();
-		    if ( s1 == null || s2 == null ) return 1.;
-		    else return StringDistances.smoaDistance(
-							s1.toLowerCase(),
-							s2.toLowerCase());
-		}
-	    } );
+	methodName = "smoaDistance";
     };
 
 }

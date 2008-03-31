@@ -21,6 +21,7 @@
 
 package fr.inrialpes.exmo.align.impl;
 
+import java.lang.Iterable;
 import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Enumeration;
@@ -93,11 +94,17 @@ public class BasicAlignment implements Alignment {
 	onto2 = new BasicOntology<Object>();
     }
 
+    /**
+     * Initialises the Alignment object with two ontologies.
+     * These two ontologies can be either an instance of fr.inrialpes.exmo.align.onto.Ontology
+     *        which will then replaced the one that was there at creation time
+     * or a "concrete" ontology which will be inserted in the fr.inrialpes.exmo.align.onto.Ontology
+     * object.
+     */
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
-	// JE: Onto I am not sure this works
 	if ( onto1 instanceof Ontology ) {
-	    this.onto1 = (Ontology<Object>)onto1;
-	    this.onto2 = (Ontology<Object>)onto2;
+	    this.onto1 = (Ontology<Object>)onto1; // [W:unchecked]
+	    this.onto2 = (Ontology<Object>)onto2; // [W:unchecked]
 	} else {
 	    this.onto1.setOntology( onto1 );
 	    this.onto2.setOntology( onto2 );
@@ -129,11 +136,11 @@ public class BasicAlignment implements Alignment {
 	return onto2.getOntology();
     };
 
-    public Ontology getOntologyObject1() {
+    public Ontology<Object> getOntologyObject1() {
 	return onto1;
     };
 
-    public Ontology getOntologyObject2() {
+    public Ontology<Object> getOntologyObject2() {
 	return onto2;
     };
 
@@ -193,6 +200,10 @@ public class BasicAlignment implements Alignment {
 
     public Enumeration<Cell> getElements() {
 	return new MEnumeration<Cell>( hash1 );
+    }
+
+    public Iterator<Cell> iterator() {
+	return new MIterator<Cell>( hash1 );
     }
 
     public ArrayList<Cell> getArrayElements() {
@@ -267,8 +278,7 @@ public class BasicAlignment implements Alignment {
     }
 
     /*
-     * Deprecated: implement as the one retrieving the highest strength correspondence
-     * @deprecated
+     * @deprecated implemented as the one retrieving the highest strength correspondence
      */
     public Cell getAlignCell1(Object ob) throws AlignmentException {
 	if ( Annotations.STRICT_IMPLEMENTATION == true ){
@@ -633,5 +643,46 @@ class MEnumeration<T> implements Enumeration<T> {
 	    }
 	}
 	return val;
+    }
+}
+
+class MIterator<T> implements Iterator<T> {
+    // Because of the remove, the implentation should be different
+    // Keeping the last element at hand
+    private Enumeration<Set<T>> set = null; // The enumeration of sets
+    private Iterator<T> current = null; // The current set's enumeration
+    private Iterator<T> next = null; // The next set enumeration
+
+    MIterator( Hashtable<Object,Set<T>> s ){
+	set = s.elements();
+	if ( set.hasMoreElements() ) {
+	    current = set.nextElement().iterator();
+	    if ( current.hasNext() ) {
+		next = current;
+	    } else {
+		while( set.hasMoreElements() && next == null ){
+		    next = set.nextElement().iterator();
+		    if( !next.hasNext() ) next = null;
+		}
+	    }
+	}
+    }
+    public boolean hasNext(){
+	return ( next != null && next.hasNext() );
+    }
+    public T next(){
+	current = next;
+	T val = current.next();
+	if( !current.hasNext() ){
+	    next = null;
+	    while( set.hasMoreElements() && next == null ){
+		next = set.nextElement().iterator();
+		if( !next.hasNext() ) next = null;
+	    }
+	}
+	return val;
+    }
+    public void remove(){
+	if ( current != null ) current.remove();
     }
 }

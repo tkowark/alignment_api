@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,17 +27,15 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLException;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Renders an alignment as a SWRL rule set interpreting
@@ -47,11 +45,11 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  * @version $Id$ 
  */
 
-
-public class SWRLRendererVisitor implements AlignmentVisitor
-{
+public class SWRLRendererVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
+    LoadedOntology onto1 = null;
+    LoadedOntology onto2 = null;
     Cell cell = null;
 
     public SWRLRendererVisitor( PrintWriter writer ){
@@ -59,15 +57,17 @@ public class SWRLRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
-	if ( !( align instanceof OWLAPIAlignment) )
-	    throw new AlignmentException("SWRLRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
+	if ( !( align instanceof ObjectAlignment) )
+	    throw new AlignmentException("SWRLRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
 	alignment = align;
+	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
 	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");
 	writer.println("                xmlns:swrlx=\"http://www.w3.org/2003/11/swrlx#\"");
 	writer.println("                xmlns:owlx=\"http://www.w3.org/2003/05/owl-xml\"");
 	writer.println("                xmlns:ruleml=\"http://www.w3.org/2003/11/ruleml#\">");
-	writer.println("  <owlx:Imports rdf:resource=\""+align.getOntology1URI().toString()+"\"/>\n");
+	writer.println("  <owlx:Imports rdf:resource=\""+onto1.getURI()+"\"/>\n");
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
@@ -77,58 +77,53 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	URI entity1URI = cell.getObject1AsURI();
 	cell.getRelation().accept( this );
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {
-	// JE: It sounds that the alignment and cell variables are taken as global...
-	// But it seems that this is not the case...
 	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
-	try {
-	    writer.println("  <ruleml:imp>");
-	    writer.println("    <ruleml:_body>");
-	    OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	    URI uri1 = cell.getObject1AsURI();
-	    if ( onto1.getClass( uri1 ) != null ){
-		writer.println("      <swrl:classAtom>");
-		writer.println("        <owllx:Class owllx:name=\""+uri1.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("      </swrl:classAtom>");
-	    } else if ( onto1.getDataProperty( uri1 )  != null ){
-		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri1.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("        <ruleml:var>y</ruleml:var>");
-		writer.println("      <swrl:datavaluedPropertyAtom>");
-	    } else {
-		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri1.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("        <ruleml:var>y</ruleml:var>");
-		writer.println("      </swrl:individualPropertyAtom>");
-	    }
-	    writer.println("    </ruleml:_body>");
-	    writer.println("    <ruleml:_head>");
-	    OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	    URI uri2 = cell.getObject2AsURI();
-	    if ( onto2.getClass( uri2 ) != null ){
-		writer.println("      <swrlx:classAtom>");
-		writer.println("        <owllx:Class owllx:name=\""+uri2.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("      </swrl:classAtom>");
-	    } else if ( onto2.getDataProperty( uri2 )  != null ){
-		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri2.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("        <ruleml:var>y</ruleml:var>");
-		writer.println("      </swrl:datavaluedPropertyAtom>");
-	    } else {
-		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri2.toString()+"\"/>");
-		writer.println("        <ruleml:var>x</ruleml:var>");
-		writer.println("        <ruleml:var>y</ruleml:var>");
-		writer.println("      </swrl:individualPropertyAtom>");
-	    }
-	    writer.println("    </ruleml:_head>");
-	    writer.println("  </ruleml:imp>\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	Object ob1 = cell.getObject1();
+	URI uri1 = onto1.getEntityURI( ob1 );
+	writer.println("  <ruleml:imp>");
+	writer.println("    <ruleml:_body>");
+	if ( onto1.isClass( ob1 ) ){
+	    writer.println("      <swrl:classAtom>");
+	    writer.println("        <owllx:Class owllx:name=\""+uri1+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("      </swrl:classAtom>");
+	} else if ( onto1.isDataProperty( ob1 ) ){
+	    writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri1+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("        <ruleml:var>y</ruleml:var>");
+	    writer.println("      <swrl:datavaluedPropertyAtom>");
+	} else {
+	    writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri1+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("        <ruleml:var>y</ruleml:var>");
+	    writer.println("      </swrl:individualPropertyAtom>");
+	}
+	writer.println("    </ruleml:_body>");
+	writer.println("    <ruleml:_head>");
+	Object ob2 = cell.getObject2();
+	URI uri2 = onto2.getEntityURI( ob2 );
+	if ( onto2.isClass( ob2 ) ){
+	    writer.println("      <swrlx:classAtom>");
+	    writer.println("        <owllx:Class owllx:name=\""+uri2+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("      </swrl:classAtom>");
+	} else if ( onto2.isDataProperty( ob2 )  ){
+	    writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri2+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("        <ruleml:var>y</ruleml:var>");
+	    writer.println("      </swrl:datavaluedPropertyAtom>");
+	} else {
+	    writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri2+"\"/>");
+	    writer.println("        <ruleml:var>x</ruleml:var>");
+	    writer.println("        <ruleml:var>y</ruleml:var>");
+	    writer.println("      </swrl:individualPropertyAtom>");
+	}
+	writer.println("    </ruleml:_head>");
+	writer.println("  </ruleml:imp>\n");
     }
 
     public void visit( SubsumeRelation rel ){};
@@ -163,6 +158,5 @@ public class SWRLRendererVisitor implements AlignmentVisitor
 	} catch (InvocationTargetException e) { 
 	    e.printStackTrace();
 	}
-	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

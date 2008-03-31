@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,7 +30,6 @@ import java.net.URI;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-//import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
@@ -46,27 +45,23 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
+ * @deprecated OWLAPICell as been deprecated to the profit of ObjectCell
+ * It remains here for compatibility purposes and is reimplemented in terms
+ * of ObjectCell.
  */
 
-public class OWLAPICell extends BasicCell {
+@Deprecated
+public class OWLAPICell extends ObjectCell {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
-
-    /** Creation **/
-    //public OWLAPICell( Object ob1, Object ob2 ) throws AlignmentException {
-    //	super( ob1, ob2 );
-    //    };
-
-    //    public OWLAPICell( Object ob1, Object ob2, String rel, double m ) throws AlignmentException {
-    //	super( ob1, ob2, rel, m );
-    //    }
 
     public OWLAPICell( String id, OWLEntity ob1, OWLEntity ob2, Relation rel, double m ) throws AlignmentException {
 	super( id, ob1, ob2, rel, m );
     };
 
     // the strength must be compared with regard to abstract types
+    // NOOWL
     public boolean equals( Cell c ) {
 	if ( c instanceof OWLAPICell ){
 	    return ( object1.equals(c.getObject1()) && object2.equals(c.getObject2()) && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
@@ -75,6 +70,7 @@ public class OWLAPICell extends BasicCell {
 	}
     }
 
+    // Only OWL
     public URI getObject1AsURI() throws AlignmentException {
 	try {
 	    return ((OWLEntity)object1).getURI();
@@ -82,6 +78,8 @@ public class OWLAPICell extends BasicCell {
 	    throw new AlignmentException( "Cannot convert to URI "+object1, e );
 	}
     }
+
+    // Only OWL
     public URI getObject2AsURI() throws AlignmentException {
 	try {
 	    return ((OWLEntity)object2).getURI();
@@ -89,16 +87,8 @@ public class OWLAPICell extends BasicCell {
 	    throw new AlignmentException( "Cannot convert to URI "+object2, e );
 	}
     }
-    //public Object getObject1(){ return object1; };
-    //public Object getObject2(){ return object2; };
-    // We could check that the given values are URIs
-    //public void setObject1( Object ob ) throws AlignmentException {
-    //	object1 = ob;
-    //}
-    //public void setObject2( Object ob ) throws AlignmentException {
-    //	object2 = ob;
-    //}
 
+    // Only OWL
     public Cell inverse() throws AlignmentException {
 	return (Cell)new OWLAPICell( (String)null, (OWLEntity)object2, (OWLEntity)object1, relation.inverse(), strength );
 	// The same should be done for the measure

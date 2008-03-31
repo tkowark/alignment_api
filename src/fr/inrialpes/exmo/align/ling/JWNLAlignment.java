@@ -20,12 +20,6 @@
 
 package fr.inrialpes.exmo.align.ling; 
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
-
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
 
@@ -61,33 +55,22 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	public void init( String wndict ) throws AlignmentException {
 	    Dist.Initialize( wndict, WNVERS );
 	}
-	public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
-	    String s1 = cl1.getURI().getFragment();
-	    String s2 = cl2.getURI().getFragment();
+	public double measure( Object o1, Object o2 ) throws Exception {
+	    String s1 = ontology1().getEntityName( o1 );
+	    String s2 = ontology2().getEntityName( o2 );
 	    if ( s1 == null || s2 == null ) return 1.;
 	    return Dist.BasicSynonymDistance(s1.toLowerCase(),s2.toLowerCase());
 	}
-	public double measure( OWLProperty pr1, OWLProperty pr2 ) throws OWLException{
-	    String s1 = pr1.getURI().getFragment();
-	    String s2 = pr2.getURI().getFragment();
-	    if ( s1 == null || s2 == null ) return 1.;
-	    return Dist.BasicSynonymDistance(s1.toLowerCase(),s2.toLowerCase());
+	public double classMeasure( Object cl1, Object cl2 ) throws Exception {
+	    return measure( cl1, cl2 );
 	}
-	public double measure( OWLIndividual id1, OWLIndividual id2 ) throws OWLException{
+	public double propertyMeasure( Object pr1, Object pr2 ) throws Exception {
+	    return measure( pr1, pr2 );
+	}
+	public double individualMeasure( Object id1, Object id2 ) throws Exception {
 	    if ( debug > 4 ) 
 			System.err.println( "ID:"+id1+" -- "+id2);
-	    URI URI1 = id1.getURI();
-	    String s1;
-	    if ( URI1 != null ) s1 = URI1.getFragment();
-	    else s1 = "";
-	    URI URI2 = id2.getURI();
-	    String s2;
-	    if ( URI2 != null ) s2 = URI2.getFragment();
-	    else s2 = "";
-	    if ( s1 == null || s2 == null ) return 1.;
-	    //	    String s1 = id1.getURI().getFragment();
-	    //		    String s2 = id2.getURI().getFragment();
-	    return Dist.BasicSynonymDistance(s1.toLowerCase(),s2.toLowerCase());
+	    return measure( id1, id2 );
 	}
     }
 
@@ -104,7 +87,7 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	String wnvers = (String)params.getParameter("wnvers");
 	if ( wnvers == null ) wnvers = WNVERS;
 	sim.init( (String)params.getParameter("wndict"), wnvers );
-	sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
+	sim.initialize( ontology1(), ontology2(), alignment );
 	getSimilarity().compute( params );
       if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( type, params );

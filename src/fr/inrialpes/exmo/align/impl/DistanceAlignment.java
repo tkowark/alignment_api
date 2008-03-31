@@ -27,12 +27,7 @@ import java.util.TreeSet;
 import java.util.SortedSet;
 import java.util.Comparator;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -46,17 +41,18 @@ import org.semanticweb.owl.align.Parameters;
  * @version $Id$ 
  */
 
-public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProcess
+public class DistanceAlignment extends ObjectAlignment implements AlignmentProcess
 {
     Similarity sim;
 
     /** Creation **/
     public DistanceAlignment() {}
 
-    public DistanceAlignment( OWLOntology onto1, OWLOntology onto2 ){
+    // JE: OntoRewr (LoadedOntology -> one step above)
+    //public DistanceAlignment( LoadedOntology onto1, LoadedOntology onto2 ){
 	// Init must now be triggered explicitely
 	//    	init( onto1, onto2 );
-    };
+    //};
 
     public void setSimilarity( Similarity s ) { sim = s; }
     public Similarity getSimilarity() { return sim; }
@@ -67,7 +63,7 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
     public double getAlignedDistance1( Object ob ) throws AlignmentException {
 	return (1 - getAlignedStrength1(ob));
     };
-    public double getAlignedDistance2( Object ob ) throws AlignmentException{
+    public double getAlignedDistance2( Object ob ) throws AlignmentException {
 	return (1 - getAlignedStrength2(ob));
     };
 
@@ -86,7 +82,8 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	if ( sim == null )
 	    throw new AlignmentException("DistanceAlignment: requires a similarity measure");
 
-	sim.initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), init );
+	sim.initialize( ontology1(), ontology2(), init );
+	//sim.initialize( getOntologyObject1(), getOntologyObject2(), init );
 	sim.compute( params );
 	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( getType(), params );
@@ -161,17 +158,17 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
       try {
 	  // Extract for properties
 	  ConcatenatedIterator pit1 = new 
-	      ConcatenatedIterator(((OWLOntology)(onto1.getOntology())).getObjectProperties().iterator(),
-				   ((OWLOntology)(onto1.getOntology())).getDataProperties().iterator());
+	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+				   ontology1().getDataProperties().iterator());
 	  for ( ; pit1.hasNext(); ) {
-	      OWLProperty prop1 = (OWLProperty)pit1.next();
+	      Object prop1 = pit1.next();
 	      found = false; max = threshold; val = 0;
-	      OWLProperty prop2 = null;
+	      Object prop2 = null;
 	      ConcatenatedIterator pit2 = new 
-		  ConcatenatedIterator(((OWLOntology)(onto2.getOntology())).getObjectProperties().iterator(),
-				       ((OWLOntology)(onto2.getOntology())).getDataProperties().iterator());
+		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+				       ontology2().getDataProperties().iterator());
 	      for ( ; pit2.hasNext(); ) {
-		  OWLProperty current = (OWLProperty)pit2.next();
+		  Object current = pit2.next();
 		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
@@ -180,30 +177,30 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	      if ( found ) addAlignCell(prop1,prop2, "=", max);
 	  }
 	  // Extract for classes
-	  for (Iterator it1 = ((OWLOntology)(onto1.getOntology())).getClasses().iterator(); it1.hasNext(); ) {
-	      OWLClass class1 = (OWLClass)it1.next();
+	  for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); ) {
+	      Object class1 = it1.next();
 	      found = false; max = threshold; val = 0;
-	      OWLClass class2 = null;
-	      for (Iterator it2 = ((OWLOntology)(onto2.getOntology())).getClasses().iterator(); it2.hasNext(); ) {
-		  OWLClass current = (OWLClass)it2.next();
+	      Object class2 = null;
+	      for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); ) {
+		  Object current = it2.next();
 		  val = 1 - sim.getClassSimilarity(class1,current);
 		  if (val > max) {
 		      found = true; max = val; class2 = current;
 		  }
 	      }
-	      if ( found ) addAlignCell(class1,class2, "=", max);
+	      if ( found ) addAlignCell(class1, class2, "=", max);
 	  }
 	  // Extract for individuals
 	  // This does not work, at least for the OAEI 2005 tests
 	  if (  params.getParameter("noinst") == null ){
-	      for (Iterator it1 = ((OWLOntology)(onto1.getOntology())).getIndividuals().iterator(); it1.hasNext();) {
-		  OWLIndividual ind1 = (OWLIndividual)it1.next();
-		  if ( ind1.getURI() != null ) {
+	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
+		  Object ind1 = it1.next();
+		  if ( ontology1().getEntityURI( ind1 ) != null ) {
 		      found = false; max = threshold; val = 0;
-		      OWLIndividual ind2 = null;
-		      for (Iterator it2 = ((OWLOntology)(onto2.getOntology())).getIndividuals().iterator(); it2.hasNext(); ) {
-			  OWLIndividual current = (OWLIndividual)it2.next();
-			  if ( current.getURI() != null ) {
+		      Object ind2 = null;
+		      for (Iterator it2 = ontology2().getIndividuals().iterator(); it2.hasNext(); ) {
+			  Object current = it2.next();
+			  if ( ontology2().getEntityURI( current ) != null ) {
 			      val = 1 - sim.getIndividualSimilarity(ind1,current);
 			      if (val > max) {
 				  found = true; max = val; ind2 = current;
@@ -214,8 +211,7 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 		  }
 	      }
 	  }
-      } catch (OWLException owlex) { owlex.printStackTrace(); }
-      catch (AlignmentException alex) { alex.printStackTrace(); }
+      } catch (AlignmentException alex) { alex.printStackTrace(); }
       return((Alignment)this);
     }
 
@@ -230,18 +226,18 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	    // (redoing the matrix instead of getting it)
 	    // For each kind of stuff (cl, pr, ind)
 	    // Create a matrix
-	    int nbclasses1 = ((OWLOntology)(onto1.getOntology())).getClasses().size();
-	    int nbclasses2 = ((OWLOntology)(onto2.getOntology())).getClasses().size();
+	    int nbclasses1 = ontology1().nbClasses();
+	    int nbclasses2 = ontology2().nbClasses();
 	    double[][] matrix = new double[nbclasses1][nbclasses2];
-	    OWLClass[] class1 = new OWLClass[nbclasses1];
-	    OWLClass[] class2 = new OWLClass[nbclasses2];
+	    Object[] class1 = new Object[nbclasses1];
+	    Object[] class2 = new Object[nbclasses2];
 	    int i = 0;
-	    for (Iterator it1 = ((OWLOntology)(onto1.getOntology())).getClasses().iterator(); it1.hasNext(); i++) {
-		class1[i] = (OWLClass)it1.next();
+	    for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); i++) {
+		class1[i] = it1.next();
 	    }
 	    int j = 0;
-	    for (Iterator it2 = ((OWLOntology)(onto2.getOntology())).getClasses().iterator(); it2.hasNext(); j++) {
-		class2[j] = (OWLClass)it2.next();
+	    for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); j++) {
+		class2[j] = it2.next();
 	    }
 	    for( i = 0; i < nbclasses1; i++ ){
 		for( j = 0; j < nbclasses2; j++ ){
@@ -258,31 +254,30 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
 		if( val > threshold ){
-		    addCell( new OWLAPICell( (String)null, class1[result[i][0]], class2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		    addCell( new ObjectCell( (String)null, class1[result[i][0]], class2[result[i][1]], BasicRelation.createRelation("="), val ) );
 		}
 	    }
-	} catch (OWLException owlex) { owlex.printStackTrace(); } 
-	catch (AlignmentException alex) { alex.printStackTrace(); }
+	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	// For properties
 	try{
-	    int nbprop1 = ((OWLOntology)(onto1.getOntology())).getDataProperties().size() + ((OWLOntology)(onto1.getOntology())).getObjectProperties().size();
-	    int nbprop2 = ((OWLOntology)(onto2.getOntology())).getDataProperties().size() + ((OWLOntology)(onto2.getOntology())).getObjectProperties().size();
+	    int nbprop1 = ontology1().nbProperties();
+	    int nbprop2 = ontology2().nbProperties();
 	    double[][] matrix = new double[nbprop1][nbprop2];
-	    OWLProperty[] prop1 = new OWLProperty[nbprop1];
-	    OWLProperty[] prop2 = new OWLProperty[nbprop2];
+	    Object[] prop1 = new Object[nbprop1];
+	    Object[] prop2 = new Object[nbprop2];
 	    int i = 0;
 	    ConcatenatedIterator pit1 = new 
-		ConcatenatedIterator(((OWLOntology)(onto1.getOntology())).getObjectProperties().iterator(),
-				     ((OWLOntology)(onto1.getOntology())).getDataProperties().iterator());
+		ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+				     ontology1().getDataProperties().iterator());
 	    for (; pit1.hasNext(); i++) {
-		prop1[i] = (OWLProperty)pit1.next();
+		prop1[i] = pit1.next();
 	    }
 	    int j = 0;
 	    ConcatenatedIterator pit2 = new 
-		ConcatenatedIterator(((OWLOntology)(onto2.getOntology())).getObjectProperties().iterator(),
-				     ((OWLOntology)(onto2.getOntology())).getDataProperties().iterator());
+		ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+				     ontology2().getDataProperties().iterator());
 	    for (; pit2.hasNext(); j++) {
-		prop2[j] = (OWLProperty)pit2.next();
+		prop2[j] = pit2.next();
 	    }
 	    for( i = 0; i < nbprop1; i++ ){
 		for( j = 0; j < nbprop2; j++ ){
@@ -299,11 +294,10 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
 		if( val > threshold ){
-		    addCell( new OWLAPICell( (String)null, prop1[result[i][0]], prop2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		    addCell( new ObjectCell( (String)null, prop1[result[i][0]], prop2[result[i][1]], BasicRelation.createRelation("="), val ) );
 		}
 	    }
-	}catch (OWLException owlex) { owlex.printStackTrace(); } 
-	catch (AlignmentException alex) { alex.printStackTrace(); }
+	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	return((Alignment)this);
     }
 
@@ -322,7 +316,7 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
      * with overall of 1.8.
      */
     public Alignment extractqqNaive( double threshold, Parameters params) {
-	OWLEntity ent1=null, ent2=null;
+	Object ent1=null, ent2=null;
 	double val = 0;
 	//TreeSet could be replaced by something else
 	//The comparator must always tell that things are different!
@@ -348,21 +342,21 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 					    return -1;
 					} else if ( o1.getStrength() < o2.getStrength() ){
 					    return 1;
-					} else if ( (((OWLEntity)o1.getObject1()).getURI().getFragment() == null)
-						    || (((OWLEntity)o2.getObject1()).getURI().getFragment() == null) ) {
+					} else if ( ontology1().getEntityName( o1.getObject1() ) == null
+						    || ontology2().getEntityName( o2.getObject1() ) == null ) {
 					    return -1;
-					} else if ( ((OWLEntity)o1.getObject1()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject1()).getURI().getFragment()) > 0) {
+					} else if ( ontology1().getEntityName( o1.getObject1()).compareTo( ontology2().getEntityName( o2.getObject1() ) ) > 0 ) {
 					    return -1;
-					} else if ( ((OWLEntity)o1.getObject1()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject1()).getURI().getFragment()) < 0 ) {
+					} else if ( ontology1().getEntityName( o1.getObject1()).compareTo( ontology2().getEntityName( o2.getObject1() ) ) < 0 ) {
 					    return 1;
-					} else if ( (((OWLEntity)o1.getObject2()).getURI().getFragment() == null)
-						    || (((OWLEntity)o2.getObject2()).getURI().getFragment() == null) ) {
+					} else if ( ontology1().getEntityName( o1.getObject2() ) == null
+						    || ontology2().getEntityName( o2.getObject2() ) == null ) {
 					    return -1;
-					} else if ( ((OWLEntity)o1.getObject2()).getURI().getFragment().compareTo(((OWLEntity)o2.getObject2()).getURI().getFragment()) > 0) {
+					} else if ( ontology1().getEntityName( o1.getObject2()).compareTo( ontology2().getEntityName( o2.getObject2() ) ) > 0 ) {
 					    return -1;
-					// On va supposer qu'ils n'ont pas le meme nom
+					// Assume they have different names
 					} else { return 1; }
-				    } catch ( OWLException e) { 
+				    } catch ( AlignmentException e) { 
 					e.printStackTrace(); return 0;}
 				}
 			    }
@@ -373,46 +367,43 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	  // Plus a map from the objects to the cells
 	  // O(n^2.log n)
 	  ConcatenatedIterator pit1 = new 
-	      ConcatenatedIterator(((OWLOntology)(onto1.getOntology())).getObjectProperties().iterator(),
-				   ((OWLOntology)(onto1.getOntology())).getDataProperties().iterator());
+	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+				   ontology1().getDataProperties().iterator());
 	  for (; pit1.hasNext(); ) {
-	      ent1 = (OWLProperty)pit1.next();
+	      ent1 = pit1.next();
 	      ConcatenatedIterator pit2 = new 
-		  ConcatenatedIterator(((OWLOntology)(onto2.getOntology())).getObjectProperties().iterator(),
-					((OWLOntology)(onto2.getOntology())).getDataProperties().iterator());
+		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+					ontology2().getDataProperties().iterator());
 	      for (; pit2.hasNext(); ) {
-		  ent2 = (OWLProperty)pit2.next();
-		  val = 1 - sim.getPropertySimilarity((OWLProperty)ent1,(OWLProperty)ent2);
-		  //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+		  ent2 = pit2.next();
+		  val = 1 - sim.getPropertySimilarity( ent1, ent2 );
 		  if ( val > threshold ){
-		      cellSet.add( new OWLAPICell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 		  }
 	      }
 	  }
-	  for (Iterator it1 = ((OWLOntology)(onto1.getOntology())).getClasses().iterator(); it1.hasNext(); ) {
-	      ent1 = (OWLClass)it1.next();
-	      for (Iterator it2 = ((OWLOntology)(onto2.getOntology())).getClasses().iterator(); it2.hasNext(); ) {
-		  ent2 = (OWLClass)it2.next();
-		  val = 1 - sim.getClassSimilarity((OWLClass)ent1,(OWLClass)ent2);
-		  //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+	  for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); ) {
+	      ent1 = it1.next();
+	      for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); ) {
+		  ent2 = it2.next();
+		  val = 1 - sim.getClassSimilarity( ent1, ent2 );
 		  if ( val > threshold ){
-		      cellSet.add( new OWLAPICell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 		  }
 	      }
 	  }
 	  // OLA with or without instances
 	  if (  params.getParameter("noinst") == null ){
-	      for (Iterator it1 = ((OWLOntology)(onto1.getOntology())).getIndividuals().iterator(); it1.hasNext();) {
-		  ent1 = (OWLIndividual)it1.next();
-		  if ( ent1.getURI() != null ) {
+	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
+		  ent1 = it1.next();
+		  if ( ontology1().getEntityURI( ent1 ) != null ) {
 
-		      for (Iterator it2 = ((OWLOntology)(onto2.getOntology())).getIndividuals().iterator(); it2.hasNext(); ) {
-			  ent2 = (OWLIndividual)it2.next();
-			  if ( ent2.getURI() != null ) {
-			      val = 1 - sim.getIndividualSimilarity((OWLIndividual)ent1,(OWLIndividual)ent2);
-			      //val = ((SimilarityMeasure)getSimilarity()).getSimilarity(ent1.getURI(),ent2.getURI());
+		      for (Iterator it2 = ontology2().getIndividuals().iterator(); it2.hasNext(); ) {
+			  ent2 = it2.next();
+			  if ( ontology2().getEntityURI( ent2 ) != null ) {
+			      val = 1 - sim.getIndividualSimilarity( ent1, ent2 );
 			      if ( val > threshold ){
-				  cellSet.add( new OWLAPICell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+				  cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 			      }
 			  }
 		      }
@@ -423,16 +414,17 @@ public class DistanceAlignment extends OWLAPIAlignment implements AlignmentProce
 	  // O(n^2)
 	  for( Iterator it = cellSet.iterator(); it.hasNext(); ){
 	      Cell cell = (Cell)it.next();
-	      ent1 = (OWLEntity)cell.getObject1();
-	      ent2 = (OWLEntity)cell.getObject2();
+	      ent1 = cell.getObject1();
+	      ent2 = cell.getObject2();
 	      if ( (getAlignCells1( ent1 ) == null) && (getAlignCells2( ent2 ) == null) ){
 		  // The cell is directly added!
 		  addCell( cell );
 	      }
 	  };
 
-      } catch (AlignmentException alex) { alex.printStackTrace(); }
-      catch (OWLException owlex) { owlex.printStackTrace(); }
+      } catch (AlignmentException alex) {
+	  alex.printStackTrace();
+      };
       return((Alignment)this);
     }
 

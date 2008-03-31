@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,66 +20,20 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
-
-import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-import fr.inrialpes.exmo.align.impl.Similarity;
-
-import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
-
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-
 /**
  * This class implements alignment based on substring distance
  * of class and property labels
+ * THIS CLASS IS ONLY HERE FOR COMPATIBILITY PURPOSES
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
-public class SubsDistNameAlignment extends DistanceAlignment implements AlignmentProcess
-{
+public class SubsDistNameAlignment extends StringDistAlignment {
+
     /** Creation **/
     public SubsDistNameAlignment(){
-	setSimilarity( new MatrixMeasure() {
-		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
-		    String s1 = cl1.getURI().getFragment();
-		    String s2 = cl2.getURI().getFragment();
-		    if ( s1 != null && s2 != null )
-			return StringDistances.subStringDistance(s1.toLowerCase(),s2.toLowerCase());
-		    else return 1.;
-		}
-		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws OWLException{
-		    String s1 = pr1.getURI().getFragment();
-		    String s2 = pr2.getURI().getFragment();
-		    if ( s1 != null && s2 != null )
-			return StringDistances.subStringDistance(s1.toLowerCase(),s2.toLowerCase());
-		    else return 1.;
-		}
-		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws OWLException{
-		    String s1 = id1.getURI().getFragment();
-		    String s2 = id2.getURI().getFragment();
-		    if ( s1 != null && s2 != null )
-			return StringDistances.subStringDistance(s1.toLowerCase(),s2.toLowerCase());
-		    else return 1.;
-		}
-	    } );
-	setType("**");
+	methodName = "subStringDistance";
     };
-
-    /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
-	loadInit( alignment );
-	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
-	getSimilarity().compute( params );
-	extract( type, params );
-    }
 
 }

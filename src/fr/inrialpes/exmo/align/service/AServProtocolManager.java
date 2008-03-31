@@ -549,20 +549,10 @@ public class AServProtocolManager {
      *********************************************************************/
 
     public LoadedOntology reachable( URI uri ){
-	try { return loadOntology( uri ); }
-	catch (Exception e) {
-	    e.printStackTrace();
-	    return null;
-	}
-    }
-
-    public LoadedOntology loadOntology( URI uri ) {
-	// Test if not loaded...
-	OntologyFactory factory = OntologyFactory.newInstance();
-	LoadedOntology onto = factory.loadOntology( uri );
-	if ( loadedOntologies != null )
-	    loadedOntologies.recordOntology( uri, onto );
-	return onto; 
+	try { 
+	    OntologyFactory factory = OntologyFactory.newInstance();
+	    return factory.loadOntology( uri, loadedOntologies );
+	} catch (Exception e) { return null; }
     }
 
     /*********************************************************************

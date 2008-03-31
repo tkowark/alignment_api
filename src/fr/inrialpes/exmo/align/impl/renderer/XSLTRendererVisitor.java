@@ -34,6 +34,8 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.rel.*;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Renders an alignment as a XSLT stylesheet transforming 
@@ -43,11 +45,12 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  * @version $Id$ 
  */
 
-public class XSLTRendererVisitor implements AlignmentVisitor
-{
+public class XSLTRendererVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
+    LoadedOntology onto1 = null;
+    LoadedOntology onto2 = null;
     Hashtable<String,String> namespaces = null;
     int nsrank = 0;
 
@@ -61,6 +64,10 @@ public class XSLTRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	if ( align instanceof ObjectAlignment ) {
+	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	}
 	for( Enumeration e = align.getElements(); e.hasMoreElements(); ){
 	    collectURIs( (Cell)e.nextElement() );
 	}
@@ -99,8 +106,14 @@ public class XSLTRendererVisitor implements AlignmentVisitor
     }
 
     private void collectURIs ( Cell cell ) throws AlignmentException {
-	URI entity1URI = cell.getObject1AsURI();
-	URI entity2URI = cell.getObject2AsURI();
+	URI entity1URI, entity2URI;
+	if ( onto1 != null ){
+	    entity1URI = onto1.getEntityURI( cell.getObject1() );
+	    entity2URI = onto2.getEntityURI( cell.getObject2() );
+	} else {
+	    entity1URI = cell.getObject1AsURI();
+	    entity2URI = cell.getObject2AsURI();
+	}
 	if ( entity1URI != null ) {
 	    String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
 	    if ( namespaces.get( ns1 ) == null ){
@@ -117,8 +130,13 @@ public class XSLTRendererVisitor implements AlignmentVisitor
 
     public void visit( EquivRelation rel ) throws AlignmentException {
 	// The code is exactly the same for properties and classes
-	writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI())+"\">");
-	writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI())+"\">");
+	if ( onto1 != null ){
+	    writer.println("  <xsl:template match=\""+namespacify(onto1.getEntityURI( cell.getObject1() ))+"\">");
+	    writer.println("    <xsl:element name=\""+namespacify(onto2.getEntityURI( cell.getObject2() ))+"\">");
+	} else {
+	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI())+"\">");
+	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI())+"\">");
+	}
 	writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
 	writer.println("    </xsl:element>");
 	writer.println("  </xsl:template>\n");

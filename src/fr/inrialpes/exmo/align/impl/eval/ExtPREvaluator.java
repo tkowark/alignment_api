@@ -25,15 +25,10 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -54,8 +49,8 @@ import java.net.URI;
 
 public class ExtPREvaluator extends BasicEvaluator {
 
-    private OWLOntology onto1;
-    private OWLOntology onto2;
+    private HeavyLoadedOntology<Object> onto1;
+    private HeavyLoadedOntology<Object> onto2;
 
     private double symALPHA = .5;
     //private double editALPHA = .4;
@@ -106,28 +101,30 @@ public class ExtPREvaluator extends BasicEvaluator {
     }
     public double eval(Parameters params, Object cache) throws AlignmentException {
 	// Better to transform them instead...
-	if ( !( align1 instanceof OWLAPIAlignment ) || !( align2 instanceof OWLAPIAlignment ) )
-	    throw new AlignmentException( "ExtPREvaluation: requires OWLAPIAlignments" );
-	onto1 = (OWLOntology)align1.getOntology1();
-	onto2 = (OWLOntology)align1.getOntology2();
+	if ( !( align1 instanceof ObjectAlignment ) || !( align2 instanceof ObjectAlignment ) )
+	    throw new AlignmentException( "ExtPREvaluation: requires ObjectAlignments" );
+	LoadedOntology<Object> o1 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject1();
+	LoadedOntology<Object> o2 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject2();
+	if ( !( o1 instanceof HeavyLoadedOntology ) || !( o2 instanceof HeavyLoadedOntology ) )
+	    throw new AlignmentException( "ExtPREvaluation: requires HeavyLoadedOntology" );
+	onto1 = (HeavyLoadedOntology<Object>)o1;
+	onto2 = (HeavyLoadedOntology<Object>)o2;
 	nbexpected = align1.nbCells();
 	nbfound = align2.nbCells();
 
 	for ( Enumeration e = align1.getElements(); e.hasMoreElements();) {
 	    Cell c1 = (Cell)e.nextElement();
-	    Set s2 = (Set)align2.getAlignCells1((OWLEntity)c1.getObject1());
+	    Set s2 = (Set)align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();
-		    try {			
-			URI uri1 = ((OWLEntity)c1.getObject2()).getURI();
-			URI uri2 = ((OWLEntity)c2.getObject2()).getURI();	
-			// if (c1.getobject2 == c2.getobject2)
-			if ( uri1.toString().equals(uri2.toString()) ) {
-			    symsimilarity = symsimilarity + 1.;
-			    c1 = null; // out of the loop.
-			}
-		    } catch (OWLException exc) { exc.printStackTrace(); }
+		    URI uri1 = onto2.getEntityURI( c1.getObject2() );
+		    URI uri2 = onto2.getEntityURI( c2.getObject2() );	
+		    // if (c1.getobject2 == c2.getobject2)
+		    if ( uri1.toString().equals(uri2.toString()) ) {
+			symsimilarity = symsimilarity + 1.;
+			c1 = null; // out of the loop.
+		    }
 		}
 		// if nothing has been found
 		// JE: Full implementation would require computing a matrix
@@ -157,93 +154,93 @@ public class ExtPREvaluator extends BasicEvaluator {
 	return (result);
     }
 
+    /**
+     * This computes similarity depending on structural measures:
+     * the similarity is symALPHA^minval, symALPHA being lower than 1.
+     * minval is the length of the subclass chain.
+     */
     protected double computeSymSimilarity( Cell c1, Enumeration s2 ){
 	int minval = 0;
 	int val = 0;
-	try{ 
+	try {
 	    for( ; s2.hasMoreElements(); ){
 		Cell c2 = (Cell)s2.nextElement();
-		if ( ((OWLEntity)c1.getObject1()).getURI().toString().equals(((OWLEntity)c2.getObject1()).getURI().toString()) ){
-		    val = relativePosition( (OWLEntity)c1.getObject2(), (OWLEntity)c2.getObject2(), onto2 );
+		if ( onto1.getEntityURI( c1.getObject1() ).toString().equals(onto1.getEntityURI(c2.getObject1()).toString()) ){
+		    val = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
 		    if ( val != 0 && val < minval ) minval = val;
-		} else if ( ((OWLEntity)c1.getObject2()).getURI().toString().equals(((OWLEntity)c2.getObject2()).getURI().toString()) ){
-		    val = relativePosition( (OWLEntity)c1.getObject1(), (OWLEntity)c2.getObject1(), onto1 );
+		} else if ( onto2.getEntityURI(c1.getObject2()).toString().equals(onto2.getEntityURI(c2.getObject2()).toString()) ){
+		    val = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
 		    if ( val != 0 && val < minval ) minval = val;
 		}
 	    }
-	    return symALPHA; //^minval;
-	} catch (OWLException e) { return 0; }
+	} catch( AlignmentException aex ) { return 0; }
+	//return symALPHA; //^minval;
+	return Math.pow( symALPHA, minval );
     }
 
-    protected int relativePosition( OWLEntity o1, OWLEntity o2, OWLOntology onto ){
-	try {
-	    if ( o1 instanceof OWLClass && o2 instanceof OWLClass ){
-		isSuperClass( (OWLClass)o2, (OWLClass)o1, onto );
-	    } else if ( o1 instanceof OWLProperty && o2 instanceof OWLProperty ){
-		if ( isSuperProperty( (OWLProperty)o2, (OWLProperty)o1, onto ) ) { return -1; }
-		else if ( isSuperProperty( (OWLProperty)o1, (OWLProperty)o2, onto ) ) { return 1; }
-		else { return 0; }
-	    } else if ( o1 instanceof OWLIndividual && o2 instanceof OWLIndividual ){
-		return 0;
-		//if () { return -1; }
-		//else if () { return 1; }
-		//else return 0;
-	    }
-	} catch (OWLException e) { e.printStackTrace(); }
+    protected int relativePosition( Object o1, Object o2, HeavyLoadedOntology<Object> onto )  throws AlignmentException {
+	if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
+	    isSuperClass( o2, o1, onto ); // This is the level
+	} else if ( onto.isProperty( o1 ) && onto.isProperty( o2 ) ){
+	    if ( isSuperProperty( o2, o1, onto ) ) { return -1; }
+	    else if ( isSuperProperty( o1, o2, onto ) ) { return 1; }
+	    else { return 0; }
+	} else if ( onto.isIndividual( o1 ) && onto.isIndividual( o2 ) ){
+	    return 0;
+	    //if () { return -1; }
+	    //else if () { return 1; }
+	    //else return 0;
+	}
 	return 0;
     }
 
-    public int superClassPosition( OWLClass class1, OWLClass class2, OWLOntology onto ) throws OWLException {
-	int result = - isSuperClass( (OWLClass)class2, (OWLClass)class1, onto );
+    public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
+	return ontology.getSuperProperties( prop2 ).contains( prop1 );
+    }
+
+
+    public int superClassPosition( Object class1, Object class2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
+	int result = - isSuperClass( class2, class1, onto );
 	if ( result == 0 )
-	    result = isSuperClass( (OWLClass)class1, (OWLClass)class2, onto );
+	    result = isSuperClass( class1, class2, onto );
 	return result;
     }
 
-    public int isSuperClass( OWLClass class1, OWLClass class2, OWLOntology ontology ) throws OWLException {
-	URI uri1 = class1.getURI();
-	Set<OWLEntity> superclasses = new HashSet<OWLEntity>();
-	// required for avoiding java.util.ConcurrentModificationException
-	Set<OWLEntity> bufferedSuperClasses = null;
+    /**
+     * This is a strange method which returns an integer representing how
+     * directly a class is superclass of another or not.  
+     *
+     * This would require coputing the transitive reduction of the superClass
+     * relation which is currently returned bu HeavyLoadedOntology.
+     *
+     * It would require to have a isDirectSubClassOf().
+     */
+    public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
+	URI uri1 = ontology.getEntityURI( class1 );
+	Set<Object> bufferedSuperClasses = null;
+	Set<Object> superclasses = ontology.getAssertedSuperClasses( class1 );
 	int level = 0;
-	// [Warning:unchecked] due to OWL API not serving generic types
-	superclasses.addAll(  class2.getSuperClasses( ontology )); // [W:unchecked]
 
 	while ( !superclasses.isEmpty() ){
 	    bufferedSuperClasses = superclasses;
-	    superclasses = new HashSet<OWLEntity>();
-	    Iterator it = bufferedSuperClasses.iterator();
+	    superclasses = new HashSet<Object>();
 	    level++;
-	    for( ; it.hasNext() ; ){
-		Object entity = it.next();
-		if ( entity instanceof OWLClass ){
-		    URI uri2 = ((OWLClass)entity).getURI();	
+	    for( Object entity : bufferedSuperClasses ) {
+		if ( ontology.isClass( entity ) ){
+		    URI uri2 = ontology.getEntityURI( entity );
 		    //if ( entity == class2 ) return true;
 		    if ( uri1.toString().equals(uri2.toString()) ) {
 			return level;
 		    } else {
-			// [Warning:unchecked] due to OWL API not serving generic types
-			superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology )); // [W:unchecked]
+			// [W:unchecked] due to OWL API not serving generic types
+			//superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology )); // [W:unchecked]
+			superclasses.addAll( ontology.getAssertedSuperClasses( entity ) );
 		    }
 		}
 	    }
 	}
 	// get the 
 	return 0;
-    }
-
-    public boolean isSuperProperty( OWLProperty prop1, OWLProperty prop2, OWLOntology ontology ) throws OWLException {
-	URI uri1 = prop1.getURI();
-	for( Iterator it = prop2.getSuperProperties( ontology ).iterator(); it.hasNext() ; ){
-	    OWLEntity entity = (OWLEntity)it.next();
-	    //x.contains( prop2 );
-	    URI uri2 = entity.getURI();	
-	    //if ( entity == prop2 ) return true;
-	    if ( uri1.toString().equals(uri2.toString()) ) {
-	        return true;
-	    }
-	}
-	return false;
     }
 
 
@@ -257,10 +254,8 @@ public class ExtPREvaluator extends BasicEvaluator {
 	//if ( ) {
 	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
-	try {
-	    writer.println("    <map:input1 rdf:resource=\""+((OWLOntology)(align1.getOntology1())).getURI()+"\">");
-	    writer.println("    <map:input2 rdf:resource=\""+((OWLOntology)(align1.getOntology2())).getURI()+"\">");
-	} catch (OWLException e) { e.printStackTrace(); };
+	writer.println("    <map:input1 rdf:resource=\""+((ObjectAlignment)align1).getOntologyObject1().getURI()+"\">");
+	writer.println("    <map:input2 rdf:resource=\""+((ObjectAlignment)align1).getOntologyObject2().getURI()+"\">");
 	writer.print("    <map:symmetricprecision>");
 	writer.print(symprec);
 	writer.print("</map:symmetricprecision>\n    <map:symmetricrecall>");

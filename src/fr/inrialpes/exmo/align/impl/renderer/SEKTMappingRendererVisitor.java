@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,18 +27,15 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -47,11 +44,11 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  * @version $Id$ 
  */
 
-
-public class SEKTMappingRendererVisitor implements AlignmentVisitor
-{
+public class SEKTMappingRendererVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
+    LoadedOntology onto1 = null;
+    LoadedOntology onto2 = null;
     Cell cell = null;
     // I hate using random generator for generating symbols (address would be better)
     Random generator = null;
@@ -62,12 +59,14 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	if ( !(align instanceof ObjectAlignment) )
+	    throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
 	alignment = align;
-	if ( !(align instanceof OWLAPIAlignment) )
-	    throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
+	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
 	writer.print("MappingDocument(<\""+"\">\n");
-	writer.print("  source(<\""+align.getOntology1URI().toString()+"\">)\n");
-	writer.print("  target(<\""+align.getOntology2URI().toString()+"\">)\n");
+	writer.print("  source(<\""+onto1.getURI()+"\">)\n");
+	writer.print("  target(<\""+onto2.getURI()+"\">)\n");
 
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
@@ -78,39 +77,34 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	String id = "s"+generator.nextInt(100000);
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	//OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	try {
-	    URI entity1URI = cell.getObject1AsURI();
-	    URI entity2URI = cell.getObject2AsURI();
-	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
-		writer.print("  classMapping( <\"#"+id+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("    <\""+entity1URI.toString()+"\">\n");
-		writer.print("    <\""+entity2URI.toString()+"\">\n");
-		
-		writer.print("  )\n");
-	    } else if ( (OWLEntity)onto1.getDataProperty( entity1URI ) != null ) { // A Dataproperty
-		writer.print("  relationMapping( <\"#"+id+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("    <\""+entity1URI.toString()+"\">\n");
-		writer.print("    <\""+entity2URI.toString()+"\">\n");
-		writer.print("  )\n");
-	    } else if ( (OWLEntity)onto1.getObjectProperty( entity1URI ) != null ) { // An ObjectProperty
-		writer.print("  attributeMapping( <\"#"+id+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("    <\""+entity1URI.toString()+"\">\n");
-		writer.print("    <\""+entity2URI.toString()+"\">\n");
-		writer.print("  )\n");
-	    } else if ( (OWLEntity)onto1.getIndividual( entity1URI ) != null ) { // An individual (but check this)
-		writer.print("  instanceMapping( <\"#"+id+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("    <\""+entity1URI.toString()+"\">\n");
-		writer.print("    <\""+entity2URI.toString()+"\">\n");
-		writer.print("  )\n");
-	    }
-	    writer.print("\n");
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	Object ob1 = cell.getObject1();
+	Object ob2 = cell.getObject2();
+	if ( onto1.isClass( ob1 ) ) {
+	    writer.print("  classMapping( <\"#"+id+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+	    writer.print("  )\n");
+	} else if ( onto1.isDataProperty( ob1 ) ) {
+	    writer.print("  relationMapping( <\"#"+id+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+	    writer.print("  )\n");
+	} else if ( onto1.isObjectProperty( ob1 ) ) {
+	    writer.print("  attributeMapping( <\"#"+id+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+	    writer.print("  )\n");
+	} else if ( onto1.isIndividual( ob1 ) ) {
+	    writer.print("  instanceMapping( <\"#"+id+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+	    writer.print("  )\n");
+	}
+	writer.print("\n");
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {

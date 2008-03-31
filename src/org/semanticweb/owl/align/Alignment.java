@@ -21,7 +21,9 @@
 package org.semanticweb.owl.align; 
 
 import java.lang.Cloneable;
+import java.lang.Iterable;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Set;
 import java.net.URI;
 
@@ -35,8 +37,7 @@ import org.xml.sax.ContentHandler;
  */
 
 
-public interface Alignment extends Cloneable
-{
+public interface Alignment extends Cloneable, Iterable<Cell> {
 
     /** Initialize the alignement before using it **/
 
@@ -112,8 +113,14 @@ public interface Alignment extends Cloneable
      * Reason: this applies only for 1:1 alignments
      * Some implementations might act cleverly (retrieving the best value).
      * Basic implementations may raise the exception
+     * //@deprecated There is more than one cell about one object
      */
+    //@Deprecated
     public Cell getAlignCell1( Object ob ) throws AlignmentException;
+    /**
+     * //@deprecated There is more than one cell about one object
+     */
+    //@Deprecated
     public Cell getAlignCell2( Object ob ) throws AlignmentException;
     /**
      * Each part of the cell can be queried independently.
@@ -150,6 +157,7 @@ public interface Alignment extends Cloneable
     public void setExtension( String uri, String label, String value );
 
     public Enumeration<Cell> getElements();
+    public Iterator<Cell> iterator();
     public int nbCells();
 
     public void cut( String method, double threshold ) throws AlignmentException;

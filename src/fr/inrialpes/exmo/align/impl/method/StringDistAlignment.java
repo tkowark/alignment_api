@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,6 @@ package fr.inrialpes.exmo.align.impl.method;
 
 import java.net.URI;
 import java.lang.reflect.Method;
-
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -54,35 +48,29 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 public class StringDistAlignment extends DistanceAlignment implements AlignmentProcess {
     
     Method dissimilarity = null;
+    String methodName = "equalDistance";
 
     /** Creation **/
     public StringDistAlignment() {
 	setSimilarity( new MatrixMeasure() {
-		public double measure( OWLClass cl1, OWLClass cl2 ) throws Exception{
-		    Object[] params = { cl1.getURI().getFragment(), cl2.getURI().getFragment() };
+		public double classMeasure( Object cl1, Object cl2 ) throws Exception {
+		    return measure( cl1, cl2 );
+		}
+		public double measure( Object o1, Object o2 ) throws Exception {
+		    String s1 = ontology1().getEntityName( o1 );
+		    String s2 = ontology2().getEntityName( o2 );
+		    // Unnamed entity = max distance
+		    if ( s1 == null || s2 == null ) return 1.;
+		    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
 		    if ( debug > 4 ) 
-			System.err.println( "CL:"+cl1.getURI().getFragment()+" ++ "+cl2.getURI().getFragment());
+			System.err.println( "OB:"+ontology1().getEntityName( o1 )+" ++ "+ontology2().getEntityName( o2 )+" ==> "+dissimilarity.invoke( null, params ));
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}
-		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws Exception{
-		    Object[] params = { pr1.getURI().getFragment(), pr2.getURI().getFragment() };
-		    if ( debug > 4 ) 
-			System.err.println( "PR:"+pr1.getURI().getFragment()+" ++ "+pr2.getURI().getFragment());
-		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
+		public double propertyMeasure( Object pr1, Object pr2 ) throws Exception{
+		    return measure( pr1, pr2 );
 		}
-		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws Exception{
-		    if ( debug > 4 ) 
-			System.err.println( "ID:"+id1+" -- "+id2);
-		    URI URI1 = id1.getURI();
-		    String name1;
-		    if ( URI1 != null ) name1 = URI1.getFragment();
-		    else name1 = "";
-		    URI URI2 = id2.getURI();
-		    String name2;
-		    if ( URI2 != null ) name2 = URI2.getFragment();
-		    else name2 = "";
-		    Object[] params = { name1, name2 };
-		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
+		public double individualMeasure( Object id1, Object id2 ) throws Exception{
+		    return measure( id1, id2 );
 		}
 	    } );
 	setType("**");
@@ -95,11 +83,10 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	// Get function from params
 	String f = (String)params.getParameter("stringFunction");
 	try {
-	    String fname = "equalDistance";
-	    if ( f != null ) fname = f.trim();
+	    if ( f != null ) methodName = f.trim();
 	    Class sClass = Class.forName("java.lang.String");
 	    Class[] mParams = { sClass, sClass };
-	    dissimilarity = Class.forName("fr.inrialpes.exmo.align.impl.method.StringDistances").getMethod( fname, mParams );
+	    dissimilarity = Class.forName("fr.inrialpes.exmo.align.impl.method.StringDistances").getMethod( methodName, mParams );
 	} catch (ClassNotFoundException e) {
 	    e.printStackTrace();
 	} catch (NoSuchMethodException e) {
@@ -107,7 +94,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	}
 
 	// Initialize matrix
-	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
+	getSimilarity().initialize( ontology1(), ontology2(), alignment );
 
 	// Compute similarity/dissimilarity
 	getSimilarity().compute( params );

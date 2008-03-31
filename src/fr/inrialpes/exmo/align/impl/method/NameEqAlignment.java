@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,59 +20,19 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLProperty;
-import org.semanticweb.owl.model.OWLIndividual;
-import org.semanticweb.owl.model.OWLException;
-
-import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
-
-import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-
 /**
  * Matches two oontologies based on the equality of the name of their entities.
+ * THIS CLASS IS ONLY HERE FOR COMPATIBILITY PURPOSES
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
-public class NameEqAlignment extends DistanceAlignment implements AlignmentProcess {
+public class NameEqAlignment extends StringDistAlignment {
 	
     /** Creation **/
     public NameEqAlignment(){
-	setSimilarity( new MatrixMeasure() {
-		public double measure( OWLClass cl1, OWLClass cl2 ) throws OWLException{
-		    String s1 = cl1.getURI().getFragment();
-		    String s2 = cl2.getURI().getFragment();
-		    if ( s1 != null && s2 != null && s1.toLowerCase().equals(s2.toLowerCase()) ) return 0.;
-		    else return 1.;
-		}
-		public double measure( OWLProperty pr1, OWLProperty pr2 ) throws OWLException{
-		    String s1 = pr1.getURI().getFragment();
-		    String s2 = pr2.getURI().getFragment();
-		    if ( s1 != null && s2 != null && s1.toLowerCase().equals(s2.toLowerCase()) ) return 0.;
-		    else return 1.;
-		}
-		public double measure( OWLIndividual id1, OWLIndividual id2 ) throws OWLException{
-		    String s1 = id1.getURI().getFragment();
-		    String s2 = id2.getURI().getFragment();
-		    if ( s1 != null && s2 != null && s1.toLowerCase().equals(s2.toLowerCase()) ) return 0.;
-		    else return 1.;
-		}
-	    } );
-	setType("**");
+	methodName = "equalDistance";
     };
 
-    /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
-	loadInit( alignment );
-	getSimilarity().initialize( (OWLOntology)getOntology1(), (OWLOntology)getOntology2(), alignment );
-	getSimilarity().compute( params );
-	extract( type, params );
-    }
 }

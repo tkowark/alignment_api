@@ -252,7 +252,7 @@ public class Procalign {
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
 
-	    if (debug > 0) System.err.println(" Alignment performed");
+	    if (debug > 0) System.err.println(" Matching performed");
 	    
 	    // Set output file
 	    OutputStream stream;

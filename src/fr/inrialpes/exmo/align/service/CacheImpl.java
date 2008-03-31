@@ -161,7 +161,7 @@ public class CacheImpl {
      * in an alignment object
      *
      * Beware, the Alignment API has two attributes:
-     * onto1 is the OWLOntology object
+     * onto1 is the Ontology object
      * uri1 is the URI object from which loading the ontologies
      * In the database we store:
      * owlontology1 the URI string of the ontology

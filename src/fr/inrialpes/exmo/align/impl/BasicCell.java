@@ -92,6 +92,13 @@ public class BasicCell implements Cell, Comparable<Cell> {
     public void setSemantics( String sem ){ semantics = sem; };
     public Object getObject1(){ return object1; };
     public Object getObject2(){ return object2; };
+    /**
+     * Since version 3.3, the interpretation of objects (and thus finding their
+     * URI) depends on the Ontology API which is used. This information is not
+     * stored in the Cells (this would cost two pointers per cell) and thus,
+     * most of the time, this will raise an exception.
+     * Use <tt>Ontology.getEntityURI( this )</tt> instead.
+     */
     public URI getObject1AsURI() throws AlignmentException {
 	if ( object1 instanceof URI ) {
 	    return (URI)object1;
@@ -99,6 +106,13 @@ public class BasicCell implements Cell, Comparable<Cell> {
 	    throw new AlignmentException( "Cannot find URI for "+object1 );
 	}
     }
+    /**
+     * Since version 3.3, the interpretation of objects (and thus finding their
+     * URI) depends on the Ontology API which is used. This information is not
+     * stored in the Cells (this would cost two pointers per cell) and thus,
+     * most of the time, this will raise an exception.
+     * Use <tt>Ontology.getEntityURI( this )</tt> instead.
+     */
     public URI getObject2AsURI() throws AlignmentException {
 	if ( object2 instanceof URI ) {
 	    return (URI)object2;

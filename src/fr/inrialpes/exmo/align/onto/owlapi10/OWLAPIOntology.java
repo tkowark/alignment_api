@@ -18,10 +18,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+/*
+ * This should be turned into an HeavyLoadedOntology.
+ * Some primitives are already avalible below
+ *
+ *
+ */
+
 package fr.inrialpes.exmo.align.onto.owlapi10;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.lang.UnsupportedOperationException;
@@ -38,6 +46,9 @@ import org.semanticweb.owl.model.OWLObjectProperty;
 import org.semanticweb.owl.model.OWLDataProperty;
 import org.semanticweb.owl.model.OWLIndividual;
 import org.semanticweb.owl.model.OWLEntity;
+import org.semanticweb.owl.model.OWLRestriction;
+import org.semanticweb.owl.model.OWLDescription;
+import org.semanticweb.owl.model.OWLNaryBooleanDescription;
 import org.semanticweb.owl.model.OWLException;
 
 /*
@@ -277,6 +288,31 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (OWLException oex) {
 	    return 0;
 	}
+    }
+
+    /* HeavyLoadedOntology specifics */
+
+    public Set<Object> getProperties( OWLDescription desc ) {
+	Set<Object> list = new HashSet<Object>();
+	try {
+	    if ( desc instanceof OWLRestriction ){
+		list.add( ((OWLRestriction)desc).getProperty() );
+	    } else if ( desc instanceof OWLClass ) {
+		// JE: I suspect that this can be a cause for looping!!
+		for ( Object cl : ((OWLClass)desc).getEquivalentClasses((OWLOntology)onto) ){
+		    // JE: strange casting
+		    Set<Object> res = getProperties( (OWLDescription)cl );
+		    if ( res != null ) list.add( res );
+		}
+	    } else if ( desc instanceof OWLNaryBooleanDescription ) {
+		for ( Object d : ((OWLNaryBooleanDescription)desc).getOperands() ){
+		    // JE: strange casting
+		    Set<Object> res = getProperties( (OWLDescription)d );
+		    if ( res != null ) list.add( res );
+		}
+	    }
+	} catch (OWLException e) { e.printStackTrace();	}
+	return list;
     }
 
     public void unload() {

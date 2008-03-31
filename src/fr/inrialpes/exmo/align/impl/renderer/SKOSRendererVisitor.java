@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,19 +33,21 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.rel.*;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
  * Renders an alignment as a new ontology merging these.
  *
  * @author Jérôme Euzenat
- * @version $$ 
+ * @version $Id$ 
  */
 
-
-public class SKOSRendererVisitor implements AlignmentVisitor
-{
+public class SKOSRendererVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
+    LoadedOntology onto1 = null;
+    LoadedOntology onto2 = null;
     Cell cell = null;
 
     public SKOSRendererVisitor( PrintWriter writer ){
@@ -54,6 +56,10 @@ public class SKOSRendererVisitor implements AlignmentVisitor
 
     // This must be considered
     public void visit( Alignment align ) throws AlignmentException {
+	if ( align instanceof ObjectAlignment ) {
+	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	}
 	alignment = align;
 	writer.print("<rdf:RDF\n");
 	writer.print("  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"); 
@@ -66,20 +72,32 @@ public class SKOSRendererVisitor implements AlignmentVisitor
 	writer.print("</rdf:RDF>\n");
     }
 
+    public URI getURI2() throws AlignmentException {
+	if ( onto2 != null ) {
+	    return onto2.getEntityURI( cell.getObject2() );
+	} else {
+	    return cell.getObject2AsURI();
+	}
+    }
+
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI().toString()+"\">\n");
+	if ( onto1 != null ) {
+	    writer.print("  <skos:Concept rdf:about=\""+onto1.getEntityURI( cell.getObject1() )+"\">\n");
+	} else {
+	    writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI()+"\">\n");
+	}
 	cell.getRelation().accept( this );
 	writer.print("  </skos:Concept>\n\n");
     }
     public void visit( EquivRelation rel ) throws AlignmentException {
-	writer.print("    <skos:related rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
+	writer.print("    <skos:related rdf:resource=\""+getURI2()+"\"/>\n");
     }
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	writer.print("    <skos:narrower rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
+	writer.print("    <skos:narrower rdf:resource=\""+getURI2()+"\"/>\n");
     }
     public void visit( SubsumedRelation rel ) throws AlignmentException {
-	writer.print("    <skos:broader rdf:resource=\""+cell.getObject2AsURI().toString()+"\"/>\n");
+	writer.print("    <skos:broader rdf:resource=\""+getURI2()+"\"/>\n");
     }
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	throw new AlignmentException("Cannot translate in SKOS"+rel);
@@ -112,6 +130,5 @@ public class SKOSRendererVisitor implements AlignmentVisitor
 	} catch (InvocationTargetException e) { 
 	    e.printStackTrace();
 	}
-	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

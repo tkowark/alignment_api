@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,17 +26,14 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**
@@ -46,11 +43,11 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  * @version $Id$ 
  */
 
-
-public class OWLAxiomsRendererVisitor implements AlignmentVisitor
-{
+public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
+    LoadedOntology onto1 = null;
+    LoadedOntology onto2 = null;
     Cell cell = null;
 
     public OWLAxiomsRendererVisitor( PrintWriter writer ){
@@ -58,9 +55,14 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
     }
 
     public void visit( Alignment align ) throws AlignmentException {
-	if ( !( align instanceof OWLAPIAlignment ) ) 
-	    throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Turn them into OWLAlignment, by toOWLAPIAlignement()");
+	if ( !( align instanceof ObjectAlignment ))  {
+	    throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
+	}
 	alignment = align;
+	if ( align instanceof ObjectAlignment ){
+	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	}
 	writer.print("<rdf:RDF\n");
 	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n");
 	writer.print("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
@@ -81,86 +83,77 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	OWLOntology onto1 = null;
-	URI entity1URI = null;
-	try {
-	    // Not very good but we failed to think subsumed from the first shot.
-	    if ( cell.getRelation() instanceof SubsumedRelation ){
-		onto1 = (OWLOntology)alignment.getOntology2();
-		entity1URI = cell.getObject2AsURI();
-	    } else {
-		onto1 = (OWLOntology)alignment.getOntology1();
-		entity1URI = cell.getObject1AsURI();
-	    }
-	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
-		writer.print("  <owl:Class rdf:about=\""+entity1URI.toString()+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("  </owl:Class>\n");
-	    } else if ( (OWLEntity)onto1.getDataProperty( entity1URI ) != null ) { // A Dataproperty
-		writer.print("  <owl:DatatypeProperty rdf:about=\""+entity1URI.toString()+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("  </owl:DatatypeProperty>\n");
-	    } else if ( (OWLEntity)onto1.getObjectProperty( entity1URI ) != null ) { // An ObjectProperty
-		writer.print("  <owl:ObjectProperty rdf:about=\""+entity1URI.toString()+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("  </owl:ObjectProperty>\n");
-	    } else if ( (OWLEntity)onto1.getIndividual( entity1URI ) != null ) { // An individual (but check this)
-		writer.print("  <owl:Thing rdf:about=\""+entity1URI.toString()+"\">\n");
-		cell.getRelation().accept( this );
-		writer.print("  </owl:Thing>\n");
-	    }
-	    writer.print("\n");
+	Object ob1 = cell.getObject1();
+	URI u1;
+	if ( cell.getRelation() instanceof SubsumedRelation ){
+	    u1 = onto2.getEntityURI( cell.getObject2() );
+	} else {
+	    u1 = onto1.getEntityURI( ob1 );
 	}
-	catch (OWLException e) { throw new AlignmentException("getURI problem", e); }
-    }
-    public void visit( EquivRelation rel ) throws AlignmentException {
-	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	try {
-	    URI entity2URI = cell.getObject2AsURI();
-	    if ( (OWLEntity)onto2.getClass( entity2URI ) != null ) { // A class
-		writer.print("    <owl:equivalentClass rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto2.getDataProperty( entity2URI ) != null ) { // A Dataproperty
-		writer.print("    <owl:equivalentProperty rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto2.getObjectProperty( entity2URI ) != null ) { // An ObjectProperty
-		writer.print("    <owl:equivalentProperty rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto2.getIndividual( entity2URI ) != null ) { // An individual (but check this)
-		writer.print("    <owl:sameAs rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	if ( onto1.isClass( ob1 ) ) {
+	    writer.print("  <owl:Class rdf:about=\""+u1+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("  </owl:Class>\n");
+	} else if ( onto1.isDataProperty( ob1 ) ) {
+	    writer.print("  <owl:DatatypeProperty rdf:about=\""+u1+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("  </owl:DatatypeProperty>\n");
+	} else if ( onto1.isObjectProperty( ob1 ) ) {
+	    writer.print("  <owl:ObjectProperty rdf:about=\""+u1+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("  </owl:ObjectProperty>\n");
+	} else if ( onto1.isIndividual( ob1 ) ) {
+	    writer.print("  <owl:Thing rdf:about=\""+u1+"\">\n");
+	    cell.getRelation().accept( this );
+	    writer.print("  </owl:Thing>\n");
+	}
     }
 
+    public void visit( EquivRelation rel ) throws AlignmentException {
+	Object ob2 = cell.getObject2();
+	URI u2 = onto2.getEntityURI( ob2 );
+	if ( onto1.isClass( ob2 ) ) {
+	    writer.print("    <owl:equivalentClass rdf:resource=\""+u2+"\"/>\n");
+	} else if ( onto1.isDataProperty( ob2 ) ) {
+	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
+	} else if ( onto1.isObjectProperty( ob2 ) ) {
+	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
+	} else if ( onto1.isIndividual( ob2 ) ) {
+	    writer.print("    <owl:sameAs rdf:resource=\""+u2+"\"/>\n");
+	}
+    }
 
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	try {
-	    URI entity2URI = cell.getObject2AsURI();
-	    if ( (OWLEntity)onto2.getClass( entity2URI ) != null ) { // A class
-		writer.print("    <rdfs:subClassOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto2.getDataProperty( entity2URI ) != null ) { // A Dataproperty
-		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto2.getObjectProperty( entity2URI ) != null ) { // An ObjectProperty
-		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	Object ob2 = cell.getObject2();
+	URI u2 = onto2.getEntityURI( ob2 );
+	if ( onto1.isClass( ob2 ) ) {
+	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u2+"\"/>\n");
+	} else if ( onto1.isDataProperty( ob2 ) ) {
+	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
+	} else if ( onto1.isObjectProperty( ob2 ) ) {
+	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
+	}
     }
+
     public void visit( SubsumedRelation rel ) throws AlignmentException {
-	OWLOntology onto1 = (OWLOntology)alignment.getOntology1();
-	try {
-	    URI entity1URI = cell.getObject1AsURI();
-	    if ( (OWLEntity)onto1.getClass( entity1URI ) != null ) { // A class
-		writer.print("    <rdfs:subClassOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto1.getDataProperty( entity1URI ) != null ) { // A Dataproperty
-		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
-	    } else if ( (OWLEntity)onto1.getObjectProperty( entity1URI ) != null ) { // An ObjectProperty
-		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+entity1URI.toString()+"\"/>\n");
-	    }
-	} catch (OWLException e) { throw new AlignmentException("getURI problem", e); };
+	Object ob1 = cell.getObject1();
+	URI u1 = onto1.getEntityURI( ob1 );
+	if ( onto1.isClass( ob1 ) ) {
+	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u1+"\"/>\n");
+	} else if ( onto1.isDataProperty( ob1 ) ) {
+	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
+	} else if ( onto1.isObjectProperty( ob1 ) ) {
+	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
+	}
     }
+
+    // JE: I assume this is incorrect
     public void visit( IncompatRelation rel ) throws AlignmentException {
-	//OWLOntology onto2 = (OWLOntology)alignment.getOntology2();
-	URI entity2URI = cell.getObject2AsURI();
-	writer.print("    <owl:inverseOf rdf:resource=\""+entity2URI.toString()+"\"/>\n");
+	Object ob2 = cell.getObject2();
+	URI u2 = onto2.getEntityURI( ob2 );
+	writer.print("    <owl:inverseOf rdf:resource=\""+u2+"\"/>\n");
     }
+
     public void visit( Relation rel ) throws AlignmentException {
 	// JE: I do not understand why I need this,
 	// but this seems to be the case...
@@ -189,6 +182,5 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor
 	} catch (InvocationTargetException e) { 
 	    e.printStackTrace();
 	}
-	//	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
     };
 }

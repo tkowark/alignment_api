@@ -272,9 +272,13 @@ public class AlignmentParser extends DefaultHandler {
 		    throw new SAXException("Catched alignment exception", e );
 		}
 	    } else if (pName.equals("Formalism")) {
-		// JE: OMWG1 leave it alone for the moment
-		//if ( atts.getValue("uri") != null )
-		//    curronto.setFormalismURI( new URI(atts.getValue("uri")) );
+		// JE: Check that this is OK with OMWG
+		if ( atts.getValue("uri") != null )
+		    try {
+			curronto.setFormURI( new URI(atts.getValue("uri")) );
+		    } catch (Exception e) {
+			throw new SAXException("Malformed URI"+atts.getValue("uri"), e );
+		    };
 		if ( atts.getValue("name") != null )
 		    curronto.setFormalism( atts.getValue("name") );
 	    } else if (pName.equals("formalism")) {

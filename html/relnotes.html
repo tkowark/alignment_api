@@ -17,23 +17,33 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
+<li>Output HTML in XHTML+RDFa (impl)</li>
 <li>Online evaluation (server)</li>
 <li>Upgrade to OWL 1.1 (impl)</li>
-<li>Restructuring language dependent alignments (impl)</li>
 <li>Implementing database store for OMWG Language (server)</li>
-<li>Replacing <tt>Parameters</tt> with Java <tt>Property</tt> (api/impl)</li>
+<li>Implement ontology support database store (server)</li>
 <li>Implement debug options with log4j</li>
 <li>Use more for-each Java 1.5 construct</li>
+<li>Rendering alignments as module descriptions (impl)</li>
+<li>Replacing <tt>Parameters</tt> with Java <tt>Property</tt> (api/impl)[Version 4]</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.3 (): xx/yy/2008 - O sole mio</h2-->
+<!--h2>Version 3.3 (688): xx/yy/2008 - O sole mio</h2-->
 
 <p><ul compact="1">
-<li>Added an abstract ontology interface (impl)</li>
+<li>Suppressed language dependent (OWLAPI) alignments (impl)</li>
+<li><a href="up2to3.html" style="color:red;">Deprecated</a>
+  <tt>OWLAPIAlignment</tt> to be replaced by <tt>ObjectAlignment</tt></li>
+<li>Reimplemented the whole API in function of the onto package (impl)</li>
+<li>Added an abstract ontology package allowing to change API (onto)</li>
+<li>Made <tt>Alignment</tt> iterable&lt;Cell&gt; (api/impl)</li>
+<li>Corrected a bug in AlignmentParser that overlooked formalism URI (parser)</li>
 <li>Passed to Java 1.5 generics [incl. API modif] (dev/api)</li>
+<li>Added first unit tests (TestNG) (dev)</li>
 <li>Passed all code through lint (dev)</li>
+<li>Corrected link to documentation (doc)</li>
 </ul></p>
 
 <h2>Version 3.2 (666): 29/02/2008 - Blejsko jezero</h2>
@@ -57,7 +67,7 @@
 <li>MANIFEST generation in buildfile (distrib)</li>
 <li>Improved version number management</li>
 <li>Javadoc generation flawless in buildfile (distrib)</li>
-<li>Revised reference manual</li>
+<li>Revised reference manual (doc)</li>
 </ul>
 </p>
 
@@ -122,7 +132,9 @@ Other improvements include:
 The main modification in this version is more independence from the
   OWL API which is not anymore compulsory. Consequently, the existing
   implementation of matching methods with Alignment API should undergo
-  some modifications: <a href="up2to3.html">Here is how to do</a>.</p>
+  some modifications: <a href="up2to3.html">Here is how to do</a>
+  (this document has been updated to help migrating directly to
+  version 3.3 if necessary).</p>
 
 <p>The Alignment API is now compiled in Java 1.5 (older versions
   should still be able to run it).</p>
