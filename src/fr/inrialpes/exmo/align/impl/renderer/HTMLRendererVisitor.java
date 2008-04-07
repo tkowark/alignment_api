@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -53,6 +54,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
+    Hashtable<String,String> nslist = null;
 
     public HTMLRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -60,7 +62,34 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
-	writer.print("<html>\n<head></head>\n<body>\n");
+	nslist = new Hashtable<String,String>();
+	nslist.put(Annotations.ALIGNNS,"align");
+	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
+	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
+	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
+	// Get the keys of the parameter
+	int gen = 0;
+	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
+	    String prefix = ((String[])ext)[0];
+	    String name = ((String[])ext)[1];
+	    String tag = (String)nslist.get(prefix);
+	    if ( tag == null ) {
+		tag = "ns"+gen++;
+		nslist.put( prefix, tag );
+	    }
+	    if ( tag.equals("align") ) { tag = name; }
+	    else { tag += ":"+name; }
+	    //extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
+	}
+	writer.print("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n");
+	writer.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">\n");
+	writer.print("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"");
+	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
+	    String k = (String)e.nextElement();
+	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
+	}
+	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
+	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<h1></h1>\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
 	writer.print("<table border=\"0\">\n");
@@ -73,8 +102,9 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("<tr><td>level</td><td>"+align.getLevel()+"</td></tr>\n" );
 	writer.print("<tr><td>type</td><td>"+align.getType()+"</td></tr>\n" );
 	// Get the keys of the parameter
+	// RDFa=add namespace prefix (instead of [0]
 	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td>"+((String[])ext)[2]+"</td></tr>\n");
+	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td property=\""+((String[])ext)[0]+":"+((String[])ext)[1]+"\">"+((String[])ext)[2]+"</td></tr>\n");
 	}
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");
@@ -84,6 +114,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	    c.accept( this );
 	} //end for
 	writer.print("</table>\n");
+	writer.print("</div\n");
 	writer.print("</body>\n</html>\n");
     }
 
