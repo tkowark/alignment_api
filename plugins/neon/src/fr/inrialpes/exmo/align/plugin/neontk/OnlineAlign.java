@@ -22,13 +22,21 @@ package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+
+import java.io.FileInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+ 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
  
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Vector;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.JOptionPane;
  
@@ -58,23 +66,6 @@ public class OnlineAlign {
 	    	} catch ( Exception ex ) { ex.printStackTrace(); };
 	    	
 	    }
-	    /*
-	    public boolean isConnected() {
-	    	boolean conn = true;
-	    	try {
-	    		connection = SOAPUrl.openConnection();
-	    		httpConn = (HttpURLConnection) connection;
-	    		httpConn.setDoOutput(true);
-		        httpConn.setDoInput(true);
-
-		         
-		        OutputStream out = httpConn.getOutputStream();
-	    		 
-	    	} catch ( Exception ex ) { conn = false; ex.printStackTrace(); };
-	    	
-            return conn;
-	    }
-	    */
 	    
 	    public String uploadAlign(String alignId) {
 	    	
@@ -88,16 +79,17 @@ public class OnlineAlign {
 				//params.setParameter( "arg1", alignId);
 				
 				uploadFile = alignId;
-				
+				System.out.println("Load file= "+ uploadFile);
 					
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				System.out.println("HOST= "+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
 				System.out.println("Message :"+ message);
 				
 				// Send message
-				answer = sendMessage( message, params );
+				//answer = sendMessage( message, params );
+				answer = sendFile( message, params );
 				
 				System.out.println("Loaded Align="+ answer);
 				
@@ -345,6 +337,68 @@ public class OnlineAlign {
 		return s3 + s2;
 	    }
 	    
+	    public String getRDFAlignment(String alignId) {
+			
+			//retrieve alignment for storing in OWL file
+			
+			 
+			Parameters params = new BasicParameters();
+			params.setParameter( "host", HOST );
+			//params.setParameter( "http", PORT );
+			//params.setParameter( "wsdl", WSDL );
+			params.setParameter( "command","retrieve");
+			params.setParameter( "arg1", alignId);
+			params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
+			
+			String answer=null;
+		     
+			try {
+				// Read parameters
+				//Parameters params = ws.readParameters( aservArgRetrieve );
+				
+				// Create the SOAP message
+				String message = createMessage( params );
+
+				System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
+				System.out.println("Message :" + message);
+				
+				// Send message
+				answer = sendMessage( message, params );
+				if(! connected ) return null; 
+				
+				System.out.println("RDFAlign="+ answer);
+				
+			} catch ( Exception ex ) { ex.printStackTrace();  };
+				 
+				 
+				// Cut SOAP header
+			String []  cutResult = answer.split("result");
+			
+			if(cutResult==null) return null;
+				
+			String str = "";
+			
+			for(int i= 0; i< cutResult.length; i++){
+			  	
+				if(i >= 1 && i <= cutResult.length -2)
+						str = str + cutResult[i];
+			}
+				
+			//System.out.println("OwlAlign STR ="+ str);
+			
+			if(str.equals("")) return null;
+			
+			String str1 = str.substring(1, str.length() - 3);
+				
+				//Add URI to RDF file : rethink !!!
+			String s1 = str1.substring(0, str1.indexOf('>') + 1 );
+			String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
+				
+			 
+				
+			return s2;
+		}
+	    
 	    public String getHTMLAlignment(String alignId) {
 			
 	    	//retrieve alignment for displaying
@@ -412,7 +466,7 @@ public class OnlineAlign {
 				// Send message
 				answer = sendMessage( message, params );
 				 
-				System.out.println("Store Align="+ answer);
+				System.out.println("Stored Align="+ answer);
 				//corrList = getCorresFromAnswer( answer, "tr", "#" );
 		    	
 			}
@@ -503,7 +557,7 @@ public class OnlineAlign {
 		} else if ( cmd.equals("store" ) ) {
 		    SOAPAction = "storeRequest";
 		    String uri = (String)params.getParameter( "arg1" );
-		    if ( uri == null ){
+		    if ( uri == null ) {
 			//usage();
 			//System.exit(-1);
 		    }
@@ -512,22 +566,20 @@ public class OnlineAlign {
 		    String url = (String)params.getParameter( "arg1" );
 		    if ( url == null ){
 			SOAPAction = "loadRequest";
-			//usage();
-			//System.exit(-1);
-			/*
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			//String line;
-			//String content = "";
+			/* 
+			BufferedReader in = new BufferedReader(new FileReader( new File(uploadFile) ));
+			String line;
+			String content = "";
 			while ((line = in.readLine()) != null) {
 			    content += line + "\n";
 			}
 			if (in != null) in.close();
-			System.err.println(content);
 			*/
-			
 			String content = OfflineAlign.fileToString(new File(uploadFile));
 			
-			messageBody = "<content>"+content+"</content>";
+			return  content;
+			
+			//messageBody = "<content>"+content+"</content>";
 		    } else {
 			SOAPAction = "loadfileRequest";
 			messageBody = "<url>"+url+"</url>";
@@ -574,19 +626,20 @@ public class OnlineAlign {
 	    public String sendMessage( String message, Parameters param )   {
 	    	// Create the connection
 	        	 
-	    
-    		
 	        byte[] b = message.getBytes();
 	        
 	        String answer = "";
-	            // Create HTTP Request
+	        // Create HTTP Request
 	        try {
 	        	 
 	    		URLConnection connection = SOAPUrl.openConnection();
 	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
+	        	 
 	            httpConn.setRequestProperty( "Content-Length",
 	                                         String.valueOf( b.length ) );
 	            httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
+	            
+	            
 	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
 	            httpConn.setRequestMethod( "POST" );
 	            httpConn.setDoOutput(true);
@@ -594,10 +647,14 @@ public class OnlineAlign {
 
 	            // Send the request through the connection
 	            OutputStream out = httpConn.getOutputStream();
-	       
-	        	out.write( b );    
+	            
+	            //System.out.println("ResponseMessage= "+httpConn.getResponseMessage());
+	           
+	            out.write( b );
 	        	out.close();
-
+	        	
+	        	System.out.println("Message Length= "+String.valueOf( b.length ));
+	        	
 	            // Read the response and write it to standard output
 	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
 	            BufferedReader in = new BufferedReader(isr);
@@ -607,10 +664,94 @@ public class OnlineAlign {
 	            	answer += line + "\n";
 	            }
 	            if (in != null) in.close();
-	        } catch  (Exception ex) { connected= false; ex.printStackTrace() ; return null;}
+	            
+	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.out.println("Request too long");
+	            
+	            if(httpConn.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
+	        	
+	        } catch  (Exception ex) {
+	        	connected= false; ex.printStackTrace() ; return null;
+	        	}
 	        
 	        connected = true;
 	    	return answer;
 	    }
 	    
+	    public String sendFile( String message, Parameters param )   {
+	    	// Create the connection
+	        	 
+	        byte[] b = message.getBytes();
+	        
+	        String answer = "";
+	        // Create HTTP Request
+	        try {
+	        	 
+	    		URLConnection connection = SOAPUrl.openConnection();
+	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
+	        	
+	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
+	            httpConn.setRequestMethod( "POST" );
+	            httpConn.setDoOutput( true );
+	            httpConn.setDoInput( true );
+	            
+	            // Don't use a cached version of URL connection.
+	            httpConn.setUseCaches ( false );
+	            httpConn.setDefaultUseCaches (false);
+	            
+	            File f = new File(uploadFile);
+				FileInputStream fi = new FileInputStream(f);
+	            // set headers and their values.
+	            httpConn.setRequestProperty("Content-Type",
+	                                         "application/octet-stream");
+	            httpConn.setRequestProperty("Content-Length",
+	                                        Long.toString(f.length()));
+	           
+	            // create file stream and write stream to write file data.
+	            
+	            OutputStream os =  httpConn.getOutputStream();
+		        String str ="";
+	            try
+	            {
+	               // transfer the file in 4K chunks.
+	               byte[] buffer = new byte[4096];
+	               //long byteCnt = 0;
+	               int bytes=0;
+	               while (true)
+	               {
+	                  bytes = fi.read(buffer);
+	                  
+	                  if (bytes < 0)  break;
+	                  
+	                  os.write(buffer, 0, bytes );
+	                  //String st =  new String( buffer );
+					  //str = str + st.substring(0, bytes);
+					  //System.out.println("st="+st.substring(0, bytes));
+	               }
+	               
+	               
+	               os.flush();
+	            } catch (Exception ex) {}
+	            
+	            os.close();
+	            fi.close();
+				System.out.println("Upload Read done.");
+	        	
+	            // Read the response  
+	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+	            BufferedReader in = new BufferedReader(isr);
+	        
+	            String line;
+	            while ((line = in.readLine()) != null) {
+	            	answer += line + "\n";
+	            }
+	            if (in != null) in.close();
+	            
+	        	
+	        } catch  (Exception ex) {
+	        	connected= false; ex.printStackTrace() ; return null;
+	        	}
+	        
+	        connected = true;
+	    	return answer;
+	    }
 }

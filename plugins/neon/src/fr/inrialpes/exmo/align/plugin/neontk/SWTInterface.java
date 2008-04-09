@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.plugin.neontk;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
 //import java.io.FileReader;
 //import java.io.IOException;
 
@@ -37,9 +38,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
+import java.awt.Container;
+import java.awt.Dimension;
+ 
 
+import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.HashMap;
 //import java.io.PrintWriter;
  
 //import javax.swing.*;
@@ -56,6 +64,8 @@ import javax.swing.JOptionPane;
 //import javax.swing.SwingConstants;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+
 
 //import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
@@ -63,15 +73,35 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+//import org.eclipse.core.resources.ResourcesPlugin;
+//import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.runtime.IPath;
  
 //import org.eclipse.core.resources.IProject;
+//import org.semanticweb.kaon2.api.Ontology;
+import org.semanticweb.kaon2.api.KAON2Connection;
+import org.semanticweb.kaon2.api.KAON2Exception;
+//import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
+import com.ontoprise.config.IConfig;
 import com.ontoprise.ontostudio.datamodel.DatamodelPlugin;
+import com.ontoprise.ontostudio.datamodel.DatamodelTypes;
 //import com.ontoprise.ontostudio.gui.navigator.module.ModuleTreeElement;
 import com.ontoprise.ontostudio.io.ImportExportControl;
 //import com.ontoprise.ontostudio.gui.commands.CreateProject;
-import com.ontoprise.ontostudio.gui.navigator.project.ProjectControl;
+import com.ontoprise.ontostudio.gui.commands.project.CreateProject;
+import com.ontoprise.ontostudio.datamodel.exception.ControlException;
+//import com.ontoprise.ontostudio.gui.navigator.project.ProjectControl;
 //import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 //import org.eclipse.core.runtime.IProgressMonitor;
+//import com.ontoprise.ontostudio.owl.datamodel.*;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
+
+import org.semanticweb.owl.align.Cell;
+//import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 public class SWTInterface extends JPanel {
 
@@ -92,49 +122,50 @@ public class SWTInterface extends JPanel {
 	String selectedOnto2 =  null;
 	String selectedAlign =  null;
 	String selectedLocalAlign =  null;
-	String selectedNeOnOnto1 =  null;
-	String selectedNeOnOnto2 =  null;
+	//String selectedNeOnOnto1  =  null;
+	//String selectedNeOnOnto2  =  null;
 	
 	//String[] hostNames = new String[2];
 	//String[] ports = new String[2];
 	//int hostInd, portInd;
 	
-	public static int alignId = 0;
+	
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
-
+	public static String [] forUniqueness = new String[0];
+	public static int alignId = 0;
 	//public static Vector<String> alignProjects = new Vector<String>();
 	
 	//Procalign procalign = null;
 	//Parameters p = new BasicParameters();
-
+	
 	public JComponent phrases, phrases1, Res=null;
     public JTextField fileName1, fileName2, hostField, portField; // threshold// alignProj;
     public SWTInterface frame;
     //public JFileChooser open;
     //public JLabel explain;
     public JPanel pane;
-    public JButton openbutton1, openbutton2, mapButton, resButton, ontoRefresh, allAlignButton,
-    		alignImportButton, localAlignImportButton, alignUploadButton, alignTrimButton, alignFindButton, 
-    		alignStoreButton, connButton, offlineButton, onlineButton, disconnButton ;
-    
+    public JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
+    		alignImportButton, localAlignImportButton, alignUploadButton, 
+    		localAlignTrimButton, serverAlignTrimButton, alignFindButton, 
+    		alignStoreButton, connButton, offlineButton, onlineButton;// disconnButton ;
+    public JDialog dialog; 
     public JPanel pane2;
 	public Component result=null;
 	public JTextArea jan=null;
     JComboBox strategy, renderer, alignBox, localAlignBox, ontoBox1, ontoBox2;
     JLabel strat, render, ontoLabel1, ontoLabel2, alignLabel, localAlignLabel;
-    //boolean autointerations=false, efficients=true;
-    //String aux_tres;
-    public String [] aux = new String[5];
     
     //lists obtained from from server
     public String [] methodList = new String[0];
-    public String [] rendererList = null;
+    
     
     //lists obtained from Neontk
     public String [] ontoList = new String[0];
-    public String [] NeOnOntoList = new String[0];
+    public HashMap<String,String> onto_proj = new HashMap<String,String>(0); 
+    //public String [] NeOnOntoList = new String[0];
     public String [] alignIdList = new String[0];
     public String [] localAlignIdList = new String[0];
+   
     
     public Vector	 corrList = new Vector();
     public String [] aservArgs = null;
@@ -157,10 +188,11 @@ public class SWTInterface extends JPanel {
 	public OfflineAlign  offAlign = null;
 	public File ontoFolder = null;
 	public File alignFolder = null;
+	public static File basicFolder = null;
 	
 	public void offlineInit(boolean init){
 		online = false;
-		offAlign = new OfflineAlign(ontoFolder, alignFolder);
+		offAlign = new OfflineAlign( alignFolder, ontoFolder );
 
 		ontoBox1.setEnabled(true);
 		ontoBox2.setEnabled(true);
@@ -177,10 +209,8 @@ public class SWTInterface extends JPanel {
 		allAlignButton.setEnabled(true);
 		
 		//threshold.setEnabled(true);
-		alignTrimButton.setEnabled(true);
-		
-		//alignProject = alignProj.getText();
-		//alignProj.setEnabled(false);
+		localAlignTrimButton.setEnabled(true);	 
+		serverAlignTrimButton.setEnabled(false);	 
 		
 		alignFindButton.setEnabled(false);
 		
@@ -188,14 +218,11 @@ public class SWTInterface extends JPanel {
 		alignUploadButton.setEnabled(false);
 		
 		alignBox.setEnabled(false);
-		//alignRetrieveButton.setEnabled(false);
+	 
 		alignStoreButton.setEnabled(false);
 		
 		offlineButton.setEnabled(false);
-		disconnButton.setEnabled(false);
-		hostField.setEnabled(false);
-		portField.setEnabled(false);
-		connButton.setEnabled(false);
+		 
 		
 		strategy.removeAllItems();
 		alignBox.removeAllItems();
@@ -204,17 +231,19 @@ public class SWTInterface extends JPanel {
 		ontoBox2.removeAllItems();
 		
 		ontoList = new String[0];
-		NeOnOntoList = new String[0];
+		onto_proj = new HashMap<String,String>(0); 
+		//NeOnOntoList = new String[0];
 		alignIdList = new String[0];
 		//localAlignIdList = new String[0];
 		
 		selectedOnto1 =  null;
 		selectedOnto2 =  null;
 		selectedAlign =  null;
-		selectedNeOnOnto1 =  null;
-		selectedNeOnOnto2 =  null;
+		//selectedNeOnOnto1 =  null;
+		//selectedNeOnOnto2 =  null;
 		
-		methodList = new String[9];
+		//methodList = new String[9];
+		methodList = new String[8];
 		methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
 		strategy.addItem(methodList[0]);
 		methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
@@ -231,8 +260,8 @@ public class SWTInterface extends JPanel {
 		strategy.addItem(methodList[6]);
 		methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
 		strategy.addItem(methodList[7]);
-		methodList[8] = "fr.inrialpes.exmo.align.ling.JWNLAlignment";
-		strategy.addItem(methodList[8]);
+		//methodList[8] = "fr.inrialpes.exmo.align.ling.JWNLAlignment";
+		//strategy.addItem(methodList[8]);
 		
 		if(init) offAlign.getAllAlignFromFiles();
 		
@@ -240,10 +269,14 @@ public class SWTInterface extends JPanel {
 		if(list!=null) {
 			localAlignIdList = new String[list.length];
 			localAlignBox.removeAllItems();
-				
+			
+			forUniqueness = new String[list.length]; 
+			       
 			for(int i=0; i< list.length; i++){
 				localAlignIdList[i]= list[i];
 				localAlignBox.addItem(list[i]);
+				File f = new File(list[i]);
+				forUniqueness[i] = f.getName();
 			}
 
 			if(localAlignIdList.length > 0) { 
@@ -254,14 +287,41 @@ public class SWTInterface extends JPanel {
 		//for(int i=0; i < localAlignIdList.length; i++)  localAlignBox.addItem(i);
 	}
 	
+	public static int getNewAlignId() {
+	   
+	   boolean found = false;
+	   alignId++;
+	   while(!found) {
+		   
+		   boolean sw = false;
+		   for(int i=0;i< forUniqueness.length; i++) 
+			   if(forUniqueness[i].equals((new Integer(alignId)).toString())) {
+				   alignId++;
+				   sw = true;
+				   break;
+			   }
+	   
+		   if(!sw) found = true;
+		   
+	   }
+		   
+	   return alignId;
+	}
 	
     public void initialize() {
 
 	//selectedHost = "aserv.inrialpes.fr";
 	//selectedPort = "8089";
-    ontoFolder = new File("onto");
+    
+    IWorkspaceRoot root =  org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot();
+    IPath location = root.getLocation();
+    String  path = location.toOSString();
+    
+    ontoFolder = new File(path + location.SEPARATOR + "onto");
+    
     if (!ontoFolder.exists()) ontoFolder.mkdir();
-    alignFolder = new File("align");
+    basicFolder = new File(path + location.SEPARATOR );
+    alignFolder = new File(path + location.SEPARATOR + "align");
     if (!alignFolder.exists()) alignFolder.mkdir();
     
     //System.out.println("alignFolder=" + alignFolder.getAbsolutePath());
@@ -270,11 +330,8 @@ public class SWTInterface extends JPanel {
     offlineButton.addActionListener(new ActionListener(){
     public void actionPerformed(ActionEvent e) {
     		if (e.getSource() == offlineButton) {
-    			
-    			offlineInit(false);
-				 
+    			offlineInit(false);	 
     		}
-    	
         };
     	});
     	
@@ -284,190 +341,68 @@ public class SWTInterface extends JPanel {
     		if (e.getSource() == onlineButton) {
     			online = true;
     			
-    			//alignProject = alignProj.getText();
-				//alignProj.setEnabled(false);
-				
-				offlineButton.setEnabled(true);
-				hostField.setEnabled(true);
-				portField.setEnabled(true);
-				connButton.setEnabled(true);
-				
-				onlineButton.setEnabled(false);
-				disconnButton.setEnabled(false);
-				ontoBox1.setEnabled(false);
-				ontoBox2.setEnabled(false);
-				alignBox.setEnabled(false);
-				localAlignBox.setEnabled(false);
-				alignImportButton.setEnabled(false);
-				localAlignImportButton.setEnabled(false);
-				alignUploadButton.setEnabled(false);
-				allAlignButton.setEnabled(false);
-				alignFindButton.setEnabled(false);
-				//threshold.setEnabled(false);
-				
-				alignTrimButton.setEnabled(false);
-				//alignRetrieveButton.setEnabled(false);
-				alignStoreButton.setEnabled(false);
-				
-				ontoRefresh.setEnabled(false);
-				//openbutton1.setEnabled(false);
-				//openbutton2.setEnabled(false);
-				
-				mapButton.setEnabled(false);
-				strategy.removeAllItems();
-				alignBox.removeAllItems();
-				ontoBox1.removeAllItems();
-				ontoBox2.removeAllItems();
-				ontoList = new String[0];
-				NeOnOntoList = new String[0];
-				alignIdList = new String[0];
-				methodList = new String[0];
-				
-				selectedOnto1 =  null;
-				selectedOnto2 =  null;
-				selectedAlign =  null;
-				selectedNeOnOnto1 =  null;
-				selectedNeOnOnto2 =  null;
-				
-				//alignObjects.clear();
-				//alignProjects = new Vector<String>();
-				
-    		}
-    	
-        };
-    	});
-    	
-    disconnButton = new JButton("Disconnect",null);
-    disconnButton.setEnabled(false);
-    disconnButton.addActionListener(new ActionListener(){
-    public void actionPerformed(ActionEvent e) {
-    		if (e.getSource() == disconnButton) {
     			
-    			offlineButton.setEnabled(true);
-    			onlineButton.setEnabled(true);
-    			
-    			online = false;
-    			ontoBox1.setEnabled(false);
-				ontoBox2.setEnabled(false);
-				ontoRefresh.setEnabled(false);
-				alignBox.setEnabled(false);
-				alignImportButton.setEnabled(false);
+				JOptionPane pane = new JOptionPane();
+				dialog = pane.createDialog(null, "Input for connection");
+				dialog.setSize(new Dimension(300,120));
 				
-				localAlignImportButton.setEnabled(false);
-				alignUploadButton.setEnabled(false);
-				
-				alignFindButton.setEnabled(false);
-				
-				alignTrimButton.setEnabled(false);
-				//alignRetrieveButton.setEnabled(false);
-				allAlignButton.setEnabled(false);
-				alignStoreButton.setEnabled(false);
-				
-    			//openbutton1.setEnabled(false);
-				//openbutton2.setEnabled(false);
-				strategy.setEnabled(false);
-				mapButton.setEnabled(false);
-				disconnButton.setEnabled(false);
-				hostField.setEnabled(false);
-				portField.setEnabled(false);
-				connButton.setEnabled(false);
-				//threshold.setEnabled(false);
-				
-				strategy.removeAllItems();
-				alignBox.removeAllItems();
-				localAlignBox.removeAllItems();
-				ontoBox1.removeAllItems();
-				ontoBox2.removeAllItems();
-				
-				ontoList = new String[0];
-				NeOnOntoList = new String[0];
-				alignIdList = new String[0];
-				localAlignIdList = new String[0];
-				methodList = new String[0];
+				Container cont = dialog.getContentPane();
+				Component[] comps = cont.getComponents();
+				for(int i=0;i< comps.length ;i++) { cont.remove(comps[i]);}
 				
 				 
-				selectedOnto1 =  null;
-				selectedOnto2 =  null;
-				selectedAlign =  null;
-				selectedNeOnOnto1 =  null;
-				selectedNeOnOnto2 =  null;
+				cont.add(connButton);
+				cont.add(cancelButton);
+				
+				JPanel jPane = new JPanel (new GridLayout (3, 2, 20, 10));
+				      
+			    jPane.add(hostName); jPane.add(hostField);
+			    jPane.add(portName); jPane.add(portField);
+			    jPane.add(connButton); 	 
+			    jPane.add(cancelButton);
+			     
+				dialog.setContentPane(jPane);
+				dialog.show();
+				
 				
     		}
     	
         };
     	});
     	
+    
+    
 	selectedHost = defaultHost;
 	hostName = new JLabel( "Host name" );
 	hostField = new JTextField( defaultHost, 15 );
-	hostField.setEnabled(false);
+	hostField.setEnabled(true);
 	hostField.setEditable( true );
-	
-	/*
-	hostList.setMaximumRowCount(20);
-	hostList.addItemListener(new ItemListener() {
-	public void itemStateChanged(ItemEvent event)
-	{
-	  if (event.getStateChange()==ItemEvent.SELECTED)
-		hostInd  = hostList.getSelectedIndex();
-	    selectedHost = hostNames[hostInd];	   
-	    
-	}
-	});
-	*/
 	
 	selectedPort = defaultPort;
 	portName = new JLabel( "Port" );
 	portField = new JTextField( defaultPort, 4 );
-	portField.setEnabled(false);
+	portField.setEnabled(true);
 	portField.setEditable( true );
 	
-	/*
-	portList = new JComboBox( ports );
-	portList.setEnabled(false);
-	portList.setEditable( true );
-	portList.setMaximumRowCount(20);
-	portList.addItemListener(new ItemListener() {
-	public void itemStateChanged(ItemEvent event) {
-	  if (event.getStateChange()==ItemEvent.SELECTED)
-		portInd  = portList.getSelectedIndex();
-	    selectedPort = ports[portInd];	 
-	     
-	}
-	});
-	*/
-	
-	//thresLabel = new JLabel("Threshold");
-	//threshold = new JTextField("1.0", 4);
-	//threshold.setEnabled(false);
-	//threshold.setEditable( true );
-	
-	//alignProjLabel = new JLabel("Alignment project name ");
-	//alignProj = new JTextField(alignProject, 10);
-	//alignProj.setEnabled(true);
-	//alignProj.setEditable( true );
-	
 	connButton = new JButton("Connect",null);
-	connButton.setEnabled(false);
+	connButton.setEnabled(true);
+
 	connButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
         		if (e.getSource() == connButton) {
         			
         			// for connecting to server
+        			
         			selectedHost = hostField.getText();
     				selectedPort = portField.getText();
     				onAlign = new OnlineAlign(selectedPort, selectedHost);
-    				
-    				/*
-        			if(! onAlign.isConnected() ) 
-        				JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
-        			else {
-        			*/	
+    			 
         			String mt = onAlign.getMethods();
-        			if(mt == null) 
+        			if(mt == null) { 
 				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
-				    else {  
-				    	    			
+        			    return;
+        			}
+				   		
         			String[] list = getResultsFromAnswer( mt, "method", null ); //"." 
         		 
         			methodList = new String[list.length];
@@ -475,18 +410,17 @@ public class SWTInterface extends JPanel {
         							
         			for(int i=0; i< list.length; i++){
         			 
-        				methodList[i]= list[i];//"fr.inrialpes.exmo.align.impl.method." + list[i];
+        				methodList[i]= list[i]; 
         				strategy.addItem(list[i]);					
         			}	
         			
-        			//openbutton1.setEnabled(true);
-        			//openbutton2.setEnabled(true);
+        			 
         			ontoBox1.setEnabled(true);
         			ontoBox2.setEnabled(true);
         			strategy.setEnabled(true);
         			ontoRefresh.setEnabled(true);
         			mapButton.setEnabled(true);
-        			disconnButton.setEnabled(true);
+        			 
         			alignBox.setEnabled(true);
         			localAlignBox.setEnabled(true);
     				alignImportButton.setEnabled(true);
@@ -495,23 +429,44 @@ public class SWTInterface extends JPanel {
     				alignFindButton.setEnabled(true);
     				allAlignButton.setEnabled(true);
     				
-    				alignTrimButton.setEnabled(true);
-    				//threshold.setEnabled(true);
-    				//alignRetrieveButton.setEnabled(true);
     				alignStoreButton.setEnabled(true);
         			
-        			hostField.setEnabled(false);
-        			portField.setEnabled(false);
+    				offlineButton.setEnabled(true);
+    				onlineButton.setEnabled(false);
+    						 
+    				serverAlignTrimButton.setEnabled(true);
+    				localAlignTrimButton.setEnabled(true);
+    			 
+    				alignStoreButton.setEnabled(true);
+    				
+    				ontoRefresh.setEnabled(true);
+    				 
+    				mapButton.setEnabled(true);
+    				strategy.setEnabled(true);
+    				
+    				online = true;
+    				
+        			dialog.dispose();			
         			
-        			connButton.setEnabled(false);
-        						
-				    }//connect
-            	}
-			
+				    } 
+            	
 		};
         });
 	
-	alignLabel  = new JLabel("Alignments from server");
+
+	cancelButton = new JButton("Cancel",null);
+	cancelButton.setEnabled(true);
+	cancelButton.addActionListener(new ActionListener(){
+	    public void actionPerformed(ActionEvent e) {
+	    		if (e.getSource() == cancelButton) {
+	    			//System.out.println("Cancel");
+	    			dialog.dispose();
+	    			
+	    		}
+	    };
+	    });
+	
+	alignLabel  = new JLabel("Server alignments");
 	alignBox    = new JComboBox(alignIdList);
 	alignBox.setEnabled(false);
 	alignBox  = new JComboBox(alignIdList);
@@ -531,10 +486,10 @@ public class SWTInterface extends JPanel {
 		}
 	});
     
-    localAlignLabel  = new JLabel("Local alignments");
+    localAlignLabel  = new JLabel("Local alignments  ");
 	localAlignBox    = new JComboBox(localAlignIdList);
 	localAlignBox.setEnabled(false);
-	localAlignBox  = new JComboBox(localAlignIdList);
+	localAlignBox    = new JComboBox(localAlignIdList);
     localAlignBox.setEnabled(false);
     
     localAlignBox.setMaximumRowCount(20);
@@ -556,42 +511,74 @@ public class SWTInterface extends JPanel {
 	localAlignImportButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
         		if (e.getSource() == localAlignImportButton) {
-        			if(selectedLocalAlign == null) 
-				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
+        			if(selectedLocalAlign == null) {
+				    		JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
+				    		return;
+        			}
 				        
-	        				File fn = new File(selectedLocalAlign + ".owl");
-	        				//System.out.println("file name off to export :"+ fn.getName());
-	        				String inputName=null;
+	        		File fn = new File(selectedLocalAlign + ".owl");
+	        		
+	        		//System.out.println("Filename off to export :"+ fn.getAbsolutePath());
+	        		
+	        		corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
+					
+					System.out.println("corrList Size="+corrList.size());
+							
+					pane2.removeAll();
+					for(int i=0;i< corrList.size();i++) {
+								
+									String[] li= (String [])corrList.get(i); 
+									String n = "";
+									for(int j=0;j<li.length;j++) 
+									{ 
+										String sep = "";
+										if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
+								
+										if (li[j]!=null)
+											n = n + sep+ li[j];
+									}
+								
+									System.out.println("line= "+ n);
+									JTextArea header1= new JTextArea(n);
+								
+									pane2.add(header1);
+					}
+	        		
+	        		String inputName=null;
 	        				
 	        				try {
 	        					
-	        					do {
-	        						inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
-	        					}
-	        					while (inputName==null || inputName.equals(""));
+	        					
+	        					inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
+	        					
+	        					if (inputName==null || inputName.equals("")) return;
 	    						
 	    						String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 	    	    				if(projects!=null) {
-	    	    				boolean found = false;	
+	    	    					boolean found = false;	
 	    	    				
-	    	    				for(int i=0; i < projects.length; i++) {
+	    	    					for(int i=0; i < projects.length; i++) {
 	    	    					 
-	    	    					if(projects[i].equals(inputName)) { 
+	    	    						if(projects[i].equals(inputName)) { 
 	    	    						found = true;break;
+	    	    						}
 	    	    					}
-	    	    				}
 	    	    				
-	    	    				if(!found)
-	    	    					ProjectControl.getDefault().createNewOntologyProject(inputName, new String[0]);
-	    	    			    }
+	    	    					if(!found) {
+	    	    						Properties proper = new Properties();
+	    	    						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+	    	    						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+	            				
+	    	    					// ProjectControl.getDefault().createNewOntologyProject(inputName, new String[0]);
+	    	    					}
 	    					 
 	    	    				ImportExportControl ieControl = new ImportExportControl();	
 	    	    				
-	    	    				String[] importedModules = ieControl.importFileSystem(inputName, fn.getAbsolutePath(), null, null);
-	    	    				ieControl.addOntologies2Project(importedModules, inputName);
+	    	    				ieControl.importFileSystem(inputName, "file:"+ fn.getAbsolutePath(), null);
+	    	    				//ieControl.addOntologies2Project(importedModules, inputName);
+	    	    				}
 	        				}
 							catch ( Exception ex ) { ex.printStackTrace();};
-	        			
 	        			
 					    }//choose an align
 				    	
@@ -631,29 +618,105 @@ public class SWTInterface extends JPanel {
 		public void actionPerformed(ActionEvent e) {
         		if (e.getSource() == alignImportButton) {
         			
-				    //the name is originated from the server with slash
-				    String []  sali = selectedAlign.split("/");
-					String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
-					
-        			if(online) {
-        				
-        			if(selectedAlign == null) 
-    				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
-    				else {      
-        				
-        			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
-        			 
-					if(owlalignStr==null)  JOptionPane.showMessageDialog(null, "Alignment can not be exported.","Warning",2);
-					else {
-					
+        			if(selectedAlign == null) { 
+				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
+    					return;
+        			}
+				    //the name originated from the server is a URL so slashes are used 
+				    //String []  sali = selectedAlign.split("/");
+        			//String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
+        		 
+        			FileWriter out = null;
+					 
 					String inputName = null;
-					  //Store it
-					FileWriter out = null;
+					
+				
+					//export to local List
+					String rdfalignStr = onAlign.getRDFAlignment( selectedAlign );
+					String alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
+					
+					String rdfPath =  alignKey + ".rdf";
+					
 					try {
-						do {
-								inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
+						
+						File rdfFile = new File( rdfPath );
+						out = new FileWriter( rdfFile );
+						out.write( rdfalignStr );
+						//out.write( answer );
+						out.close();
+						File file = new File(rdfPath);
+						AlignmentParser ap = new AlignmentParser(1);
+						Alignment align = ap.parse(file.toURI().toString());
+						
+						SWTInterface.alignmentTable.put( alignKey , (Alignment)align );
+					
+						String[] list  = offAlign.getAllAlign( );
+						
+						if(list!=null) {
+							localAlignIdList = new String[1];
+							localAlignBox.removeAllItems();
+							
+							for(int i=0; i< list.length; i++){
+							if(list[i].equals(alignKey)) {
+								localAlignIdList[0]= list[i];
+								localAlignBox.addItem(list[i]);
+								break;
+							}
 						}
-						while (inputName==null || inputName.equals(""));
+			
+						if(localAlignIdList.length > 0) { 
+							selectedLocalAlign = localAlignIdList[0];
+						}
+						}
+						
+						System.out.println("saved local align. ");
+						
+						corrList = getCorresFromAnswer(  align  );
+						
+						System.out.println("corrList Size="+corrList.size());
+								
+						pane2.removeAll();
+						for(int i=0;i< corrList.size();i++) {
+									
+										String[] li= (String [])corrList.get(i); 
+										String n = "";
+										for(int j=0;j<li.length;j++) 
+										{ 
+											String sep = "";
+											if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
+									
+											if (li[j]!=null)
+												n = n + sep+ li[j];
+										}
+									
+										System.out.println("line= "+ n);
+										JTextArea header1= new JTextArea(n);
+									
+										pane2.add(header1);
+						}
+						
+					}
+					catch ( Exception ex ) { ex.printStackTrace();};
+			
+					//get align from server, then  export it as owl onto
+					String owlPath =  ontoFolder.getAbsolutePath() + File.separator + getNewAlignId() + ".owl";
+        				
+					
+        			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
+        			
+						
+					if(owlalignStr==null)  {
+						JOptionPane.showMessageDialog(null, "Alignment cannot be exported.","Warning",2);
+						return;
+					}
+					
+							
+					try {
+						 
+						
+						inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
+    					
+    					if (inputName==null || inputName.equals("")) return;
                                 
 						String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 	    				if(projects!=null) {
@@ -664,31 +727,31 @@ public class SWTInterface extends JPanel {
 	    					if(projects[i].equals(inputName)) { 
 	    						found = true;break;
 	    					}
-	    				
 	    				}
 	    				
-	    				if(!found)
-	    					ProjectControl.getDefault().createNewOntologyProject(inputName, new String[0]);
+	    				if(!found) {
+	    					 
+	    					Properties proper = new Properties();
+    						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+    						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+	    				}
 	    			    }
 				 
-						File owlFile = new File( uniqueId + ".owl");
+						File owlFile = new File( owlPath );
 						out = new FileWriter( owlFile );
 						out.write( owlalignStr );
 							//out.write( answer );
 						out.close();
-							
-							//Redo : Have to create a list of imported alig. ontos
-							//System.out.println("file name on to export :"+ uniqueId + ".owl");
-						ImportExportControl ieControl = new ImportExportControl();	
-						String[] importedModules = ieControl.importFileSystem(inputName, uniqueId + ".owl", null, null);
-						ieControl.addOntologies2Project(importedModules, inputName);
+						try {
+							ImportExportControl ieControl = new ImportExportControl();
+							String[] importedModules = ieControl.importFileSystem(inputName, "file:" + owlPath,  null);
+					
+						//ieControl.addOntologies2Project(importedModules, inputName);
+						} catch (  ControlException ex ) { }
 							 
-					}
-					catch ( Exception ex ) { ex.printStackTrace();};
-					}
-					}
-        			}
-        			 
+					} 
+					catch ( Exception ex ) { ex.printStackTrace();}
+					 
         		}
 		};
         });
@@ -703,15 +766,17 @@ public class SWTInterface extends JPanel {
         			//onAlign = new OnlineAlign(selectedPort, selectedHost);
         			if(online) {
         				String aa = onAlign.getAllAlign();
-        				if(aa == null) 
+        				if(aa == null) {
         					JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
-        				else {  
-        					String[] list = getResultsFromAnswer( aa , "alid", null ); 
+        					return;
+        				}
+        				   
+        			String[] list = getResultsFromAnswer( aa , "alid", null ); 
         			
-        					alignIdList = new String[list.length];
-        					alignBox.removeAllItems();
+        			alignIdList = new String[list.length];
+        			alignBox.removeAllItems();
         							
-        					for(int i=0; i< list.length; i++){
+        			for(int i=0; i< list.length; i++){
         						alignIdList[i]= list[i];
         						alignBox.addItem(list[i]);
         					}
@@ -720,7 +785,23 @@ public class SWTInterface extends JPanel {
         						selectedAlign = alignIdList[0];
         					}
         			
-        				}
+        				
+        				
+        			String[] list1  = offAlign.getAllAlign( );
+        			if(list1!=null) {
+        					localAlignIdList = new String[list1.length];
+    						localAlignBox.removeAllItems();
+    							
+    						for(int i=0; i< list1.length; i++){
+    							localAlignIdList[i]= list1[i];
+    							localAlignBox.addItem(list1[i]);
+    						}
+    			
+    						if(localAlignIdList.length > 0) { 
+    							selectedLocalAlign = localAlignIdList[0];
+    						}
+        			}
+        			
         			} 
         			else { //offline
         				String[] list  = offAlign.getAllAlign( );
@@ -750,7 +831,7 @@ public class SWTInterface extends JPanel {
         			
         			// for connecting to server
         			//onAlign = new OnlineAlign(selectedPort, selectedHost);
-        			if(selectedNeOnOnto1 == null || selectedNeOnOnto2 == null ) 
+        			if(selectedOnto1 == null || selectedOnto2 == null ) 
 					    	JOptionPane.showMessageDialog(null, "Choose two ontologies from lists!","Warning",2);
 					else {      
 					
@@ -779,22 +860,22 @@ public class SWTInterface extends JPanel {
 		};
         });
 	
-	alignTrimButton = new JButton("Trim an alignment", null);
-	alignTrimButton.setEnabled(false);
-	alignTrimButton.addActionListener(new ActionListener(){
+	serverAlignTrimButton = new JButton("Trim", null);
+	serverAlignTrimButton.setEnabled(false);
+	serverAlignTrimButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
-        		if (e.getSource() == alignTrimButton) {
+        		if (e.getSource() == serverAlignTrimButton) {
         			
-    				if(online) {
+    			 
     						//onAlign = new OnlineAlign(selectedPort, selectedHost);
     					if(selectedAlign == null ) 
     				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
         				else {	   
         					String thres = null;
-        					do {
-        						thres = JOptionPane.showInputDialog(null, "Enter a threshold ", "0.5");
-        					}
-        					while (thres==null || thres.equals(""));
+        					 
+        					thres = JOptionPane.showInputDialog(null, "Enter a threshold ", "0.5");
+        					
+        					if (thres==null || thres.equals("")) return;
         					
     						String at = onAlign.trimAlign(selectedAlign, thres);
     						
@@ -816,16 +897,25 @@ public class SWTInterface extends JPanel {
         					}
     						}
         				}
-    				}
-    				else { //offline
+    				
+        		}
+		};
+        });
+	
+	localAlignTrimButton = new JButton("Trim", null);
+	localAlignTrimButton.setEnabled(false);
+	localAlignTrimButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e) {
+        		if (e.getSource() == localAlignTrimButton) {
+        			
     					if(selectedLocalAlign == null ) 
     				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
         				else {
-        					String thres = null;
-        					do {
-        						thres = JOptionPane.showInputDialog(null, "Enter a threshold ", "0.5");
-        					}
-        					while (thres==null || thres.equals(""));
+        					 
+        					 
+        					String thres = JOptionPane.showInputDialog(null, "Enter a threshold ", "0.5");
+        					 
+        					if (thres==null || thres.equals("")) return;
         					
     						String resId  = offAlign.trimAndExportAlign( new Double(thres), selectedLocalAlign );
     						
@@ -838,13 +928,13 @@ public class SWTInterface extends JPanel {
     	        			 
     	        			selectedLocalAlign = localAlignIdList[0];
     					}
-            	}
+            	 
         		}
 		};
-        });
+    });
 	
 	//store an alignment on server or locally
-	alignStoreButton = new JButton("Store an alignment in the server", null);
+	alignStoreButton = new JButton("Store", null);
 	alignStoreButton.setEnabled(false);
 	alignStoreButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
@@ -872,7 +962,7 @@ public class SWTInterface extends JPanel {
 		public void actionPerformed(ActionEvent e) {
         		if (e.getSource() == ontoRefresh) {
             			 
-			    refreshOntoList();
+			    onto_proj = refreshOntoList();
             	
 			}
 		};
@@ -884,16 +974,24 @@ public class SWTInterface extends JPanel {
 	mapButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
 		   if (e.getSource() == mapButton) {
-		       if (selectedNeOnOnto1 == null  || selectedNeOnOnto2 == null )
-		       		{JOptionPane.showMessageDialog(null, "Choose two ontologies from lists ","Warning",2);
-		       		}
-			   else {
-				   
-				  if(online) {
-					  
+		       if (selectedOnto1 == null  || selectedOnto2 == null ) {
+		       		JOptionPane.showMessageDialog(null, "Choose two ontologies from lists ","Warning",2);
+		       		return;
+		       }
+		       
+			   
+			   if(online) {
+				   		if (!selectedOnto1.startsWith("http://") || !selectedOnto2.startsWith("http://") ) {
+				   			JOptionPane.showMessageDialog(null, "URLs for ontologies are required.  ","Warning",2);
+				   			return;
+				   		}
+				   		
 					    String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
-						if(answer==null)  JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
-						else {
+						if(answer==null)  {
+							JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
+							return;
+						}
+						
 						
 						alignIdList = getResultsFromAnswer( answer, "alid", null );
 						if(alignIdList==null || alignIdList[0].equals("null"))  JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
@@ -911,85 +1009,35 @@ public class SWTInterface extends JPanel {
 		        			}
 						}
 						
-						//retrieve alignment for displaying
-						String res = onAlign.getHTMLAlignment( alignIdList[0] );
-						corrList = getCorresFromAnswer( res, "tr", null ); //"#"	
-								
-						System.out.println("corrList Size="+corrList.size());
-								
-						pane2.removeAll();
-						for(int i=0;i< corrList.size();i++) {
-									
-										String[] li= (String [])corrList.get(i); 
-										String n = "";
-										for(int j=0;j<li.length;j++) 
-										{ 
-											String sep = "";
-											if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
-									
-											if (li[j]!=null)
-												n = n + sep+ li[j];
-										}
-									
-										System.out.println("line= "+ n);
-										JTextArea header1= new JTextArea(n);
-									
-										pane2.add(header1);
-								}
-					}
+						 
+					
 				  }
 				  else { //offline
 						
-					String resId  = offAlign.matchAndExportAlign( matchMethod, selectedNeOnOnto1, selectedNeOnOnto2);
+					String resId  = offAlign.matchAndExportAlign( matchMethod, onto_proj.get(selectedOnto1), selectedOnto1, onto_proj.get(selectedOnto2), selectedOnto2);
 					
 					localAlignBox.removeAllItems();
 					localAlignIdList = new String[1];
 					
 					//File f1 = new File(resId);
-					localAlignIdList[0] = resId;//"file:" + f1.getAbsolutePath();
+					localAlignIdList[0] =  resId;//"file:" + f1.getAbsolutePath();
 					  
         			localAlignBox.addItem(localAlignIdList[0]);
         			 
         			selectedLocalAlign = localAlignIdList[0];
-        		    
-        			String htmlString = OfflineAlign.fileToString(new File ( resId + ".html"));
-        			  
-        		  	System.out.println("htmlString =" + htmlString);
         			
-					corrList = getCorresFromAnswer( htmlString, "tr", null );
-					  
-					System.out.println("corrList Size="+corrList.size());
-					  
-					pane2.removeAll();
-					  
-					for(int i=0;i< corrList.size();i++) {
-								String[] li= (String [])corrList.get(i); 
-								String n = "";
-								for(int j=0;j<li.length;j++) 
-								{ 
-									String sep = "";
-									if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
-							
-									if (li[j]!=null)
-										n = n + sep+ li[j];
-								}
-							
-								System.out.println("line= ="+ n);
-								JTextArea header1= new JTextArea(n);
-							
-								pane2.add(header1);
-						}
-					
-					 
+        			System.out.println("offline matching done. ");
+        		    
+        			 
 				   } //else for ""offline"
-			       }
-		  }
+			       } // getsource
+		    
 		};
 	});
 	
     //retrieve all available onto. in Ontology Navigator
     
-    ontoLabel1 = new JLabel("Ontology 1 :");
+    ontoLabel1 = new JLabel("Ontology 1           ");
     ontoBox1  = new JComboBox(ontoList);
     ontoBox1.setEnabled(false);
     ontoBox1.setMaximumRowCount(20);
@@ -1001,14 +1049,14 @@ public class SWTInterface extends JPanel {
 			id = ontoBox1.getSelectedIndex();
 		    
 		    selectedOnto1 =  ontoList[id];
-		    selectedNeOnOnto1 =  NeOnOntoList[id];
+		    //selectedNeOnOnto1 =  NeOnOntoList[id];
 		    
 		   
 		    System.out.println("Onto1 selected =" + selectedOnto1);
 		}
 	});
     
-    ontoLabel2 = new JLabel("Ontology 2 :");
+    ontoLabel2 = new JLabel("Ontology 2           ");
     ontoBox2  = new JComboBox(ontoList);
     ontoBox2.setEnabled(false);
     ontoBox2.setMaximumRowCount(20);
@@ -1020,7 +1068,7 @@ public class SWTInterface extends JPanel {
 			id = ontoBox2.getSelectedIndex();
 		    
 		    selectedOnto2 =  ontoList[id];
-		    selectedNeOnOnto2 =  NeOnOntoList[id];
+		    //selectedNeOnOnto2 =  NeOnOntoList[id];
 		    
 		   
 		    System.out.println("Onto2 selected =" + selectedOnto2);
@@ -1028,7 +1076,7 @@ public class SWTInterface extends JPanel {
 	});
     
     
-	strat= new JLabel("Alignment methods");
+	strat= new JLabel("Methods               ");
 	strategy = new JComboBox(methodList);
 	strategy.setEnabled(false);
 	strategy.setMaximumRowCount(20);
@@ -1039,9 +1087,9 @@ public class SWTInterface extends JPanel {
 			ind = strategy.getSelectedIndex();
 		    
 		    matchMethod =  methodList[ind];
-		    aux[2] =  methodList[ind];
+		    //aux[2] =  methodList[ind];
 		   
-		    System.out.println("method selected ="+aux[2]);
+		    System.out.println("method selected =" + matchMethod);
 		}
 	});
 	
@@ -1096,20 +1144,7 @@ private JPanel createPhraseList () {
 
 	minusLabel.add(onlineButton);
 	minusLabel.add(offlineButton);
-	//minusLabel.add(alignProjLabel);
-	//minusLabel.add(alignProj);
-	
-	zeroLabel.add(hostName);
-	
-	zeroLabel.add(hostField);
-	zeroLabel.add(portName);
-	zeroLabel.add(portField);
-	
-	zeroLabel.add(connButton);
-	zeroLabel.add(disconnButton);
-	
-	//oneLabel.add(openbutton1);
-	//oneLabel.add(fileName1);
+	 
 	oneLabel.add(ontoLabel1);
 	oneLabel.add(ontoBox1);
 
@@ -1127,25 +1162,25 @@ private JPanel createPhraseList () {
 	fourLabel.add(alignLabel);
 	fourLabel.add(alignBox);
 	fourLabel.add(alignImportButton);
+	fourLabel.add(serverAlignTrimButton);
+	fourLabel.add(alignStoreButton);
 	
 	four2Label.add(localAlignLabel);
 	four2Label.add(localAlignBox);
 	four2Label.add(localAlignImportButton);
+	four2Label.add(localAlignTrimButton);
 	four2Label.add(alignUploadButton);
 	
-	//sixLabel.add(thresLabel);
-	//sixLabel.add(threshold);
-	sixLabel.add(alignTrimButton);
-	
+	 
 	fiveLabel.add(alignFindButton);
 	//sevenLabel.add(alignRetrieveButton);
-	eightLabel.add(alignStoreButton);
+	//eightLabel.add(alignStoreButton);
 	nineLabel.add(allAlignButton);
 	
 	
 	//label_three.add(resButton);
 	phrasePane.add(minusLabel);
- 	phrasePane.add(zeroLabel);
+ 	//phrasePane.add(zeroLabel);
 	
  	phrasePane.add(oneLabel);
 	phrasePane.add(twoLabel);
@@ -1154,11 +1189,10 @@ private JPanel createPhraseList () {
 	phrasePane.add(four2Label);
 	phrasePane.add(nineLabel);
 	
-	phrasePane.add(sixLabel);
+	//phrasePane.add(sixLabel);
 	
 	phrasePane.add(fiveLabel);
-	//phrasePane.add(sevenLabel);
-	phrasePane.add(eightLabel);
+	
 	
 	
     return phrasePane;
@@ -1167,8 +1201,8 @@ private JPanel createPhraseList () {
  
 
 public void createThirdPane(){
-Res = createListCharac();
-Res.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
+	Res = createListCharac();
+	Res.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
 }
 
 private JPanel createListCharac () {
@@ -1177,69 +1211,65 @@ return pane2;
 
 }
 
-
-private void refreshOntoList() {
+//This function fetches all ontologies
+private HashMap<String,String> refreshOntoList() {
 	
-	Vector<String> vec = new Vector<String>();
+	HashMap<String,String>  vec = new HashMap<String,String>();
 	
 	try {
 		
 		String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+		if(projects != null) {
 		for(int i=0; i < projects.length; i++) {
 			//for(int j=0; j < alignProjects.size(); j++) {
 			//	if( ! projects[i].equals( alignProjects.get(j)) ) {
-					NeOnOntoList = DatamodelPlugin.getDefault().getProjectOntologies(projects[i]);
-					for(int k=0; k < NeOnOntoList.length; k++) {
-						//System.out.printf("Project Onto = " + NeOnOntoList[j] );
-						vec.add(NeOnOntoList[k]);
+					if(projects[i]!=null) { System.out.printf("Project Onto "+ i +" = " + projects[i] );
+					 
+					//URI[] uris=  DatamodelPlugin.getDefault().getProjectOntologyFiles(projects[i]);
+					KAON2Connection connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
+					Set<String> strSet = connection.getAvailableOntologyURIs();
+					String[] uris = (String[])strSet.toArray(new String[0]);
+					
+					for(int k=0; k < uris.length; k++) {
+						
+						System.out.printf(" Onto file = " +  uris[k]);
+						 
+						vec.put(uris[k],projects[i]);
+						//NeOnOntoList = DatamodelPlugin.getDefault().getProjectOntologies(projects[i]); 
+					}
 					}
 				//}
 			//}
 		}
-		 
+		} 
+		else {
+			System.out.printf("No Ontology Project !" );
+			return null;
+		}
 	} catch ( Exception ex ) { ex.printStackTrace();};
 	
 	ontoBox1.removeAllItems();
 	ontoBox2.removeAllItems();
 	
-	ontoList = new String[ vec.size() ];
-	for(int j=0; j < vec.size(); j++) {
+	String[] keys = (String[]) vec.keySet().toArray(new String[0]);
+	
+	ontoList = new String[ keys.length ];
+	
+	for(int j=0; j < keys.length; j++) {
+		 
+		ontoBox1.addItem(keys[j]);
+		ontoBox2.addItem(keys[j]);
+		ontoList[j] = keys[j];
 		
-		String str = vec.get(j);
-		
-		String st1 = str.replace('\"',' ');
-		st1 = st1.replace('\'',' ');
-		st1 = st1.replace('#',' ');
-		String[] stSplit = st1.split(" ");
-		String st="";
-		for(int i=0; i <stSplit.length; i++)
-			st=st+stSplit[i];
-		
-		//		rethink !!!
-		stSplit = st.split(".owl");
-		st = stSplit[0]+ ".owl";
-		
-		//System.out.printf("res st = " + stSplit[0] );
-		
-		/*
-		//rethink !!!
-		String str1 = str.substring(1, str.length() - 1);
-		int ins = str1.lastIndexOf('/');
-		String str2 = str1.substring(0, ins + 1);
-		String str3 = str1.substring(ins + 4, str1.length());
-		String st = str2.concat(str3);
-		*/
-		ontoBox1.addItem(st);
-		ontoBox2.addItem(st);
-		ontoList[j] = st;
 		if(ontoList.length > 0) { 
 			selectedOnto1 = ontoList[0];
 			selectedOnto2 = ontoList[0];
-			selectedNeOnOnto1 = NeOnOntoList[0];
-			selectedNeOnOnto2 = NeOnOntoList[0];
+			//selectedNeOnOnto1 = NeOnOntoList[0];
+			//selectedNeOnOnto2 = NeOnOntoList[0];
 		}
 		
 	}
+	return vec;
 	 
 }
 
@@ -1257,7 +1287,7 @@ private void refreshOntoList() {
  	answer =   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + answer;
  	System.out.println( answer );
  	try {
- 	File messageFile = new File("messageFile");
+ 	File messageFile = new File(basicFolder.getAbsolutePath() + basicFolder.separator + "messageFile");
  	FileWriter out = new FileWriter(messageFile);
  	out.write( answer );
  	out.close();
@@ -1268,7 +1298,7 @@ private void refreshOntoList() {
  	
  	try {
  		System.out.println( "Parsing for getting result: "+ type +" ... ");
- 		doc = parse(new File("messageFile"));
+ 		doc = parse(new File(basicFolder.getAbsolutePath() + basicFolder.separator + "messageFile"));
  		
  		Element e = doc.getDocumentElement();
  		    
@@ -1302,6 +1332,43 @@ private void refreshOntoList() {
  //System.out.println( answer );
  }
  
+ public static Vector<String[]> getCorresFromAnswer( Alignment align ) {
+	 
+	 ArrayList<Cell> cells =  ((BasicAlignment)align).getArrayElements();
+	 Vector<String[]> names = new Vector<String[]>(cells.size() + 1 );
+	 
+	 String[] corr = new String[4];
+	 corr[0] = "Object1";
+	  
+	 corr[1] = "Relation";
+	 corr[2] = "Strength";
+	 corr[3] = "Object2";
+	 
+	 names.add(corr);
+	 
+	 for(int i=0; i<cells.size(); i++) {
+		 try {
+		  
+		 corr = new String[4];
+		 
+			 corr[0] = cells.get(i).getObject1AsURI().toString();
+			 //by default : equivalence
+			 
+			 //corr[1] = cells.get(i).getRelation().toString();
+			 corr[1] = "=";
+			 corr[2] = (new Double(cells.get(i).getStrength())).toString();
+			 corr[3] = cells.get(i).getObject2AsURI().toString();
+			 names.add(corr);
+			 
+		 }catch (Exception e) {}
+		 
+	 }
+	 return names;
+	 
+ }
+ 
+ 
+ 
  
  public static Vector<String[]> getCorresFromAnswer( String answer, String type ,String separator) {
  	Document doc=null;
@@ -1311,7 +1378,7 @@ private void refreshOntoList() {
  	answer =   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + answer;
  	//System.out.println( answer );
  	try {
- 	File messageFile = new File("messageFile");
+ 	File messageFile = new File(basicFolder.getAbsolutePath() + File.separator + "messageFile");
  	FileWriter out = new FileWriter(messageFile);
  	out.write( answer );
  	out.close();
@@ -1322,7 +1389,7 @@ private void refreshOntoList() {
  	
  	try {
  		//System.out.println( "parsing ... ");
- 		doc = parse(new File("messageFile"));
+ 		doc = parse(new File(basicFolder.getAbsolutePath() + File.separator + "messageFile"));
  		Element e = doc.getDocumentElement();
  		NodeList m = e.getElementsByTagName("table");    
  		Element cor = (Element)m.item(1);
