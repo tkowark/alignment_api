@@ -7,12 +7,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -39,6 +39,9 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.BasicOntology;
 
+import org.semanticweb.owl.io.vocabulary.RDFSVocabularyAdapter;
+import org.semanticweb.owl.model.OWLAnnotationInstance;
+import org.semanticweb.owl.model.OWLDataValue;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLProperty;
 import org.semanticweb.owl.model.OWLClass;
@@ -50,6 +53,7 @@ import org.semanticweb.owl.model.OWLRestriction;
 import org.semanticweb.owl.model.OWLDescription;
 import org.semanticweb.owl.model.OWLNaryBooleanDescription;
 import org.semanticweb.owl.model.OWLException;
+import org.semanticweb.owl.model.helper.OWLEntityCollector;
 
 /*
  * JE: BEWARE, THIS HAS NOT BEEN FULLY IMPLEMENTED SO FAR!!!!
@@ -108,6 +112,65 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     };
 
+
+    protected Set<String> getAnnotations(OWLEntity e , String lang , String typeAnnot ) throws OWLException {
+	Set<String> annots = new HashSet<String>();
+	for (OWLAnnotationInstance annot : (Set<OWLAnnotationInstance>) e.getAnnotations(onto)) {
+		String annotUri = annot.getProperty().getURI().toString();
+		if (annotUri.equals(typeAnnot) || typeAnnot==null) {
+        		if ( annot.getContent() instanceof OWLDataValue &&
+        			( lang==null || ((OWLDataValue) annot.getContent()).getLang().equals(lang)) ) {
+        		    annots.add(((OWLDataValue) annot.getContent()).getValue().toString());
+        		}
+		}
+	}
+	return annots;
+    }
+
+    public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getLabel());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    }
+    public Set<String> getEntityNames( Object o ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getLabel());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+
+    public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getComment());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+    public Set<String> getEntityComments( Object o ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getComment());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+    public Set<String> getEntityAnnotations( Object o ) throws AlignmentException {
+	try {
+	    return getAnnotations(((OWLEntity) o),null,null);
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
     public boolean isEntity( Object o ){
 	if ( o instanceof OWLEntity ) return true;
 	else return false;
@@ -133,14 +196,30 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	else return false;
     };
 
+    // JD: allows to retrieve some specific entities by giving their class
+    protected Set<Object> getEntities(Class<? extends OWLEntity> c) throws OWLException{
+        OWLEntityCollector ec = new OWLEntityCollector();
+    	onto.accept(ec);
+    	Set<Object> entities = new HashSet<Object>();
+	for (Object obj : ec.entities()) {
+	    if (c.isInstance(obj) ){
+		entities.add(obj);
+	    }
+	}
+	return entities;
+    }
+
     // Here it shoud be better to report exception
     // JE: Onto this does not work at all, of course...!!!!
     public Set<Object> getEntities() {
-	try {
-	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
-	} catch (OWLException ex) {
-	    return null;
-	}
+	OWLEntityCollector ec = new OWLEntityCollector();
+    	try {
+    	    onto.accept(ec);
+    	    return ec.entities();
+
+    	} catch (OWLException e) {
+    	    return null;
+    	}
     }
 
     public Set<Object> getClasses() {
@@ -153,7 +232,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<Object> getProperties() {
 	try {
-	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	    //return ((OWLOntology)onto).getProperties(); // [W:unchecked]
+	    return getEntities(OWLProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
