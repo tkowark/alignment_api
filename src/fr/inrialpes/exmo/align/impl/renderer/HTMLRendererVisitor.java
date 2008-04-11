@@ -89,32 +89,41 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
-	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<h1></h1>\n");
+	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
 	writer.print("<table border=\"0\">\n");
-	writer.print("<tr><td>uri1</td><td>"+align.getOntology1URI()+"</td></tr>\n" );
-	writer.print("<tr><td>uri2</td><td>"+align.getOntology2URI()+"</td></tr>\n" );
+	writer.print("<tr><td>onto1</td><td><div rel=\"align:onto1\"><div typeof=\"align:Ontology\" about=\""+align.getOntology1URI()+"\">");
+	writer.print("<table>\n<tr><td>uri: </td><td>"+align.getOntology1URI()+"</td></tr>\n");
 	if ( align.getFile1() != null )
-	    writer.print("<tr><td>ontofile1</td><td><a href=\""+align.getFile1()+"\">"+align.getFile1()+"</a></td></tr>\n" );
+	    writer.print("<tr><td><span property=\"align:location\" content=\""+align.getFile1()+"\"/>file:</td><td><a href=\""+align.getFile1()+"\">"+align.getFile1()+"</a></td></tr>\n" );
+	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject1().getFormalism() != null ) {
+	    writer.print("<tr><td>type:</td><td><span rel=\"align:formalism\"><span typeof=\"align:Formalism\"><span property=\"align:name\">"+((BasicAlignment)align).getOntologyObject1().getFormalism()+"</span><span property=\"align:uri\" content=\""+((BasicAlignment)align).getOntologyObject1().getFormURI()+"\"/></span></span></td></tr>");
+	}
+	writer.print("</table>\n</div></div></td></tr>\n");
+	writer.print("<tr><td>onto2</td><td><div rel=\"align:onto2\"><div typeof=\"align:Ontology\" about=\""+align.getOntology2URI()+"\">");
+	writer.print("<table>\n<tr><td>uri: </td><td>"+align.getOntology2URI()+"</td></tr>\n");
 	if ( align.getFile2() != null )
-	    writer.print("<tr><td>ontofile2</td><td><a href=\""+align.getFile2()+"\">"+align.getFile2()+"</a></td></tr>\n" );
-	writer.print("<tr><td>level</td><td>"+align.getLevel()+"</td></tr>\n" );
-	writer.print("<tr><td>type</td><td>"+align.getType()+"</td></tr>\n" );
-	// Get the keys of the parameter
-	// RDFa=add namespace prefix (instead of [0]
+	    writer.print("<tr><td><span property=\"align:location\" content=\""+align.getFile2()+"\"/>file:</td><td><a href=\""+align.getFile2()+"\">"+align.getFile2()+"</a></td></tr>\n" );
+	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject2().getFormalism() != null ) {
+	    writer.print("<tr><td>type:</td><td><span rel=\"align:formalism\"><span typeof=\"align:Formalism\"><span property=\"align:name\">"+((BasicAlignment)align).getOntologyObject2().getFormalism()+"</span><span property=\"align:uri\" content=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/></span></span></td></tr>");
+	}
+	writer.print("</table>\n</div></div></td></tr>\n");
+	writer.print("<tr><td>level</td><td property=\"align:level\">"+align.getLevel()+"</td></tr>\n" );
+	writer.print("<tr><td>type</td><td property=\"align:type\">"+align.getType()+"</td></tr>\n" );
+	// RDFa: Get the keys of the parameter (to test)
 	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td property=\""+((String[])ext)[0]+":"+((String[])ext)[1]+"\">"+((String[])ext)[2]+"</td></tr>\n");
+	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td property=\""+nslist.get(((String[])ext)[0])+":"+((String[])ext)[1]+"\">"+((String[])ext)[2]+"</td></tr>\n");
 	}
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");
-	writer.print("<table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
+	writer.print("<div rel=\"align:map\"><table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
 	} //end for
 	writer.print("</table>\n");
-	writer.print("</div\n");
+	writer.print("</div></div>\n");
 	writer.print("</body>\n</html>\n");
     }
 
@@ -129,11 +138,11 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	    u1 = cell.getObject1AsURI();
 	    u2 = cell.getObject2AsURI();
 	}
-	writer.print("  <tr>");
-	writer.print("<td>"+u1+"</td><td>");
+	writer.print(" <tr typeof=\"align:Cell\">");
+	writer.print("<td rel=\"align:entity1\" href=\""+u1+"\">"+u1+"</td><td property=\"align:relation\">");
 	cell.getRelation().accept( this );
-	writer.print("</td><td>"+cell.getStrength()+"</td>");
-	writer.print("<td>"+u2+"</td>");
+	writer.print("</td><td property=\"align:measure\" datatype=\"xsd:float\">"+cell.getStrength()+"</td>");
+	writer.print("<td rel=\"align:entity2\" href=\""+u2+"\">"+u2+"</td>");
 	if ( cell.getId() != null ) {
 	    String id = cell.getId();
 	    // Would be useful to test for the Alignment URI
