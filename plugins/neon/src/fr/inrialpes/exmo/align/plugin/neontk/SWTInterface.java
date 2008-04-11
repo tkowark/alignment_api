@@ -99,6 +99,8 @@ import com.ontoprise.ontostudio.datamodel.exception.ControlException;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Cell;
+import fr.inrialpes.exmo.align.impl.Ontology;
+import fr.inrialpes.exmo.align.impl.BasicCell;
 //import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -397,13 +399,13 @@ public class SWTInterface extends JPanel {
     				selectedPort = portField.getText();
     				onAlign = new OnlineAlign(selectedPort, selectedHost);
     			 
-        			String mt = onAlign.getMethods();
-        			if(mt == null) { 
+        			String list[] = onAlign.getMethods();
+        			if(list == null || list.length ==0) { 
 				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
         			    return;
         			}
 				   		
-        			String[] list = getResultsFromAnswer( mt, "method", null ); //"." 
+        			//String[] list = getResultsFromAnswer( mt, "method", null ); //"." 
         		 
         			methodList = new String[list.length];
         			strategy.removeAllItems();
@@ -517,7 +519,7 @@ public class SWTInterface extends JPanel {
         			}
 				        
 	        		File fn = new File(selectedLocalAlign + ".owl");
-	        		
+	        		//if (fn.exists()) fn.delete();
 	        		//System.out.println("Filename off to export :"+ fn.getAbsolutePath());
 	        		
 	        		corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
@@ -569,7 +571,6 @@ public class SWTInterface extends JPanel {
 	    	    						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
 	    	    						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
 	            				
-	    	    					// ProjectControl.getDefault().createNewOntologyProject(inputName, new String[0]);
 	    	    					}
 	    					 
 	    	    				ImportExportControl ieControl = new ImportExportControl();	
@@ -599,12 +600,14 @@ public class SWTInterface extends JPanel {
 		        		//System.out.println("file name off to export :"+ fn.getName());
 		        		
 		        		try {
-		        			onAlign.uploadAlign(selectedLocalAlign + ".rdf");
+		        			String uploaded = onAlign.uploadAlign(selectedLocalAlign + ".rdf");
 		        			
 		        			localAlignIdList = new String[1];
 		        			localAlignIdList[0] = selectedLocalAlign;
         					localAlignBox.removeAllItems();
         					localAlignBox.addItem(selectedLocalAlign);	 
+        					
+        					JOptionPane.showMessageDialog(null, "Uploaded alignment : "+ uploaded,"Warning",2);
 		        			
 		        		} catch ( Exception ex ) { ex.printStackTrace();}
 				    }
@@ -640,11 +643,15 @@ public class SWTInterface extends JPanel {
 					try {
 						
 						File rdfFile = new File( rdfPath );
+						//if (rdfFile.exists()) rdfFile.delete();
+						
 						out = new FileWriter( rdfFile );
 						out.write( rdfalignStr );
-						//out.write( answer );
+						out.flush();
 						out.close();
+						
 						File file = new File(rdfPath);
+						
 						AlignmentParser ap = new AlignmentParser(1);
 						Alignment align = ap.parse(file.toURI().toString());
 						
@@ -699,8 +706,6 @@ public class SWTInterface extends JPanel {
 					catch ( Exception ex ) { ex.printStackTrace();};
 			
 					//get align from server, then  export it as owl onto
-					String owlPath =  ontoFolder.getAbsolutePath() + File.separator + getNewAlignId() + ".owl";
-        				
 					
         			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
         			
@@ -736,17 +741,21 @@ public class SWTInterface extends JPanel {
     						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
 	    				}
 	    			    }
-				 
+	    				
+	    				String owlPath =  ontoFolder.getAbsolutePath() + File.separator + getNewAlignId() + ".owl";
 						File owlFile = new File( owlPath );
+						if (owlFile.exists()) owlFile.delete();
+						
 						out = new FileWriter( owlFile );
 						out.write( owlalignStr );
-							//out.write( answer );
+					    out.flush();
 						out.close();
+						 
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
 							String[] importedModules = ieControl.importFileSystem(inputName, "file:" + owlPath,  null);
 					
-						//ieControl.addOntologies2Project(importedModules, inputName);
+							//ieControl.addOntologies2Project(importedModules, inputName);
 						} catch (  ControlException ex ) { }
 							 
 					} 
@@ -764,14 +773,15 @@ public class SWTInterface extends JPanel {
         			
         			// for connecting to server
         			//onAlign = new OnlineAlign(selectedPort, selectedHost);
+        			String[] list = null;
         			if(online) {
-        				String aa = onAlign.getAllAlign();
-        				if(aa == null) {
+        				list = onAlign.getAllAlign();
+        				if(list == null || list.length==0) {
         					JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
         					return;
         				}
         				   
-        			String[] list = getResultsFromAnswer( aa , "alid", null ); 
+        			//String[] list = getResultsFromAnswer( aa , "alid", null ); 
         			
         			alignIdList = new String[list.length];
         			alignBox.removeAllItems();
@@ -804,7 +814,7 @@ public class SWTInterface extends JPanel {
         			
         			} 
         			else { //offline
-        				String[] list  = offAlign.getAllAlign( );
+        				list  = offAlign.getAllAlign( );
         				if(list!=null) {
         					localAlignIdList = new String[list.length];
     						localAlignBox.removeAllItems();
@@ -835,11 +845,11 @@ public class SWTInterface extends JPanel {
 					    	JOptionPane.showMessageDialog(null, "Choose two ontologies from lists!","Warning",2);
 					else {      
 					
-					String ao =  onAlign.findAlignForOntos(selectedOnto1, selectedOnto2);
-	        		if(ao == null) 
+					String[] list =  onAlign.findAlignForOntos(selectedOnto1, selectedOnto2);
+	        		if(list == null || list.length==0) 
 					    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
 					else {  
-        			String[] list = getResultsFromAnswer(ao, "alid", null ); 
+        			//String[] list = getResultsFromAnswer(ao, "alid", null ); 
         			
         			alignIdList = new String[list.length];
         			alignBox.removeAllItems();
@@ -879,22 +889,21 @@ public class SWTInterface extends JPanel {
         					
     						String at = onAlign.trimAlign(selectedAlign, thres);
     						
-    		        		if(at == null) 
+    		        		if(at == null || at.equals("")) 
     						    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
     						else {  
-        					String[] list = getResultsFromAnswer( at, "alid", null ); 
+        					//String[] list = getResultsFromAnswer( at, "alid", null ); 
         			
-        					alignIdList = new String[list.length];
+        					//alignIdList = new String[list.length];
+    						alignIdList = new String[1];
         					alignBox.removeAllItems();
         							
-        					for(int i=0; i< list.length; i++){
-        						alignIdList[i]= list[i];
-        						alignBox.addItem(list[i]);
-        					}	
+        					alignIdList[0]= at;
+    						alignBox.addItem(at);
+    						                      
+    						selectedAlign = alignIdList[0]; 	
         			
-        					if(alignIdList.length > 0) { 
-        						selectedAlign = alignIdList[0];
-        					}
+        					 
     						}
         				}
     				
@@ -947,9 +956,21 @@ public class SWTInterface extends JPanel {
 					else {      
 						
 					String sto = onAlign.storeAlign(selectedAlign);  
-		        	if(sto == null) 
+					
+		        	if(sto == null || sto.equals("") ) 
 						    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
-						  
+		        	else {
+		        		alignIdList = new String[1];
+    					alignBox.removeAllItems();
+    							
+    					alignIdList[0]= sto;
+						alignBox.addItem(sto);
+						                      
+						selectedAlign = alignIdList[0]; 
+						JOptionPane.showMessageDialog(null, "Stored alignment : "+ sto ,"Warning",2);
+		        	}
+		        	
+		        	
 					}
             	}
 			
@@ -987,30 +1008,19 @@ public class SWTInterface extends JPanel {
 				   		}
 				   		
 					    String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
-						if(answer==null)  {
+						if(answer==null || answer.equals(""))  {
 							JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
 							return;
 						}
 						
-						
-						alignIdList = getResultsFromAnswer( answer, "alid", null );
-						if(alignIdList==null || alignIdList[0].equals("null"))  JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
-						else {
-							
-		        			alignBox.removeAllItems();
+												 
+						alignIdList = new String[1];
+						alignIdList[0] = answer;
+		        	    alignBox.removeAllItems();
+		        		alignBox.addItem(alignIdList[0]);
+		        		selectedAlign = alignIdList[0];
 		        							
-		        			for(int i=0; i< alignIdList.length; i++){
-		        				 
-		        				alignBox.addItem(alignIdList[i]);
-		        			}	
-		        			
-		        			if(alignIdList.length > 0) { 
-		        				selectedAlign = alignIdList[0];
-		        			}
-						}
-						
-						 
-					
+		        			 
 				  }
 				  else { //offline
 						
@@ -1349,18 +1359,18 @@ private HashMap<String,String> refreshOntoList() {
 	 for(int i=0; i<cells.size(); i++) {
 		 try {
 		  
-		 corr = new String[4];
+			 corr = new String[4];
 		 
-			 corr[0] = cells.get(i).getObject1AsURI().toString();
+			 corr[0] = ((BasicCell)cells.get(i)).getObject1().toString();
 			 //by default : equivalence
 			 
 			 //corr[1] = cells.get(i).getRelation().toString();
 			 corr[1] = "=";
 			 corr[2] = (new Double(cells.get(i).getStrength())).toString();
-			 corr[3] = cells.get(i).getObject2AsURI().toString();
+			 corr[3] = ((BasicCell)cells.get(i)).getObject2().toString();
 			 names.add(corr);
 			 
-		 }catch (Exception e) {}
+		 }catch (Exception ex) {  ex.printStackTrace();  }
 		 
 	 }
 	 return names;

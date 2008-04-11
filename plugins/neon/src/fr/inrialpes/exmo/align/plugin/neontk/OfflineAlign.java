@@ -78,10 +78,7 @@ public class OfflineAlign {
 	  
 	  System.out.println("Filename 1="+ selectedNeOnOnto1);
 	  System.out.println("Filename 2="+ selectedNeOnOnto2);
-	 
-	   
 	  
-      
       Parameters p = new BasicParameters();
       AlignmentProcess A1 = null;
       //String htmlString = null;
@@ -125,42 +122,6 @@ public class OfflineAlign {
 	  	owlF.flush();
 	  	owlF.close();
 	
-	  	String str1 =  fileToString(new File(ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl") );
-		 
-		//Add URI to OWL file : rethink !!!
-	  	File f0 = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl" );
-	  	String s1 = str1.substring(0, str1.indexOf('>') + 1 );
-	  	String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
-		
-	  	String[] ss2 = s1.split("xmlns");
-	  	String s3 = "<?xml version=\"1.0\"?>\n" + ss2[0] + " ";
-     						
-	  	s3 = s3 + "xmlns=\"" + "file:" + f0.getAbsolutePath() + "#\"\n ";
-	  	s3 = s3 + "xml:base=\"" + "file:" + f0.getAbsolutePath() + "\"\n ";
-	  	s3 = s3 + "xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n " + "xmlns";
-		
-	  	for(int i=2; i<ss2.length;i++) {
-			s3 = s3 + ss2[i];
-		  	if(i != ss2.length-1 ) s3 = s3  + "xmlns";
-	  	}
-		
-	  	
-		File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl"  );
-		FileWriter out = new FileWriter( owlFile );
-		out.write( s3 + s2 );
-		out.flush();
-		out.close();  
-	    
-	  	//for displaying
-		/*
-	  	FileWriter htmlF = new FileWriter( alignFolder.getAbsolutePath() + File.separator + name.toString() + ".html" );
-	  	AlignmentVisitor V1 = new HTMLRendererVisitor(
-			    new PrintWriter ( htmlF ) );
-	  
-	  	A1.render(V1);
-	  	htmlF.flush();
-	  	htmlF.close();
-	  	*/
 	  
 	  } catch ( Exception ex ) { ex.printStackTrace(); };
 	  
@@ -175,23 +136,30 @@ public class OfflineAlign {
 	      Integer name = new Integer(SWTInterface.getNewAlignId());
 	      
 	      Alignment A1 = SWTInterface.alignmentTable.get( id );
-	      Alignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
+	      //BasicAlignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
+	      BasicAlignment clonedA1 = null;
 	      
 	      try {
-	    	 
-	      clonedA1.cut(thres);
-	      SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
-	       
+	    
+	      File exFile = new File(id + ".rdf");
+				
+		  AlignmentParser ap = new AlignmentParser(1);
+		  clonedA1 = (BasicAlignment) ap.parse(exFile.toURI().toString());
+				
 		  File fnRdf = new File( alignFolder.getAbsolutePath() + File.separator + name.toString()+ ".rdf" );
 		  if (fnRdf.exists()) fnRdf.delete();
 		  
-		  FileWriter rdfF = new FileWriter(fnRdf);
+		  FileWriter rdfF = new FileWriter( fnRdf );
 		  AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
 		 
 		  clonedA1.render(rdfV);
 		  rdfF.flush();
 		  rdfF.close();
 		  
+		  clonedA1.cut(thres);
+	      SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
+	      
+	      
 		  File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl");
 		  if (owlFile.exists()) owlFile.delete();
 		  
@@ -204,49 +172,7 @@ public class OfflineAlign {
 		  clonedA1.render(owlV);
 		  owlF.flush();
 		  owlF.close();
-		
-		  	
-		  String str1 =  fileToString(new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl") );
-			 
-			
-			//Add URI to OWL file : rethink !!!
-		  File f0 = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl" );
-		  String s1 = str1.substring(0, str1.indexOf('>') + 1 );
-		  String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
-			
-		  String[] ss2 = s1.split("xmlns");
-		  String s3 = "<?xml version=\"1.0\"?>\n" + ss2[0] + " ";
-	     						
-		  s3 = s3 + "xmlns=\"" + "file:" + f0.getAbsolutePath() + "#\"\n ";
-		  s3 = s3 + "xml:base=\"" + "file:" + f0.getAbsolutePath() + "\"\n ";
-		  s3 = s3 + "xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n " + "xmlns";
-			
-		  for(int i=2; i<ss2.length;i++) {
-				s3 = s3 + ss2[i];
-			  	if(i != ss2.length-1 ) s3 = s3  + "xmlns";
-		  }
-			
-		  
-		  File owlFile2 = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl"  );
-		  if (owlFile2.exists()) owlFile2.delete();
-		  FileWriter out = new FileWriter( owlFile2 );
-		  out.write( s3 + s2 );
-		  out.flush();
-		  out.close();  
-		  	
-		  //for displaying
-		  /*
-		  File htmlFile = new File(  ontoFolder.getAbsolutePath()+ File.separator + name.toString()+ ".html" );
-		  if (htmlFile.exists()) htmlFile.delete();
-		  FileWriter htmlF = new FileWriter( htmlFile );
-		  
-		  AlignmentVisitor V1 = new HTMLRendererVisitor(
-				    new PrintWriter ( htmlF ) );
-		  
-		  clonedA1.render(V1);
-		  htmlF.flush();
-		  htmlF.close();
-		  */
+		 
 		  
 		  } 
 		  catch ( Exception ex ) { ex.printStackTrace();};

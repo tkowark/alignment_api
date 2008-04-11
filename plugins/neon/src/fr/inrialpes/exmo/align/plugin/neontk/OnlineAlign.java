@@ -29,8 +29,10 @@ import java.io.FileInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ByteArrayInputStream;
  
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
  
 import java.net.URL;
@@ -41,6 +43,23 @@ import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
  
 import org.semanticweb.owl.align.Parameters;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
  
@@ -54,7 +73,8 @@ public class OnlineAlign {
 		URL SOAPUrl = null;
 		String SOAPAction = null;
 		String uploadFile = null;
-		
+		private static DocumentBuilder BUILDER = null;
+		final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
 		
 	    public OnlineAlign( String htmlPort, String host)  {
 	    	try {
@@ -65,6 +85,10 @@ public class OnlineAlign {
 	    		
 	    	} catch ( Exception ex ) { ex.printStackTrace(); };
 	    	
+			fac.setValidating(false);
+			fac.setNamespaceAware(false);
+			try { BUILDER = fac.newDocumentBuilder(); }
+			catch (ParserConfigurationException e) { };
 	    }
 	    
 	    public String uploadAlign(String alignId) {
@@ -85,17 +109,32 @@ public class OnlineAlign {
 				String message = createMessage( params );
 				  
 				System.out.println("HOST= "+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message :"+ message);
+				System.out.println("Message for load file :"+ message);
 				
 				// Send message
 				//answer = sendMessage( message, params );
 				answer = sendFile( message, params );
-				
-				System.out.println("Loaded Align="+ answer);
+				System.out.println("SOAP loaded align=" + answer );
 				
 			} catch ( Exception ex ) { ex.printStackTrace(); };
-			if(! connected ) return null; 
-			return answer;
+			if(! connected ) return null;
+			
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+				   
+			String[] result = getTagFromSOAP( domMessage,  "loadResponse" );
+			System.out.println("Loaded Align="+ result[0]);
+			
+			return result[0];
+			
 	    }
 	    
 	    public String trimAlign(String alignId, String thres) {
@@ -121,15 +160,32 @@ public class OnlineAlign {
 				// Send message
 				answer = sendMessage( message, params );
 				
-				System.out.println("Trim Align="+ answer);
+				
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			if(! connected ) return null; 
-			return answer;
+			
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+			String[] result = getTagFromSOAP( domMessage,  "cutResponse" );
+			
+			System.out.println("Trim Align="+ result[0]);
+			
+			return result[0];
+			
+			 
 			
 	    }
 	    
-	    public String getMethods() {
+	    public String[] getMethods() {
 	    	
 			String answer = null;
 		     
@@ -154,13 +210,25 @@ public class OnlineAlign {
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			if(! connected ) return null; 
-			return answer;
-		 
-				 
 			
+			Document domMessage = null;
+			try {
+				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+				    
+				} catch  ( IOException ioex ) {
+				    ioex.printStackTrace();
+				} catch  ( SAXException saxex ) {
+				    saxex.printStackTrace();
+				}
+				
+				 
+			String[] result = getTagFromSOAP( domMessage,  "listmethodsResponse/classList/method" ) ;
+			for(int i=0; i< result.length;i++) System.out.println("methods=" + result[i]);
+			return result;
+		 
 	    }
 	    
-	    public String findAlignForOntos(String onto1, String onto2) {
+	    public String[] findAlignForOntos(String onto1, String onto2) {
 	    	
 			String answer = null;
 		     
@@ -185,11 +253,25 @@ public class OnlineAlign {
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			if(! connected ) return null; 
 				   
-		    return answer;
+			Document domMessage = null;
+				try {
+				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+				    
+				} catch  ( IOException ioex ) {
+				    ioex.printStackTrace();
+				} catch  ( SAXException saxex ) {
+				    saxex.printStackTrace();
+				}
+				
+			String[] result = getTagFromSOAP( domMessage,  "findResponse/alignmentList/alid" );
+				
+			for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
+				
+		    return result; 
 			 
 	    }
 	    
-	    public String getAllAlign() {
+	    public String[] getAllAlign() {
 	    	
 			String answer = null;
 		     
@@ -215,8 +297,24 @@ public class OnlineAlign {
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			
 			if(! connected ) return null; 
-				   
-			return answer;
+			
+			// Cut SOAP header
+			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
+		    Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+			
+			String[] result = getTagFromSOAP( domMessage,  "listalignmentsResponse/alignmentList/alid" );
+			for(int i=0; i< result.length;i++) System.out.println("aligns=" + result[i]);
+			
+			return result;
 			 
 				 
 			
@@ -250,12 +348,31 @@ public class OnlineAlign {
 			    	// Send message
 			    	answer = sendMessage( message, params );
 			 
-			    	// Displays it
-			    	System.out.println("alignId="+ answer);
+			    	System.out.println("SOAP Match align=" + answer );
+			    	 
 			    }
+			    
 			    catch ( Exception ex ) { ex.printStackTrace(); };
 			    if(! connected ) return null; 
-			    return answer;
+			    
+			    // Cut SOAP header
+				//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
+			    Document domMessage = null;
+				try {
+				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+				    
+				} catch  ( IOException ioex ) {
+				    ioex.printStackTrace();
+				} catch  ( SAXException saxex ) {
+				    saxex.printStackTrace();
+				}
+				
+				 
+				String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
+				
+				System.out.println("Match align Id=" + result[0]);
+				
+			    return result[0];
 			 
 	    }
 	    
@@ -289,52 +406,34 @@ public class OnlineAlign {
 			answer = sendMessage( message, params );
 			if(! connected ) return null; 
 			
-			System.out.println("OwlAlign="+ answer);
+			
 			
 		} catch ( Exception ex ) { ex.printStackTrace();  };
 			 
 			 
-			// Cut SOAP header
-		String []  cutResult = answer.split("result");
+		// Cut SOAP header
+		//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
+		answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
+		 
 		
-		if(cutResult==null) return null;
-			
-		String str = "";
-			
-		for(int i= 0; i< cutResult.length; i++){
-		  	
-			if(i >= 1 && i <= cutResult.length -2)
-					str = str + cutResult[i];
+		Document domMessage = null;
+		try {
+		    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+		    
+		} catch  ( IOException ioex ) {
+		    ioex.printStackTrace();
+		} catch  ( SAXException saxex ) {
+		    saxex.printStackTrace();
 		}
-			
-		//System.out.println("OwlAlign STR ="+ str);
 		
-		if(str.equals("")) return null;
 		
-		String str1 = str.substring(1, str.length() - 3);
-			
-			//extract id from "alid" 
-		//String []  sali = alignId.split("/");
-		//String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
-			
-			
-			//Add URI to OWL file : rethink !!!
-		String s1 = str1.substring(0, str1.indexOf('>') + 1 );
-		String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
-			
-		String[] ss2 = s1.split("xmlns");
-		String s3 = "<?xml version=\"1.0\"?>\n" + ss2[0] + " ";
-         						
-		s3 = s3 + "xmlns=\"" + alignId  + "#\"\n ";
-		s3 = s3 + "xml:base=\"" + alignId  + "\"\n ";
-		s3 = s3 + "xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n " + "xmlns";
-			
-		for(int i=2; i<ss2.length;i++) {
-				s3 = s3 + ss2[i];
-			  	if(i != ss2.length-1 ) s3 = s3  + "xmlns";
-		}
-			
-		return s3 + s2;
+		
+		String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
+	 	 
+		 
+		
+		System.out.println("OWLAlign="+ result[0]);
+		return result[0];
 	    }
 	    
 	    public String getRDFAlignment(String alignId) {
@@ -366,77 +465,37 @@ public class OnlineAlign {
 				answer = sendMessage( message, params );
 				if(! connected ) return null; 
 				
-				System.out.println("RDFAlign="+ answer);
+				
 				
 			} catch ( Exception ex ) { ex.printStackTrace();  };
 				 
 				 
 				// Cut SOAP header
-			String []  cutResult = answer.split("result");
 			
-			if(cutResult==null) return null;
-				
-			String str = "";
-			
-			for(int i= 0; i< cutResult.length; i++){
-			  	
-				if(i >= 1 && i <= cutResult.length -2)
-						str = str + cutResult[i];
-			}
-				
-			//System.out.println("OwlAlign STR ="+ str);
-			
-			if(str.equals("")) return null;
-			
-			String str1 = str.substring(1, str.length() - 3);
-				
-				//Add URI to RDF file : rethink !!!
-			String s1 = str1.substring(0, str1.indexOf('>') + 1 );
-			String s2 = str1.substring(str1.indexOf('>') + 2, str1.length());
-				
+			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
+			answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
 			 
+			
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+			 
+			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
+			 
+			 
+			System.out.println("RDFAlign="+ result[0]); 
 				
-			return s2;
+			return result[0];
 		}
 	    
-	    public String getHTMLAlignment(String alignId) {
-			
-	    	//retrieve alignment for displaying
-			
-			Parameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","retrieve");
-			params.setParameter( "arg1", alignId);
-			params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor");
-			
-			Vector corrList = new Vector();
-			 
-			String answer = null;
-			
-			try {
-				// Read parameters
-				 
-				//Parameters params = ws.readParameters( aservArgRetrieve );
-				
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
-				System.out.println("Message :"+ message);
-				
-				// Send message
-				answer = sendMessage( message, params );
-				 
-				//corrList = getCorresFromAnswer( answer, "tr", "#" );
-		    	
-			}
-			catch ( Exception ex ) { ex.printStackTrace();  };
-			if(! connected ) return null; 
-			return answer;
-			
-	   }
+	     
 	    
 	    public String storeAlign(String alignId) {
 			
@@ -466,7 +525,7 @@ public class OnlineAlign {
 				// Send message
 				answer = sendMessage( message, params );
 				 
-				System.out.println("Stored Align="+ answer);
+			
 				//corrList = getCorresFromAnswer( answer, "tr", "#" );
 		    	
 			}
@@ -474,9 +533,86 @@ public class OnlineAlign {
 			
 			if(! connected ) return null; 
 			
-			return answer;
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
 			
-	   }  	
+			 
+			String result[] = getTagFromSOAP( domMessage,  "storeResponse" );
+			 
+			 
+			System.out.println("Stored Align="+ result[0]); 
+				
+			return result[0];
+			
+	    }
+	    
+	    public String[] getTagFromSOAP( Document dom,  String tag ){
+	    	XPath XPATH = XPathFactory.newInstance().newXPath();
+	    	String[] result = null;
+	    	Node n = null;
+	    	NodeList nl = null;
+	    	try {
+	    	    // The two first elements are prefixed by: "SOAP-ENV:"
+	    		if(tag.equals("listmethodsResponse/classList/method") || tag.equals("listalignmentsResponse/alignmentList/alid") 
+	    		|| tag.equals("findResponse/alignmentList/alid") ) {
+	    			nl = (NodeList)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODESET));
+	    			result = new String[nl.getLength()];
+	    			
+	    			 for (int i=0; i< nl.getLength(); i++) {
+	    	 		      Node method = (Node) nl.item(i);
+ 
+	    	 		      Node firstnode = method.getFirstChild();
+	    	   		      String nm = firstnode.getNodeValue();
+	    	 		      
+	    	 		      if(nm!=null) result[i] = nm; 
+	    	 		             
+	    	 		 }
+	    		} else  if (tag.equals("retrieveResponse/result/RDF") ) {
+	    			  n =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
+	    			  ByteArrayOutputStream stream = new ByteArrayOutputStream();
+	    			  try {
+	    				  Transformer tf = TransformerFactory.newInstance().newTransformer();
+	    				  tf.setOutputProperty(OutputKeys.ENCODING,"utf-8");
+	    		          tf.setOutputProperty(OutputKeys.INDENT,"yes");
+	    		           
+	    		          tf.transform(new DOMSource(n),new StreamResult(stream));
+	    			  }
+	    			  catch (Exception e){}
+	    			  //Node firstnode = n.getFirstChild();
+	    			  
+	    	   		  String nm = stream.toString();
+		    		  result = new String[1];
+	    	   		  result[0] = nm; 
+	    	   		  //System.out.println("result retrieve="+result[0]);
+	    	   		  //System.out.println("no first="+ n.getNodeValue());
+	    		} else {
+	    		  Node nn =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
+	    		  result = new String[1];
+	    		  
+    	 		  NodeList ns = nn.getChildNodes();
+    	 		  
+    	 		  //tag "alid" is third
+    	 		  Node n3  = (Node) ns.item(2);
+    	 		  Node nx  = n3.getFirstChild();
+    	   		  String nm = nx.getNodeValue();
+    	   		   
+    	   		  result[0] = nm; 
+	    		}  
+	    	     
+	    	} catch (XPathExpressionException e) {
+	    	} catch (NullPointerException e) {
+	    	}
+	    	
+	    	return result;  
+	    }
+
 	    
 	    public String createMessage( Parameters params ) throws Exception {
 	        String messageBegin = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
@@ -736,6 +872,7 @@ public class OnlineAlign {
 	            fi.close();
 				System.out.println("Upload Read done.");
 	        	
+				
 	            // Read the response  
 	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
 	            BufferedReader in = new BufferedReader(isr);
