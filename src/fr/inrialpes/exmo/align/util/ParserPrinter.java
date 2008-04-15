@@ -222,8 +222,6 @@ public class ParserPrinter {
 	    try {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		// if the renderer needs an ObjectALignment: give it
-		//aex.printStackTrace();
 		result = ObjectAlignment.toObjectAlignment( (URIAlignment)result, (OntologyCache)null );
 		result.render( renderer );
 	    }

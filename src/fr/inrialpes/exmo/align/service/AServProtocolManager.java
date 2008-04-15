@@ -25,6 +25,8 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.Ontology;
@@ -328,8 +330,12 @@ public class AServProtocolManager {
 		// should return the message
 		return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
 	    }
-	    al.render(renderer);
-	    // Strange that I do not catch the AlignmentException raised when OWL is needed
+	    try {
+		al.render( renderer );
+	    } catch ( AlignmentException aex ) {
+		al = ObjectAlignment.toObjectAlignment( (URIAlignment)al, (OntologyCache)null );
+		al.render( renderer );
+	    }
 	    writer.flush();
 	    writer.close();
 	} catch (AlignmentException e) {
