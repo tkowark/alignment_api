@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 
 import java.util.StringTokenizer;
 import java.util.Locale;
@@ -206,7 +207,39 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			    e.printStackTrace(); // To clean up
 			}
 			params.setProperty( "content", new String( mess ) );
-		    }
+		    //CLD added for treating file uploading
+		    } else if ( mimetype != null && mimetype.startsWith("application/octet-stream") ) {
+			 
+			 
+         		File alignFile = new File(File.separator + "tmp" + File.separator + newId() +"XXX.rdf");
+
+         		// check if file already exists - and overwrite if necessary.
+         		if (alignFile.exists()) alignFile.delete();
+           
+               	 	FileOutputStream fos = new FileOutputStream(alignFile);
+            		InputStream is = request.getInputStream();
+			
+           	        try {
+                
+               			byte[] buffer = new byte[4096];
+				int bytes=0; 
+               			while (true) {
+                  			bytes = is.read(buffer);
+                  			if (bytes < 0) break;
+                  			fos.write(buffer, 0, bytes);
+               			}
+
+               			fos.flush();
+				fos.close();
+            		} catch (Exception e) {}
+
+               		is.close();
+			 
+			params.setProperty( "content", "" );
+
+			params.setProperty( "filename" ,  alignFile.getAbsolutePath()  );
+			
+         	    } 
 
 		    // Get the answer (HTTP)
 		    Response r = serve( uri, method, header, params );

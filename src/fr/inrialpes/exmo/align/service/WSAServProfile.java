@@ -203,12 +203,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	// Create the DOM tree for the message
 	Document domMessage = null;
 	try {
+		 
 	    domMessage = BUILDER.parse( new ByteArrayInputStream( message.getBytes()) );
 	    // DECIDE WHAT TO DO WITH THESE ERRORS
 	    // CERTAINLY RETURN A "CANNOT PARSE REQUEST"
 	} catch  ( IOException ioex ) {
 	    ioex.printStackTrace();
 	} catch  ( SAXException saxex ) {
+	    //System.err.println(" BUILDER problem.");
 	    saxex.printStackTrace();
 	}
 
@@ -391,16 +393,26 @@ public class WSAServProfile implements AlignmentServiceProfile {
 
 	    getParameter( domMessage, message, params, "url", "url" );
 	    if ( params.getParameter( "url" ) == null ) {
-		getParameter( domMessage, message, params, "content", "content" );
-		if ( params.getParameter( "content" ) == null ) {
-		    answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-		} else {
+
+		//CLD added
+		//This code used to initialize "content". 
+		//It is not necessary any more when "content" is stocked in a file
+		//getParameter( domMessage, message, params, "content", "content" );
+
+		//params.setParameter( "content",  message);
+		//"filename" is stored in "HTMLAServProfile"
+
+		params.setParameter( "filename",  param.getParameter( "filename" ) );
+
+		//if ( params.getParameter( "content" ) == null ) {
+		//    answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+		//} else {
 		    // Save the content as a temporary file (gensym)
 		    // Set the URI as the file:// uri for that file
 		    // Set it in the "url" parameter
 		    // Call load as below
 		    // Take care somehow to discard the temporary file
-		}
+		//}
 	    }
 	    if ( answer == null )
 		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", params) );
