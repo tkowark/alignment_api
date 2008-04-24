@@ -6,10 +6,14 @@ Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Bundle-Activator: fr.inrialpes.exmo.align.plugin.neontk.AlignmentPlugin
 Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.resources,
  org.eclipse.core.runtime,
+ com.ontoprise.ontostudio.owl.gui,
  com.ontoprise.ontostudio.io,
  com.ontoprise.ontostudio.datamodel,
- com.ontoprise.ontostudio.gui
+ com.ontoprise.ontostudio.gui,
+ datamodel,
+ datamodelBase
 Eclipse-AutoStart: true
 Bundle-ClassPath: .,
  lib/align.jar,
