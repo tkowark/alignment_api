@@ -249,7 +249,7 @@
     <antcall target="compileall"/>
     <antcall target="jar"/>
     <antcall target="test"/>
-    <antcall targer="cleantests"/>
+    <antcall target="cleantests"/>
     <antcall target="javadoc"/>
     <ant dir="plugins/neon" target="jar">
       <property name="version" value="${version}"/>
