@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhï¿½ne-Alpes, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,11 +29,6 @@ import java.net.URI;
 import java.util.Vector;
 import java.util.Enumeration;
 
-//import org.omwg.mediation.parser.rdf.RDFParser;
-//import org.omwg.mediation.parser.rdf.RDFParserException;
-//import javax.xml.parsers.SAXParser;
-//import javax.xml.parsers.SAXParserFactory;
-
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -41,18 +36,13 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
-//import com.ontoprise.api.formatting.OntoBrokerOntologyFileFormat;
-//import com.ontoprise.config.IConfig;
-//import com.ontoprise.config.IConfig.OntologyLanguage;
 import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-//import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 
 public class OfflineAlign {
 	
@@ -167,8 +157,6 @@ public class OfflineAlign {
 		  
 		  AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
 				     
-		  //OWLAPIAlignment  owla = OWLAPIAlignment.toOWLAPIAlignment(fnRdf.toURI(), clonedA1);
-		  
 		  clonedA1.render(owlV);
 		  owlF.flush();
 		  owlF.close();
