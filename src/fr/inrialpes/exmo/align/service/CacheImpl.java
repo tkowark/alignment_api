@@ -354,6 +354,7 @@ public class CacheImpl {
      */
     public String recordNewAlignment( String id, Alignment al, boolean force ) throws AlignmentException {
 	Alignment alignment = al;
+ 
 	alignment.setExtension(SVCNS, OURI1, alignment.getOntology1URI().toString());
 	alignment.setExtension(SVCNS, OURI2, alignment.getOntology2URI().toString());
 	// Index
@@ -370,8 +371,11 @@ public class CacheImpl {
      */
     public String recordAlignment( String id, Alignment alignment, boolean force ){
 	// record the Id!
-	if ( alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) == null )
+
+	//CLD put in comment this line for allowing to create a new ID for any alignment  
+	//if ( alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) == null )
 	    alignment.setExtension(  Annotations.ALIGNNS, Annotations.ID, id );
+ 
 	// Store it
 	try {
 	    URI ouri1 = new URI( alignment.getExtension( SVCNS, OURI1) );
@@ -389,11 +393,13 @@ public class CacheImpl {
 		    ontologyTable.put( ouri2, s2 );
 		}
 		s2.add( alignment );
+		 
 		alignmentTable.put( id, alignment );
+		 
 	    }
 	    return id;
 	} catch (Exception e) {
-	    System.err.println("Unlikely URI exception!");
+	    //System.err.println("Unlikely URI exception!");
 	    e.printStackTrace();
 	    return null;
 	}
