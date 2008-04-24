@@ -127,11 +127,6 @@ public class SWTInterface extends JPanel {
 	//String selectedNeOnOnto1  =  null;
 	//String selectedNeOnOnto2  =  null;
 	
-	//String[] hostNames = new String[2];
-	//String[] ports = new String[2];
-	//int hostInd, portInd;
-	
-	
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
 	public static String [] forUniqueness = new String[0];
 	public static int alignId = 0;
@@ -339,7 +334,8 @@ public class SWTInterface extends JPanel {
     	
     onlineButton = new JButton("Online",null);
     onlineButton.addActionListener(new ActionListener(){
-    public void actionPerformed(ActionEvent e) {
+    @SuppressWarnings("deprecation")
+	public void actionPerformed(ActionEvent e) {
     		if (e.getSource() == onlineButton) {
     			online = true;
     			
@@ -364,7 +360,7 @@ public class SWTInterface extends JPanel {
 			    jPane.add(cancelButton);
 			     
 				dialog.setContentPane(jPane);
-				dialog.show();
+				dialog.setVisible(true);
 				
 				
     		}
