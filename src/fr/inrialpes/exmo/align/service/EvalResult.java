@@ -32,9 +32,13 @@ public class EvalResult extends Success {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){
+	// This can only rely on a HTML output of the Evaluator
 	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getContent()+"</a>";
     }
     public String SOAPString(){
+	// This can only rely on a XML output of the Evaluator
+	// We have one through the write( PrintWriter ) method
+	// This should go to content
 	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
 	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><alid>"+content+"</alid>";	
     }
