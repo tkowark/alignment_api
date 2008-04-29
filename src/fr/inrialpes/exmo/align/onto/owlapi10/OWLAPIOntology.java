@@ -30,9 +30,6 @@ package fr.inrialpes.exmo.align.onto.owlapi10;
 import java.net.URI;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.lang.UnsupportedOperationException;
 
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -115,7 +112,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     protected Set<String> getAnnotations(OWLEntity e , String lang , String typeAnnot ) throws OWLException {
 	Set<String> annots = new HashSet<String>();
-	for (OWLAnnotationInstance annot : (Set<OWLAnnotationInstance>) e.getAnnotations(onto)) {
+	for (Object objAnnot :  e.getAnnotations(onto)) {
+	    OWLAnnotationInstance annot = (OWLAnnotationInstance) objAnnot;
 		String annotUri = annot.getProperty().getURI().toString();
 		if (annotUri.equals(typeAnnot) || typeAnnot==null) {
         		if ( annot.getContent() instanceof OWLDataValue &&
@@ -197,12 +195,13 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     };
 
     // JD: allows to retrieve some specific entities by giving their class
-    protected Set<Object> getEntities(Class<? extends OWLEntity> c) throws OWLException{
+    protected Set<?> getEntities(Class<? extends OWLEntity> c) throws OWLException{
         OWLEntityCollector ec = new OWLEntityCollector();
     	onto.accept(ec);
     	Set<Object> entities = new HashSet<Object>();
 	for (Object obj : ec.entities()) {
-	    if (c.isInstance(obj) ){
+	    // JD: OWLEntitytCollector seems to return anonymous entities :&& ((OWLEntity)obj).getURI()!=null
+	    if (c.isInstance(obj)  ){
 		entities.add(obj);
 	    }
 	}
@@ -211,18 +210,15 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     // Here it shoud be better to report exception
     // JE: Onto this does not work at all, of course...!!!!
-    public Set<Object> getEntities() {
-	OWLEntityCollector ec = new OWLEntityCollector();
-    	try {
-    	    onto.accept(ec);
-    	    return ec.entities();
-
-    	} catch (OWLException e) {
-    	    return null;
-    	}
+    public Set<?> getEntities() {
+	try {
+	    return getEntities(OWLEntity.class);
+	} catch (OWLException ex) {
+	    return null;
+	}
     }
 
-    public Set<Object> getClasses() {
+    public Set<?> getClasses() {
 	try {
 	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
 	} catch (OWLException ex) {
@@ -230,7 +226,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
-    public Set<Object> getProperties() {
+    public Set<?> getProperties() {
 	try {
 	    //return ((OWLOntology)onto).getProperties(); // [W:unchecked]
 	    return getEntities(OWLProperty.class);
@@ -242,7 +238,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     // The only point is if I should return OWLProperties or names...
     // I guess that I will return names (ns+name) because otherwise I will need a full
     // Abstract ontology interface and this is not the rule...
-    public Set<Object> getObjectProperties() {
+    public Set<?> getObjectProperties() {
 	try {
 	    // [Warning:unchecked] due to OWL API not serving generic types
 	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
@@ -251,7 +247,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
-    public Set<Object> getDataProperties() {
+    public Set<?> getDataProperties() {
 	try {
 	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
 	} catch (OWLException ex) {
@@ -259,7 +255,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
-    public Set<Object> getIndividuals() {
+    public Set<?> getIndividuals() {
 	try {
 	    return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
 	} catch (OWLException ex) {
@@ -372,7 +368,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     /* HeavyLoadedOntology specifics */
 
-    public Set<Object> getProperties( OWLDescription desc ) {
+    public Set<?> getProperties( OWLDescription desc ) {
 	Set<Object> list = new HashSet<Object>();
 	try {
 	    if ( desc instanceof OWLRestriction ){
@@ -381,13 +377,13 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 		// JE: I suspect that this can be a cause for looping!!
 		for ( Object cl : ((OWLClass)desc).getEquivalentClasses((OWLOntology)onto) ){
 		    // JE: strange casting
-		    Set<Object> res = getProperties( (OWLDescription)cl );
+		    Set<?> res = getProperties( (OWLDescription)cl );
 		    if ( res != null ) list.add( res );
 		}
 	    } else if ( desc instanceof OWLNaryBooleanDescription ) {
 		for ( Object d : ((OWLNaryBooleanDescription)desc).getOperands() ){
 		    // JE: strange casting
-		    Set<Object> res = getProperties( (OWLDescription)d );
+		    Set<?> res = getProperties( (OWLDescription)d );
 		    if ( res != null ) list.add( res );
 		}
 	    }

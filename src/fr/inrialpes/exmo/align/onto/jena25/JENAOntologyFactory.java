@@ -1,7 +1,7 @@
 package fr.inrialpes.exmo.align.onto.jena25;
 
 import java.net.URI;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -23,7 +23,14 @@ public class JENAOntologyFactory extends OntologyFactory{
         	JENAOntology onto = new JENAOntology();
         	onto.setFile(uri);
         	// to be checked : why several ontologies in a model ???
-        	onto.setURI(new URI(((Ontology)m.listOntologies().next()).getURI()));
+        	// If no URI can be extracted from ontology, then we use the physical URI
+        	try {
+        	    onto.setURI(new URI(((Ontology)m.listOntologies().next()).getURI()));
+        	}
+        	catch (NoSuchElementException nse) {
+        	    onto.setURI(new URI(m.getNsPrefixURI("")));
+        	    //onto.setFile(uri);
+        	}
         	//onto.setURI(new URI(m.listOntologies()getOntology(null).getURI()));
         	onto.setOntology(m);
         	return onto;

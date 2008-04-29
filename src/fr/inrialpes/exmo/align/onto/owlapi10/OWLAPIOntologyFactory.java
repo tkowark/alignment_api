@@ -7,12 +7,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -66,8 +66,8 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 
     public LoadedOntology loadOntology( URI uri ) throws AlignmentException {
 	OWLConnection connection = null;
-	Map parameters = new HashMap();
-	parameters.put(OWLManager.OWL_CONNECTION, // [W:unchecked]
+	Map<Object,Object> parameters = new HashMap<Object, Object>();
+	parameters.put(OWLManager.OWL_CONNECTION,
 		       "org.semanticweb.owl.impl.model.OWLConnectionImpl");
 	try {
 	    connection = OWLManager.getOWLConnection(parameters);
@@ -88,7 +88,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 		e.printStackTrace();
 	    }
 	    return onto;
-	} catch (OWLException e) { 
+	} catch (OWLException e) {
 	    throw new AlignmentException("Cannot load "+uri, e );
 	}
     }
@@ -104,7 +104,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    try {
 		OWLRDFParser parser = new OWLRDFParser();
 		OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-			public void owlFullConstruct( int code, String message ) 
+			public void owlFullConstruct( int code, String message )
 			    throws SAXException {
 			}
 			public void owlFullConstruct(int code, String message, Object o)

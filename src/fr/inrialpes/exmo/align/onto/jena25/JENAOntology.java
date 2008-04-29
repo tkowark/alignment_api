@@ -1,9 +1,6 @@
 package fr.inrialpes.exmo.align.onto.jena25;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -17,7 +14,6 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
-import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
 import fr.inrialpes.exmo.align.onto.BasicOntology;
@@ -26,12 +22,12 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 
 
-    protected Set<Object> listResources(Class<? extends OntResource> type) {
+    protected Set<?> listResources(Class<? extends OntResource> type) {
 	Set<Object> resources = new HashSet<Object>();
 	Iterator i = onto.listObjects();
 	while (i.hasNext()) {
 	    Object r = i.next();
-	    if (type.isInstance(r))
+	    if (type.isInstance(r) && ((OntResource)r).getURI()!=null)
 		resources.add(r);
 	}
 	return resources;
@@ -39,11 +35,11 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 
     }
 
-    public Set<Object> getClasses() {
+    public Set<?> getClasses() {
 	return onto.listNamedClasses().toSet();
     }
 
-    public Set<Object> getDataProperties() {
+    public Set<?> getDataProperties() {
 	return onto.listDatatypeProperties().toSet();
     }
 
@@ -120,34 +116,18 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	}
     }
 
-    public Set<Object> getIndividuals() {
-	/*Set individuals = new HashSet();
-	Iterator i = onto.listIndividuals();
-	while (i.hasNext()) {
-	    Individual ind = (Individual) i.next();
-	    individuals.add(ind);
-	    Iterator j = ind.listProperties();
-	    while (j.hasNext()) {
-		Statement s = (Statement) j.next();
-		if (s.getPredicate().canAs(ObjectProperty.class)) {
-		    System.out.println(s.getObject());
-		    individuals.add(s.getObject());
-		}
-	    }
-	}
-	return individuals;*/
-	//return listResources(Individual.class);
-	return onto.listIndividuals().toSet();
+    public Set<?> getIndividuals() {
+	return  onto.listIndividuals().toSet();
     }
 
-    public Set<Object> getObjectProperties() {
-	return onto.listObjectProperties().toSet();
+    public Set<?> getObjectProperties() {
+	return (Set<? extends Object>) onto.listObjectProperties().toSet();
     }
 
-    public Set<Object> getProperties() {
-	Set properties = new HashSet();
-	properties.addAll(onto.listDatatypeProperties().toSet());
-	properties.addAll(onto.listObjectProperties().toSet());
+    public Set<?> getProperties() {
+	Set<Object> properties = new HashSet<Object>();
+	properties.addAll((Set<? extends Object>) onto.listDatatypeProperties().toSet());
+	properties.addAll((Set<? extends Object>) onto.listObjectProperties().toSet());
 	return properties;
     }
 
