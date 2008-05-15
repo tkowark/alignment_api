@@ -28,6 +28,8 @@
 package fr.inrialpes.exmo.align.onto.owlapi10;
 
 import java.net.URI;
+import java.util.AbstractSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -110,8 +112,31 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     };
 
 
-    protected Set<String> getAnnotations(OWLEntity e , String lang , String typeAnnot ) throws OWLException {
-	Set<String> annots = new HashSet<String>();
+    protected Set<String> getAnnotations(final OWLEntity e , final String lang , final String typeAnnot ) throws OWLException {
+	final OWLOntology o = this.onto;
+	return new AbstractSet<String>() {
+	    int size=-1;
+	    public Iterator<String> iterator() {
+		try {
+		    return new OWLAPIAnnotIt(o,e,lang,typeAnnot);
+		} catch (OWLException e) {
+		    e.printStackTrace();
+		    return null;
+		}
+	    }
+	    public int size() {
+		if (size==-1) {
+		    for (String s : this) {
+			size++;
+		    }
+		    size++;
+		}
+		return size;
+	    }
+
+	};
+	// OLD IMPLEMENTATION
+	/*Set<String> annots = new HashSet<String>();
 	for (Object objAnnot :  e.getAnnotations(onto)) {
 	    OWLAnnotationInstance annot = (OWLAnnotationInstance) objAnnot;
 		String annotUri = annot.getProperty().getURI().toString();
@@ -122,7 +147,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
         		}
 		}
 	}
-	return annots;
+	return annots;*/
     }
 
     public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException {
@@ -201,7 +226,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     	Set<Object> entities = new HashSet<Object>();
 	for (Object obj : ec.entities()) {
 	    // JD: OWLEntitytCollector seems to return anonymous entities :&& ((OWLEntity)obj).getURI()!=null
-	    if (c.isInstance(obj)  ){
+	    if (c.isInstance(obj) && ((OWLEntity) obj).getURI()!=null &&((OWLEntity) obj).getURI().toString().startsWith(onto.getURI().toString()) ){
 		entities.add(obj);
 	    }
 	}
@@ -220,7 +245,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<?> getClasses() {
 	try {
-	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	    //return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	    return getEntities(OWLClass.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -241,7 +267,11 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     public Set<?> getObjectProperties() {
 	try {
 	    // [Warning:unchecked] due to OWL API not serving generic types
-	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	    // This first method returns also Properties not defined in the Onto
+	    // i.e. properties having an namespace different from the ontology uri
+	    //return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	    // This method works better
+	    return getEntities(OWLObjectProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -249,7 +279,10 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<?> getDataProperties() {
 	try {
-	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
+	    // This first method returns also Properties not defined in the Onto
+	    // i.e. properties having an namespace different from the ontology uri
+	    //return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
+	    return getEntities(OWLDataProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -257,7 +290,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<?> getIndividuals() {
 	try {
-	    return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
+	    //return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
+	    return getEntities(OWLIndividual.class);
 	} catch (OWLException ex) {
 	    return null;
 	}

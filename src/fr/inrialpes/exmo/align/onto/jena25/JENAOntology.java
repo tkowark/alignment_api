@@ -1,6 +1,7 @@
 package fr.inrialpes.exmo.align.onto.jena25;
 
 import java.net.URI;
+import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,6 +15,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
 import fr.inrialpes.exmo.align.onto.BasicOntology;
@@ -22,36 +24,7 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 
 
-    protected Set<?> listResources(Class<? extends OntResource> type) {
-	Set<Object> resources = new HashSet<Object>();
-	Iterator i = onto.listObjects();
-	while (i.hasNext()) {
-	    Object r = i.next();
-	    if (type.isInstance(r) && ((OntResource)r).getURI()!=null)
-		resources.add(r);
-	}
-	return resources;
 
-
-    }
-
-    public Set<?> getClasses() {
-	return onto.listNamedClasses().toSet();
-    }
-
-    public Set<?> getDataProperties() {
-	return onto.listDatatypeProperties().toSet();
-    }
-
-    @SuppressWarnings("unchecked")
-    public Set<Object> getEntities() {
-	Set<Object> entities = new HashSet<Object>();
-	entities.addAll(onto.listNamedClasses().toSet());
-	entities.addAll(onto.listDatatypeProperties().toSet());
-	entities.addAll(onto.listObjectProperties().toSet());
-	entities.addAll(onto.listIndividuals().toSet());
-	return entities;
-    }
 
     public Object getEntity(URI u) throws AlignmentException {
 	return onto.getOntResource(u.toString());
@@ -116,19 +89,52 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	}
     }
 
+    protected Set<OntResource> getEntitySet(final Iterator<OntResource> i) {
+	return  new AbstractSet<OntResource>() {
+	    private int size=-1;
+	    public Iterator<OntResource> iterator() {
+		return new JENAEntityIt(getURI(),i);
+	    }
+	    public int size() {
+		if (size==-1) {
+		    for (OntResource r : this)
+			size++;
+		    size++;
+		}
+		return size;
+	    }
+	};
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<?> getClasses() {
+	return getEntitySet(onto.listNamedClasses());
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<?> getDataProperties() {
+	return getEntitySet(onto.listDatatypeProperties());
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<?> getEntities() {
+	return getEntitySet(onto.listObjectProperties().andThen(onto.listDatatypeProperties()).
+		andThen(onto.listIndividuals()).andThen(onto.listClasses()));
+    }
+
+    @SuppressWarnings("unchecked")
     public Set<?> getIndividuals() {
-	return  onto.listIndividuals().toSet();
+	return getEntitySet(onto.listIndividuals());
     }
 
+    @SuppressWarnings("unchecked")
     public Set<?> getObjectProperties() {
-	return (Set<? extends Object>) onto.listObjectProperties().toSet();
+	return getEntitySet(onto.listObjectProperties());
     }
 
+    @SuppressWarnings("unchecked")
     public Set<?> getProperties() {
-	Set<Object> properties = new HashSet<Object>();
-	properties.addAll((Set<? extends Object>) onto.listDatatypeProperties().toSet());
-	properties.addAll((Set<? extends Object>) onto.listObjectProperties().toSet());
-	return properties;
+	return getEntitySet(onto.listObjectProperties().andThen(onto.listDatatypeProperties()));
     }
 
     public boolean isClass(Object o) {
@@ -156,24 +162,23 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     }
 
     public int nbClasses() {
-	return onto.listNamedClasses().toSet().size();
+	return this.getClasses().size();
     }
 
     public int nbDataProperties() {
-	return onto.listDatatypeProperties().toList().size();
+	return this.getDataProperties().size();
     }
 
     public int nbInstances() {
-	//return onto.listIndividuals().toList().size();
 	return this.getIndividuals().size();
     }
 
     public int nbObjectProperties() {
-	return onto.listObjectProperties().toList().size();
+	return this.getObjectProperties().size();
     }
 
     public int nbProperties() {
-	return onto.listOntProperties().toList().size();
+	return this.getProperties().size();
     }
 
     public void unload() {
