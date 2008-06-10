@@ -81,7 +81,8 @@ import org.eclipse.core.runtime.IPath;
  
 //import org.eclipse.core.resources.IProject;
 //import org.semanticweb.kaon2.api.Ontology;
-import org.semanticweb.kaon2.api.KAON2Connection;
+//import org.semanticweb.kaon2.api.KAON2Connection;
+import org.semanticweb.kaon2.api.OntologyManager;
 import org.semanticweb.kaon2.api.KAON2Exception;
 //import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import com.ontoprise.config.IConfig;
@@ -314,7 +315,8 @@ public class SWTInterface extends JPanel {
     IPath location = root.getLocation();
     String  path = location.toOSString();
     
-    ontoFolder = new File(path + location.SEPARATOR + "onto");
+    //ontoFolder = new File(path + location.SEPARATOR + "onto");
+    ontoFolder = new File(path + location.SEPARATOR + "align");
     
     if (!ontoFolder.exists()) ontoFolder.mkdir();
     basicFolder = new File(path + location.SEPARATOR );
@@ -1232,7 +1234,9 @@ private HashMap<String,String> refreshOntoList() {
 					if(projects[i]!=null) { System.out.printf("Project Onto "+ i +" = " + projects[i] );
 					 
 					//URI[] uris=  DatamodelPlugin.getDefault().getProjectOntologyFiles(projects[i]);
-					KAON2Connection connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
+					//Kaon2Connection connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
+					//version 15 May
+					OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
 					Set<String> strSet = connection.getAvailableOntologyURIs();
 					String[] uris = (String[])strSet.toArray(new String[0]);
 					
