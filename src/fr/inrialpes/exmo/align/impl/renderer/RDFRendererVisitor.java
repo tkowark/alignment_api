@@ -7,18 +7,18 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.impl.renderer; 
+package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -46,12 +46,12 @@ import org.omwg.mediation.language.objectmodel.api.Expression;
  * Renders an alignment in its RDF format
  *
  * @author Jérôme Euzenat
- * @version $Id$ 
+ * @version $Id$
  */
 
 public class RDFRendererVisitor implements AlignmentVisitor
 {
-    
+
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
@@ -95,7 +95,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    if ( !label.equals("rdf") && !label.equals("xsd")
-		 && !label.equals("<default>") ) 
+		 && !label.equals("<default>") )
 		writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
 	    }
 	}
@@ -118,14 +118,14 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print( align.getType() );
 	writer.print("</type>\n");
 	writer.print(extensionString);
-	writer.print("  <onto1>\n    <Ontology");
+	writer.print("  <onto1>\n    <Ontology>");
 	if ( align.getOntology1URI() != null ) {
 	    writer.print(" rdf:about=\""+align.getOntology1URI()+"\">");
 	}
 	writer.print("\n      <location>"+align.getFile1()+"</location>");
 	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject1().getFormalism() != null ) {
 	    writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject1().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject1().getFormURI()+"\"/>\n      </formalism>");
-	    
+
 	}
 	writer.print("\n    </Ontology>\n  </onto1>\n");
 	writer.print("  <onto2>\n    <Ontology");
