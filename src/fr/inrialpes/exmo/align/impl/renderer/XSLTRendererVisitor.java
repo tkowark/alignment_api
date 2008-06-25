@@ -107,12 +107,13 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 
     private void collectURIs ( Cell cell ) throws AlignmentException {
 	URI entity1URI, entity2URI;
+	// JE: I think that now these two clauses should be unified (3.4)
 	if ( onto1 != null ){
 	    entity1URI = onto1.getEntityURI( cell.getObject1() );
 	    entity2URI = onto2.getEntityURI( cell.getObject2() );
 	} else {
-	    entity1URI = cell.getObject1AsURI();
-	    entity2URI = cell.getObject2AsURI();
+	    entity1URI = cell.getObject1AsURI(alignment);
+	    entity2URI = cell.getObject2AsURI(alignment);
 	}
 	if ( entity1URI != null ) {
 	    String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
@@ -134,8 +135,8 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	    writer.println("  <xsl:template match=\""+namespacify(onto1.getEntityURI( cell.getObject1() ))+"\">");
 	    writer.println("    <xsl:element name=\""+namespacify(onto2.getEntityURI( cell.getObject2() ))+"\">");
 	} else {
-	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI())+"\">");
-	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI())+"\">");
+	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI(alignment))+"\">");
+	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI(alignment))+"\">");
 	}
 	writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
 	writer.println("    </xsl:element>");

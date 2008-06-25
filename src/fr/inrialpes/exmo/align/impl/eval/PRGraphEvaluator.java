@@ -116,17 +116,17 @@ public class PRGraphEvaluator extends BasicEvaluator {
 					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
 					    return 1;
 					//The comparator must always tell that things are different!
-					} else if ( (((Cell)o1).getObject1AsURI().getFragment() == null)
-						    || (((Cell)o2).getObject1AsURI().getFragment() == null) ) {
+					} else if ( (((Cell)o1).getObject1AsURI(align1).getFragment() == null)
+						    || (((Cell)o2).getObject1AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject1AsURI().getFragment().compareTo(((Cell)o2).getObject1AsURI().getFragment()) > 0) {
+					} else if ( ((Cell)o1).getObject1AsURI(align1).getFragment().compareTo(((Cell)o2).getObject1AsURI(align2).getFragment()) > 0) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject1AsURI().getFragment().compareTo(((Cell)o2).getObject1AsURI().getFragment()) < 0 ) {
+					} else if ( ((Cell)o1).getObject1AsURI(align1).getFragment().compareTo(((Cell)o2).getObject1AsURI(align2).getFragment()) < 0 ) {
 					    return 1;
-					} else if ( (((Cell)o1).getObject2AsURI().getFragment() == null)
-						    || (((Cell)o2).getObject2AsURI().getFragment() == null) ) {
+					} else if ( (((Cell)o1).getObject2AsURI(align1).getFragment() == null)
+						    || (((Cell)o2).getObject2AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject2AsURI().getFragment().compareTo(((Cell)o2).getObject2AsURI().getFragment()) > 0) {
+					} else if ( ((Cell)o1).getObject2AsURI(align1).getFragment().compareTo(((Cell)o2).getObject2AsURI(align2).getFragment()) > 0) {
 					    return -1;
 					// We assume that they have different names
 					} else { return 1; }
@@ -151,8 +151,8 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	  if( s1 != null ){ // for all cells matching our first entity
 	      for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){
 		  Cell c1 = (Cell)it1.next();
-		  URI uri1 = c1.getObject2AsURI();
-		  URI uri2 = c2.getObject2AsURI();	
+		  URI uri1 = c1.getObject2AsURI(align1);
+		  URI uri2 = c2.getObject2AsURI(align2);	
 		  if (uri1.toString().equals(uri2.toString())) { //This cell matches a correct one
 		      nbcorrect++;
 		      double recall = (double)nbcorrect / (double)nbexpected;

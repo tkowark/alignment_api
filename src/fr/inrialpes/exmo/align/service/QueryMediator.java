@@ -30,6 +30,7 @@ package fr.inrialpes.exmo.align.service;
 import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -188,8 +189,8 @@ public class QueryMediator implements QueryProcessor {
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell cell = (Cell)e.nextElement();
 	    mainQuery = mainQuery.replaceAll(
-					     cell.getObject1AsURI().toString(),
-					     cell.getObject2AsURI().toString() );
+					     cell.getObject1AsURI(align).toString(),
+					     cell.getObject2AsURI(align).toString() );
 	}
         return mainQuery;
     }

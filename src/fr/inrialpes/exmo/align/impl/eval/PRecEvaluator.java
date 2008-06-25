@@ -140,6 +140,31 @@ public class PRecEvaluator extends BasicEvaluator {
 	return (result);
     }
 
+    public String HTMLString (){
+	String result = "";
+	result += "  <div  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#' typeof=\"map:output\" href=''>";
+	result += "    <dl>";
+	//if ( ) {
+	//    result += "    <dt>algorithm</dt><dd property=\"map:algorithm\">"+align1.get+"</dd>";
+	//}
+	try {
+	    result += "    <dt>input1</dt><dd rel=\"map:input1\" href=\""+align1.getOntology1URI()+"\">"+align1.getOntology1URI()+"</dd>";
+	    result += "    <dt>input2</dt><dd rel=\"map:input2\" href=\""+align1.getOntology2URI()+"\">"+align1.getOntology2URI()+"</dd>";
+	} catch (AlignmentException e) { e.printStackTrace(); };
+	// Other missing items (easy to get)
+	// result += "    <map:falseNegative>");
+	// result += "    <map:falsePositive>");
+	result += "    <dt>precision</dt><dd property=\"map:precision\">"+precision+"</dd>\n";
+	result += "    <dt>recall</dt><dd property=\"map:recall\">"+recall+"</dd>\n";
+	result += "    <dt>fallout</dt><dd property=\"map:fallout\">"+fallout+"</dd>\n";
+	result += "    <dt>F-measure</dt><dd property=\"map:fMeasure\">"+fmeasure+"</dd>\n";
+	result += "    <dt>O-measure</dt><dd property=\"map:oMeasure\">"+overall+"</dd>\n";
+	if ( time != 0 ) result += "    <dt>time</dt><dd property=\"map:time\">"+time+"</dd>\n";
+    	result += "    <dt>result</dt><dd property=\"map:result\">"+result+"</dd>\n";
+	result += "  </dl>\n  </div>\n";
+return result;
+    }
+
     /**
      * This now output the results in Lockheed format.
      */

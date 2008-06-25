@@ -37,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -439,8 +440,25 @@ public class CacheImpl {
     public boolean isAlignmentStored( Alignment alignment ) {
 	if ( alignment.getExtension( SVCNS, STORED ) != null &&
 	     !alignment.getExtension( SVCNS, STORED ).equals("") )
-	    return false;
-	else return true;
+	    return true;
+	else return false;
+    }
+
+    /**
+     * Non publicised class
+     */
+    public void unStoreAlignment( String id ) throws Exception {
+	Alignment alignment = getAlignment( id );
+	if ( alignment != null ) {
+	    Statement st = (Statement) conn.createStatement();
+	    String query = "DELETE FROM extension WHERE id=''";
+	    st.executeUpdate(query);
+	    query = "DELETE FROM alignment WHERE id=''";
+	    st.executeUpdate(query);
+	    query = "DELETE FROM cell WHERE id=''";
+	    st.executeUpdate(query);
+	    alignment.setExtension( SVCNS, STORED, "");
+	}
     }
 
     public void storeAlignment( String id ) throws Exception {
@@ -501,8 +519,8 @@ public class CacheImpl {
 			cellid = c.getId();
 		    }
 		    else cellid = "";
-		    String uri1 = c.getObject1AsURI().toString();
-		    String uri2 = c.getObject2AsURI().toString();
+		    String uri1 = c.getObject1AsURI(alignment).toString();
+		    String uri2 = c.getObject2AsURI(alignment).toString();
 		    String strength = c.getStrength() + ""; // crazy Java
 		    String sem;
 		    if ( !c.getSemantics().equals("first-order") )
@@ -528,7 +546,11 @@ public class CacheImpl {
 		    }
 		}
 	    }
-	} catch (Exception e) { e.printStackTrace(); };
+	} catch (Exception e) { 
+	    // We should cancel this... IF NOT STORED!
+	    alignment.setExtension( SVCNS, STORED, "");
+	    e.printStackTrace(); 
+	};
 	// We reset cached date
 	resetCacheStamp(alignment);
     }
@@ -644,7 +666,7 @@ public class CacheImpl {
 		Statement st2 = (Statement) conn.createStatement();
 		while ( rse.next() ){
 		    String tag = rse.getString("tag");
-		    System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
+		    //System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
 		    if ( !tag.equals("") ){
 			int pos;
 			String ns;
@@ -662,7 +684,7 @@ public class CacheImpl {
 			    ns = Annotations.ALIGNNS;
 			    name = tag;
 			}
-			System.err.println("  >> "+ns+" : "+name);
+			//System.err.println("  >> "+ns+" : "+name);
 			st2.executeUpdate("UPDATE extension SET tag='"+name+"', uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
 		    }
 		}

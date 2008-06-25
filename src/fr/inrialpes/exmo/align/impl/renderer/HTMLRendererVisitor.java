@@ -130,14 +130,14 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	URI u1, u2;
-	if ( cell instanceof ObjectCell ) {
-	    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
-	    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
-	} else {
-	    System.err.println( cell );
-	    u1 = cell.getObject1AsURI();
-	    u2 = cell.getObject2AsURI();
-	}
+	// JE: I think that now these two clauses should be unified (3.4)
+	//if ( cell instanceof ObjectCell ) {
+	//    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
+	//    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
+	//} else {
+	    u1 = cell.getObject1AsURI( alignment );
+	    u2 = cell.getObject2AsURI( alignment );
+	    //}
 	writer.print(" <tr typeof=\"align:Cell\">");
 	writer.print("<td rel=\"align:entity1\" href=\""+u1+"\">"+u1+"</td><td property=\"align:relation\">");
 	cell.getRelation().accept( this );

@@ -223,7 +223,7 @@ public class OWLAPIAlignment extends ObjectAlignment {
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    OWLAPICell c = (OWLAPICell)e.nextElement(); //[W:Deprecated]
 	    try {
-		align.addAlignCell( c.getId(), c.getObject1AsURI(), c.getObject2AsURI(), c.getRelation(), c.getStrength() );
+		align.addAlignCell( c.getId(), c.getObject1AsURI(this), c.getObject2AsURI(this), c.getRelation(), c.getStrength() );
 	    } catch (AlignmentException aex) {
 		// Sometimes URIs are null, this is ignored
 	    }
@@ -245,11 +245,11 @@ public class OWLAPIAlignment extends ObjectAlignment {
 	//System.err.println( o1 );
 	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
-	    //System.err.println( c.getObject1AsURI() );
-	    //System.err.println( c.getObject2AsURI() );
+	    //System.err.println( c.getObject1AsURI(this) );
+	    //System.err.println( c.getObject2AsURI(this) );
 	    alignment.addAlignCell( c.getId(), 
-				    getEntity( o1, c.getObject1AsURI() ),
-				    getEntity( o2, c.getObject2AsURI() ),
+				    getEntity( o1, c.getObject1AsURI(al) ),
+				    getEntity( o2, c.getObject2AsURI(al) ),
 				    c.getRelation(), 
 				    c.getStrength(),
 				    c.getExtensions() );

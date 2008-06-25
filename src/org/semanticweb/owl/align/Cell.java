@@ -51,8 +51,18 @@ public interface Cell extends Comparable<Cell> {
     public void setSemantics( String s );
     public Object getObject1();
     public Object getObject2();
+    /**
+     * //@deprecated use getObject1AsURI( null ) instead
+     */
+    //@Deprecated
     public URI getObject1AsURI() throws AlignmentException;
+    /**
+     * //@deprecated use getObject2AsURI( null ) instead
+     */
+    //@Deprecated
     public URI getObject2AsURI() throws AlignmentException;
+    public URI getObject1AsURI( Alignment al ) throws AlignmentException;
+    public URI getObject2AsURI( Alignment al ) throws AlignmentException;
     public void setObject1( Object ob ) throws AlignmentException;
     public void setObject2( Object ob ) throws AlignmentException;
     public Relation getRelation();

@@ -450,6 +450,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
 	}
+System.err.println( id +" -- "+al);
 	// Invert it
 	try { al = al.inverse(); }
 	catch (AlignmentException e) {
@@ -471,6 +472,40 @@ public class AServProtocolManager {
 
     public Message compose( Message mess ){
 	// Retrieve alignments
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+    }
+
+    // It is also possible to try a groupeval ~> with a zipfile containing results
+    //            ~~> But it is more difficut to know where is the reference (non public)
+    // There should also be options for selecting the result display
+    //            ~~> PRGraph (but this may be a Evaluator)
+    //            ~~> Triangle
+    //            ~~> Cross
+    public Message eval( Message mess ){
+	Parameters params = mess.getParameters();
+	// Retrieve the alignment
+	String id = (String)params.getParameter("id");
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
+	}
+	// Retrieve the reference alignment
+	String rid = (String)params.getParameter("ref");
+	Alignment ref = null;
+	try {
+	    ref = alignmentCache.getAlignment( rid );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+rid,(Parameters)null);
+	}
+	// Set the comparison method
+	// Compare it
+	try { al = al.inverse(); }
+	catch (AlignmentException e) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	}
+	// Return it, not easy
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
     }
 

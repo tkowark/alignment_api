@@ -150,7 +150,7 @@ public class ObjectAlignment extends BasicAlignment {
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
 	    try {
-		align.addAlignCell( c.getId(), c.getObject1AsURI(), c.getObject2AsURI(), c.getRelation(), c.getStrength() );
+		align.addAlignCell( c.getId(), c.getObject1AsURI(this), c.getObject2AsURI(this), c.getRelation(), c.getStrength() );
 	    } catch (AlignmentException aex) {
 		// Sometimes URIs are null, this is ignore
 	    }
@@ -171,8 +171,8 @@ public class ObjectAlignment extends BasicAlignment {
 	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
 	    alignment.addAlignCell( c.getId(), 
-				    o1.getEntity( c.getObject1AsURI() ),
-				    o2.getEntity( c.getObject2AsURI() ),
+				    o1.getEntity( c.getObject1AsURI(alignment) ),
+				    o2.getEntity( c.getObject2AsURI(alignment) ),
 				    c.getRelation(), 
 				    c.getStrength(),
 				    c.getExtensions() );

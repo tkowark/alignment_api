@@ -76,7 +76,7 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	if ( onto2 != null ) {
 	    return onto2.getEntityURI( cell.getObject2() );
 	} else {
-	    return cell.getObject2AsURI();
+	    return cell.getObject2AsURI( alignment );
 	}
     }
 
@@ -85,7 +85,7 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	if ( onto1 != null ) {
 	    writer.print("  <skos:Concept rdf:about=\""+onto1.getEntityURI( cell.getObject1() )+"\">\n");
 	} else {
-	    writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI()+"\">\n");
+	    writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI( alignment )+"\">\n");
 	}
 	cell.getRelation().accept( this );
 	writer.print("  </skos:Concept>\n\n");
