@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA Rhône-Alpes, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,11 +28,30 @@ import org.semanticweb.owl.align.Parameters;
 
 public class AlignmentId extends Success {
 
+    String pretty = null;
+
     public AlignmentId ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
+    public String getPretty( String alid ) {
+	// getextension "pretty"
+	// if no pretty then 
+	return alid;
+    };
     public String HTMLString(){
-	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getContent()+"</a>";
+	String result = "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
+	// Improved return
+	// STORE
+	result += "<form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form>";
+	// TRIM (2)
+	result += "<form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form>";
+	// RETRIEVE (1)
+	result += "<form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form>";
+	// Note at that point it is not possible to get the methods
+	// COMPARE (2)
+	// INV
+	result += "<form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form>";
+	return result;
     }
     public String SOAPString(){
 	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
