@@ -26,11 +26,15 @@ import java.util.Enumeration;
 
 import org.xml.sax.ContentHandler;
 
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
 /**
  * Represents an ontology alignment correspondence.
@@ -72,20 +76,30 @@ public class ObjectCell extends BasicCell {
     }
      */
 
-    public URI getObject1AsURI() throws AlignmentException {
+    public URI getObject1AsURI( Alignment al ) throws AlignmentException {
+	if ( al instanceof BasicAlignment ) {
+	    Object ontology = ((BasicAlignment)al).getOntologyObject1();
+	    if ( ontology instanceof LoadedOntology ) {
+		return ((LoadedOntology)ontology).getEntityURI( object1 );
+	    }
+	};
 	if ( object1 instanceof URI ) {
 	    return (URI)object1;
 	} else {
-	    // TO BE DONE
-	    return null;
+	    throw new AlignmentException( "Cannot find URI for "+object1 );
 	}
     }
-    public URI getObject2AsURI() throws AlignmentException {
-	if ( object2 instanceof URI ) {
+    public URI getObject2AsURI( Alignment al ) throws AlignmentException {
+	if ( al instanceof BasicAlignment ) {
+	    Object ontology = ((BasicAlignment)al).getOntologyObject2();
+	    if ( ontology instanceof LoadedOntology ) {
+		return ((LoadedOntology)ontology).getEntityURI( object2 );
+	    }
+	};
+        if ( object2 instanceof URI ) {
 	    return (URI)object2;
 	} else {
-	    // TO BE DONE
-	    return null;
+	    throw new AlignmentException( "Cannot find URI for "+object2 );
 	}
     }
     public Cell inverse() throws AlignmentException {
@@ -94,8 +108,8 @@ public class ObjectCell extends BasicCell {
 	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
 		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
+	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
 	}
-	result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
 	// The sae should be done for the measure
 	return result;
     }

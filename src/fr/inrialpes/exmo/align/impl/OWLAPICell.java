@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLException;
 
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
@@ -71,7 +72,7 @@ public class OWLAPICell extends ObjectCell {
     }
 
     // Only OWL
-    public URI getObject1AsURI() throws AlignmentException {
+    public URI getObject1AsURI( Alignment al ) throws AlignmentException {
 	try {
 	    return ((OWLEntity)object1).getURI();
 	} catch (OWLException e) {
@@ -80,7 +81,7 @@ public class OWLAPICell extends ObjectCell {
     }
 
     // Only OWL
-    public URI getObject2AsURI() throws AlignmentException {
+    public URI getObject2AsURI( Alignment al ) throws AlignmentException {
 	try {
 	    return ((OWLEntity)object2).getURI();
 	} catch (OWLException e) {

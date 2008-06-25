@@ -26,6 +26,7 @@ import java.util.Enumeration;
 
 import org.xml.sax.ContentHandler;
 
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
@@ -100,6 +101,9 @@ public class BasicCell implements Cell, Comparable<Cell> {
      * Use <tt>Ontology.getEntityURI( this )</tt> instead.
      */
     public URI getObject1AsURI() throws AlignmentException {
+	return getObject1AsURI( null );
+    }
+    public URI getObject1AsURI( Alignment al ) throws AlignmentException {
 	if ( object1 instanceof URI ) {
 	    return (URI)object1;
 	} else {
@@ -114,6 +118,9 @@ public class BasicCell implements Cell, Comparable<Cell> {
      * Use <tt>Ontology.getEntityURI( this )</tt> instead.
      */
     public URI getObject2AsURI() throws AlignmentException {
+	return getObject2AsURI( null );
+    }
+    public URI getObject2AsURI( Alignment al ) throws AlignmentException {
 	if ( object2 instanceof URI ) {
 	    return (URI)object2;
 	} else {
@@ -157,8 +164,8 @@ public class BasicCell implements Cell, Comparable<Cell> {
 	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
 		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
+	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
 	}
-	result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
 	// The sae should be done for the measure
 	return result;
     }

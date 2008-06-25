@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,6 +30,7 @@ import java.net.URI;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
@@ -75,8 +76,12 @@ public class URICell extends BasicCell {
 	}
     }
 
-    public URI getObject1AsURI() throws AlignmentException { return (URI)object1; };
-    public URI getObject2AsURI() throws AlignmentException { return (URI)object2; };
+    public URI getObject1AsURI( Alignment al ) throws AlignmentException { 
+	return (URI)object1; 
+    };
+    public URI getObject2AsURI( Alignment al ) throws AlignmentException { 
+	return (URI)object2; 
+    };
     //public Object getObject1(){ return object1; };
     //public Object getObject2(){ return object2; };
     // We could check that the given values are URIs
