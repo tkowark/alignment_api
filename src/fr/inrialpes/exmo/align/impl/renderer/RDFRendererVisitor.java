@@ -143,14 +143,15 @@ public class RDFRendererVisitor implements AlignmentVisitor
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	URI u1, u2;
-	if ( cell instanceof ObjectCell ) {
-	    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
-	    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
-	} else {
-	    u1 = cell.getObject1AsURI();
-	    u2 = cell.getObject2AsURI();
-	}
+	//URI u1, u2;
+	// JE: I think that now these two clauses should be unified (3.4)
+	//if ( cell instanceof ObjectCell ) {
+	//    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
+	//    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
+	//} else {
+	    URI u1 = cell.getObject1AsURI(alignment);
+	    URI u2 = cell.getObject2AsURI(alignment);
+	    //}
 	if ( ( u1 != null && u2 != null)
 	     || alignment.getLevel().equals("2OMWG") ){
 	    writer.print("  <map>\n");
