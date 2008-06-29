@@ -245,8 +245,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<?> getClasses() {
 	try {
-	    //return ((OWLOntology)onto).getClasses(); // [W:unchecked]
-	    return getEntities(OWLClass.class);
+	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	    //return getEntities(OWLClass.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -269,9 +269,9 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	    // [Warning:unchecked] due to OWL API not serving generic types
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
-	    //return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
 	    // This method works better
-	    return getEntities(OWLObjectProperty.class);
+	    //return getEntities(OWLObjectProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -281,8 +281,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	try {
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
-	    //return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
-	    return getEntities(OWLDataProperty.class);
+	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
+	    //return getEntities(OWLDataProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -290,8 +290,8 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 
     public Set<?> getIndividuals() {
 	try {
-	    //return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
-	    return getEntities(OWLIndividual.class);
+	    return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
+	    //return getEntities(OWLIndividual.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
