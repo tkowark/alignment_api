@@ -118,11 +118,11 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print( align.getType() );
 	writer.print("</type>\n");
 	writer.print(extensionString);
-	writer.print("  <onto1>\n    <Ontology>");
+	writer.print("  <onto1>\n    <Ontology");
 	if ( align.getOntology1URI() != null ) {
-	    writer.print(" rdf:about=\""+align.getOntology1URI()+"\">");
+	    writer.print(" rdf:about=\""+align.getOntology1URI()+"\"");
 	}
-	writer.print("\n      <location>"+align.getFile1()+"</location>");
+	writer.print(">\n      <location>"+align.getFile1()+"</location>");
 	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject1().getFormalism() != null ) {
 	    writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject1().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject1().getFormURI()+"\"/>\n      </formalism>");
 
@@ -130,9 +130,9 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	writer.print("\n    </Ontology>\n  </onto1>\n");
 	writer.print("  <onto2>\n    <Ontology");
 	if ( align.getOntology2URI() != null ) {
-	    writer.print(" rdf:about=\""+align.getOntology2URI()+"\">");
+	    writer.print(" rdf:about=\""+align.getOntology2URI()+"\"");
 	}
-	writer.print("\n      <location>"+align.getFile2()+"</location>");
+	writer.print(">\n      <location>"+align.getFile2()+"</location>");
 	if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject2().getFormalism() != null ) {
 	    writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject2().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/>\n      </formalism>");
 	}
@@ -143,15 +143,8 @@ public class RDFRendererVisitor implements AlignmentVisitor
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	//URI u1, u2;
-	// JE: I think that now these two clauses should be unified (3.4)
-	//if ( cell instanceof ObjectCell ) {
-	//    u1 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject1()).getEntityURI( cell.getObject1() );
-	//    u2 = ((LoadedOntology)((BasicAlignment)alignment).getOntologyObject2()).getEntityURI( cell.getObject2() );
-	//} else {
-	    URI u1 = cell.getObject1AsURI(alignment);
-	    URI u2 = cell.getObject2AsURI(alignment);
-	    //}
+	URI u1 = cell.getObject1AsURI(alignment);
+	URI u2 = cell.getObject2AsURI(alignment);
 	if ( ( u1 != null && u2 != null)
 	     || alignment.getLevel().equals("2OMWG") ){
 	    writer.print("  <map>\n");
