@@ -124,7 +124,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	result.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+	assertEquals( stream.toString().length(), 1741, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl" }, dependsOnMethods = {"routineTest3"})
@@ -170,7 +170,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+	//assertEquals( stream.toString().length(), 1741, "Rendered differently" );
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
 	*/
@@ -183,7 +183,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	alignment.render( new RDFRendererVisitor( writer ) );
 	writer.flush();
 	writer.close();
-	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+	//assertEquals( stream.toString().length(), 1741, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl" }, dependsOnMethods = {"routineTest8"})

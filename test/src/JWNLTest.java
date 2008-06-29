@@ -78,7 +78,7 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14037, "Rendered differently" );
+	assertEquals( stream.toString().length(), 14038, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 35 );
     }
