@@ -157,7 +157,7 @@ public class OWLAPIAlignmentTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 1741, "Rendered differently" );
+	assertEquals( stream.toString().length(), 1740, "Rendered differently" );
     }
 
 }
