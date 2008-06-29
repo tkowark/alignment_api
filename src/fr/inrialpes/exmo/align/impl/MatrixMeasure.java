@@ -83,51 +83,47 @@ public abstract class MatrixMeasure implements Similarity {
 	indlist2 = new HashMap<Object,Integer>(); // onto2 instances
 	indlist1 = new HashMap<Object,Integer>(); // onto1 instances
 
+	//System.err.println(onto1+" - "+onto2);
 	try {
 	    // Create class lists
-	    for ( Iterator it = onto2.getClasses().iterator(); it.hasNext(); nbclass2++ ){
-		classlist2.put( (Object)it.next(), new Integer(nbclass2) );
+	    for( Object cl : onto2.getClasses() ){
+		classlist2.put( cl, new Integer(nbclass2++) );
 	    }
-	    for ( Iterator it = onto1.getClasses().iterator(); it.hasNext(); nbclass1++ ){
-		classlist1.put( (Object)it.next(), new Integer(nbclass1)  );
+	    for( Object cl : onto1.getClasses() ){
+		classlist1.put( cl, new Integer(nbclass1++) );
 	    }
 	    clmatrix = new double[nbclass1+1][nbclass2+1];
 
 	    // Create property lists
-	    for ( Iterator it = onto2.getObjectProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.put( (Object)it.next(), new Integer(nbprop2) );
+	    for( Object pr : onto2.getObjectProperties() ){
+		proplist2.put( pr, new Integer(nbprop2++) );
 	    }
-	    for ( Iterator it = onto2.getDataProperties().iterator(); it.hasNext(); nbprop2++ ){
-		proplist2.put( (Object)it.next(), new Integer(nbprop2)  );
+	    for( Object pr : onto2.getDataProperties() ){
+		proplist2.put( pr, new Integer(nbprop2++) );
 	    }
-	    for ( Iterator it = onto1.getObjectProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.put( (Object)it.next(), new Integer(nbprop1) );
+	    for( Object pr : onto1.getObjectProperties() ){
+		proplist1.put( pr, new Integer(nbprop1++) );
 	    }
-	    for ( Iterator it = onto1.getDataProperties().iterator(); it.hasNext(); nbprop1++ ){
-		proplist1.put( (Object)it.next(), new Integer(nbprop1) );
+	    for( Object pr : onto1.getDataProperties() ){
+		proplist1.put( pr, new Integer(nbprop1++) );
 	    }
 	    prmatrix = new double[nbprop1+1][nbprop2+1];
+
 	    // Create individual lists
-	    for ( Iterator it = onto2.getIndividuals().iterator(); it.hasNext();  ){
-		Object o = (Object)it.next();
-		//System.err.println( o );
+	    for( Object ind : onto2.getDataProperties() ){
 		// We suppress anonymous individuals... this is not legitimate
-		if ( onto2.getEntityURI(o) != null ) {
-		    indlist2.put( o, new Integer(nbind2) );
-		    nbind2++;
+		if ( onto2.getEntityURI( ind ) != null ) {
+		    indlist2.put( ind, new Integer(nbind2++) );
 		}
 	    }
-	    for ( Iterator it = onto1.getIndividuals().iterator(); it.hasNext(); ){
-		Object o = (Object)it.next();
-		//System.err.println( o );
+	    for( Object ind : onto1.getDataProperties() ){
 		// We suppress anonymous individuals... this is not legitimate
-		if ( onto2.getEntityURI(o) != null ) {
-		    indlist1.put( o, new Integer(nbind1) );
-		    nbind1++;
+		if ( onto1.getEntityURI( ind ) != null ) {
+		    indlist1.put( ind, new Integer(nbind1++) );
 		}
 	    }
 	    indmatrix = new double[nbind1+1][nbind2+1];
-
+	    //System.err.println(nbclass1+"/"+nbclass2+" - "+nbprop1+"/"+nbprop2+" - "+nbind1+"/"+nbind2);
 	} catch (AlignmentException e) { e.printStackTrace(); };
     }
 
