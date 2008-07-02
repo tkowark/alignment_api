@@ -10,10 +10,10 @@
            </separator>
          </menu>
          <action
-              label="&amp;Alignment Server"
+              label="&amp;Alignment"
               icon="icons/align.gif"
               class="fr.inrialpes.exmo.align.plugin.neontk.AlignAction"
-              tooltip="Show Alignment View"
+              tooltip="Show Neon Alignment View"
               menubarPath="align/align"
               toolbarPath="align"
               id="fr.inrialpes.exmo.align.plugin.neontk.action">
@@ -23,32 +23,13 @@
    
    <extension point="org.eclipse.ui.views">
       <view
-            name="Alignment Server"
+            name="Alignment"
             allowMultiple="true"
             icon="icons/align.gif"
             class="fr.inrialpes.exmo.align.plugin.neontk.View"
             id="fr.inrialpes.exmo.align.plugin.neontk.view">
       </view>
-      <view
-            name="Alignment"
-            allowMultiple="true"
-            icon="icons/sample3.gif"
-            class="fr.inrialpes.exmo.align.plugin.neontk.NavigationView"
-            id="fr.inrialpes.exmo.align.plugin.neontk.navigationView">
-      </view>
-   </extension>
-   
-   <extension point="com.ontoprise.ontostudio.gui.extendableDropHandler">
-      <dropHandler
-        class= "org.eclipse.swt.dnd.DropTargetListener"
-        dragClass="com.ontoprise.ontostudio.gui.navigator.module.ModuleTreeElement"
-        dropClass="org.eclipse.jface.viewers.TreeViewer">
-      </dropHandler>
-      
-      <transferHandler
-        class= "org.eclipse.swt.dnd.DropTargetListener"
-        transferClass="com.ontoprise.ontostudio.gui.navigator.SelectionTransfer">
-      </transferHandler>
+       
    </extension>
          
 </plugin>
