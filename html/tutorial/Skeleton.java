@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006-2007, INRIA Rhône-Alpes
+ * Copyright (C) 2006-2008, INRIA Rhône-Alpes
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -33,7 +33,6 @@ import org.semanticweb.owl.align.Parameters;
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 
@@ -55,16 +54,12 @@ import java.net.URI;
 
 public class Skeleton {
 
-    static OntologyCache loaded = null;
-
     public static void main( String[] args ) {
 	URI onto1 = null;
 	URI onto2 = null;
 	Parameters params = new BasicParameters();
 
 	try {
-	    loaded = new OntologyCache();
-
 	    // Loading ontologies
 	    if (args.length >= 2) {
 		onto1 = new URI( args[0] );
@@ -76,7 +71,7 @@ public class Skeleton {
 
 	    // Aligning
 	    AlignmentProcess a1 = new StringDistAlignment();
-	    a1.init ( onto1, onto2, loaded );
+	    a1.init ( onto1, onto2 );
 	    a1.align( (Alignment)null, params );
 
 	    // Outputing
