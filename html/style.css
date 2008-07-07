@@ -30,9 +30,12 @@ div.terminal {
 div.fragment {
     margin: 0.9em 0;
     padding: 8px;
+    width: 98%;
     border: 1pt solid;
     background: #dde;
     border:1pt solid;
+    font-family: monospace;
+    white-space: pre;
     overflow: auto;
 }
 div.logic {
