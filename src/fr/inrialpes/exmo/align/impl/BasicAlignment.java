@@ -547,7 +547,11 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	result.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	String oldid = result.getExtension( Annotations.ALIGNNS, "id" );
+	if ( oldid != null && !oldid.equals("") ) {
+	    result.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
+	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	}
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    result.setXNamespace( label, getXNamespace( label ) );
@@ -592,7 +596,11 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
+	if ( oldid != null && !oldid.equals("") ) {
+	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
+	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	}
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );

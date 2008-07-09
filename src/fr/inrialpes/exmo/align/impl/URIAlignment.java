@@ -175,7 +175,11 @@ public class URIAlignment extends BasicAlignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
-	align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
+	if ( oldid != null && !oldid.equals("") ) {
+	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
+	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	}
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

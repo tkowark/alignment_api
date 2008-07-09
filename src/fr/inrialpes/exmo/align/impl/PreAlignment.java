@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Copyright (C) INRIA Rhône-Alpes, 2004
  *
  * This program is free software; you can redistribute it and/or modify
