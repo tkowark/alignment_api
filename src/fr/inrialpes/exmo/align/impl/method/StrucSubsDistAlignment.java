@@ -61,6 +61,17 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	setType("**");
     };
 
+    /**
+     * Initialisation
+     * The class requires HeavyLoadedOntologies
+     */
+    public void init(Object o1, Object o2, Object ontologies) throws AlignmentException {
+	super.init( o1, o2, ontologies );
+	if ( !( getOntologyObject1() instanceof HeavyLoadedOntology
+		&& getOntologyObject1() instanceof HeavyLoadedOntology ))
+	    throw new AlignmentException( "StrucSubsDistAlignment requires HeavyLoadedOntology ontology loader" );
+    }
+
     /** Processing **/
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	loadInit( alignment );
