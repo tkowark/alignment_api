@@ -810,16 +810,16 @@ System.err.println( id +" -- "+al);
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		aresult.init( uri1, uri2, loadedOntologies );
-		long time = System.currentTimeMillis();
 		try {
+		    aresult.init( uri1, uri2, loadedOntologies );
+		    long time = System.currentTimeMillis();
 		    aresult.align( init, params ); // add opts
+		    long newTime = System.currentTimeMillis();
+		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		} catch (AlignmentException e) {
-		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Parameters)null);
 		    return;
 		}
-		long newTime = System.currentTimeMillis();
-		aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
 	    } catch (ClassNotFoundException e) {
