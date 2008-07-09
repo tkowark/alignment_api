@@ -106,13 +106,12 @@ public class MyApp {
 		    best = ((PRecEvaluator)evaluator).getFmeasure();
 		}
 	    }
-
 	    // Displays it as SWRL Rules
 	    PrintWriter writer = new PrintWriter (
 				  new BufferedWriter(
 		                   new OutputStreamWriter( System.out, "UTF-8" )), true);
 	    AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
-	    result.render(renderer);
+	    a1.render(renderer);
 	    writer.flush();
 	    writer.close();
 
