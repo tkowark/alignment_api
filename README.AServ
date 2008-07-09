@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      29/02/2008, version 3.2+                       #
+#                      09/07/2008, version 3.3+                       #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
@@ -55,7 +55,7 @@ LAUNCHING MYSQL AND LOADING SAMPLE DATABASE
 
 The next time it is sufficient that mysql is running... (with the database loaded)
 
-$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
+$ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql
 
 LAUNCHING THE ALIGNMENT SERVER WITH OYSTER REGISTERY
 ----------------------------------------------------
