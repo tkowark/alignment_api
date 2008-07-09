@@ -37,6 +37,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Evaluator;
 
 import java.sql.SQLException;
 
@@ -83,6 +84,7 @@ public class AServProtocolManager {
     Set<String> renderers = null;
     Set<String> methods = null;
     Set<String> services = null;
+    Set<String> evaluators = null;
 
     OntologyCache loadedOntologies = null;
     Hashtable<String,Directory> directories = null;
@@ -108,6 +110,7 @@ public class AServProtocolManager {
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
 	services = implementations( "fr.inrialpes.exmo.align.service.AlignmentServiceProfile" );
+	evaluators = implementations( "org.semanticweb.owl.align.Evaluator" );
 	loadedOntologies = new OntologyCache();
     }
 
@@ -500,12 +503,26 @@ System.err.println( id +" -- "+al);
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+rid,(Parameters)null);
 	}
 	// Set the comparison method
+	String classname = (String)params.getParameter("method");
+	if ( classname == null ) classname = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
+	Evaluator eval = null;
+	try {
+	    Object [] mparams = {(Object)ref, (Object)al};
+	    Class oClass = Class.forName("org.semanticweb.owl.align.Alignment");
+	    Class[] cparams = { oClass, oClass };
+	    Class evaluatorClass =  Class.forName(classname);
+	    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
+	    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
+	} catch (Exception ex) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	}
 	// Compare it
-	try { al = al.inverse(); }
+	try { eval.eval(params); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
 	// Return it, not easy
+	// Should be evaluation results...
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
     }
 
@@ -663,7 +680,10 @@ System.err.println( id +" -- "+al);
 				int len = classname.length()-6;
 				if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
 				    classname = classname.substring(0,len);
-				    classname = classname.replaceAll(File.separator,".");
+				    // Beware, in a Jarfile the separator is always "/"
+				    // and it would not be dependent on the current system anyway.
+				    //classname = classname.replaceAll(File.separator,".");
+				    classname = classname.replaceAll("/",".");
 				    try {
 					if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
 					Class cl = Class.forName(classname);
@@ -693,7 +713,10 @@ System.err.println( id +" -- "+al);
 			    if ( path != null && !path.equals("") ) {
 				// JE: Not sure where to find the other Jars:
  				// in the path or at the local place?
-				classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+				//classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+				// This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
+				for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
+				    classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
 			    }
 			} catch (NullPointerException nullexp) { //Raised by JarFile
 			    System.err.println("Warning "+file+" unavailable");
