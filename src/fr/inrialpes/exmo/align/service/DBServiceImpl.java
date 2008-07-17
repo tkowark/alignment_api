@@ -38,7 +38,6 @@ public class DBServiceImpl implements DBService{
     static String user = "adminAServ";
     static String database = "AServDB";
     String driverPrefix = "jdbc:mysql";
-    Statement st = null;
     CacheImpl cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -71,7 +70,6 @@ public class DBServiceImpl implements DBService{
 
     public void connect(String IPAddress, String port, String user, String password, String database ) throws SQLException {
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, password);
-	st = (Statement) conn.createStatement();
 	}
 
     public Connection getConnection() {
@@ -81,7 +79,6 @@ public class DBServiceImpl implements DBService{
     public void close() {
 	try {
 	    conn.close();
-	    st.close();
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	}

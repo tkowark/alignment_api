@@ -63,7 +63,7 @@ public class CacheImpl {
     String host = null;
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
-	
+
     final int VERSION = 310; // Version of the API to be stored in the database
     /* 300: initial database format
        301: added alignment id as primary key
@@ -71,6 +71,7 @@ public class CacheImpl {
        310: changed extension table with added URIs and method -> val 
      */
 
+    DBService service = null;
     Connection conn = null;
 	
     final int CONNECTION_ERROR = 1;
@@ -84,9 +85,10 @@ public class CacheImpl {
     static public final String OURI2 = "ouri2";
 	
     //**********************************************************************
-    public CacheImpl( DBService service ) {
+    public CacheImpl( DBService serv ) {
+	service = service;
 	try {
-	    this.conn = service.getConnection();
+	    conn = serv.getConnection();
 	} catch(Exception e) {
 	    // Rather raise an exception
 	    System.err.println(e.toString());
@@ -102,7 +104,7 @@ public class CacheImpl {
     public void init( Parameters p ) throws SQLException, AlignmentException {
 	port = (String)p.getParameter("http"); // bad idea
 	host = (String)p.getParameter("host");
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 	// test if a database is here, otherwise create it
 	ResultSet rs = (ResultSet)st.executeQuery("SHOW TABLES LIKE 'server'");
 	if ( !rs.next() ) {
@@ -112,14 +114,28 @@ public class CacheImpl {
 	}
 	// register by the database
 	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('"+host+"','"+port+"','"+rights+"',"+VERSION+")");
+	st.close();
 	// load alignment descriptions
 	loadAlignments( true );
     }
 
     public void close() throws SQLException  {
-	Statement st = (Statement) conn.createStatement();
+	Statement st = (Statement)conn.createStatement();
 	// unregister by the database
 	st.executeUpdate("DELETE FROM server WHERE host='"+host+"' AND port='"+port+"'");
+	st.close();
+	conn.close();
+    }
+
+    public Statement createStatement() throws SQLException {
+	Statement st = null;
+	try {
+	     st = (Statement) conn.createStatement();
+	} catch ( SQLException ex ) {
+	    conn = service.getConnection();
+	    st = (Statement) conn.createStatement();
+	}
+	return st;
     }
 
     // **********************************************************************
@@ -134,7 +150,7 @@ public class CacheImpl {
 	String id = null;
 	Alignment alignment = null;
 	Vector<String> idInfo = new Vector<String>();
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 	
 	if (force) {
 	    // Retrieve the alignment ids
@@ -151,6 +167,7 @@ public class CacheImpl {
 		recordAlignment( id, alignment, true );
 	    }							
 	}
+	st.close();
     }
 
     protected Enumeration<Alignment> listAlignments() {
@@ -180,7 +197,7 @@ public class CacheImpl {
 	URIAlignment result = new URIAlignment();
 		
 	try {
-	    Statement st = (Statement) conn.createStatement();
+	    Statement st = createStatement();
 	    // Get basic ontology metadata
 	    query = "SELECT * FROM alignment WHERE id = '" + id  +"'";
 	    rs = (ResultSet) st.executeQuery(query);
@@ -204,6 +221,7 @@ public class CacheImpl {
 		value = rs.getString("val");
 		result.setExtension( rs.getString("uri"), tag, value);
 	    }
+	    st.close();
 	} catch (Exception e) { // URI exception that should not occur
 	    System.err.println("Unlikely URI exception!");
 	    e.printStackTrace();
@@ -230,7 +248,7 @@ public class CacheImpl {
 	URI ent1 = null, ent2 = null;
 	Cell cell = null;
 
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 
 	alignment.setOntology1( new URI( alignment.getExtension( SVCNS, OURI1 ) ) );
 	alignment.setOntology2( new URI( alignment.getExtension( SVCNS, OURI2 ) ) );
@@ -264,7 +282,7 @@ public class CacheImpl {
 	}
 	// reset
 	resetCacheStamp(alignment);
-
+	st.close();
 	return alignment;
     }
     
@@ -450,7 +468,7 @@ public class CacheImpl {
     public void unStoreAlignment( String id ) throws Exception {
 	Alignment alignment = getAlignment( id );
 	if ( alignment != null ) {
-	    Statement st = (Statement) conn.createStatement();
+	    Statement st = createStatement();
 	    String query = "DELETE FROM extension WHERE id=''";
 	    st.executeUpdate(query);
 	    query = "DELETE FROM alignment WHERE id=''";
@@ -458,13 +476,14 @@ public class CacheImpl {
 	    query = "DELETE FROM cell WHERE id=''";
 	    st.executeUpdate(query);
 	    alignment.setExtension( SVCNS, STORED, "");
+	    st.close();
 	}
     }
 
     public void storeAlignment( String id ) throws Exception {
 	String query = null;
 	Alignment alignment = getAlignment( id );
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 
 	// We store stored date
 	alignment.setExtension( SVCNS, STORED, new Date().toString());
@@ -551,6 +570,7 @@ public class CacheImpl {
 	    alignment.setExtension( SVCNS, STORED, "");
 	    e.printStackTrace(); 
 	};
+	st.close();
 	// We reset cached date
 	resetCacheStamp(alignment);
     }
@@ -618,17 +638,18 @@ public class CacheImpl {
     */
 
     public void initDatabase() throws SQLException {
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 	// Create tables
 	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), owlontology1 VARCHAR(250), owlontology2 VARCHAR(250), type VARCHAR(5), level VARCHAR(1), file1 VARCHAR(250), file2 VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), primary key (id))");
 	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(5))");
 	st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), edit BOOLEAN, version VARCHAR(5))");
 	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('dbms', 'port', 0, '"+VERSION+"')");
+	st.close();
     }
 
     public void resetDatabase( boolean force ) throws SQLException, AlignmentException {
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 	// Check that no one else is connected...
 	if ( force != true ){
 	    ResultSet rs = (ResultSet) st.executeQuery("SELECT COUNT(*) AS rowcount FROM server WHERE edit=1");
@@ -648,10 +669,11 @@ public class CacheImpl {
 	initDatabase();
 	// Register this server, etc. characteristics (incl. version name)
 	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('"+host+"','"+port+"','"+rights+"',"+VERSION+")");
+	st.close();
     }
 
     public void updateDatabase( ) throws SQLException, AlignmentException {
-	Statement st = (Statement) conn.createStatement();
+	Statement st = createStatement();
 	// get the version number
 	ResultSet rs = (ResultSet) st.executeQuery("SELECT version FROM server WHERE port='port'");
 	rs.next();
@@ -663,7 +685,7 @@ public class CacheImpl {
 		st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
 		// Modify extensions
 		ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
-		Statement st2 = (Statement) conn.createStatement();
+		Statement st2 = createStatement();
 		while ( rse.next() ){
 		    String tag = rse.getString("tag");
 		    //System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
@@ -694,6 +716,7 @@ public class CacheImpl {
 		throw new AlignmentException("Database must be upgraded ("+version+" -> "+VERSION+")");
 	    }
 	}
+	st.close();
     }
 
 }
