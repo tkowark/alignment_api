@@ -204,6 +204,7 @@ public class OWLAPIAlignment extends ObjectAlignment {
 	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
 	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	}
+	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/OWLAPIAlignment#clone" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

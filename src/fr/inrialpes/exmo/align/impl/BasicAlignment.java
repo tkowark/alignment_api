@@ -535,7 +535,7 @@ public class BasicAlignment implements Alignment {
      * ( o', o, n, inverse(r)) iff compose(r) exists.
      */
 
-    public Alignment inverse () throws AlignmentException {
+    public Alignment inverse() throws AlignmentException {
 	BasicAlignment result = new BasicAlignment();
 	result.init( onto2, onto1 ); //getOntology1(), getOntology2()??
 	result.setFile1( getFile2() );
@@ -552,6 +552,7 @@ public class BasicAlignment implements Alignment {
 	    result.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
 	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	}
+	result.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    result.setXNamespace( label, getXNamespace( label ) );
@@ -601,6 +602,7 @@ public class BasicAlignment implements Alignment {
 	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
 	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	}
+	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#clone" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );

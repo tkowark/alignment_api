@@ -126,6 +126,7 @@ public class ObjectAlignment extends BasicAlignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
+	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/ObjectAlignment#clone" );
 	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
 	if ( oldid != null && !oldid.equals("") ) {
 	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );

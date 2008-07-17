@@ -180,6 +180,7 @@ public class URIAlignment extends BasicAlignment {
 	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
 	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	}
+	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }
