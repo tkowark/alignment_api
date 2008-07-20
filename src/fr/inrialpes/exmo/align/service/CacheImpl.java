@@ -88,12 +88,12 @@ public class CacheImpl {
     //**********************************************************************
     public CacheImpl( DBService serv ) {
 	service = serv;
-	try {
+	//try {
 	    conn = service.getConnection();
-	} catch(Exception e) {
+	    //} catch(Exception e) {
 	    // Rather raise an exception
-	    System.err.println(e.toString());
-	}
+	    //System.err.println(e.toString());
+	    //}
 	alignmentTable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
     }
@@ -343,26 +343,29 @@ public class CacheImpl {
      * This is more difficult because we return the alignment we have 
      * disreagarding if it is complete o only metadata
      */
-    public Alignment getMetadata( String id ) throws Exception {
+    public Alignment getMetadata( String id ) throws AlignmentException {
 	Alignment result = alignmentTable.get( id );
 	if ( result == null )
-	    throw new Exception("getMetadata: Cannot find alignment");
+	    throw new AlignmentException("getMetadata: Cannot find alignment");
 	return result;
     }
 	
     /**
      * retrieve full alignment from id (and cache it)
      */
-    public Alignment getAlignment( String id ) throws Exception {
+    public Alignment getAlignment( String id ) throws AlignmentException, SQLException {
 	Alignment result = alignmentTable.get( id );
 	
 	if ( result == null )
-	    throw new Exception("getAlignment: Cannot find alignment");
+	    throw new AlignmentException("getAlignment: Cannot find alignment");
 
 	// If not cached, retrieve it now
 	if ( result.getExtension( SVCNS, CACHED) == "" 
 	     && result.getExtension(SVCNS, STORED) != "") {
-	    retrieveAlignment( id, result );
+	    try { retrieveAlignment( id, result ); }
+	    catch (URISyntaxException urisex) {
+		throw new AlignmentException("getAlignment: Cannot find alignment", urisex);
+	    };
 	}
 	
 	return result;
@@ -494,7 +497,7 @@ public class CacheImpl {
     /**
      * Non publicised class
      */
-    public void unStoreAlignment( String id ) throws Exception {
+    public void unstoreAlignment( String id ) throws SQLException, AlignmentException {
 	Alignment alignment = getAlignment( id );
 	if ( alignment != null ) {
 	    Statement st = createStatement();
@@ -509,7 +512,7 @@ public class CacheImpl {
 	}
     }
 
-    public void storeAlignment( String id ) throws Exception {
+    public void storeAlignment( String id ) throws AlignmentException, SQLException {
 	String query = null;
 	Alignment alignment = getAlignment( id );
 	Statement st = createStatement();
