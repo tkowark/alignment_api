@@ -64,11 +64,12 @@ public class CacheImpl {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    final int VERSION = 310; // Version of the API to be stored in the database
+    final int VERSION = 340; // Version of the API to be stored in the database
     /* 300: initial database format
        301: added alignment id as primary key
        302: changed cached/stored/ouri tag forms
        310: changed extension table with added URIs and method -> val 
+       340: changed size of relation in cell table (5 -> 25)
      */
 
     DBService service = null;
@@ -86,15 +87,22 @@ public class CacheImpl {
 	
     //**********************************************************************
     public CacheImpl( DBService serv ) {
-	service = service;
+	service = serv;
 	try {
-	    conn = serv.getConnection();
+	    conn = service.getConnection();
 	} catch(Exception e) {
 	    // Rather raise an exception
 	    System.err.println(e.toString());
 	}
 	alignmentTable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
+    }
+
+    public void reset() throws SQLException {
+	alignmentTable = new Hashtable<String,Alignment>();
+	ontologyTable = new Hashtable<URI,Set<Alignment>>();
+	// reload alignment descriptions
+	loadAlignments( true );
     }
 
     /**
@@ -172,6 +180,13 @@ public class CacheImpl {
 
     protected Enumeration<Alignment> listAlignments() {
 	return alignmentTable.elements();
+    }
+
+    protected void flushCache() {// throws AlignmentException
+	for ( Alignment al : alignmentTable.values() ){
+	    if ( al.getExtension( SVCNS, CACHED ) != ""
+		 && al.getExtension( SVCNS, STORED ) != "" ) flushAlignment( al );
+	};
     }
 
     /**
@@ -266,7 +281,7 @@ public class CacheImpl {
 
 	}
 
-	// JE: I must now retrieve all the extensions
+	// JE: I must now retrieve all the extensions of the cells
 	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
 	    cell = (Cell)e.nextElement();
 	    String cid = cell.getId();
@@ -284,6 +299,20 @@ public class CacheImpl {
 	resetCacheStamp(alignment);
 	st.close();
 	return alignment;
+    }
+    
+    /**
+     * unload the cells of an alignment...
+     * This should help retrieving some space
+     * 
+     * should be invoked when:
+     * 	( result.getExtension(CACHED) != ""
+     *  && obviously result.getExtension(STORED) != ""
+     */
+    protected void flushAlignment( Alignment alignment ) {// throws AlignmentException
+	//alignment.removeAllCells();
+	// reset
+    	alignment.setExtension( SVCNS, CACHED, "" );
     }
     
     // Public because this is now used by AServProtocolManager
@@ -680,35 +709,41 @@ public class CacheImpl {
 	int version = rs.getInt("version") ;
 	if ( version < VERSION ) {
 	    if ( version >= 302 ) {
-		// Change database
-		st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
-		st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
-		// Modify extensions
-		ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
-		Statement st2 = createStatement();
-		while ( rse.next() ){
-		    String tag = rse.getString("tag");
-		    //System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
-		    if ( !tag.equals("") ){
-			int pos;
-			String ns;
-			String name;
-			if ( (pos = tag.lastIndexOf('#')) != -1 ) {
-			    ns = tag.substring( 0, pos );
-			    name = tag.substring( pos+1 );
-			} else if ( (pos = tag.lastIndexOf(':')) != -1 && pos > 5 ) {
-			    ns = tag.substring( 0, pos )+"#";
-			    name = tag.substring( pos+1 );
-			} else if ( (pos = tag.lastIndexOf('/')) != -1 ) {
-			    ns = tag.substring( 0, pos+1 );
-			    name = tag.substring( pos+1 );
-			} else {
-			    ns = Annotations.ALIGNNS;
-			    name = tag;
+		if ( version < 310 ) {
+		    // Change database
+		    st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
+		    st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
+		    // Modify extensions
+		    ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
+		    Statement st2 = createStatement();
+		    while ( rse.next() ){
+			String tag = rse.getString("tag");
+			//System.err.println(" Treating tag "+tag+" of "+rse.getString("id"));
+			if ( !tag.equals("") ){
+			    int pos;
+			    String ns;
+			    String name;
+			    if ( (pos = tag.lastIndexOf('#')) != -1 ) {
+				ns = tag.substring( 0, pos );
+				name = tag.substring( pos+1 );
+			    } else if ( (pos = tag.lastIndexOf(':')) != -1 && pos > 5 ) {
+				ns = tag.substring( 0, pos )+"#";
+				name = tag.substring( pos+1 );
+			    } else if ( (pos = tag.lastIndexOf('/')) != -1 ) {
+				ns = tag.substring( 0, pos+1 );
+				name = tag.substring( pos+1 );
+			    } else {
+				ns = Annotations.ALIGNNS;
+				name = tag;
+			    }
+			    //System.err.println("  >> "+ns+" : "+name);
+			    st2.executeUpdate("UPDATE extension SET tag='"+name+"', uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
 			}
-			//System.err.println("  >> "+ns+" : "+name);
-			st2.executeUpdate("UPDATE extension SET tag='"+name+"', uri='"+ns+"' WHERE id='"+rse.getString("id")+"' AND tag='"+tag+"'");
 		    }
+		}
+		if ( version < 340 ) {
+		    // Change database
+		    st.executeUpdate("ALTER TABLE cell CHANGE relation relation VARCHAR(25)");
 		}
 		// Change version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"' WHERE port='port'");

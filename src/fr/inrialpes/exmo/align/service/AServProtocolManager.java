@@ -119,6 +119,23 @@ public class AServProtocolManager {
 	catch (SQLException sqle) { sqle.printStackTrace(); }
     }
 
+    public void reset() {
+	try {
+	    alignmentCache.reset();
+	} catch (SQLException sqle) { sqle.printStackTrace(); }
+    }
+
+    public void flush() {
+	alignmentCache.flushCache();
+    }
+
+    public void shutdown() {
+	try { 
+	    alignmentCache.close();
+	    System.exit(0);
+	} catch (SQLException sqle) { sqle.printStackTrace(); }
+    }
+
     private int newId() { return localId++; }
 
     /*********************************************************************
@@ -205,7 +222,8 @@ public class AServProtocolManager {
 	// Do the slow part (align)
 	if ( mess.getParameters().getParameter("async") != null ) {
 	    th.start();
-	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    // Parameters are used
+	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,mess.getParameters());
 	} else {
 	    th.start();
 	    try{ th.join(); }
