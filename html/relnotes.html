@@ -17,14 +17,20 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Implementing WSAlignment connecting to remote web service for matching</li>
+<li>Implementing WSAlignment connecting to remote web service for
+  matching (server)</li>
 <li>Implement ontology support database store (server)</li>
 <li>Online evaluation (server)</li>
+<li>Implement <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
+<li>Improve HTML interface layout and usability (server)</li>
 <li>Implement database store for OMWG Language (server)</li>
-<li>Implement debug options with log4j</li>
-<li>Use more for-each Java 1.5 construct</li>
+<li>Implement metadata edition (server)</li>
+<li>Implement correspondence selection (server)</li>
 <li>Render alignments as module descriptions (impl)</li>
 <li>Replace <tt>Parameters</tt> with Java <tt>Property</tt> (api/impl)[Version 4]</li>
+<li>Implement <tt>Relation</tt> and <tt>Confidence</tt> interfaces (api/impl)[Version 4]</li>
+<li>Implement debug options with log4j</li>
+<li>Use more for-each Java 1.5 construct</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
@@ -34,15 +40,18 @@
 <p>
 <ul compact="1">
 <li><font color="red">Deprecated</font> <tt>Cell.getObjectXAsURI()</tt>
-  in favour of <tt>Cell.getObjectXAsURI(Object ontology) (api)</tt>
+  in favour of <tt>Cell.getObjectXAsURI(Object ontology)</tt> (api)</tt>
 <li>Upgraded NeOn plug-in for working with NeOn toolkit 1.1 (plugin)</li>
 <li>Implemented OWL API 2 support [not shipped] (onto)</li>
 <li>Added <tt>derivedFrom</tt> standard annotation and implemented it (impl)</li>
 <li>Added <tt>method</tt> annotation for <tt>clone()</tt>
   and <tt>inverse()</tt> (impl)</li>
 <li>Implemented a better recovery in case of database connection loss (server)</li>
+<li>Implemented cache flushing functions (server)</li>
 <li>Provided better return forms in <tt>HTMLAServManager</tt> (server)</li>
 <li>Catched <tt>init()</tt> errors in server (server)</li>
+<li>Reorganised HTML interface (server)</li>
+<li>Increased the size of relation id to 25 char (server)</li>
 <li>Corrected tutorial so that it works with new code (tutorial)</li>
 <li>Corrected an error of the <tt>Cell.inverse()</tt> method (impl)</li>
 <li>Corrected an error in storing alignments (server)</li>
