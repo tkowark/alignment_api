@@ -39,20 +39,9 @@ public class AlignmentId extends Success {
 	return alid;
     };
     public String HTMLString(){
-	String result = "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
-	// Improved return
-	// STORE
-	result += "<form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form>";
-	// TRIM (2)
-	result += "<form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form>";
-	// RETRIEVE (1)
-	result += "<form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form>";
-	// Note at that point it is not possible to get the methods
-	// COMPARE (2)
-	// INV
-	result += "<form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form>";
-	return result;
+	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
     }
+
     public String SOAPString(){
 	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
 	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><alid>"+content+"</alid>";	

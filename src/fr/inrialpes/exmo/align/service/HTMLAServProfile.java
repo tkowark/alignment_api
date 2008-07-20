@@ -121,6 +121,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     public static final int MAX_FILE_SIZE = 10000;
 
+    public static final String HEADER = "<style type=\"text/css\">body { font-family: sans-serif } button {background-color: #DDEEFF; margin-left: 1%; border: #CCC 1px solid;}</style>";
     // ==================================================
     // Socket & server code
     // ==================================================
@@ -352,7 +353,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
 		// This is not correct: I shoud return an error
-		return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
+		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
 	    }
 	} else if ( oper.equals( "admin" ) ){
 	    return adminAnswer( uri, uri.substring(start), header, params );
@@ -364,7 +365,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return wsdlAnswer(uri, uri.substring(start), header, params);
 	} else {
 	    //return serveFile( uri, header, new File("."), true );
-	    return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+about()+"</body></html>" );
+	    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
 	}
     }
 
@@ -414,12 +415,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("about") ){
 	    msg = about();
 	} else if ( perf.equals("shutdown") ){
-	    manager.close();
-	    msg = "Server shut down";
+	    manager.shutdown();
+	    msg = "<h1>Server shut down</h1>";
 	} else if ( perf.equals("prmreset") ){
-	    msg = perf;
+	    manager.reset();
+	    msg = "<h1>Alignment server reset from database</h1>";
 	} else if ( perf.equals("prmflush") ){
-	    msg = perf;
+	    manager.flush();
+	    msg = "<h1>Cache has been flushed</h1>";
 	} else if ( perf.equals("addservice") ){
 	    msg = perf;
 	} else if ( perf.equals("addmethod") ){
@@ -427,20 +430,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("addrenderer") ){
 	    msg = perf;
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Alignment server administration</h1><ul compact=\"1\">";
-	    msg += "<li><form action=\"listalignments\"><input type=\"submit\" value=\"Available alignments\"/></form></li>";
-	    msg += "<li><form action=\"listmethods\"><input type=\"submit\" value=\"Embedded classes\"/></form></li>";
-	    msg += "<li><form action=\"prmsqlquery\"><input type=\"submit\" value=\"SQL Query\"/></form></li>";
-	    msg += "<li><form action=\"prmflush\"><input type=\"submit\" value=\"Flush caches\"/></form></li>";
-	    msg += "<li><form action=\"prmreset\"><input type=\"submit\" value=\"Reset server\"/></form></li>";
-	    msg += "<li><form action=\"shutdown\"><input type=\"submit\" value=\"Shutdown\"/></form></li>";
-	    msg += "<li><form action=\"..\"><input type=\"submit\" value=\"About\"/></form></li>";
-	    msg += "<li><form action=\"../html/\"><input type=\"submit\" value=\"User interface\"/></form></li>";
-	    msg += "</ul>";
+	    msg = "<h1>Alignment server administration</h1>";
+	    msg += "<form action=\"listmethods\"><button title=\"List embedded plug-ins\" type=\"submit\">Embedded classes</button></form>";
+	    msg += "<form action=\"prmsqlquery\"><button title=\"Query the SQL database (unavailable)\" type=\"submit\">SQL Query</button></form>";
+	    msg += "<form action=\"prmflush\"><button title=\"Free memory by unloading correspondences\" type=\"submit\">Flush caches</button></form>";
+	    msg += "<form action=\"prmreset\"><button title=\"Restore launching state (reload from database)\" type=\"submit\">Reset server</button></form>";
+	    //	    msg += "<form action=\"shutdown\"><button title=\"Shutdown server\" type=\"submit\">Shutdown</button></form>";
+	    msg += "<form action=\"..\"><button title=\"About...\" type=\"submit\">About</button></form>";
+	    msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
 	} else {
 	    msg = "Cannot understand: "+perf;
 	}
-	return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
+	return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
     }
 
     /**
@@ -500,11 +501,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} else if ( perf.equals("prmcut") ) {
+	    String sel = (String)params.getParameter("id");
 	    msg ="<h1>Trim alignments</h1><form action=\"cut\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
-		msg += "<option value=\""+id+"\">"+id+"</option>";
+		if ( sel != null && sel.equals( id ) ){
+		    msg += "<option selected=\"1\" value=\""+id+"\">"+id+"</option>";
+		} else {
+		    msg += "<option value=\""+id+"\">"+id+"</option>";
+		}
 	    }
 	    msg += "</select><br />";
 	    msg += "Methods: <select name=\"method\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
@@ -574,11 +580,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer );
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
+	    String sel = (String)params.getParameter("id");
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
-		msg += "<option value=\""+id+"\">"+id+"</option>";
+		if ( sel != null && sel.equals( id ) ){
+		    msg += "<option selected=\"1\" value=\""+id+"\">"+id+"</option>";
+		} else {
+		    msg += "<option value=\""+id+"\">"+id+"</option>";
+		}
 	    }
 	    msg += "</select><br />";
 	    msg += "Rendering: <select name=\"method\">";
@@ -675,20 +686,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // render
 	    // Alignment in HTML can be rendre or metadata+tuples
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Alignment Server commands</h1><ul compact=\"1\">";
-	    msg += "<li><form action=\"prmfind\"><input type=\"submit\" value=\"Find an alignment for ontologies\"/></form></li>";
-	    msg += "<li><form action=\"prmalign\"><input type=\"submit\" value=\"Match ontologies\"/></form></li>";
-	    msg += "<li><form action=\"prmcut\"><input type=\"submit\" value=\"Trim an alignment above some threshold\"/></form></li>";
-	    msg += "<li><form action=\"prminv\"><input type=\"submit\" value=\"Invert an alignment\"/></form></li>";
-	    msg += "<li><form action=\"prmload\"><input type=\"submit\" value=\"Load alignments\"/></form></li>";
-	    msg += "<li><form action=\"prmstore\"><input type=\"submit\" value=\"Store an alignment in the server\"/></form></li>";
-	    msg += "<li><form action=\"prmretrieve\"><input type=\"submit\" value=\"Retrieve an alignment from id\"/></form></li>";
-	    msg += "<li><form action=\"../admin/\"><input type=\"submit\" value=\"Server management\"/></form></li>";
-	    msg += "</ul>";
+	    msg = "<h1>Alignment Server commands</h1>";
+	    msg += "<form action=\"../admin/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
+	    msg += "<form action=\"prmload\"><button title=\"Upload an existing alignment in this server\" type=\"submit\">Load alignments</button></form>";
+	    msg += "<form action=\"prmfind\"><button title=\"Find existing alignements between two ontologies\" type=\"submit\">Find alignment</button></form>";
+	    msg += "<form action=\"prmalign\"><button title=\"Apply matchers to ontologies for obtaining an alignment\" type=\"submit\">Match ontologies</button></form>";
+	    msg += "<form action=\"prmcut\"><button title=\"Trim an alignment above some threshold\" type=\"submit\">Trim alignment</button></form>";
+	    msg += "<form action=\"prminv\"><button title=\"Swap the two ontologies of an alignment\" type=\"submit\">Invert alignment</button></form>";
+	    msg += "<form action=\"prmstore\"><button title=\"Persistently store an alignent in this server\" type=\"submit\" >Store alignment</button></form>";
+	    msg += "<form action=\"prmretrieve\"><button title=\"Render an alignment in a particular format\" type=\"submit\">Render alignment</button></form>";
+	    msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
 	} else {
 	    msg = "Cannot understand command "+perf;
 	}
-	return new Response( HTTP_OK, MIME_HTML, "<html><head></head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
+	return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
     }
 
     // ===============================================
@@ -718,7 +729,23 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     }
 
     private String displayAnswer ( Message answer ) {
-	return answer.HTMLString();
+	String result = answer.HTMLString();
+	// Improved return
+	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+	    result += "<table><tr>";
+	    // STORE
+	    result += "<td><form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
+	    // TRIM (2)
+	    result += "<td><form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form></td>";
+	    // RETRIEVE (1)
+	    result += "<td><form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form></td>";
+	    // Note at that point it is not possible to get the methods
+	    // COMPARE (2)
+	    // INV
+	    result += "<td><form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form></td>";
+	    result += "</tr></table>";
+	}
+	return result;
     }
 
     private int newId() { return localId++; }
