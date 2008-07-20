@@ -7,11 +7,12 @@
 </head>
 <body>
 
-<h1 class="titre">NeOn Alignment Plugin</h1>
+<h1>NeOn Alignment Plugin</h1>
 
 <h2>Description of the plugin</h2>
-<p> A plugin for using the Alignment Server for computing and managing alignments between ontologies within NeOnToolkit.<br>
-This plugin allows ontology users to match existing ontologies
+
+<p> A plugin for using the Alignment Server for computing and managing alignments between ontologies within NeOnToolkit.</p>
+<p>This plugin allows ontology users to match existing ontologies
   i.e. computing alignments between them, retrieve existing
   alignments, and store available alignments on the Alignment Server
   for reusing and sharing.</p>
@@ -25,56 +26,106 @@ This plugin allows ontology users to match existing ontologies
   Alignment plug-in embedds the Alignment API and can use the web
   service interface to connect to any alignment server.</p>
 
-<center>
-<img src="fetchAlign.png" width="100%" title="A screen dump of the NeOn Alignment plug-in"/>
-</center>
+<p>
+<img src="fetchAlign.png" align="middle" width="100%" title="A screen dump of the NeOn Alignment plug-in"/>
+</p>
 
-
-<h2 class="titre">How to use the NeOn Alignment Plugin with the Alignment API</h2>
+<h2>How to use the NeOn Alignment Plugin with the Alignment API</h2>
 
 <h3>Get NeonToolkit</h3>
 
-<p>A version of the NeonToolkit is available at <a href=http://www.neon-toolkit.org/>http://www.neon-toolkit.org</a>.<br>
-From this site, you download a zipped NeonToolkit file according to your Operating System (OS). After unzipping this file, a new directory is created, and within it you have a directory "plugins" and an executable file.<br>
-For instance, if your OS is Linux, we have to download the zipped file "NeOnToolkit-1.0-extended-B723-Linux.zip".</p>
+<p>A version of the NeonToolkit is available at <a href=http://www.neon-toolkit.org/>http://www.neon-toolkit.org</a>.</p>
+<p>From this site, you download a zipped NeonToolkit file according to your Operating System (OS). After unzipping this file, a new directory is created, and within it you have a directory "plugins" and an executable file.</p>
+<p>For instance, if your OS is Linux, we have to download the zipped file "NeOnToolkit-1.0-extended-B723-Linux.zip".</p>
 
 <h3>Get the NeOn Alignment Plugin </h3>
-A version of NeOn Alignment Plugin is available at <a href=http://gforge.inria.fr/projects/alignapi/>http://gforge.inria.fr/projects/alignapi/</a> . From this site you donwload the jar file "neonalign.jar" and put it in the "plugins" directory of the NeOnToolkit.
+
+<p>A version of NeOn Alignment Plugin is available at <a href=http://gforge.inria.fr/projects/alignapi/>http://gforge.inria.fr/projects/alignapi/</a> . From this site you donwload the jar file "neonalign.jar" and put it in the "plugins" directory of the NeOnToolkit.</p>
 
 <h3>Run NeonToolkit with the plugin</h3>
-To run NeonToolkit with the NeOn Alignment Plugin, you launch the NeOnToolkit with the executable file (e.g. under Linux, you run the "NeonToolKit.sh" script). You will see an interface screen like the following.<br><br>
-<center><IMG ALIGN = MIDDLE SRC="neontk-launch.png"></center>
 
-<h3>Use the plugin with the Alignment Server</h3>
-<p>To activate the NeOn Alignment Plugin from the NeOnToolkit Menu, click on the "Align" menu or the button on Toolbar, a view "Alignment Server" for the plugin will be openned.
-<center><IMG ALIGN = MIDDLE SRC="alignsvr.png"></center><br><br>
-As a plugin integrated into NeonToolkit, the NeOn Alignment Plugin can access to data models implemented in NeonToolkit and manipulate them. More precisely, NeOn Alignment Plugin can get from Ontology Navigator in NeonToolkit the URIs of openned ontologies. Additionally, the NeOn Alignment Plugin is able to  add an alignment as an OWL ontology to Ontology Navigator. This may provide a way to exploit and share alignments, which are computed by the NeOn Alignment Plugin, among different plugins in the NeonToolkit environment.           
+<p>To run NeonToolkit with the NeOn Alignment Plugin, you launch the NeOnToolkit with the executable file (e.g. under Linux, you run the "NeonToolKit.sh" script). You will see an interface screen like the following.</p>
+<p><img align="middle" width="100%" src="neontk-launch.png"/></p>
 
-<p>NeOn Alignment Plugin can work in two modes : offline and online. Roughly speaking, the offline mode allows users to reach main functionalities of the Alignment Server without connection to the server while the online mode offers additionally mecanisms to store and reuse alignments.<br>
-<h4>Offline mode</h4>
-In the offline mode which is activated by clicking on button "Offline", the NeOn Alignment Plugin can access to NeOnToolkit ontologies (i.e. openned ontologies in Ontology Navigator) and match any pair of them. Resulting alignments can be stored as local system files and imported to Ontology Navigator as OWL ontologies.
+<h2>Use the plugin with the Alignment Server</h2>
+
+<p>To activate the NeOn Alignment Plugin from the NeOnToolkit Menu,
+  click on the "Align" menu or the button on Toolbar, a view
+  "Alignment Server" for the plugin will be openned.</p>
+<p><img align="middle" width="100%" src="alignsvr.png"/></p>
+<p>As a plugin integrated into NeonToolkit, the NeOn Alignment Plugin can access to data models implemented in NeonToolkit and manipulate them. More precisely, NeOn Alignment Plugin can get from Ontology Navigator in NeonToolkit the URIs of openned ontologies. Additionally, the NeOn Alignment Plugin is able to  add an alignment as an OWL ontology to Ontology Navigator. This may provide a way to exploit and share alignments, which are computed by the NeOn Alignment Plugin, among different plugins in the NeonToolkit environment.</p>  
+
+<p>NeOn Alignment Plugin can work in two modes : offline and online. Roughly speaking, the offline mode allows users to reach main functionalities of the Alignment Server without connection to the server while the online mode offers additionally mecanisms to store and reuse alignments.</p>
+
+<h3>Offline mode</h3>
+
+<p>In the offline mode which is activated by clicking on button "Offline", the NeOn Alignment Plugin can access to NeOnToolkit ontologies (i.e. openned ontologies in Ontology Navigator) and match any pair of them. Resulting alignments can be stored as local system files and imported to Ontology Navigator as OWL ontologies.</p>
   
-<h4>Online mode</h4>
-In the online mode  which is activated by clicking on button "Online", the NeOn Alignment Plugin provides all functions from the Alignment Server.  Resulting alignments are stored  on the server and exported to Ontology Navigator as OWL ontologies. This allows NeOnTookit users, with help of the Ontology Editor, to use, share or edit alignments. <br><br>
+<h3>Online mode</h3>
 
-<h4>Usage of the NeOn Alignment Plugin</h4>
-In the sequel, we will show how to connect to the INRIA's Alignment Server from the plugin and to work with it.<br>
-<h5>Connection</h5>
-To connect to the INRIA's Alignment Server from the NeOn Alignment Plugin, you have to type "aserv.inrialpes.fr" for hostname and "80" for port.<br>
-<h5>Preparing parameters</h5>
-After connecting to the server, a list of available alignment methods is visible.<br><br>
-Button "Refresh" allows users to fetch all openned ontologies in all projects in the NeOnToolkit environment.<br><br>
-Found ontologies appear in the two lists of ontologies.<br><br>
-<center><IMG ALIGN = MIDDLE SRC="neontk2alignsvr.png"></center><br><br>
-<h5>Matching two ontologies</h5>
-Choose two ontologies and a matching method from the lists and match them by clicking on "Match".
+<p>In the online mode  which is activated by clicking on button "Online", the NeOn Alignment Plugin provides all functions from the Alignment Server.  Resulting alignments are stored  on the server and exported to Ontology Navigator as OWL ontologies. This allows NeOnTookit users, with help of the Ontology Editor, to use, share or edit alignments.</p>
+
+<h3>Usage of the NeOn Alignment Plugin</h3>
+
+<p>In the sequel, we will show how to connect to the INRIA's Alignment
+  Server from the plugin and to work with it.
+<dl>
+<dt>Connection</dt>
+<dd>To connect to the INRIA's Alignment Server from the NeOn Alignment Plugin, you have to type "aserv.inrialpes.fr" for hostname and "80" for port.</dd>
+<dt>Preparing parameters</dt>
+<dd>After connecting to the server, a list of available alignment methods is visible.
+The "Refresh" button allows users to fetch all openned ontologies in all
+  projects in the NeOnToolkit environment.
+Found ontologies appear in the two lists of ontologies.<br />
+<p><img align="middle" width="100%" src="neontk2alignsvr.png"/></p></dd>
+<dt>Matching two ontologies</dt>
+<dd>Choose two ontologies and a matching method from the lists and match them by clicking on "Match".
 The computed alignment is automatically added to the Eclipse project "AlignmentProject" in Ontology Navigator.
-Users can navigate, share and edit alignments as ontologies from Ontology Navigator.<br><br>
+Users can navigate, share and edit alignments as ontologies from
+  Ontology Navigator.<br />
 
-<center><IMG ALIGN = MIDDLE SRC="alignsvr2neontk.png"></center><br><br>
+<p><img align="middle" width="100%" src="alignsvr2neontk.png"/></p></dd>
+</dl>
+</p>
 
-<h2 class="titre">How to use the NeOn Alignment Plugin with Ontomap Plugin</h2>
-<h3>Visualize alignments with Ontomap Plugin </h3>
-<h3>Edit alignments with Ontomap Plugin </h3>
+<h2>How to use the NeOn Alignment Plugin with Ontomap Plugin</h2>
+
+<p>It should be possible at some point to use the NeOn Alignment
+  plugin jointly with the Ontomap plugin developed by Ontoprise.</p>
+
+<!--h3>Visualize alignments with Ontomap Plugin </h3>
+<h3>Edit alignments with Ontomap Plugin </h3-->
+
+<h2>Version correspondences</h2>
+
+<p>Because the NeOn toolkit is developed at a steady pace,
+  correspondences between versions are very important.
+<center>
+<table border="0">
+<tr><td>NeOn toolkit</td><td>particular version</td><td>Alignment API</td></tr>
+<tr><td>1.0</td><td>open source</td><td>3.3</td></tr>
+<tr><td>1.1</td><td>open source</td><td>3.4</td></tr>
+</table>
+</center>
+</p>
+
+<h2>Documentation</h2>
+
+<p>
+More details about the NeOn Alignment Plugin can be found
+in <i><a href="ftp://ftp.inrialpes.fr/pub/exmo/reports/neon-332.pdf">Matching
+      ontologies for context: The NeOn 
+Alignment plug-in</a></i>.
+</p>
+
+<p>Also put screen cast</p>
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/neontk/</center>
+<hr />
+$Id: index.html 759 2008-07-20 09:01:34Z euzenat $
+</small>
 </body>
 </html>
