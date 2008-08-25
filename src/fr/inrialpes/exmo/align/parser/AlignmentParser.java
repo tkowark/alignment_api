@@ -34,11 +34,11 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 //Imported JAVA classes
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.InputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -180,11 +180,7 @@ public class AlignmentParser extends DefaultHandler {
      * @deprecated use parse( URI ) instead
      */
     @Deprecated
-    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, RDFParserException {//, XPathExpressionException
-	// Determine which parser to use through the use of Xpath?
-	//private static final XPath XPATH = XPathFactory.newInstance().newXPath();
-	
-	//ontologies = loaded;
+    public Alignment parse( String uri, Hashtable loaded ) throws SAXException, IOException, RDFParserException {
 	return parse( uri );
     }
 
@@ -211,10 +207,23 @@ public class AlignmentParser extends DefaultHandler {
      * Parses a string instead of a URI
      * @param s String the string to parse
      */
-    public Alignment parseString( String s ) throws SAXException, IOException, XPathExpressionException {
+    public Alignment parseString( String s ) throws SAXException, IOException {
 	parser.parse( new InputSource( new StringReader( s ) ),
 		      this );
 	return alignment;
+    }
+
+    /** 
+     * Parses a string instead of a URI
+     * @param s String the string to parse
+     */
+    public Alignment parse( InputStream s ) throws SAXException, IOException {
+	parser.parse( s, this );
+	return alignment;
+    }
+
+    public void initAlignment( URIAlignment al ) {
+	alignment = al;
     }
     
   /** 
@@ -303,7 +312,7 @@ public class AlignmentParser extends DefaultHandler {
 	    } else if (pName.equals("level")) {
 	    } else if (pName.equals("xml")) {
 	    } else if (pName.equals("Alignment")) {
-		alignment = new URIAlignment();
+		if ( alignment == null ) alignment = new URIAlignment();
 		onto1 = ((URIAlignment)alignment).getOntologyObject1();
 		onto2 = ((URIAlignment)alignment).getOntologyObject2();
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
