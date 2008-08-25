@@ -321,6 +321,10 @@ public class AlignmentParser extends DefaultHandler {
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
 	    };
+	} else if(namespaceURI.equals("http://schemas.xmlsoap.org/soap/envelope/"))  {
+	    // Ignore SOAP namespace
+	    if ( !pName.equals("Envelope") && !pName.equals("Body") ) {
+		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
@@ -473,6 +477,10 @@ public class AlignmentParser extends DefaultHandler {
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] Exception raised", e); };
+	} else if(namespaceURI.equals("http://schemas.xmlsoap.org/soap/envelope/"))  {
+	    // Ignore SOAP namespace
+	    if ( !pName.equals("Envelope") && !pName.equals("Body") ) {
+		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
