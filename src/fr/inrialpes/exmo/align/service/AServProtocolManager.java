@@ -352,6 +352,7 @@ public class AServProtocolManager {
 		return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
 	    }
 	    try {
+		renderer.init( params );
 		al.render( renderer );
 	    } catch ( AlignmentException aex ) {
 		al = ObjectAlignment.toObjectAlignment( (URIAlignment)al, (OntologyCache)null );

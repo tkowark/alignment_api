@@ -48,8 +48,6 @@ import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 import java.util.jar.Attributes.Name;
 
-//import java.net.JarURLConnection;
-
 import java.lang.NullPointerException;
 
 // For message parsing
@@ -248,7 +246,6 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
 	    msg += "<storeResponse>";
-		//CLD: the fourth parameter : "id" -> "alid"
 	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -335,6 +332,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</matchResponse>";
 	} else if ( method.equals("align") ) { // URL * URL * (params) -> URI
+	    // This is a dummy method for emulating a WSAlignement service
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
 	    msg += "<alignResponse>";
@@ -343,34 +341,30 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( params.getParameter( "onto1" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
-
 	    getParameter( domMessage, message, params, "url2", "onto2" );
 	    if ( params.getParameter( "onto2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
 
 	    getParameter( domMessage, message, params, "method", "method" );
-	    //getParameter( domMessage, message, params, "force", "force" );
 	    if ( params.getParameter( "method" ) == null ) {
 		params.setParameter( "method", "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment" );
-		 
 	    }
 
 	    if ( answer == null ) {
 		Message result = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 		if ( result instanceof ErrorMsg ) {
-			answer = result;
-			 
+		    answer = result;
 		} else {
-	    		params = new BasicParameters();
-			params.setParameter( "id",  result.getContent() );
-		//System.out.println("The ID is: "+result.getContent());
-			if ( params.getParameter( "id" ) == null ) {
-				answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-			}
-			params.setParameter( "method",  "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-	    		if ( answer == null )
-				answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
+		    params = new BasicParameters();
+		    params.setParameter( "id",  result.getContent() );
+		    if ( params.getParameter( "id" ) == null ) {
+			answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+		    }
+		    params.setParameter( "method",  "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+		    params.setParameter( "embedded", "true" );
+		    if ( answer == null )
+			answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
 		}
 	    }
 
@@ -380,7 +374,6 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		// JE: Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
-		// JE: This should also suppress the <?xml... statement
 		msg += "<result>" + answer.getContent() + "</result>";
 		msg += displayAnswer( answer );
 	    }
@@ -423,13 +416,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 
 	    if ( answer == null )
+		params.setParameter( "embedded", "true" );
 		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
 		// JE: Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
-		// JE: This should also suppress the <?xml... statement
 		msg += "<result>" + answer.getContent() + "</result>";
 	    }
 	    msg += "</retrieveResponse>";
@@ -443,27 +436,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 
 	    getParameter( domMessage, message, params, "url", "url" );
-	    if ( params.getParameter( "url" ) == null ) {
-
-		//CLD added
-		//This code used to initialize "content". 
-		//It is not necessary any more when "content" is stocked in a file
-		//getParameter( domMessage, message, params, "content", "content" );
-
-		//params.setParameter( "content",  message);
-		//"filename" is stored in "HTMLAServProfile"
-
-		params.setParameter( "filename",  param.getParameter( "filename" ) );
-
-		//if ( params.getParameter( "content" ) == null ) {
-		//    answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-		//} else {
-		    // Save the content as a temporary file (gensym)
-		    // Set the URI as the file:// uri for that file
-		    // Set it in the "url" parameter
-		    // Call load as below
-		    // Take care somehow to discard the temporary file
-		//}
+	    if ( params.getParameter( "url" ) == null &&
+		 param.getParameter( "filename" ) != null ) {
+		// HTTP Server has stored it in filename (HTMLAServProfile)
+		params.setParameter( "url",  "file://"+param.getParameter( "filename" ) );
 	    }
 	    if ( answer == null )
 		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", params) );
