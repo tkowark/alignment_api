@@ -155,7 +155,29 @@ public class AlignmentClient {
 	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
 	    if ( arg3 != null )
 		messageBody += "<force>"+arg3+"</force>";
-	} else if ( cmd.equals("trim" ) ) {
+	} else if ( cmd.equals("align" ) ) {
+	    SOAPAction = "align";
+	    String uri1 = (String)params.getParameter( "arg1" );
+	    String uri2 = (String)params.getParameter( "arg2" );
+	    if ( uri2 == null ){
+		usage();
+		System.exit(-1);
+	    }
+	    String method = null;
+	    String arg3 = (String)params.getParameter( "arg3" );
+	    if ( arg3 != null ) {
+		method = uri1; uri1 = uri2; uri2 = arg3;
+	    }
+	    //arg3 = (String)params.getParameter( "arg4" );
+	    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
+	    if ( method != null )
+		messageBody += "<method>"+method+"</method>";
+	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
+	    //if ( arg3 != null )
+	    //	messageBody += "<force>"+arg3+"</force>";
+	}
+
+	  else if ( cmd.equals("trim" ) ) {
 	    SOAPAction = "cutRequest";
 	    String id = (String)params.getParameter( "arg1" );
 	    String thres = (String)params.getParameter( "arg2" );
