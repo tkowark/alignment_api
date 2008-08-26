@@ -46,6 +46,15 @@
       <wsdl:part name="alid" type="xsd:string"/>
    </wsdl:message>
 
+   <wsdl:message name="align"> <!-- JE : URI -->
+      <wsdl:part name="url1" type="xsd:string"/>
+      <wsdl:part name="url2" type="xsd:string"/>
+      <!-- JE: beware, this one should at least have parameters -->
+   </wsdl:message>
+   <wsdl:message name="alignResponse"> <!-- JE: XML -->
+      <wsdl:part name="alignment" type="xsd:string"/>
+   </wsdl:message>
+
    <wsdl:message name="metadataRequest"> <!-- JE : URI -->
       <wsdl:part name="alid" type="xsd:string"/>
       <wsdl:part name="key" type="xsd:string"/>
@@ -153,9 +162,13 @@
        <wsdl:input message="impl:translateRequest" name="translateRequest"/>
        <wsdl:output message="impl:translateResponse" name="translateResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="match" parameterOrder="url1 url2 uri alid force params">
+     <wsdl:operation name="match" parameterOrder="url1 url2 method alid force params">
        <wsdl:input message="impl:matchRequest" name="matchRequest"/>
        <wsdl:output message="impl:matchResponse" name="matchResponse"/>
+     </wsdl:operation>
+     <wsdl:operation name="align" parameterOrder="url1 url2">
+       <wsdl:input message="impl:align" name="align"/>
+       <wsdl:output message="impl:alignResponse" name="alignResponse"/>
      </wsdl:operation>
      <wsdl:operation name="cut" parameterOrder="alid method threshold">
        <wsdl:input message="impl:cutRequest" name="cutRequest"/>
@@ -272,6 +285,15 @@
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:input>
        <wsdl:output name="matchResponse">
+         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
+       </wsdl:output>
+     </wsdl:operation>
+     <wsdl:operation name="align">
+       <wsdlsoap:operation soapAction=""/>
+       <wsdl:input name="align">
+         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
+       </wsdl:input>
+       <wsdl:output name="alignResponse">
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
      </wsdl:operation>
