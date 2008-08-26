@@ -208,10 +208,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			    e.printStackTrace(); // To clean up
 			}
 			params.setProperty( "content", new String( mess ) );
-		    //CLD added for treating file uploading
+		    // File attached to SOAP messages
 		    } else if ( mimetype != null && mimetype.startsWith("application/octet-stream") ) {
-			 
-			 
          		File alignFile = new File(File.separator + "tmp" + File.separator + newId() +"XXX.rdf");
 
          		// check if file already exists - and overwrite if necessary.
@@ -221,25 +219,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
             		InputStream is = request.getInputStream();
 			
            	        try {
-                
-               			byte[] buffer = new byte[4096];
-				int bytes=0; 
-               			while (true) {
-                  			bytes = is.read(buffer);
-                  			if (bytes < 0) break;
-                  			fos.write(buffer, 0, bytes);
-               			}
-
-               			fos.flush();
-				fos.close();
-            		} catch (Exception e) {}
-
+			    byte[] buffer = new byte[4096];
+			    int bytes=0; 
+			    while (true) {
+				bytes = is.read(buffer);
+				if (bytes < 0) break;
+				fos.write(buffer, 0, bytes);
+			    }
+			    fos.flush();
+			    fos.close();
+            		} catch (Exception e) {
+			}
                		is.close();
-			 
 			params.setProperty( "content", "" );
-
 			params.setProperty( "filename" ,  alignFile.getAbsolutePath()  );
-			
          	    } 
 
 		    // Get the answer (HTTP)
