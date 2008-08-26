@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -51,10 +52,16 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
     LoadedOntology onto1 = null;
     LoadedOntology onto2 = null;
     Cell cell = null;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public SWRLRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
+
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+   };
 
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !( align instanceof ObjectAlignment) )
@@ -62,7 +69,8 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
 	alignment = align;
 	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
 	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
-	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	if ( embedded == false )
+	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");
 	writer.println("                xmlns:swrlx=\"http://www.w3.org/2003/11/swrlx#\"");
 	writer.println("                xmlns:owlx=\"http://www.w3.org/2003/05/owl-xml\"");

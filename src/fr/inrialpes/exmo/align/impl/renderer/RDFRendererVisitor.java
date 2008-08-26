@@ -28,6 +28,7 @@ import java.net.URI;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -63,8 +64,9 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	this.writer = writer;
     }
 
-    public void setEmbeded( boolean b ) {
-	embedded = b;
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
     }
 
     public void visit( Alignment align ) throws AlignmentException {

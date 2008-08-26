@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ * Copyright (C) INRIA Rhône-Alpes, 2004, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,8 +27,8 @@ package org.semanticweb.owl.align;
  * @version $Id$ 
  */
 
-public interface AlignmentVisitor
-{
+public interface AlignmentVisitor {
+    public void init( Parameters p );
     public void visit( Alignment a ) throws AlignmentException;
     public void visit( Cell c ) throws AlignmentException;
     public void visit( Relation r ) throws AlignmentException;

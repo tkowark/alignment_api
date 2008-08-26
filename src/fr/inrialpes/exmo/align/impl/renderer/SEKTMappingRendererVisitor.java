@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -57,6 +58,8 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
 	this.writer = writer;
 	generator = new Random();
     }
+
+    public void init( Parameters p ) {};
 
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !(align instanceof ObjectAlignment) )

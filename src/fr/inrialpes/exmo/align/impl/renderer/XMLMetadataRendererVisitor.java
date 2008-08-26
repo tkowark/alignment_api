@@ -41,13 +41,20 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor
 {
     
     PrintWriter writer = null;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public XMLMetadataRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
 
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    };
+
     public void visit( Alignment align ) throws AlignmentException {
-	writer.print("<?xml version='1.0' encoding='utf-8' standalone='yes'?>\n");
+	if ( embedded == false )
+	    writer.print("<?xml version='1.0' encoding='utf-8' standalone='yes'?>\n");
 	writer.println("<Alignment>");
 	writer.print("  <level>");
 	writer.print( align.getLevel() );

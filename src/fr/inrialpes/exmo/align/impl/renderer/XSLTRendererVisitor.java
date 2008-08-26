@@ -30,6 +30,7 @@ import java.net.URI;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -53,6 +54,7 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
     LoadedOntology onto2 = null;
     Hashtable<String,String> namespaces = null;
     int nsrank = 0;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public XSLTRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -63,6 +65,11 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	namespaces.put( "http://www.w3.org/2000/01/rdf-schema#", "rdfs" );
     }
 
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    };
+
     public void visit( Alignment align ) throws AlignmentException {
 	if ( align instanceof ObjectAlignment ) {
 	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
@@ -72,7 +79,8 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	    collectURIs( (Cell)e.nextElement() );
 	}
 	alignment = align;
-	writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	if ( embedded == false )
+	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	writer.println("<xsl:stylesheet version=\"1.0\"");
 	for ( Enumeration e = namespaces.keys(); e.hasMoreElements(); ){
 	    Object ns = e.nextElement();

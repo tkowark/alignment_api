@@ -28,6 +28,7 @@ import java.net.URI;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -55,10 +56,16 @@ public class HTMLRendererVisitor implements AlignmentVisitor
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public HTMLRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
+
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    };
 
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
@@ -81,8 +88,10 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	    else { tag += ":"+name; }
 	    //extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
 	}
-	writer.print("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n");
-	writer.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">\n");
+	if ( embedded == false ) {
+	    writer.print("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n");
+	    writer.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">\n");
+	}
 	writer.print("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"");
 	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
 	    String k = (String)e.nextElement();

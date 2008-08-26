@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -49,10 +50,16 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     LoadedOntology onto1 = null;
     LoadedOntology onto2 = null;
     Cell cell = null;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public SKOSRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
     }
+
+    public void init( Parameters p ) {
+	if ( p.getParameter( "embedded" ) != null 
+	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    };
 
     // This must be considered
     public void visit( Alignment align ) throws AlignmentException {
