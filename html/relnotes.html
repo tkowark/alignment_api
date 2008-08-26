@@ -17,10 +17,10 @@
 <h2>Under development</h2>
 
 <p><ul compact="1">
-<li>Implementing WSAlignment connecting to remote web service for
-  matching (server)</li>
 <li>Implement ontology support database store (server)</li>
 <li>Online evaluation (server)</li>
+<li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
+  (util)</li>
 <li>Implement <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement database store for OMWG Language (server)</li>
@@ -39,18 +39,27 @@
 
 <p>
 <ul compact="1">
+<li>Implemented WSAlignment connecting to remote web service for
+  matching (server)</li>
 <li><font color="red">Deprecated</font> <tt>Cell.getObjectXAsURI()</tt>
   in favour of <tt>Cell.getObjectXAsURI(Object ontology)</tt> (api)</tt>
 <li>Upgraded NeOn plug-in for working with NeOn toolkit 1.1 (plugin)</li>
 <li>Implemented OWL API 2 support [not shipped] (onto)</li>
+<li>Added <tt>init( Parameters )</tt> arguments to visitors (api)</tt>
+<li>Implemented <tt>embedded</tt> parameter allowing to avoid ?xml
+  declaration when embedded (renderer)</li>
 <li>Added <tt>derivedFrom</tt> standard annotation and implemented it (impl)</li>
 <li>Added <tt>method</tt> annotation for <tt>clone()</tt>
   and <tt>inverse()</tt> (impl)</li>
+<li>Added <tt>initAlignment(URIAlignment)</tt> to parser (parser)</li>
+<li>Added <tt>parse(InputStream)</tt> to parser (parser)</li>
+<li>Parser now ignore SOAP envelops (parser)</li>
 <li>Implemented a better recovery in case of database connection loss (server)</li>
 <li>Implemented cache flushing functions (server)</li>
 <li>Provided better return forms in <tt>HTMLAServManager</tt> (server)</li>
 <li>Catched <tt>init()</tt> errors in server (server)</li>
 <li>Reorganised HTML interface (server)</li>
+<li>Implemented <a href="http://www.webcontent.fr">WebContent</a> plug-in (plugin)</li>
 <li>Improved NeOn plug-in documentation (html)</li>
 <li>Increased the size of relation id to 25 char (server)</li>
 <li>Corrected tutorial so that it works with new code (tutorial)</li>
@@ -123,7 +132,7 @@ For better conforming with RDF practice, we have
 Other improvements include:
 <ul compact="1">
 <li>Implement level 2OMWG alignments by using OMWG Mapping API (impl)</li>
-<li>Integrated first NeOn toolkit plugin (plugin)</li>
+<li>Integrated first <a href="http://www.neon-project.org">NeOn</a> toolkit plugin (plugin)</li>
 <li>Added a <tt>parseString( String )</tt> method
   in <tt>AlignmentParser</tt> (parser)</li>
 <li>Implemented parsing of relations named by class name (parser)</li>
