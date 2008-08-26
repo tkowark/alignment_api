@@ -57,9 +57,14 @@ public class RDFRendererVisitor implements AlignmentVisitor
     Cell cell = null;
     OmwgSyntaxFormat oMWGformatter = null;
     Hashtable<String,String> nslist = null;
+    boolean embedded = false; // if the output is XML embeded in a structure
 
     public RDFRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
+    }
+
+    public void setEmbeded( boolean b ) {
+	embedded = b;
     }
 
     public void visit( Alignment align ) throws AlignmentException {
@@ -84,8 +89,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    else { tag += ":"+name; }
 	    extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
 	}
-	writer.print("<?xml version='1.0' encoding='utf-8");
-	writer.print("' standalone='no'?>\n");
+	if ( embedded == false ) {
+	    writer.print("<?xml version='1.0' encoding='utf-8");
+	    writer.print("' standalone='no'?>\n");
+	}
 	writer.print("<rdf:RDF xmlns='"+Annotations.ALIGNNS+"'");
 	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
 	    String k = (String)e.nextElement();
