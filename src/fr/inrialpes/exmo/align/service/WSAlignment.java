@@ -105,10 +105,10 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 } catch (IOException ioex) {
 	     throw new AlignmentException("Malformed service address");
 	 }
-	 String message = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
-					   "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\' " + 
-					   "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
-					   "<SOAP-ENV:Body>";
+	 String message = "<SOAP-ENV:Envelope\n   xmlns='http://exmo.inrialpes.fr/align/service'\n   xml:base='http://exmo.inrialpes.fr/align/service'\n    xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\'\n " +
+					   "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\'\n " + 
+					   "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>\n" +
+					   "  <SOAP-ENV:Body>\n";
 	 // URI encoding
 	 String uri1 = getOntology1URI().toString();
 	 String uri2 = getOntology2URI().toString();
@@ -122,7 +122,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     System.out.println("  <"+k+">"+params.getParameter(k)+"</"+k+">");
 	 }
 
-	 message += "</SOAP-ENV:Body>"+"</SOAP-ENV:Envelope>";
+	 message += "  </SOAP-ENV:Body>\n"+"</SOAP-ENV:Envelope>\n";
 	 byte[] byteMess = message.getBytes();
 
 	 // Connect with the web service (in parameter)
@@ -173,6 +173,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 try {
 	     AlignmentParser parser = new AlignmentParser( 0 );
 	     parser.initAlignment( this );
+	     parser.setEmbedded( true );
 	     //parser.parseString( answer );
 	     parser.parse( httpConn.getInputStream() );
 	 } catch (SAXException saxex) {

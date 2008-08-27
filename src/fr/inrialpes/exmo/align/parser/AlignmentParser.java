@@ -155,6 +155,13 @@ public class AlignmentParser extends DefaultHandler {
      */
     protected int parselevel = 0;
 
+    /**
+     * The parsing level, if equal to 3 we are in the Alignment
+     * if equal to 5 we are in a cell
+     * and can find metadata
+     */
+    protected boolean embedded = false;
+
     /** 
      * Creates an XML Parser.
      * @param debugMode The value of the debug mode
@@ -169,6 +176,10 @@ public class AlignmentParser extends DefaultHandler {
 	}
 	parserFactory.setNamespaceAware(true);
 	parser = parserFactory.newSAXParser();
+    }
+
+    public void setEmbedded( boolean b ){
+	embedded = b;
     }
     
     /** 
@@ -329,7 +340,7 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    if ( parselevel != 3 && parselevel != 5 ) throw new SAXException("[AlignmentParser("+parselevel+")] Unknown namespace : "+namespaceURI);
+	    if ( parselevel != 3 && parselevel != 5 && !embedded ) throw new SAXException("[AlignmentParser("+parselevel+")] Unknown namespace : "+namespaceURI);
 	}
     }
 
@@ -491,7 +502,7 @@ public class AlignmentParser extends DefaultHandler {
 		if ( extensions == null ) extensions = new BasicParameters();
 		String[] ext = {namespaceURI, pName, content};
 		extensions.setParameter( namespaceURI+pName, ext );
-	    } else throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
+	    } else if (  !embedded ) throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
 	parselevel--;
     } //end endElement

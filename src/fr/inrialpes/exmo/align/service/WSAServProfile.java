@@ -212,8 +212,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    saxex.printStackTrace();
 	}
 
-	// JE: Certainly putting an explicit xmlns="" xml:base="" should be usefull
-	String msg = "<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body>";
+	// JE: Note that we are namespace unaware here
+	String msg = "<SOAP-ENV:Envelope\n   xmlns='http://exmo.inrialpes.fr/align/service'\n   xml:base='http://exmo.inrialpes.fr/align/service'\n   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'\n   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>\n  <SOAP-ENV:Body>\n";
 	if ( perf.equals("WSDL") || method.equals("wsdlRequest") ) {
 	    msg += wsdlAnswer();
 	} else if ( method.equals("listalignmentsRequest") ) {
@@ -222,24 +222,24 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		String id = ((Alignment)e.nextElement()).getExtension(Annotations.ALIGNNS, Annotations.ID);
 		msg += "<alid>"+id+"</alid>";
 	    }
-	    msg += "</alignmentList></listalignmentsResponse>";
+	    msg += "</alignmentList></listalignmentsResponse>\n";
 	    // -> List of URI
 	} else if ( method.equals("listmethodsRequest") ) { // -> List of String
 	    msg += "<listmethodsResponse><classList>";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
-		msg += "<method>"+it.next()+"</method>";
+		msg += "<method>"+it.next()+"</method>\n";
 	    }
 	    msg += "</classList></listmethodsResponse>";
 	} else if ( method.equals("listrenderersRequest") ) { // -> List of String
 	    msg += "<listrenderersResponse><classList>";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
-		msg += "<renderer>"+it.next()+"</renderer>";
+		msg += "<renderer>"+it.next()+"</renderer>\n";
 	    }
 	    msg += "</classList></listrenderersResponse>";
 	} else if ( method.equals("listservicesRequest") ) { // -> List of String
 	    msg += "<listservicesResponse><classList>";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
-		msg += "<service>"+it.next()+"</service>";
+		msg += "<service>"+it.next()+"</service>\n";
 	    }
 	    msg += "</classList></listservicesResponse>";
 	} else if ( method.equals("storeRequest") ) { // URI -> URI
@@ -375,7 +375,6 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		// JE: Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
 		msg += "<result>" + answer.getContent() + "</result>";
-		msg += displayAnswer( answer );
 	    }
 	    msg += "</alignResponse>";
 	} else if ( method.equals("findRequest") ) { // URI * URI -> List of URI
@@ -473,7 +472,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	} else {
 	    msg += "<UnRecognizedAction />";
 	}
-	msg += "  </SOAP-ENV:Body></SOAP-ENV:Envelope>";
+	msg += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
 	return msg;
     }
 
