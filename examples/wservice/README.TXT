@@ -41,11 +41,28 @@ java AlignmentClient list renderers		-> XML
 java AlignmentClient list services		-> XML
 
 ----------------------------------
-USE
+USE WITH THE ALIGNMENT SERVER
 
 $ javac -cp .:../../lib/procalign.jar AlignmentClient.java
 
-$ java -cp .:../../lib/procalign.jar AlignmentClient match file:///Java/alignapi/html/tutorial/myOnto.owl file:///Java/alignapi/html/tutorial/myOnto.owl
-<SOAP-ENV:Envelope   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>  <SOAP-ENV:Body><matchResponse><id>0</id><in-reply-to>fr.inrialpes.exmo.align.service.Message@e6233</in-reply-to><alid>http://localhost:8089/alid/1187793046984/21</alid></matchResponse>  </SOAP-ENV:Body></SOAP-ENV:Envelope>
+$ java -cp .:../../lib/procalign.jar AlignmentClient match align http://alignapi.gforge.inria.fr/tutorial/myOnto.owl http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl
+<SOAP-ENV:Envelope
+   xmlns='http://exmo.inrialpes.fr/align/service'
+   xml:base='http://exmo.inrialpes.fr/align/service'
+   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'
+   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'
+   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>
+  <SOAP-ENV:Body>
+    <matchResponse>
+      <id>12</id>
+      <in-reply-to>fr.inrialpes.exmo.align.service.Message@1fa5d1a</in-reply-to>
+      <alid>http://aserv.inrialpes.fr:8089/alid/1219842718179/172</alid>
+    </matchResponse>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
 
+----------------------------------
+USE WITH A PARTICULAR ALIGNMENT SERVICE
+
+$ java -cp .:../../lib/procalign.jar AlignmentClient -S http://aserv.inrialpes.fr/aserv align http://alignapi.gforge.inria.fr/tutorial/myOnto.owl http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl
 
