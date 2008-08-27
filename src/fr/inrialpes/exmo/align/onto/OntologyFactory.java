@@ -38,7 +38,7 @@ public abstract class OntologyFactory {
 	return API_NAME;
     }
 
-    public void setDefaultFactory( String className ){
+    public static void setDefaultFactory( String className ){
 	API_NAME = className;
     }
 
