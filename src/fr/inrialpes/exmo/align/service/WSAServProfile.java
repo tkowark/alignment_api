@@ -217,35 +217,35 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	if ( perf.equals("WSDL") || method.equals("wsdlRequest") ) {
 	    msg += wsdlAnswer();
 	} else if ( method.equals("listalignmentsRequest") ) {
-	    msg += "<listalignmentsResponse><alignmentList>";
+	    msg += "    <listalignmentsResponse>\n      <alignmentList>";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		String id = ((Alignment)e.nextElement()).getExtension(Annotations.ALIGNNS, Annotations.ID);
-		msg += "<alid>"+id+"</alid>";
+		msg += "        <alid>"+id+"</alid>\n";
 	    }
-	    msg += "</alignmentList></listalignmentsResponse>\n";
+	    msg += "      </alignmentList>\n    </listalignmentsResponse>\n";
 	    // -> List of URI
 	} else if ( method.equals("listmethodsRequest") ) { // -> List of String
-	    msg += "<listmethodsResponse><classList>";
+	    msg += "    <listmethodsResponse>\n      <classList>\n";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
-		msg += "<method>"+it.next()+"</method>\n";
+		msg += "        <method>"+it.next()+"</method>\n";
 	    }
-	    msg += "</classList></listmethodsResponse>";
+	    msg += "      </classList>\n    </listmethodsResponse>\n";
 	} else if ( method.equals("listrenderersRequest") ) { // -> List of String
-	    msg += "<listrenderersResponse><classList>";
+	    msg += "    <listrenderersResponse>\n      <classList>\n";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
-		msg += "<renderer>"+it.next()+"</renderer>\n";
+		msg += "        <renderer>"+it.next()+"</renderer>\n";
 	    }
-	    msg += "</classList></listrenderersResponse>";
+	    msg += "      </classList>\n    </listrenderersResponse>\n";
 	} else if ( method.equals("listservicesRequest") ) { // -> List of String
-	    msg += "<listservicesResponse><classList>";
+	    msg += "    <listservicesResponse>\n      <classList>\n";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
-		msg += "<service>"+it.next()+"</service>\n";
+		msg += "        <service>"+it.next()+"</service>\n";
 	    }
-	    msg += "</classList></listservicesResponse>";
+	    msg += "      </classList>\n    </listservicesResponse>\n";
 	} else if ( method.equals("storeRequest") ) { // URI -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<storeResponse>";
+	    msg += "    <storeResponse>\n";
 	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -258,11 +258,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</storeResponse>";
+	    msg += "    </storeResponse>\n";
 	} else if ( method.equals("invertRequest") ) { // URI -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<invertResponse>";
+	    msg += "    <invertResponse>\n";
 
 	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
@@ -276,11 +276,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</invertResponse>";
+	    msg += "    </invertResponse>\n";
 	} else if ( method.equals("cutRequest") ) { // URI * string * float -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<cutResponse>";
+	    msg += "    <cutResponse>\n";
 
 	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
@@ -304,11 +304,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</cutResponse>";
+	    msg += "    </cutResponse>\n";
 	} else if ( method.equals("matchRequest") ) { // URL * URL * URI * String * boolean * (params) -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<matchResponse>";
+	    msg += "    <matchResponse>\n";
 
 	    getParameter( domMessage, message, params, "url1", "onto1" );
 	    if ( params.getParameter( "onto1" ) == null ) {
@@ -330,12 +330,12 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</matchResponse>";
+	    msg += "    </matchResponse>\n";
 	} else if ( method.equals("align") ) { // URL * URL * (params) -> URI
 	    // This is a dummy method for emulating a WSAlignement service
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<alignResponse>";
+	    msg += "    <alignResponse>\n";
 
 	    getParameter( domMessage, message, params, "url1", "onto1" );
 	    if ( params.getParameter( "onto1" ) == null ) {
@@ -374,13 +374,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		// JE: Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
-		msg += "<result>" + answer.getContent() + "</result>";
+		msg += "      <result>\n" + answer.getContent() + "      </result>\n";
 	    }
-	    msg += "</alignResponse>";
+	    msg += "    </alignResponse>\n";
 	} else if ( method.equals("findRequest") ) { // URI * URI -> List of URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<findResponse>";
+	    msg += "    <findResponse>\n";
 
 	    getParameter( domMessage, message, params, "uri1", "onto1" );
 	    if ( params.getParameter( "onto1" ) == null ) {
@@ -399,11 +399,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</findResponse>";
+	    msg += "    </findResponse>\n";
 	} else if ( method.equals("retrieveRequest") ) { // URI * method -> XML
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<retrieveResponse>";
+	    msg += "    <retrieveResponse>\n";
 
 	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
@@ -422,15 +422,15 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		// JE: Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
-		msg += "<result>" + answer.getContent() + "</result>";
+		msg += "      <result>\n" + answer.getContent() + "      \n</result>";
 	    }
-	    msg += "</retrieveResponse>";
+	    msg += "    </retrieveResponse>\n";
 	} else if ( method.equals("metadataRequest") ) { // URI -> XML
-	    msg += "<metadataResponse>";
+	    msg += "    <metadataResponse>\n";
 	    // Not done yet
-	    msg += "</metadataResponse>";
+	    msg += "    </metadataResponse>\n";
 	} else if ( method.equals("loadRequest") ) { // URL -> URI
-	    msg += "<loadResponse>";
+	    msg += "    <loadResponse>\n";
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
 
@@ -447,11 +447,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</loadResponse>";
+	    msg += "    </loadResponse>\n";
 	} else if ( method.equals("loadfileRequest") ) { // XML -> URI
 	    Parameters params = new BasicParameters();
 	    Message answer = null;
-	    msg += "<loadResponse>";
+	    msg += "    <loadResponse>\n";
 
 	    getParameter( domMessage, message, params, "url", "url" );
 	    if ( params.getParameter( "url" ) == null ) {
@@ -464,13 +464,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg += displayAnswer( answer );
 	    }
-	    msg += "</loadResponse>";
+	    msg += "    </loadResponse>\n";
 	} else if ( method.equals("translateRequest") ) { // XML * URI -> XML
-	    msg += "<translateResponse>";
+	    msg += "    <translateResponse>\n";
 	    // Not done yet
-	    msg += "</translateResponse>";
+	    msg += "    </translateResponse>\n";
 	} else {
-	    msg += "<UnRecognizedAction />";
+	    msg += "    <UnRecognizedAction />\n";
 	}
 	msg += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
 	return msg;
