@@ -33,11 +33,11 @@ import org.semanticweb.owl.align.Evaluator;
 
 // Align API Implementation
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment;
 import fr.inrialpes.exmo.align.impl.method.SMOANameAlignment;
 import fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment;
+import fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor;
 
@@ -64,13 +64,13 @@ public class MyAlign {
 	    URI uri2 = new URI("file://localhost"+CWD+"/rdf/edu.mit.visus.bibtex.owl");
 
 	    Parameters p = new BasicParameters();
-	    OntologyCache cache = new OntologyCache();
 	    AlignmentProcess A1 = new SubsDistNameAlignment();
-	    A1.init( uri1, uri2, cache );
+	    A1.init( uri1, uri2 );
 	    AlignmentProcess A2 = new SMOANameAlignment();
-	    A2.init( uri1, uri2, cache ); 
-	    AlignmentProcess A3 = new NameAndPropertyAlignment();
-	    A3.init( uri1, uri2, cache ); 
+	    A2.init( uri1, uri2 ); 
+	    //AlignmentProcess A3 = new NameAndPropertyAlignment();
+	    AlignmentProcess A3 = new EditDistNameAlignment();
+	    A3.init( uri1, uri2 ); 
 	    A1.align((Alignment)null,p); A1.cut("prop", .5); 
 	    A2.align((Alignment)null,p); A3.align(A2,p); 
 	    Evaluator E = new PRecEvaluator(A1, A3); 
