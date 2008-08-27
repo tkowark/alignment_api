@@ -1,7 +1,7 @@
 /*
  * $Id: AlignmentClient.java 522 2007-07-18 09:08:08Z euzenat $
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007.
+ * Copyright (C) INRIA Rhône-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,15 +35,18 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.io.File;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URLConnection;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
-
 public class AlignmentClient {
-
 
     public static final String //Port Strings
 	HTML = "8089",
@@ -69,14 +72,13 @@ public class AlignmentClient {
     
     public void run(String[] args) throws Exception {
 	services = new Hashtable();
+	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
 	// Read parameters
 	Parameters params = readParameters( args );
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
 	}
-	// JE//: Should not be correct.
-	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
 	if ( debug > 0 ) {
 	    System.err.println("***** Parameter parsed");
 	    for ( int i=0; i < args.length; i++ ){
@@ -300,36 +302,22 @@ public class AlignmentClient {
 
 	return answer;
     }
-    public Parameters readParameters( String[] args ) {
+    public Parameters readParameters( String[] args ) throws java.net.MalformedURLException {
 	Parameters params = new BasicParameters();
 
 	params.setParameter( "host", HOST );
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[16];
+	LongOpt[] longopts = new LongOpt[8];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[3] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'l');
-	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	longopts[1] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+	longopts[2] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	// Service parameters
-	longopts[5] = new LongOpt("html", LongOpt.OPTIONAL_ARGUMENT, null, 'H');
-	longopts[6] = new LongOpt("jade", LongOpt.OPTIONAL_ARGUMENT, null, 'A');
-	longopts[7] = new LongOpt("wsdl", LongOpt.OPTIONAL_ARGUMENT, null, 'W');
-	longopts[8] = new LongOpt("jxta", LongOpt.OPTIONAL_ARGUMENT, null, 'P');
-	// DBMS Server parameters
-	longopts[9] = new LongOpt("dbmshost", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-	longopts[10] = new LongOpt("dbmsport", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[11] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	longopts[12] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
-	longopts[13] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
-	longopts[14] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
-	longopts[15] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-	// Is there a way for that in LongOpt ???
+	longopts[3] = new LongOpt("server", LongOpt.REQUIRED_ARGUMENT, null, 'S');
 
-	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::m:s:u:p:b:i:", longopts);
+	Getopt g = new Getopt("", args, "hD:d::S:", longopts);
 	int c;
 	String arg;
 
@@ -338,39 +326,16 @@ public class AlignmentClient {
 	    case 'h' :
 		usage();
 		System.exit(0);
-	    case 'o' :
-		/* Use filename instead of stdout */
-		outfile = g.getOptarg();
-		break;
 	    case 'd' :
 		/* Debug level  */
 		arg = g.getOptarg();
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
-	    case 'H' :
+	    case 'S' :
 		/* HTTP Server + port */
 		arg = g.getOptarg();
-		if ( arg != null ) {
-		    params.setParameter( "http", arg );
-		} else {
-		    params.setParameter( "http", HTML );
-		}
-		// This shows that it does not work
-		services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", params.getParameter( "http" ) );
-		break;
-	    case 'W' :
-		/* Web service + port */
-		arg = g.getOptarg();
-		if ( arg != null ) {
-		    params.setParameter( "wsdl", arg );
-		} else {
-		    params.setParameter( "wsdl", WSDL );
-		}		    
-		break;
-	    case 'S' :
-		/* Server */
-		params.setParameter( "host", g.getOptarg() );
+		SOAPUrl = new URL( arg );
 		break;
 	    case 'D' :
 		/* Parameter definition */
@@ -383,7 +348,6 @@ public class AlignmentClient {
 		    System.err.println("Bad parameter syntax: "+g);
 		    usage();
 		    System.exit(0);
-		    
 		}
 		break;
 	    }
@@ -413,24 +377,20 @@ public class AlignmentClient {
 	// Printout to be improved...
 	System.out.println( answer );
     }
-    // Really missing:
-    // OUTPUT(o): what for, there is no output (maybe LOGS)
-    // LOAD(l): good idea, load from file, but what kind? sql?
-    // PARAMS(p is taken, P is taken): yes good as well to read parameters from file
+
     public void usage() {
 	System.err.println("usage: AlignmentClient [options] command [args]");
 	System.err.println("options are:");
-	System.err.println("\t--html[=port] -H[port]\t\t\tLaunch HTTP service");
-	System.err.println("\t--wsdl[=port] -W[port]\t\t\tLaunch Web service");
-	System.err.println("\t--output=filename -o filename\tRedirect output to filename");
+	System.err.println("\t--server=URL -S URL\tthe server to which to connect");
 	System.err.println("\t--debug[=n] -d[n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
 	System.err.println();
-	System.err.println("commandss are:");
+	System.err.println("commands are:");
 	System.err.println("\twsdl");
 	System.err.println("\tfind URI URI");
 	System.err.println("\tmatch URI URI");
+	System.err.println("\talign URI URI (this is for WSAlignment)");
 	System.err.println("\ttrim AURI [method] threshold");
 	System.err.println("\tinvert AURI");
 	System.err.println("\tload URI | File");

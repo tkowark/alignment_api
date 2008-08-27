@@ -14,11 +14,11 @@ TODO
 -------------------------------------
 CLIENT INVOKATION
 
-java AlignmentClient keyword [genoptions] [options]
+java AlignmentClient [genoptions] keyword [options]
 genoptions:
 	-d [num]	 debug level
-	-h 		 hostname
-	-q		 quiet
+	-S 		 servername
+	-h		 help
 
 java AlignmentClient wsdl			-> XML
 java AlignmentClient find URI URI		-> AURI
