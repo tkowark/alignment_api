@@ -62,9 +62,11 @@ import fr.inrialpes.exmo.align.impl.Annotations;
  * This class allows the creation of a parser for an Alignment file.
  * The class is called by:
  * AlignmentParser parser = new AlignmentParser( debugLevel );
- * Alignment alignment = parser.parse( uri );
+ * Alignment alignment = parser.parse( input );
+ * input can be a URI as a String, an InputStream
  * This new version (January 2004) parses the alignment description in
  * RDF/XML/OWL format
+ *
  */
 
 public class AlignmentParser extends DefaultHandler {
@@ -239,6 +241,15 @@ public class AlignmentParser extends DefaultHandler {
 	return alignment;
     }
 
+    /** 
+     * Allows to have the parser filling an existing alignment instead
+     * of creating a new one
+     * @param al URIAlignment the alignment to be returned by the parser
+     *
+     * Note that this function is also useful for reseting the parser 
+     * and using it once again by parser.initAlignment( null )
+     * Otherwise, this may lead to errors.
+     */
     public void initAlignment( URIAlignment al ) {
 	alignment = al;
     }
