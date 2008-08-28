@@ -93,11 +93,12 @@ public class ParserPrinter {
 	String filename = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
-	LongOpt[] longopts = new LongOpt[8];
+	LongOpt[] longopts = new LongOpt[10];
 	int debug = 0;
 	String rendererClass = null;
 	String parserClass = null;
 	boolean inverse = false;	
+	boolean embedded = false;	
 	double threshold = 0;
 	String cutMethod = "hard";
 
@@ -109,8 +110,9 @@ public class ParserPrinter {
 	longopts[5] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
 	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
+	longopts[8] = new LongOpt("embedded", LongOpt.NO_ARGUMENT, null, 'e');
 	
-	Getopt g = new Getopt("", args, "hio:t:T:d::r:p:", longopts);
+	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:", longopts);
 	int c;
 	String arg;
 
@@ -121,6 +123,9 @@ public class ParserPrinter {
 		return;
 	    case 'i':
 		inverse = true;
+		break;
+	    case 'e':
+		embedded = true;
 		break;
 	    case 'o':
 		/* Write warnings to stdout rather than stderr */
@@ -182,6 +187,7 @@ public class ParserPrinter {
 		}
 	    }
 
+	    aparser.setEmbedded( embedded );
 	    result = aparser.parse( initName );
 	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
 	    // Set output file
@@ -240,6 +246,7 @@ public class ParserPrinter {
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
 	System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
 	System.out.println("\t--parser=className -p\t\tUse the given class for input.");
+	System.out.println("\t--embedded -e\t\tRead the alignment as embedded in XML file");
 	System.out.println("\t--inverse -i\t\tInverse first and second ontology");
 	System.out.println("\t--threshold=threshold -t threshold\t\tTrim the alugnment with regard to threshold");
 	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\t\tMethod to use for triming");
