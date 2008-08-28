@@ -76,6 +76,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	/*
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine2.xml > wine3.xml
 	*/
+	aparser1.initAlignment( null );
 	alignment = aparser1.parse( "examples/omwg/wine2.xml" );
 	assertNotNull( alignment );
 	FileOutputStream stream = new FileOutputStream("examples/omwg/wine3.xml");
@@ -93,7 +94,9 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	/*
 diff wine2.xml wine3.xml
 	*/
+	aparser1.initAlignment( null );
 	Alignment oldal = aparser1.parse( "examples/omwg/wine2.xml" );
+	aparser1.initAlignment( null );
 	alignment = aparser1.parse( "examples/omwg/wine3.xml" );
 	assertNotNull( alignment );
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
