@@ -203,15 +203,20 @@ public class AServProtocolManager {
     }
 
     // Implements: align
-    public Message align(Message mess){
+    public Message align( Message mess ){
 	Message result = null;
 	Parameters p = mess.getParameters();
-	for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
+	/*
+	  // JE: This remains here for historical reasons.
+	  // It is a threat to security since it used to unveil to all interfaces
+	  // database parameters!
+	  for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
 	    String key = e.nextElement();
 	    if ( p.getParameter( key ) == null ){
 		p.setParameter( key , commandLineParams.getParameter( key ) );
 	    }
 	}
+	*/
 	// Do the fast part (retrieve)
 	result = retrieveAlignment( mess );
 	if ( result != null ) return result;
@@ -472,7 +477,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
 	}
-System.err.println( id +" -- "+al);
+
 	// Invert it
 	try { al = al.inverse(); }
 	catch (AlignmentException e) {
@@ -853,6 +858,8 @@ System.err.println( id +" -- "+al);
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Parameters)null);
 	    } catch (AlignmentException e) {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+	    } catch (Exception e) {
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception (wrong class name?)",(Parameters)null);
 	    }
 	    loadedOntologies.clear(); // not always necessary
 	    result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
