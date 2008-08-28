@@ -346,9 +346,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
 
-	    getParameter( domMessage, message, params, "method", "method" );
+	    getParameter( domMessage, message, params, "wsmethod", "method" );
 	    if ( params.getParameter( "method" ) == null ) {
-		params.setParameter( "method", "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment" );
+		params.setParameter( "method", "fr.inrialpes.exmo.align.impl.method.StringDistanceAlignment" );
 	    }
 
 	    if ( answer == null ) {
