@@ -153,7 +153,7 @@ public class AlignmentParser extends DefaultHandler {
      * if equal to 5 we are in a cell
      * and can find metadata
      */
-    protected int parselevel = 0;
+    protected int parseLevel = 0;
 
     /**
      * The parsing level, if equal to 3 we are in the Alignment
@@ -161,6 +161,12 @@ public class AlignmentParser extends DefaultHandler {
      * and can find metadata
      */
     protected boolean embedded = false;
+
+    /**
+     * The level at which we found the Alignment tag.
+     * It is -1 outside the alignment.
+     */
+    protected int alignLevel = -1;
 
     /** 
      * Creates an XML Parser.
@@ -249,7 +255,7 @@ public class AlignmentParser extends DefaultHandler {
     public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("startElement AlignmentParser : " + pName);
-	parselevel++;
+	parseLevel++;
 	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
 	    || namespaceURI.equals(Annotations.ALIGNNS) )  {
 	    if (pName.equals("relation")) {
@@ -323,6 +329,8 @@ public class AlignmentParser extends DefaultHandler {
 	    } else if (pName.equals("level")) {
 	    } else if (pName.equals("xml")) {
 	    } else if (pName.equals("Alignment")) {
+		alignLevel = parseLevel;
+		parseLevel = 2; // for embeded (RDF is usually 1)
 		if ( alignment == null ) alignment = new URIAlignment();
 		onto1 = ((URIAlignment)alignment).getOntologyObject1();
 		onto2 = ((URIAlignment)alignment).getOntologyObject2();
@@ -340,7 +348,7 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    if ( parselevel != 3 && parselevel != 5 && !embedded ) throw new SAXException("[AlignmentParser("+parselevel+")] Unknown namespace : "+namespaceURI);
+	    if ( alignLevel != -1 && parseLevel != 3 && parseLevel != 5 && !embedded ) throw new SAXException("[AlignmentParser("+parseLevel+")] Unknown namespace : "+namespaceURI);
 	}
     }
 
@@ -477,14 +485,16 @@ public class AlignmentParser extends DefaultHandler {
 		    //if ( content.equals("no") )
 		    //	{ throw new SAXException("Non parseable alignment"); }
 		} else if (pName.equals("Alignment")) {
+		    parseLevel = alignLevel; // restore level²<
+		    alignLevel = -1;
 		} else {
-		    if ( parselevel == 3 ){
+		    if ( parseLevel == 3 ){
 			alignment.setExtension( namespaceURI, pName, content );
-		    } else if ( parselevel == 5 ) {
+		    } else if ( parseLevel == 5 ) {
 			String[] ext = {namespaceURI, pName, content};
 			extensions.setParameter( namespaceURI+pName, ext );
 		    } else //if ( debugMode > 0 )
-			System.err.println("[AlignmentParser] Unknown element name : "+pName);
+			System.err.println("[AlignmentParser("+parseLevel+")] Unknown element name : "+pName);
 		    //throw new SAXException("[AlignmentParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[AlignmentParser] Exception raised", e); };
@@ -496,15 +506,15 @@ public class AlignmentParser extends DefaultHandler {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[AlignmentParser] unknown element name: "+pName); };
 	} else {
-	    if ( parselevel == 3 ){
+	    if ( parseLevel == 3 && alignLevel != -1 ){
 		alignment.setExtension( namespaceURI, pName, content );
-	    } else if ( parselevel == 5 ) {
+	    } else if ( parseLevel == 5 && alignLevel != -1 ) {
 		if ( extensions == null ) extensions = new BasicParameters();
 		String[] ext = {namespaceURI, pName, content};
 		extensions.setParameter( namespaceURI+pName, ext );
 	    } else if (  !embedded ) throw new SAXException("[AlignmentParser] Unknown namespace : "+namespaceURI);
 	}
-	parselevel--;
+	parseLevel--;
     } //end endElement
     
     /** Can be used for loading the ontology if it is not available **/
