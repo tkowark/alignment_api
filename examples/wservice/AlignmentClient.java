@@ -106,10 +106,10 @@ public class AlignmentClient {
     }
 
     public String createMessage( Parameters params ) throws Exception {
-        String messageBegin = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
-			                  "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\' " + 
-			                  "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
-			                  "<SOAP-ENV:Body>";
+        String messageBegin = "<SOAP-ENV:Envelope xmlns='http://exmo.inrialpes.fr/align/service'\n                   xml:base='http://exmo.inrialpes.fr/align/service'\n                   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n" +
+			                  "                   xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance'\n" + 
+			                  "                   xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>\n" +
+			                  "  <SOAP-ENV:Body>\n";
 	String messageBody = "";
 	String cmd = (String)params.getParameter( "command" );
 	if ( cmd.equals("list" ) ) {
@@ -136,7 +136,7 @@ public class AlignmentClient {
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<uri1>"+uri1+"</uri1><uri2>"+uri2+"</uri2>";
+	    messageBody = "    <uri1>"+uri1+"</uri1>\n    <uri2>"+uri2+"</uri2>\n";
 	} else if ( cmd.equals("match" ) ) {
 	    SOAPAction = "matchRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
@@ -151,12 +151,12 @@ public class AlignmentClient {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
 	    arg3 = (String)params.getParameter( "arg4" );
-	    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
+	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	    if ( method != null )
-		messageBody += "<method>"+method+"</method>";
+		messageBody += "    <method>"+method+"</method>\n";
 	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
 	    if ( arg3 != null )
-		messageBody += "<force>"+arg3+"</force>";
+		messageBody += "    <force>"+arg3+"</force>\n";
 	} else if ( cmd.equals("align" ) ) {
 	    SOAPAction = "align";
 	    String uri1 = (String)params.getParameter( "arg1" );
@@ -171,9 +171,9 @@ public class AlignmentClient {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
 	    //arg3 = (String)params.getParameter( "arg4" );
-	    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
+	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	    if ( method != null )
-		messageBody += "<method>"+method+"</method>";
+		messageBody += "    <method>"+method+"</method>\n";
 	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
 	    //if ( arg3 != null )
 	    //	messageBody += "<force>"+arg3+"</force>";
@@ -192,7 +192,7 @@ public class AlignmentClient {
 	    if ( arg3 != null ) {
 		method = thres; thres = arg3;
 	    }
-	    messageBody = "<alid>"+id+"</alid><threshold>"+thres+"</threshold>";
+	    messageBody = "    <alid>"+id+"</alid>\n    <threshold>"+thres+"</threshold>\n";
 	    if ( method != null )
 		messageBody += "<method>"+method+"</method>";
 	} else if ( cmd.equals("invert" ) ) {
@@ -225,10 +225,10 @@ public class AlignmentClient {
 		}
 		if (in != null) in.close();
 		System.err.println(content);
-		messageBody = "<content>"+content+"</content>";
+		messageBody = "    <content>"+content+"</content>\n";
 	    } else {
 		SOAPAction = "loadfileRequest";
-		messageBody = "<url>"+url+"</url>";
+		messageBody = "    <url>"+url+"</url>\n";
 	    }
 	    /* This may read the input stream!
 			// Most likely Web service request
@@ -249,7 +249,7 @@ public class AlignmentClient {
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
+	    messageBody = "    <alid>"+uri+"</alid>\n    <method>"+method+"</method>\n";
 	} else if ( cmd.equals("metadata" ) ) {
 	    SOAPAction = "metadata";
 	    String uri = (String)params.getParameter( "arg1" );
@@ -258,13 +258,13 @@ public class AlignmentClient {
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<alid>"+uri+"</alid><key>"+key+"</key>";
+	    messageBody = "    <alid>"+uri+"</alid>\n    <key>"+key+"</key>\n";
 	} else {
 	    usage();
 	    System.exit(-1);
 	}
 	// Create input message and URL
-	String messageEnd = "</SOAP-ENV:Body>"+"</SOAP-ENV:Envelope>";
+	String messageEnd = "  </SOAP-ENV:Body>\n"+"</SOAP-ENV:Envelope>\n";
 	String message = messageBegin + messageBody + messageEnd;
 	return message;
     }
