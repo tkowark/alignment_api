@@ -69,22 +69,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 public class WSAlignment extends URIAlignment implements AlignmentProcess {
 
-     /*
-     // JE: so far this is the code of URIAlignment...
-     // So it can be discarded, we only need to store the ontologies
-     public void init(Object o1, Object o2) throws AlignmentException {
-	 if ( o1 instanceof Ontology && o2 instanceof Ontology ){
-	     super.init( o1, o2 );
-	 } else if ( o1 instanceof URI && o2 instanceof URI ) {
-	     super.init( o1, o2 );
-	     this.onto1.setURI( (URI)o1 );
-	     this.onto2.setURI( (URI)o2 );
-	 } else {
-	     throw new AlignmentException("arguments must be URIs");
-	 };
-     }
-     */
-
      private URL SOAPUrl = null;
      /**
       * The address of the web service (URL).
@@ -98,8 +82,11 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
       **/
      public void align( Alignment alignment, Parameters params ) throws AlignmentException {
 	 // Create the invokation message
-	 if ( params.getParameter("wserver") != null )
+	 if ( params.getParameter("wserver") != null ) {
 	     serviceAddress = (String)params.getParameter("wserver");
+	 } else {
+	     throw new AlignmentException( "WSAlignment: required parameter : wserver" );
+	 }
 	 try {
 	     SOAPUrl = new URL( serviceAddress );
 	 } catch (IOException ioex) {
@@ -110,19 +97,19 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 					   "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>\n" +
 					   "  <SOAP-ENV:Body>\n";
 	 // URI encoding
-	 String uri1 = getOntology1URI().toString();
-	 String uri2 = getOntology2URI().toString();
+	 String uri1 = ((URI)getOntology1()).toString();
+	 String uri2 = ((URI)getOntology2()).toString();
 	 if ( uri1 == null || uri2 == null ){
 	     throw new AlignmentException("Missing URIs");
 	 }
-	 message += "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
+	 message += "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	 // Parameter encoding
 	 for (Enumeration e = params.getNames(); e.hasMoreElements();) {
 	     String k = (String)e.nextElement();
-	     System.out.println("  <"+k+">"+params.getParameter(k)+"</"+k+">");
+	     message += "    <"+k+">"+params.getParameter(k)+"</"+k+">\n";
 	 }
 
-	 message += "  </SOAP-ENV:Body>\n"+"</SOAP-ENV:Envelope>\n";
+	 message += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
 	 byte[] byteMess = message.getBytes();
 
 	 // Connect with the web service (in parameter)
@@ -154,21 +141,6 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 }
 
 	 // Get the result
-	 /*
-	 String answer = "";
-	 try {
-	     InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	     BufferedReader in = new BufferedReader(isr);
-	     String line;
-	     while ((line = in.readLine()) != null) {
-		 answer += line + "\n";
-	     }
-	     if (in != null) in.close();
-	 } catch (IOException ex) {
-	     throw new AlignmentException("Cannot read");
-	 }
-	 */
-
 	 // Parse the result in this alignment
 	 try {
 	     AlignmentParser parser = new AlignmentParser( 0 );
@@ -184,55 +156,6 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     throw new AlignmentException( "XML/SOAP parsing error", pcex );
 	 }
      }
-
-     /*
-    public void setOntology1(Object ontology) throws AlignmentException {
-	if ( ontology instanceof URI || ontology instanceof Ontology ){
-	    super.setOntology1( ontology );
-	} else {
-	    throw new AlignmentException("arguments must be URIs");
-	};
-    };
-
-    public void setOntology2(Object ontology) throws AlignmentException {
-	if ( ontology instanceof URI || ontology instanceof Ontology ){
-	    super.setOntology2( ontology );
-	} else {
-	    throw new AlignmentException("arguments must be URIs");
-	};
-    };
-*/
-
-    /** Cell methods **/
-     /*
-    // JE: so far this is the code of URIAlignment...
-    public Cell addAlignCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
-        if ( !( ob1 instanceof URI && ob2 instanceof URI ) )
-	    throw new AlignmentException("arguments must be URIs");
-
-	return super.addAlignCell( id, ob1, ob2, relation, measure);
-    };
-    // JE: so far this is the code of URIAlignment...
-    public Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
- 
-        if ( !( ob1 instanceof URI && ob2 instanceof URI ) )
-	    throw new AlignmentException("arguments must be URIs");
-
-	return super.addAlignCell( ob1, ob2, relation, measure);
-    };
-    // JE: so far this is the code of URIAlignment...
-    public Cell addAlignCell(Object ob1, Object ob2) throws AlignmentException {
- 
-        if ( !( ob1 instanceof URI && ob2 instanceof URI ) )
-	    throw new AlignmentException("arguments must be URIs");
-
-	return super.addAlignCell( ob1, ob2 );
-    };
-    // JE: so far this is the code of URIAlignment...
-    public Cell createCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
-	return (Cell)new URICell( id, (URI)ob1, (URI)ob2, relation, measure );
-    }
-     */
 
     /**
      * Generate a copy of this alignment object
