@@ -195,7 +195,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	assertNotNull( aparser1 );
 	Alignment align1 = aparser1.parse( "examples/rdf/bibref2.rdf" );
 	assertNotNull( align1 );
-	    //AlignmentParser aparser2 = new AlignmentParser( debug );
+	aparser1.initAlignment( null );
 	Alignment align2 = aparser1.parse( "examples/rdf/bibref.rdf" );
 	assertNotNull( align2 );
 	Parameters params = new BasicParameters();
