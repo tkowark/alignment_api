@@ -103,18 +103,18 @@ public class OnlineAlign {
 				//params.setParameter( "arg1", alignId);
 				
 				uploadFile = alignId;
-				System.out.println("Load file= "+ uploadFile);
+				//System.out.println("Load file= "+ uploadFile);
 					
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= "+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message for load file :"+ message);
+				//System.out.println("HOST= "+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				//System.out.println("Message for load file :"+ message);
 				
 				// Send message
 				//answer = sendMessage( message, params );
 				answer = sendFile( message, params );
-				System.out.println("SOAP loaded align=" + answer );
+				//System.out.println("SOAP loaded align=" + answer );
 				
 			} catch ( Exception ex ) { ex.printStackTrace(); };
 			if(! connected ) return null;
@@ -131,7 +131,7 @@ public class OnlineAlign {
 			
 				   
 			String[] result = getTagFromSOAP( domMessage,  "loadResponse" );
-			System.out.println("Loaded Align="+ result[0]);
+			//System.out.println("Loaded Align="+ result[0]);
 			
 			return result[0];
 			
@@ -154,8 +154,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message :"+ message);
+				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				//System.out.println("Message :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -177,7 +177,7 @@ public class OnlineAlign {
 			
 			String[] result = getTagFromSOAP( domMessage,  "cutResponse" );
 			
-			System.out.println("Trim Align="+ result[0]);
+			//System.out.println("Trim Align="+ result[0]);
 			
 			return result[0];
 			
@@ -202,8 +202,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message :"+ message);
+				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				//System.out.println("Message :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -223,7 +223,7 @@ public class OnlineAlign {
 				
 				 
 			String[] result = getTagFromSOAP( domMessage,  "listmethodsResponse/classList/method" ) ;
-			for(int i=0; i< result.length;i++) System.out.println("methods=" + result[i]);
+			//for(int i=0; i< result.length;i++) //System.out.println("methods=" + result[i]);
 			return result;
 		 
 	    }
@@ -244,8 +244,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message :"+ message);
+				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				//System.out.println("Message :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -265,7 +265,7 @@ public class OnlineAlign {
 				
 			String[] result = getTagFromSOAP( domMessage,  "findResponse/alignmentList/alid" );
 				
-			for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
+			//for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
 				
 		    return result; 
 			 
@@ -288,8 +288,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				System.out.println("Message :"+ message);
+				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
+				//System.out.println("Message :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -312,7 +312,7 @@ public class OnlineAlign {
 			
 			
 			String[] result = getTagFromSOAP( domMessage,  "listalignmentsResponse/alignmentList/alid" );
-			for(int i=0; i< result.length;i++) System.out.println("aligns=" + result[i]);
+			//for(int i=0; i< result.length;i++) System.out.println("aligns=" + result[i]);
 			
 			return result;
 			 
@@ -325,8 +325,8 @@ public class OnlineAlign {
 	    	String[] aservArgAlign = new String[6];		
 	    	String answer = null ;
 				
-				System.out.println("Uri 1="+ onto1);
-			    System.out.println("Uri 2="+ onto2);
+				//System.out.println("Uri 1="+ onto1);
+			    //System.out.println("Uri 2="+ onto2);
 			    
 			    Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
@@ -342,13 +342,13 @@ public class OnlineAlign {
 			    	// Create the SOAP message
 			    	String message = createMessage( params );
 			  
-			    	System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
-			    	System.out.println("Message :"+ message);
+			    	//System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
+			    	//System.out.println("Message :"+ message);
 			
 			    	// Send message
 			    	answer = sendMessage( message, params );
 			 
-			    	System.out.println("SOAP Match align=" + answer );
+			    	//System.out.println("SOAP Match align=" + answer );
 			    	 
 			    }
 			    
@@ -370,7 +370,7 @@ public class OnlineAlign {
 				 
 				String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
 				
-				System.out.println("Match align Id=" + result[0]);
+				//System.out.println("Match align Id=" + result[0]);
 				
 			    return result[0];
 			 
@@ -399,8 +399,8 @@ public class OnlineAlign {
 			// Create the SOAP message
 			String message = createMessage( params );
 
-			System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-			System.out.println("Message :" + message);
+			//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
+			//System.out.println("Message :" + message);
 			
 			// Send message
 			answer = sendMessage( message, params );
@@ -432,7 +432,7 @@ public class OnlineAlign {
 	 	 
 		 
 		
-		System.out.println("OWLAlign="+ result[0]);
+		//System.out.println("OWLAlign="+ result[0]);
 		return result[0];
 	    }
 	    
@@ -458,8 +458,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 
-				System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-				System.out.println("Message :" + message);
+				//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
+				//System.out.println("Message :" + message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -490,7 +490,7 @@ public class OnlineAlign {
 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
 			 
 			 
-			System.out.println("RDFAlign="+ result[0]); 
+			//System.out.println("RDFAlign="+ result[0]); 
 				
 			return result[0];
 		}
@@ -519,8 +519,8 @@ public class OnlineAlign {
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
-				System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
-				System.out.println("Message :"+ message);
+				//System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
+				//System.out.println("Message :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -547,7 +547,7 @@ public class OnlineAlign {
 			String result[] = getTagFromSOAP( domMessage,  "storeResponse" );
 			 
 			 
-			System.out.println("Stored Align="+ result[0]); 
+			//System.out.println("Stored Align="+ result[0]); 
 				
 			return result[0];
 			
@@ -789,7 +789,7 @@ public class OnlineAlign {
 	            out.write( b );
 	        	out.close();
 	        	
-	        	System.out.println("Message Length= "+String.valueOf( b.length ));
+	        	//System.out.println("Message Length= "+String.valueOf( b.length ));
 	        	
 	            // Read the response and write it to standard output
 	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
@@ -801,9 +801,9 @@ public class OnlineAlign {
 	            }
 	            if (in != null) in.close();
 	            
-	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.out.println("Request too long");
+	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
 	            
-	            if(httpConn.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
+	            //if(httpConn.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
 	        	
 	        } catch  (Exception ex) {
 	        	connected= false; ex.printStackTrace() ; return null;
@@ -870,7 +870,7 @@ public class OnlineAlign {
 	            
 	            os.close();
 	            fi.close();
-				System.out.println("Upload Read done.");
+				//System.out.println("Upload Read done.");
 	        	
 				
 	            // Read the response  

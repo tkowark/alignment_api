@@ -482,7 +482,7 @@ public class SWTInterface extends JPanel {
 		    
 		    selectedAlign =  alignIdList[id];
 		    
-		    System.out.println("Align selected =" + selectedAlign);
+		    //System.out.println("Align selected =" + selectedAlign);
 		}
 	});
     
@@ -502,7 +502,7 @@ public class SWTInterface extends JPanel {
 		    
 		    selectedLocalAlign =  localAlignIdList[id];
 		    
-		    System.out.println("Local align selected =" + selectedLocalAlign);
+		    //System.out.println("Local align selected =" + selectedLocalAlign);
 		}
 	});
     
@@ -522,7 +522,7 @@ public class SWTInterface extends JPanel {
 	        		
 	        		corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
 					
-					System.out.println("corrList Size="+corrList.size());
+					//System.out.println("corrList Size="+corrList.size());
 							
 					pane2.removeAll();
 					for(int i=0;i< corrList.size();i++) {
@@ -538,7 +538,7 @@ public class SWTInterface extends JPanel {
 											n = n + sep+ li[j];
 									}
 								
-									System.out.println("line= "+ n);
+									//System.out.println("line= "+ n);
 									JTextArea header1= new JTextArea(n);
 								
 									pane2.add(header1);
@@ -572,8 +572,9 @@ public class SWTInterface extends JPanel {
 	    	    					}
 	    					 
 	    	    				ImportExportControl ieControl = new ImportExportControl();	
-	    	    				
-	    	    				ieControl.importFileSystem(inputName, "file:"+ fn.getAbsolutePath(), null);
+	    	    				URI uris[] = new URI[1];
+	    	    				uris[0] = new URI("file:"+ fn.getAbsolutePath());
+	    	    				ieControl.importFileSystem(inputName, uris, null);
 	    	    				//ieControl.addOntologies2Project(importedModules, inputName);
 	    	    				}
 	        				}
@@ -674,11 +675,11 @@ public class SWTInterface extends JPanel {
 						}
 						}
 						
-						System.out.println("saved local align. ");
+						//System.out.println("saved local align. ");
 						
 						corrList = getCorresFromAnswer(  align  );
 						
-						System.out.println("corrList Size="+corrList.size());
+						//System.out.println("corrList Size="+corrList.size());
 								
 						pane2.removeAll();
 						for(int i=0;i< corrList.size();i++) {
@@ -694,7 +695,7 @@ public class SWTInterface extends JPanel {
 												n = n + sep+ li[j];
 										}
 									
-										System.out.println("line= "+ n);
+										//System.out.println("line= "+ n);
 										JTextArea header1= new JTextArea(n);
 									
 										pane2.add(header1);
@@ -751,7 +752,9 @@ public class SWTInterface extends JPanel {
 						 
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
-							String[] importedModules = ieControl.importFileSystem(inputName, "file:" + owlPath,  null);
+							URI uris[] = new URI[1];
+    	    				uris[0] = new URI("file:" + owlPath);
+							String[] importedModules = ieControl.importFileSystem(inputName, uris,  null);
 					
 							//ieControl.addOntologies2Project(importedModules, inputName);
 						} catch (  ControlException ex ) { }
@@ -1034,7 +1037,7 @@ public class SWTInterface extends JPanel {
         			 
         			selectedLocalAlign = localAlignIdList[0];
         			
-        			System.out.println("offline matching done. ");
+        			//System.out.println("offline matching done. ");
         		    
         			 
 				   } //else for ""offline"
@@ -1060,7 +1063,7 @@ public class SWTInterface extends JPanel {
 		    //selectedNeOnOnto1 =  NeOnOntoList[id];
 		    
 		   
-		    System.out.println("Onto1 selected =" + selectedOnto1);
+		    //System.out.println("Onto1 selected =" + selectedOnto1);
 		}
 	});
     
@@ -1079,7 +1082,7 @@ public class SWTInterface extends JPanel {
 		    //selectedNeOnOnto2 =  NeOnOntoList[id];
 		    
 		   
-		    System.out.println("Onto2 selected =" + selectedOnto2);
+		   // System.out.println("Onto2 selected =" + selectedOnto2);
 		}
 	});
     
@@ -1097,7 +1100,7 @@ public class SWTInterface extends JPanel {
 		    matchMethod =  methodList[ind];
 		    //aux[2] =  methodList[ind];
 		   
-		    System.out.println("method selected =" + matchMethod);
+		    //System.out.println("method selected =" + matchMethod);
 		}
 	});
 	
@@ -1231,7 +1234,7 @@ private HashMap<String,String> refreshOntoList() {
 		for(int i=0; i < projects.length; i++) {
 			//for(int j=0; j < alignProjects.size(); j++) {
 			//	if( ! projects[i].equals( alignProjects.get(j)) ) {
-					if(projects[i]!=null) { System.out.printf("Project Onto "+ i +" = " + projects[i] );
+					if(projects[i]!=null) { //System.out.printf("Project Onto "+ i +" = " + projects[i] );
 					 
 					//URI[] uris=  DatamodelPlugin.getDefault().getProjectOntologyFiles(projects[i]);
 					//Kaon2Connection connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
@@ -1242,7 +1245,7 @@ private HashMap<String,String> refreshOntoList() {
 					
 					for(int k=0; k < uris.length; k++) {
 						
-						System.out.printf(" Onto file = " +  uris[k]);
+						//System.out.printf(" Onto file = " +  uris[k]);
 						 
 						vec.put(uris[k],projects[i]);
 						//NeOnOntoList = DatamodelPlugin.getDefault().getProjectOntologies(projects[i]); 
@@ -1253,7 +1256,7 @@ private HashMap<String,String> refreshOntoList() {
 		}
 		} 
 		else {
-			System.out.printf("No Ontology Project !" );
+			//System.out.printf("No Ontology Project !" );
 			return null;
 		}
 	} catch ( Exception ex ) { ex.printStackTrace();};
@@ -1293,9 +1296,9 @@ private HashMap<String,String> refreshOntoList() {
  	Document doc=null;
  	String[] names=null;
  	//File message=null;
- 	System.out.println( "displaying XML ..." );
+ 	//System.out.println( "displaying XML ..." );
  	answer =   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + answer;
- 	System.out.println( answer );
+ 	//System.out.println( answer );
  	try {
  	File messageFile = new File(basicFolder.getAbsolutePath() + basicFolder.separator + "messageFile");
  	FileWriter out = new FileWriter(messageFile);
@@ -1307,14 +1310,14 @@ private HashMap<String,String> refreshOntoList() {
      }
  	
  	try {
- 		System.out.println( "Parsing for getting result: "+ type +" ... ");
+ 		//System.out.println( "Parsing for getting result: "+ type +" ... ");
  		doc = parse(new File(basicFolder.getAbsolutePath() + basicFolder.separator + "messageFile"));
  		
  		Element e = doc.getDocumentElement();
  		    
  		NodeList methods = e.getElementsByTagName(type);
  		names = new String[methods.getLength()];
- 		System.out.println( "length="+ methods.getLength());
+ 		//System.out.println( "length="+ methods.getLength());
  		
  	 
  		    for (int i=0; i< methods.getLength(); i++) {
@@ -1328,7 +1331,7 @@ private HashMap<String,String> refreshOntoList() {
  		    	 names[i]=nm.substring(nm.lastIndexOf(separator)+1,nm.length());
  		      else 
  		    	 names[i]=nm;
- 		      System.out.println( "name="+names[i] );
+ 		      //System.out.println( "name="+names[i] );
  		      }
  		    }
  		
@@ -1405,7 +1408,7 @@ private HashMap<String,String> refreshOntoList() {
  		Element cor = (Element)m.item(1);
  		NodeList methods = cor.getElementsByTagName(type);
  		
- 		System.out.println( "length lines ="+ methods.getLength());
+ 		//System.out.println( "length lines ="+ methods.getLength());
  		
  		
  		for (int i=0; i< methods.getLength(); i++) {
@@ -1445,7 +1448,7 @@ private HashMap<String,String> refreshOntoList() {
  	
  	} catch (Exception e) {
          //compilerError(Compiler.XML, e.getMessage());
- 		System.out.println("Error="+e.getMessage() + "xml parser prob.");
+ 		//System.out.println("Error="+e.getMessage() + "xml parser prob.");
      }
  	
   
