@@ -61,7 +61,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	alignment = aparser1.parse( "examples/omwg/wine.xml" );
 	assertNotNull( alignment );
 	//assertTrue( alignment instanceof OMWGAlignment );
-	FileOutputStream stream = new FileOutputStream("examples/omwg/wine2.xml");
+	FileOutputStream stream = new FileOutputStream("test/output/wine2.xml");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -77,9 +77,9 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine2.xml > wine3.xml
 	*/
 	aparser1.initAlignment( null );
-	alignment = aparser1.parse( "examples/omwg/wine2.xml" );
+	alignment = aparser1.parse( "test/output/wine2.xml" );
 	assertNotNull( alignment );
-	FileOutputStream stream = new FileOutputStream("examples/omwg/wine3.xml");
+	FileOutputStream stream = new FileOutputStream("test/output/wine3.xml");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -95,9 +95,9 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 diff wine2.xml wine3.xml
 	*/
 	aparser1.initAlignment( null );
-	Alignment oldal = aparser1.parse( "examples/omwg/wine2.xml" );
+	Alignment oldal = aparser1.parse( "test/output/wine2.xml" );
 	aparser1.initAlignment( null );
-	alignment = aparser1.parse( "examples/omwg/wine3.xml" );
+	alignment = aparser1.parse( "test/output/wine3.xml" );
 	assertNotNull( alignment );
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (

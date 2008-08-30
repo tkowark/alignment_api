@@ -116,7 +116,6 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	assertNotNull( result, "URIAlignment(result) was null" );
 	assertTrue( result instanceof URIAlignment );
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
-	//FileOutputStream stream = new FileOutputStream("result.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -162,7 +161,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
 	assertEquals( alignment.nbCells(), 43 );
-	FileOutputStream stream = new FileOutputStream("examples/rdf/bibref.rdf");
+	FileOutputStream stream = new FileOutputStream("test/output/bibref.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -176,7 +175,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	*/
 	alignment.cut( "hard", 0.55 );
 	assertEquals( alignment.nbCells(), 32 ); /* With  .4, I have either 36 or 35! */
-	stream = new FileOutputStream("examples/rdf/bibref2.rdf");
+	stream = new FileOutputStream("test/output/bibref2.rdf");
 	writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -193,10 +192,10 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	*/
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "examples/rdf/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
-	Alignment align2 = aparser1.parse( "examples/rdf/bibref.rdf" );
+	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
 	assertNotNull( align2 );
 	Parameters params = new BasicParameters();
 	assertNotNull( params );
