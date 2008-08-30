@@ -233,11 +233,11 @@ public class ExtGroupEval {
 	    if ( debug < 2 ) nextdebug = 0;
 	    else nextdebug = debug - 2;
 	    // Load alignments
-	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
-	    Alignment align1 = aparser1.parse( alignName1 );
+	    AlignmentParser aparser = new AlignmentParser( nextdebug );
+	    Alignment align1 = aparser.parse( alignName1 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
-	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
-	    Alignment align2 = aparser2.parse( alignName2 );
+	    aparser.initAlignment( null );
+	    Alignment align2 = aparser.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1, loaded ), 

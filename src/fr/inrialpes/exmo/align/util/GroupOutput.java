@@ -264,11 +264,11 @@ public class GroupOutput {
 	// Load alignments
 	Alignment align1=null, align2=null;
 	try {
-	    AlignmentParser aparser1 = new AlignmentParser( nextdebug );
-	    align1 = aparser1.parse( alignName1 );
+	    AlignmentParser aparser = new AlignmentParser( nextdebug );
+	    align1 = aparser.parse( alignName1 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
-	    AlignmentParser aparser2 = new AlignmentParser( nextdebug );
-	    align2 = aparser2.parse( alignName2 );
+	    aparser.initAlignment( null );
+	    align2 = aparser.parse( alignName2 );
 	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
 	} catch (Exception ex) {
 	    throw new AlignmentException( "Cannot parse ", ex );

@@ -147,11 +147,11 @@ public class EvalAlign {
 	Alignment align1=null, align2 = null;
 	try {
 	    // Load alignments
-	    AlignmentParser aparser1 = new AlignmentParser( debug );
-	    align1 = aparser1.parse( alignName1 );
+	    AlignmentParser aparser = new AlignmentParser( debug );
+	    align1 = aparser.parse( alignName1 );
 	    if ( debug > 0 ) System.err.println(" Alignment structure1 parsed");
-	    AlignmentParser aparser2 = new AlignmentParser( debug );
-	    align2 = aparser2.parse( alignName2 );
+	    aparser.initAlignment( null );
+	    align2 = aparser.parse( alignName2 );
 	    if ( debug > 0 ) System.err.println(" Alignment structure2 parsed");
 	} catch ( Exception ex ) { ex.printStackTrace(); }
 
