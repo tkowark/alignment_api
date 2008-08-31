@@ -115,6 +115,7 @@
 
   <target name="cleanup">
     <echo message="Cleaning..."/>
+    <!-- this does not seems to work -->
     <delete dir="neonalign"/>
   </target>
 
