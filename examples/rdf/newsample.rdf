@@ -12,7 +12,7 @@
   <method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</method>
   <onto1>
     <Ontology rdf:about="http://www.example.org/ontology1">
-      <location>file:///Java/alignapi/examples/rdf/onto1.owl</location>
+      <location>file:examples/rdf/onto1.owl</location>
       <formalism>
 	<Formalism name="OWL1.0" uri="http://www.w3.org/2002/07/owl#"/>
       </formalism>
@@ -20,7 +20,7 @@
   </onto1>
   <onto2>
     <Ontology rdf:about="http://www.example.org/ontology2">
-      <location>file:///Java/alignapi/examples/rdf/onto2.owl</location>
+      <location>file:examples/rdf/onto2.owl</location>
       <formalism>
 	<Formalism name="OWL1.0" uri="http://www.w3.org/2002/07/owl#"/>
       </formalism>

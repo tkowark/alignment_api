@@ -101,8 +101,8 @@ public class OWLAPIAlignmentTest {
 	assertEquals( alignment.getOntology2URI().toString(), "http://www.example.org/ontology2" );
 	assertEquals( onto1.getURI().toString(), "http://www.example.org/ontology1" );
 	assertEquals( onto2.getURI().toString(), "http://www.example.org/ontology2" );
-	assertEquals( onto1.getFile().toString(), localURIPrefix+"/examples/rdf/onto1.owl" );
-	assertEquals( onto2.getFile().toString(), localURIPrefix+"/examples/rdf/onto2.owl" );
+	assertEquals( onto1.getFile().toString(), "file:examples/rdf/onto1.owl" );
+	assertEquals( onto2.getFile().toString(), "file:examples/rdf/onto2.owl" );
 	assertEquals( onto1.getFormalism(), "OWL1.0" );
 	assertEquals( onto2.getFormalism(), "OWL1.0" );
 	assertEquals( onto1.getFormURI().toString(), "http://www.w3.org/2002/07/owl#" );
@@ -157,7 +157,7 @@ public class OWLAPIAlignmentTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+	assertEquals( stream.toString().length(), 1706, "Rendered differently" );
     }
 
 }

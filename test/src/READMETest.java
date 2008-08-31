@@ -123,7 +123,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	result.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+	assertEquals( stream.toString().length(), 1706, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl" }, dependsOnMethods = {"routineTest3"})
