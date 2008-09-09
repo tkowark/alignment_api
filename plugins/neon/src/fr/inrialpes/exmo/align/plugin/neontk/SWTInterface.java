@@ -22,6 +22,8 @@ package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 //import java.io.FileReader;
@@ -34,6 +36,7 @@ import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -48,6 +51,7 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.HashMap;
+
 //import java.io.PrintWriter;
  
 //import javax.swing.*;
@@ -65,10 +69,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 
 
 //import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentVisitor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -105,6 +111,8 @@ import fr.inrialpes.exmo.align.impl.BasicCell;
 //import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 
 public class SWTInterface extends JPanel {
 
@@ -129,27 +137,28 @@ public class SWTInterface extends JPanel {
 	//String selectedNeOnOnto2  =  null;
 	
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
-	public static String [] forUniqueness = new String[0];
-	public static int alignId = 0;
+	static String [] forUniqueness = new String[0];
+	static int alignId = 0;
 	//public static Vector<String> alignProjects = new Vector<String>();
 	
 	//Procalign procalign = null;
 	//Parameters p = new BasicParameters();
 	
-	public JComponent phrases, phrases1, Res=null;
-    public JTextField fileName1, fileName2, hostField, portField; // threshold// alignProj;
-    public SWTInterface frame;
+	JComponent phrases;// Res=null;
+    JTextField fileName1, fileName2, hostField, portField; // threshold// alignProj;
+    SWTInterface frame;
     //public JFileChooser open;
     //public JLabel explain;
-    public JPanel pane;
-    public JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
+    //JPanel pane;
+    JEditorPane htmlView;
+    
+    JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
     		alignImportButton, localAlignImportButton, alignUploadButton, 
     		localAlignTrimButton, serverAlignTrimButton, alignFindButton, 
     		alignStoreButton, connButton, offlineButton, onlineButton;// disconnButton ;
-    public JDialog dialog; 
-    public JPanel pane2;
-	public Component result=null;
-	public JTextArea jan=null;
+    JDialog dialog; 
+    //JPanel pane2;
+	Component result=null;
     JComboBox strategy, renderer, alignBox, localAlignBox, ontoBox1, ontoBox2;
     JLabel strat, render, ontoLabel1, ontoLabel2, alignLabel, localAlignLabel;
     
@@ -299,7 +308,7 @@ public class SWTInterface extends JPanel {
 				   break;
 			   }
 	   
-		   if(!sw) found = true;
+		   if( !sw ) found = true;
 		   
 	   }
 		   
@@ -314,6 +323,12 @@ public class SWTInterface extends JPanel {
     IWorkspaceRoot root =  org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot();
     IPath location = root.getLocation();
     String  path = location.toOSString();
+    
+    htmlView = new JEditorPane();
+    htmlView.setEditable(false);
+    htmlView.setContentType("text/html");
+    htmlView.setBackground( this.getBackground() ); 
+    htmlView.setBounds( 0, 0, 500, 500 ); 
     
     //ontoFolder = new File(path + location.SEPARATOR + "onto");
     ontoFolder = new File(path + location.SEPARATOR + "align");
@@ -520,12 +535,25 @@ public class SWTInterface extends JPanel {
 	        		//if (fn.exists()) fn.delete();
 	        		//System.out.println("Filename off to export :"+ fn.getAbsolutePath());
 	        		
-	        		corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
+	        		StringWriter htmlMessage = new StringWriter();
+					AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
 					
-					//System.out.println("corrList Size="+corrList.size());
+					try {
+						SWTInterface.alignmentTable.get(selectedLocalAlign).render( htmlV );
+					
+						htmlView.setText( htmlMessage.toString() );
+			        
+						htmlView.setLocation( new Point( 0, 0 ) );
+				       
+						htmlView.setVisible(true);
+					
+					/*
+	        			corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
+					
+					 
 							
-					pane2.removeAll();
-					for(int i=0;i< corrList.size();i++) {
+						pane2.removeAll();
+						for(int i=0;i< corrList.size();i++) {
 								
 									String[] li= (String [])corrList.get(i); 
 									String n = "";
@@ -542,20 +570,20 @@ public class SWTInterface extends JPanel {
 									JTextArea header1= new JTextArea(n);
 								
 									pane2.add(header1);
-					}
-	        		
-	        		String inputName=null;
+						}
+					 	*/
+						String inputName=null;
 	        				
-	        				try {
+	        				
 	        					
 	        					
-	        					inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
+	        			inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
 	        					
-	        					if (inputName==null || inputName.equals("")) return;
+	        			if (inputName==null || inputName.equals("")) return;
 	    						
-	    						String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
-	    	    				if(projects!=null) {
-	    	    					boolean found = false;	
+	    				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+	    	    		if(projects!=null) {
+	    	    		boolean found = false;	
 	    	    				
 	    	    					for(int i=0; i < projects.length; i++) {
 	    	    					 
@@ -577,10 +605,10 @@ public class SWTInterface extends JPanel {
 	    	    				ieControl.importFileSystem(inputName, uris, null);
 	    	    				//ieControl.addOntologies2Project(importedModules, inputName);
 	    	    				}
-	        				}
-							catch ( Exception ex ) { ex.printStackTrace();};
+	        			}
+						catch ( Exception ex ) { ex.printStackTrace();};
 	        			
-					    }//choose an align
+					 }//choose an align
 				    	
         		
 		}
@@ -675,12 +703,20 @@ public class SWTInterface extends JPanel {
 						}
 						}
 						
-						//System.out.println("saved local align. ");
+						StringWriter htmlMessage = new StringWriter();
+						AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
+						 
+						align.render( htmlV );
+						htmlView.setText( htmlMessage.toString() );
+				        
+					    htmlView.setLocation( new Point( 0, 0 ) );
+					       
+						htmlView.setVisible(true);
 						
-						corrList = getCorresFromAnswer(  align  );
+						//corrList = getCorresFromAnswer( align );
 						
 						//System.out.println("corrList Size="+corrList.size());
-								
+						/*		
 						pane2.removeAll();
 						for(int i=0;i< corrList.size();i++) {
 									
@@ -700,10 +736,10 @@ public class SWTInterface extends JPanel {
 									
 										pane2.add(header1);
 						}
-						
+					   */	
 					}
 					catch ( Exception ex ) { ex.printStackTrace();};
-			
+			        
 					//get align from server, then  export it as owl onto
 					
         			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
@@ -1106,32 +1142,30 @@ public class SWTInterface extends JPanel {
 	
     setLayout (new BorderLayout());
     add (new JLabel ("Computing and managing ontology alignments"), BorderLayout.NORTH);
-    createFirstPane();//
-     //createSecondPane();//
-    createThirdPane();//
+    phrases = createPhraseList();
+    phrases.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
+    //createThirdPane();//
+    //pane2= new JPanel(new GridLayout (0, 1, 0, 10));
+    //pane2.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
      
      //"ComponentFactory" In protege.jar
 	 //JScrollPane top = ComponentFactory.createScrollPane(phrases);
-    JScrollPane top = new JScrollPane(phrases);
-     
-    _mainSplitter.setTopComponent(top);//up panel
-	 //JScrollPane bot = ComponentFactory.createScrollPane(Res);
-    JScrollPane bot = new JScrollPane(Res);
-	_mainSplitter.setBottomComponent(bot); //under panel
+    JScrollPane top = new JScrollPane( phrases );
+    _mainSplitter.setTopComponent( top );
+    top.setMaximumSize(top.getPreferredSize());
+    
+    JScrollPane html = new JScrollPane( htmlView );
+	_mainSplitter.setBottomComponent( html );
+	html.setMaximumSize(html.getPreferredSize());
 	_mainSplitter.setDividerLocation((int)top.getPreferredSize().getHeight());
-	top.setMaximumSize(top.getPreferredSize());
-	bot.setMaximumSize(bot.getPreferredSize());
+	
+	 
 	
 	add(_mainSplitter,BorderLayout.CENTER); //Main Window of the Plugin
 	
 	//offline is default mode
 	offlineInit(true);
 	
-   }
- 
-public void createFirstPane () {
-     phrases = createPhraseList();
-     phrases.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
    }
  
 private JPanel createPhraseList () {
@@ -1210,18 +1244,6 @@ private JPanel createPhraseList () {
     
    }
  
-
-public void createThirdPane(){
-	Res = createListCharac();
-	Res.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
-}
-
-private JPanel createListCharac () {
-	pane2= new JPanel(new GridLayout (0, 1, 0, 10));
-return pane2;
-
-}
-
 //This function fetches all ontologies
 private HashMap<String,String> refreshOntoList() {
 	
