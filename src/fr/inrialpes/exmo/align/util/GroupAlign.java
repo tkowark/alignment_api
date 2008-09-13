@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -39,7 +39,7 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -95,7 +95,6 @@ public class GroupAlign {
     String target = "onto.rdf";
     URI uri1 = null;
     String initName = null;
-    OntologyCache loadedOntologies = null;
     int debug = 0;
     String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
@@ -109,7 +108,6 @@ public class GroupAlign {
     public void run(String[] args) throws Exception {
 
 	LongOpt[] longopts = new LongOpt[13];
-	loadedOntologies = new OntologyCache();
 	params = new BasicParameters();
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -239,7 +237,7 @@ public class GroupAlign {
 		    if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
 		    align( subdir[i] );
 		    // Unload the ontologies
-		    loadedOntologies.clear();
+		    OntologyFactory.clear();
 		} catch (Exception e) { 
 		    if ( debug > 1 ) e.printStackTrace(); }
 	    }
@@ -278,7 +276,6 @@ public class GroupAlign {
 	try {
 	    if (initName != null) {
 		AlignmentParser aparser = new AlignmentParser(debug-1);
-		//init = aparser.parse( initName, loadedOntologies);
 		init = aparser.parse( initName );
 		uri1 = init.getFile1();
 		uri2 = init.getFile2();

@@ -40,7 +40,6 @@ import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
@@ -61,18 +60,11 @@ public class ObjectAlignment extends BasicAlignment {
     public ObjectAlignment() {}
 
     public void init(Object onto1, Object onto2) throws AlignmentException {
-	init( onto1, onto2, (OntologyCache)null );
-    }
-
-    public void init(Object o1, Object o2, Object ontologies) throws AlignmentException {
-	OntologyCache cache = null;
-	if ( ontologies instanceof OntologyCache ) cache = (OntologyCache)ontologies;
-	else cache = (OntologyCache)null;
-	if ( (o1 instanceof LoadedOntology && o2 instanceof LoadedOntology) ){
-	    super.init( o1, o2, ontologies );
-	} else if ( o1 instanceof URI && o2 instanceof URI ) {
-		super.init( loadOntology( (URI)o1, cache ),
-			    loadOntology( (URI)o2, cache ) );
+	if ( (onto1 instanceof LoadedOntology && onto2 instanceof LoadedOntology) ){
+	    super.init( onto1, onto2 );
+	} else if ( onto1 instanceof URI && onto2 instanceof URI ) {
+		super.init( loadOntology( (URI)onto1 ),
+			    loadOntology( (URI)onto2 ) );
 	} else {
 	    throw new AlignmentException("Arguments must be LoadedOntology or URI");
 	};
@@ -87,12 +79,8 @@ public class ObjectAlignment extends BasicAlignment {
     }
 
     public void loadInit( Alignment al ) throws AlignmentException {
-	loadInit( al, (OntologyCache)null );
-    }
-
-    public void loadInit( Alignment al, OntologyCache ontologies ) throws AlignmentException {
 	if ( al instanceof URIAlignment ) {
-	    try { init = toObjectAlignment( (URIAlignment)al, ontologies );
+	    try { init = toObjectAlignment( (URIAlignment)al );
 	    } catch (SAXException e) { e.printStackTrace(); }
 	} else if ( al instanceof ObjectAlignment ) {
 	    init = (ObjectAlignment)al;
@@ -163,9 +151,9 @@ public class ObjectAlignment extends BasicAlignment {
 	return align;
     }
 
-    static public ObjectAlignment toObjectAlignment( URIAlignment al, OntologyCache ontologies ) throws AlignmentException, SAXException {
+    static public ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException, SAXException {
 	ObjectAlignment alignment = new ObjectAlignment();
-	alignment.init( al.getFile1(), al.getFile2(), ontologies );
+	alignment.init( al.getFile1(), al.getFile2() );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
 	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
@@ -185,9 +173,9 @@ public class ObjectAlignment extends BasicAlignment {
 	return alignment;
     }
 
-    static LoadedOntology loadOntology( URI ref, OntologyCache ontologies ) throws AlignmentException {
-	OntologyFactory factory = OntologyFactory.newInstance();
-	return factory.loadOntology( ref, ontologies );
+    static LoadedOntology loadOntology( URI ref ) throws AlignmentException {
+	OntologyFactory factory = OntologyFactory.getFactory();
+	return factory.loadOntology( ref );
     }
 }
 

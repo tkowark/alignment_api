@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -27,44 +27,45 @@ import java.util.Enumeration;
 import java.net.URI;
 
 /**
- * This caches the loaded ontologies so that it is possible to share them between alignments
+ * This caches the loaded ontologies so that it is possible
+ * to share them between alignments
  * as well as to unload them if necessary.
  * 
- * NOTE[3.2]: This class may be obsoleted and its code go to OntolofyFactory
- *
  * @author Jérôme Euzenat
  * @version $Id$ 
+ * 
+ * This class should be parameterized by O subClassOf LoadedOntology 
  */
 
-public class OntologyCache {
+public class OntologyCache <O extends LoadedOntology> {
  
   /** The list of currently loaded ontologies as a function:
    * URI --> Ontology
    * This is the ontology URI, NOT its filename
    */
-    Hashtable<URI,LoadedOntology> ontologies = null;
-    Hashtable<URI,LoadedOntology> ontologyUris = null;
+    Hashtable<URI,O> ontologies = null;
+    Hashtable<URI,O> ontologyUris = null;
     
     public OntologyCache() {
-	ontologies = new Hashtable<URI,LoadedOntology>();
-	ontologyUris = new Hashtable<URI,LoadedOntology>();
+	ontologies = new Hashtable<URI,O>();
+	ontologyUris = new Hashtable<URI,O>();
     }
   
-    public void recordOntology( URI uri, LoadedOntology ontology ){
+    public void recordOntology( URI uri, O ontology ){
 	ontologies.put( uri, ontology );
 	ontologyUris.put( ontology.getURI(), ontology );
     }
 
-    public LoadedOntology getOntology( URI uri ){
+    public O getOntology( URI uri ){
 	return ontologies.get( uri );
     }
 
-    public LoadedOntology getOntologyFromURI( URI uri ){
+    public O getOntologyFromURI( URI uri ){
 	return ontologyUris.get( uri );
     }
 
-    public void unloadOntology( URI uri, LoadedOntology ontology ){
-	LoadedOntology o = ontologyUris.get(uri);
+    public void unloadOntology( URI uri, O ontology ){
+	O o = ontologyUris.get(uri);
 	o.unload();
 	ontologyUris.remove( uri );
 	ontologies.remove( uri );

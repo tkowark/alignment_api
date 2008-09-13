@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -97,8 +97,6 @@ public class GroupEval {
     Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
-    //Hashtable loaded = null;
-    OntologyCache loaded = null;
     String ontoDir = null;
 
     public static void main(String[] args) {
@@ -109,8 +107,6 @@ public class GroupEval {
     public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[10];
-	//loaded = new Hashtable();
-	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -241,7 +237,7 @@ public class GroupEval {
 	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
-	loaded.clear();
+	OntologyFactory.clear();
 
 	if ( ok == true ) return result;
 	else return null;
@@ -264,7 +260,7 @@ public class GroupEval {
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params, loaded ) ;
+	    eval.eval( params ) ;
 	} catch (Exception ex) {
 	    if ( debug > 1 ) {
 		ex.printStackTrace();

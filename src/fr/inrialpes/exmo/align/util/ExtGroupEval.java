@@ -37,7 +37,6 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -99,7 +98,6 @@ public class ExtGroupEval {
     Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
-    OntologyCache loaded = null;
 
     public static void main(String[] args) {
 	try { new ExtGroupEval().run( args ); }
@@ -109,7 +107,6 @@ public class ExtGroupEval {
     public void run(String[] args) throws Exception {
 	String listFile = "";
 	LongOpt[] longopts = new LongOpt[8];
-	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -220,7 +217,7 @@ public class ExtGroupEval {
 	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
-	loaded.clear();
+	//loaded.clear();
 
 	if ( ok == true ) return result;
 	else return null;
@@ -240,11 +237,11 @@ public class ExtGroupEval {
 	    Alignment align2 = aparser.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
-	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1, loaded ), 
-				      ObjectAlignment.toObjectAlignment( (URIAlignment)align2, loaded ) );
+	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1 ), 
+				      ObjectAlignment.toObjectAlignment( (URIAlignment)align2 ) );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params, loaded ) ;
+	    eval.eval( params ) ;
 	} catch (Exception ex) {
 	    if ( debug > 1 ) {
 		ex.printStackTrace();

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,7 @@
 package fr.inrialpes.exmo.align.onto;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Hashtable;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -30,8 +29,9 @@ import org.semanticweb.owl.align.AlignmentException;
 
 public abstract class OntologyFactory {
 
-    protected static OntologyFactory instance;
-    
+    //protected static OntologyFactory instance = null;
+    protected static Hashtable<String,OntologyFactory> instances = null;
+
     private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory";
 
     public static String getDefaultFactory(){
@@ -42,17 +42,23 @@ public abstract class OntologyFactory {
 	API_NAME = className;
     }
 
-    public static OntologyFactory newInstance() {
+    public static OntologyFactory getFactory() {
 	return newInstance(API_NAME);
     }
 
-    public static OntologyFactory newInstance(String apiName) {
+    // JE: The true question here is that instance being static,
+    // I assume that it is shared by all subclasses! 
+    private static OntologyFactory newInstance( String apiName ) {
+	if ( instances == null ) instances = new Hashtable<String,OntologyFactory>();
+	OntologyFactory of = instances.get( apiName );
+	if ( of != null ) return of;
 	try {
+	    // This should also be a static getInstance!
 	    Class ofClass = Class.forName(apiName);
 	    Class[] cparams = {};
 	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor(cparams);
 	    Object[] mparams = {};
-	    instance = (OntologyFactory)ofConstructor.newInstance(mparams);
+	    of = (OntologyFactory)ofConstructor.newInstance(mparams);
 	} catch (ClassNotFoundException cnfex ) {
 	    cnfex.printStackTrace(); // better raise errors
 	} catch (NoSuchMethodException nsmex) {
@@ -64,8 +70,17 @@ public abstract class OntologyFactory {
 	} catch (InvocationTargetException itex) {
 	    itex.printStackTrace();
 	}
-	return instance;
+	instances.put( apiName, of );
+	return of;
     }
+
+    public static void clear() {
+	for ( OntologyFactory of : instances.values() ){
+	    of.clear();
+	}
+    }
+
+    public abstract void clearCache();
 
     /**
      * Load an ontology, cache enabled
@@ -73,8 +88,9 @@ public abstract class OntologyFactory {
     public abstract LoadedOntology loadOntology( URI uri ) throws AlignmentException;
     /**
      * Load an ontology, cache enabled if true, disabled otherwise
+     * This will disappear: cache will be dispatched in implementations
      */
-    public LoadedOntology loadOntology( URI uri, OntologyCache ontologies ) throws AlignmentException {
+    public LoadedOntology loadOntology( URI uri, OntologyCache<LoadedOntology> ontologies ) throws AlignmentException {
 	LoadedOntology onto = null;
 	if ( ontologies != null ) {
 	    onto = ontologies.getOntologyFromURI( uri );
@@ -86,26 +102,4 @@ public abstract class OntologyFactory {
 	if ( ontologies != null ) ontologies.recordOntology( uri, onto );
 	return onto;
     };
-
-    /* JE: this is a reimplementation of OntologyCache
-    // JE: This is not really useful since it doubles OntologyCache...
-    // This may be included as well...
-    protected static Map<URI,LoadedOntology> loadedOntos = new HashMap<URI,LoadedOntology>();
-    protected static Map<URI,LoadedOntology> loadedOntosLogical = new HashMap<URI,LoadedOntology>();
-    public LoadedOntology getOntologyFromCache( URI uri ) {
-	LoadedOntology onto;
-	if ( loadedOntos.containsKey( uri ) ) {
-	    onto = loadedOntos.get( uri );
-	} else {
-	    onto = loadOntology( uri );
-	    loadedOntos.put( uri, onto );
-	    loadedOntosLogical.put( onto.getURI(), onto);
-	}
-	return onto;
-    }
-
-    public static Ontology getOntologyFromURI(URI logicalURI) {
-	return loadedOntosLogical.get(logicalURI);
-    }
-    */
 }

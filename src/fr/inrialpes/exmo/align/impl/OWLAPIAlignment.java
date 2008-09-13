@@ -44,7 +44,6 @@ import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
@@ -69,32 +68,20 @@ public class OWLAPIAlignment extends ObjectAlignment {
     public OWLAPIAlignment() {}
 
     public void init(Object onto1, Object onto2) throws AlignmentException {
-	init( onto1, onto2, (OntologyCache)null );
-    }
-
-    public void init(Object o1, Object o2, Object ontologies) throws AlignmentException {
-	OntologyCache cache = null;
-	if ( ontologies instanceof OntologyCache ) cache = (OntologyCache)ontologies;
-	else cache = (OntologyCache)null;
-	// JE: why should this happen now? Never?
-	if ( (o1 instanceof OWLOntology && o2 instanceof OWLOntology)
-	     || (o1 instanceof Ontology && o2 instanceof Ontology) ){
-	    super.init( o1, o2, ontologies );
-	} else if ( o1 instanceof URI && o2 instanceof URI ) {
-	    super.init( loadOntology( (URI)o1, cache ),
-			loadOntology( (URI)o2, cache ) );
+	if ( (onto1 instanceof OWLOntology && onto2 instanceof OWLOntology)
+	     || (onto1 instanceof Ontology && onto2 instanceof Ontology) ){
+	    super.init( onto1, onto2 );
+	} else if ( onto1 instanceof URI && onto2 instanceof URI ) {
+	    super.init( loadOntology( (URI)onto1 ),
+			loadOntology( (URI)onto2 ) );
 	} else {
 	    throw new AlignmentException("arguments must be OWLOntology or URI");
 	};
     }
 
     public void loadInit( Alignment al ) throws AlignmentException {
-	loadInit( al, (OntologyCache)null );
-    }
-
-    public void loadInit( Alignment al, OntologyCache ontologies ) throws AlignmentException {
 	if ( al instanceof URIAlignment ) {
-	    try { init = toOWLAPIAlignment( (URIAlignment)al, ontologies );
+	    try { init = toOWLAPIAlignment( (URIAlignment)al );
 	    } catch (SAXException e) { e.printStackTrace(); 
 	    } catch (OWLException e) { e.printStackTrace(); }
 	} else if ( al instanceof OWLAPIAlignment ) {
@@ -237,9 +224,9 @@ public class OWLAPIAlignment extends ObjectAlignment {
     }
 
     // Here it becomes necessary to load OWL: This is done by init().
-    static public OWLAPIAlignment toOWLAPIAlignment( URIAlignment al, OntologyCache ontologies ) throws AlignmentException, SAXException, OWLException {
+    static public OWLAPIAlignment toOWLAPIAlignment( URIAlignment al ) throws AlignmentException, SAXException, OWLException {
 	OWLAPIAlignment alignment = new OWLAPIAlignment();
-	alignment.init( al.getFile1(), al.getFile2(), ontologies );
+	alignment.init( al.getFile1(), al.getFile2() );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
 	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
@@ -247,11 +234,8 @@ public class OWLAPIAlignment extends ObjectAlignment {
 	}
 	OWLOntology o1 = (OWLOntology)alignment.getOntology1();
 	OWLOntology o2 = (OWLOntology)alignment.getOntology2();
-	//System.err.println( o1 );
 	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
-	    //System.err.println( c.getObject1AsURI(this) );
-	    //System.err.println( c.getObject2AsURI(this) );
 	    alignment.addAlignCell( c.getId(), 
 				    getEntity( o1, c.getObject1AsURI(al) ),
 				    getEntity( o2, c.getObject2AsURI(al) ),

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -97,8 +97,6 @@ public class GenPlot {
     String outFile = null;
     String type = "tsv";
     int debug = 0;
-    //Hashtable loaded = null;
-    OntologyCache loaded = null;
     PrintWriter output = null;
 
     public static void main(String[] args) {
@@ -108,8 +106,6 @@ public class GenPlot {
 
     public void run(String[] args) throws Exception {
 	LongOpt[] longopts = new LongOpt[8];
-	//loaded = new Hashtable();
-	loaded = new OntologyCache();
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -241,7 +237,7 @@ public class GenPlot {
 	    }
 	}
 	// Unload the ontologies.
-	loaded.clear();
+	OntologyFactory.clear();
     }
 
     public PRGraphEvaluator eval( String alignName1, String alignName2 ) {
@@ -261,10 +257,10 @@ public class GenPlot {
 	    eval = new PRGraphEvaluator( align1, align2 );
 	    // Compare
 	    params.setParameter( "debug", new Integer( nextdebug ) );
-	    eval.eval( params, loaded ) ;
+	    eval.eval( params ) ;
 
 	    // Unload the ontologies.
-	    loaded.clear();
+	    //loaded.clear();
 	} catch (Exception ex) { 
 	    if ( debug > 1 ) {
 		ex.printStackTrace();

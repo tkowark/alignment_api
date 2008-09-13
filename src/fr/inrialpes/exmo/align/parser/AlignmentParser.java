@@ -195,7 +195,7 @@ public class AlignmentParser extends DefaultHandler {
      * If the current process has links (import or include) to others documents then they are 
      * parsed.
      * @param uri URI of the document to parse
-     * @param loaded should be replaced by OntologyCache (by useless)
+     * @param loaded (cached ontologies)
      * @deprecated use parse( URI ) instead
      */
     @Deprecated

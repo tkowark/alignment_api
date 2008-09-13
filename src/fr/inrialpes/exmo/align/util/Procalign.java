@@ -34,7 +34,6 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -93,8 +92,6 @@ $Id$
     */
 
 public class Procalign {
-
-    OntologyCache loadedOntologies = null;
 
     public static void main(String[] args) {
 	try { new Procalign().run( args ); }
@@ -201,8 +198,6 @@ public class Procalign {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
 
-	loadedOntologies = new OntologyCache();
-	
 	try {
 	    BasicConfigurator.configure();
 
@@ -234,7 +229,7 @@ public class Procalign {
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		result.init( uri1, uri2, loadedOntologies );
+		result.init( uri1, uri2 );
 	    } catch (Exception ex) {
 		System.err.println("Cannot create alignment "+alignmentClassName+"\n"
 				   +ex.getMessage());

@@ -195,7 +195,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     }
 
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	return ontology.getSuperProperties( prop2 ).contains( prop1 );
+	return ontology.getSuperProperties( prop2, true, true, true ).contains( prop1 );
     }
 
 
@@ -218,7 +218,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	URI uri1 = ontology.getEntityURI( class1 );
 	Set<Object> bufferedSuperClasses = null;
-	Set<Object> superclasses = ontology.getAssertedSuperClasses( class1 );
+	Set<Object> superclasses = ontology.getSuperClasses( class1, true, true, true );
 	int level = 0;
 
 	while ( !superclasses.isEmpty() ){
@@ -234,7 +234,7 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    } else {
 			// [W:unchecked] due to OWL API not serving generic types
 			//superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology )); // [W:unchecked]
-			superclasses.addAll( ontology.getAssertedSuperClasses( entity ) );
+			superclasses.addAll( ontology.getSuperClasses( entity, true, true, true ) );
 		    }
 		}
 	    }

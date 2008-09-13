@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,13 @@
  * This should be turned into an HeavyLoadedOntology.
  * Some primitives are already avalible below
  *
+ * The point is that these primitives may concern:
+ * - Named entities / All entities
+ * - Asserted information / Deduced information
+ * - Inherited information... ()
+ * In fact the OWL API does only provide asserted.
  *
+ * This is not very well implemented: the OWL API mandates to implement this as visitors...
  */
 
 package fr.inrialpes.exmo.align.onto.owlapi10;
@@ -51,6 +57,9 @@ import org.semanticweb.owl.model.OWLEntity;
 import org.semanticweb.owl.model.OWLRestriction;
 import org.semanticweb.owl.model.OWLDescription;
 import org.semanticweb.owl.model.OWLNaryBooleanDescription;
+import org.semanticweb.owl.model.OWLCardinalityRestriction;
+import org.semanticweb.owl.model.OWLDataAllRestriction;
+import org.semanticweb.owl.model.OWLObjectAllRestriction;
 import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.helper.OWLEntityCollector;
 
@@ -110,7 +119,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	    return null;
 	}
     };
-
 
     protected Set<String> getAnnotations(final OWLEntity e , final String lang , final String typeAnnot ) throws OWLException {
 	final OWLOntology o = this.onto;
@@ -259,6 +267,28 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (OWLException ex) {
 	    return null;
 	}
+    }
+
+    public Set<Object> getAssertedProperties( Object cl ) {
+	Set<Object> prop = new HashSet<Object>();
+	try {
+	    for ( Object ent : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		// Not correct
+		if ( ent instanceof OWLRestriction ) prop.add( ent );
+	    }
+	} catch (OWLException ex) {
+	};
+	return prop;
+    }
+
+
+
+    public Set<Object> getAssertedObjectProperties( Object cl ){
+	return null;
+    }
+
+    public Set<Object> getAssertedDataProperties( Object cl ){
+	return null;
     }
 
     // The only point is if I should return OWLProperties or names...
@@ -424,6 +454,93 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (OWLException e) { e.printStackTrace();	}
 	return list;
     }
+
+    // NamedAssertedSuperClasses
+    public Set<Object> getAssertedSuperClasses( Object cl ){
+	Set<Object> spcl = new HashSet<Object>();
+	try {
+	    for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		if (rest instanceof OWLClass) spcl.add( rest );
+	    }
+	} catch (OWLException ex) {
+	};
+	return spcl;
+    }
+    // NamedSuperClasses
+    public Set<Object> getSuperClasses( Object cl ){
+	Set<Object> spcl = new HashSet<Object>();
+	try {
+	    // traversing
+	    Set<Object> sup = new HashSet<Object>();
+	    for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		if (rest instanceof OWLClass) {
+		    spcl.add( rest );
+		    sup.add( rest );
+		}
+	    }
+	} catch (OWLException ex) {
+	};
+	return spcl;
+    }
+
+    /*    public Set<Object> getSubClasses( Object cl ){
+	// This will return n array and not a set...
+	return ((OWLClass)cl).getSuperClasses( getOntology() );
+	}*/
+    //OWLRestriction.getProperty()
+    //OWLNaryBooleanDescription.getOperand()
+    // JE: note this may be wrong if p is a property
+    public Set<Object> getCardinalityRestrictions( Object p ){//JFDK
+	Set<Object> spcl = new HashSet<Object>();
+	try {
+	    Set<Object> sup = ((OWLClass)p).getSuperClasses( getOntology() );
+	    for( Object rest : sup ){
+		// This should be filtered
+		if (rest instanceof OWLCardinalityRestriction) spcl.add( rest );
+	    }
+	} catch (OWLException ex) {
+	};
+	return spcl;
+    }
+
+    public void getProperties( OWLDescription desc, Set<Object> list) throws OWLException {
+	if ( desc instanceof OWLRestriction ){
+	    //getProperties( (OWLRestriction)desc, list );
+	    list.add( ((OWLRestriction)desc).getProperty() );
+	} else if ( desc instanceof OWLClass ) {
+	    getProperties( (OWLClass)desc, list );
+	} else if ( desc instanceof OWLNaryBooleanDescription ) {
+	    for ( Object d : ((OWLNaryBooleanDescription)desc).getOperands() ){
+		getProperties( (OWLDescription)d, list );
+	    }
+	    //getProperties( (OWLNaryBooleanDescription)desc, list );
+	}
+    }
+    public void getProperties( OWLRestriction rest, Set<Object> list) throws OWLException {
+	list.add( (Object)rest.getProperty() );
+    }
+    public void getProperties( OWLNaryBooleanDescription d, Set<Object> list) throws OWLException {
+	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
+	    getProperties( (OWLDescription)it.next(), list );
+	}
+    }
+    public void getProperties( OWLClass cl, Set<Object> list) throws OWLException {
+	for ( Object desc : cl.getSuperClasses( getOntology() ) ){
+	    getProperties( (OWLDescription)desc, list );
+	}
+	// JE: I suspect that this can be a cause for looping!!
+	for ( Object desc : cl.getEquivalentClasses( getOntology() ) ){
+	    getProperties( (OWLDescription)desc, list );
+	}
+    }
+
+    private Set<Object> getProperties( OWLClass cl ) {
+	Set resultSet = new HashSet(); 
+	try { getProperties( cl, resultSet ); }
+	catch (OWLException ex) {};
+	return resultSet;
+    }
+
 
     public void unload() {
 	try {

@@ -28,7 +28,6 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
@@ -86,7 +85,6 @@ public class AServProtocolManager {
     Set<String> services = null;
     Set<String> evaluators = null;
 
-    OntologyCache loadedOntologies = null;
     Hashtable<String,Directory> directories = null;
 
     // This should be stored somewhere
@@ -111,7 +109,6 @@ public class AServProtocolManager {
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
 	services = implementations( "fr.inrialpes.exmo.align.service.AlignmentServiceProfile" );
 	evaluators = implementations( "org.semanticweb.owl.align.Evaluator" );
-	loadedOntologies = new OntologyCache();
     }
 
     public void close() {
@@ -360,7 +357,7 @@ public class AServProtocolManager {
 		renderer.init( params );
 		al.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		al = ObjectAlignment.toObjectAlignment( (URIAlignment)al, (OntologyCache)null );
+		al = ObjectAlignment.toObjectAlignment( (URIAlignment)al );
 		al.render( renderer );
 	    }
 	    writer.flush();
@@ -632,8 +629,8 @@ public class AServProtocolManager {
 
     public LoadedOntology reachable( URI uri ){
 	try { 
-	    OntologyFactory factory = OntologyFactory.newInstance();
-	    return factory.loadOntology( uri, loadedOntologies );
+	    OntologyFactory factory = OntologyFactory.getFactory();
+	    return factory.loadOntology( uri );
 	} catch (Exception e) { return null; }
     }
 
@@ -835,7 +832,7 @@ public class AServProtocolManager {
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 		try {
-		    aresult.init( uri1, uri2, loadedOntologies );
+		    aresult.init( uri1, uri2 );
 		    long time = System.currentTimeMillis();
 		    aresult.align( init, params ); // add opts
 		    long newTime = System.currentTimeMillis();
@@ -861,7 +858,6 @@ public class AServProtocolManager {
 	    } catch (Exception e) {
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception (wrong class name?)",(Parameters)null);
 	    }
-	    loadedOntologies.clear(); // not always necessary
 	    result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
     }

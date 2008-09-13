@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,28 +43,29 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.util.OWLConnection;
 import org.semanticweb.owl.util.OWLManager;
 
-/*
- * JE: everything should be asked to the Ontoogy, not to the factory...
- * So I suppress many initial methods
- */
 public class OWLAPIOntologyFactory extends OntologyFactory {
 
-    private URI formalismUri = null;
-    private String formalismId = "OWL1.0";
+    private static URI formalismUri = null;
+    private static String formalismId = "OWL1.0";
+    private static OntologyCache<OWLAPIOntology> cache = null;
 
     public OWLAPIOntologyFactory() {
+	cache = new OntologyCache<OWLAPIOntology>();
 	try {
 	    formalismUri = new URI("http://www.w3.org/2002/07/owl#");
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
     };
 
-    public static OntologyFactory getInstance() {
-	if (instance == null || !(instance instanceof OWLAPIOntologyFactory))
-	    instance = new OWLAPIOntologyFactory();
-	return instance;
+    public void clearCache() {
+	cache.clear();
     }
 
-    public LoadedOntology loadOntology( URI uri ) throws AlignmentException {
+    public OWLAPIOntology loadOntology( URI uri ) throws AlignmentException {
+	OWLAPIOntology onto = null;
+	onto = cache.getOntologyFromURI( uri );
+	if ( onto != null ) return onto;
+	onto = cache.getOntology( uri );
+	if ( onto != null ) return onto;
 	OWLConnection connection = null;
 	Map<Object,Object> parameters = new HashMap<Object, Object>();
 	parameters.put(OWLManager.OWL_CONNECTION,
@@ -75,7 +76,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
 	    OWLOntology ontology = connection.loadOntologyPhysical(uri);
 	    Logger.getLogger("org.semanticweb.owl").setLevel(lev);
-	    OWLAPIOntology onto = new OWLAPIOntology();
+	    onto = new OWLAPIOntology();
 	    // It may be possible to fill this as final in OWLAPIOntology...
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
@@ -87,96 +88,10 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 		// Better put in the AlignmentException of loaded
 		e.printStackTrace();
 	    }
+	    cache.recordOntology( uri, onto );
 	    return onto;
 	} catch (OWLException e) {
 	    throw new AlignmentException("Cannot load "+uri, e );
 	}
     }
-
-    /* Can be used for loading the ontology if it is not available
-    // JE: Onto: check that the structure is properly filled (see build...)
-    public Ontology loadOntology( URI ref, OntologyCache ontologies ) throws SAXException, AlignmentException {
-	Ontology onto = null;
-	if ( (ontologies != null) && ( ontologies.getOntology( ref ) != null ) ) {
-	} else if ( onto != null ) {
-	} else {
-	    OWLOntology parsedOnt = null;
-	    try {
-		OWLRDFParser parser = new OWLRDFParser();
-		OWLRDFErrorHandler handler = new OWLRDFErrorHandler(){
-			public void owlFullConstruct( int code, String message )
-			    throws SAXException {
-			}
-			public void owlFullConstruct(int code, String message, Object o)
-			    throws SAXException {
-			}
-			public void error( String message ) throws SAXException {
-			    throw new SAXException( message.toString() );
-			}
-			public void warning( String message ) throws SAXException {
-			    System.err.println("WARNING: " + message);
-			}
-		    };
-		Level lev = Logger.getLogger("org.semanticweb.owl").getLevel();
-		Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
-		parser.setOWLRDFErrorHandler( handler );
-		parser.setConnection( OWLManager.getOWLConnection() );
-		parsedOnt = parser.parseOntology( ref );
-		Logger.getLogger("org.semanticweb.owl").setLevel(lev);
-	    } catch (OWLException ex) {
-		throw new AlignmentException( "Cannot load ontology "+ref, ex );
-	    }
-	    // THIS SHOULD NOW BE DONE WHEN CREATING THE ONTOLOGY
-	    //setOntology( parsedOnt );
-	    //if ( ontologies != null ) ontologies.recordOntology( ref, this );
-	    //onto = parsedOnt;
-	}
-	return onto;
-    }
- */
-    // JE: Onto: I am not sure of the meaning of this "get"
-    /*
-	private Ontology getOntology(OWLOntology ont) {
-	    // JE: Onto
-	    //OntologyAdapter<OWLOntology> oModel = new  OWLAPIOntology();
-	    Ontology oModel = new  OWLAPIOntology();
-	    oModel.ontology=ont;
-	    try {
-		oModel.uri=ont.getLogicalURI();//getURI();
-	    } catch (OWLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	    oModel.classes = getEntities(oModel,OWLClass.class);
-	    oModel.properties = getEntities(oModel,OWLProperty.class);
-	    //oModel.individuals = getEntities(oModel,OWLIndividual.class);
-	    oModel.entities = new HashSet<Entity>(oModel.properties);
-	    oModel.entities.addAll(oModel.classes);
-	    //oModel.entities.addAll(oModel.individuals);
-
-	    //oModel.classes = getEntities(oModel,OWLEntity.class);
-	    return oModel;
-	}
-    */
-
-    /*
-    private class OWLAPIEntity extends EntityAdapter<OWLEntity> {
-	//private boolean toLoad=true;
-
-	private OWLAPIEntity() { super(false); }
-	private OWLAPIEntity(OWLEntity e, Ontology o, URI u ) {
-	    super( e, o, u, false);
-	}
-
-	public Set<String> getAnnotations(String lang, TYPE type) {
-	    if (this.annotations==null) {
-		init();
-		addAnnotations(this);
-		//toLoad=false;
-	    }
-	    return super.getAnnotations(lang, type);
-	}
-    }
-    */
-
 }

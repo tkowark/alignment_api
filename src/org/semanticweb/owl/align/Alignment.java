@@ -43,10 +43,6 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
 
     public void init( Object onto1, Object onto2 ) throws AlignmentException;
 
-    /** Initialize the alignement before using it, with some ontology caching trick **/
-
-    public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException;
-
     /** Alignment methods **/
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
