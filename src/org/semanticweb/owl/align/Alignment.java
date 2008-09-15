@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,13 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
     /** Initialize the alignement before using it **/
 
     public void init( Object onto1, Object onto2 ) throws AlignmentException;
+
+    /**
+     * Initialize the alignement before using it, with some ontology caching trick
+     * //@deprecated The OntologyCache is now internal, use init( onto1, onto2 ) instead
+     **/
+    //@Deprecated
+    public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException;
 
     /** Alignment methods **/
 

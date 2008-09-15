@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2008
+ * Copyright (C) INRIA, 2003-2008
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -102,6 +102,10 @@ public class BasicAlignment implements Alignment {
      * object.
      */
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
+	init( onto1, onto2 );
+    }
+
+    public void init( Object onto1, Object onto2 ) throws AlignmentException {
 	if ( onto1 instanceof Ontology ) {
 	    this.onto1 = (Ontology<Object>)onto1; // [W:unchecked]
 	    this.onto2 = (Ontology<Object>)onto2; // [W:unchecked]
@@ -109,10 +113,6 @@ public class BasicAlignment implements Alignment {
 	    this.onto1.setOntology( onto1 );
 	    this.onto2.setOntology( onto2 );
 	}
-    }
-
-    public void init( Object onto1, Object onto2 ) throws AlignmentException {
-	init( onto1, onto2, null );
     }
 
     public static Parameters getParameters() {
