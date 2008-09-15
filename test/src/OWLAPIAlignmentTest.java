@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,6 @@ import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -74,7 +73,7 @@ public class OWLAPIAlignmentTest {
 	assertNotNull( aparser, "AlignmentParser was null" );
 	URIAlignment result = (URIAlignment)aparser.parse( "file:examples/rdf/newsample.rdf" );
 	assertNotNull( result, "URIAlignment(result) was null" );
-	alignment = OWLAPIAlignment.toOWLAPIAlignment( result, (OntologyCache)null );
+	alignment = OWLAPIAlignment.toOWLAPIAlignment( result );
 	assertNotNull( alignment, "toOWLAPIAlignment(result) was null" );
 	result = alignment.toURIAlignment();
 	assertNotNull( result, "toURIAlignment() was null" );
