@@ -34,31 +34,20 @@ import org.semanticweb.owl.align.AlignmentException;
 public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
 
     /* Class methods */
-    public Set<Object> getSubClasses( Object c );
-    public Set<Object> getAssertedSubClasses( Object c );
-    public Set<Object> getSuperClasses( Object c );
-    public Set<Object> getAssertedSuperClasses( Object c );
-    public Set<Object> getProperties( Object c );
-    public Set<Object> getAssertedProperties( Object c );
-    public Set<Object> getDataProperties( Object c );
-    public Set<Object> getAssertedDataProperties( Object c );
-    public Set<Object> getObjectProperties( Object c );
-    public Set<Object> getAssertedObjectProperties( Object c );
-    public Set<Object> getInstances( Object c );
-    public Set<Object> getAssertedInstances( Object c );
+    public Set<Object> getSubClasses( Object c, boolean local, boolean asserted, boolean named );
+    public Set<Object> getSuperClasses( Object c, boolean local, boolean asserted, boolean named );
+    public Set<Object> getProperties( Object c, boolean local, boolean asserted, boolean named );
+    public Set<Object> getDataProperties( Object c, boolean local, boolean asserted, boolean named );
+    public Set<Object> getObjectProperties( Object c, boolean local, boolean asserted, boolean named );
+    public Set<Object> getInstances( Object c, boolean local, boolean asserted, boolean named  );
 
     /* Property methods */
-    public Set<Object> getSubProperties( Object p );
-    public Set<Object> getAssertedSubProperties( Object p );
-    public Set<Object> getSuperProperties( Object p );
-    public Set<Object> getAssertedSuperProperties( Object p );
-    public Set<Object> getRange( Object p );
-    public Set<Object> getAssertedRange( Object p );
-    public Set<Object> getDomain( Object p );
-    public Set<Object> getAssertedDomain( Object p );
+    public Set<Object> getSubProperties( Object p, boolean local, boolean asserted, boolean named );
+    public Set<Object> getSuperProperties( Object p, boolean local, boolean asserted, boolean named );
+    public Set<Object> getRange( Object p, boolean asserted );
+    public Set<Object> getDomain( Object p, boolean asserted );
 
     /* Individual methods */
-    public Set<Object> getClasses( Object i );
-    public Set<Object> getAssertedClasses( Object i );
+    public Set<Object> getClasses( Object i, boolean local, boolean asserted, boolean named );
 
 }
