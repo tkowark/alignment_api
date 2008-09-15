@@ -227,9 +227,11 @@ public class AServProtocolManager {
 	    // Parameters are used
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,mess.getParameters());
 	} else {
+	    	
 	    th.start();
 	    try{ th.join(); }
 	    catch ( InterruptedException is ) {};
+		
 	    return althread.getResult();
 	}
     }
@@ -834,7 +836,14 @@ public class AServProtocolManager {
 		try {
 		    aresult.init( uri1, uri2 );
 		    long time = System.currentTimeMillis();
+
+		    //the parameter "lg" is set to "en" for TaxoMap 
+		    if (params.setParameter.getParameter("lg") == null) 
+			params.setParameter("lg","en");
+
 		    aresult.align( init, params ); // add opts
+
+
 		    long newTime = System.currentTimeMillis();
 		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		} catch (AlignmentException e) {
@@ -843,6 +852,7 @@ public class AServProtocolManager {
 		}
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
+
 	    } catch (ClassNotFoundException e) {
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
 	    } catch (NoSuchMethodException e) {
