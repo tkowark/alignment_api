@@ -34,7 +34,6 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -228,7 +227,7 @@ public class ParserPrinter {
 	    try {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		result = ObjectAlignment.toObjectAlignment( (URIAlignment)result, (OntologyCache)null );
+		result = ObjectAlignment.toObjectAlignment( (URIAlignment)result );
 		result.render( renderer );
 	    }
 	    writer.flush();
