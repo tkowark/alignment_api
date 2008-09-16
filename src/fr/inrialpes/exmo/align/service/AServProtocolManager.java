@@ -836,11 +836,10 @@ public class AServProtocolManager {
 		try {
 		    aresult.init( uri1, uri2 );
 		    long time = System.currentTimeMillis();
-		    //the parameter "lg" is set to "en" for TaxoMap 
-		    if (params.getParameter("lg") == null) 
-			params.setParameter("lg","en");
+		    
 		    aresult.align( init, params ); // add opts
 		    long newTime = System.currentTimeMillis();
+			 
 		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		} catch (AlignmentException e) {
 		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Parameters)null);
