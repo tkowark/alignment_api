@@ -75,8 +75,10 @@ public abstract class OntologyFactory {
     }
 
     public static void clear() {
-	for ( OntologyFactory of : instances.values() ){
-	    of.clearCache();
+	if ( instances != null ) {
+	    for ( OntologyFactory of : instances.values() ){
+		of.clearCache();
+	    }
 	}
     }
 
