@@ -76,7 +76,7 @@ public abstract class OntologyFactory {
 
     public static void clear() {
 	for ( OntologyFactory of : instances.values() ){
-	    of.clear();
+	    of.clearCache();
 	}
     }
 
