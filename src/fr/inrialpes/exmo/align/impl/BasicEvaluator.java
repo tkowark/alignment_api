@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004, 2007
+ * Copyright (C) INRIA, 2004, 2007
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,8 +35,7 @@ import java.io.PrintWriter;
  * @version $Id$ 
  */
 
-public abstract class BasicEvaluator implements Evaluator
-{
+public abstract class BasicEvaluator implements Evaluator {
     protected double result = 1.;
     protected Alignment align1;
     protected Alignment align2;

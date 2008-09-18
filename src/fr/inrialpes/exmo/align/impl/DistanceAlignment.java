@@ -191,7 +191,6 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      if ( found ) addAlignCell(class1, class2, "=", max);
 	  }
 	  // Extract for individuals
-	  // This does not work, at least for the OAEI 2005 tests
 	  if (  params.getParameter("noinst") == null ){
 	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
 		  Object ind1 = it1.next();
@@ -201,7 +200,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		      for (Iterator it2 = ontology2().getIndividuals().iterator(); it2.hasNext(); ) {
 			  Object current = it2.next();
 			  if ( ontology2().getEntityURI( current ) != null ) {
-			      val = 1 - sim.getIndividualSimilarity(ind1,current);
+			      val = 1 - sim.getIndividualSimilarity( ind1, current );
 			      if (val > max) {
 				  found = true; max = val; ind2 = current;
 			      }
@@ -392,7 +391,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		  }
 	      }
 	  }
-	  // OLA with or without instances
+	  // Extract for individuals
 	  if (  params.getParameter("noinst") == null ){
 	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
 		  ent1 = it1.next();
