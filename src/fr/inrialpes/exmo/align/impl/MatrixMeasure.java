@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2008
+ * Copyright (C) INRIA, 2003-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -83,7 +83,6 @@ public abstract class MatrixMeasure implements Similarity {
 	indlist2 = new HashMap<Object,Integer>(); // onto2 instances
 	indlist1 = new HashMap<Object,Integer>(); // onto1 instances
 
-	//System.err.println(onto1+" - "+onto2);
 	try {
 	    // Create class lists
 	    for( Object cl : onto2.getClasses() ){
@@ -110,13 +109,13 @@ public abstract class MatrixMeasure implements Similarity {
 	    prmatrix = new double[nbprop1+1][nbprop2+1];
 
 	    // Create individual lists
-	    for( Object ind : onto2.getDataProperties() ){
+	    for( Object ind : onto2.getIndividuals() ){
 		// We suppress anonymous individuals... this is not legitimate
 		if ( onto2.getEntityURI( ind ) != null ) {
 		    indlist2.put( ind, new Integer(nbind2++) );
 		}
 	    }
-	    for( Object ind : onto1.getDataProperties() ){
+	    for( Object ind : onto1.getIndividuals() ){
 		// We suppress anonymous individuals... this is not legitimate
 		if ( onto1.getEntityURI( ind ) != null ) {
 		    indlist1.put( ind, new Integer(nbind1++) );
@@ -134,7 +133,7 @@ public abstract class MatrixMeasure implements Similarity {
 		Object cl2 = (Object)it2.next();
 		for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
 		    Object cl1 = (Object)it1.next();
-		    clmatrix[((Integer)classlist1.get(cl1)).intValue()][((Integer)classlist2.get(cl2)).intValue()] = classMeasure( cl1, cl2 );
+		    clmatrix[classlist1.get(cl1).intValue()][classlist2.get(cl2).intValue()] = classMeasure( cl1, cl2 );
 		}
 	    }
 	    // Compute distances on individuals
@@ -145,7 +144,7 @@ public abstract class MatrixMeasure implements Similarity {
 		    for ( Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext(); ){
 			Object ind1 = (Object)it1.next();
 			if ( indlist1.get(ind1) != null ) {
-			    indmatrix[((Integer)indlist1.get(ind1)).intValue()][((Integer)indlist2.get(ind2)).intValue()] = individualMeasure( ind1, ind2 );
+			    indmatrix[indlist1.get(ind1).intValue()][indlist2.get(ind2).intValue()] = individualMeasure( ind1, ind2 );
 			}
 		    }
 		}
@@ -161,7 +160,7 @@ public abstract class MatrixMeasure implements Similarity {
 					 onto1.getDataProperties().iterator());
 		for ( ; it1.hasNext(); ){
 		    Object pr1 = (Object)it1.next();
-		    prmatrix[((Integer)proplist1.get(pr1)).intValue()][((Integer)proplist2.get(pr2)).intValue()] = propertyMeasure( pr1, pr2 );
+		    prmatrix[proplist1.get(pr1).intValue()][proplist2.get(pr2).intValue()] = propertyMeasure( pr1, pr2 );
 		}
 	    }
 	    // What is caught is really Exceptions
@@ -169,13 +168,13 @@ public abstract class MatrixMeasure implements Similarity {
     }
 
     public double getIndividualSimilarity( Object i1, Object i2 ){
-	return indmatrix[((Integer)indlist1.get(i1)).intValue()][((Integer)indlist2.get(i2)).intValue()];
+	return indmatrix[indlist1.get(i1).intValue()][indlist2.get(i2).intValue()];
     }
     public double getClassSimilarity( Object c1, Object c2 ){
-	return clmatrix[((Integer)classlist1.get(c1)).intValue()][((Integer)classlist2.get(c2)).intValue()];
+	return clmatrix[classlist1.get(c1).intValue()][classlist2.get(c2).intValue()];
     }
     public double getPropertySimilarity( Object p1, Object p2 ){
-	return prmatrix[((Integer)proplist1.get(p1)).intValue()][((Integer)proplist2.get(p2)).intValue()];
+	return prmatrix[proplist1.get(p1).intValue()][proplist2.get(p2).intValue()];
     }
 
     // Not an efficient access...
@@ -198,7 +197,7 @@ public abstract class MatrixMeasure implements Similarity {
 		System.out.print( onto2.getEntityName( cl2 ) );
 		for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
 		    Object cl1 = (Object)it1.next();
-		    System.out.print(" & "+numFormat.format(clmatrix[((Integer)classlist1.get(cl1)).intValue()][((Integer)classlist2.get(cl2)).intValue()]));
+		    System.out.print(" & "+numFormat.format(clmatrix[classlist1.get(cl1).intValue()][classlist2.get(cl2).intValue()]));
 		}
 		System.out.println("\\\\");
 	    }
