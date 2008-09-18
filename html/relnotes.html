@@ -41,10 +41,11 @@
 <ul compact="1">
 <li><font color="red">Deprecated</font> <tt>Alignment.init(onto,onto,cache)</tt>
   in favour of <tt>Alignment.init(onto,onto)</tt>, see below (api)</tt>
-<li><tt>OntologyCache</tt> is now local at
-  each <tt>OntologyFactory</tt>, it does not need to be manipulated
+<li><tt>OntologyCache</tt> is now local to each <tt>OntologyFactory</tt>, it does not need to be manipulated
   from outside (onto)</li>
 <li>Implementing <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
+<li>Corrected a bug preventing DistanceAlignemnt to consider
+  instances (impl)</li>
 <li>Started to put copyright notices to INRIA instead of INRIA Rhône-Alpes (misc)</li>
 </ul>
 </p>
