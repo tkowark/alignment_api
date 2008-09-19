@@ -60,6 +60,26 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	cache.clear();
     }
 
+    public OWLAPIOntology newOntology( Object ontology ) throws AlignmentException {
+	if ( ontology instanceof OWLOntology ) {
+	    OWLAPIOntology onto = new OWLAPIOntology();
+	    onto.setFormalism( formalismId );
+	    onto.setFormURI( formalismUri );
+	    onto.setOntology( (OWLOntology)ontology );
+	    //onto.setFile( uri );// unknown
+	    try {
+		onto.setURI( ((OWLOntology)ontology).getLogicalURI() );
+	    } catch (OWLException e) {
+		// Better put in the AlignmentException of loaded
+		e.printStackTrace();
+	    }
+	    //cache.recordOntology( uri, onto );
+	    return onto;
+	} else {
+	    throw new AlignmentException( "Argument is not an OWLOntology: "+ontology );
+	}
+    }
+
     public OWLAPIOntology loadOntology( URI uri ) throws AlignmentException {
 	OWLAPIOntology onto = null;
 	onto = cache.getOntologyFromURI( uri );
@@ -95,3 +115,4 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	}
     }
 }
+

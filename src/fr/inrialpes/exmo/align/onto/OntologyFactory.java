@@ -46,8 +46,6 @@ public abstract class OntologyFactory {
 	return newInstance(API_NAME);
     }
 
-    // JE: The true question here is that instance being static,
-    // I assume that it is shared by all subclasses! 
     private static OntologyFactory newInstance( String apiName ) {
 	if ( instances == null ) instances = new Hashtable<String,OntologyFactory>();
 	OntologyFactory of = instances.get( apiName );
@@ -82,16 +80,27 @@ public abstract class OntologyFactory {
 	}
     }
 
+    /**
+     * All Ontologies must implement clearCache()
+     * which unload their ontologies if any cache is enabled.
+     */
     public abstract void clearCache();
 
     /**
+     * Encapsulate an ontology already in the environment
+     * These methods should rather be in a LoadableOntologyFactory
+     */
+    public abstract LoadedOntology newOntology( Object onto ) throws AlignmentException;
+
+    /**
      * Load an ontology, cache enabled
+     * These methods should rather be in a LoadableOntologyFactory
      */
     public abstract LoadedOntology loadOntology( URI uri ) throws AlignmentException;
+
     /**
      * Load an ontology, cache enabled if true, disabled otherwise
      * This will disappear: cache will be dispatched in implementations
-     */
     public LoadedOntology loadOntology( URI uri, OntologyCache<LoadedOntology> ontologies ) throws AlignmentException {
 	LoadedOntology onto = null;
 	if ( ontologies != null ) {
@@ -104,4 +113,5 @@ public abstract class OntologyFactory {
 	if ( ontologies != null ) ontologies.recordOntology( uri, onto );
 	return onto;
     };
+     */
 }
