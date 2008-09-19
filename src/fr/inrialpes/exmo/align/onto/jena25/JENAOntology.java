@@ -43,9 +43,6 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 
-
-
-
     public Object getEntity(URI u) throws AlignmentException {
 	return onto.getOntResource(u.toString());
     }
