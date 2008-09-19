@@ -1,7 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2008
+ * Copyright (C) INRIA, 2003-2004, 2006-2008
+ * Copyright (C) Quentin Reul, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,6 +52,7 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     LoadedOntology onto2 = null;
     Cell cell = null;
     boolean embedded = false; // if the output is XML embeded in a structure
+    boolean pre2008 = false; // compatibility mode with SKOS early drafts
 
     public SKOSRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -59,19 +61,29 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     public void init( Parameters p ) {
 	if ( p.getParameter( "embedded" ) != null 
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+	if ( p.getParameter( "pre2008" ) != null 
+	     && !p.getParameter( "pre2008" ).equals("") ) pre2008 = true;
     };
 
     // This must be considered
     public void visit( Alignment align ) throws AlignmentException {
-	if ( align instanceof ObjectAlignment ) {
-	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
-	}
 	alignment = align;
+	if ( align instanceof ObjectAlignment ) {
+	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
+	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
+	}
+	if ( embedded == false ) {
+	    writer.print("<?xml version='1.0' encoding='utf-8");
+	    writer.print("' standalone='no'?>\n");
+	}
 	writer.print("<rdf:RDF\n");
 	writer.print("  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"); 
 	writer.print("  xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n");
-	writer.print("  xmlns:skos=\"http://www.w3.org/2004/02/skos/core#\">\n\n");
+	if ( pre2008 ) {
+	    writer.print("  xmlns:skos=\"http://www.w3.org/2004/02/skos/core#\">\n\n");
+	} else {
+	    writer.print("  xmlns:skos=\"http://www.w3.org/2008/05/skos#\">\n\n");
+	}
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
@@ -98,13 +110,25 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	writer.print("  </skos:Concept>\n\n");
     }
     public void visit( EquivRelation rel ) throws AlignmentException {
-	writer.print("    <skos:related rdf:resource=\""+getURI2()+"\"/>\n");
+	if ( pre2008 ) {
+	    writer.print("    <skos:related rdf:resource=\""+getURI2()+"\"/>\n");
+	} else {
+	    writer.print("    <skos:exactMatch rdf:resource=\"" + getURI2() + "\"/>\n");
+	}
     }
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	writer.print("    <skos:narrower rdf:resource=\""+getURI2()+"\"/>\n");
+	if ( pre2008 ) {
+	    writer.print("    <skos:narrower rdf:resource=\""+getURI2()+"\"/>\n");
+	} else {
+	    writer.print("    <skos:narrowMatch rdf:resource=\""+getURI2()+"\"/>\n");
+	}
     }
     public void visit( SubsumedRelation rel ) throws AlignmentException {
-	writer.print("    <skos:broader rdf:resource=\""+getURI2()+"\"/>\n");
+	if ( pre2008 ) {
+	    writer.print("    <skos:broader rdf:resource=\""+getURI2()+"\"/>\n");
+	} else {
+	    writer.print("    <skos:broadMatch rdf:resource=\""+getURI2()+"\"/>\n");
+	}
     }
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	throw new AlignmentException("Cannot translate in SKOS"+rel);

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2006-2008
+ * Copyright (C) INRIA, 2003-2004, 2006-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -71,9 +71,10 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
     };
 
     public void visit( Alignment align ) throws AlignmentException {
+	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
-	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
+	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
 	}
 	for( Enumeration e = align.getElements(); e.hasMoreElements(); ){
 	    collectURIs( (Cell)e.nextElement() );
