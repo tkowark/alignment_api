@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2008
+ * Copyright (C) INRIA, 2004-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
+import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -45,7 +46,7 @@ import java.net.URI;
  * @version $Id$ 
  */
 
-public class PRecEvaluator extends BasicEvaluator {
+public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 
     private double precision = 0.;
 

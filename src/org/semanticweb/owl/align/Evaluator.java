@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2007
+ * Copyright (C) INRIA, 2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -46,7 +46,9 @@ public interface Evaluator {
      * Returns a double (between 0 and 1) providing an idea of the
      * proximity
      * The additional argument allows to cache the ontologies if necessary
-     */
+     * //@deprecated The OntologyCache is now internal, use eval( params ) instead
+     **/
+    //@Deprecated
     public double eval( Parameters param, Object cache ) throws AlignmentException;
 
     /** Housekeeping **/

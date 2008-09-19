@@ -1,7 +1,7 @@
  /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008.
+ * Copyright (C) INRIA, 2006-2008.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -400,6 +400,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li>"+it.next()+"</li>";
 	    }
 	    msg += "</ul>";
+	    msg += "<h2>Evaluators</h2><ul compact=\"1\">";
+	    for( Iterator it = manager.listevaluators().iterator(); it.hasNext(); ) {
+		msg += "<li>"+it.next()+"</li>";
+	    }
+	    msg += "</ul>";
 	} else if ( perf.equals("prmsqlquery") ){
 	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
@@ -678,6 +683,44 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    // render
 	    // Alignment in HTML can be rendre or metadata+tuples
+	} else if ( perf.equals("prmeval") ) {
+	    msg ="<h1>Evaluate alignment</h1><form action=\"eval\">";
+	    msg += "Alignment to evaluate: ";
+	    msg += "<select name=\"id\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg +="Reference alignment: ";
+	    msg += "<select name=\"ref\">";
+	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
+		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "Evaluator: ";
+	    msg += "<select name=\"method\">";
+	    for( Iterator it = manager.listevaluators().iterator(); it.hasNext(); ) {
+		String id = (String)it.next();
+		msg += "<option value=\""+id+"\">"+id+"</option>";
+	    }
+	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Evaluate\"/>\n";
+	    msg += "</form>\n";
+	} else if ( perf.equals("eval") ) {
+	    Message answer = manager.eval( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer );
+	    } else {
+		msg = "<h1>Evaluation results</h1>";
+		msg += displayAnswer( answer );
+	    }
+	} else if ( perf.equals("saveeval") ) {
+	} else if ( perf.equals("prmgrpeval") ) {
+	} else if ( perf.equals("grpeval") ) {
+	} else if ( perf.equals("savegrpeval") ) {
+	} else if ( perf.equals("prmresults") ) {
+	} else if ( perf.equals("getresults") ) {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment Server commands</h1>";
 	    msg += "<form action=\"../admin/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
@@ -736,6 +779,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // COMPARE (2)
 	    // INV
 	    result += "<td><form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form></td>";
+	    result += "</tr></table>";
+	} else if ( answer instanceof EvaluationId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+	    result += "<table><tr>";
+	    // STORE (the value should be the id here, not the content)
+	    result += "<td><form action=\"saveeval\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
 	    result += "</tr></table>";
 	}
 	return result;
