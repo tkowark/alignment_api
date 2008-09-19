@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008
+ * Copyright (C) INRIA, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -64,7 +64,7 @@ $Id$
  */
 public class AlignmentService {
 
-    public static final String //DBMS Strings
+    public String //DBMS Parameters
 	DBHOST = "localhost",
 	DBPORT = "3306",
 	DBUSER = "adminAServ",
@@ -116,11 +116,7 @@ public class AlignmentService {
 	// Connect database
 	connection = new DBServiceImpl();
 	connection.init();
-	connection.connect((String)params.getParameter("dbmshost"), 
-			   (String)params.getParameter("dbmsport"), 
-			   (String)params.getParameter("dbmsuser"), 
-			   (String)params.getParameter("dbmspass"), 
-			   (String)params.getParameter("dbmsbase") );
+	connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
 	if ( debug > 0 ) System.err.println("Database connected");
 
 	// Create a AServProtocolManager
@@ -199,14 +195,6 @@ public class AlignmentService {
 
     public Parameters readParameters( String[] args ) {
 	Parameters params = new BasicParameters();
-
-	// Default database parameters
-	params.setParameter( "dbmshost", DBHOST );
-	params.setParameter( "dbmsport", DBPORT );
-	params.setParameter( "dbmsuser", DBUSER );
-	params.setParameter( "dbmspass", DBPASS );
-	params.setParameter( "dbmsbase", DBBASE);
-	params.setParameter( "host", HOST );
 
 	// Read parameters
 
@@ -367,19 +355,19 @@ public class AlignmentService {
 		}
 		break;
 	    case 'm' :
-		params.setParameter( "dbmshost", g.getOptarg() );
+		DBHOST = g.getOptarg();
 		break;
 	    case 's' :
-		params.setParameter( "dbmsport", g.getOptarg() );
+		DBPORT = g.getOptarg();
 		break;
 	    case 'u' :
-		params.setParameter( "dbmsuser", g.getOptarg() );
+		DBUSER = g.getOptarg();
 		break;
 	    case 'p' :
-		params.setParameter( "dbmspass", g.getOptarg() );
+		DBPASS = g.getOptarg();
 		break;
 	    case 'b' :
-		params.setParameter( "dbmsbase", g.getOptarg() );
+		DBBASE = g.getOptarg();
 		break;
 	    case 'D' :
 		/* Parameter definition */
