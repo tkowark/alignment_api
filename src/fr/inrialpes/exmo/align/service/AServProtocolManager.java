@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008
+ * Copyright (C) INRIA, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -50,6 +50,7 @@ import java.lang.ExceptionInInitializerError;
 import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
@@ -151,6 +152,10 @@ public class AServProtocolManager {
 	return services;
     }
 
+    public Set<String> listevaluators(){
+	return evaluators;
+    }
+
     public Enumeration alignments(){
 	return alignmentCache.listAlignments();
     }
@@ -203,17 +208,12 @@ public class AServProtocolManager {
     public Message align( Message mess ){
 	Message result = null;
 	Parameters p = mess.getParameters();
-	/*
-	  // JE: This remains here for historical reasons.
-	  // It is a threat to security since it used to unveil to all interfaces
-	  // database parameters!
-	  for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
+	for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
 	    String key = e.nextElement();
 	    if ( p.getParameter( key ) == null ){
 		p.setParameter( key , commandLineParams.getParameter( key ) );
 	    }
 	}
-	*/
 	// Do the fast part (retrieve)
 	result = retrieveAlignment( mess );
 	if ( result != null ) return result;
@@ -501,12 +501,6 @@ public class AServProtocolManager {
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
     }
 
-    // It is also possible to try a groupeval ~> with a zipfile containing results
-    //            ~~> But it is more difficut to know where is the reference (non public)
-    // There should also be options for selecting the result display
-    //            ~~> PRGraph (but this may be a Evaluator)
-    //            ~~> Triangle
-    //            ~~> Cross
     public Message eval( Message mess ){
 	Parameters params = mess.getParameters();
 	// Retrieve the alignment
@@ -545,8 +539,46 @@ public class AServProtocolManager {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
 	// Return it, not easy
-	// Should be evaluation results...
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	StringWriter sw = new StringWriter();
+	try {
+	    eval.write( new PrintWriter( sw ) );
+	} catch (IOException ioex) {}; // never occurs
+	// Should not be alignment evaluation results...
+	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Parameters)null);
+    }
+
+    /**
+     * Store evaluation result from its URI
+     */
+    public Message storeEval( Message mess ){
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+    }
+
+    /**
+     * Evaluate a track: a set of results
+     */
+    // It is also possible to try a groupeval ~> with a zipfile containing results
+    //            ~~> But it is more difficut to know where is the reference (non public)
+    // There should also be options for selecting the result display
+    //            ~~> PRGraph (but this may be a Evaluator)
+    //            ~~> Triangle
+    //            ~~> Cross
+    public Message groupEval( Message mess ){
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+    }
+
+    /**
+     * Store the result
+     */
+    public Message storeGroupEval( Message mess ){
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+    }
+
+    /**
+     * Retrieve the results (all registered result) of a particular test
+     */
+    public Message getResults( Message mess ){
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
     }
 
     public boolean storedAlignment( Message mess ) {
