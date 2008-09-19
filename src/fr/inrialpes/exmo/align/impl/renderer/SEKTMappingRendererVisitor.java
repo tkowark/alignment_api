@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -79,7 +79,7 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
     }
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
-	String id = "s"+generator.nextInt(100000);
+	String id = String.format( "s%06d", generator.nextInt(100000) );
 	Object ob1 = cell.getObject1();
 	Object ob2 = cell.getObject2();
 	if ( onto1.isClass( ob1 ) ) {
