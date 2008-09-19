@@ -9,10 +9,10 @@
 
 <center><h1>Alignment API, release notes</h1></center>
 
-<p><small><b>Release numbers:</b> major release numbers are for majors
+<p style="font-size: 80%;"><span style="font-weight: bold;">Release numbers:</span> major release numbers are for majors
   redesign that will modify the API and may lead you to
   change your code; minor release numbers bring bug fixes and new
-  functionnalities but should not require change in existing code.</small></p>
+  functionnalities but should not require change in existing code.</p>
 
 <h2>Under development (you can contribute)</h2>
 
@@ -28,6 +28,7 @@
 <li>Render alignments as module descriptions (impl)</li>
 <li>Replace <tt>Parameters</tt> with Java <tt>Property</tt> (api/impl)[Version 4]</li>
 <li>Implement <tt>Relation</tt> and <tt>Confidence</tt> interfaces (api/impl)[Version 4]</li>
+<li>Implement extensive evaluation framework (impl)</li>
 <li>Implement debug options with log4j</li>
 <li>Use more for-each Java 1.5 construct</li>
 <li>Add more tests</li>
@@ -39,14 +40,16 @@
 
 <p>
 <ul compact="1">
-<li><font color="red">Deprecated</font> <tt>Alignment.init(onto,onto,cache)</tt>
+<li><span style="color: red;">Deprecated</span> <tt>Alignment.init(onto,onto,cache)</tt>
   in favour of <tt>Alignment.init(onto,onto)</tt>, see below (api)</tt>
-<li><tt>OntologyCache</tt> is now local to each <tt>OntologyFactory</tt>, it does not need to be manipulated
-  from outside (onto)</li>
+<li><tt>OntologyCache</tt> is now local to each <tt>OntologyFactory</tt>, it does not need to be manipulated from outside (onto)</li>
 <li>Implementing <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
-<li>Corrected a bug preventing DistanceAlignemnt to consider
-  instances (impl)</li>
+<li>Corrected an error preventing DistanceAlignemnt to consider instances (impl)</li>
 <li>Started to put copyright notices to INRIA instead of INRIA Rhône-Alpes (misc)</li>
+<li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
+<li>Corrected a bug in <tt>SKOSRendererVisitor</tt> and <tt>XSLTRendererVisitor</tt> (impl)</li>
+<li>Updated <tt>SKOSRendererVisitor</tt> to work with 2008 version of
+  SKOS, old version can be obtained by parameter <tt>pre2008</tt> (impl)</li>
 </ul>
 </p>
 
@@ -56,7 +59,7 @@
 <ul compact="1">
 <li>Implemented WSAlignment connecting to remote web service for
   matching (server)</li>
-<li><font color="red">Deprecated</font> <tt>Cell.getObjectXAsURI()</tt>
+<li><span style="color: red;">Deprecated</span> <tt>Cell.getObjectXAsURI()</tt>
   in favour of <tt>Cell.getObjectXAsURI(Object ontology)</tt> (api)</tt>
 <li>Upgraded NeOn plug-in for working with NeOn toolkit 1.1 (plugin)</li>
 <li>Implemented OWL API 2 support [not shipped] (onto)</li>
@@ -136,7 +139,7 @@
 
 <h2>Version 3.1 (614): 05/02/2008 - Klippekort</h2>
 
-<p><font color="red">BEWARE:</font>
+<p><span style="color: red;">BEWARE:</span>
 For better conforming with RDF practice, we have
 <ul compact="1">
 <li>Changed the Alignment namespace by adding a '#' at its end (format).</li>
@@ -191,7 +194,7 @@ Other improvements include:
 
 <h2>Version 3.0 (436): 25/02/2007 - Hyderabad</h2>
 
-<p><font color="red">BEWARE:</font>
+<p><span style="color: red;">BEWARE:</span>
 The main modification in this version is more independence from the
   OWL API which is not anymore compulsory. Consequently, the existing
   implementation of matching methods with Alignment API should undergo
@@ -276,7 +279,7 @@ The main modification in this version is more independence from the
 <h2>Version 2.2 (263): 05/06/2006 - Onyeari's version a.k.a. may GForge be with you</h2>
 
 <p>Upgraded to OWL-API 06-04-12 (1.4.3)<br />
-<font color="red"></font> No problem encountered.
+<span style="color: red;"></span> No problem encountered.
 </p>
 
 <p>New version featuring:
@@ -317,7 +320,7 @@ The main modification in this version is more independence from the
 
 <h2>Version 2: 1/10/2005 - Raphael's version a.k.a. AC385 version</h2>
 
-<p><font color="red">BEWARE:</font> <tt>Alignment</tt> methods <tt>getAlignCell1</tt>, <tt>getAlignCell2</tt>, <tt>getAlignedObject1</tt>, <tt>getAlignedObject2</tt>, <tt>getStrength1</tt>, <tt>getStrength2</tt>, <tt>getRelation1</tt>
+<p><span style="color: red;">BEWARE:</span> <tt>Alignment</tt> methods <tt>getAlignCell1</tt>, <tt>getAlignCell2</tt>, <tt>getAlignedObject1</tt>, <tt>getAlignedObject2</tt>, <tt>getStrength1</tt>, <tt>getStrength2</tt>, <tt>getRelation1</tt>
       and <tt>getRelation2</tt> deprecated (implementation is still
       provided however).
 </p>
@@ -348,7 +351,7 @@ The main modification in this version is more independence from the
 <h2>Version 1.3: 15/06/2005 - Ready for OAEI 2005</h2>
 
 <p>Upgraded to OWL-API 05-03-21 (1.4.2)<br />
-<font color="red">BEWARE:</font> if you experience problems
+<span style="color: red;">BEWARE:</span> if you experience problems
 recompiling after upgrading to this version of the OWL-API, this is
 because it requires and additional method:
 <tt>owlFullConstruct(int code, String message, Object o)</tt> in the
