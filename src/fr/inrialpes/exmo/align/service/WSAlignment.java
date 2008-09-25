@@ -1,7 +1,7 @@
 /*
  * $Id: WSAlignment.java 756 2008-07-17 15:30:07Z euzenat $
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +35,7 @@ import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -106,7 +107,8 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 // Parameter encoding
 	 for (Enumeration e = params.getNames(); e.hasMoreElements();) {
 	     String k = (String)e.nextElement();
-	     message += "    <"+k+">"+params.getParameter(k)+"</"+k+">\n";
+             if ( k != null && !k.equals("") )
+	        message += "    <param name=\""+k+"\">"+params.getParameter(k)+"</param>\n";
 	 }
 
 	 message += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
@@ -146,7 +148,6 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     AlignmentParser parser = new AlignmentParser( 0 );
 	     parser.initAlignment( this );
 	     parser.setEmbedded( true );
-	     //parser.parseString( answer );
 	     parser.parse( httpConn.getInputStream() );
 	 } catch (SAXException saxex) {
 	     throw new AlignmentException( "Malformed XML/SOAP result", saxex );

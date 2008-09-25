@@ -870,6 +870,7 @@ public class AServProtocolManager {
 		    long time = System.currentTimeMillis();
 		    
 		    aresult.align( init, params ); // add opts
+			 
 		    long newTime = System.currentTimeMillis();
 			 
 		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
