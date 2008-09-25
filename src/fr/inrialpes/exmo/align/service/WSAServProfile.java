@@ -486,7 +486,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    // Believe it or not, NodeList has no iterator!
 	    for (int i = 0; i < result.getLength(); i++) {
 		Node item = result.item(i);
-		String key = item.getLocalName();
+		// Check getNodeType() please
+		String key = item.getNodeName();
 		if ( key != null ) {
 		    String val = item.getTextContent().trim();
 		    if ( key.equals("param") ) {
@@ -496,7 +497,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} catch (XPathExpressionException e) {
+	  System.err.println( "[getParameters] XPath exception: should not occur");
 	} catch (NullPointerException e) {
+	  System.err.println( "[getParameters] NullPointerException: should not occur");
 	}
 	return params;
     }
