@@ -56,8 +56,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -243,10 +244,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "      </classList>\n    </listservicesResponse>\n";
 	} else if ( method.equals("storeRequest") ) { // URI -> URI
-	    Parameters params = new BasicParameters();
 	    Message answer = null;
 	    msg += "    <storeResponse>\n";
-	    getParameter( domMessage, message, params, "alid", "id" );
+	    Parameters params = getParameters( domMessage );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -260,11 +260,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </storeResponse>\n";
 	} else if ( method.equals("invertRequest") ) { // URI -> URI
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <invertResponse>\n";
 
-	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -278,21 +277,18 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </invertResponse>\n";
 	} else if ( method.equals("cutRequest") ) { // URI * string * float -> URI
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <cutResponse>\n";
 
-	    getParameter( domMessage, message, params, "alid", "id" );
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
 
-	    getParameter( domMessage, message, params, "method", "method" );
 	    if ( params.getParameter( "method" ) == null ) {
 		params.setParameter( "method", "hard" );
 	    }
 
-	    getParameter( domMessage, message, params, "threshold", "threshold" );
 	    if ( params.getParameter( "threshold" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -306,22 +302,21 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </cutResponse>\n";
 	} else if ( method.equals("matchRequest") ) { // URL * URL * URI * String * boolean * (params) -> URI
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <matchResponse>\n";
 
-	    getParameter( domMessage, message, params, "url1", "onto1" );
-	    if ( params.getParameter( "onto1" ) == null ) {
+	    if ( params.getParameter( "url1" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto1", params.getParameter( "url1" ) );
 	    }
 
-	    getParameter( domMessage, message, params, "url2", "onto2" );
-	    if ( params.getParameter( "onto2" ) == null ) {
+	    if ( params.getParameter( "url2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto2", params.getParameter( "url2" ) );
 	    }
-
-	    getParameter( domMessage, message, params, "method", "method" );
-	    getParameter( domMessage, message, params, "force", "force" );
 
 	    if ( answer == null )
 		answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", params) );
@@ -333,22 +328,26 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "    </matchResponse>\n";
 	} else if ( method.equals("align") ) { // URL * URL * (params) -> URI
 	    // This is a dummy method for emulating a WSAlignement service
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <alignResponse>\n";
 
-	    getParameter( domMessage, message, params, "url1", "onto1" );
-	    if ( params.getParameter( "onto1" ) == null ) {
+	    if ( params.getParameter( "url1" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-	    }
-	    getParameter( domMessage, message, params, "url2", "onto2" );
-	    if ( params.getParameter( "onto2" ) == null ) {
-		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto1", params.getParameter( "url1" ) );
 	    }
 
-	    getParameter( domMessage, message, params, "wsmethod", "method" );
-	    if ( params.getParameter( "method" ) == null ) {
+	    if ( params.getParameter( "url2" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto2", params.getParameter( "url2" ) );
+	    }
+
+	    if ( params.getParameter( "wsmethod" ) == null ) {
 		params.setParameter( "method", "fr.inrialpes.exmo.align.impl.method.StringDistAlignment" );
+	    } else {
+		params.setParameter( "method", params.getParameter( "wsmethod" ) );
 	    }
 
 	    if ( answer == null ) {
@@ -378,18 +377,20 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </alignResponse>\n";
 	} else if ( method.equals("findRequest") ) { // URI * URI -> List of URI
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <findResponse>\n";
 
-	    getParameter( domMessage, message, params, "uri1", "onto1" );
-	    if ( params.getParameter( "onto1" ) == null ) {
+	    if ( params.getParameter( "url1" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto1", params.getParameter( "url1" ) );
 	    }
 
-	    getParameter( domMessage, message, params, "uri2", "onto2" );
-	    if ( params.getParameter( "onto2" ) == null ) {
+	    if ( params.getParameter( "url2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "onto2", params.getParameter( "url2" ) );
 	    }
 
 	    if ( answer == null )
@@ -401,16 +402,16 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </findResponse>\n";
 	} else if ( method.equals("retrieveRequest") ) { // URI * method -> XML
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <retrieveResponse>\n";
 
-	    getParameter( domMessage, message, params, "alid", "id" );
-	    if ( params.getParameter( "id" ) == null ) {
+	    if ( params.getParameter( "alid" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		params.setParameter( "id", params.getParameter( "alid" ) );
 	    }
 
-	    getParameter( domMessage, message, params, "method", "method" );
 	    if ( params.getParameter( "method" ) == null )
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 
@@ -431,10 +432,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "    </metadataResponse>\n";
 	} else if ( method.equals("loadRequest") ) { // URL -> URI
 	    msg += "    <loadResponse>\n";
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 
-	    getParameter( domMessage, message, params, "url", "url" );
 	    if ( params.getParameter( "url" ) == null &&
 		 param.getParameter( "filename" ) != null ) {
 		// HTTP Server has stored it in filename (HTMLAServProfile)
@@ -449,11 +449,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </loadResponse>\n";
 	} else if ( method.equals("loadfileRequest") ) { // XML -> URI
-	    Parameters params = new BasicParameters();
+	    Parameters params = getParameters( domMessage );
 	    Message answer = null;
 	    msg += "    <loadResponse>\n";
 
-	    getParameter( domMessage, message, params, "url", "url" );
 	    if ( params.getParameter( "url" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -478,22 +477,28 @@ public class WSAServProfile implements AlignmentServiceProfile {
 
     public static String wsdlAnswer() { return wsdlSpec; }
 
-    private void getParameter( Document dom, String message, Parameters p, String tag, String key ){
-	XPath XPATH = XPathFactory.newInstance().newXPath();
-	String result = null;
+    private Parameters getParameters( Document doc ){
+	Parameters params = new BasicParameters();
+	XPath path = XPathFactory.newInstance().newXPath();
 	try {
-	    // The two first elements are prefixed by: "SOAP-ENV:"
-	    result = ((Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE))).getTextContent().trim();
-	    if ( result == null || !result.equals("") ){
-	      result = ((Node)(XPATH.evaluate("/Envelope/Body/param[@name="+tag+"]", dom, XPathConstants.NODE))).getTextContent().trim();
+	    XPathExpression expr = path.compile("//Envelope/Body/*");
+	    NodeList result = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
+	    // Believe it or not, NodeList has no iterator!
+	    for (int i = 0; i < result.getLength(); i++) {
+		Node item = result.item(i);
+		String key = item.getLocalName();
+		if ( key != null ) {
+		    String val = item.getTextContent().trim();
+		    if ( key.equals("param") ) {
+			key = item.getAttributes().getNamedItem("name").getNodeValue();
+		    }
+		    params.setParameter( key, val );
+		}
 	    }
-	// Whatever error is NOTHING FOUND
 	} catch (XPathExpressionException e) {
 	} catch (NullPointerException e) {
 	}
-	if ( result != null && !result.equals("") ){
-	    p.setParameter( key, result);
-	}
+	return params;
     }
 
     private String displayAnswer ( Message answer ) {
