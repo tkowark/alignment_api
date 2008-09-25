@@ -208,6 +208,7 @@ public class AServProtocolManager {
     public Message align( Message mess ){
 	Message result = null;
 	Parameters p = mess.getParameters();
+	// These are added to the parameters wich are in the message
 	for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
 	    String key = e.nextElement();
 	    if ( p.getParameter( key ) == null ){
