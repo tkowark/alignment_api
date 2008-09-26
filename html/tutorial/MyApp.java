@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006-2008, INRIA Rhône-Alpes
+ * Copyright (C) INRIA, 2006-2008
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
