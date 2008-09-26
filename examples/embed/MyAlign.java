@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2005, 2008, INRIA Rhône-Alpes
+ * Copyright (C)  INRIA 2003-2005, 2008
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -49,19 +49,18 @@ import java.net.URI;
 
 /** 
 Compile with:
-javac -classpath ../../lib/api.jar:../../lib/commons-logging.jar:../../lib/log4j.jar:../../lib/procalign.jar:../../lib/rdfapi.jar:../../lib/rdfparser.jar MyAlign.java
+javac -cp .:../../lib/procalign.jar MyAlign.java
 
 Run with:
-java -classpath .:../../lib/api.jar:../../lib/commons-logging.jar:../../lib/log4j.jar:../../lib/procalign.jar:../../lib/rdfapi.jar:../../lib/rdfparser.jar MyAlign
+java -cp .:../../lib/procalign.jar MyAlign
  */
 
 public class MyAlign {
 
     public static void main(String[] args) {
 	try {
-	    String CWD = "/Java/alignapi/examples";
-	    URI uri1 = new URI("file://localhost"+CWD+"/rdf/edu.umbc.ebiquity.publication.owl");
-	    URI uri2 = new URI("file://localhost"+CWD+"/rdf/edu.mit.visus.bibtex.owl");
+	    URI uri1 = new URI("file:../rdf/edu.umbc.ebiquity.publication.owl");
+	    URI uri2 = new URI("file:../rdf/edu.mit.visus.bibtex.owl");
 
 	    Parameters p = new BasicParameters();
 	    AlignmentProcess A1 = new SubsDistNameAlignment();
@@ -81,7 +80,8 @@ public class MyAlign {
 				          new OutputStreamWriter( System.out,
 							          "UTF-8" )),
                                        true)); 
-	    if ( ((PRecEvaluator)E).getPrecision() > .6 ) A3.render(V); 
+	    if ( ((PRecEvaluator)E).getPrecision() > .6 ) A3.render(V);
+	    System.out.flush(); // necessary when the program is really embedded
 	} catch (Exception e) { e.printStackTrace(); };
     }
 }
