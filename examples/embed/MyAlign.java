@@ -74,14 +74,14 @@ public class MyAlign {
 	    A2.align((Alignment)null,p); A3.align(A2,p); 
 	    Evaluator E = new PRecEvaluator(A1, A3); 
 	    E.eval(p); 
-	    AlignmentVisitor V = new SWRLRendererVisitor(
-				    new PrintWriter (
-				       new BufferedWriter(
-				          new OutputStreamWriter( System.out,
-							          "UTF-8" )),
-                                       true)); 
+	    PrintWriter pw = new PrintWriter (
+			       new BufferedWriter(
+				 new OutputStreamWriter( System.out, "UTF-8" )),
+			       true);
+	    AlignmentVisitor V = new SWRLRendererVisitor( pw ); 
 	    if ( ((PRecEvaluator)E).getPrecision() > .6 ) A3.render(V);
-	    System.out.flush(); // necessary when the program is really embedded
+	    pw.flush(); 
+	    pw.close(); // necessary when the program is really embedded
 	} catch (Exception e) { e.printStackTrace(); };
     }
 }
