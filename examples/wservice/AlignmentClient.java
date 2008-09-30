@@ -136,7 +136,7 @@ public class AlignmentClient {
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "    <uri1>"+uri1+"</uri1>\n    <uri2>"+uri2+"</uri2>\n";
+	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	} else if ( cmd.equals("match" ) ) {
 	    SOAPAction = "matchRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
