@@ -194,12 +194,14 @@ public class RDFRendererVisitor implements AlignmentVisitor
 		    String tag = (String)nslist.get( uri );
 		    if ( tag == null ){
 			tag = ((String[])ext)[1];
+			// That's heavy.
+			// Maybe adding an extra: ns extension in the alignment at parsing time
+			// would help redisplaying it better...
+			writer.print("      <alignapilocalns:"+tag+" xmlns:alignapilocalns=\""+uri+"\">"+((String[])ext)[2]+"</alignapilocalns:"+tag+">\n");
 		    } else {
 			tag += ":"+((String[])ext)[1];
+			writer.print("      <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n");
 		    }
-		    // JE: Bug: namespace may not have been declared!
-		    // Here I should reverse namespace
-		    writer.print("      <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n");
 		}
 	    }
 	    writer.print("    </Cell>\n  </map>\n");
