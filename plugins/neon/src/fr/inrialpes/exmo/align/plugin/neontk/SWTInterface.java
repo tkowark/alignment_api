@@ -140,16 +140,13 @@ public class SWTInterface extends JPanel {
 	static String [] forUniqueness = new String[0];
 	static int alignId = 0;
 	//public static Vector<String> alignProjects = new Vector<String>();
-	
 	//Procalign procalign = null;
 	//Parameters p = new BasicParameters();
 	
 	JComponent phrases;// Res=null;
-    JTextField fileName1, fileName2, hostField, portField; // threshold// alignProj;
+    JTextField fileName1, fileName2, hostField, portField;  
     SWTInterface frame;
-    //public JFileChooser open;
-    //public JLabel explain;
-    //JPanel pane;
+     
     JEditorPane htmlView;
     
     JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
@@ -385,8 +382,6 @@ public class SWTInterface extends JPanel {
         };
     	});
     	
-    
-    
 	selectedHost = defaultHost;
 	hostName = new JLabel( "Host name" );
 	hostField = new JTextField( defaultHost, 15 );
@@ -679,7 +674,8 @@ public class SWTInterface extends JPanel {
 						
 						File file = new File(rdfPath);
 						
-						AlignmentParser ap = new AlignmentParser(1);
+						AlignmentParser ap = new AlignmentParser(0);
+						ap.setEmbedded(true);
 						Alignment align = ap.parse(file.toURI().toString());
 						
 						SWTInterface.alignmentTable.put( alignKey , (Alignment)align );
@@ -1159,7 +1155,6 @@ public class SWTInterface extends JPanel {
 	html.setMaximumSize(html.getPreferredSize());
 	_mainSplitter.setDividerLocation((int)top.getPreferredSize().getHeight());
 	
-	 
 	
 	add(_mainSplitter,BorderLayout.CENTER); //Main Window of the Plugin
 	

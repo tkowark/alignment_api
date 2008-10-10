@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008
+ * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,6 +29,11 @@ import java.net.URI;
 import java.util.Vector;
 import java.util.Enumeration;
 
+//import org.omwg.mediation.parser.rdf.RDFParser;
+//import org.omwg.mediation.parser.rdf.RDFParserException;
+//import javax.xml.parsers.SAXParser;
+//import javax.xml.parsers.SAXParserFactory;
+
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -36,12 +41,18 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
+//import com.ontoprise.api.formatting.OntoBrokerOntologyFileFormat;
+//import com.ontoprise.config.IConfig;
+//import com.ontoprise.config.IConfig.OntologyLanguage;
 import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+//import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+//import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 
 public class OfflineAlign {
 	
@@ -86,7 +97,7 @@ public class OfflineAlign {
 	  	Class[] cparams = {};
 	  	java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 	  	A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-	  	A1.init( (URI)uris.get(0), (URI)uris.get(1) );
+	  	A1.init( (URI)uris.get(0), (URI)uris.get(1), (OntologyCache)null );
 	   
 	  	A1.align((Alignment)null,p);
 	  	
@@ -132,7 +143,8 @@ public class OfflineAlign {
 	    
 	      File exFile = new File(id + ".rdf");
 				
-		  AlignmentParser ap = new AlignmentParser(1);
+		  AlignmentParser ap = new AlignmentParser(0);
+		  ap.setEmbedded(true);
 		  clonedA1 = (BasicAlignment) ap.parse(exFile.toURI().toString());
 				
 		  File fnRdf = new File( alignFolder.getAbsolutePath() + File.separator + name.toString()+ ".rdf" );
@@ -198,6 +210,7 @@ public class OfflineAlign {
        try {
     	   	 
     	    AlignmentParser parser = new AlignmentParser( 0 );
+    	    parser.setEmbedded(true);
     	   	
     	   	for(int i=0; i< v.size(); i++) {
     	   		

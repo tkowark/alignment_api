@@ -63,9 +63,9 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(View.ID);
+		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
 		try{
-		window.getActivePage().showView(View.ID);
+		window.getActivePage().showView(AlignView.ID);
 		}
 		catch(Exception e) {
 			
@@ -97,9 +97,9 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void init(IWorkbenchWindow window) {
 		this.window = window;
-		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(View.ID);
+		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
 		try{
-		window.getActivePage().showView(View.ID);
+		window.getActivePage().showView(AlignView.ID);
 		}
 		catch(Exception e) {
 			

@@ -22,11 +22,8 @@ package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
 
 import java.io.FileInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
@@ -37,10 +34,6 @@ import java.net.HttpURLConnection;
  
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Vector;
-import java.util.zip.ZipInputStream;
-
-import javax.swing.JOptionPane;
  
 import org.semanticweb.owl.align.Parameters;
 import org.w3c.dom.Document;
@@ -76,7 +69,7 @@ public class OnlineAlign {
 		private static DocumentBuilder BUILDER = null;
 		final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
 		
-	    public OnlineAlign( String htmlPort, String host)  {
+	    public OnlineAlign( String htmlPort, String host )  {
 	    	try {
 	    		HOST = host;
 	    		PORT = htmlPort;
@@ -190,20 +183,19 @@ public class OnlineAlign {
 			String answer = null;
 		     
 			try {
-				// Read parameters
-				 
+				// Read parameters			 
 				Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
 				//params.setParameter( "http", PORT );
 				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","list");
-				params.setParameter( "arg1","methods");
+				params.setParameter( "command", "list");
+				params.setParameter( "arg1", "methods");
 					
 				// Create the SOAP message
 				String message = createMessage( params );
 				  
 				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message :"+ message);
+				//System.out.println("Message (methods) :"+ message);
 				
 				// Send message
 				answer = sendMessage( message, params );
@@ -249,9 +241,10 @@ public class OnlineAlign {
 				
 				// Send message
 				answer = sendMessage( message, params );
+				//System.out.println("answer find=" + answer);
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
-			if(! connected ) return null; 
+			if(!connected ) return null; 
 				   
 			Document domMessage = null;
 				try {
@@ -406,14 +399,12 @@ public class OnlineAlign {
 			answer = sendMessage( message, params );
 			if(! connected ) return null; 
 			
-			
-			
 		} catch ( Exception ex ) { ex.printStackTrace();  };
 			 
 			 
 		// Cut SOAP header
 		//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-		answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
+		//answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
 		 
 		
 		Document domMessage = null;
@@ -426,12 +417,8 @@ public class OnlineAlign {
 		    saxex.printStackTrace();
 		}
 		
-		
-		
 		String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
-	 	 
-		 
-		
+	 	
 		//System.out.println("OWLAlign="+ result[0]);
 		return result[0];
 	    }
@@ -470,10 +457,10 @@ public class OnlineAlign {
 			} catch ( Exception ex ) { ex.printStackTrace();  };
 				 
 				 
-				// Cut SOAP header
+			// Cut SOAP header
 			
 			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-			answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
+			//answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
 			 
 			
 			Document domMessage = null;
@@ -599,7 +586,7 @@ public class OnlineAlign {
     	 		  NodeList ns = nn.getChildNodes();
     	 		  
     	 		  //tag "alid" is third
-    	 		  Node n3  = (Node) ns.item(2);
+    	 		  Node n3  = (Node) ns.item(3);
     	 		  Node nx  = n3.getFirstChild();
     	   		  String nm = nx.getNodeValue();
     	   		   
@@ -637,23 +624,24 @@ public class OnlineAlign {
 		    }
 		} else if ( cmd.equals("wsdl" ) ) {
 		    SOAPAction = "wsdlRequest";
+		    
 		} else if ( cmd.equals("find" ) ) {
 		    SOAPAction = "findRequest";
 		    String uri1 = (String)params.getParameter( "arg1" );
 		    String uri2 = (String)params.getParameter( "arg2" );
-		    if ( uri2 == null ){
+		    //if ( uri2 == null ){
 			//usage();
-			System.exit(-1);
-		    }
-		    messageBody = "<uri1>"+uri1+"</uri1><uri2>"+uri2+"</uri2>";
+			//System.exit(-1);
+		    //}
+		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		} else if ( cmd.equals("match" ) ) {
 		    SOAPAction = "matchRequest";
 		    String uri1 = (String)params.getParameter( "arg1" );
 		    String uri2 = (String)params.getParameter( "arg2" );
-		    if ( uri2 == null ){
+		    //if ( uri2 == null ){
 			//usage();
-			System.exit(-1);
-		    }
+			//System.exit(-1);
+		    //}
 		    String method = null;
 		    String arg3 = (String)params.getParameter( "arg3" );
 		    if ( arg3 != null ) {
@@ -670,10 +658,10 @@ public class OnlineAlign {
 		    SOAPAction = "cutRequest";
 		    String id = (String)params.getParameter( "arg1" );
 		    String thres = (String)params.getParameter( "arg2" );
-		    if ( thres == null ){
+		    //if ( thres == null ){
 			//usage();
 			//System.exit(-1);
-		    }
+		    //}
 		    String method = null;
 		    String arg3 = (String)params.getParameter( "arg3" );
 		    if ( arg3 != null ) {
@@ -685,18 +673,18 @@ public class OnlineAlign {
 		} else if ( cmd.equals("invert" ) ) {
 		    SOAPAction = "invertRequest";
 		    String uri = (String)params.getParameter( "arg1" );
-		    if ( uri == null ){
+		    //if ( uri == null ){
 			//usage();
 			//System.exit(-1);
-		    }
+		    //}
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("store" ) ) {
 		    SOAPAction = "storeRequest";
 		    String uri = (String)params.getParameter( "arg1" );
-		    if ( uri == null ) {
+		    //if ( uri == null ) {
 			//usage();
 			//System.exit(-1);
-		    }
+		    //}
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("load" ) ) {
 		    String url = (String)params.getParameter( "arg1" );
@@ -735,19 +723,19 @@ public class OnlineAlign {
 		    SOAPAction = "retrieveRequest";
 		    String uri = (String)params.getParameter( "arg1" );
 		    String method = (String)params.getParameter( "arg2" );
-		    if ( method == null ){
+		    //if ( method == null ){
 			//usage();
 			//System.exit(-1);
-		    }
+		    //}
 		    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
 		} else if ( cmd.equals("metadata" ) ) {
 		    SOAPAction = "metadata";
 		    String uri = (String)params.getParameter( "arg1" );
 		    String key = (String)params.getParameter( "arg2" );
-		    if ( key == null ){
+		    //if ( key == null ){
 			//usage();
 			//System.exit(-1);
-		    }
+		    //}
 		    messageBody = "<alid>"+uri+"</alid><key>"+key+"</key>";
 		} else {
 		    //usage();
