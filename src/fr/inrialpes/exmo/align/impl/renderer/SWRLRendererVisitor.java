@@ -72,6 +72,7 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
 	if ( embedded == false )
 	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");
+	writer.println("                xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"");
 	writer.println("                xmlns:swrlx=\"http://www.w3.org/2003/11/swrlx#\"");
 	writer.println("                xmlns:owlx=\"http://www.w3.org/2003/05/owl-xml\"");
 	writer.println("                xmlns:ruleml=\"http://www.w3.org/2003/11/ruleml#\">");
