@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, 2007-2008 INRIA Rhône-Alpes
+ * Copyright (C) 2003-2005, 2007-2008 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -46,6 +47,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+import java.util.Arrays;
+import java.util.Formatter;
 
 import org.xml.sax.SAXException;
 
@@ -66,6 +69,7 @@ import gnu.getopt.Getopt;
     -o filename --output=filename
     -f format = seo (symetric/effort-based/oriented) --format=seo
     -d debug --debug=level
+    -r filename --reference=filename
     -s algo/measure
     -l list of compared algorithms
     -t output --type=output: xml/tex/html/ascii
@@ -91,13 +95,16 @@ public class ExtGroupEval {
 
     Parameters params = null;
     String filename = null;
+    String reference = "refalign.rdf";
     String format = "s";
     int fsize = 2;
     String type = "html";
+    boolean embedded = false;
     String dominant = "s";
     Vector<String> listAlgo = null;
     int debug = 0;
     String color = null;
+    String ontoDir = null;
 
     public static void main(String[] args) {
 	try { new ExtGroupEval().run( args ); }
@@ -106,7 +113,7 @@ public class ExtGroupEval {
 
     public void run(String[] args) throws Exception {
 	String listFile = "";
-	LongOpt[] longopts = new LongOpt[8];
+	LongOpt[] longopts = new LongOpt[10];
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -116,8 +123,10 @@ public class ExtGroupEval {
 	longopts[5] = new LongOpt("sup", LongOpt.REQUIRED_ARGUMENT, null, 's');
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
+	longopts[8] = new LongOpt("reference", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[9] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:c::", longopts);
+	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:w:c::", longopts);
 	int c;
 	String arg;
 
@@ -129,6 +138,10 @@ public class ExtGroupEval {
 	    case 'o' :
 		/* Write output here */
 		filename = g.getOptarg();
+		break;
+	    case 'r' :
+		/* File name for the reference alignment */
+		reference = g.getOptarg();
 		break;
 	    case 'f' :
 		/* Sequence of results to print */
@@ -157,6 +170,12 @@ public class ExtGroupEval {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'w' :
+		/* Use the given ontology directory */
+	    arg = g.getOptarg();
+	    if ( arg != null ) ontoDir = g.getOptarg();
+	    else ontoDir = null;
+		break;
 	    }
 	}
 
@@ -177,12 +196,17 @@ public class ExtGroupEval {
 	Vector<Object> result = null;
 	File [] subdir = null;
 	try {
-	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
+	    if (ontoDir == null) {
+		subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+	    } else {
+		subdir = (new File(ontoDir)).listFiles();
+	    }
 	} catch (Exception e) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
 	}
 	int size = subdir.length;
+        Arrays.sort(subdir);
 	result = new Vector<Object>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
@@ -209,15 +233,15 @@ public class ExtGroupEval {
 	// for all alignments there,
 	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
 	    // call eval
-	    // store the resul in a record
+	    // store the result in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+"refalign.rdf", prefix+e.nextElement()+".rdf");
+	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+e.nextElement()+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
-	//loaded.clear();
+	OntologyFactory.clear();
 
 	if ( ok == true ) return result;
 	else return null;
@@ -261,9 +285,8 @@ public class ExtGroupEval {
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
 	double correctVect[]; // correct so far
-	double hMeansPrec[]; // Precision H-means so far
-	double hMeansRec[]; // Recall H-means so far
 	PrintStream writer = null;
+
 	fsize = format.length();
 	try {
 	    // Print result
@@ -272,6 +295,7 @@ public class ExtGroupEval {
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
+	    Formatter formatter = new Formatter(writer);
 	    // Print the header
 	    writer.println("<html><head></head><body>");
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
@@ -290,35 +314,28 @@ public class ExtGroupEval {
 	    // for each algo <td>Prec.</td><td>Rec.</td>
 	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
 		for ( int i = 0; i < fsize; i++){
-		    writer.print("<td>");
 		    if ( format.charAt(i) == 's' ) {
-			writer.print("Symmetric</td><td>");
+			writer.println("<td colspan='2'>Symmetric</td>");
 		    } else if ( format.charAt(i) == 'e' ) {
-			writer.print("Effort</td><td>");
+			writer.println("<td colspan='2'>Effort</td>");
 		    } else if ( format.charAt(i) == 'o' ) {
-			writer.print("Oriente</td><td>");
+			writer.println("<td colspan='2'>Oriente</td>");
 		    }
-		    writer.println("</td>");
 		}
 		//writer.println("<td>Prec.</td><td>Rec.</td>");
 	    }
 	    writer.println("</tr></tbody><tbody>");
 	    foundVect = new int[ listAlgo.size() ];
 	    correctVect = new double[ listAlgo.size() ];
-	    hMeansPrec = new double[ listAlgo.size() ];
-	    hMeansRec = new double[ listAlgo.size() ];
 	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
 		foundVect[k] = 0;
-		correctVect[k] = 0;
-		hMeansPrec[k] = 1.;
-		hMeansRec[k] = 1.;
+		correctVect[k] = 0.;
 	    }
 	    // </tr>
 	    // For each directory <tr>
 	    boolean colored = false;
 	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
 		int nexpected = -1;
-		int oexpected = 0;
 		Vector test = (Vector)e.nextElement();
 		if ( colored == true && color != null ){
 		    colored = false;
@@ -338,38 +355,29 @@ public class ExtGroupEval {
 			// iterative H-means computation
 			if ( nexpected == -1 ){
 			    nexpected = eval.getExpected();
-			    oexpected = expected;
-			    expected = oexpected + nexpected;
+			    expected += nexpected;
 			}
 			// JE: Until the end of "//" for NEWSET
 			// If foundVect is -1 then results are invalid
-			if ( foundVect[k] != -1 )
-			    foundVect[k] += eval.getFound();
-			//int nfound = eval.getFound();
-			//int ofound = foundVect[k];
-			//foundVect[k] = ofound + nfound;
-			//double ncorrect = eval.getSymSimilarity();
-			//double ocorrect = correctVect[k];
-			//correctVect[k] = ocorrect + ncorrect;
-
+			if ( foundVect[k] != -1 ) foundVect[k] += eval.getFound();
 			for ( int i = 0 ; i < fsize; i++){
 			    writer.print("<td>");
 			    if ( format.charAt(i) == 's' ) {
-				printFormat(writer,eval.getSymPrecision());
+				formatter.format("%1.2f", eval.getSymPrecision());
 				System.out.print("</td><td>");
-				printFormat(writer,eval.getSymRecall());
+				formatter.format("%1.2f", eval.getSymRecall());
 				// JE: Until the end of "//" for NEWSET
 				correctVect[k] += eval.getFound() * eval.getSymPrecision();
 			    } else if ( format.charAt(i) == 'e' ) {
-				printFormat(writer,eval.getEffPrecision());
+				formatter.format("%1.2f", eval.getEffPrecision());
 				System.out.print("</td><td>");
-				printFormat(writer,eval.getEffRecall());
+				formatter.format("%1.2f", eval.getEffRecall());
 				// JE: Until the end of "//" for NEWSET
 				correctVect[k] += eval.getFound() * eval.getEffPrecision();
 			    } else if ( format.charAt(i) == 'o' ) {
-				printFormat(writer,eval.getOrientPrecision());
+				formatter.format("%1.2f", eval.getOrientPrecision());
 				System.out.print("</td><td>");
-				printFormat(writer,eval.getOrientRecall());
+				formatter.format("%1.2f", eval.getOrientRecall());
 				// JE: Until the end of "//" for NEWSET
 				correctVect[k] += eval.getFound() * eval.getOrientPrecision();
 			    }
@@ -377,7 +385,7 @@ public class ExtGroupEval {
 			}
 		    } else {
 			writer.println("<td>n/a</td><td>n/a</td>");
-			foundVect[k] = -1;
+			//foundVect[k] = -1;
 		    }
 		}
 		writer.println("</tr>");
@@ -389,22 +397,11 @@ public class ExtGroupEval {
 		if ( foundVect[k] != -1 ){
 		    double precision = (double)correctVect[k]/foundVect[k];
 		    double recall = (double)correctVect[k]/expected;
-		    // JE: 7/10/2007: this is ridiculous
 		    //for ( int i = 0 ; i < fsize; i++){
 			writer.print("<td>");
-			//if ( format.charAt(i) == 's' ) {
-			printFormat(writer,precision);
+			formatter.format("%1.2f", precision);
 			System.out.print("</td><td>");
-			printFormat(writer,recall);
-			//} else if ( format.charAt(i) == 'o' ) {
-			//printFormat(writer,precision);
-			//System.out.print("</td><td>");
-			//printFormat(writer,recall);
-			//} else if ( format.charAt(i) == 'e' ) {
-			//printFormat(writer,precision);
-			//System.out.print("</td><td>");
-			//printFormat(writer,recall);
-			//}
+			formatter.format("%1.2f", recall);
 			writer.println("</td>");
 		} else {
 		    writer.println("<td colspan='2'><center>Error</center></td>");
@@ -420,32 +417,16 @@ public class ExtGroupEval {
 	} catch (Exception ex) {  ex.printStackTrace(); }
     }
 
-    // Borrowed and enhanced from
-    // http://acm.sus.mcgill.ca/20020323/work/acm-19/B.j
-    // What a pity that it is not in Java... (wait for 1.5)
-    public void printFormat(PrintStream w, double f){
-	// JE: Must add the test is the value is Not a number, print NaN.
-	if ( f != f ) {
-	    w.print("NaN");
-	} else {
-	    int tmp = (int)(f*100);
-	    int dec = tmp%100;
-	    if( (int)(f*1000)%10 >= 5 ) dec++;
-	    tmp /= 100;
-	    w.print("" + tmp + ".");
-	    if(dec < 10) w.print("0");
-	    w.print("" + dec);
-	}
-    }
-
     public void usage() {
 	System.out.println("usage: ExtGroupEval [options]");
 	System.out.println("options are:");
 	System.out.println("\t--format=seo -r seo\tSpecifies the extended measure used (symetric/effort-based/oriented)");
+	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.println(" ($Id$)\n");
     }
 }
