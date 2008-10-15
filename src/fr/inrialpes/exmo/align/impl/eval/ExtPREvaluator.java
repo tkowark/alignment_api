@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2008
+ * Copyright (C) INRIA, 2004-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,6 +29,7 @@ import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -57,12 +58,12 @@ public class ExtPREvaluator extends BasicEvaluator {
     //private double editBETA = .6;
     //private double oriented = .5;
 
-    private double symprec = 0.;
-    private double symrec = 0.;
-    private double effprec = 0.;
-    private double effrec = 0.;
-    private double orientprec = 0.;
-    private double orientrec = 0.;
+    private double symprec = 1.;
+    private double symrec = 1.;
+    private double effprec = 1.;
+    private double effrec = 1.;
+    private double orientprec = 1.;
+    private double orientrec = 1.;
 
     private int nbexpected = 0;
     private int nbfound = 0;
@@ -77,15 +78,15 @@ public class ExtPREvaluator extends BasicEvaluator {
     }
 
     public double getSymPrecision() { return symprec; }
-    public double getSymRecall() {	return symrec; }
+    public double getSymRecall() { return symrec; }
     public double getSymSimilarity() { return symsimilarity; }
 
     public double getEffPrecision() { return effprec; }
-    public double getEffRecall() {	return effrec; }
+    public double getEffRecall() { return effrec; }
     public double getEffSimilarity() { return effsimilarity; }
 
     public double getOrientPrecision() { return orientprec; }
-    public double getOrientRecall() {	return orientrec; }
+    public double getOrientRecall() { return orientrec; }
     public double getOrientSimilarity() { return orientsimilarity; }
 
     public int getExpected() { return nbexpected; }
@@ -142,14 +143,14 @@ public class ExtPREvaluator extends BasicEvaluator {
 	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
 	// precision+recall is 0 [= nbcorrect is 0]
 	// precision is 0 [= nbcorrect is 0]
-	symprec = symsimilarity / (double) nbfound;
-	symrec = symsimilarity / (double) nbexpected;
+	if ( nbfound != 0 ) symprec = symsimilarity / (double) nbfound;
+	if ( nbexpected != 0 ) symrec = symsimilarity / (double) nbexpected;
 	effsimilarity = symsimilarity;
-	effprec = effsimilarity / (double) nbfound;
-	effrec = effsimilarity / (double) nbexpected;
+	if ( nbfound != 0 ) effprec = effsimilarity / (double) nbfound;
+	if ( nbexpected != 0 ) effrec = effsimilarity / (double) nbexpected;
 	orientsimilarity = symsimilarity;
-	orientprec = orientsimilarity / (double) nbfound;
-	orientrec = orientsimilarity / (double) nbexpected;
+	if ( nbfound != 0 ) orientprec = orientsimilarity / (double) nbfound;
+	if ( nbexpected != 0 ) orientrec = orientsimilarity / (double) nbexpected;
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
 	return (result);
     }
@@ -195,7 +196,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     }
 
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	return ontology.getSuperProperties( prop2, true, true, true ).contains( prop1 );
+	return ontology.getSuperProperties( prop2, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
     }
 
 
@@ -218,7 +219,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	URI uri1 = ontology.getEntityURI( class1 );
 	Set<Object> bufferedSuperClasses = null;
-	Set<Object> superclasses = ontology.getSuperClasses( class1, true, true, true );
+	Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 	int level = 0;
 
 	while ( !superclasses.isEmpty() ){
@@ -232,9 +233,7 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    if ( uri1.toString().equals(uri2.toString()) ) {
 			return level;
 		    } else {
-			// [W:unchecked] due to OWL API not serving generic types
-			//superclasses.addAll(((OWLClass)entity).getSuperClasses( ontology )); // [W:unchecked]
-			superclasses.addAll( ontology.getSuperClasses( entity, true, true, true ) );
+			superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY ) );
 		    }
 		}
 	    }

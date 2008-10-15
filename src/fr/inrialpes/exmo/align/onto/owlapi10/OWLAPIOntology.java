@@ -41,11 +41,13 @@ import java.util.HashSet;
 
 import org.semanticweb.owl.align.AlignmentException;
 
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
 import fr.inrialpes.exmo.align.onto.BasicOntology;
 
 import org.semanticweb.owl.io.vocabulary.RDFSVocabularyAdapter;
 import org.semanticweb.owl.model.OWLAnnotationInstance;
+import org.semanticweb.owl.model.OWLDataType;
 import org.semanticweb.owl.model.OWLDataValue;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLProperty;
@@ -63,19 +65,20 @@ import org.semanticweb.owl.model.OWLObjectAllRestriction;
 import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.helper.OWLEntityCollector;
 
-/*
- * JE: BEWARE, THIS HAS NOT BEEN FULLY IMPLEMENTED SO FAR!!!!
- * TO BE CHECKED
- * getEntities() and getProperties() ARE INCORRECT
- * nbXxxx() ARE INNEFICIENT
- */
-
 /**
  * Store the information regarding ontologies in a specific structure
  * Acts as an interface with regard to an ontology APY
  */
 
-public class OWLAPIOntology extends BasicOntology<OWLOntology> implements LoadedOntology<OWLOntology> {
+public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyLoadedOntology<OWLOntology> {
+
+    /* For caching sizes */
+    private int nbentities = -1;
+    private int nbclasses = -1;
+    private int nbproperties = -1;
+    private int nbobjectproperties = -1;
+    private int nbdataproperties = -1;
+    private int nbindividuals = -1;
 
     public OWLAPIOntology() {
 	setFormalism( "OWL1.0" );
@@ -84,12 +87,16 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	} catch (Exception e) {}; // does not happen
     };
 
-    // Ontology interface
+    // -----------------------------------------------------------------
+    // Ontology interface [//DONE]
+
     public OWLOntology getOntology() { return onto; }
 
     public void setOntology( OWLOntology o ) { this.onto = o; }
 
-    // LoadedOntology interface
+    // -----------------------------------------------------------------
+    // LoadedOntology interface [//DONE]
+
     public Object getEntity( URI uri ) throws AlignmentException {
 	try {
 	    OWLEntity result = ((OWLOntology)onto).getClass( uri );
@@ -115,6 +122,42 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	    URI u = ((OWLEntity)o).getURI();
 	    if ( u != null ) return u.getFragment();
 	    else return "";
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+    public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getLabel());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    }
+    public Set<String> getEntityNames( Object o ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getLabel());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+
+    public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getComment());
+	} catch (OWLException oex) {
+	    return null;
+	}
+    };
+
+    public Set<String> getEntityComments( Object o ) throws AlignmentException {
+	try {
+	    OWLEntity e = ((OWLEntity) o);
+	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getComment());
 	} catch (OWLException oex) {
 	    return null;
 	}
@@ -158,42 +201,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	return annots;*/
     }
 
-    public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException {
-	try {
-	    OWLEntity e = ((OWLEntity) o);
-	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getLabel());
-	} catch (OWLException oex) {
-	    return null;
-	}
-    }
-    public Set<String> getEntityNames( Object o ) throws AlignmentException {
-	try {
-	    OWLEntity e = ((OWLEntity) o);
-	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getLabel());
-	} catch (OWLException oex) {
-	    return null;
-	}
-    };
-
-
-    public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException {
-	try {
-	    OWLEntity e = ((OWLEntity) o);
-	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getComment());
-	} catch (OWLException oex) {
-	    return null;
-	}
-    };
-
-    public Set<String> getEntityComments( Object o ) throws AlignmentException {
-	try {
-	    OWLEntity e = ((OWLEntity) o);
-	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getComment());
-	} catch (OWLException oex) {
-	    return null;
-	}
-    };
-
     public Set<String> getEntityAnnotations( Object o ) throws AlignmentException {
 	try {
 	    return getAnnotations(((OWLEntity) o),null,null);
@@ -203,31 +210,28 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
     };
 
     public boolean isEntity( Object o ){
-	if ( o instanceof OWLEntity ) return true;
-	else return false;
+	return ( o instanceof OWLEntity );
     };
     public boolean isClass( Object o ){
-	if ( o instanceof OWLClass ) return true;
-	else return false;
+	return ( o instanceof OWLClass );
     };
     public boolean isProperty( Object o ){
-	if ( o instanceof OWLProperty ) return true;
-	else return false;
+	return ( o instanceof OWLProperty );
     };
     public boolean isDataProperty( Object o ){
-	if ( o instanceof OWLDataProperty ) return true;
-	else return false;
+	return ( o instanceof OWLDataProperty );
     };
     public boolean isObjectProperty( Object o ){
-	if ( o instanceof OWLObjectProperty ) return true;
-	else return false;
+	return ( o instanceof OWLObjectProperty );
     };
     public boolean isIndividual( Object o ){
-	if ( o instanceof OWLIndividual ) return true;
-	else return false;
+	return ( o instanceof OWLIndividual );
     };
 
+    // ***JE:
+    // We should solve this issue, is it better to go this way or tu use the OWL API?
     // JD: allows to retrieve some specific entities by giving their class
+    // This is not part of the interface...
     protected Set<?> getEntities(Class<? extends OWLEntity> c) throws OWLException{
         OWLEntityCollector ec = new OWLEntityCollector();
     	onto.accept(ec);
@@ -269,50 +273,25 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
-    public Set<Object> getAssertedProperties( Object cl ) {
-	Set<Object> prop = new HashSet<Object>();
-	try {
-	    for ( Object ent : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
-		// Not correct
-		if ( ent instanceof OWLRestriction ) prop.add( ent );
-	    }
-	} catch (OWLException ex) {
-	};
-	return prop;
-    }
-
-
-
-    public Set<Object> getAssertedObjectProperties( Object cl ){
-	return null;
-    }
-
-    public Set<Object> getAssertedDataProperties( Object cl ){
-	return null;
-    }
-
-    // The only point is if I should return OWLProperties or names...
-    // I guess that I will return names (ns+name) because otherwise I will need a full
-    // Abstract ontology interface and this is not the rule...
-    public Set<?> getObjectProperties() {
-	try {
-	    // [Warning:unchecked] due to OWL API not serving generic types
-	    // This first method returns also Properties not defined in the Onto
-	    // i.e. properties having an namespace different from the ontology uri
-	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
-	    // This method works better
-	    //return getEntities(OWLObjectProperty.class);
-	} catch (OWLException ex) {
-	    return null;
-	}
-    }
-
     public Set<?> getDataProperties() {
 	try {
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
 	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
 	    //return getEntities(OWLDataProperty.class);
+	} catch (OWLException ex) {
+	    return null;
+	}
+    }
+
+    public Set<?> getObjectProperties() {
+	try {
+	    // [Warning:unchecked] due to OWL API not serving generic types
+	    // This first method returns also Properties not defined in the Onto
+	    // i.e. properties having an namespace different from the ontology uri
+	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	    // This method works better (??)
+	    //return getEntities(OWLObjectProperty.class);
 	} catch (OWLException ex) {
 	    return null;
 	}
@@ -327,168 +306,213 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	}
     }
 
-    /*
-    private Set<Object> getEntities( Class<? extends OWLEntity> c ){
-	OWLEntityCollector ec = new OWLEntityCollector();
-	try {
-	    getOntology().accept(ec);
-	    Set<Object> entities = new HashSet<Object>();
-	    for (Object obj : ec.entities()) {
-		if (c.isInstance(obj) && (((OWLEntity) obj).getURI() != null) &&
-		    ((OWLEntity) obj).getURI().getSchemeSpecificPart().equals(ont.getURI().getSchemeSpecificPart())){
-		    //System.out.println(((OWLEntity) obj).getURI().getSchemeSpecificPart()+" - "+ont.getURI().getSchemeSpecificPart());
-		    //System.out.println(((OWLEntity) obj).getURI()+" : "+ont.getOntology().contains(obj));
-		    entities.add(new OWLAPIEntity((OWLEntity)obj, ont, ((OWLEntity)obj).getURI() ));
-		}
-	    }
-	    return entities;
-	} catch (OWLException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	return null;
-    }
-    */
-    /*
-    private void addAnnotations(OWLAPIEntity ent) {
-	for (String[] a : getAnnotations(ent.getObject(),(OWLOntology)ent.getOntology().getOntology())) {
-	    ent.getAnnotations().add(a[0]);
-	    if (a[1]!=null) {
-		ent.getLangToAnnot(EntityAdapter.LANGUAGES.valueOf(a[1])).add(a[0]);
-	    }
-	    if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getComment())) {
-		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
-	    }
-	    else if (a[2].equals(RDFSVocabularyAdapter.INSTANCE.getLabel())) {
-		ent.getTypeToAnnot(EntityAdapter.TYPE.comment).add(a[0]);
-	    }
-	}
-    }
-    */
-    /*
-	private Set<String[]> getAnnotations(OWLEntity e, OWLOntology o)  {
-		Set<String[]> res = new HashSet<String[]>();
-		Set annots;
-		try {
-			annots = e.getAnnotations(o);
-			for (Object annot : annots) {
-				OWLAnnotationInstance annInst = ((OWLAnnotationInstance) annot);
-				String val;
-				String lang=null;
-				String annotUri = annInst.getProperty().getURI().toString();
-				if ( annInst.getContent() instanceof OWLDataValue ) {
-				    OWLDataValue odv = (OWLDataValue) annInst.getContent();
-				    val = odv.toString();
-				    lang = odv.getLang();
-				}
-				else
-					val= (String) annInst.getContent();
-				res.add(new String[]{val,lang,annotUri});
-			}
-		}
-		catch (OWLException oe) {
-			oe.printStackTrace();
-		}
-		return Collections.unmodifiableSet(res);
-	}
-    */
-
-    // JE: particularly inefficient
     public int nbClasses() {
+	if ( nbclasses != -1 ) return nbclasses;
 	try {
-	    return ((OWLOntology)onto).getClasses().size();
+	    nbclasses = ((OWLOntology)onto).getClasses().size();
+	    return nbclasses;
 	} catch (OWLException oex) {
 	    return 0;
 	}
     }
 
     public int nbProperties() {
-	return nbObjectProperties()+nbDataProperties();
+	if ( nbproperties != -1 ) return nbproperties;
+	nbproperties = nbObjectProperties()+nbDataProperties();
+	return nbproperties;
     }
 
     public int nbObjectProperties() {
+	if ( nbobjectproperties != -1 ) return nbobjectproperties;
 	try {
-	    return ((OWLOntology)onto).getObjectProperties().size();
+	    nbobjectproperties = ((OWLOntology)onto).getObjectProperties().size();
+	    return nbobjectproperties;
 	} catch (OWLException oex) {
 	    return 0;
 	}
     }
 
     public int nbDataProperties() {
+	if ( nbdataproperties != -1 ) return nbdataproperties;
 	try {
-	    return ((OWLOntology)onto).getDataProperties().size();
+	    nbdataproperties = ((OWLOntology)onto).getDataProperties().size();
+	    return nbdataproperties;
 	} catch (OWLException oex) {
 	    return 0;
 	}
     }
 
     public int nbInstances() {
+	if ( nbindividuals != -1 ) return nbindividuals;
 	try {
-	    return ((OWLOntology)onto).getIndividuals().size();
+	    nbindividuals = ((OWLOntology)onto).getIndividuals().size();
+	    return nbindividuals;
 	} catch (OWLException oex) {
 	    return 0;
 	}
     }
 
-    /* HeavyLoadedOntology specifics */
-
-    public Set<?> getProperties( OWLDescription desc ) {
-	Set<Object> list = new HashSet<Object>();
+    public void unload() {
 	try {
-	    if ( desc instanceof OWLRestriction ){
-		list.add( ((OWLRestriction)desc).getProperty() );
-	    } else if ( desc instanceof OWLClass ) {
-		// JE: I suspect that this can be a cause for looping!!
-		for ( Object cl : ((OWLClass)desc).getEquivalentClasses((OWLOntology)onto) ){
-		    // JE: strange casting
-		    Set<?> res = getProperties( (OWLDescription)cl );
-		    if ( res != null ) list.add( res );
-		}
-	    } else if ( desc instanceof OWLNaryBooleanDescription ) {
-		for ( Object d : ((OWLNaryBooleanDescription)desc).getOperands() ){
-		    // JE: strange casting
-		    Set<?> res = getProperties( (OWLDescription)d );
-		    if ( res != null ) list.add( res );
-		}
-	    }
-	} catch (OWLException e) { e.printStackTrace();	}
-	return list;
+	    ((OWLOntology)onto).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)onto) );
+	} catch (OWLException ex) { System.err.println(ex); };
     }
 
-    // NamedAssertedSuperClasses
-    public Set<Object> getAssertedSuperClasses( Object cl ){
-	Set<Object> spcl = new HashSet<Object>();
-	try {
-	    for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
-		if (rest instanceof OWLClass) spcl.add( rest );
-	    }
-	} catch (OWLException ex) {
-	};
-	return spcl;
+    // -----------------------------------------------------------------
+    // HeavyLoadedOntology interface [//TOCHECK]
+
+    // [//TODO]
+    public boolean getCapabilities( int Direct, int Asserted, int Named ){
+	return true;
     }
-    // NamedSuperClasses
-    public Set<Object> getSuperClasses( Object cl ){
+
+    // Pretty inefficient but nothing seems to be stored
+    public Set<Object> getSubClasses( Object cl, int local, int asserted, int named ){
+	Set<Object> sbcl = new HashSet<Object>();
+	for( Object c : getClasses() ) {
+	    if ( getSuperClasses( (OWLClass)c, local, asserted, named ).contains( cl ) ) sbcl.add( c );
+	}
+	return sbcl;
+    }
+    public Set<Object> getSuperClasses( Object cl, int local, int asserted, int named ){
 	Set<Object> spcl = new HashSet<Object>();
-	try {
-	    // traversing
-	    Set<Object> sup = new HashSet<Object>();
-	    for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
-		if (rest instanceof OWLClass) {
-		    spcl.add( rest );
-		    sup.add( rest );
+	if ( asserted == OntologyFactory.ASSERTED ){
+	    try {
+		for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		    if (rest instanceof OWLClass) spcl.add( rest );
 		}
+	    } catch (OWLException ex) {
 	    }
-	} catch (OWLException ex) {
-	};
+	} else {
+	    try {
+		// JE: I do not feel that this is really correct
+		Set<Object> sup = new HashSet<Object>();
+		for( Object rest : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		    if (rest instanceof OWLClass) {
+			spcl.add( rest );
+			sup.add( rest );
+		    }
+		}
+	    } catch (OWLException ex) {
+	    };
+	}
 	return spcl;
     }
 
-    /*    public Set<Object> getSubClasses( Object cl ){
-	// This will return n array and not a set...
-	return ((OWLClass)cl).getSuperClasses( getOntology() );
-	}*/
-    //OWLRestriction.getProperty()
-    //OWLNaryBooleanDescription.getOperand()
+    /*
+     * In the OWL API, there is no properties: there are SuperClasses which are restrictions
+     */
+    public Set<Object> getProperties( Object cl, int local, int asserted, int named ){
+	Set<Object> prop = new HashSet<Object>();
+	if ( asserted == OntologyFactory.ASSERTED && local == OntologyFactory.LOCAL ) {
+	    try {
+		for ( Object ent : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
+		    if ( ent instanceof OWLRestriction ) 
+			prop.add( ((OWLRestriction)cl).getProperty() );
+		}
+	    } catch (OWLException e) { e.printStackTrace(); }
+	} else {
+	    prop = getInheritedProperties( (OWLClass)cl );
+	}
+	return prop;
+    }
+    // Not very efficient: 2n instead of n
+    public Set<Object> getDataProperties( Object c, int local, int asserted, int named ){
+	Set<Object> props = new HashSet<Object>();
+	for ( Object p : getProperties( c, local, asserted, named )  ){
+	    if ( p instanceof OWLDataProperty ) props.add( p );
+	}
+	return props;
+    }
+    // Not very efficient: 2n instead of n
+    public Set<Object> getObjectProperties( Object c, int local, int asserted, int named ){
+	Set<Object> props = new HashSet<Object>();
+	for ( Object p : getProperties( c, local, asserted, named )  ){
+	    if ( p instanceof OWLObjectProperty ) props.add( p );
+	}
+	return props;
+    }
+    // Pretty inefficient but nothing seems to be stored
+    public Set<Object> getInstances( Object cl, int local, int asserted, int named  ){
+	Set<Object> sbcl = new HashSet<Object>();
+	try {
+	    for( Object i : getIndividuals() ) {
+		//if ( getClasses( (OWLIndividual)i, local, asserted, named ).contains( cl ) ) sbcl.add( i );
+		if ( ((OWLIndividual)i).getTypes( getOntology() ).contains( cl ) ) sbcl.add( i );
+	    }
+	} catch (OWLException ex) {};
+	return sbcl;
+    }
+    // Pretty inefficient but nothing seems to be stored
+    public Set<Object> getSubProperties( Object pr, int local, int asserted, int named ){
+	Set<Object> sbpr = new HashSet<Object>();
+	for( Object p : getProperties() ) {
+	    if ( getSuperProperties( (OWLProperty)p, local, asserted, named ).contains( pr ) ) sbpr.add( p );
+	}
+	return sbpr;
+    }
+    public Set<Object> getSuperProperties( Object pr, int local, int asserted, int named ){
+	Set<Object> supers = new HashSet<Object>();
+	if ( asserted == OntologyFactory.ASSERTED ){
+	    try {
+		for( Object rest : ((OWLProperty)pr).getSuperProperties( getOntology() ) ){
+		    if (rest instanceof OWLProperty) supers.add( rest );
+		}
+	    } catch (OWLException ex) {
+	    }
+	} else {
+	    try {
+		Set<Object> sup = new HashSet<Object>();
+		for( Object rest : ((OWLProperty)pr).getSuperProperties( getOntology() ) ){
+		    if (rest instanceof OWLProperty) {
+			sup.add( rest );
+			supers.add( rest );
+		    }
+		}
+	    } catch (OWLException ex) {
+	    };
+	}
+	return supers;
+    }
+    public Set<Object> getRange( Object p, boolean asserted ){
+	Set resultSet = new HashSet(); 
+	try {
+	    for ( Object ent : ((OWLProperty)p).getRanges( getOntology() ) ){
+		// Not correct
+		// Could be something else than class
+		if ( ent instanceof OWLClass || ent instanceof OWLDataType ) {
+		    resultSet.add( ent );
+		}
+	    }
+	} catch (OWLException ex) {};
+	return resultSet;
+    }
+    public Set<Object> getDomain( Object p, boolean asserted ){
+	Set resultSet = new HashSet(); 
+	try {
+	    for ( Object ent : ((OWLProperty)p).getDomains( getOntology() ) ){
+		// Not correct
+		// Could be something else than class
+		if ( ent instanceof OWLClass ) {
+		    resultSet.add( ent );
+		}
+	    }
+	} catch (OWLException ex) {};
+	return resultSet;
+    }
+    public Set<Object> getClasses( Object i, int local, int asserted, int named ){
+	Set<Object> supers = null;
+	try {
+	    supers = ((OWLIndividual)i).getTypes( getOntology() );
+	} catch (OWLException ex) {};
+	if ( local == OntologyFactory.LOCAL ) {
+	    return supers; 
+	} else {
+	    // inherits the superclasses (unless we have to reduce them...)
+	    return supers;
+	}
+    }
+
     // JE: note this may be wrong if p is a property
     public Set<Object> getCardinalityRestrictions( Object p ){//JFDK
 	Set<Object> spcl = new HashSet<Object>();
@@ -503,6 +527,17 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	return spcl;
     }
 
+    /*
+     * Inherits all properties of a class
+     */
+    private Set<Object> getInheritedProperties( OWLClass cl ) {
+	Set resultSet = new HashSet(); 
+	try { getProperties( cl, resultSet ); }
+	catch (OWLException ex) {};
+	return resultSet;
+    }
+
+    /* This traverse properties */
     public void getProperties( OWLDescription desc, Set<Object> list) throws OWLException {
 	if ( desc instanceof OWLRestriction ){
 	    //getProperties( (OWLRestriction)desc, list );
@@ -532,20 +567,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements Loaded
 	for ( Object desc : cl.getEquivalentClasses( getOntology() ) ){
 	    getProperties( (OWLDescription)desc, list );
 	}
-    }
-
-    private Set<Object> getProperties( OWLClass cl ) {
-	Set resultSet = new HashSet(); 
-	try { getProperties( cl, resultSet ); }
-	catch (OWLException ex) {};
-	return resultSet;
-    }
-
-
-    public void unload() {
-	try {
-	    ((OWLOntology)onto).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)onto) );
-	} catch (OWLException ex) { System.err.println(ex); };
     }
 
 }

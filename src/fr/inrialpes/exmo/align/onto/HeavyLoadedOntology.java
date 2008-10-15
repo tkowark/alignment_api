@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,21 +33,24 @@ import org.semanticweb.owl.align.AlignmentException;
  */
 public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
 
+    /* Capability methods */
+    public boolean getCapabilities( int Direct, int Asserted, int Named );
+
     /* Class methods */
-    public Set<Object> getSubClasses( Object c, boolean local, boolean asserted, boolean named );
-    public Set<Object> getSuperClasses( Object c, boolean local, boolean asserted, boolean named );
-    public Set<Object> getProperties( Object c, boolean local, boolean asserted, boolean named );
-    public Set<Object> getDataProperties( Object c, boolean local, boolean asserted, boolean named );
-    public Set<Object> getObjectProperties( Object c, boolean local, boolean asserted, boolean named );
-    public Set<Object> getInstances( Object c, boolean local, boolean asserted, boolean named  );
+    public Set<Object> getSubClasses( Object c, int local, int asserted, int named );
+    public Set<Object> getSuperClasses( Object c, int local, int asserted, int named );
+    public Set<Object> getProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getDataProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getObjectProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getInstances( Object c, int local, int asserted, int named  );
 
     /* Property methods */
-    public Set<Object> getSubProperties( Object p, boolean local, boolean asserted, boolean named );
-    public Set<Object> getSuperProperties( Object p, boolean local, boolean asserted, boolean named );
+    public Set<Object> getSubProperties( Object p, int local, int asserted, int named );
+    public Set<Object> getSuperProperties( Object p, int local, int asserted, int named );
     public Set<Object> getRange( Object p, boolean asserted );
     public Set<Object> getDomain( Object p, boolean asserted );
 
     /* Individual methods */
-    public Set<Object> getClasses( Object i, boolean local, boolean asserted, boolean named );
+    public Set<Object> getClasses( Object i, int local, int asserted, int named );
 
 }
