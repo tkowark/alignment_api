@@ -41,7 +41,6 @@ import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.util.NullStream;
 
