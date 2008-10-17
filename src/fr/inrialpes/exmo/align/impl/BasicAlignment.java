@@ -475,8 +475,32 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
-    // JE: BEWARE, THESE METHODS RETURNS BASIC-ALIGNMENTS! ONCE IMPLEMENTED
-    // THEY MAY BENEFIT AT BEING OVERRIDDEN WHICH THEY ARE NOT
+    /*
+     * This method is used by the algebraic operators
+     * It has to be overriden by implementations.
+     */
+    public BasicAlignment createNewAlignment( Object onto1, Object onto2 ) throws AlignmentException {
+	BasicAlignment align = new BasicAlignment();
+	align.init( onto1, onto2 );
+	return align;
+    }
+
+   /**
+     * The second alignment is meet with the first one meaning that for
+     * any pair (o, o', n, r) in O and (o, o', n', r) in O' the resulting
+     * alignment will contain:
+     * ( o, o', meet(n,n'), r)
+     * any pair which is in only one alignment is preserved.
+     */
+    public Alignment diff(Alignment align) throws AlignmentException {
+	BasicAlignment result = createNewAlignment( getOntology1(), getOntology2() );
+	// Check that alignments are compatible
+	// - same type
+	// - same ontologies
+	// Add all the items that are not found
+	return result;
+    }
+
    /**
      * The second alignment is meet with the first one meaning that for
      * any pair (o, o', n, r) in O and (o, o', n', r) in O' the resulting
@@ -485,8 +509,7 @@ public class BasicAlignment implements Alignment {
      * any pair which is in only one alignment is preserved.
      */
     public Alignment meet(Alignment align) throws AlignmentException {
-	BasicAlignment result = new BasicAlignment();
-	result.init(onto1,onto2);
+	Alignment result = createNewAlignment( getOntology1(), getOntology2() );
 	return result;
     }
 
@@ -498,8 +521,7 @@ public class BasicAlignment implements Alignment {
      * any pair which is in only one alignment is discarded.
      */
     public Alignment join(Alignment align) throws AlignmentException {
-	BasicAlignment result = new BasicAlignment();
-	result.init(onto1,onto2);
+	BasicAlignment result = createNewAlignment( getOntology1(), getOntology2() );
 	return result;
     }
 
@@ -510,8 +532,7 @@ public class BasicAlignment implements Alignment {
      * ( o, o", join(n,n'), compose(r, r')) iff compose(r,r') exists.
      */
     public Alignment compose(Alignment align) throws AlignmentException {
-	BasicAlignment result = new BasicAlignment();
-	result.init(onto1,((BasicAlignment) align).getOntologyObject2());
+	BasicAlignment result = createNewAlignment( getOntology1(), ((BasicAlignment)align).getOntologyObject2() );
 	// TODO type and level
 	// TODO extension
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
@@ -521,7 +542,7 @@ public class BasicAlignment implements Alignment {
 			for (Cell c2 : cells2) {
 				Cell newCell = c1.compose(c2);
 				if (newCell != null) {
-					result.addCell(newCell);
+				    result.addCell(newCell);
 				}
 			}
 		}
@@ -536,8 +557,7 @@ public class BasicAlignment implements Alignment {
      */
 
     public Alignment inverse() throws AlignmentException {
-	BasicAlignment result = new BasicAlignment();
-	result.init( onto2, onto1 ); //getOntology1(), getOntology2()??
+	BasicAlignment result = createNewAlignment( getOntology2(),  getOntology1() );
 	result.setFile1( getFile2() );
 	result.setFile2( getFile1() );
 	// We must inverse getType
@@ -585,11 +605,10 @@ public class BasicAlignment implements Alignment {
      * It has the same content but a different id (no id indeed)
      */
     public Object clone() {
-	BasicAlignment align = new BasicAlignment();
+	BasicAlignment align;
 	try {
-	    align.init( getOntology1(), getOntology2() );
-	    // This method is never launched by the present class
-	} catch ( AlignmentException e ) {};
+	    align = createNewAlignment( onto1, onto2 );
+	} catch (AlignmentException ae) { ae.printStackTrace(); return null; }
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
@@ -602,7 +621,7 @@ public class BasicAlignment implements Alignment {
 	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
 	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
 	}
-	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#clone" );
+	align.setExtension( Annotations.ALIGNNS, "method", this.getClass().getName()+"#clone" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );

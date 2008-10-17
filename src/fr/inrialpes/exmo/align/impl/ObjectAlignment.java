@@ -98,31 +98,9 @@ public class ObjectAlignment extends BasicAlignment {
     /**
      * Generate a copy of this alignment object
      */
-    // JE: this is a mere copy of the method in BasicAlignement
-    // It has two difficulties
-    // - it should call the current init() and not that of BasicAlignement
-    // - it should catch the AlignmentException that it is supposed to raise
-    public Object clone() {
+    public ObjectAlignment createNewAlignment( Object onto1, Object onto2 ) throws AlignmentException {
 	ObjectAlignment align = new ObjectAlignment();
-	try {
-	    align.init( onto1, onto2 );
-	} catch ( AlignmentException e ) {};
-	align.setType( getType() );
-	align.setLevel( getLevel() );
-	align.setFile1( getFile1() );
-	align.setFile2( getFile2() );
-	for ( Object ext : ((BasicParameters)extensions).getValues() ){
-	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
-	}
-	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/ObjectAlignment#clone" );
-	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
-	if ( oldid != null && !oldid.equals("") ) {
-	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
-	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
-	}
-	try {
-	    align.ingest( this );
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	align.init( onto1, onto2 );
 	return align;
     }
 

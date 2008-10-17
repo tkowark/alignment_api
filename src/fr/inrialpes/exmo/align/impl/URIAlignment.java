@@ -160,30 +160,9 @@ public class URIAlignment extends BasicAlignment {
 	return this;
     }
 
-    /**
-     * Generate a copy of this alignment object
-     */
-    // JE: this is a mere copy of the method in BasicAlignement
-    public Object clone() {
+    public URIAlignment createNewAlignment( Object onto1, Object onto2 ) throws AlignmentException {
 	URIAlignment align = new URIAlignment();
-	try { align.init( (URI)getOntology1(), (URI)getOntology2() ); }
-	catch ( AlignmentException e ) {};
-	align.setType( getType() );
-	align.setLevel( getLevel() );
-	align.setFile1( getFile1() );
-	align.setFile2( getFile2() );
-	for ( Object ext : ((BasicParameters)extensions).getValues() ){
-	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
-	    }
-	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
-	if ( oldid != null && !oldid.equals("") ) {
-	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
-	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
-	}
-	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
-	try {
-	    align.ingest( this );
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	align.init( onto1, onto2 );
 	return align;
     }
 
