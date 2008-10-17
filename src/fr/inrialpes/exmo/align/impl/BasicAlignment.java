@@ -595,9 +595,11 @@ public class BasicAlignment implements Alignment {
      *     useful
      */
     public void ingest(Alignment alignment) throws AlignmentException {
-	for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
-	    addCell((Cell)e.nextElement());
-	};
+	if ( alignment != null ) {
+	    for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
+		addCell((Cell)e.nextElement());
+	    }
+	}
     }
 
     /**
