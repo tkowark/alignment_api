@@ -83,7 +83,6 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	    throw new AlignmentException("DistanceAlignment: requires a similarity measure");
 
 	sim.initialize( ontology1(), ontology2(), init );
-	//sim.initialize( getOntologyObject1(), getOntologyObject2(), init );
 	sim.compute( params );
 	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( getType(), params );

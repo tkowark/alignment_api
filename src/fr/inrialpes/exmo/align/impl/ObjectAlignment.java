@@ -80,8 +80,8 @@ public class ObjectAlignment extends BasicAlignment {
 
     public void loadInit( Alignment al ) throws AlignmentException {
 	if ( al instanceof URIAlignment ) {
-	    try { init = toObjectAlignment( (URIAlignment)al );
-	    } catch (SAXException e) { e.printStackTrace(); }
+	    try { init = toObjectAlignment( (URIAlignment)al ); }
+	    catch (SAXException e) { e.printStackTrace(); }
 	} else if ( al instanceof ObjectAlignment ) {
 	    init = (ObjectAlignment)al;
 	}
