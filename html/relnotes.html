@@ -17,6 +17,7 @@
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
+<li>Move OLgraphs as HeavyLoadedOntology (onto)</li>
 <li>Implement ontology support database store (server)</li>
 <li>Online evaluation (server)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
@@ -36,21 +37,25 @@
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.5 (800+): xx/10/2008 - Accitrezza</h2-->
+<!--h2>Version 3.5 (860+): xx/10/2008 - Accitrezza</h2-->
 
 <p>
 <ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>Alignment.init(onto,onto,cache)</tt>
   in favour of <tt>Alignment.init(onto,onto)</tt>, see below (api)</tt>
+<li>NeOn plug-in compatible with toolkit 1.2 (neon)</li>
 <li><tt>OntologyCache</tt> is now local to each <tt>OntologyFactory</tt>, it does not need to be manipulated from outside (onto)</li>
-<li>Implementing <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
-<li>Corrected an error preventing DistanceAlignemnt to consider instances (impl)</li>
-<li>Started to put copyright notices to INRIA instead of INRIA Rhône-Alpes (misc)</li>
+<li>Implemented <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
 <li>Reengineered parameter passing for web service interface (server)</li>
-<li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
-<li>Corrected a bug in <tt>SKOSRendererVisitor</tt> and <tt>XSLTRendererVisitor</tt> (impl)</li>
 <li>Updated <tt>SKOSRendererVisitor</tt> to work with 2008 version of
   SKOS, old version can be obtained by parameter <tt>pre2008</tt> (impl)</li>
+<li>Corrected an error preventing DistanceAlignemnt to consider instances (impl)</li>
+<li>Corrected SWRL format missing rdf namespace (impl)</li>
+<li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
+<li>Corrected a bug in <tt>SKOSRendererVisitor</tt> and <tt>XSLTRendererVisitor</tt> (impl)</li>
+<li>Started to put copyright notices to INRIA instead of INRIA Rhône-Alpes (misc)</li>
+<li>Used Java 1.5 print Formatter instead of our printFormat (impl)</li>
+<li>Unit tests for onto and owlapi10 (onto)</li>
 </ul>
 </p>
 
