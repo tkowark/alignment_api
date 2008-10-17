@@ -29,11 +29,6 @@ import java.net.URI;
 import java.util.Vector;
 import java.util.Enumeration;
 
-//import org.omwg.mediation.parser.rdf.RDFParser;
-//import org.omwg.mediation.parser.rdf.RDFParserException;
-//import javax.xml.parsers.SAXParser;
-//import javax.xml.parsers.SAXParserFactory;
-
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -131,8 +126,6 @@ public class OfflineAlign {
    
    String trimAndExportAlign (Double thres, String id) {	 
 		  
-	      //String htmlString = null;
-	      //Vector corrList = new Vector();
 	      Integer name = new Integer(SWTInterface.getNewAlignId());
 	      
 	      Alignment A1 = SWTInterface.alignmentTable.get( id );
@@ -159,22 +152,17 @@ public class OfflineAlign {
 		  
 		  clonedA1.cut(thres);
 	      SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
-	      
-	      
+	         
 		  File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl");
 		  if (owlFile.exists()) owlFile.delete();
 		  
 		  FileWriter owlF = new FileWriter( owlFile );
 		  
 		  AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
-				     
-		  //OWLAPIAlignment  owla = OWLAPIAlignment.toOWLAPIAlignment(fnRdf.toURI(), clonedA1);
-		  
+				     		  
 		  clonedA1.render(owlV);
 		  owlF.flush();
-		  owlF.close();
-		 
-		  
+		  owlF.close();	  
 		  } 
 		  catch ( Exception ex ) { ex.printStackTrace();};
 		  
@@ -182,9 +170,8 @@ public class OfflineAlign {
 	   }
    
    public String[] getAllAlign() {
-	   //Enumeration ls = SWTInterface.alignmentTable.keys();
-	   //getAllAlignFromFiles();
-	   if (SWTInterface.alignmentTable.keys()==null) return null;
+	    
+	   if (SWTInterface.alignmentTable.keys() == null) return null;
 	   Vector<String> v = new Vector<String>();
 	   
 	   for (Enumeration e = SWTInterface.alignmentTable.keys() ; e.hasMoreElements() ;) {
@@ -194,13 +181,11 @@ public class OfflineAlign {
 	   String[] ls = new String[v.size()];
 	   for(int i=0; i< v.size(); i++) ls[i] = v.get(i);
 	   
-	   return ls;
-	  
+	   return ls;	  
    }
    
    public void getAllAlignFromFiles() {
-	   //Enumeration ls = SWTInterface.alignmentTable.keys();
-	   //if (SWTInterface.alignmentTable.keys()==null) return null;
+	    
 	   String[] nameL = alignFolder.list();
        Vector<String> v = new Vector<String>();
 	   
@@ -210,7 +195,7 @@ public class OfflineAlign {
        try {
     	   	 
     	    AlignmentParser parser = new AlignmentParser( 0 );
-    	    parser.setEmbedded(true);
+    	    parser.setEmbedded( true );
     	   	
     	   	for(int i=0; i< v.size(); i++) {
     	   		

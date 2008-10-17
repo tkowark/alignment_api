@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,12 +26,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
-//import java.io.FileReader;
-//import java.io.IOException;
-
-//import java.net.MalformedURLException;
-//import java.net.URL;
-//import java.net.URI;
 import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -43,8 +37,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
 import java.awt.Container;
 import java.awt.Dimension;
- 
-
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -52,9 +44,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.HashMap;
 
-//import java.io.PrintWriter;
- 
-//import javax.swing.*;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -89,7 +78,7 @@ import org.eclipse.core.runtime.IPath;
 //import org.semanticweb.kaon2.api.Ontology;
 //import org.semanticweb.kaon2.api.KAON2Connection;
 import org.semanticweb.kaon2.api.OntologyManager;
-import org.semanticweb.kaon2.api.KAON2Exception;
+//import org.semanticweb.kaon2.api.KAON2Exception;
 //import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import com.ontoprise.config.IConfig;
 import com.ontoprise.ontostudio.datamodel.DatamodelPlugin;
@@ -287,8 +276,6 @@ public class SWTInterface extends JPanel {
 				selectedLocalAlign = localAlignIdList[0];
 			}
 		}
-		//if ( localAlignIdList!= null )
-		//for(int i=0; i < localAlignIdList.length; i++)  localAlignBox.addItem(i);
 	}
 	
 	public static int getNewAlignId() {
@@ -412,9 +399,7 @@ public class SWTInterface extends JPanel {
 				    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
         			    return;
         			}
-				   		
-        			//String[] list = getResultsFromAnswer( mt, "method", null ); //"." 
-        		 
+				  
         			methodList = new String[list.length];
         			strategy.removeAllItems();
         							
@@ -542,36 +527,8 @@ public class SWTInterface extends JPanel {
 				       
 						htmlView.setVisible(true);
 					
-					/*
-	        			corrList = getCorresFromAnswer( SWTInterface.alignmentTable.get(selectedLocalAlign)  );
-					
-					 
-							
-						pane2.removeAll();
-						for(int i=0;i< corrList.size();i++) {
-								
-									String[] li= (String [])corrList.get(i); 
-									String n = "";
-									for(int j=0;j<li.length;j++) 
-									{ 
-										String sep = "";
-										if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
-								
-										if (li[j]!=null)
-											n = n + sep+ li[j];
-									}
-								
-									//System.out.println("line= "+ n);
-									JTextArea header1= new JTextArea(n);
-								
-									pane2.add(header1);
-						}
-					 	*/
-						String inputName=null;
-	        				
-	        				
-	        					
-	        					
+		 				String inputName=null;
+	        				        					
 	        			inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
 	        					
 	        			if (inputName==null || inputName.equals("")) return;
@@ -596,7 +553,7 @@ public class SWTInterface extends JPanel {
 	    					 
 	    	    				ImportExportControl ieControl = new ImportExportControl();	
 	    	    				URI uris[] = new URI[1];
-	    	    				uris[0] = new URI("file:"+ fn.getAbsolutePath());
+	    	    				uris[0] = new File(fn.getAbsolutePath()).toURI();
 	    	    				ieControl.importFileSystem(inputName, uris, null);
 	    	    				//ieControl.addOntologies2Project(importedModules, inputName);
 	    	    				}
@@ -709,30 +666,6 @@ public class SWTInterface extends JPanel {
 					       
 						htmlView.setVisible(true);
 						
-						//corrList = getCorresFromAnswer( align );
-						
-						//System.out.println("corrList Size="+corrList.size());
-						/*		
-						pane2.removeAll();
-						for(int i=0;i< corrList.size();i++) {
-									
-										String[] li= (String [])corrList.get(i); 
-										String n = "";
-										for(int j=0;j<li.length;j++) 
-										{ 
-											String sep = "";
-											if(n.equals("")) sep = "==>"; else if(n.equals("=")) sep = ""; else sep = "----";  
-									
-											if (li[j]!=null)
-												n = n + sep+ li[j];
-										}
-									
-										//System.out.println("line= "+ n);
-										JTextArea header1= new JTextArea(n);
-									
-										pane2.add(header1);
-						}
-					   */	
 					}
 					catch ( Exception ex ) { ex.printStackTrace();};
 			        
@@ -748,8 +681,7 @@ public class SWTInterface extends JPanel {
 					
 							
 					try {
-						 
-						
+						 	
 						inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
     					
     					if (inputName==null || inputName.equals("")) return;
@@ -785,7 +717,7 @@ public class SWTInterface extends JPanel {
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
 							URI uris[] = new URI[1];
-    	    				uris[0] = new URI("file:" + owlPath);
+    	    				uris[0] = new File( owlPath).toURI();
 							String[] importedModules = ieControl.importFileSystem(inputName, uris,  null);
 					
 							//ieControl.addOntologies2Project(importedModules, inputName);
