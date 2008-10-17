@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007-2008
+ * Copyright (C) INRIA, 2003-2004, 2007-2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,6 +31,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 /** This class has been built for ISWC experiments with bibliography.
  * It implements a non iterative (one step) OLA algorithms based on
@@ -118,12 +119,12 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	//  (sigma (att in c[i]) getAllignCell... )
 	//  / nbatts of c[i] + nbatts of c[j]
 	for ( i=0; i<nbclass1; i++ ){
-	    Set<Object> properties1 = honto1.getProperties( classlist1.get(i), true, true, true );
+	    Set<Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int nba1 = properties1.size();
 	    if ( nba1 > 0 ) { // if not, keep old values...
 		//Set correspondences = new HashSet();
 		for ( j=0; j<nbclass2; j++ ){
-		    Set<Object> properties2 = honto2.getProperties( classlist2.get(j), true, true, true );
+		    Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 		    int nba2 = properties1.size();
 		    double attsum = 0.;
 		    // check that there is a correspondance
