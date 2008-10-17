@@ -171,6 +171,7 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
      * Algebra of alignment manipulation operations: compose, join, meet.
      */
     public Alignment inverse() throws AlignmentException;
+    public Alignment diff(Alignment align) throws AlignmentException;
     public Alignment meet(Alignment align) throws AlignmentException;
     public Alignment join(Alignment align) throws AlignmentException;
     public Alignment compose(Alignment align) throws AlignmentException;
