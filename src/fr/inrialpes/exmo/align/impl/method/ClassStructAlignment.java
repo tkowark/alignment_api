@@ -83,7 +83,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	double pic1 = 0.5; // class weigth for name
 	double pic2 = 0.5; // class weight for properties
 
-	ingest( alignment );
+	if ( init != null ) ingest( init );
 
 	// Create class lists
 	for ( Object cl : honto2.getClasses() ){
@@ -125,7 +125,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 		//Set correspondences = new HashSet();
 		for ( j=0; j<nbclass2; j++ ){
 		    Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-		    int nba2 = properties1.size();
+		    int nba2 = properties2.size();
 		    double attsum = 0.;
 		    // check that there is a correspondance
 		    // in list of class2 atts and add their weights
@@ -134,11 +134,13 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 			// Find the property with the higest similarity
 			// that is matched here
 			double currentValue = 0.;
-			for( Cell c2 : s2 ){
-			    if ( properties2.contains( c2.getObject2() ) ) {
-				double val = c2.getStrength();
-				if ( val > currentValue )
-				    currentValue = val;
+			if ( s2 != null ) {
+			    for( Cell c2 : s2 ){
+				if ( properties2.contains( c2.getObject2() ) ) {
+				    double val = c2.getStrength();
+				    if ( val > currentValue )
+					currentValue = val;
+				}
 			    }
 			}
 			attsum = attsum + 1 - currentValue;
