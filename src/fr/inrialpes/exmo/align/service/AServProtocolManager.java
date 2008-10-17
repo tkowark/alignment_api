@@ -228,15 +228,19 @@ public class AServProtocolManager {
 	    // Parameters are used
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,mess.getParameters());
 	} else {
-	    	
 	    th.start();
 	    try{ th.join(); }
-	    catch ( InterruptedException is ) {};
-		
+	    catch ( InterruptedException is ) {
+		return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Interrupted exception",(Parameters)null);
+	    };
 	    return althread.getResult();
 	}
     }
 
+    /**
+     * returns null if alignment not retrieved
+     * Otherwise returns AlignmentId or an ErrorMsg
+     */
     private Message retrieveAlignment( Message mess ){
 	Parameters params = mess.getParameters();
 	String method = (String)params.getParameter("method");
@@ -881,6 +885,7 @@ public class AServProtocolManager {
 		}
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
+		result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	    } catch (ClassNotFoundException e) {
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
 	    } catch (NoSuchMethodException e) {
@@ -894,9 +899,8 @@ public class AServProtocolManager {
 	    } catch (AlignmentException e) {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
 	    } catch (Exception e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception (wrong class name?)",(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception :"+e,(Parameters)null);
 	    }
-	    result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
     }
 
