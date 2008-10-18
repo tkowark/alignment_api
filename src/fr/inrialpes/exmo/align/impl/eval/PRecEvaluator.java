@@ -110,7 +110,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	for ( Enumeration e = align1.getElements(); e.hasMoreElements(); nbexpected++) {
 	    Cell c1 = (Cell)e.nextElement();
 	    URI uri1 = c1.getObject2AsURI();
-	    Set s2 = (Set)align2.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();
