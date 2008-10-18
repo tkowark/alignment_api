@@ -464,9 +464,9 @@ public class BasicAlignment implements Alignment {
 	throw new AlignmentException("[BasicAlignment].toURIAlignment() cannot process");
     }
 
-    /***************************************************************************
+    /**
      * The harden function acts like threshold but put all weights to 1.
-     **************************************************************************/
+     */
     public void harden(double threshold) throws AlignmentException {
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
@@ -475,6 +475,16 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
+    /**
+     * Algebraic part
+     * This is to be improved by (TODO):
+     * - improving cell equivalence (maybe not dependent on the confidence... and
+     *     grounding it on abstract data types)
+     * - using algebraic meet and join for relations and confidences
+     *     (the type of relation used can be declared in the alignment)
+     * - check compatibility and setup for type and level
+     * - conserve extensions if necessary
+     */
     /*
      * This method is used by the algebraic operators
      * It has to be overriden by implementations.
@@ -486,18 +496,34 @@ public class BasicAlignment implements Alignment {
     }
 
    /**
-     * The second alignment is meet with the first one meaning that for
+     * The second alignment is suppresed from the first one meaning that for
      * any pair (o, o', n, r) in O and (o, o', n', r) in O' the resulting
      * alignment will contain:
-     * ( o, o', meet(n,n'), r)
-     * any pair which is in only one alignment is preserved.
+     * ( o, o', diff(n,n'), r)
+     * any pair which is only in the first alignment is preserved.
      */
     public Alignment diff(Alignment align) throws AlignmentException {
-	BasicAlignment result = createNewAlignment( getOntology1(), getOntology2() );
-	// Check that alignments are compatible
-	// - same type
-	// - same ontologies
-	// Add all the items that are not found
+	// Could also test: onto1 == getOntologyObject1();
+	if ( onto1.getURI() != align.getOntology1URI() )
+	    throw new AlignmentException("Can only diff alignments with same ontologies");
+	if ( onto2.getURI() != align.getOntology2URI() )
+	    throw new AlignmentException("Can only diff alignments with same ontologies");
+	BasicAlignment result = createNewAlignment( onto1, onto2 );
+	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
+	    Cell c1 = (Cell)e.nextElement();
+	    //URI uri1 = c1.getObject2AsURI();
+	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    boolean found = false;
+	    if ( s2 != null ){
+		for ( Cell c2 : s2 ){
+		    //if ( uri1.toString().equals(c2.getObject2AsURI().toString()) ) {
+		    if ( c1.equals( c2 ) ) {
+			found = true;
+		    }
+		}
+	    }
+	    if ( !found ) result.addCell( c1 );
+	}
 	return result;
     }
 
@@ -509,7 +535,26 @@ public class BasicAlignment implements Alignment {
      * any pair which is in only one alignment is preserved.
      */
     public Alignment meet(Alignment align) throws AlignmentException {
-	Alignment result = createNewAlignment( getOntology1(), getOntology2() );
+	// Could also test: onto1 == getOntologyObject1();
+	if ( onto1.getURI() != align.getOntology1URI() )
+	    throw new AlignmentException("Can only meet alignments with same ontologies");
+	if ( onto2.getURI() != align.getOntology2URI() )
+	    throw new AlignmentException("Can only meet alignments with same ontologies");
+	BasicAlignment result = createNewAlignment( onto1, onto2 );
+	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
+	    Cell c1 = (Cell)e.nextElement();
+	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    boolean found = false;
+	    if ( s2 != null ){
+		for ( Cell c2 : s2 ){
+		    if ( c1.equals( c2 ) ) {
+			found = true;
+		    }
+		}
+	    }
+	    // again, no new cell
+	    if ( found ) result.addCell( c1 );
+	}
 	return result;
     }
 
@@ -521,7 +566,28 @@ public class BasicAlignment implements Alignment {
      * any pair which is in only one alignment is discarded.
      */
     public Alignment join(Alignment align) throws AlignmentException {
-	BasicAlignment result = createNewAlignment( getOntology1(), getOntology2() );
+	// Could also test: onto1 == getOntologyObject1();
+	if ( onto1.getURI() != align.getOntology1URI() )
+	    throw new AlignmentException("Can only join alignments with same ontologies");
+	if ( onto2.getURI() != align.getOntology2URI() )
+	    throw new AlignmentException("Can only join alignments with same ontologies");
+	BasicAlignment result = createNewAlignment( onto1, onto2 );
+	result.ingest( align );
+	//for ( Cell e : getElements() ){//I should do an iterator!
+	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
+	    Cell c1 = (Cell)e.nextElement();
+	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    boolean found = false;
+	    if ( s2 != null ){
+		for ( Cell c2 : s2 ){
+		    if ( c1.equals( c2 ) ) {
+			found = true;
+		    }
+		}
+	    }
+	    // again, no new cell
+	    if ( !found ) result.addCell( c1 );
+	}
 	return result;
     }
 
@@ -532,9 +598,9 @@ public class BasicAlignment implements Alignment {
      * ( o, o", join(n,n'), compose(r, r')) iff compose(r,r') exists.
      */
     public Alignment compose(Alignment align) throws AlignmentException {
-	BasicAlignment result = createNewAlignment( getOntology1(), ((BasicAlignment)align).getOntologyObject2() );
-	// TODO type and level
-	// TODO extension
+	if ( onto2.getURI() != align.getOntology1URI() )
+	    throw new AlignmentException("Can only compose alignments with a common ontologies");
+	BasicAlignment result = createNewAlignment( onto1, ((BasicAlignment)align).getOntologyObject2() );
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
 		Cell c1 = (Cell)e.nextElement();
 		Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
@@ -557,7 +623,7 @@ public class BasicAlignment implements Alignment {
      */
 
     public Alignment inverse() throws AlignmentException {
-	BasicAlignment result = createNewAlignment( getOntology2(),  getOntology1() );
+	BasicAlignment result = createNewAlignment( onto2, onto1 );
 	result.setFile1( getFile2() );
 	result.setFile2( getFile1() );
 	// We must inverse getType
@@ -608,9 +674,8 @@ public class BasicAlignment implements Alignment {
      */
     public Object clone() {
 	BasicAlignment align;
-	try {
-	    align = createNewAlignment( onto1, onto2 );
-	} catch (AlignmentException ae) { ae.printStackTrace(); return null; }
+	try { align = createNewAlignment( onto1, onto2 ); }
+	catch (AlignmentException ae) { ae.printStackTrace(); return null; }
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
