@@ -1,5 +1,5 @@
 /*
- * $Id: WSAlignment.java 756 2008-07-17 15:30:07Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2008
  *
