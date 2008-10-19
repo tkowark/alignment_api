@@ -21,8 +21,6 @@
 package fr.inrialpes.exmo.align.onto;
 
 import java.net.URI;
-import java.util.Set;
-
 
 public interface Ontology<O> {
 

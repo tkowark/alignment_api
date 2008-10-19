@@ -178,6 +178,10 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	return o instanceof OntProperty;
     }
 
+    public int nbEntities() {
+	return this.getEntities().size();
+    }
+
     public int nbClasses() {
 	return this.getClasses().size();
     }
@@ -186,7 +190,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	return this.getDataProperties().size();
     }
 
-    public int nbInstances() {
+    public int nbIndividuals() {
 	return this.getIndividuals().size();
     }
 

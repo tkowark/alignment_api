@@ -306,6 +306,12 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
     }
 
+    public int nbEntities() {
+	if ( nbentities != -1 ) return nbentities;
+	nbentities = nbClasses()+nbProperties()+nbIndividuals();
+	return nbentities;
+    }
+
     public int nbClasses() {
 	if ( nbclasses != -1 ) return nbclasses;
 	try {
@@ -342,7 +348,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
     }
 
-    public int nbInstances() {
+    public int nbIndividuals() {
 	if ( nbindividuals != -1 ) return nbindividuals;
 	try {
 	    nbindividuals = ((OWLOntology)onto).getIndividuals().size();
@@ -408,7 +414,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    try {
 		for ( Object ent : ((OWLClass)cl).getSuperClasses( getOntology() ) ){
 		    if ( ent instanceof OWLRestriction ) 
-			prop.add( ((OWLRestriction)cl).getProperty() );
+			prop.add( ((OWLRestriction)ent).getProperty() );
 		}
 	    } catch (OWLException e) { e.printStackTrace(); }
 	} else {
@@ -474,7 +480,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
 	return supers;
     }
-    public Set<Object> getRange( Object p, boolean asserted ){
+    public Set<Object> getRange( Object p, int asserted ){
 	Set resultSet = new HashSet(); 
 	try {
 	    for ( Object ent : ((OWLProperty)p).getRanges( getOntology() ) ){
@@ -487,7 +493,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	} catch (OWLException ex) {};
 	return resultSet;
     }
-    public Set<Object> getDomain( Object p, boolean asserted ){
+    public Set<Object> getDomain( Object p, int asserted ){
 	Set resultSet = new HashSet(); 
 	try {
 	    for ( Object ent : ((OWLProperty)p).getDomains( getOntology() ) ){

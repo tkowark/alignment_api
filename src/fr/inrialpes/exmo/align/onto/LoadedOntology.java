@@ -52,11 +52,12 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public Set<?> getDataProperties();
     public Set<?> getIndividuals();
 
+    public int nbEntities();
     public int nbClasses();
     public int nbProperties();
     public int nbDataProperties();
     public int nbObjectProperties();
-    public int nbInstances();
+    public int nbIndividuals();
 
     public void unload();
 }

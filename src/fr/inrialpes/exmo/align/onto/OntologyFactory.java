@@ -43,7 +43,6 @@ public abstract class OntologyFactory {
     public static int MENTIONNED = 11;
     public static int ALL = 12;
 
-    //protected static OntologyFactory instance = null;
     protected static Hashtable<String,OntologyFactory> instances = null;
 
     private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory";

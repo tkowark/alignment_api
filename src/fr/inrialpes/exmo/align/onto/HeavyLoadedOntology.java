@@ -47,8 +47,8 @@ public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
     /* Property methods */
     public Set<Object> getSubProperties( Object p, int local, int asserted, int named );
     public Set<Object> getSuperProperties( Object p, int local, int asserted, int named );
-    public Set<Object> getRange( Object p, boolean asserted );
-    public Set<Object> getDomain( Object p, boolean asserted );
+    public Set<Object> getRange( Object p, int asserted );
+    public Set<Object> getDomain( Object p, int asserted );
 
     /* Individual methods */
     public Set<Object> getClasses( Object i, int local, int asserted, int named );
