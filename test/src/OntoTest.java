@@ -25,6 +25,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
@@ -100,12 +101,14 @@ public class OntoTest {
     @Test(groups = { "full", "impl" }, dependsOnMethods = {"basicTest"})
     public void loadedTest() throws Exception {
 	// load ontologies
-	//OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	ontology = OntologyFactory.getFactory().loadOntology(u);
 	assertNotNull( ontology );
-	//assertTrue( ontology instanceof JENAOntology );
+	assertTrue( ontology instanceof JENAOntology );
 	LoadedOntology onto = (LoadedOntology)ontology;
+	// Doing this now prevent from having problems in case of errors
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
 	assertEquals( onto.nbEntities(), 43 );
 	assertEquals( onto.nbClasses(), 14 );
 	assertEquals( onto.nbProperties(), 29 );
@@ -221,6 +224,12 @@ public class OntoTest {
     public void cleanUpTest() throws Exception {
 	OntologyFactory.getFactory().clear();
 	// Check if things remain or not...
+    }
+
+    @AfterClass(groups = { "full", "impl" })
+    public void tearDown() throws Exception {
+	System.err.println("I have been executed");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
     }
 
 }
