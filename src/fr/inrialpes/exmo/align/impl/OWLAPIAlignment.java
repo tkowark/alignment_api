@@ -116,6 +116,7 @@ public class OWLAPIAlignment extends ObjectAlignment {
             throw new AlignmentException("arguments must be OWLEntities");
 	return super.addAlignCell( ob1, ob2 );
     };
+    @SuppressWarnings("deprecation")
     public Cell createCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
 	return (Cell)new OWLAPICell( id, (OWLEntity)ob1, (OWLEntity)ob2, relation, measure); //[W:Deprecated]
     }
@@ -177,6 +178,7 @@ public class OWLAPIAlignment extends ObjectAlignment {
      * This is a clone with the URI instead of OWLAPI objects
      *
      */
+    @SuppressWarnings("deprecation")
     public URIAlignment toURIAlignment() throws AlignmentException {
 	URIAlignment align = new URIAlignment();
 	align.init( getOntology1URI(), getOntology2URI() );
