@@ -78,8 +78,14 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 
 
     public String getEntityName(Object o) throws AlignmentException {
-	// TODO Auto-generated method stub
-	return null;
+	try {
+	    // Try to get labels first... (done in the OWLAPI way)
+	    URI u = new URI(((OntResource) o).getURI());
+	    if ( u != null ) return u.getFragment();
+	    else return "";
+	} catch (Exception oex) {
+	    return null;
+	}
     }
 
     public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {
