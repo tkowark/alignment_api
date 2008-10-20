@@ -109,8 +109,8 @@ public class OntoTest {
 	LoadedOntology onto = (LoadedOntology)ontology;
 	// Doing this now prevent from having problems in case of errors
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
-	assertEquals( onto.nbEntities(), 43 );
-	assertEquals( onto.nbClasses(), 14 );
+	assertEquals( onto.nbEntities(), 42 );
+	assertEquals( onto.nbClasses(), 13 );
 	assertEquals( onto.nbProperties(), 29 );
 	assertEquals( onto.nbDataProperties(), 25 );
 	assertEquals( onto.nbObjectProperties(), 4 );
@@ -228,7 +228,7 @@ public class OntoTest {
 
     @AfterClass(groups = { "full", "impl" })
     public void tearDown() throws Exception {
-	System.err.println("I have been executed");
+	//System.err.println("I have been executed");
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
     }
 
