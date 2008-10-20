@@ -22,7 +22,7 @@ public class JENAEntityIt implements Iterator<OntResource> {
 	    private void setNext() {
 		while (current==null) {
 		    current = it.next();
-		    if (current.getURI()==null || !current.getURI().startsWith(ontURI.toString())) {
+		    if (current.getURI()==null) {// || !current.getURI().startsWith(ontURI.toString())) {
 			current=null;
 		    }
 		}
