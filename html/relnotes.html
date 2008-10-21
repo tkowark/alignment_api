@@ -17,9 +17,9 @@
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Move OLgraphs as HeavyLoadedOntology (onto)</li>
 <li>Implement ontology support database store (server)</li>
 <li>Online evaluation (server)</li>
+<li>Move OLgraphs as HeavyLoadedOntology (onto)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
 <li>Improve HTML interface layout and usability (server)</li>
@@ -37,18 +37,27 @@
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.5 (860+): xx/10/2008 - Accitrezza</h2-->
+<p>
+<ul compact="1">
+</ul>
+</p>
+
+<h2>Version 3.5 (886): 21/10/2008 - La granja</h2>
 
 <p>
 <ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>Alignment.init(onto,onto,cache)</tt>
   in favour of <tt>Alignment.init(onto,onto)</tt>, see below (api)</tt>
-<li>NeOn plug-in compatible with toolkit 1.2 (neon)</li>
+<li>NeOn plug-in compatible with <span style="color: green">NeOn toolkit 1.2</span> (plugin)</li>
 <li><tt>OntologyCache</tt> is now local to each <tt>OntologyFactory</tt>, it does not need to be manipulated from outside (onto)</li>
 <li>Implemented <tt>owlapi10</tt> as <tt>HeavyLoadedAlignment</tt> (onto)</li>
+<li>Completed the integration of Jena ontologies (onto)</li>
+<li>Implemented basic algebraic operations (impl)</li>
+<li>Added diff algebraic operation (api)</li>
 <li>Reengineered parameter passing for web service interface (server)</li>
 <li>Updated <tt>SKOSRendererVisitor</tt> to work with 2008 version of
   SKOS, old version can be obtained by parameter <tt>pre2008</tt> (impl)</li>
+<li>Suppressed <tt>GenTriangle</tt> (util)</li>
 <li>Corrected an error preventing DistanceAlignemnt to consider instances (impl)</li>
 <li>Corrected SWRL format missing rdf namespace (impl)</li>
 <li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
@@ -67,7 +76,7 @@
   matching (server)</li>
 <li><span style="color: red;">Deprecated</span> <tt>Cell.getObjectXAsURI()</tt>
   in favour of <tt>Cell.getObjectXAsURI(Object ontology)</tt> (api)</tt>
-<li>Upgraded NeOn plug-in for working with NeOn toolkit 1.1 (plugin)</li>
+<li>Upgraded NeOn plug-in for working with <span style="color: green">NeOn toolkit 1.1</span> (plugin)</li>
 <li>Implemented OWL API 2 support [not shipped] (onto)</li>
 <li>Added <tt>init( Parameters )</tt> arguments to visitors (api)</tt>
 <li>Implemented <tt>embedded</tt> parameter allowing to avoid ?xml
@@ -108,7 +117,8 @@
 <li>Added Jena 2.5 ontology plug-in (onto)</li>
 <li>Changed HTML renderer to XHTML+RDFa (impl)</li>
 <li>Made <tt>Alignment</tt> iterable&lt;Cell&gt; (api/impl)</li>
-<li>Improved NeOn plug-in and upgraded to version 1.1 (plugin)</li>
+<li>Improved NeOn plug-in and upgraded to <span style="color: green">
+    NeOn toolkit 1.0</span> (plugin)</li>
 <li>Corrected a bug in Web service when the content was XML (server)</li>
 <li>Corrected a bug when loading an alignment with id (server)</li>
 <li>Corrected a bug in AlignmentParser that overlooked formalism URI (parser)</li>
@@ -126,7 +136,7 @@
 <li>Made sure that http server is launched when wsdl option is chosen
   (server)</li>
 <li>Moved NeOn toolkit plugin in the plugins/neon (plugin)</li>
-<li>Cleaned-up working NeOn plug-in (plugin)</li>
+<li>Cleaned-up working NeOn plug-in for NeOn toolkit (plugin)</li>
 <li>Introduced abstract directories (server)</li>
 <li>Improved the WordNet interface by introducing version. 3.0 is default (ling)</li>
 <li>Reinstated the possibility to use the old namespace in the parser (parser)</li>
