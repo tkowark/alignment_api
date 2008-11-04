@@ -79,7 +79,16 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	
 	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
-	    c.accept( this );
+	    Object ob1 = c.getObject1();
+	    Object ob2 = c.getObject2();
+
+	    if ( ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
+		 ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
+	  	 ( onto1.isObjectProperty( ob1 ) && onto2.isObjectProperty( ob2 ) ) ||
+                 ( onto1.isIndividual( ob1 ) && onto2.isIndividual( ob2 ) ) )
+
+		     c.accept( this );
+                      			 
 	} //end for
 	writer.print("</rdf:RDF>\n");
     }
@@ -87,6 +96,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	Object ob1 = cell.getObject1();
+	Object ob2 = cell.getObject2();
 	URI u1;
 	if ( cell.getRelation() instanceof SubsumedRelation ){
 	    u1 = onto2.getEntityURI( cell.getObject2() );
@@ -115,13 +125,13 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
     public void visit( EquivRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
 	URI u2 = onto2.getEntityURI( ob2 );
-	if ( onto1.isClass( ob2 ) ) {
+	if ( onto2.isClass( ob2 ) ) {
 	    writer.print("    <owl:equivalentClass rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto1.isDataProperty( ob2 ) ) {
+	} else if ( onto2.isDataProperty( ob2 ) ) {
 	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto1.isObjectProperty( ob2 ) ) {
+	} else if ( onto2.isObjectProperty( ob2 ) ) {
 	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto1.isIndividual( ob2 ) ) {
+	} else if ( onto2.isIndividual( ob2 ) ) {
 	    writer.print("    <owl:sameAs rdf:resource=\""+u2+"\"/>\n");
 	}
     }
