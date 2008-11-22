@@ -142,7 +142,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 8051, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7334, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl" })
