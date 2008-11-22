@@ -74,6 +74,10 @@
     <antcall target="cleanjar"/>
     <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
+    <ant dir="plugins/webcontent" target="compileall" />
+    <!-- anticipate separate onto release -->
+    <!--ant dir="onto/jena25" target="compileall" />
+    <ant dir="onto/owlapi10" target="compileall" /-->
   </target>
 
   <!-- tested -->
@@ -141,6 +145,18 @@
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <!-- anticipate separate onto release -->
+    <!--delete file="lib/alonto.jar"/>
+    <jar jarfile="lib/alonto.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
+	<attribute name="Implementation-Title" value="Ontology wrapping API"/>
+	<attribute name="Implementation-Version" value="${version}"/> 
+      </manifest>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/onto/**/*.class"/>
+      <fileset dir="classes" includes="LICENSE.TXT"/>
+    </jar-->
   </target>
 
   <!-- tested -->
