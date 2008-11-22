@@ -42,9 +42,8 @@ public class EvaluationId extends Success {
 	return getContent();
     }
 
-    public String SOAPString(){
-	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
-	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><alid>"+content+"</alid>";	
+    public String RESTString(){
+	return "<alid>"+content+"</alid>";	
     }
 
 }

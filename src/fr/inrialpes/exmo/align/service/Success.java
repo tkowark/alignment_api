@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA, 2006, 2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -31,4 +31,12 @@ public class Success extends Message {
     public Success ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
+    public String RESTString(){
+	return "<content>"+content+"</content>";	
+    }
+    public String SOAPString(){
+	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to>"+RESTString();	
+    }
+
+    
 }

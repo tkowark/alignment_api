@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -39,8 +39,8 @@ public class AlignmentIds extends Success {
 	}
 	return result += "</ul>";
     }
-    public String SOAPString(){
-	String msg = "<id>"+surrogate+"</id><in-reply-to>"+inReplyTo+"</in-reply-to>"+"<alignmentList>";
+    public String RESTString(){
+	String msg = "<alignmentList>";
 	String id[] = content.split(" ");
 	for ( int i = id.length-1; i >= 0; i-- ){
 	    if ( id[i].trim() != "" ) {
@@ -50,5 +50,4 @@ public class AlignmentIds extends Success {
 	msg += "</alignmentList>";
 	return msg;
     }
-
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -33,6 +33,9 @@ public class ErrorMsg extends Message {
     }
     public String HTMLString(){
 	return "Generic error: "+content;
+    }
+    public String RESTString(){
+	return "<ErrorMsg><content>" + content + "</content></ErrorMsg>";
     }
     public String SOAPString(){
 	return "<ErrorMsg><id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content></ErrorMsg>";

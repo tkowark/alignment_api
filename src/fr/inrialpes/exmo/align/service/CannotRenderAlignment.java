@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008
+ * Copyright (C) INRIA, 2006-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,5 +32,8 @@ public class CannotRenderAlignment extends ErrorMsg {
     }
     public String HTMLString(){
 	return "Cannot render alignment "+content+": turn it to an ObjectAlignment with ObjectAlignement.toOkbjectAlignement( al )";
+    }
+    public String RESTString(){
+	return "<CannotRenderAlignment>"+content+"</CannotRenderAlignment>";
     }
 }
