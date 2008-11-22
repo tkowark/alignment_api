@@ -123,7 +123,9 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    URI uri2 = onto2.getEntityURI( c2.getObject2() );	
 		    // if (c1.getobject2 == c2.getobject2)
 		    if ( uri1.toString().equals(uri2.toString()) ) {
-			symsimilarity = symsimilarity + 1.;
+			symsimilarity += 1.;
+			effsimilarity += 1.;
+			orientsimilarity += 1.;
 			c1 = null; // out of the loop.
 		    }
 		}
@@ -133,7 +135,10 @@ public class ExtPREvaluator extends BasicEvaluator {
 		// running the Hungarian method...
 		Enumeration e2 = align2.getElements();
 		if ( c1 != null ) {
-		    symsimilarity = symsimilarity + computeSymSimilarity(c1,e2);
+		    // Add guards
+		    symsimilarity += computeSymSimilarity(c1,e2);
+		    effsimilarity += computeEffSimilarity(c1,e2);
+		    orientsimilarity += computeOrientSimilarity(c1,e2);
 		}
 	    }
 	}
@@ -179,6 +184,24 @@ public class ExtPREvaluator extends BasicEvaluator {
 	return Math.pow( symALPHA, minval );
     }
 
+    /**
+     * This computes similarity depending on structural measures:
+     * the similarity is symALPHA^minval, symALPHA being lower than 1.
+     * minval is the length of the subclass chain.
+     */
+    protected double computeEffSimilarity( Cell c1, Enumeration s2 ){
+	return 0.;
+    }
+
+    /**
+     * This computes similarity depending on structural measures:
+     * the similarity is symALPHA^minval, symALPHA being lower than 1.
+     * minval is the length of the subclass chain.
+     */
+    protected double computeOrientSimilarity( Cell c1, Enumeration s2 ){
+	return 0.;
+    }
+
     protected int relativePosition( Object o1, Object o2, HeavyLoadedOntology<Object> onto )  throws AlignmentException {
 	if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
 	    isSuperClass( o2, o1, onto ); // This is the level
@@ -196,7 +219,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     }
 
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	return ontology.getSuperProperties( prop2, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
+	return ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
     }
 
 
@@ -219,7 +242,7 @@ public class ExtPREvaluator extends BasicEvaluator {
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	URI uri1 = ontology.getEntityURI( class1 );
 	Set<Object> bufferedSuperClasses = null;
-	Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+	Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	int level = 0;
 
 	while ( !superclasses.isEmpty() ){
@@ -233,7 +256,7 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    if ( uri1.toString().equals(uri2.toString()) ) {
 			return level;
 		    } else {
-			superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY ) );
+			superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
 		    }
 		}
 	    }
