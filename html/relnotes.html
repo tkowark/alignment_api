@@ -14,21 +14,47 @@
   change your code; minor release numbers bring bug fixes and new
   functionnalities but should not require change in existing code.</p>
 
+<h2>Plan for release 4 (you can comment)</h2>
+
+<p>
+The next major release, release 4, is now in sight due to various
+constraints and needs that have arousen in the past months. Here are
+the main ruptures that will appear:
+<ul compact="1">
+<li>The use of Java 1.5 parametrization facilities for refining the
+  API: Hence we will
+  define <tt>Alignment&lt;Ontology,Ontology,Relation,Confidence&gt;</tt>. This
+  will provide the opportunity to define everyone owns relation (and
+  generalise the use of relation algebras). (api/impl)</li>
+<li>The <tt>onto</tt> package will be fully externalised from the
+  Alignment API. This means in particular (a) the full disappearance
+  of the the <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
+  deprecated since version 3.3, (b) virtualisation of the Ontology
+  support from OMWGAlignments which are currently based on Jena, (c)
+  release of separated subpackages offering OWL API 1.0, OWL API 2.0,
+  Jena 2.5, OLGraph and SKOS. (onto)</li>
+</ul>
+Other less radical changes include:
+<ul compact="1">
+<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
+<li>Implementation of <tt>Relation</tt> and <tt>Confidence</tt> interfaces </li>
+<li>Implement <tt>onto</tt> support in database store (server)</li>
+<li>Move <tt>OLgraphs</tt> as HeavyLoadedOntology (onto)</li>
+<li>Implement database store for OMWG Language (server)</li>
+</ul>
+Currently the development and maintainance of 3 versions continue.
+</p>
+
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Implement ontology support database store (server)</li>
 <li>Online evaluation (server)</li>
-<li>Move OLgraphs as HeavyLoadedOntology (onto)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
 <li>Improve HTML interface layout and usability (server)</li>
-<li>Implement database store for OMWG Language (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
 <li>Render alignments as module descriptions (impl)</li>
-<li>Replace <tt>Parameters</tt> with Java <tt>Property</tt> (api/impl)[Version 4]</li>
-<li>Implement <tt>Relation</tt> and <tt>Confidence</tt> interfaces (api/impl)[Version 4]</li>
 <li>Implement extensive evaluation framework (impl)</li>
 <li>Implement debug options with log4j</li>
 <li>Use more for-each Java 1.5 construct</li>
@@ -39,6 +65,9 @@
 
 <p>
 <ul compact="1">
+<li>Added REST interface to the HTML interface (server)</li>
+<li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
+  between Data and Object properties (impl)</li>
 </ul>
 </p>
 
@@ -75,7 +104,7 @@
 <li>Implemented WSAlignment connecting to remote web service for
   matching (server)</li>
 <li><span style="color: red;">Deprecated</span> <tt>Cell.getObjectXAsURI()</tt>
-  in favour of <tt>Cell.getObjectXAsURI(Object ontology)</tt> (api)</tt>
+  in favour of <tt>Cell.getObjectXAsURI(Alignment al)</tt> (api)</tt>
 <li>Upgraded NeOn plug-in for working with <span style="color: green">NeOn toolkit 1.1</span> (plugin)</li>
 <li>Implemented OWL API 2 support [not shipped] (onto)</li>
 <li>Added <tt>init( Parameters )</tt> arguments to visitors (api)</tt>
