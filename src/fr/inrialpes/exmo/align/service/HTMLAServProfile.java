@@ -352,6 +352,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
+	} else if ( oper.equals( "rest" ) ){
+	    params.setParameter( "restful", "true" );
+	    return htmlAnswer( uri, uri.substring(start), header, params );
+	    // This already seems RESTful
 	} else if ( oper.equals( "alid" ) ){
 	    return returnAlignment( uri );
 	} else if ( oper.equals( "wsdl" ) ){
@@ -463,6 +467,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public Response htmlAnswer( String uri, String perf, Properties header, Parameters params ) {
 	//System.err.println("HTML["+perf+"]");
+	// REST get
 	String msg = "";
 	if ( perf.equals("prmstore") ) {
 	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
@@ -484,7 +489,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( url != null && !url.equals("") ) { // Load the URL
 		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer );
+		    msg = testErrorMessages( answer, params );
 		} else {
 		    id = answer.getContent();
 		}
@@ -492,10 +497,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null ){ // Store it
 		Message answer = manager.store( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer );
+		    msg = testErrorMessages( answer, params );
 		} else {
 		    msg = "<h1>Alignment stored</h1>";
-		    msg += displayAnswer( answer );
+		    msg += displayAnswer( answer, params );
 		}
 	    }
 	} else if ( perf.equals("prmcut") ) {
@@ -518,10 +523,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
 		Message answer = manager.cut( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer );
+		    msg = testErrorMessages( answer, params );
 		} else {
 		    msg = "<h1>Alignment trimed</h1>";
-		    msg += displayAnswer( answer );
+		    msg += displayAnswer( answer, params );
 		}
 	    }
 	} else if ( perf.equals("prminv") ) {
@@ -538,10 +543,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null && !id.equals("") ){ // Trim it
 		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer );
+		    msg = testErrorMessages( answer, params );
 		} else {
 		    msg = "<h1>Alignment inverted</h1>";
-		    msg += displayAnswer( answer );
+		    msg += displayAnswer( answer, params );
 		}
 	    }
 	} else if ( perf.equals("prmalign") ) {
@@ -562,20 +567,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("align") ) {
 	    Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Alignment results</h1>";
-		msg += displayAnswer( answer );
+		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("prmfind") ) {
 	    msg ="<h1>Find alignments between ontologies</h1><form action=\"find\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URI identifying the ontologies. Not those of places where to upload them.</small><br /><input type=\"submit\" name=\"action\" value=\"Find\"/></form>";
 	} else if ( perf.equals("find") ) {
 	    Message answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Found alignments</h1>";
-		msg += displayAnswer( answer );
+		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
 	    String sel = (String)params.getParameter("id");
@@ -599,7 +604,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("retrieve") ) {
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		// Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
@@ -618,7 +623,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    //System.err.println("Content: "+answer.getContent());
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		// Depending on the type we should change the MIME type
 		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
@@ -639,10 +644,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // load
 	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Alignment loaded</h1>";
-		msg += displayAnswer( answer );
+		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("prmtranslate") ) {
 	    msg = "<h1>Translate query</h1><form action=\"translate\">";
@@ -656,7 +661,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("translate") ) {
 	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Message translation</h1>";
 		msg += "<h2>Initial message</h2><pre>"+((String)params.getParameter("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
@@ -676,7 +681,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    //System.err.println("Content: "+answer.getContent());
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		// Depending on the type we should change the MIME type
 		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
@@ -710,10 +715,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("eval") ) {
 	    Message answer = manager.eval( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer );
+		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Evaluation results</h1>";
-		msg += displayAnswer( answer );
+		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("saveeval") ) {
 	} else if ( perf.equals("prmgrpeval") ) {
@@ -760,31 +765,40 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer() );
     }	 
 
-    private String testErrorMessages( Message answer ) {
-	return "<h1>Alignment error</h1>"+answer.HTMLString();
+    private String testErrorMessages( Message answer, Parameters param ) {
+	if ( param.getParameter("restful") != null ) {
+	    return answer.RESTString();
+	} else {
+	    return "<h1>Alignment error</h1>"+answer.HTMLString();
+	}
     }
 
-    private String displayAnswer ( Message answer ) {
-	String result = answer.HTMLString();
-	// Improved return
-	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
-	    result += "<table><tr>";
-	    // STORE
-	    result += "<td><form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
-	    // TRIM (2)
-	    result += "<td><form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form></td>";
-	    // RETRIEVE (1)
-	    result += "<td><form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form></td>";
-	    // Note at that point it is not possible to get the methods
-	    // COMPARE (2)
-	    // INV
-	    result += "<td><form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form></td>";
-	    result += "</tr></table>";
-	} else if ( answer instanceof EvaluationId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
-	    result += "<table><tr>";
-	    // STORE (the value should be the id here, not the content)
-	    result += "<td><form action=\"saveeval\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
-	    result += "</tr></table>";
+    private String displayAnswer( Message answer, Parameters param ) {
+	String result = null;
+	if ( param.getParameter("restful") != null ) {
+	    result = answer.RESTString();
+	} else {
+	    result = answer.HTMLString();
+	    // Improved return
+	    if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+		result += "<table><tr>";
+		// STORE
+		result += "<td><form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
+		// TRIM (2)
+		result += "<td><form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form></td>";
+		// RETRIEVE (1)
+		result += "<td><form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form></td>";
+		// Note at that point it is not possible to get the methods
+		// COMPARE (2)
+		// INV
+		result += "<td><form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form></td>";
+		result += "</tr></table>";
+	    } else if ( answer instanceof EvaluationId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+		result += "<table><tr>";
+		// STORE (the value should be the id here, not the content)
+		result += "<td><form action=\"saveeval\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
+		result += "</tr></table>";
+	    }
 	}
 	return result;
     }
