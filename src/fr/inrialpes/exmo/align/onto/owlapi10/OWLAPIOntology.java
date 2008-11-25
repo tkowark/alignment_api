@@ -238,7 +238,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     	Set<Object> entities = new HashSet<Object>();
 	for (Object obj : ec.entities()) {
 	    // JD: OWLEntitytCollector seems to return anonymous entities :&& ((OWLEntity)obj).getURI()!=null
-	    if (c.isInstance(obj) && ((OWLEntity) obj).getURI()!=null &&((OWLEntity) obj).getURI().toString().startsWith(onto.getURI().toString()) ){
+	    if (c.isInstance(obj) && ((OWLEntity) obj).getURI()!=null) { // &&((OWLEntity) obj).getURI().toString().startsWith(onto.getURI().toString()) ){
 		entities.add(obj);
 	    }
 	}
