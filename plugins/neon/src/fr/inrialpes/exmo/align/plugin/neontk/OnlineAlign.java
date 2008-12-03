@@ -21,14 +21,27 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.File;
 
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
+
+//mport javax.swing.JOptionPane;
+import javax.swing.ProgressMonitorInputStream;
+//import javax.swing.JComponent;
+//import javax.swing.JDialog;
+import javax.swing.ProgressMonitor;
+import javax.swing.JButton;
+//import java.awt.FlowLayout;
+//import java.awt.EventQueue;
  
 import java.io.OutputStream;
+//import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
  
@@ -66,10 +79,22 @@ public class OnlineAlign {
 		URL SOAPUrl = null;
 		String SOAPAction = null;
 		String uploadFile = null;
+		 
+		HttpURLConnection globalConn = null;
+		 
+		String globalAnswer = null;
+		 
+		//InputStream globalInput = null;
+		JButton export = null;
+		JButton store = null;
+		JButton trim = null;
+		//Parameters globalParam = null;
+		//String rdfString = null;
+		
 		private static DocumentBuilder BUILDER = null;
 		final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
 		
-	    public OnlineAlign( String htmlPort, String host )  {
+	    public OnlineAlign( String htmlPort, String host   )  {
 	    	try {
 	    		HOST = host;
 	    		PORT = htmlPort;
@@ -173,9 +198,7 @@ public class OnlineAlign {
 			//System.out.println("Trim Align="+ result[0]);
 			
 			return result[0];
-			
-			 
-			
+ 	
 	    }
 	    
 	    public String[] getMethods() {
@@ -376,6 +399,7 @@ public class OnlineAlign {
 		
 		 
 		Parameters params = new BasicParameters();
+	    
 		params.setParameter( "host", HOST );
 		//params.setParameter( "http", PORT );
 		//params.setParameter( "wsdl", WSDL );
@@ -423,49 +447,11 @@ public class OnlineAlign {
 		return result[0];
 	    }
 	    
-	    public String getRDFAlignment(String alignId) {
-			
-			//retrieve alignment for storing in OWL file
-			
-			 
-			Parameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","retrieve");
-			params.setParameter( "arg1", alignId);
-			params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
-			
-			String answer=null;
-		     
+	    public String getRDFAlignmentParsed() {
+	    	
+	    	Document domMessage = null;
 			try {
-				// Read parameters
-				//Parameters params = ws.readParameters( aservArgRetrieve );
-				
-				// Create the SOAP message
-				String message = createMessage( params );
-
-				//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-				//System.out.println("Message :" + message);
-				
-				// Send message
-				answer = sendMessage( message, params );
-				if(! connected ) return null; 
-				
-				
-				
-			} catch ( Exception ex ) { ex.printStackTrace();  };
-				 
-				 
-			// Cut SOAP header
-			
-			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-			//answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
-			 
-			
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( globalAnswer.getBytes()) );
 			    
 			} catch  ( IOException ioex ) {
 			    ioex.printStackTrace();
@@ -477,10 +463,52 @@ public class OnlineAlign {
 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
 			 
 			 
-			//System.out.println("RDFAlign="+ result[0]); 
+			//System.out.println("RDFAlign="+ result[0]);
+			
+			//InputStream fromServer = new BufferedInputStream( 
+			//		new ProgressMonitorInputStream(component, "Reading ... " , new ByteArrayInputStream( result[0].getBytes()) ));  
+							//new FileInputStream(fileName ) ));
 				
 			return result[0];
-		}
+	    }
+	    
+	    public void getRDFAlignment(String alignId, JButton exp, JButton st, JButton tr) {
+			
+			//retrieve alignment for storing in OWL file
+			export = exp;
+			store  = st;
+			trim   = tr;
+	    	Parameters params = new BasicParameters();
+	    	params = new BasicParameters();
+	    	params.setParameter( "host", HOST );
+			//params.setParameter( "http", PORT );
+			//params.setParameter( "wsdl", WSDL );
+	    	params.setParameter( "command","retrieve");
+	    	params.setParameter( "arg1", alignId);
+	    	params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
+			
+			//String answer = null;
+		     
+			try {
+				// Read parameters
+				//Parameters params = ws.readParameters( aservArgRetrieve );
+				
+				// Create the SOAP message
+				String message = createMessage( params );
+				//globalMess = createMessage( globalParam );
+				//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
+				//System.out.println("Message :" + message);
+				
+				// Send message
+				//answer = sendMessage( message, params );
+				
+				//the result is put in "globalAnswer"
+				sendMessage( message, params );
+				 	
+				//if(! connected ) return null; 
+				
+			} catch ( Exception ex ) { ex.printStackTrace();  };
+ 		}
 	    
 	     
 	    
@@ -511,11 +539,8 @@ public class OnlineAlign {
 				
 				// Send message
 				answer = sendMessage( message, params );
-				 
-			
-				//corrList = getCorresFromAnswer( answer, "tr", "#" );
-		    	
-			}
+				
+ 			}
 			catch ( Exception ex ) { ex.printStackTrace() ;};
 			
 			if(! connected ) return null; 
@@ -753,18 +778,18 @@ public class OnlineAlign {
 	        byte[] b = message.getBytes();
 	        
 	        String answer = "";
+	        
 	        // Create HTTP Request
 	        try {
 	        	 
 	    		URLConnection connection = SOAPUrl.openConnection();
 	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
+	        	globalConn = httpConn;
 	        	 
 	            httpConn.setRequestProperty( "Content-Length",
 	                                         String.valueOf( b.length ) );
 	            httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
-	            
-	            
-	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
+ 	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
 	            httpConn.setRequestMethod( "POST" );
 	            httpConn.setDoOutput(true);
 	            httpConn.setDoInput(true);
@@ -772,23 +797,74 @@ public class OnlineAlign {
 	            // Send the request through the connection
 	            OutputStream out = httpConn.getOutputStream();
 	            
-	            //System.out.println("ResponseMessage= "+httpConn.getResponseMessage());
-	           
 	            out.write( b );
 	        	out.close();
-	        	
-	        	//System.out.println("Message Length= "+String.valueOf( b.length ));
-	        	
-	            // Read the response and write it to standard output
-	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	            BufferedReader in = new BufferedReader(isr);
 	        
-	            String line;
-	            while ((line = in.readLine()) != null) {
-	            	answer += line + "\n";
-	            }
-	            if (in != null) in.close();
 	            
+				if(  param.getParameter("command").equals("retrieve") ) {
+ 			
+					globalAnswer = "";
+					Thread th = new Thread() {
+						
+		        		public void run() {
+		        			
+					    try {
+				    	
+					    	String mess = "Fetching alignment from server,";
+					    	int maxSize = 5000000; // size in byte
+					    	
+					    	ProgressMonitorInputStream pin = new ProgressMonitorInputStream( null, mess, globalConn.getInputStream() );
+				    	
+					    	ProgressMonitor pm = pin.getProgressMonitor();
+					    	pm.setMaximum( maxSize );
+					    	pm.setMillisToPopup( 1 ); 
+					    	pm.setMillisToDecideToPopup( 2 ); 
+					    	
+					    	InputStreamReader isr = new InputStreamReader(pin);
+					    	BufferedReader in = new BufferedReader(isr);
+					    	 
+					    	String line;
+					    	int co = 0;
+					    	//int coL = 0;
+					    	while ((line = in.readLine()) != null) {
+					    		globalAnswer += line + "\n";
+					    		co += line.length();
+					    		pm.setNote(co + " bytes read.");
+					    		if( co >= maxSize -10000 ) { 
+					    			maxSize = co + line.length() + maxSize; 
+					    			pm.setMaximum( maxSize );
+					    			pm.setProgress( co );
+					    		}
+					    	}
+					    	
+					    	if( ! pm.isCanceled() ) {
+							    export.setEnabled(true);
+	    						store.setEnabled(true);
+	    						trim.setEnabled(true);
+						    }
+					    
+					    	pm.setProgress( maxSize - 1 );
+				            pin.close();
+					    } catch (Exception e) {e.printStackTrace();}
+					    }
+			        		
+					};
+					
+					th.start();
+					 
+				} else {
+				
+					InputStreamReader isr = new InputStreamReader( httpConn.getInputStream() );
+		            BufferedReader in = new BufferedReader( isr );
+		        	String line;
+		            while ((line = in.readLine()) != null) {
+		            	answer += line + "\n";
+		            }
+		            
+		            in.close();
+				}
+    	      	//System.out.println("answer= " + answer);
+    	      	
 	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
 	            
 	            //if(httpConn.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
@@ -798,6 +874,7 @@ public class OnlineAlign {
 	        	}
 	        
 	        connected = true;
+	        
 	    	return answer;
 	    }
 	    
@@ -879,4 +956,5 @@ public class OnlineAlign {
 	        connected = true;
 	    	return answer;
 	    }
+	    
 }

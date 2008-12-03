@@ -32,6 +32,9 @@ import java.util.Enumeration;
 import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
+
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
@@ -100,7 +103,7 @@ public class OfflineAlign {
 	  	SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
 	  
 	  	
-	  	//	  for saving locally
+	  	//for saving locally
 	  	FileWriter rdfF = new FileWriter(new File( alignFolder.getAbsolutePath() + File.separator + name.toString()+ ".rdf" ));
 	  	AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
 	  	A1.render(rdfV);
@@ -112,8 +115,9 @@ public class OfflineAlign {
 	  	
 	  	AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
 	  	
-	  	
-	  	A1.render(V);
+	  	ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)A1 );
+		al.render( V );
+	  	//A1.render(V);
 	  	owlF.flush();
 	  	owlF.close();
 	
@@ -159,8 +163,9 @@ public class OfflineAlign {
 		  FileWriter owlF = new FileWriter( owlFile );
 		  
 		  AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
-				     		  
-		  clonedA1.render(owlV);
+		  ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)clonedA1 );
+		  al.render( owlV );		     		  
+		  //clonedA1.render(owlV);
 		  owlF.flush();
 		  owlF.close();	  
 		  } 

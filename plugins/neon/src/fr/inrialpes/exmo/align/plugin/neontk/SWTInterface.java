@@ -20,10 +20,14 @@
 
 package fr.inrialpes.exmo.align.plugin.neontk; 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.InputStream;
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.awt.Component;
@@ -37,6 +41,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -47,9 +53,12 @@ import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.ProgressMonitor;
+import javax.swing.ProgressMonitorInputStream;
 //import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
@@ -59,11 +68,30 @@ import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.Timer;
+import javax.swing.SwingUtilities;
+
+
+
+
+import java.net.HttpURLConnection;
+
+//import java.net.URL;
+import java.net.URLConnection;
+
+//import javax.swing.JFrame;
+//import javax.swing.ProgressMonitor;
+//import javax.swing.SwingUtilities;
+//import javax.swing.Timer;
+//import javax.swing.UIManager;
+
 
 
 //import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.Parameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,6 +101,7 @@ import org.w3c.dom.NodeList;
 //import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.swt.widgets.Composite;
  
 //import org.eclipse.core.resources.IProject;
 //import org.semanticweb.kaon2.api.Ontology;
@@ -92,6 +121,7 @@ import com.ontoprise.ontostudio.datamodel.exception.ControlException;
 //import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 //import org.eclipse.core.runtime.IProgressMonitor;
 //import com.ontoprise.ontostudio.owl.datamodel.*;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Cell;
@@ -100,18 +130,20 @@ import fr.inrialpes.exmo.align.impl.BasicCell;
 //import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 
 public class SWTInterface extends JPanel {
 
     private static final long serialVersionUID = 330;
     
 	private static JSplitPane _mainSplitter = new JSplitPane (JSplitPane.VERTICAL_SPLIT);
-
-	//private URL SOAPUrl = null;
-	//private String SOAPAction = null;
-
+	
+	 
 	JLabel hostName, portName;//, thresLabel;//, alignProjLabel;
 	
 	//JComboBox hostList, portList;
@@ -128,26 +160,24 @@ public class SWTInterface extends JPanel {
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
 	static String [] forUniqueness = new String[0];
 	static int alignId = 0;
-	//public static Vector<String> alignProjects = new Vector<String>();
-	//Procalign procalign = null;
-	//Parameters p = new BasicParameters();
-	
+ 
 	JComponent phrases;// Res=null;
+	
     JTextField fileName1, fileName2, hostField, portField;  
     SWTInterface frame;
      
     JEditorPane htmlView;
     
     JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
-    		alignImportButton, localAlignImportButton, alignUploadButton, 
+    		alignImportButton,  localAlignImportButton, alignUploadButton, 
     		localAlignTrimButton, serverAlignTrimButton, alignFindButton, 
     		alignStoreButton, connButton, offlineButton, onlineButton;// disconnButton ;
     JDialog dialog; 
     //JPanel pane2;
-	Component result=null;
+	Component result = null;
     JComboBox strategy, renderer, alignBox, localAlignBox, ontoBox1, ontoBox2;
     JLabel strat, render, ontoLabel1, ontoLabel2, alignLabel, localAlignLabel;
-    
+     
     //lists obtained from from server
     public String [] methodList = new String[0];
     
@@ -182,6 +212,7 @@ public class SWTInterface extends JPanel {
 	public File ontoFolder = null;
 	public File alignFolder = null;
 	public static File basicFolder = null;
+ 
 	
 	public void offlineInit(boolean init){
 		online = false;
@@ -208,6 +239,7 @@ public class SWTInterface extends JPanel {
 		alignFindButton.setEnabled(false);
 		
 		alignImportButton.setEnabled(false);
+		//fetchButton.setEnabled(false);
 		alignUploadButton.setEnabled(false);
 		
 		alignBox.setEnabled(false);
@@ -392,7 +424,8 @@ public class SWTInterface extends JPanel {
         			
         			selectedHost = hostField.getText();
     				selectedPort = portField.getText();
-    				onAlign = new OnlineAlign(selectedPort, selectedHost);
+    				//parentComponent = getParent();
+    				onAlign = new OnlineAlign(selectedPort, selectedHost );
     			 
         			String list[] = onAlign.getMethods();
         			if(list == null || list.length ==0) { 
@@ -418,22 +451,23 @@ public class SWTInterface extends JPanel {
         			 
         			alignBox.setEnabled(true);
         			localAlignBox.setEnabled(true);
-    				alignImportButton.setEnabled(true);
+    				
+        			alignImportButton.setEnabled(false);
+        			alignStoreButton.setEnabled(false);
+        			serverAlignTrimButton.setEnabled(false);
+    				//fetchButton.setEnabled(true);
+    				
     				localAlignImportButton.setEnabled(true);
     				alignUploadButton.setEnabled(true);
     				alignFindButton.setEnabled(true);
     				allAlignButton.setEnabled(true);
     				
-    				alignStoreButton.setEnabled(true);
-        			
     				offlineButton.setEnabled(true);
     				onlineButton.setEnabled(false);
     						 
-    				serverAlignTrimButton.setEnabled(true);
-    				localAlignTrimButton.setEnabled(true);
-    			 
-    				alignStoreButton.setEnabled(true);
     				
+    				localAlignTrimButton.setEnabled(true);
+  				
     				ontoRefresh.setEnabled(true);
     				 
     				mapButton.setEnabled(true);
@@ -607,17 +641,21 @@ public class SWTInterface extends JPanel {
 				    //the name originated from the server is a URL so slashes are used 
 				    //String []  sali = selectedAlign.split("/");
         			//String uniqueId = sali[sali.length-2].concat(sali[sali.length-1]);
-        		 
+        		    
+        			String inputName = null;
+        			
         			FileWriter out = null;
 					 
-					String inputName = null;
-					
-				
 					//export to local List
-					String rdfalignStr = onAlign.getRDFAlignment( selectedAlign );
+							
+					String rdfalignStr = onAlign.getRDFAlignmentParsed( );
+					 	
 					String alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
 					
 					String rdfPath =  alignKey + ".rdf";
+					
+					URIAlignment align = null;
+					String owlalignStr = null;
 					
 					try {
 						
@@ -633,7 +671,7 @@ public class SWTInterface extends JPanel {
 						
 						AlignmentParser ap = new AlignmentParser(0);
 						ap.setEmbedded(true);
-						Alignment align = ap.parse(file.toURI().toString());
+						align = (URIAlignment)ap.parse(file.toURI().toString());
 						
 						SWTInterface.alignmentTable.put( alignKey , (Alignment)align );
 					
@@ -666,20 +704,26 @@ public class SWTInterface extends JPanel {
 					       
 						htmlView.setVisible(true);
 						
+						//get align from server, then  export it as owl onto
+					
+						//String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
+						 
+						StringWriter owlMessage = new StringWriter();
+						AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlMessage )  );
+						//align.init( );
+						ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+						al.render( owlV );
+						
+						owlalignStr = owlMessage.toString();
 					}
 					catch ( Exception ex ) { ex.printStackTrace();};
-			        
-					//get align from server, then  export it as owl onto
 					
-        			String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
-        			
 						
 					if(owlalignStr==null)  {
-						JOptionPane.showMessageDialog(null, "Alignment cannot be exported.","Warning",2);
+						JOptionPane.showMessageDialog(null, "OWL alignment cannot be exported.","Warning",2);
 						return;
 					}
 					
-							
 					try {
 						 	
 						inputName = JOptionPane.showInputDialog(null, "Enter a project name", "AlignmentProject");
@@ -972,20 +1016,28 @@ public class SWTInterface extends JPanel {
 				   			return;
 				   		}
 				   		
+				   		alignImportButton.setEnabled(false);
+	        			alignStoreButton.setEnabled(false);
+	        			serverAlignTrimButton.setEnabled(false);
+				   		//if (matchMethod.equals("es.upm.fi.dia.ontology.semanticmapper.pronto.ODEAlignment")) {
+				   		//	JOptionPane.showMessageDialog(null, "This method may take some minutes.\n Please click OK and wait.","Warning",2);
+				   			
+				   		//}
+				   		
 					    String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
 						if(answer==null || answer.equals(""))  {
 							JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
 							return;
 						}
 						
-												 
 						alignIdList = new String[1];
 						alignIdList[0] = answer;
 		        	    alignBox.removeAllItems();
 		        		alignBox.addItem(alignIdList[0]);
 		        		selectedAlign = alignIdList[0];
-		        							
-		        			 
+		        		
+						onAlign.getRDFAlignment( selectedAlign , alignImportButton, alignStoreButton, serverAlignTrimButton);
+						 			 
 				  }
 				  else { //offline
 						
@@ -1133,6 +1185,7 @@ private JPanel createPhraseList () {
 	
 	fourLabel.add(alignLabel);
 	fourLabel.add(alignBox);
+	//fourLabel.add(fetchButton);
 	fourLabel.add(alignImportButton);
 	fourLabel.add(serverAlignTrimButton);
 	fourLabel.add(alignStoreButton);
@@ -1329,9 +1382,6 @@ private HashMap<String,String> refreshOntoList() {
 	 
  }
  
- 
- 
- 
  public static Vector<String[]> getCorresFromAnswer( String answer, String type ,String separator) {
  	Document doc=null;
  	Vector<String[]> names = new Vector<String[]>();
@@ -1429,9 +1479,6 @@ private HashMap<String,String> refreshOntoList() {
      return doc;
  }
  
- 
 }
-
-
 
 
