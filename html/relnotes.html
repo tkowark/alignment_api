@@ -66,8 +66,11 @@ Currently the development and maintainance of 3 versions continue.
 <p>
 <ul compact="1">
 <li>Added REST interface to the HTML interface (server)</li>
+<li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
+<li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
+<li><tt>ConcatenatedIterator</tt> is now parameterised and iterable (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
-  between Data and Object properties (impl)</li>
+  between Data and Object properties and, in general, heterorgeneous equivalences (impl)</li>
 </ul>
 </p>
 
@@ -87,11 +90,11 @@ Currently the development and maintainance of 3 versions continue.
 <li>Updated <tt>SKOSRendererVisitor</tt> to work with 2008 version of
   SKOS, old version can be obtained by parameter <tt>pre2008</tt> (impl)</li>
 <li>Suppressed <tt>GenTriangle</tt> (util)</li>
-<li>Corrected an error preventing DistanceAlignemnt to consider instances (impl)</li>
+<li>Corrected an error preventing DistanceAlignment to consider individuals (impl)</li>
 <li>Corrected SWRL format missing rdf namespace (impl)</li>
 <li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
 <li>Corrected a bug in <tt>SKOSRendererVisitor</tt> and <tt>XSLTRendererVisitor</tt> (impl)</li>
-<li>Started to put copyright notices to INRIA instead of INRIA Rhône-Alpes (misc)</li>
+<li>Started to put copyright notices to INRIA instead of INRIA Rh&ocirc;ne-Alpes (misc)</li>
 <li>Used Java 1.5 print Formatter instead of our printFormat (impl)</li>
 <li>Unit tests for onto and owlapi10 (onto)</li>
 </ul>
