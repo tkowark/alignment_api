@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Set;
 import java.text.NumberFormat;
 
 import org.semanticweb.owl.align.Alignment;
@@ -129,20 +130,16 @@ public abstract class MatrixMeasure implements Similarity {
     public void compute( Parameters params ){
 	try {
 	    // Compute distances on classes
-	    for ( Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ){
-		Object cl2 = (Object)it2.next();
-		for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
-		    Object cl1 = (Object)it1.next();
+	    for ( Object cl2: onto2.getClasses() ){
+		for ( Object cl1: onto1.getClasses() ){
 		    clmatrix[classlist1.get(cl1).intValue()][classlist2.get(cl2).intValue()] = classMeasure( cl1, cl2 );
 		}
 	    }
 	    // Compute distances on individuals
 	    // (this comes first because otherwise, it2 is defined)
-	    for ( Iterator it2 = onto2.getIndividuals().iterator(); it2.hasNext(); ){
-		Object ind2 = (Object)it2.next();
+	    for ( Object ind2: onto2.getIndividuals() ){
 		if ( indlist2.get(ind2) != null ) {
-		    for ( Iterator it1 = onto1.getIndividuals().iterator(); it1.hasNext(); ){
-			Object ind1 = (Object)it1.next();
+		    for ( Object ind1: onto1.getIndividuals() ){
 			if ( indlist1.get(ind1) != null ) {
 			    indmatrix[indlist1.get(ind1).intValue()][indlist2.get(ind2).intValue()] = individualMeasure( ind1, ind2 );
 			}
@@ -153,13 +150,11 @@ public abstract class MatrixMeasure implements Similarity {
 	    ConcatenatedIterator it2 = new
 		ConcatenatedIterator(onto2.getObjectProperties().iterator(),
 				     onto2.getDataProperties().iterator());
-	    for ( ; it2.hasNext(); ){
-		Object pr2 = (Object)it2.next();
+	    for ( Object pr2: it2 ){
 		ConcatenatedIterator it1 = new
 		    ConcatenatedIterator(onto1.getObjectProperties().iterator(),
 					 onto1.getDataProperties().iterator());
-		for ( ; it1.hasNext(); ){
-		    Object pr1 = (Object)it1.next();
+		for ( Object pr1: it1 ){
 		    prmatrix[proplist1.get(pr1).intValue()][proplist2.get(pr2).intValue()] = propertyMeasure( pr1, pr2 );
 		}
 	    }
@@ -178,26 +173,24 @@ public abstract class MatrixMeasure implements Similarity {
     }
 
     // Not an efficient access...
-    public void printClassSimilarityMatrix( String type ){
+    private void printMatrix( int nb1, HashMap<Object,Integer> ent1, HashMap<Object,Integer> ent2, double matrix[][] ) {
 	// Number format class to format the values
 	numFormat = NumberFormat.getInstance();
 	numFormat.setMinimumFractionDigits( 2 );
 	numFormat.setMaximumFractionDigits( 2 );
 	System.out.print("\\begin{tabular}{r|");
-	for ( int i = 0; i < nbclass1 ; i++ ) System.out.print("c");
+	for ( int i = 0; i < nb1 ; i++ ) System.out.print("c");
 	System.out.println("}");
 	try {
-	    for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
-		Object cl1 = (Object)it1.next();
-		System.out.print(" & \\rotatebox{90}{"+onto1.getEntityName( cl1 )+"}");
+	    Set<Object> key1 = ent1.keySet();
+	    for( Object ob1 : key1 ){
+		System.out.print(" & \\rotatebox{90}{"+onto1.getEntityName( ob1 )+"}");
 	    }
 	    System.out.println(" \\\\ \\hline");
-	    for ( Iterator it2 = onto2.getClasses().iterator(); it2.hasNext(); ){
-		Object cl2 = (Object)it2.next();
-		System.out.print( onto2.getEntityName( cl2 ) );
-		for ( Iterator it1 = onto1.getClasses().iterator(); it1.hasNext(); ){
-		    Object cl1 = (Object)it1.next();
-		    System.out.print(" & "+numFormat.format(clmatrix[classlist1.get(cl1).intValue()][classlist2.get(cl2).intValue()]));
+	    for ( Object ob2 : ent2.keySet() ){
+		System.out.print( onto2.getEntityName( ob2 ) );
+		for ( Object ob1 : key1 ){
+		    System.out.print(" & "+numFormat.format(matrix[ent1.get(ob1).intValue()][ent2.get(ob2).intValue()]));
 		}
 		System.out.println("\\\\");
 	    }
@@ -205,8 +198,14 @@ public abstract class MatrixMeasure implements Similarity {
 	System.out.println("\n\\end{tabular}");
     }
 
-    // Considered not useful so far
-    public void printPropertySimilarityMatrix( String type ){};
-    public void printIndividualSimilarityMatrix( String type ){};
+    public void printClassSimilarityMatrix( String type ){
+	printMatrix( nbclass1, classlist1, classlist2, clmatrix ); 
+    }
+    public void printPropertySimilarityMatrix( String type ){
+	printMatrix( nbprop1, proplist1, proplist2, prmatrix ); 
+    };
+    public void printIndividualSimilarityMatrix( String type ){
+	printMatrix( nbind1, indlist1, indlist2, indmatrix ); 
+    };
 
 }
