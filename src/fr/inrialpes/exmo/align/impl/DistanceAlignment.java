@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -101,12 +101,20 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	System.out.println("\\documentclass{article}\n");
 	System.out.println("\\usepackage{graphics}\n");
 	System.out.println("\\begin{document}\n");
-	System.out.println("\\begin{figure}");
+	System.out.println("\\begin{table}");
 	sim.printClassSimilarityMatrix("tex");
-	System.out.println();
-	sim.printPropertySimilarityMatrix("tex");
 	System.out.println("\\caption{Class distance with measure "+(String)params.getParameter("stringFunction")+"}");
-	System.out.println("\\end{figure}");
+	System.out.println("\\end{table}");
+	System.out.println();
+	System.out.println("\\begin{table}");
+	sim.printPropertySimilarityMatrix("tex");
+	System.out.println("\\caption{Property distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\end{table}");
+	System.out.println();
+	System.out.println("\\begin{table}");
+	sim.printIndividualSimilarityMatrix("tex");
+	System.out.println("\\caption{Individual distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\end{table}");
 	System.out.println("\n\\end{document}");
     }
 
@@ -145,6 +153,9 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	else throw new AlignmentException("Unknown alignment type: "+type);
     }
 
+    // JE: It is now certainly possible to virtualise extraction has it has
+    // been done for printing matrix in MatrixMeasure (todo)
+
     /**
      * Extract the alignment of a ?* type
      * Complexity: O(n^2)
@@ -159,15 +170,13 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	  ConcatenatedIterator pit1 = new 
 	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
 				   ontology1().getDataProperties().iterator());
-	  for ( ; pit1.hasNext(); ) {
-	      Object prop1 = pit1.next();
+	  for( Object prop1 : pit1 ){
 	      found = false; max = threshold; val = 0;
 	      Object prop2 = null;
 	      ConcatenatedIterator pit2 = new 
 		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
 				       ontology2().getDataProperties().iterator());
-	      for ( ; pit2.hasNext(); ) {
-		  Object current = pit2.next();
+	      for ( Object current : pit2 ){
 		  val = 1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
@@ -176,12 +185,10 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      if ( found ) addAlignCell(prop1,prop2, "=", max);
 	  }
 	  // Extract for classes
-	  for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); ) {
-	      Object class1 = it1.next();
+	  for ( Object class1 : ontology1().getClasses() ) {
 	      found = false; max = threshold; val = 0;
 	      Object class2 = null;
-	      for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); ) {
-		  Object current = it2.next();
+	      for ( Object current : ontology2().getClasses() ) {
 		  val = 1 - sim.getClassSimilarity(class1,current);
 		  if (val > max) {
 		      found = true; max = val; class2 = current;
@@ -191,13 +198,11 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	  }
 	  // Extract for individuals
 	  if (  params.getParameter("noinst") == null ){
-	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
-		  Object ind1 = it1.next();
+	      for ( Object ind1 : ontology1().getIndividuals() ) {
 		  if ( ontology1().getEntityURI( ind1 ) != null ) {
 		      found = false; max = threshold; val = 0;
 		      Object ind2 = null;
-		      for (Iterator it2 = ontology2().getIndividuals().iterator(); it2.hasNext(); ) {
-			  Object current = it2.next();
+		      for ( Object current : ontology2().getIndividuals() ) {
 			  if ( ontology2().getEntityURI( current ) != null ) {
 			      val = 1 - sim.getIndividualSimilarity( ind1, current );
 			      if (val > max) {
@@ -230,12 +235,12 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	    Object[] class1 = new Object[nbclasses1];
 	    Object[] class2 = new Object[nbclasses2];
 	    int i = 0;
-	    for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); i++) {
-		class1[i] = it1.next();
+	    for ( Object ob : ontology1().getClasses() ) {
+		class1[i++] = ob;
 	    }
 	    int j = 0;
-	    for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); j++) {
-		class2[j] = it2.next();
+	    for ( Object ob : ontology2().getClasses() ) {
+		class2[j++] = ob;
 	    }
 	    for( i = 0; i < nbclasses1; i++ ){
 		for( j = 0; j < nbclasses2; j++ ){
@@ -267,16 +272,12 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	    ConcatenatedIterator pit1 = new 
 		ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
 				     ontology1().getDataProperties().iterator());
-	    for (; pit1.hasNext(); i++) {
-		prop1[i] = pit1.next();
-	    }
+	    for ( Object ob: pit1 ) prop1[i++] = ob;
 	    int j = 0;
 	    ConcatenatedIterator pit2 = new 
 		ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
 				     ontology2().getDataProperties().iterator());
-	    for (; pit2.hasNext(); j++) {
-		prop2[j] = pit2.next();
-	    }
+	    for ( Object ob: pit2 ) prop2[j++] = ob;
 	    for( i = 0; i < nbprop1; i++ ){
 		for( j = 0; j < nbprop2; j++ ){
 		    matrix[i][j] = 1 - sim.getPropertySimilarity(prop1[i],prop2[j]);
@@ -296,41 +297,70 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		}
 	    }
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	// For individuals
+	if (  params.getParameter("noinst") == null ){
+	try{
+	    // Create individual lists
+	    Object[] ind1 = new Object[ontology1().nbIndividuals()];
+	    Object[] ind2 = new Object[ontology2().nbIndividuals()];
+	    int nbind1 = 0;
+	    int nbind2 = 0;
+	    for( Object ob : ontology2().getIndividuals() ){
+		// We suppress anonymous individuals... this is not legitimate
+		if ( ontology2().getEntityURI( ob ) != null ) {
+		    ind2[nbind2++] = ob;
+		}
+	    }
+	    for( Object ob : ontology1().getIndividuals() ){
+		// We suppress anonymous individuals... this is not legitimate
+		if ( ontology1().getEntityURI( ob ) != null ) {
+		    ind1[nbind1++] = ob;
+		}
+	    }
+	    double[][] matrix = new double[nbind1][nbind2];
+	    int i, j;
+	    for( i=0; i < nbind1; i++ ){
+		for( j=0; j < nbind2; j++ ){
+		    matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
+		}
+	    }
+	    // Pass it to the algorithm
+	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+	    // Extract the result
+	    for( i=0; i < result.length ; i++ ){
+		// The matrix has been destroyed
+		double val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+		// JE: here using strict-> is a very good idea.
+		// it means that alignments with 0. similarity
+		// will be excluded from the best match. 
+		if( val > threshold ){
+		    addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		}
+	    }
+	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	}
 	return((Alignment)this);
     }
 
     /**
-     * Naive algorithm:
+     * Greedy algorithm:
      * 1) dump the part of the matrix distance above threshold in a sorted set
      * 2) traverse the sorted set and each time a correspondence involving two
      *    entities that have no correspondence is encountered, add it to the 
      *    alignment.
      * Complexity: O(n^2.logn)
-     * Pitfall: no global optimality is warranted
+     * Pitfall: no global optimality is warranted, nor stable marriage
      * for instance if there is the following matrix:
      * (a,a')=1., (a,b')=.9, (b,a')=.9, (b,b')=.1
      * This algorithm will select the first and last correspondances of
      * overall similarity 1.1, while the optimum is the second solution
      * with overall of 1.8.
      */
-    public Alignment extractqqNaive( double threshold, Parameters params) {
-	Object ent1=null, ent2=null;
+    public Alignment extractqqgreedy( double threshold, Parameters params) {
 	double val = 0;
 	//TreeSet could be replaced by something else
 	//The comparator must always tell that things are different!
-	/*SortedSet cellSet = new TreeSet(
-			    new Comparator() {
-				public int compare( Object o1, Object o2 )
-				    throws ClassCastException{
-				    if ( o1 instanceof Cell
-					 && o2 instanceof Cell ) {
-					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
-					    return -1;
-					} else { return 1; }
-				    } else {
-					throw new ClassCastException();
-					}}});*/
-      SortedSet<Cell> cellSet = new TreeSet<Cell>(
+	SortedSet<Cell> cellSet = new TreeSet<Cell>(
 			    new Comparator<Cell>() {
 				public int compare( Cell o1, Cell o2 )
 				    throws ClassCastException{
@@ -359,45 +389,40 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 				}
 			    }
 			    );
-
       try {
 	  // Get all the matrix above threshold in the SortedSet
 	  // Plus a map from the objects to the cells
 	  // O(n^2.log n)
-	  ConcatenatedIterator pit1 = new 
-	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-				   ontology1().getDataProperties().iterator());
-	  for (; pit1.hasNext(); ) {
-	      ent1 = pit1.next();
-	      ConcatenatedIterator pit2 = new 
-		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-					ontology2().getDataProperties().iterator());
-	      for (; pit2.hasNext(); ) {
-		  ent2 = pit2.next();
-		  val = 1 - sim.getPropertySimilarity( ent1, ent2 );
-		  if ( val > threshold ){
-		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
-		  }
-	      }
-	  }
-	  for (Iterator it1 = ontology1().getClasses().iterator(); it1.hasNext(); ) {
-	      ent1 = it1.next();
-	      for (Iterator it2 = ontology2().getClasses().iterator(); it2.hasNext(); ) {
-		  ent2 = it2.next();
+	  // for classes
+	  for ( Object ent1: ontology1().getClasses() ) {
+	      for ( Object ent2: ontology2().getClasses() ) {
 		  val = 1 - sim.getClassSimilarity( ent1, ent2 );
 		  if ( val > threshold ){
 		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 		  }
 	      }
 	  }
-	  // Extract for individuals
+	  // for properties
+	  ConcatenatedIterator pit1 = new 
+	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+				   ontology1().getDataProperties().iterator());
+	  for ( Object ent1: pit1 ) {
+	      ConcatenatedIterator pit2 = new 
+		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+					ontology2().getDataProperties().iterator());
+	      for ( Object ent2: pit2 ) {
+		  val = 1 - sim.getPropertySimilarity( ent1, ent2 );
+		  if ( val > threshold ){
+		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
+		  }
+	      }
+	  }
+	  // for individuals
 	  if (  params.getParameter("noinst") == null ){
-	      for (Iterator it1 = ontology1().getIndividuals().iterator(); it1.hasNext();) {
-		  ent1 = it1.next();
+	      for( Object ent1: ontology1().getIndividuals() ) {
 		  if ( ontology1().getEntityURI( ent1 ) != null ) {
 
-		      for (Iterator it2 = ontology2().getIndividuals().iterator(); it2.hasNext(); ) {
-			  ent2 = it2.next();
+		      for( Object ent2: ontology2().getIndividuals() ) {
 			  if ( ontology2().getEntityURI( ent2 ) != null ) {
 			      val = 1 - sim.getIndividualSimilarity( ent1, ent2 );
 			      if ( val > threshold ){
@@ -410,10 +435,9 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	  }
 
 	  // O(n^2)
-	  for( Iterator it = cellSet.iterator(); it.hasNext(); ){
-	      Cell cell = (Cell)it.next();
-	      ent1 = cell.getObject1();
-	      ent2 = cell.getObject2();
+	  for( Cell cell : cellSet ){
+	      Object ent1 = cell.getObject1();
+	      Object ent2 = cell.getObject2();
 	      if ( (getAlignCells1( ent1 ) == null) && (getAlignCells2( ent2 ) == null) ){
 		  // The cell is directly added!
 		  addCell( cell );
