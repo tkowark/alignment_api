@@ -39,7 +39,7 @@ public interface Similarity
     // It would be better if they where explicit...
     // Apparently the initialize also compute the similarity
 
-	// JE: OntoRewr: This should not be in init
+    // JE: OntoRewr: This should not be in init
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2 );
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align );
     public void compute( Parameters p );
@@ -57,7 +57,7 @@ public interface Similarity
     // the abstract matrix class provides the get- accessors and the 
     // concrete classes implement measure as their computation function.
     // This is not clean. What should be done is:
-	// JE: OntoRewr: to be suppressed
+    // JE: OntoRewr: to be suppressed
     public double measure( Object c1, Object c2 ) throws Exception;
     public double classMeasure( Object c1, Object c2 ) throws Exception;
     public double propertyMeasure( Object p1, Object p2) throws Exception;
