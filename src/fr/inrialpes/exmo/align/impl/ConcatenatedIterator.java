@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005
+ * Copyright (C) INRIA 2003-2005, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
+import java.lang.Iterable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.lang.UnsupportedOperationException;
@@ -34,10 +35,10 @@ import java.lang.UnsupportedOperationException;
  * @version $Id$ 
  */
 
-public final class ConcatenatedIterator implements Iterator {
-    private Iterator it1 = null;
-    private Iterator it2 = null;
-    public ConcatenatedIterator ( Iterator i1, Iterator i2 ){
+public final class ConcatenatedIterator<O> implements Iterator<O>, Iterable<O> {
+    private Iterator<O> it1 = null;
+    private Iterator<O> it2 = null;
+    public ConcatenatedIterator ( Iterator<O> i1, Iterator<O> i2 ){
 	it1 = i1;
 	it2 = i2;
     }
@@ -45,11 +46,14 @@ public final class ConcatenatedIterator implements Iterator {
 	if ( it1.hasNext() || it2.hasNext() ) return true;
 	else return false;
     }
-    public Object next() throws NoSuchElementException {
+    public O next() throws NoSuchElementException {
 	if ( it1.hasNext() ) return it1.next();
 	else return it2.next();
     }
     public void remove() throws UnsupportedOperationException {
 	throw new UnsupportedOperationException();
+    }
+    public Iterator<O> iterator(){
+	return this;
     }
 }
