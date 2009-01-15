@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -255,6 +255,8 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
 	};
+	// JE 15/1/2009: avoided to check for reachability
+	/*
 	if ( ( onto1 = reachable( uri1 ) ) == null ){
 	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
 	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
@@ -262,6 +264,8 @@ public class AServProtocolManager {
 	}
 	// Try to retrieve first
 	Set alignments = alignmentCache.getAlignments( onto1.getURI(), onto2.getURI() );
+	*/
+	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getParameter("force") == null ) {
 	    for ( Iterator it = alignments.iterator(); it.hasNext() ; ){
 		Alignment al = ((Alignment)it.next());
@@ -842,7 +846,6 @@ public class AServProtocolManager {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
 		return;
 	    };
-	    // The unreachability test has already been done
 
 	    // find initial alignment
 	    Alignment init = null;
@@ -880,7 +883,15 @@ public class AServProtocolManager {
 			 
 		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
 		} catch (AlignmentException e) {
-		    result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Parameters)null);
+		    // The unreachability test has already been done
+		    // JE 15/1/2009: commented the unreachability test
+		    if ( reachable( uri1 ) == null ){
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+		    } else if ( reachable( uri2 ) == null ){
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+		    } else {
+			result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Parameters)null);
+		    }
 		    return;
 		}
 		// ask to store A'
