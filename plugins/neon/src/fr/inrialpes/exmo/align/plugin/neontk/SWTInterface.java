@@ -89,9 +89,9 @@ import java.net.URLConnection;
 
 //import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentProcess;
+//import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
+//import org.semanticweb.owl.align.Parameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,8 +101,6 @@ import org.w3c.dom.NodeList;
 //import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.swt.widgets.Composite;
- 
 //import org.eclipse.core.resources.IProject;
 //import org.semanticweb.kaon2.api.Ontology;
 //import org.semanticweb.kaon2.api.KAON2Connection;
@@ -121,19 +119,19 @@ import com.ontoprise.ontostudio.datamodel.exception.ControlException;
 //import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 //import org.eclipse.core.runtime.IProgressMonitor;
 //import com.ontoprise.ontostudio.owl.datamodel.*;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
+//import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Cell;
-import fr.inrialpes.exmo.align.impl.Ontology;
+//import fr.inrialpes.exmo.align.impl.Ontology;
 import fr.inrialpes.exmo.align.impl.BasicCell;
 //import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
+//import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+//import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 
@@ -168,7 +166,7 @@ public class SWTInterface extends JPanel {
      
     JEditorPane htmlView;
     
-    JButton cancelButton, mapButton, resButton, ontoRefresh, allAlignButton,
+    JButton cancelButton, mapButton, fetchButton, resButton, ontoRefresh, allAlignButton,
     		alignImportButton,  localAlignImportButton, alignUploadButton, 
     		localAlignTrimButton, serverAlignTrimButton, alignFindButton, 
     		alignStoreButton, connButton, offlineButton, onlineButton;// disconnButton ;
@@ -464,7 +462,6 @@ public class SWTInterface extends JPanel {
     				
     				offlineButton.setEnabled(true);
     				onlineButton.setEnabled(false);
-    						 
     				
     				localAlignTrimButton.setEnabled(true);
   				
@@ -628,11 +625,41 @@ public class SWTInterface extends JPanel {
 		}
 		});
 		
+	fetchButton = new JButton("Fetch",null);
+	fetchButton.setEnabled(false);
+	fetchButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e) {
+				
+			    fetchButton.setEnabled(false);
+			    mapButton.setEnabled(false);
+			    allAlignButton.setEnabled(false);
+    			alignFindButton.setEnabled(false);
+				//alignStoreButton.setEnabled(false); 
+				//serverAlignTrimButton.setEnabled(false);
+    				
+        		if (e.getSource() == fetchButton) {
+        			
+        			if(selectedAlign == null) { 
+				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
+    					return;
+        			}
+        			
+        			alignIdList = new String[1];
+					alignIdList[0] = selectedAlign;
+					alignBox.removeAllItems();
+					alignBox.addItem(selectedAlign);
+					onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
+							                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
+        			
+        		} 
+	};
+    });
+        			
 	alignImportButton = new JButton("Export",null);
 	alignImportButton.setEnabled(false);
 	alignImportButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
-        		if (e.getSource() == alignImportButton) {
+         		if (e.getSource() == alignImportButton) {
         			
         			if(selectedAlign == null) { 
 				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
@@ -648,10 +675,16 @@ public class SWTInterface extends JPanel {
 					 
 					//export to local List
 							
-					String rdfalignStr = onAlign.getRDFAlignmentParsed( );
+					String rdfalignStr = onAlign.getRDFAlignmentParsed( );// selectedAlign , alignImportButton, alignStoreButton, 
+							                                            //serverAlignTrimButton, allAlignButton, alignFindButton, mapButton );
 					 	
 					String alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
 					
+					alignIdList = new String[1];
+					alignIdList[0] = selectedAlign;
+	        	    alignBox.removeAllItems();
+	        		alignBox.addItem(alignIdList[0]);
+	        		
 					String rdfPath =  alignKey + ".rdf";
 					
 					URIAlignment align = null;
@@ -698,23 +731,26 @@ public class SWTInterface extends JPanel {
 						AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
 						 
 						align.render( htmlV );
-						htmlView.setText( htmlMessage.toString() );
-				        
-					    htmlView.setLocation( new Point( 0, 0 ) );
-					       
-						htmlView.setVisible(true);
 						
-						//get align from server, then  export it as owl onto
+						if(htmlMessage.toString()==null || htmlMessage.toString().equals("")) {
+							htmlView.setText( "" );
+						} else {
+							
+							htmlView.setText( htmlMessage.toString() );
+						}
 					
-						//String owlalignStr = onAlign.getOWLAlignment( selectedAlign );
-						 
-						StringWriter owlMessage = new StringWriter();
+						htmlView.setLocation( new Point( 0, 0 ) );
+				       
+						htmlView.setVisible(true);
+						//get align from server, then  export it as owl onto
+ 						StringWriter owlMessage = new StringWriter();
 						AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlMessage )  );
 						//align.init( );
 						ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
 						al.render( owlV );
 						
 						owlalignStr = owlMessage.toString();
+						 
 					}
 					catch ( Exception ex ) { ex.printStackTrace();};
 					
@@ -821,6 +857,11 @@ public class SWTInterface extends JPanel {
     						}
         			}
         			
+        			fetchButton.setEnabled(true);
+        			alignImportButton.setEnabled(false); 
+        			alignStoreButton.setEnabled(false); 
+        			serverAlignTrimButton.setEnabled(false);
+         			
         			} 
         			else { //offline
         				list  = offAlign.getAllAlign( );
@@ -874,6 +915,10 @@ public class SWTInterface extends JPanel {
         			
 					}
 					}
+        			fetchButton.setEnabled(true);
+        			alignImportButton.setEnabled(false); 
+        			alignStoreButton.setEnabled(false); 
+        			serverAlignTrimButton.setEnabled(false);
             	}
 			
 		};
@@ -1019,6 +1064,10 @@ public class SWTInterface extends JPanel {
 				   		alignImportButton.setEnabled(false);
 	        			alignStoreButton.setEnabled(false);
 	        			serverAlignTrimButton.setEnabled(false);
+	        			allAlignButton.setEnabled(false);
+	        			alignFindButton.setEnabled(false);
+	        			mapButton.setEnabled(false);
+	        			 
 				   		//if (matchMethod.equals("es.upm.fi.dia.ontology.semanticmapper.pronto.ODEAlignment")) {
 				   		//	JOptionPane.showMessageDialog(null, "This method may take some minutes.\n Please click OK and wait.","Warning",2);
 				   			
@@ -1029,15 +1078,14 @@ public class SWTInterface extends JPanel {
 							JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
 							return;
 						}
-						
 						alignIdList = new String[1];
 						alignIdList[0] = answer;
-		        	    alignBox.removeAllItems();
-		        		alignBox.addItem(alignIdList[0]);
-		        		selectedAlign = alignIdList[0];
-		        		
-						onAlign.getRDFAlignment( selectedAlign , alignImportButton, alignStoreButton, serverAlignTrimButton);
-						 			 
+						selectedAlign = alignIdList[0];
+						alignBox.removeAllItems();
+						alignBox.addItem(selectedAlign);
+						onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
+								                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
+						 		 
 				  }
 				  else { //offline
 						
@@ -1189,6 +1237,7 @@ private JPanel createPhraseList () {
 	fourLabel.add(alignImportButton);
 	fourLabel.add(serverAlignTrimButton);
 	fourLabel.add(alignStoreButton);
+	fourLabel.add(fetchButton);
 	
 	four2Label.add(localAlignLabel);
 	four2Label.add(localAlignBox);
