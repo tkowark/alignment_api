@@ -21,13 +21,13 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
-import java.io.BufferedInputStream;
+//import java.io.BufferedInputStream;
 import java.io.File;
 
 import java.io.FileInputStream;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
+//import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 
@@ -88,8 +88,11 @@ public class OnlineAlign {
 		JButton export = null;
 		JButton store = null;
 		JButton trim = null;
-		//Parameters globalParam = null;
-		//String rdfString = null;
+		
+		JButton allAl = null;
+		JButton findAl = null;
+		JButton map = null;
+		 
 		
 		private static DocumentBuilder BUILDER = null;
 		final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
@@ -326,24 +329,17 @@ public class OnlineAlign {
 			    saxex.printStackTrace();
 			}
 			
-			
 			String[] result = getTagFromSOAP( domMessage,  "listalignmentsResponse/alignmentList/alid" );
-			//for(int i=0; i< result.length;i++) System.out.println("aligns=" + result[i]);
-			
+		 
 			return result;
-			 
-				 
-			
+ 		
 	    }
 	    
 	    public String getAlignId(String method, String onto1, String onto2) {
 	    	
 	    	String[] aservArgAlign = new String[6];		
 	    	String answer = null ;
-				
-				//System.out.println("Uri 1="+ onto1);
-			    //System.out.println("Uri 2="+ onto2);
-			    
+				 
 			    Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
 				//params.setParameter( "http", PORT );
@@ -383,13 +379,10 @@ public class OnlineAlign {
 				    saxex.printStackTrace();
 				}
 				
-				 
 				String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
 				
 				//System.out.println("Match align Id=" + result[0]);
-				
-			    return result[0];
-			 
+			    return result[0];	 
 	    }
 	    
 		
@@ -447,9 +440,8 @@ public class OnlineAlign {
 		return result[0];
 	    }
 	    
-	    public String getRDFAlignmentParsed() {
-	    	
-	    	Document domMessage = null;
+	    public String getRDFAlignmentParsed( ) { 
+ 	    	Document domMessage = null;
 			try {
 			    domMessage = BUILDER.parse( new ByteArrayInputStream( globalAnswer.getBytes()) );
 			    
@@ -461,23 +453,20 @@ public class OnlineAlign {
 			
 			 
 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
-			 
-			 
-			//System.out.println("RDFAlign="+ result[0]);
-			
-			//InputStream fromServer = new BufferedInputStream( 
-			//		new ProgressMonitorInputStream(component, "Reading ... " , new ByteArrayInputStream( result[0].getBytes()) ));  
-							//new FileInputStream(fileName ) ));
-				
-			return result[0];
+ 			return result[0];
 	    }
 	    
-	    public void getRDFAlignment(String alignId, JButton exp, JButton st, JButton tr) {
+	    public void getRDFAlignment(String alignId, JButton exp, JButton st, JButton tr, 
+	    							JButton al, JButton fi, JButton mp ) {
 			
 			//retrieve alignment for storing in OWL file
 			export = exp;
 			store  = st;
 			trim   = tr;
+		    allAl  = al;
+		    findAl = fi;
+		    map    = mp;
+			 
 	    	Parameters params = new BasicParameters();
 	    	params = new BasicParameters();
 	    	params.setParameter( "host", HOST );
@@ -504,8 +493,7 @@ public class OnlineAlign {
 				
 				//the result is put in "globalAnswer"
 				sendMessage( message, params );
-				 	
-				//if(! connected ) return null; 
+ 				//if(! connected ) return null; 
 				
 			} catch ( Exception ex ) { ex.printStackTrace();  };
  		}
@@ -557,8 +545,7 @@ public class OnlineAlign {
 			
 			 
 			String result[] = getTagFromSOAP( domMessage,  "storeResponse" );
-			 
-			 
+			 			 
 			//System.out.println("Stored Align="+ result[0]); 
 				
 			return result[0];
@@ -602,8 +589,7 @@ public class OnlineAlign {
 	    	   		  String nm = stream.toString();
 		    		  result = new String[1];
 	    	   		  result[0] = nm; 
-	    	   		  //System.out.println("result retrieve="+result[0]);
-	    	   		  //System.out.println("no first="+ n.getNodeValue());
+	    	   		  
 	    		} else {
 	    		  Node nn =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
 	    		  result = new String[1];
@@ -802,12 +788,12 @@ public class OnlineAlign {
 	        
 	            
 				if(  param.getParameter("command").equals("retrieve") ) {
- 			
+					
 					globalAnswer = "";
 					Thread th = new Thread() {
 						
 		        		public void run() {
-		        			
+		        		ProgressMonitor pm = null;
 					    try {
 				    	
 					    	String mess = "Fetching alignment from server,";
@@ -815,7 +801,7 @@ public class OnlineAlign {
 					    	
 					    	ProgressMonitorInputStream pin = new ProgressMonitorInputStream( null, mess, globalConn.getInputStream() );
 				    	
-					    	ProgressMonitor pm = pin.getProgressMonitor();
+					    	pm = pin.getProgressMonitor();
 					    	pm.setMaximum( maxSize );
 					    	pm.setMillisToPopup( 1 ); 
 					    	pm.setMillisToDecideToPopup( 2 ); 
@@ -835,19 +821,28 @@ public class OnlineAlign {
 					    			pm.setMaximum( maxSize );
 					    			pm.setProgress( co );
 					    		}
+					    		
 					    	}
 					    	
-					    	if( ! pm.isCanceled() ) {
-							    export.setEnabled(true);
-	    						store.setEnabled(true);
-	    						trim.setEnabled(true);
-						    }
-					    
+							export.setEnabled(true);
+	    					store.setEnabled(true);
+	    					trim.setEnabled(true);
+	    					allAl.setEnabled(true);
+    						findAl.setEnabled(true);
+    						map.setEnabled(true);
+	 			    	
 					    	pm.setProgress( maxSize - 1 );
 				            pin.close();
-					    } catch (Exception e) {e.printStackTrace();}
+					    } catch (Exception e) {
+					    	
+					    	if( pm.isCanceled() ) {
+				    			allAl.setEnabled(true);
+	    						findAl.setEnabled(true);
+	    						map.setEnabled(true);
+				    		}
+					    	e.printStackTrace();
+					    	}
 					    }
-			        		
 					};
 					
 					th.start();
@@ -924,9 +919,7 @@ public class OnlineAlign {
 	                  if (bytes < 0)  break;
 	                  
 	                  os.write(buffer, 0, bytes );
-	                  //String st =  new String( buffer );
-					  //str = str + st.substring(0, bytes);
-					  //System.out.println("st="+st.substring(0, bytes));
+	 
 	               }
 	               
 	               
