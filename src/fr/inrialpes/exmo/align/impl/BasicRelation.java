@@ -68,9 +68,9 @@ public class BasicRelation implements Relation
 	if ( rel.equals("=") ) {
 	    relation = new EquivRelation();
 	} else if ( rel.equals("<") || rel.equals("&lt;") ) {
-	    relation = new SubsumeRelation();
-	} else if ( rel.equals(">") || rel.equals("&gt;") ) {
 	    relation = new SubsumedRelation();
+	} else if ( rel.equals(">") || rel.equals("&gt;") ) {
+	    relation = new SubsumeRelation();
 	} else if ( rel.equals("%") ) {
 	    relation = new IncompatRelation();
 	} else if ( rel.equals("~>") || rel.equals("~&gt;") ) {
