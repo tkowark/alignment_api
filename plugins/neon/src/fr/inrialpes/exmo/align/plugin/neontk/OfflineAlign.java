@@ -115,9 +115,9 @@ public class OfflineAlign {
 	  	
 	  	AlignmentVisitor V = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
 	  	
-	  	ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)A1 );
-		al.render( V );
-	  	//A1.render(V);
+	  	//ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)A1 );
+		//al.render( V );
+	  	A1.render(V);
 	  	owlF.flush();
 	  	owlF.close();
 	

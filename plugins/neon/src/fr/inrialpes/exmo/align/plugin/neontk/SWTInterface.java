@@ -142,7 +142,7 @@ public class SWTInterface extends JPanel {
 	private static JSplitPane _mainSplitter = new JSplitPane (JSplitPane.VERTICAL_SPLIT);
 	
 	 
-	JLabel hostName, portName;//, thresLabel;//, alignProjLabel;
+	JLabel hostName, portName, serverName, methodName;//, alignProjLabel;
 	
 	//JComboBox hostList, portList;
 	
@@ -150,44 +150,44 @@ public class SWTInterface extends JPanel {
 	String selectedPort  =  null;
 	String selectedOnto1 =  null;
 	String selectedOnto2 =  null;
-	String selectedAlign =  null;
+	
 	String selectedLocalAlign =  null;
-	//String selectedNeOnOnto1  =  null;
-	//String selectedNeOnOnto2  =  null;
+	static String selectedAlign =  null;
 	
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
 	static String [] forUniqueness = new String[0];
 	static int alignId = 0;
  
-	JComponent phrases;// Res=null;
+	JComponent phrases;
 	
-    JTextField fileName1, fileName2, hostField, portField;  
+    JTextField fileName1, fileName2, hostField, portField, serverField, methodField;  
     SWTInterface frame;
      
     JEditorPane htmlView;
     
-    JButton cancelButton, mapButton, fetchButton, resButton, ontoRefresh, allAlignButton,
-    		alignImportButton,  localAlignImportButton, alignUploadButton, 
-    		localAlignTrimButton, serverAlignTrimButton, alignFindButton, 
-    		alignStoreButton, connButton, offlineButton, onlineButton;// disconnButton ;
-    JDialog dialog; 
+    JButton cancelButton, discardButton,  fetchButton, resButton, ontoRefresh,
+    		localAlignImportButton, alignUploadButton, 
+    		localAlignTrimButton, connButton, goButton, offlineButton, onlineButton;
+    
+    static JButton alignStoreButton, alignImportButton, serverAlignTrimButton, mapButton, alignFindButton, allAlignButton;
+    
+    JDialog connDialog, matchDialog; 
     //JPanel pane2;
 	Component result = null;
-    JComboBox strategy, renderer, alignBox, localAlignBox, ontoBox1, ontoBox2;
+    JComboBox strategy, renderer, localAlignBox, ontoBox1, ontoBox2;
+    static JComboBox alignBox;
     JLabel strat, render, ontoLabel1, ontoLabel2, alignLabel, localAlignLabel;
      
     //lists obtained from from server
     public String [] methodList = new String[0];
     
-    
     //lists obtained from Neontk
     public String [] ontoList = new String[0];
     public HashMap<String,String> onto_proj = new HashMap<String,String>(0); 
     //public String [] NeOnOntoList = new String[0];
-    public String [] alignIdList = new String[0];
+    public static String [] alignIdList = new String[0];
     public String [] localAlignIdList = new String[0];
    
-    
     public Vector	 corrList = new Vector();
     public String [] aservArgs = null;
     public String [] aservArgRetrieve = null;
@@ -201,6 +201,8 @@ public class SWTInterface extends JPanel {
     //String defaultPort = "8089";
     String defaultPort = "80";
     String matchMethod = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
+    String wserver = "http://kameleon.ijs.si/ontolight/ontolight.asmx";
+    String wsmethod="";
     //rethink
     
 	String alignProject = "AlignmentProject";
@@ -246,7 +248,6 @@ public class SWTInterface extends JPanel {
 		
 		offlineButton.setEnabled(false);
 		 
-		
 		strategy.removeAllItems();
 		alignBox.removeAllItems();
 		localAlignBox.removeAllItems();
@@ -329,6 +330,33 @@ public class SWTInterface extends JPanel {
 	   return alignId;
 	}
 	
+	public static void resetAlignList(String alignId) {
+		
+		alignIdList = new String[1];
+		alignIdList[0] = alignId;
+		selectedAlign = alignIdList[0];
+		if(alignBox.getItemCount() > 0) alignBox.removeAllItems();
+		alignBox.addItem(selectedAlign);
+		    
+		}
+	
+	public static void resetActionButtons( boolean flag ) {
+		
+		alignImportButton.setEnabled( flag );
+		alignStoreButton.setEnabled( flag );
+		serverAlignTrimButton.setEnabled( flag );
+		mapButton.setEnabled( flag );
+		alignFindButton.setEnabled( flag );
+		allAlignButton.setEnabled( flag );
+	
+		}
+	
+	public static void set3Buttons( ) { 
+		mapButton.setEnabled( true );
+		alignFindButton.setEnabled( true );
+		allAlignButton.setEnabled( true );
+		}
+	
     public void initialize() {
 
 	//selectedHost = "aserv.inrialpes.fr";
@@ -370,16 +398,14 @@ public class SWTInterface extends JPanel {
     		if (e.getSource() == onlineButton) {
     			online = true;
     			
-    			
 				JOptionPane pane = new JOptionPane();
-				dialog = pane.createDialog(null, "Input for connection");
-				dialog.setSize(new Dimension(300,120));
+				connDialog = pane.createDialog(null, "Input for connection");
+				connDialog.setSize(new Dimension(300,120));
 				
-				Container cont = dialog.getContentPane();
+				Container cont = connDialog.getContentPane();
 				Component[] comps = cont.getComponents();
 				for(int i=0;i< comps.length ;i++) { cont.remove(comps[i]);}
 				
-				 
 				cont.add(connButton);
 				cont.add(cancelButton);
 				
@@ -390,10 +416,8 @@ public class SWTInterface extends JPanel {
 			    jPane.add(connButton); 	 
 			    jPane.add(cancelButton);
 			     
-				dialog.setContentPane(jPane);
-				dialog.setVisible(true);
-				
-				
+				connDialog.setContentPane(jPane);
+				connDialog.setVisible(true);	
     		}
     	
         };
@@ -410,6 +434,16 @@ public class SWTInterface extends JPanel {
 	portField = new JTextField( defaultPort, 4 );
 	portField.setEnabled(true);
 	portField.setEditable( true );
+	
+	serverName = new JLabel( "wserver" );
+	serverField = new JTextField( wserver , 50 );
+	serverField.setEnabled(true);
+	serverField.setEditable( true );
+	
+	methodName = new JLabel( "wsmethod" );
+	methodField = new JTextField( "", 50 );
+	methodField.setEnabled(true);
+	methodField.setEditable( true );
 	
 	connButton = new JButton("Connect",null);
 	connButton.setEnabled(true);
@@ -472,7 +506,7 @@ public class SWTInterface extends JPanel {
     				
     				online = true;
     				
-        			dialog.dispose();			
+        			connDialog.dispose();			
         			
 				    } 
             	
@@ -486,7 +520,19 @@ public class SWTInterface extends JPanel {
 	    public void actionPerformed(ActionEvent e) {
 	    		if (e.getSource() == cancelButton) {
 	    			//System.out.println("Cancel");
-	    			dialog.dispose();
+	    			connDialog.dispose();
+	    			
+	    		}
+	    };
+	    });
+	
+	discardButton = new JButton("Discard",null);
+	discardButton.setEnabled(true);
+	discardButton.addActionListener(new ActionListener(){
+	    public void actionPerformed(ActionEvent e) {
+	    		if (e.getSource() == discardButton) {
+	    			//System.out.println("Cancel");
+	    			matchDialog.dispose();
 	    			
 	    		}
 	    };
@@ -630,12 +676,7 @@ public class SWTInterface extends JPanel {
 	fetchButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
 				
-			    fetchButton.setEnabled(false);
-			    mapButton.setEnabled(false);
-			    allAlignButton.setEnabled(false);
-    			alignFindButton.setEnabled(false);
-				//alignStoreButton.setEnabled(false); 
-				//serverAlignTrimButton.setEnabled(false);
+			    resetActionButtons( false );
     				
         		if (e.getSource() == fetchButton) {
         			
@@ -648,8 +689,7 @@ public class SWTInterface extends JPanel {
 					alignIdList[0] = selectedAlign;
 					alignBox.removeAllItems();
 					alignBox.addItem(selectedAlign);
-					onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
-							                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
+					onAlign.getRDFAlignment( selectedAlign );
         			
         		} 
 	};
@@ -1043,7 +1083,42 @@ public class SWTInterface extends JPanel {
 		};
         });
 	
-	
+	goButton = new JButton("Accept",null);	
+	goButton.setEnabled( true );
+	goButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e) {
+		   if (e.getSource() == goButton) {
+ 
+			   matchDialog.dispose();
+			   
+			   resetActionButtons( false );
+   			   
+			   onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+			   
+			   
+			   
+			   //String answer = onAlign.getAlignIdParsed();
+			   //if(answer == null || answer.equals(""))  {
+					 
+				//	JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
+				//	return;
+				//}
+				
+				//alignIdList = new String[1];
+				//alignIdList[0] = answer;
+				//selectedAlign = alignIdList[0];
+				//alignBox.removeAllItems();
+				//alignBox.addItem(selectedAlign);
+				
+				//onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
+				//		                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
+				
+		   } // getsource
+		    
+		};
+	});
+		   
+		   
 	mapButton = new JButton("Match",null);	
 	mapButton.setEnabled(false);
 	mapButton.addActionListener(new ActionListener(){
@@ -1060,31 +1135,44 @@ public class SWTInterface extends JPanel {
 				   			JOptionPane.showMessageDialog(null, "URLs for ontologies are required.  ","Warning",2);
 				   			return;
 				   		}
-				   		
-				   		alignImportButton.setEnabled(false);
-	        			alignStoreButton.setEnabled(false);
-	        			serverAlignTrimButton.setEnabled(false);
-	        			allAlignButton.setEnabled(false);
-	        			alignFindButton.setEnabled(false);
-	        			mapButton.setEnabled(false);
-	        			 
-				   		//if (matchMethod.equals("es.upm.fi.dia.ontology.semanticmapper.pronto.ODEAlignment")) {
-				   		//	JOptionPane.showMessageDialog(null, "This method may take some minutes.\n Please click OK and wait.","Warning",2);
-				   			
-				   		//}
-				   		
-					    String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
-						if(answer==null || answer.equals(""))  {
-							JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
-							return;
-						}
-						alignIdList = new String[1];
-						alignIdList[0] = answer;
-						selectedAlign = alignIdList[0];
-						alignBox.removeAllItems();
-						alignBox.addItem(selectedAlign);
-						onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
-								                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
+				   		if( matchMethod.equals("fr.inrialpes.exmo.align.service.WSAlignment")) {
+				   			JOptionPane pa = new JOptionPane();
+				   			matchDialog = pa.createDialog(null, "Parameters for matching");
+				   			matchDialog.setSize(new Dimension(400,120));
+	    				
+				   			Container cont = matchDialog.getContentPane();
+				   			Component[] comps = cont.getComponents();
+				   			for(int i=0;i< comps.length ;i++) { cont.remove(comps[i]);}
+	    				
+	    				 
+				   			cont.add(goButton);
+				   			cont.add(discardButton);
+	    				
+				   			JPanel jPane = new JPanel (new GridLayout (3, 2, 20, 10));
+	    				      
+				   			jPane.add(serverName); jPane.add(serverField);
+				   			jPane.add(methodName); jPane.add(methodField);
+				   			jPane.add(goButton); 	 
+				   			jPane.add(discardButton);
+	    			     
+				   			matchDialog.setContentPane(jPane);
+				   			matchDialog.setVisible(true);
+				   		} else {
+				   			resetActionButtons( false );
+							onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+				   		}
+					    //String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
+						//if(answer==null || answer.equals(""))  {
+						//	JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
+						//	return;
+						//}
+						//alignIdList = new String[1];
+						//alignIdList[0] = answer;
+						//selectedAlign = alignIdList[0];
+						//alignBox.removeAllItems();
+						//alignBox.addItem(selectedAlign);
+						//onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
+						//		                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
 						 		 
 				  }
 				  else { //offline
@@ -1114,6 +1202,7 @@ public class SWTInterface extends JPanel {
     
     ontoLabel1 = new JLabel("Ontology 1           ");
     ontoBox1  = new JComboBox(ontoList);
+    ontoBox1.setEditable( true );
     ontoBox1.setEnabled(false);
     ontoBox1.setMaximumRowCount(20);
     ontoBox1.addItemListener(new ItemListener() {
@@ -1121,9 +1210,9 @@ public class SWTInterface extends JPanel {
 		{
 	      int id = 0;
 		  if (event.getStateChange()==ItemEvent.SELECTED)
-			id = ontoBox1.getSelectedIndex();
-		    
-		    selectedOnto1 =  ontoList[id];
+			//id = ontoBox1.getSelectedIndex();
+			selectedOnto1 = (String)ontoBox1.getSelectedItem();
+		    //selectedOnto1 =  ontoList[id];
 		    //selectedNeOnOnto1 =  NeOnOntoList[id];
 		    
 		   
@@ -1133,6 +1222,7 @@ public class SWTInterface extends JPanel {
     
     ontoLabel2 = new JLabel("Ontology 2           ");
     ontoBox2  = new JComboBox(ontoList);
+    ontoBox2.setEditable( true );
     ontoBox2.setEnabled(false);
     ontoBox2.setMaximumRowCount(20);
     ontoBox2.addItemListener(new ItemListener() {
@@ -1140,12 +1230,10 @@ public class SWTInterface extends JPanel {
 		{
 	      int id = 0;
 		  if (event.getStateChange()==ItemEvent.SELECTED)
-			id = ontoBox2.getSelectedIndex();
-		    
-		    selectedOnto2 =  ontoList[id];
+			//id = ontoBox2.getSelectedIndex();
+			selectedOnto2 = (String)ontoBox2.getSelectedItem();
+		    //selectedOnto2 =  ontoList[id];
 		    //selectedNeOnOnto2 =  NeOnOntoList[id];
-		    
-		   
 		   // System.out.println("Onto2 selected =" + selectedOnto2);
 		}
 	});
