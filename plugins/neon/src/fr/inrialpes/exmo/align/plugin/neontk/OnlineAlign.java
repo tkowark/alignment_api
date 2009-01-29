@@ -855,53 +855,45 @@ public class OnlineAlign {
 					    	out2.close();
 					    	
 					    	int maxSize = 5000000;
-					    	ProgressMonitor pm2 = null;
+					    	//ProgressMonitor pm2 = null;
 					    	String mess = "Fetching alignment from server...";
-					    	try {
-					    		ProgressMonitorInputStream pin2 = new ProgressMonitorInputStream( null, mess, globalConn2.getInputStream() );
-					    		pm2 = pin2.getProgressMonitor();
-					    		pm2.setMaximum( maxSize );
-					    		pm2.setMillisToPopup( 1 ); 
-					    		pm2.setMillisToDecideToPopup( 2 ); 
+					    	 
+					    	ProgressMonitorInputStream pin = new ProgressMonitorInputStream( null, mess, globalConn2.getInputStream() );
+					    	pm = pin.getProgressMonitor();
+					    	pm.setMaximum( maxSize );
+					    	pm.setMillisToPopup( 1 ); 
+					    	pm.setMillisToDecideToPopup( 2 ); 
 					    	
-					    		InputStreamReader isr2 = new InputStreamReader(pin2);
-					    		BufferedReader in2 = new BufferedReader(isr2);
+					    	InputStreamReader isr2 = new InputStreamReader(pin);
+					    	BufferedReader in2 = new BufferedReader(isr2);
 					    	 
 					    		//String line;
-					    		int co = 0;
+					    	int co = 0;
 					    	
-					    		while ((line = in2.readLine()) != null) {
+					    	while ((line = in2.readLine()) != null) {
 					    			globalAnswer += line + "\n";
 					    			co += line.length();
-					    			pm2.setNote(co + " bytes read.");
+					    			pm.setNote(co + " bytes read.");
 					    			if( co >= maxSize -10000 ) { 
 					    				maxSize = co + line.length() + maxSize; 
-					    				pm2.setMaximum( maxSize );
-					    				pm2.setProgress( co );
+					    				pm.setMaximum( maxSize );
+					    				pm.setProgress( co );
 					    			}
-					    		}
+					    	}
 					    	
-					    		SWTInterface.resetActionButtons( true );
+					    	SWTInterface.resetActionButtons( true );
 	 			    	
-					    		pm2.setProgress( maxSize - 1 );
-					    		pin2.close();
-					    	} catch (Exception e) {
+					    	pm.setProgress( maxSize - 1 );
+					    	pin.close();
+					    } catch (Exception e) {
 						    	
-						    	if( pm2.isCanceled()) {
+						    	if( pm.isCanceled()) {
 						    		SWTInterface.set3Buttons();
 					    		}
 						    	e.printStackTrace();
 						    	}
 				            
-					    } catch (Exception e) {
-					    	
-					    	if( pm.isCanceled() ) {
-					    		SWTInterface.set3Buttons();
-				    			 
-				    		}
-					    	e.printStackTrace();
-					    	}
-					    }
+		        		}
 					};
 					
 					th.start();
