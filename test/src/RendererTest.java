@@ -106,7 +106,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7192, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7344, "Rendered differently" );
 	Parameters params = new BasicParameters();
 	params.setParameter( "embedded", "1");
 	stream = new ByteArrayOutputStream();
@@ -118,7 +118,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7137, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7289, "Rendered differently" );
 	params.setParameter( "pre2008", "1");
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
@@ -129,7 +129,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7013, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7165, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -142,7 +142,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7334, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7535, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -169,7 +169,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 21084, "Rendered differently" );
+	assertEquals( stream.toString().length(), 21304, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -182,7 +182,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7888, "Rendered differently" );
+	assertEquals( stream.toString().length(), 8040, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -195,7 +195,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14897, "Rendered differently" );
+	assertEquals( stream.toString().length(), 15100, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -216,12 +216,12 @@ public class RendererTest {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
-			       new OutputStreamWriter( stream, "UTF-8" )), true);
+			  new OutputStreamWriter( stream, "UTF-8" )), true);
 	AlignmentVisitor renderer = new XMLMetadataRendererVisitor( writer );
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 552, "Rendered differently" );
+	assertEquals( stream.toString().length(), 772, "Rendered differently" );
     }
 
 
