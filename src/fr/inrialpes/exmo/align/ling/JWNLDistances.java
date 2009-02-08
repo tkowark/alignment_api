@@ -91,36 +91,38 @@ public class JWNLDistances {
     }
 
     public void Initialize( String wordnetdir, String wordnetversion ) throws AlignmentException {
-	InputStream pptySource = null;
-	if ( wordnetdir == null ) {
-	    try {
-		pptySource = new FileInputStream( "./file_properties.xml" );
-	    } catch ( FileNotFoundException e ) {
-		throw new AlignmentException( "Cannot find WordNet dictionary: use -Dwndict or file_property.xml" );
+	if ( !JWNL.isInitialized() ) {
+	    InputStream pptySource = null;
+	    if ( wordnetdir == null ) {
+		try {
+		    pptySource = new FileInputStream( "./file_properties.xml" );
+		} catch ( FileNotFoundException e ) {
+		    throw new AlignmentException( "Cannot find WordNet dictionary: use -Dwndict or file_property.xml" );
+		}
+	    } else {
+		String properties = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		properties += "<jwnl_properties language=\"en\">";
+		properties += "  <resource class=\"PrincetonResource\"/>";
+		properties += "  <version publisher=\"Princeton\" number=\""+wordnetversion+"\" language=\"en\"/>";
+		properties += "  <dictionary class=\"net.didion.jwnl.dictionary.FileBackedDictionary\">";
+		properties += "     <param name=\"dictionary_element_factory\" value=\"net.didion.jwnl.princeton.data.PrincetonWN17FileDictionaryElementFactory\"/>";
+		properties += "     <param name=\"file_manager\" value=\"net.didion.jwnl.dictionary.file_manager.FileManagerImpl\">";
+		properties += "       <param name=\"file_type\" value=\"net.didion.jwnl.princeton.file.PrincetonRandomAccessDictionaryFile\"/>";
+		properties += "       <param name=\"dictionary_path\" value=\""+wordnetdir+"\"/>";
+		properties += "     </param>";
+		properties += "  </dictionary>";
+		properties += "</jwnl_properties>";
+		// Sorry but this initialize wants to read a stream
+		pptySource = new ByteArrayInputStream( properties.getBytes() );
 	    }
-	} else {
-	     String properties = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	     properties += "<jwnl_properties language=\"en\">";
-	     properties += "  <resource class=\"PrincetonResource\"/>";
-	     properties += "  <version publisher=\"Princeton\" number=\""+wordnetversion+"\" language=\"en\"/>";
-	     properties += "  <dictionary class=\"net.didion.jwnl.dictionary.FileBackedDictionary\">";
-	     properties += "     <param name=\"dictionary_element_factory\" value=\"net.didion.jwnl.princeton.data.PrincetonWN17FileDictionaryElementFactory\"/>";
-	     properties += "     <param name=\"file_manager\" value=\"net.didion.jwnl.dictionary.file_manager.FileManagerImpl\">";
-	     properties += "       <param name=\"file_type\" value=\"net.didion.jwnl.princeton.file.PrincetonRandomAccessDictionaryFile\"/>";
-	     properties += "       <param name=\"dictionary_path\" value=\""+wordnetdir+"\"/>";
-	     properties += "     </param>";
-	     properties += "  </dictionary>";
-	     properties += "</jwnl_properties>";
-	     // Sorry but this initialize wants to read a stream
-	     pptySource = new ByteArrayInputStream( properties.getBytes() );
-	}
 
-	// Initialize
-	try { 
-	    Logger.getLogger("net.didion.jwnl").setLevel(Level.ERROR);
-	    JWNL.initialize( pptySource ); 
-	} catch ( JWNLException e ) {
-	    throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
+	    // Initialize
+	    try { 
+		Logger.getLogger("net.didion.jwnl").setLevel(Level.ERROR);
+		JWNL.initialize( pptySource ); 
+	    } catch ( JWNLException e ) {
+		throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
+	    }
 	}
     }
 
