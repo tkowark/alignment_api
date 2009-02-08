@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.io.PrintWriter;
 
 import org.semanticweb.owl.align.Alignment;
@@ -30,6 +31,10 @@ import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicParameters;
+
 /**
  * Renders an alignment in its RDF format
  *
@@ -37,11 +42,13 @@ import org.semanticweb.owl.align.Relation;
  * @version $Id$ 
  */
 
-public class XMLMetadataRendererVisitor implements AlignmentVisitor
-{
+public class XMLMetadataRendererVisitor implements AlignmentVisitor {
     
     PrintWriter writer = null;
+    Alignment alignment = null;
     boolean embedded = false; // if the output is XML embeded in a structure
+    Hashtable<String,String> nslist = null;
+    boolean newstyle = false;
 
     public XMLMetadataRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -53,9 +60,51 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor
     };
 
     public void visit( Alignment align ) throws AlignmentException {
-	if ( embedded == false )
-	    writer.print("<?xml version='1.0' encoding='utf-8' standalone='yes'?>\n");
-	writer.println("<Alignment>");
+	String extensionString = "";
+	alignment = align;
+	nslist = new Hashtable<String,String>();
+	nslist.put(Annotations.ALIGNNS,"align");
+	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
+	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
+	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
+	// Get the keys of the parameter
+	int gen = 0;
+	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
+	    String prefix = ((String[])ext)[0];
+	    String name = ((String[])ext)[1];
+	    String tag = (String)nslist.get(prefix);
+	    if ( tag == null ) {
+		tag = "ns"+gen++;
+		nslist.put( prefix, tag );
+	    }
+	    if ( tag.equals("align") ) { tag = name; }
+	    else { tag += ":"+name; }
+	    extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
+	}
+	if ( embedded == false ) {
+	    writer.print("<?xml version='1.0' encoding='utf-8");
+	    writer.print("' standalone='no'?>\n");
+	}
+	writer.print("<rdf:RDF xmlns='"+Annotations.ALIGNNS+"'");
+	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
+	    String k = (String)e.nextElement();
+	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
+	}
+	if ( align instanceof BasicAlignment ) {
+	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
+	    String label = (String)e.nextElement();
+	    if ( !label.equals("rdf") && !label.equals("xsd")
+		 && !label.equals("<default>") )
+		writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
+	    }
+	}
+	writer.print(">\n");
+	writer.print("<Alignment");
+	String idext = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
+	if ( idext != null ) {
+	    writer.print(" rdf:about=\""+idext+"\"");
+	}
+	writer.print(">\n  <xml>yes</xml>\n");
 	writer.print("  <level>");
 	writer.print( align.getLevel() );
 	writer.print("</level>\n  <type>");
@@ -72,12 +121,29 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor
 	writer.print("  <uri2>");
 	writer.print( align.getOntology2URI().toString() );
 	writer.print("</uri2>\n");
-	Parameters extensions = align.getExtensions();
-	for ( Enumeration e = extensions.getNames(); e.hasMoreElements();) {
-	    String tag = (String)e.nextElement();
-	    writer.println("  <"+tag+">"+extensions.getParameter(tag)+"</"+tag+">");
+	writer.print(extensionString);
+	if ( newstyle ){
+	    writer.print("  <onto1>\n    <Ontology");
+	    if ( align.getOntology1URI() != null ) {
+		writer.print(" rdf:about=\""+align.getOntology1URI()+"\"");
+	    }
+	    writer.print(">\n      <location>"+align.getFile1()+"</location>");
+	    if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject1().getFormalism() != null ) {
+		writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject1().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject1().getFormURI()+"\"/>\n      </formalism>");
+	    }
+	    writer.print("\n    </Ontology>\n  </onto1>\n");
+	    writer.print("  <onto2>\n    <Ontology");
+	    if ( align.getOntology2URI() != null ) {
+		writer.print(" rdf:about=\""+align.getOntology2URI()+"\"");
+	    }
+	    writer.print(">\n      <location>"+align.getFile2()+"</location>");
+	    if ( align instanceof BasicAlignment && ((BasicAlignment)align).getOntologyObject2().getFormalism() != null ) {
+		writer.print("\n      <formalism>\n        <Formalism align:name=\""+((BasicAlignment)align).getOntologyObject2().getFormalism()+"\" align:uri=\""+((BasicAlignment)align).getOntologyObject2().getFormURI()+"\"/>\n      </formalism>");
+	    }
+	    writer.print("\n    </Ontology>\n  </onto2>\n");
 	}
-	writer.println("</Alignment>");
+	writer.print("</Alignment>\n");
+	writer.print("</rdf:RDF>\n");
     }
 
     public void visit( Cell c ) {}
