@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) University of Montréal, 2004-2005
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
+ * Copyright (C) INRIA, 2004-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
@@ -49,31 +51,25 @@ import net.didion.jwnl.data.list.PointerTargetNodeList;
 
 /**
  * Compute a string distance using the JWNL API (WordNet API)
- * @author Jerome Pierson, David Loup, Petko Valtchev
- * @version $Id: JWNLDistances.java,v 1.0 2004/08/04
+ * @author Jerome Pierson, David Loup, Petko Valtchev, Jerome Euzenat
+ * @version $Id$
  */
+
 public class JWNLDistances {
 
     public static final double NOUN_WEIGHT = 0.60;
-
     public static final double ADJ_WEIGHT  = 0.25;
-
     public static final double VERB_WEIGHT = 0.15;
-    
     private static final double MINIMUM_DISTANCE = 0.05;
 
     // Results tables
     double[][]                 nounsResults;
-
     double[][]                 verbsResults;
-
     double[][]                 adjectivesResults;
 
     // Weights tables (masks)
     double[][]                 nounsMasks;
-
     double[][]                 verbsMasks;
-
     double[][]                 adjectivesMasks;
     
     // tokens depending on their nature
@@ -118,10 +114,12 @@ public class JWNLDistances {
 	     // Sorry but this initialize wants to read a stream
 	     pptySource = new ByteArrayInputStream( properties.getBytes() );
 	}
+
+	// Initialize
 	try { 
 	    Logger.getLogger("net.didion.jwnl").setLevel(Level.ERROR);
-	    JWNL.initialize( pptySource ); }
-	catch ( JWNLException e ) {
+	    JWNL.initialize( pptySource ); 
+	} catch ( JWNLException e ) {
 	    throw new AlignmentException( "Cannot initialize JWNL (WordNet)", e );
 	}
     }
@@ -133,7 +131,8 @@ public class JWNLDistances {
      * @return Distance between s1 & s2 (return 1 if s2 is a synonym of s1, else
      *         return a BasicStringDistance between s1 & s2)
      */
-    public double BasicSynonymDistance(String s1, String s2) {
+    public double basicSynonymDistance(String s1, String s2) {
+        Dictionary dictionary = Dictionary.getInstance();
         double Dist = 0.0;
         double Dists1s2;
         int j, k = 0;
@@ -145,19 +144,15 @@ public class JWNLDistances {
         IndexWord index = null;
         Synset Syno[] = null;
 
-        // Modification 09/13/2004 by David Loup
-        s1 = s1.toUpperCase();
-        s2 = s2.toUpperCase();
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
 
-        Dists1s2 = StringDistances.subStringDistance(s1,
-            s2);
+        Dists1s2 = StringDistances.subStringDistance(s1,s2);
 
         try {
             // Lookup for first string
-            index = Dictionary.getInstance().lookupIndexWord(POS.NOUN,
-                s1);
-        }
-        catch (Exception ex) {
+            index = dictionary.lookupIndexWord(POS.NOUN,s1);
+        } catch (Exception ex) {
             ex.printStackTrace();
             System.exit(-1);
         }
@@ -166,8 +161,7 @@ public class JWNLDistances {
             try {
                 // get the groups of synonyms for each sense
                 Syno = index.getSenses();
-            }
-            catch (JWNLException e) {
+            } catch (JWNLException e) {
                 e.printStackTrace();
             }
             // number of senses for the word s1
@@ -192,6 +186,154 @@ public class JWNLDistances {
         return Dists1s2;
     }
 
+    /**
+     * Compute a basic distance between 2 strings using WordNet synonym.
+     * @param s1
+     * @param s2
+     * @return Distance between s1 & s2 (return 1 if s2 is a synonym of s1, else
+     *         return a BasicStringDistance between s1 & s2)
+     */
+
+    Set<Synset> getAllSenses( String term ) throws AlignmentException {
+	Set<Synset> res = null;
+	IndexWord iws[] = null;
+	try {
+	    iws = Dictionary.getInstance().lookupAllIndexWords( term ).getIndexWordArray();
+	} catch ( JWNLException ex ) {
+	    throw new AlignmentException( "Wordnet exception", ex );
+        }
+	if ( iws != null ) {
+	    int nbpos = iws.length;
+	    if ( nbpos != 0 ) {
+		res = new HashSet<Synset>();
+		for ( int i=0; i < nbpos; i++ ){
+		    int nb = iws[i].getSenseCount();
+		    Synset Senses[] = null;
+		    try {
+			Senses = iws[i].getSenses();
+		    } catch (JWNLException ex ) { // JE: quite direct
+			throw new AlignmentException( "Wordnet exception", ex );
+		    }
+		    for ( int j=0; j<nb; j++ ) {
+			res.add( Senses[j] );
+		    }
+		}
+	    }
+	}
+	return res;
+    }
+
+    /**
+     * Compute the proportion of common synset between two words
+     * @param s1
+     * @param s2
+     * @return
+     */
+    public double cosynonymySimilarity( String s1, String s2 ) throws AlignmentException {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+
+	Set<Synset> sense1 = getAllSenses( s1 );
+	Set<Synset> sense2 = getAllSenses( s2 );
+        // if found in the dictionary
+        if ( sense1 != null && sense2 != null ) {
+	    //System.err.print( "Success : "+s1+" / "+s2 );
+	    int union = sense1.size();
+	    int inter = 0;
+	    // For all senses of s2
+	    for ( Synset s : sense2 ){
+		if ( s.containsWord( s1 ) ) {
+		    inter++;
+		} else {
+		    union++;
+		}
+	    }
+	    //System.err.println( "= "+inter+" / "+union );
+	    return inter/union;
+        } else {
+	    //System.err.println( "Failure : "+s1+" / "+s2 );
+	    return 1. - StringDistances.equalDistance(s1,s2); 
+	}
+    }
+
+    /**
+     * Evaluate if two terms can be synonym
+     * @param s1
+     * @param s2
+     * @return
+     */
+    public double basicSynonymySimilarity( String s1, String s2 ) throws AlignmentException {
+	// Strange to uppercase...
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+
+	if ( s1.equals( s2 ) ) return 1.;
+	else {
+	    Set<Synset> sense1 = getAllSenses( s1 );
+	    for ( Synset s : sense1 ){
+		if ( s.containsWord( s2 ) ) return 1.;
+	    }
+	    return 0.; 
+	}
+    }
+
+    /**
+     * Compute the overlap between all glosses of two strings
+     * @param s1
+     * @param s2
+     * @return
+     * The glosses is made as indicated in Example 4.29 of the first edition 
+     * of our Ontology matching book:
+     * - for each word: get glosses for all senses
+     * - suppress quotations (between quotes)
+     * - suppress empty words (or, and, the, a, an, for, of )
+     * - suppress empty phrases (usually including)
+     * - suppress technical vocabulary (sentence, verb, noun, adjective, term)
+     * - stem words
+     * - create a set of words (not bag) with these
+     * Compare their intersection over their union.
+     * 
+     * This function is not implemented
+     * because it would require to much add on to the API
+     */
+    public double basicGlossOverlap( String s1, String s2 ) throws AlignmentException {
+	//	getGloss() applied to synset...
+        Dictionary dictionary = Dictionary.getInstance();
+
+	// Strange to uppercase...
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+
+	Set<Synset> sense1 = getAllSenses( s1 );
+	Set<Synset> sense2 = getAllSenses( s2 );
+        // if found in the dictionary
+        if ( sense1 != null && sense2 != null ) {
+	    // Collect gloss
+	    String gloss1 = ""+s1;
+	    for ( Synset s : sense1 ){
+		gloss1 += " "+s.getGloss();
+	    }
+	    String gloss2 = ""+s2;
+	    for ( Synset s : sense2 ){
+		gloss2 += " "+s.getGloss();
+	    }
+	    // Clean-up gloss
+	    // Tokenize gloss
+	    Vector<String> t1 = StringDistances.tokenize( gloss1 );
+	    Vector<String> t2 = StringDistances.tokenize( gloss2 );
+	    // Compute measure
+	    int union = t1.size()+t2.size();
+	    int inter = 0;
+	    // For all words
+	    // Result
+	    return inter/union;
+        } else {
+	    // JE: no maybe a simple string distance anyway
+	    // but why this one?
+	    return 1. - StringDistances.subStringDistance(s1,s2); 
+	}
+    }
+
     public double computeSimilarity(String s1, String s2) {
         Dictionary dictionary = Dictionary.getInstance();
         double sim = 0.0;
@@ -199,50 +341,39 @@ public class JWNLDistances {
         IndexWord index = null;
 
         dists1s2 = StringDistances.subStringDistance(s1, s2);
-        if (dists1s2 < MINIMUM_DISTANCE) {
-            return (1 - dists1s2);
-        }
+        if (dists1s2 < MINIMUM_DISTANCE) return (1 - dists1s2);
         
-        if (s1.equals(s2) || s1.toLowerCase().equals(s2.toLowerCase())) {
+        if ( s1.equals(s2) || s1.toLowerCase().equals(s2.toLowerCase())) {
             return 1;
-        }
-        else {
+        } else {
             if (s1.equals(s1.toUpperCase()) || s1.equals(s1.toLowerCase())) {
                 try {
                     // Lookup for first string
                     index = dictionary.lookupIndexWord(POS.NOUN, s1);
                     if (index == null) {
-                        index = Dictionary.getInstance()
-                                .lookupIndexWord(POS.ADJECTIVE, s1);
+                        index = dictionary.lookupIndexWord(POS.ADJECTIVE, s1);
                     }
                     if (index == null) {
-                        index = Dictionary.getInstance().lookupIndexWord(POS.VERB, s1);
-                    }
-                }
-                catch (Exception ex) {
+                        index = dictionary.lookupIndexWord(POS.VERB, s1);
+		    }
+                } catch (Exception ex) {
                     ex.printStackTrace();
                     System.exit(-1);
                 }
                 // if not found in the dictionary
-                if (index == null) {
-                    return (1 - dists1s2);
-                }
-                else {
-                    sim = compareComponentNames(s1, s2);
-                }
+                if ( index == null ) return (1 - dists1s2);
+                else sim = compareComponentNames(s1, s2);
             }
-            else {
-                sim = compareComponentNames(s1, s2);
-            }
+            else sim = compareComponentNames(s1, s2);
         }
-        return Math.max(sim, 1 - dists1s2);
         // return sim;
+        return Math.max(sim, 1 - dists1s2);
     }
     
     public double compareComponentNames(String s1, String s2) {
+        Dictionary dictionary = Dictionary.getInstance(); 
         Vector s1Tokens;
         Vector s2Tokens;
-        Dictionary dictionary = Dictionary.getInstance(); 
         IndexWord indexNoun1, indexNoun2;
         IndexWord indexAdj1, indexAdj2;
         IndexWord indexVerb1, indexVerb2;
@@ -254,8 +385,8 @@ public class JWNLDistances {
         double[][] simMatrix;
         int i, j;
         
-        s1Tokens = tokenize(s1);
-        s2Tokens = tokenize(s2);
+        s1Tokens = StringDistances.tokenize(s1);
+        s2Tokens = StringDistances.tokenize(s2);
 
         // tokens storage
 
@@ -312,64 +443,6 @@ public class JWNLDistances {
         
         return bestMatch(simMatrix);
         
-        /*
-        nounsResults = new double[nouns1.size()][nouns2.size()];
-        verbsResults = new double[verbs1.size()][verbs2.size()];
-        adjectivesResults = new double[adjectives1.size()][adjectives2.size()];
-
-        nounsMasks = new double[nouns1.size()][nouns2.size()];
-        fillWithOnes(nounsMasks);
-        verbsMasks = new double[verbs1.size()][verbs2.size()];
-        fillWithOnes(verbsMasks);
-        adjectivesMasks = new double[adjectives1.size()][adjectives2.size()];
-        fillWithOnes(adjectivesMasks);
-
-        double weightSum = 0;
-
-        if (! (nouns1.isEmpty() && nouns2.isEmpty())) {
-            this.updateMaskAndResults(
-                this.nouns1,
-                this.nouns2,
-                this.nounsMasks,
-                this.nounsResults);
-            weightSum += NOUN_WEIGHT;
-        }
-        
-        double nounsBestMatch = bestMatch(nounsResults, nounsMasks);
-
-        if (! (verbs1.isEmpty() && verbs2.isEmpty())) {
-            this.updateMaskAndResults(
-                this.verbs1,
-                this.verbs2,
-                this.verbsMasks,
-                this.verbsResults);
-            weightSum += VERB_WEIGHT;
-        }
-        
-        double verbsBestMatch = bestMatch(verbsResults, verbsMasks);
-
-        if (! (adjectives1.isEmpty() && adjectives2.isEmpty())) {
-            this.updateMaskAndResults(
-                this.adjectives1,
-                this.adjectives2,
-                this.adjectivesMasks,
-                this.adjectivesResults);
-            weightSum += ADJ_WEIGHT;
-        }
-
-        double adjBestMatch = bestMatch(adjectivesResults, adjectivesMasks);
-
-        if (weightSum == 0) {
-            // System.err.println("failed");
-            return 0;
-        }
-
-        double result = (nounsBestMatch * NOUN_WEIGHT
-            + verbsBestMatch
-            * VERB_WEIGHT + adjBestMatch * ADJ_WEIGHT) / weightSum;
-        // Sytem.out.println("res = "+result);
-        return result;
-        */
     }
 
     public double computeTokenSimilarity(IndexWord index1, IndexWord index2) {
@@ -484,241 +557,25 @@ public class JWNLDistances {
         return 0;
     }
 
-
-	public boolean isAlphaNum(char c) {
-		return isAlpha(c) || isNum(c);
-	}
-
-	public boolean isAlpha(char c) {
-		return isAlphaCap(c) || isAlphaSmall(c);
-	}
-
-	public boolean isAlphaCap(char c) {
-		return (c >= 'A') && (c <= 'Z');
-	}
-
-	public boolean isAlphaSmall(char c) {
-		return (c >= 'a') && (c <= 'z');
-	}
-
-	public boolean isNum(char c) {
-		return (c >= '0') && (c <= '9');
-	}
-	
-
-    // the new tokenizer
-    // first looks for non-alphanumeric chars in the string
-    // if any, they will be taken as the only delimiters
-    // otherwise the standard naming convention will be assumed:
-    // words start with a capital letter
-    // substring of capital letters will be seen as a whole
-    // if it is a suffix
-    // otherwise the last letter will be taken as the new token
-    // start
-    public Vector<String> tokenize(String s) {
-	String str1 = s;
-	int sLength = s.length();
-	Vector<String> vTokens = new Vector<String>();
-		
-	// 1. detect possible delimiters
-	// starts on the first character of the string
-	int tkStart = 0;
-	int tkEnd = 0;
-		
-	// looks for the first delimiter
-	// while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
-	while (tkStart < sLength  && isAlphaNum (str1.charAt(tkStart))) {
-	    tkStart++;
-	}
-		
-	// if there is one then the tokens will be the
-	// substrings between delimiters
-	if (tkStart < sLength){
-			
-	    // reset start and look for the first token
-	    tkStart = 0;
-	    
-	    // ignore leading separators
-	    // while (tkStart < sLength && ! isAlpha (str1.charAt(tkStart))) {
-	    while (tkStart < sLength  && ! isAlphaNum (str1.charAt(tkStart))) {
-		tkStart++;
-	    }
-
-	    tkEnd = tkStart;
-
-	    while (tkStart < sLength) {
-
-		// consumption of the Alpha/Num token
-		if (isAlpha (str1.charAt(tkEnd))) {
-		    while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
-			tkEnd++;
-		    }
-		} else {
-		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
-			tkEnd++;
-		    }					
-		}
-		
-		// consumption of the Num token
-		vTokens.add(str1.substring(tkStart, tkEnd));
-		
-		// ignoring intermediate delimiters
-		while (tkEnd < sLength  && !isAlphaNum (str1.charAt(tkEnd))) {
-		    tkEnd++;
-		}			
-		tkStart=tkEnd;
-	    }			
-	}
-		
-	// else the standard naming convention will be used
-	else{
-	    // start at the beginning of the string
-	    tkStart = 0;			
-	    tkEnd = tkStart;
-
-	    while (tkStart < sLength) {
-
-		// the beginning of a token
-		if (isAlpha (str1.charAt(tkEnd))){
-					
-		    if (isAlphaCap (str1.charAt(tkEnd))){
-						
-			// This starts with a Cap
-			// IS THIS an Abbreviaton ???
-			// lets see how maqny Caps
-			while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
-			    tkEnd++;
-			}
-			
-			// The pointer is at:
-			// a) string end: make a token and go on
-			// b) number: make a token and go on
-			// c) a small letter:
-			// if there are at least 3 Caps,
-			// separate them up to the second last one and move the
-			// tkStart to tkEnd-1
-			// otherwise
-			// go on
-
-			if (tkEnd == sLength || isNum (str1.charAt(tkEnd))) {
-			    vTokens.add(str1.substring(tkStart, tkEnd));
-			    tkStart=tkEnd;
-			} else {
-			    // small letter
-			    if (tkEnd - tkStart > 2) {
-				// If at least 3
-				vTokens.add(str1.substring(tkStart, tkEnd-1));
-				tkStart=tkEnd-1;
-			    }
-			}
-			// if (isAlphaSmall (str1.charAt(tkEnd))){}
-		    } else {
-			// it is a small letter that follows a number : go on
-			// relaxed
-			while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
-			    tkEnd++;
-			}
-			vTokens.add(str1.substring(tkStart, tkEnd));
-			tkStart=tkEnd;
-		    }
-		} else {
-		    // Here is the numerical token processing
-		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
-			tkEnd++;
-		    }
-		    vTokens.add(str1.substring(tkStart, tkEnd));
-		    tkStart=tkEnd;			
-		}
-	    }	
-	}
-	// PV: Debug 
-	//System.err.println("Tokens = "+ vTokens.toString());		
-	return vTokens;
-    }
-    
-    // PG: The method now returns an instance of Vector.
     /**
-     * @param s A string.
-     * @return a vector containing a collection of tokens.
-     */
-    public Vector<String> tokenizeDep(String s) {
-        Vector<String> sTokens = new Vector<String>();
-        String str1 = s;
-        
-        // starts on the second character of the string
-        int start = 0;
-        // PV igore leading separators
-        while (start < str1.length() &&
-                ((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z'))
-                || ((str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z'))) {
-                start++;
-        }
-
-        int car = start + 1;
-        while (car < str1.length()) {
-            while (car < str1.length() &&
-                    (str1.charAt(car) >= 'a') &&
-                    (str1.charAt(car) <= 'z')) {
-                // PV while (car < str1.length() && (str1.charAt(car) > 'Z')) {
-                // PV while (car < str1.length() && !(str1.charAt(car) < 'Z')) {
-                car++;
-            }
-            // PV : correction of the separator problem
-            if ((car < str1.length()) &&
-                    (str1.charAt(car) >= 'A') &&
-                    (str1.charAt(car) <= 'Z')) {
-                // PV : leave single capitals with the previous token
-                // (abbreviations)
-                if ((car < str1.length() - 1) &&
-                        ((str1.charAt(car+1) < 'a') ||
-                        (str1.charAt(car+1) > 'z'))) {
-                    car++;
-                }
-                else if (car == str1.length() - 1) {
-                    car++;
-                }
-            }
-            sTokens.add(str1.substring(start, car));
-            start = car;
-            // PV igore leading separators
-            while (start < str1.length() &&
-                    ((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z')
-                    || (str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z') )) {
-                start++;
-            }
-            car = start + 1;
-        }
-        // PV: Debug System.err.println("Tokens = "+ sTokens.toString());
-    
-        return sTokens;
-    }
-
-    /**
-     * TODO Look up for other things than nouns
      * @param word
      */
     public void lookUpWord(String word, Hashtable<String,IndexWord> nouns, Hashtable<String,IndexWord> adjectives,
             Hashtable<String,IndexWord> verbs) {
+        Dictionary dictionary = Dictionary.getInstance(); 
         IndexWord index = null;
         
         try {
             // Lookup for word in adjectives
-            index = Dictionary.getInstance().lookupIndexWord(POS.ADJECTIVE, word);
-            if (index != null) {
-                adjectives.put(word, index);
-            }
+            index = dictionary.lookupIndexWord(POS.ADJECTIVE, word);
+            if (index != null) adjectives.put(word, index);
             // Lookup for word in nouns
-            index = Dictionary.getInstance().lookupIndexWord(POS.NOUN, word);
-            if (index != null) {
-                nouns.put(word, index);
-            }
+            index = dictionary.lookupIndexWord(POS.NOUN, word);
+            if (index != null) nouns.put(word, index);
             // Lookup for word in verbs
-            index = Dictionary.getInstance().lookupIndexWord(POS.VERB, word);
-            if (index != null) {
-                verbs.put(word, index);
-            }
-        }
-        catch (Exception ex) {
+            index = dictionary.lookupIndexWord(POS.VERB, word);
+            if (index != null) verbs.put(word, index);
+        } catch (Exception ex) {
             ex.printStackTrace();
             System.exit(-1);
         }
@@ -747,22 +604,13 @@ public class JWNLDistances {
 
     }
     
-    //private double bestMatch(double matrix[][], double mask[][]) {
     private double bestMatch(double matrix[][]) {
-
         int nbrLines = matrix.length;
-
-        if (nbrLines == 0)
-            return 0;
-
+        if (nbrLines == 0) return 0;
         int nbrColumns = matrix[0].length;
         double sim = 0;
-
         int minSize = (nbrLines >= nbrColumns) ? nbrColumns : nbrLines;
-
-        if (minSize == 0)
-            return 0;
-
+        if (minSize == 0) return 0;
         for (int k = 0; k < minSize; k++) {
             double max_val = 0;
             int max_i = 0;
@@ -771,16 +619,13 @@ public class JWNLDistances {
                 for (int j = 0; j < nbrColumns; j++) {
                     if (max_val < matrix[i][j]) {
                         max_val = matrix[i][j];
-
                         /* mods
                         if (matrix[i][j] > 0.3)
                             max_val = matrix[i][j];
                         else
                             max_val = matrix[i][j] * mask[i][j];
                         end mods */
-                        
                         max_val = matrix[i][j];
-                        
                         max_i = i;
                         max_j = j;
                     }
@@ -824,12 +669,9 @@ public class JWNLDistances {
     public int getNumberOfOccurences(String token, Hashtable nouns,
         Hashtable adj, Hashtable verbs) {
         int nb = 0;
-        if (nouns.containsKey(token))
-            nb++;
-        if (adj.containsKey(token))
-            nb++;
-        if (verbs.containsKey(token))
-            nb++;
+        if (nouns.containsKey(token)) nb++;
+        if (adj.containsKey(token)) nb++;
+        if (verbs.containsKey(token)) nb++;
         return nb;
     }
 
@@ -863,40 +705,4 @@ public class JWNLDistances {
         return verbsResults;
     }
 
-    public static void main(String[] args) {
-        Vector v = new Vector();
-
-        JWNLDistances j = new JWNLDistances();
-	try { j.Initialize(); }
-	catch ( AlignmentException e) {
-	    e.printStackTrace();
-	    return;
-	}
-        String s1 = "French997Guy";
-        String s2 = "Dutch_Goa77ly";
-//        try {
-//            IndexWord index1 = Dictionary.getInstance().getIndexWord(POS.NOUN, s1);
-//            IndexWord index2 = Dictionary.getInstance().getIndexWord(POS.NOUN, s2);
-//            System.err.println(j.computeTokenSimilarity(index1, index2));
-//        }
-//        catch (JWNLException e) {
-//            e.printStackTrace();
-//        }
-        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
-//        System.err.println("Sim = " + j.computeSimilarity(s1, s2));
-//        System.err.println("SimOld = " + (1 - j.BasicSynonymDistance(s1, s2)));
-//        System.err.println("SimSubs = " + (1 - StringDistances.subStringDistance(s1, s2)));
-        s1 = "FREnch997guy21GUIe";
-        s2 = "Dutch_GOa77ly.";
-        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
-
-        s1 = "a997c";
-        s2 = "77ly.";
-        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
-
-        s1 = "MSc";
-        s2 = "PhD";
-        System.err.println("SimWN = " + j.compareComponentNames(s1, s2));
-
-    }
 }

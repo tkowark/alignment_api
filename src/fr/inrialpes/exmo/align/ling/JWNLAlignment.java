@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,33 +33,46 @@ import java.net.URI;
 /**
  * This Class uses JWNLDistances to align two ontologies.
  * @author  Jerome Pierson
- * @version $Id: JWNLAlignment.java,v 1.0 2004/08/04 
+ * @version $Id$
  */
 
 public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess {
-
     final static String WNVERS = "3.0";
 
-    protected class SynonymMatrixMeasure extends MatrixMeasure {
+    protected class WordNetMatrixMeasure extends MatrixMeasure {
 	protected JWNLDistances Dist = null;
+	protected int method = 0;
 
-	public SynonymMatrixMeasure() {
+	public WordNetMatrixMeasure() {
 	    Dist = new JWNLDistances();
 	}
 	public void init() throws AlignmentException {
 	    Dist.Initialize();
 	}
+	public void init( String wndict ) throws AlignmentException {
+	    Dist.Initialize( wndict, WNVERS );
+	}
 	public void init( String wndict, String wnvers ) throws AlignmentException {
 	    Dist.Initialize( wndict, wnvers );
 	}
-	public void init( String wndict ) throws AlignmentException {
-	    Dist.Initialize( wndict, WNVERS );
+	public void init( String wndict, String wnvers, int simFunction ) throws AlignmentException {
+	    Dist.Initialize( wndict, wnvers );
+	    method = simFunction;
 	}
 	public double measure( Object o1, Object o2 ) throws Exception {
 	    String s1 = ontology1().getEntityName( o1 );
 	    String s2 = ontology2().getEntityName( o2 );
 	    if ( s1 == null || s2 == null ) return 1.;
-	    return Dist.BasicSynonymDistance(s1.toLowerCase(),s2.toLowerCase());
+	    switch ( method ) {
+	    case 0:
+		return Dist.basicSynonymDistance( s1, s2 );
+	    case 1:
+		return 1. - Dist.cosynonymySimilarity( s1, s2 );
+	    case 2:
+		return 1. - Dist.basicSynonymySimilarity( s1, s2 );
+	    default:
+		return Dist.basicSynonymDistance( s1, s2 );
+	    }
 	}
 	public double classMeasure( Object cl1, Object cl2 ) throws Exception {
 	    return measure( cl1, cl2 );
@@ -68,28 +81,33 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	    return measure( pr1, pr2 );
 	}
 	public double individualMeasure( Object id1, Object id2 ) throws Exception {
-	    if ( debug > 4 ) 
-			System.err.println( "ID:"+id1+" -- "+id2);
+	    if ( debug > 4 ) System.err.println( "ID:"+id1+" -- "+id2);
 	    return measure( id1, id2 );
 	}
     }
 
     /** Creation **/
     public JWNLAlignment(){
-	setSimilarity( new SynonymMatrixMeasure() );
+	setSimilarity( new WordNetMatrixMeasure() );
 	setType("**");
     };
 
     /** Processing **/
     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+	int method = 0;
 	loadInit( alignment );
-	SynonymMatrixMeasure sim = (SynonymMatrixMeasure)getSimilarity();
+	WordNetMatrixMeasure sim = (WordNetMatrixMeasure)getSimilarity();
 	String wnvers = (String)params.getParameter("wnvers");
 	if ( wnvers == null ) wnvers = WNVERS;
-	sim.init( (String)params.getParameter("wndict"), wnvers );
+	String function = (String)params.getParameter("wnfunction");
+	if ( function != null ) {
+	    if ( function.equals("cosynonymySimilarity") ) method = 1;
+	    else if ( function.equals("basicSynonymySimilarity") ) method = 2;
+	}
+	sim.init( (String)params.getParameter("wndict"), wnvers, method );
 	sim.initialize( ontology1(), ontology2(), alignment );
-	getSimilarity().compute( params );
-      if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
+	sim.compute( params );
+	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
 	extract( type, params );
     }
 }

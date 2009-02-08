@@ -1,9 +1,10 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2007
+ * Copyright (C) INRIA, 2003-2007, 2009
  * Except for the Levenshtein class whose copyright is not claimed to
  * our knowledge.
+ * Copyright (C) University of Montréal, 2004-2005 for the tokenizer
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,6 +44,8 @@
 package fr.inrialpes.exmo.align.impl.method; 
 
 import org.ivml.alimo.ISub;
+
+import java.util.Vector;
 
 public class StringDistances {
 
@@ -324,4 +327,214 @@ public class StringDistances {
 	return 1.0 - (double)metrics.score( s1, s2 );
     }
 	
+
+    /**
+     * JE//: This is independent from WordNet and should go to StringDistances
+     * JE//: This should return a BagOfWords
+     * the new tokenizer
+     * first looks for non-alphanumeric chars in the string
+     * if any, they will be taken as the only delimiters
+     * otherwise the standard naming convention will be assumed:
+     * words start with a capital letter
+     * substring of capital letters will be seen as a whole
+     * if it is a suffix
+     * otherwise the last letter will be taken as the new token
+     * start
+     */
+    public static Vector<String> tokenize(String s) {
+	String str1 = s;
+	int sLength = s.length();
+	Vector<String> vTokens = new Vector<String>();
+		
+	// 1. detect possible delimiters
+	// starts on the first character of the string
+	int tkStart = 0;
+	int tkEnd = 0;
+		
+	// looks for the first delimiter
+	// while (tkStart < sLength  && isAlpha (str1.charAt(tkStart))) {
+	while (tkStart < sLength  && isAlphaNum (str1.charAt(tkStart))) {
+	    tkStart++;
+	}
+		
+	// if there is one then the tokens will be the
+	// substrings between delimiters
+	if (tkStart < sLength){
+			
+	    // reset start and look for the first token
+	    tkStart = 0;
+	    
+	    // ignore leading separators
+	    // while (tkStart < sLength && ! isAlpha (str1.charAt(tkStart))) {
+	    while (tkStart < sLength  && ! isAlphaNum (str1.charAt(tkStart))) {
+		tkStart++;
+	    }
+
+	    tkEnd = tkStart;
+
+	    while (tkStart < sLength) {
+
+		// consumption of the Alpha/Num token
+		if (isAlpha (str1.charAt(tkEnd))) {
+		    while (tkEnd < sLength  && isAlpha (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }
+		} else {
+		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }					
+		}
+		
+		// consumption of the Num token
+		vTokens.add(str1.substring(tkStart, tkEnd));
+		
+		// ignoring intermediate delimiters
+		while (tkEnd < sLength  && !isAlphaNum (str1.charAt(tkEnd))) {
+		    tkEnd++;
+		}			
+		tkStart=tkEnd;
+	    }			
+	}
+		
+	// else the standard naming convention will be used
+	else{
+	    // start at the beginning of the string
+	    tkStart = 0;			
+	    tkEnd = tkStart;
+
+	    while (tkStart < sLength) {
+
+		// the beginning of a token
+		if (isAlpha (str1.charAt(tkEnd))){
+					
+		    if (isAlphaCap (str1.charAt(tkEnd))){
+						
+			// This starts with a Cap
+			// IS THIS an Abbreviaton ???
+			// lets see how maqny Caps
+			while (tkEnd < sLength  && isAlphaCap (str1.charAt(tkEnd))) {
+			    tkEnd++;
+			}
+			
+			// The pointer is at:
+			// a) string end: make a token and go on
+			// b) number: make a token and go on
+			// c) a small letter:
+			// if there are at least 3 Caps,
+			// separate them up to the second last one and move the
+			// tkStart to tkEnd-1
+			// otherwise
+			// go on
+
+			if (tkEnd == sLength || isNum (str1.charAt(tkEnd))) {
+			    vTokens.add(str1.substring(tkStart, tkEnd));
+			    tkStart=tkEnd;
+			} else {
+			    // small letter
+			    if (tkEnd - tkStart > 2) {
+				// If at least 3
+				vTokens.add(str1.substring(tkStart, tkEnd-1));
+				tkStart=tkEnd-1;
+			    }
+			}
+			// if (isAlphaSmall (str1.charAt(tkEnd))){}
+		    } else {
+			// it is a small letter that follows a number : go on
+			// relaxed
+			while (tkEnd < sLength  && isAlphaSmall (str1.charAt(tkEnd))) {
+			    tkEnd++;
+			}
+			vTokens.add(str1.substring(tkStart, tkEnd));
+			tkStart=tkEnd;
+		    }
+		} else {
+		    // Here is the numerical token processing
+		    while (tkEnd < sLength  && isNum (str1.charAt(tkEnd))) {
+			tkEnd++;
+		    }
+		    vTokens.add(str1.substring(tkStart, tkEnd));
+		    tkStart=tkEnd;			
+		}
+	    }	
+	}
+	// PV: Debug 
+	//System.err.println("Tokens = "+ vTokens.toString());		
+	return vTokens;
+    }
+    
+    /**
+     * JE: I guess that here Dep means deprecated!
+     * @param s A string.
+     * @return a vector containing a collection of tokens.
+     */
+    public Vector<String> tokenizeDep(String s) {
+        Vector<String> sTokens = new Vector<String>();
+        String str1 = s;
+        
+        int start = 0;
+        // Ignore leading separators
+        while (start < str1.length() &&
+                ((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z'))
+                || ((str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z'))) {
+                start++;
+        }
+
+        int car = start + 1;
+        while (car < str1.length()) {
+            while (car < str1.length() &&
+                    (str1.charAt(car) >= 'a') &&
+                    (str1.charAt(car) <= 'z')) {
+                // PV while (car < str1.length() && (str1.charAt(car) > 'Z')) {
+                // PV while (car < str1.length() && !(str1.charAt(car) < 'Z')) {
+                car++;
+            }
+            // Correction of the separator problem
+            if ((car < str1.length()) &&
+                    (str1.charAt(car) >= 'A') &&
+                    (str1.charAt(car) <= 'Z')) {
+                // PV : leave single capitals with the previous token
+                // (abbreviations)
+                if ((car < str1.length() - 1) &&
+                        ((str1.charAt(car+1) < 'a') ||
+                        (str1.charAt(car+1) > 'z'))) {
+                    car++;
+                }
+                else if (car == str1.length() - 1) {
+                    car++;
+                }
+            }
+            sTokens.add(str1.substring(start, car));
+            start = car;
+            // PV igore leading separators
+            while (start < str1.length() &&
+                    ((str1.charAt(start) < 'A') || (str1.charAt(start) > 'z')
+                    || (str1.charAt(start) < 'a') && (str1.charAt(start) > 'Z') )) {
+                start++;
+            }
+            car = start + 1;
+        }
+        // PV: Debug System.err.println("Tokens = "+ sTokens.toString());
+        return sTokens;
+    }
+
+    public static boolean isAlphaNum(char c) {
+	return isAlpha(c) || isNum(c);
+    }
+    
+    public static boolean isAlpha(char c) {
+	return isAlphaCap(c) || isAlphaSmall(c);
+    }
+    
+    public static boolean isAlphaCap(char c) {
+	return (c >= 'A') && (c <= 'Z');
+    }
+
+    public static boolean isAlphaSmall(char c) {
+	return (c >= 'a') && (c <= 'z');
+    }
+    
+    public static boolean isNum(char c) {
+	return (c >= '0') && (c <= '9');
+    }
+
 }
