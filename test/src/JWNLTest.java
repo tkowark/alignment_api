@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-//package test.com.acme.dona.dep;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -27,7 +25,6 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
-//import org.testng.annotations.*;
 
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -38,6 +35,7 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.ling.JWNLAlignment;
+import fr.inrialpes.exmo.align.ling.JWNLDistances;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -45,6 +43,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Vector;
 
 /**
  * These tests corresponds to the JWNL test of the README file in the main directory
@@ -55,7 +54,7 @@ public class JWNLTest {
     private AlignmentProcess alignment = null;
 
     @Test(groups = { "full", "ling" })
-    public void routineJWNLTest() throws Exception {
+    public void routineJWNLAlignmentTest() throws Exception {
     /*
 $ setenv WNDIR 
 $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/examples/rdf/ -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
@@ -77,18 +76,30 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14037, "Rendered differently" );
+	assertEquals( stream.toString().length(), 14040, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
-	assertEquals( alignment.nbCells(), 35 );
+	assertEquals( alignment.nbCells(), 38 );
 
 	// Different similarity
 	params.setParameter( "wnfunction", "cosynonymySimilarity" );
 	alignment = new JWNLAlignment();
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 43 );
+	assertEquals( alignment.nbCells(), 9 );
 	alignment.cut( "hard", 0.4 );
-	assertEquals( alignment.nbCells(), 37 );
+	assertEquals( alignment.nbCells(), 9 );
 
+    }
+
+    // This was in the class "main"
+    @Test(groups = { "full", "ling" })
+    public void routineJWNLDistanceTest() throws Exception {
+        JWNLDistances j = new JWNLDistances();
+	j.Initialize( "../WordNet-2.0/dict", "3.0" );
+
+	assertEquals( j.compareComponentNames( "French997Guy", "Dutch_Goa77ly" ), .19999999999999998);
+	assertEquals( j.compareComponentNames( "FREnch997guy21GUIe", "Dutch_GOa77ly." ), .04061624649859944);
+	assertEquals( j.compareComponentNames( "a997c", "77ly."), .0);
+	assertEquals( j.compareComponentNames( "MSc", "PhD"), .3);
     }
 }

@@ -38,6 +38,7 @@ import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
+import fr.inrialpes.exmo.align.impl.method.StringDistances;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -53,6 +54,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Vector;
 
 /**
  * These tests corresponds to the README file in the main directory
@@ -102,4 +104,39 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
     }
 
+    @Test(groups = { "full", "Noling" })
+    public void tokenizeTest() throws Exception {
+	Vector<String> res = StringDistances.tokenize( "ComputerScience" );
+	// [Computer, Science]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "Science" );
+	res = StringDistances.tokenize( "FullProfessor in ComputerScience" );
+	// [FullProfessor, in, ComputerScience]
+	assertEquals( res.size(), 3 );
+	assertEquals( res.get(1), "in" );
+	res = StringDistances.tokenize( "USofAmerica" );
+	// [USof, America]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "America" );
+	res = StringDistances.tokenize( "SpiritofAmerica" );
+	// [Spiritof, America]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "America" );
+	res = StringDistances.tokenize( "SpiritOfAmerica" );
+	// [Spirit, Of, America]
+	assertEquals( res.size(), 3 );
+	assertEquals( res.get(1), "Of" );
+	res = StringDistances.tokenize( "ProtoDL" );
+	// [Proto, DL]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "DL" );
+	res = StringDistances.tokenize( "And/or" );
+	// [And, or]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "or" );
+	res = StringDistances.tokenize( "title: FullProfessor" );
+	// [title, FullProfessor]
+	assertEquals( res.size(), 2 );
+	assertEquals( res.get(1), "FullProfessor" );
+    }
 }
