@@ -51,6 +51,7 @@ Currently the development and maintainance of 3 versions continue.
 <li>Online evaluation (server)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
+<li>Added get-aligned to interface (server)</li>
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
@@ -63,12 +64,19 @@ Currently the development and maintainance of 3 versions continue.
 
 <h2>Current SVN trunk version</h2>
 
-<p>
+<!--h2>Version 3.6 (9xx): xx/02/2009 - Sabai sabai</h2-->
+
+<p><!--Upgraded to JWNL 1.4<br /-->
 <ul compact="1">
+<li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
 <li>Added REST interface to the HTML interface (server)</li>
+<li>Added new methods in JWNLDistances (ling)</li>
+<li>Added tests for ling and set noling as default in build (test)</li>
+<li>Improved renderers with more metadata (renderer)</li>
 <li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
 <li><tt>ConcatenatedIterator</tt> is now parameterised and iterable (impl)</li>
+<li>Corrected a bug in XMLMetadataRendererVisitor (renderer)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
   between Data and Object properties and, in general, heterorgeneous equivalences (impl)</li>
 </ul>
