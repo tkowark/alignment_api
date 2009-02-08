@@ -13,7 +13,7 @@
     <echo message="compileall: recompiles all sources"/>
     <echo message="lint: compiles all sources with bug flags on"/>
     <echo message="jar: archives compiled code"/>
-    <echo message="test: performs unit tests [nyi]"/>
+    <echo message="test: performs unit tests"/>
     <echo message="zip: creates a new zip file"/>
     <echo message="javadoc: generates documentation"/>
     <echo message="release: releases a new version"/>
@@ -190,8 +190,9 @@
     <javac srcdir="test/src" destdir="test/classes" debug="on">
       <classpath refid="classpath"/>
     </javac>
-    <!-- possible groups: impl, serv, ling, onto, full -->
-    <testng groups="full"
+    <!-- possible groups: impl, serv, ling, noling, io, onto, omwg, full -->
+    <!-- ling requires WordNet and takes ages initialising it -->
+    <testng groups="noling"
 	    sourcedir="test/src"
 	    outputDir="test/html"
 	    haltOnFailure="true" verbose="1">
