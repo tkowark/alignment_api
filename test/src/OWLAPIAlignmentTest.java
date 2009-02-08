@@ -61,12 +61,12 @@ public class OWLAPIAlignmentTest {
     private Ontology onto1 = null;
     private Ontology onto2 = null;
 
-    @BeforeClass(groups = { "full" })
+    @BeforeClass(groups = { "full", "noling" })
     private void init(){
 	alignment = new OWLAPIAlignment();
     }
 
-    @Test(groups = { "full" })
+    @Test(groups = { "full", "noling" })
     public void loadingAndConvertingTest() throws Exception {
 	assertNotNull( alignment, "Alignment was null" );
 	AlignmentParser aparser = new AlignmentParser( 0 );
@@ -80,7 +80,7 @@ public class OWLAPIAlignmentTest {
 	assertTrue( result instanceof URIAlignment );
     }
 
-    @Test(groups = { "full" }, dependsOnMethods = {"loadingAndConvertingTest"})
+    @Test(groups = { "full", "noling" }, dependsOnMethods = {"loadingAndConvertingTest"})
     public void basicAttributeTest() throws Exception {
 	assertEquals( alignment.getLevel(), "0" );
 	assertEquals( alignment.getType(), "**" );
@@ -88,7 +88,7 @@ public class OWLAPIAlignmentTest {
 	assertEquals( alignment.getExtension( Annotations.ALIGNNS, Annotations.TIME), "7" );
     }
 
-    @Test(groups = { "full" }, dependsOnMethods = {"loadingAndConvertingTest"})
+    @Test(groups = { "full", "noling" }, dependsOnMethods = {"loadingAndConvertingTest"})
     public void ontologyTest() throws Exception {
 	onto1 = alignment.getOntologyObject1();
 	onto2 = alignment.getOntologyObject2();
@@ -108,7 +108,7 @@ public class OWLAPIAlignmentTest {
 	assertEquals( onto2.getFormURI().toString(), "http://www.w3.org/2002/07/owl#" );
     }
 
-    @Test(groups = { "full" }, dependsOnMethods = {"ontologyTest"})
+    @Test(groups = { "full", "noling" }, dependsOnMethods = {"ontologyTest"})
     public void basicCellTest() throws Exception {
 	assertEquals( alignment.nbCells(), 2 );
 	Object ob2 = ((LoadedOntology)onto2).getEntity( new URI("http://www.example.org/ontology2#journalarticle") );
@@ -144,7 +144,7 @@ public class OWLAPIAlignmentTest {
 	}
     }
 
-    @Test(groups = { "full" }, dependsOnMethods = {"loadingAndConvertingTest"})
+    @Test(groups = { "full", "noling" }, dependsOnMethods = {"loadingAndConvertingTest"})
     public void rendererTest() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	//FileOutputStream stream = new FileOutputStream("result.rdf");

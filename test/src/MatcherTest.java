@@ -64,7 +64,7 @@ public class MatcherTest {
 
     // Add one test with instances in the ontology (the same ontology)
 
-    @Test(groups = { "full", "impl" })
+    @Test(groups = { "full", "impl", "noling" })
     public void routineTest8() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf

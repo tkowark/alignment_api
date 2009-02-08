@@ -49,7 +49,7 @@ public class OMWGTest {
     private Alignment alignment = null;
     private AlignmentParser aparser1 = null;
 
-    @Test(groups = { "full", "omwg" })
+    @Test(groups = { "full", "omwg", "noling" })
     public void loadPrintTest() throws Exception {
 	/*
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine.xml > wine2.xml
@@ -69,7 +69,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	writer.close();
     }
 
-    @Test(groups = { "full", "omwg" }, dependsOnMethods = {"loadPrintTest"})
+    @Test(groups = { "full", "omwg", "noling" }, dependsOnMethods = {"loadPrintTest"})
     public void roundTripTest() throws Exception {
 	/*
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine2.xml > wine3.xml
@@ -87,7 +87,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	writer.close();
     }
 
-    @Test(groups = { "full", "omwg" }, dependsOnMethods = {"roundTripTest"})
+    @Test(groups = { "full", "omwg", "noling" }, dependsOnMethods = {"roundTripTest"})
     public void diffTest() throws Exception {
 	/*
 diff wine2.xml wine3.xml

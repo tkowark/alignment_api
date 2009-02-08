@@ -54,7 +54,7 @@ public class IOTests {
     private Alignment alignment = null;
     private AlignmentParser aparser = null;
 
-    @Test(groups = { "full", "io" }, expectedExceptions = SAXException.class)
+    @Test(groups = { "full", "io", "noling" }, expectedExceptions = SAXException.class)
     public void loadSOAPErrorTest() throws Exception {
 	aparser = new AlignmentParser( 0 );
 	assertNotNull( aparser );
@@ -62,7 +62,7 @@ public class IOTests {
 	// error (we forgot to tell the parser that the alignment is embedded)
     }
 
-    @Test(groups = { "full", "io" }, dependsOnMethods = {"loadSOAPErrorTest"})
+    @Test(groups = { "full", "io", "noling" }, dependsOnMethods = {"loadSOAPErrorTest"})
     public void loadSOAPTest() throws Exception {
 	aparser.initAlignment( null );
 	aparser.setEmbedded( true );

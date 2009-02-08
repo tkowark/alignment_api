@@ -61,7 +61,7 @@ $ setenv WNDIR
 $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/examples/rdf/ -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
     */
 	Parameters params = new BasicParameters();
-    //System.getenv("WNDIR");
+	//System.getenv("WNDIR");
 	params.setParameter( "wndict", "../WordNet-2.0/dict" );
 	alignment = new JWNLAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
@@ -70,7 +70,6 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	alignment.align( (Alignment)null, params );
 	assertEquals( alignment.nbCells(), 43 );
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
-	//FileOutputStream stream = new FileOutputStream("result.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
@@ -81,5 +80,15 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	assertEquals( stream.toString().length(), 14037, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 35 );
+
+	// Different similarity
+	params.setParameter( "wnfunction", "cosynonymySimilarity" );
+	alignment = new JWNLAlignment();
+	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	alignment.align( (Alignment)null, params );
+	assertEquals( alignment.nbCells(), 43 );
+	alignment.cut( "hard", 0.4 );
+	assertEquals( alignment.nbCells(), 37 );
+
     }
 }
