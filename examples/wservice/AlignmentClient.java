@@ -1,7 +1,7 @@
 /*
  * $Id: AlignmentClient.java 522 2007-07-18 09:08:08Z euzenat $
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2008
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -57,6 +57,7 @@ public class AlignmentClient {
 	HOST = "aserv.inrialpes.fr";
 
     private int debug = 0;
+    private boolean rest = false;
     private String filename = null;
     private String outfile = null;
     private String paramfile = null;
@@ -72,9 +73,10 @@ public class AlignmentClient {
     
     public void run(String[] args) throws Exception {
 	services = new Hashtable();
-	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
 	// Read parameters
 	Parameters params = readParameters( args );
+	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
+	RESTUrl = new URL( "http://" + HOST + ":" + HTML + "/rest" );
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
@@ -95,7 +97,12 @@ public class AlignmentClient {
 	    System.err.println();
 	}
 	// Send message
-	String answer = sendMessage( message, params );
+	String answer;
+	if ( rest ) {
+	    answer = sendRESTMessage( message, params );
+	} else {
+	    answer = sendSOAPMessage( message, params );
+	}
 	if ( debug > 1 ){
 	    System.err.println("***** Received ==>");
 	    System.err.println(answer);
@@ -106,13 +113,10 @@ public class AlignmentClient {
     }
 
     public String createMessage( Parameters params ) throws Exception {
-        String messageBegin = "<SOAP-ENV:Envelope xmlns='http://exmo.inrialpes.fr/align/service'\n                   xml:base='http://exmo.inrialpes.fr/align/service'\n                   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n" +
-			                  "                   xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance'\n" + 
-			                  "                   xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>\n" +
-			                  "  <SOAP-ENV:Body>\n";
 	String messageBody = "";
 	String cmd = (String)params.getParameter( "command" );
 	if ( cmd.equals("list" ) ) {
+	    // REST: HTML there is on listmethods => all methods, not good
 	    String arg = (String)params.getParameter( "arg1" );
 	    if ( arg.equals("methods" ) ){
 		SOAPAction = "listmethodsRequest";
@@ -127,8 +131,10 @@ public class AlignmentClient {
 		System.exit(-1);
 	    }
 	} else if ( cmd.equals("wsdl" ) ) {
+	    // REST?
 	    SOAPAction = "wsdlRequest";
 	} else if ( cmd.equals("find" ) ) {
+	    // REST?
 	    SOAPAction = "findRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
@@ -138,6 +144,7 @@ public class AlignmentClient {
 	    }
 	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	} else if ( cmd.equals("match" ) ) {
+	    // REST?
 	    SOAPAction = "matchRequest";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
@@ -158,6 +165,7 @@ public class AlignmentClient {
 	    if ( arg3 != null )
 		messageBody += "    <force>"+arg3+"</force>\n";
 	} else if ( cmd.equals("align" ) ) {
+	    // REST?
 	    SOAPAction = "align";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
@@ -177,9 +185,8 @@ public class AlignmentClient {
 	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
 	    //if ( arg3 != null )
 	    //	messageBody += "<force>"+arg3+"</force>";
-	}
-
-	  else if ( cmd.equals("trim" ) ) {
+	} else if ( cmd.equals("trim" ) ) {
+	    // REST?
 	    SOAPAction = "cutRequest";
 	    String id = (String)params.getParameter( "arg1" );
 	    String thres = (String)params.getParameter( "arg2" );
@@ -196,6 +203,7 @@ public class AlignmentClient {
 	    if ( method != null )
 		messageBody += "<method>"+method+"</method>";
 	} else if ( cmd.equals("invert" ) ) {
+	    // REST?
 	    SOAPAction = "invertRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
@@ -204,14 +212,19 @@ public class AlignmentClient {
 	    }
 	    messageBody = "<alid>"+uri+"</alid>";
 	} else if ( cmd.equals("store" ) ) {
-	    SOAPAction = "storeRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
 	    }
-	    messageBody = "<alid>"+uri+"</alid>";
+	    if ( rest ) {
+		messageBody = "store?id="+uri;
+	    } else {
+		SOAPAction = "storeRequest";
+		messageBody = "<alid>"+uri+"</alid>";
+	    }
 	} else if ( cmd.equals("load" ) ) {
+	    // REST?
 	    String url = (String)params.getParameter( "arg1" );
 	    if ( url == null ){
 		SOAPAction = "loadRequest";
@@ -227,8 +240,12 @@ public class AlignmentClient {
 		System.err.println(content);
 		messageBody = "    <content>"+content+"</content>\n";
 	    } else {
-		SOAPAction = "loadfileRequest";
-		messageBody = "    <url>"+url+"</url>\n";
+		if ( rest ) {
+		    messageBody = "load?file="+url;
+		} else {
+		    SOAPAction = "loadfileRequest";
+		    messageBody = "    <url>"+url+"</url>\n";
+		}
 	    }
 	    /* This may read the input stream!
 			// Most likely Web service request
@@ -242,6 +259,7 @@ public class AlignmentClient {
 			params.setProperty( "content", new String( mess ) );
 	    */
 	} else if ( cmd.equals("retrieve" ) ) {
+	    // REST?
 	    SOAPAction = "retrieveRequest";
 	    String uri = (String)params.getParameter( "arg1" );
 	    String method = (String)params.getParameter( "arg2" );
@@ -251,6 +269,7 @@ public class AlignmentClient {
 	    }
 	    messageBody = "    <alid>"+uri+"</alid>\n    <method>"+method+"</method>\n";
 	} else if ( cmd.equals("metadata" ) ) {
+	    // REST?
 	    SOAPAction = "metadata";
 	    String uri = (String)params.getParameter( "arg1" );
 	    String key = (String)params.getParameter( "arg2" );
@@ -263,17 +282,30 @@ public class AlignmentClient {
 	    usage();
 	    System.exit(-1);
 	}
-	// Create input message and URL
-	String messageEnd = "  </SOAP-ENV:Body>\n"+"</SOAP-ENV:Envelope>\n";
-	String message = messageBegin + messageBody + messageEnd;
+	// Create input message or URL
+	String message;
+	if ( rest ) {
+	    message = SOAPAction + "?" + messageBody;
+	} else {
+	    message = "<SOAP-ENV:Envelope xmlns='http://exmo.inrialpes.fr/align/service'\n                   xml:base='http://exmo.inrialpes.fr/align/service'\n                   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n" +
+		"                   xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance'\n" + 
+		"                   xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>\n" +
+		"  <SOAP-ENV:Body>\n" +
+		messageBody + 
+		"  </SOAP-ENV:Body>\n"+"</SOAP-ENV:Envelope>\n";
+	}
 	return message;
     }
-        
-    public String sendMessage( String message, Parameters param ) throws Exception {
-	// Create the connection
-        URLConnection connection = SOAPUrl.openConnection();
-        HttpURLConnection httpConn = (HttpURLConnection) connection;
 
+    public String sendRESTMessage( String message, Parameters param ) throws Exception {
+	// Enhance RESTUrl
+	// Create connectsion
+	// Read output
+	return null;
+    }
+
+    public String sendSOAPMessage( String message, Parameters param ) throws Exception {
+	HttpURLConnection httpConn = (HttpURLConnection)(SOAPUrl.openConnection());
         byte[] b = message.getBytes();
 
 	// Create HTTP Request
@@ -316,8 +348,9 @@ public class AlignmentClient {
 	longopts[2] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	// Service parameters
 	longopts[3] = new LongOpt("server", LongOpt.REQUIRED_ARGUMENT, null, 'S');
+	longopts[4] = new LongOpt("rest", LongOpt.NO_ARGUMENT, null, 'r');
 
-	Getopt g = new Getopt("", args, "hD:d::S:", longopts);
+	Getopt g = new Getopt("", args, "rhD:d::S:", longopts);
 	int c;
 	String arg;
 
@@ -331,6 +364,10 @@ public class AlignmentClient {
 		arg = g.getOptarg();
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
+		break;
+	    case 'r' :
+		/* Use direct HTTP interface (REST)  */
+		rest = true;
 		break;
 	    case 'S' :
 		/* HTTP Server + port */
@@ -381,6 +418,7 @@ public class AlignmentClient {
     public void usage() {
 	System.err.println("usage: AlignmentClient [options] command [args]");
 	System.err.println("options are:");
+	System.err.println("\t--rest -r\t\t\tUse REST (HTTP) interface");
 	System.err.println("\t--server=URL -S URL\tthe server to which to connect");
 	System.err.println("\t--debug[=n] -d[n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
