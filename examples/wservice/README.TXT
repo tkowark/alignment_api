@@ -17,6 +17,7 @@ CLIENT INVOKATION
 java AlignmentClient [genoptions] keyword [options]
 genoptions:
 	-d [num]	 debug level
+	-r 		 rest interface
 	-S 		 servername
 	-h		 help
 
