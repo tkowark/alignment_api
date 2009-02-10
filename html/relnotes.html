@@ -66,7 +66,15 @@ Currently the development and maintainance of 3 versions continue.
 
 <!--h2>Version 3.6 (9xx): xx/02/2009 - Sabai sabai</h2-->
 
-<p><!--Upgraded to JWNL 1.4<br /-->
+<p><span style="color: red;">BEWARE:</span>
+Upgraded to JWNL 1.4.1rc2 (from 1.3rc3). This is included in the lib
+  directory.
+Hence, it is necessary to use WordNet-3.0 (the jwnl part will not work
+  anymore with 2.0).
+If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
+  library by the older one and this will work.
+</p>
+<p>
 <ul compact="1">
 <li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
 <li>Added REST interface to the HTML interface (server)</li>

@@ -61,7 +61,8 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
     */
 	Parameters params = new BasicParameters();
 	//System.getenv("WNDIR");
-	params.setParameter( "wndict", "../WordNet-2.0/dict" );
+	//params.setParameter( "wndict", "../WordNet-2.0/dict" );
+	params.setParameter( "wndict", "../WordNet-3.0/dict" );
 	alignment = new JWNLAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -76,9 +77,9 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14040, "Rendered differently" );
+	assertEquals( stream.toString().length(), 14027, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
-	assertEquals( alignment.nbCells(), 38 );
+	assertEquals( alignment.nbCells(), 37 );
 
 	// Different similarity
 	params.setParameter( "wnfunction", "cosynonymySimilarity" );
@@ -95,11 +96,11 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
     @Test(groups = { "full", "ling" })
     public void routineJWNLDistanceTest() throws Exception {
         JWNLDistances j = new JWNLDistances();
-	j.Initialize( "../WordNet-2.0/dict", "3.0" );
+	j.Initialize( "../WordNet-3.0/dict", "3.0" );
 
-	assertEquals( j.compareComponentNames( "French997Guy", "Dutch_Goa77ly" ), .19999999999999998);
-	assertEquals( j.compareComponentNames( "FREnch997guy21GUIe", "Dutch_GOa77ly." ), .04061624649859944);
+	assertEquals( j.compareComponentNames( "French997Guy", "Dutch_Goa77ly" ), 0.23684210526315788);
+	assertEquals( j.compareComponentNames( "FREnch997guy21GUIe", "Dutch_GOa77ly." ), 0.09795918367346938);
 	assertEquals( j.compareComponentNames( "a997c", "77ly."), .0);
-	assertEquals( j.compareComponentNames( "MSc", "PhD"), .3);
+	assertEquals( j.compareComponentNames( "MSc", "PhD"), 0.2777777777777778);
     }
 }
