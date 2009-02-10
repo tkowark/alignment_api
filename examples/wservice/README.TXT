@@ -37,7 +37,7 @@ java AlignmentClient retrieve AURI method	-> XML
 //-java AlignmentClient metadata AURI key	-> XML
 
 java AlignmentClient list alignments		-> XML
-java AlignmentClient list method		-> XML
+java AlignmentClient list methods		-> XML
 java AlignmentClient list renderers		-> XML
 java AlignmentClient list services		-> XML
 
