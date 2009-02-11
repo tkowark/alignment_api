@@ -64,7 +64,9 @@ public class AlignmentClient {
     private Hashtable services = null;
 
     private URL SOAPUrl = null;
+    private String RESTStr = null;
     private String SOAPAction = null;
+    private String RESTAction = null;
 
     public static void main(String[] args) {
 	try { new AlignmentClient().run( args ); }
@@ -76,7 +78,7 @@ public class AlignmentClient {
 	// Read parameters
 	Parameters params = readParameters( args );
 	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
-	RESTUrl = new URL( "http://" + HOST + ":" + HTML + "/rest" );
+	RESTStr = "http://" + HOST + ":" + HTML + "/rest" ;
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
@@ -114,38 +116,44 @@ public class AlignmentClient {
 
     public String createMessage( Parameters params ) throws Exception {
 	String messageBody = "";
+	String RESTParams  = "";
 	String cmd = (String)params.getParameter( "command" );
 	if ( cmd.equals("list" ) ) {
 	    // REST: HTML there is on listmethods => all methods, not good
 	    String arg = (String)params.getParameter( "arg1" );
 	    if ( arg.equals("methods" ) ){
 		SOAPAction = "listmethodsRequest";
+		RESTAction = "listmethods";
 	    } else if ( arg.equals("renderers" ) ){
 		SOAPAction = "listrenderersRequest";
+		RESTAction = "listrenderers";
 	    } else if ( arg.equals("services" ) ){
 		SOAPAction = "listservicesRequest";
+		RESTAction = "listservices";
 	    } else if ( arg.equals("alignments" ) ){
 		SOAPAction = "listalignmentsRequest";
+		RESTAction = "listalignments";
 	    } else {
 		usage();
 		System.exit(-1);
 	    }
 	} else if ( cmd.equals("wsdl" ) ) {
-	    // REST?
 	    SOAPAction = "wsdlRequest";
+	    RESTAction = "wsdl";
 	} else if ( cmd.equals("find" ) ) {
-	    // REST?
 	    SOAPAction = "findRequest";
+	    RESTAction = "find";  
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
 	    if ( uri2 == null ){
 		usage();
 		System.exit(-1);
 	    }
+	    RESTParams = "onto1=" + uri1 + "&" + "onto2=" + uri2;
 	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	} else if ( cmd.equals("match" ) ) {
-	    // REST?
 	    SOAPAction = "matchRequest";
+	    RESTAction = "match";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
 	    if ( uri2 == null ){
@@ -157,16 +165,30 @@ public class AlignmentClient {
 	    if ( arg3 != null ) {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
+	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
+	    RESTParams = "onto1=" + uri1 + "&" + "onto2=" + uri2;
+	    if ( method != null ) {
+		messageBody += "    <method>"+method+"</method>\n";
+		RESTParams += "&method=" + method;
+	    }
+	    //for wserver
 	    arg3 = (String)params.getParameter( "arg4" );
-	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
-	    if ( method != null )
-		messageBody += "    <method>"+method+"</method>\n";
-	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
-	    if ( arg3 != null )
-		messageBody += "    <force>"+arg3+"</force>\n";
+	    if ( arg3 != null ) {
+		 messageBody += "   <wserver>"+arg3+"</wserver>\n";
+		 RESTParams += "&paramn1=wserver&paramv1=" + arg3;
+	    }
+	    //for wsmethod
+	    String arg4 = (String)params.getParameter( "arg5" );
+	    if ( arg4 != null ) {
+		 messageBody += "   <wsmethod>"+arg4+"</wsmethod>\n";
+		 RESTParams += "&paramn2=wsmethod&paramv2=" + arg4;
+	    }
+	    messageBody += "	<force>on</force>";
+	    RESTParams += "&force=on";
+	//we do not need this command from WS client
 	} else if ( cmd.equals("align" ) ) {
-	    // REST?
 	    SOAPAction = "align";
+	    RESTAction = "align";
 	    String uri1 = (String)params.getParameter( "arg1" );
 	    String uri2 = (String)params.getParameter( "arg2" );
 	    if ( uri2 == null ){
@@ -178,16 +200,25 @@ public class AlignmentClient {
 	    if ( arg3 != null ) {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
-	    //arg3 = (String)params.getParameter( "arg4" );
+
 	    messageBody = "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
-	    if ( method != null )
+	    RESTParams += "&onto1=" + uri1 +"&onto2=" + uri2;
+	    if ( method != null ) {
 		messageBody += "    <method>"+method+"</method>\n";
+		RESTParams += "&method=" + method;
+	    }
+	    //for wserver
+	    arg3 = (String)params.getParameter( "arg4" );
+	    if ( arg3 != null ) {
+		 messageBody += "   <wserver>"+arg3+"</wserver>\n";
+		 RESTParams += "&paramn1=wserver&paramv1=" + arg3;
+	    }
 	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
 	    //if ( arg3 != null )
 	    //	messageBody += "<force>"+arg3+"</force>";
 	} else if ( cmd.equals("trim" ) ) {
-	    // REST?
 	    SOAPAction = "cutRequest";
+	    RESTAction = "cut";
 	    String id = (String)params.getParameter( "arg1" );
 	    String thres = (String)params.getParameter( "arg2" );
 	    if ( thres == null ){
@@ -200,29 +231,32 @@ public class AlignmentClient {
 		method = thres; thres = arg3;
 	    }
 	    messageBody = "    <alid>"+id+"</alid>\n    <threshold>"+thres+"</threshold>\n";
-	    if ( method != null )
+	    RESTParams += "&id=" + id +"&threshold=" + thres;
+	    if ( method != null ) {
 		messageBody += "<method>"+method+"</method>";
+		RESTParams += "&method=" + method;
+	    }
 	} else if ( cmd.equals("invert" ) ) {
-	    // REST?
 	    SOAPAction = "invertRequest";
+	    RESTAction = "invert";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
 	    }
 	    messageBody = "<alid>"+uri+"</alid>";
+	    RESTParams += "&id=" + uri ;
 	} else if ( cmd.equals("store" ) ) {
+	    SOAPAction = "storeRequest";
+	    RESTAction = "store";
 	    String uri = (String)params.getParameter( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
-	    }
-	    if ( rest ) {
-		messageBody = "store?id="+uri;
-	    } else {
-		SOAPAction = "storeRequest";
-		messageBody = "<alid>"+uri+"</alid>";
-	    }
+	    } 
+	    messageBody = "<alid>"+uri+"</alid>";
+	    RESTParams += "&id=" + uri ;
+	    
 	} else if ( cmd.equals("load" ) ) {
 	    // REST?
 	    String url = (String)params.getParameter( "arg1" );
@@ -258,9 +292,9 @@ public class AlignmentClient {
 			}
 			params.setProperty( "content", new String( mess ) );
 	    */
-	} else if ( cmd.equals("retrieve" ) ) {
-	    // REST?
+	} else if ( cmd.equals( "retrieve" ) ) {
 	    SOAPAction = "retrieveRequest";
+	    RESTAction = "retrieve";
 	    String uri = (String)params.getParameter( "arg1" );
 	    String method = (String)params.getParameter( "arg2" );
 	    if ( method == null ){
@@ -268,6 +302,7 @@ public class AlignmentClient {
 		System.exit(-1);
 	    }
 	    messageBody = "    <alid>"+uri+"</alid>\n    <method>"+method+"</method>\n";
+	    RESTParams += "&id=" + uri + "&method=" + method;
 	} else if ( cmd.equals("metadata" ) ) {
 	    // REST?
 	    SOAPAction = "metadata";
@@ -285,7 +320,7 @@ public class AlignmentClient {
 	// Create input message or URL
 	String message;
 	if ( rest ) {
-	    message = SOAPAction + "?" + messageBody;
+	    message = RESTAction + "?" + RESTParams;
 	} else {
 	    message = "<SOAP-ENV:Envelope xmlns='http://exmo.inrialpes.fr/align/service'\n                   xml:base='http://exmo.inrialpes.fr/align/service'\n                   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n" +
 		"                   xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance'\n" + 
@@ -298,10 +333,28 @@ public class AlignmentClient {
     }
 
     public String sendRESTMessage( String message, Parameters param ) throws Exception {
-	// Enhance RESTUrl
-	// Create connectsion
+	
+        URL RESTUrl = new URL( RESTStr + "/" +  message);
+        // Open a connection with RESTUrl
+	HttpURLConnection httpConn = (HttpURLConnection)(RESTUrl.openConnection());
+	 
+	// REST uses GET method : all parameters are included in URL
+	httpConn.setRequestMethod( "GET" );
+	 
+        httpConn.setDoOutput(true);
+        httpConn.setDoInput(true);
+	
 	// Read output
-	return null;
+	InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+        BufferedReader in = new BufferedReader(isr);
+	String answer = "";
+	String line;
+	while ((line = in.readLine()) != null) {
+	    answer += line + "\n";
+	}
+	if (in != null) in.close();
+
+	return answer;
     }
 
     public String sendSOAPMessage( String message, Parameters param ) throws Exception {
