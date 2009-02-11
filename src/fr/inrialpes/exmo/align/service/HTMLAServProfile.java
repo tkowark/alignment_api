@@ -342,6 +342,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	}
 
 	if ( oper.equals( "aserv" ) ){
+	    params.setParameter( "restful", "false" );
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
@@ -353,8 +354,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
+
+	    //System.err.println("RESTAction=" + uri.substring(start) );
+	    //System.err.println("onto1=" +  params.getParameter("onto1") );
+	    //System.err.println("onto2=" +  params.getParameter("onto2") );
+	    
 	    params.setParameter( "restful", "true" );
-	    return htmlAnswer( uri, uri.substring(start), header, params );
+	    if ( wsmanager != null ) {
+		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+	    } else {
+		// This is not correct: I shoud return an error
+		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
+	    }
 	    // This already seems RESTful
 	} else if ( oper.equals( "alid" ) ){
 	    return returnAlignment( uri );
