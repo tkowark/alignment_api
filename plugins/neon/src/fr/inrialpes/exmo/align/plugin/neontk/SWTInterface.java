@@ -690,7 +690,6 @@ public class SWTInterface extends JPanel {
 					alignBox.removeAllItems();
 					alignBox.addItem(selectedAlign);
 					onAlign.getRDFAlignment( selectedAlign );
-        			
         		} 
 	};
     });
@@ -1088,15 +1087,14 @@ public class SWTInterface extends JPanel {
 	goButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
 		   if (e.getSource() == goButton) {
- 
+			   wserver  = serverField.getText();
+			   wsmethod = methodField.getText();
 			   matchDialog.dispose();
 			   
 			   resetActionButtons( false );
    			   
 			   onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
-			   
-			   
-			   
+ 		   
 			   //String answer = onAlign.getAlignIdParsed();
 			   //if(answer == null || answer.equals(""))  {
 					 
@@ -1143,8 +1141,6 @@ public class SWTInterface extends JPanel {
 				   			Container cont = matchDialog.getContentPane();
 				   			Component[] comps = cont.getComponents();
 				   			for(int i=0;i< comps.length ;i++) { cont.remove(comps[i]);}
-	    				
-	    				 
 				   			cont.add(goButton);
 				   			cont.add(discardButton);
 	    				
@@ -1260,12 +1256,7 @@ public class SWTInterface extends JPanel {
     add (new JLabel ("Computing and managing ontology alignments"), BorderLayout.NORTH);
     phrases = createPhraseList();
     phrases.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
-    //createThirdPane();//
-    //pane2= new JPanel(new GridLayout (0, 1, 0, 10));
-    //pane2.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
-     
-     //"ComponentFactory" In protege.jar
-	 //JScrollPane top = ComponentFactory.createScrollPane(phrases);
+    
     JScrollPane top = new JScrollPane( phrases );
     _mainSplitter.setTopComponent( top );
     top.setMaximumSize(top.getPreferredSize());
@@ -1279,7 +1270,7 @@ public class SWTInterface extends JPanel {
 	add(_mainSplitter,BorderLayout.CENTER); //Main Window of the Plugin
 	
 	//offline is default mode
-	offlineInit(true);
+	offlineInit( true );
 	
    }
  
@@ -1335,11 +1326,7 @@ private JPanel createPhraseList () {
 	
 	 
 	fiveLabel.add(alignFindButton);
-	//sevenLabel.add(alignRetrieveButton);
-	//eightLabel.add(alignStoreButton);
 	nineLabel.add(allAlignButton);
-	
-	
 	//label_three.add(resButton);
 	phrasePane.add(minusLabel);
  	//phrasePane.add(zeroLabel);
@@ -1350,9 +1337,7 @@ private JPanel createPhraseList () {
 	phrasePane.add(fourLabel);
 	phrasePane.add(four2Label);
 	phrasePane.add(nineLabel);
-	
-	//phrasePane.add(sixLabel);
-	
+
 	phrasePane.add(fiveLabel);
 	
 	
