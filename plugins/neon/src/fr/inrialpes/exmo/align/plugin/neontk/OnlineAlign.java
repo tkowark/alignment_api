@@ -332,15 +332,12 @@ public class OnlineAlign {
 				 
 			    Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
 				params.setParameter( "command","match");
 				params.setParameter( "arg1", method);
 				params.setParameter( "arg2", onto1);
 				params.setParameter( "arg3", onto2);
 				params.setParameter( "arg4", wserver);
-				//params.setParameter( "arg5", wsmethod);
-				
+				if(wsmethod != null ) params.setParameter( "arg5", wsmethod);
 				
 			    try {
 			    	// Read parameters
@@ -378,6 +375,7 @@ public class OnlineAlign {
 	    }
 	    
 	    public String getAlignIdParsed( String input ) {
+	    	 
 	    	Document domMessage = null;
 			try {
 			    domMessage = BUILDER.parse( new ByteArrayInputStream( input.getBytes()) );
@@ -651,27 +649,23 @@ public class OnlineAlign {
 		    String uri1 = (String)params.getParameter( "arg1" );
 		    String uri2 = (String)params.getParameter( "arg2" );
 		    String wserver = (String)params.getParameter( "arg4" );
-		    //if ( uri2 == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
+		    String wsmethod = (String)params.getParameter( "arg5" );
+		     
 		    String method = null;
 		    String arg3 = (String)params.getParameter( "arg3" );
 		    if ( arg3 != null ) {
-			method = uri1; uri1 = uri2; uri2 = arg3;
+		    	method = uri1; uri1 = uri2; uri2 = arg3;
 		    }
 		    //arg3 = (String)params.getParameter( "arg4" );
-		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
+		    messageBody = "	<url1>"+uri1+"</url1>\n   <url2>"+uri2+"</url2>\n";
 		    
 		    if ( method != null )
-			messageBody += "<method>"+method+"</method>";
+		    	messageBody += "	<method>"+method+"</method>\n";
 		    if ( wserver != null )
-		    messageBody += "<wserver>"+ wserver +"</wserver>";
-		    
-		    messageBody += "<force>on</force>";
-		    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
-		    //if ( arg3 != null )
-			
+		    	messageBody += "	<wserver>"+ wserver +"</wserver>\n";
+		    if ( wsmethod != null )
+			    messageBody += "	<wsmethod>"+ wsmethod +"</wsmethod>\n";    
+		    messageBody += "	<force>on</force>";
 		} else if ( cmd.equals("trim" ) ) {
 		    SOAPAction = "cutRequest";
 		    String id = (String)params.getParameter( "arg1" );

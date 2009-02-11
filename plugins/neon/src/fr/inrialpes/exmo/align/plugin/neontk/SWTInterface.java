@@ -1088,7 +1088,9 @@ public class SWTInterface extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 		   if (e.getSource() == goButton) {
 			   wserver  = serverField.getText();
+			   if(wserver.equals(""))  wserver = null;
 			   wsmethod = methodField.getText();
+			   if(wsmethod.equals("")) wsmethod = null;
 			   matchDialog.dispose();
 			   
 			   resetActionButtons( false );
