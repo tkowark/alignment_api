@@ -78,13 +78,15 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <ul compact="1">
 <li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
 <li>Added REST interface to the HTML interface (server)</li>
+<li>Added new gap based (hardgap and propgap) methods in <tt>BasicAlignment.cut()</tt> (impl)</li>
 <li>Added new methods in JWNLDistances (ling)</li>
 <li>Added tests for ling and set noling as default in build (test)</li>
 <li>Improved renderers with more metadata (renderer)</li>
 <li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
 <li><tt>ConcatenatedIterator</tt> is now parameterised and iterable (impl)</li>
-<li>Corrected a bug in XMLMetadataRendererVisitor (renderer)</li>
+<li>Corrected a bug in <tt>XMLMetadataRendererVisitor</tt> (renderer)</li>
+<li>Corrected a bug in <tt>BasicAlignment.cut("best")</tt> (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
   between Data and Object properties and, in general, heterorgeneous equivalences (impl)</li>
 </ul>
