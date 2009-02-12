@@ -79,7 +79,7 @@ $ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/exam
 	writer.close();
 	assertEquals( stream.toString().length(), 14027, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
-	assertEquals( alignment.nbCells(), 37 );
+	assertEquals( alignment.nbCells(), 38 );
 
 	// Different similarity
 	params.setParameter( "wnfunction", "cosynonymySimilarity" );

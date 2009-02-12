@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,14 +28,16 @@ import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
 
-import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+
+import org.semanticweb.owl.align.Alignment;
 
 public class BasicAlignmentTest {
-    private OWLAPIAlignment alignment = null;
+    private Alignment alignment = null;
 
     @BeforeClass(groups = { "full", "noling" })
     private void init(){
-	alignment = new OWLAPIAlignment();
+	alignment = new BasicAlignment();
     }
 
     @Test(groups = { "full", "noling" })

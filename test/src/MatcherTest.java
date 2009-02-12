@@ -93,7 +93,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
 	*/
 	alignment.cut( "hard", 0.55 );
-	assertEquals( alignment.nbCells(), 32 ); /* With  .4, I have either 36 or 35! */
+	assertEquals( alignment.nbCells(), 33 ); /* With  .4, I have either 36 or 35! */
 	stream = new FileOutputStream("test/output/bibref2.rdf");
 	writer = new PrintWriter (
 			  new BufferedWriter(

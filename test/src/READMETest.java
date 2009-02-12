@@ -100,7 +100,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
 	*/
-	alignment.cut( "hard", 0.4 );
+	alignment.cut( "hard", 0.5 );
 	assertEquals( alignment.nbCells(), 2 );
     }
 
@@ -172,8 +172,9 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
 	*/
+	Alignment al2 = (Alignment)alignment.clone();
 	alignment.cut( "hard", 0.55 );
-	assertEquals( alignment.nbCells(), 32 ); /* With  .4, I have either 36 or 35! */
+	assertEquals( alignment.nbCells(), 33 ); /* With  .4, I have either 36 or 35! */
 	stream = new FileOutputStream("test/output/bibref2.rdf");
 	writer = new PrintWriter (
 			  new BufferedWriter(
@@ -182,6 +183,38 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	writer.flush();
 	writer.close();
 	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
+
+	// Tests of cutting
+	Alignment al = (Alignment)al2.clone();
+	al.cut( "hard", 0.55 );
+	assertEquals( al.nbCells(), 33 );
+	al = (Alignment)al2.clone();
+	al.cut( "best", 0.55 );
+	assertEquals( al.nbCells(), 43 );
+	al = (Alignment)al2.clone();
+	al.cut( "span", 0.55 );
+	assertEquals( al.nbCells(), 34 );
+	al = (Alignment)al2.clone();
+	al.cut( "prop", 0.55 );
+	assertEquals( al.nbCells(), 33 );
+	al = (Alignment)al2.clone();
+	al.cut( "prop", 0.55 );
+	assertEquals( al.nbCells(), 33 );
+	al = (Alignment)al2.clone();
+	al.cut( "perc", 0.55 );
+	assertEquals( al.nbCells(), 23 );
+	al = (Alignment)al2.clone();
+	al.cut( "hardgap", 0.5 );
+	assertEquals( al.nbCells(), 43 );
+	al = (Alignment)al2.clone();
+	al.cut( "propgap", 0.55 );
+	assertEquals( al.nbCells(), 43 );
+
+    }
+
+    @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "noling" }, dependsOnMethods = {"routineTest8"})
+    public void routineErrorTest8() throws Exception {
+	alignment.cut( "prec", 0.55 );
     }
 
     @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest8"})
@@ -210,11 +243,11 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	assertEquals( eval.getPrecision(), 0.7441860465116279 );
+	assertEquals( eval.getPrecision(), 0.7674418604651163 );
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getFallout(), 0.2558139534883721 );
-	assertEquals( eval.getFmeasure(), 0.8533333333333333 );
-	assertEquals( eval.getOverall(), 0.65625 );
+	assertEquals( eval.getFallout(), 0.23255813953488372 );
+	assertEquals( eval.getFmeasure(), 0.868421052631579 );
+	assertEquals( eval.getOverall(), 0.696969696969697 );
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
