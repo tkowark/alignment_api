@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -416,6 +416,8 @@ public class BasicAlignment implements Alignment {
      * - getting those cells with strength at worse n under the best (span)
      * - getting the n% best cells (perc)
      * - getting those cells with strength at worse n% of the best (prop)
+     * - getting all cells until a gap of n (hardgap)
+     * - getting all cells until a gap of n% of the last (propgap)
      * Rule:
      * threshold is betweew 1 and 0
      **************************************************************************/
@@ -436,6 +438,19 @@ public class BasicAlignment implements Alignment {
 	    i = (new Double(size*threshold)).intValue();
 	} else if ( method.equals("best") ){
 	    i = new Double(threshold*100).intValue();
+	} else if ( method.equals("hardgap") || method.equals("propgap") ){
+	    double gap;
+	    double last = ((Cell)buffer.get(0)).getStrength();
+	    if ( method.equals("propgap") ) gap = last * threshold;
+	    else gap = threshold;
+	    for( i=1; i < size && !found ;) {
+		if ( last - ((Cell)buffer.get(i)).getStrength() > gap ) found = true;
+		else {
+		    last = ((Cell)buffer.get(i)).getStrength();
+		    if ( method.equals("propgap") ) gap = last * threshold;
+		    i++;
+		}
+	    }
 	} else {
 	    double max;
 	    if ( method.equals("hard") ) max = threshold;
