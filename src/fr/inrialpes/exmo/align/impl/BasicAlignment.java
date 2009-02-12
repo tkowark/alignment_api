@@ -437,18 +437,17 @@ public class BasicAlignment implements Alignment {
 	if ( method.equals("perc") ){
 	    i = (new Double(size*threshold)).intValue();
 	} else if ( method.equals("best") ){
-	    i = new Double(threshold*100).intValue();
+	    i = java.lang.Math.min( size, new Double(threshold*100).intValue() );
 	} else if ( method.equals("hardgap") || method.equals("propgap") ){
 	    double gap;
 	    double last = ((Cell)buffer.get(0)).getStrength();
 	    if ( method.equals("propgap") ) gap = last * threshold;
 	    else gap = threshold;
-	    for( i=1; i < size && !found ;) {
+	    for( i=1; i < size && !found ; i++) {
 		if ( last - ((Cell)buffer.get(i)).getStrength() > gap ) found = true;
 		else {
 		    last = ((Cell)buffer.get(i)).getStrength();
 		    if ( method.equals("propgap") ) gap = last * threshold;
-		    i++;
 		}
 	    }
 	} else {
@@ -457,16 +456,15 @@ public class BasicAlignment implements Alignment {
 	    else if ( method.equals("span") ) max = ((Cell)buffer.get(0)).getStrength() - threshold;
 	    else if ( method.equals("prop") ) max = ((Cell)buffer.get(0)).getStrength() * threshold;
 	    else throw new AlignmentException( "Not a cut specification : "+method );
-	    for( i=0; i < size && !found ;) {
+	    for( i=0; i < size && !found ; i++) {
 		if ( ((Cell)buffer.get(i)).getStrength() < max ) found = true;
-		else i++;
 	    }
 	}
 	// Introduce the result back in the structure
 	size = i;
 	hash1.clear();
 	hash2.clear();
-	for( i = 0; i < size; i++ ) {
+	for( i=0; i < size; i++ ) {
 	    addCell( (Cell)buffer.get(i) );
 	}
     };
