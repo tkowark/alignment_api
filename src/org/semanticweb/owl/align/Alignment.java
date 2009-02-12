@@ -195,5 +195,9 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
     */
     public void render( AlignmentVisitor renderer ) throws AlignmentException;
 
+    /** Implementation of the clone method
+    */
+    public Object clone();
+
 }
 
