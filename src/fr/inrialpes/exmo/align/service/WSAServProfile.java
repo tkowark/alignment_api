@@ -244,22 +244,25 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += "        <method>"+mt+"</method>\n";
 	    }
 	    msg += "      </classList>\n    </listmethodsResponse>\n";
-	} else if ( method.equals("listrenderersRequest") ) { // -> List of String
+	} else if ( method.equals("listrenderersRequest") || method.equals("listrenderers") ) { // -> List of String
 	    msg += "    <listrenderersResponse>\n      <classList>\n";
 	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
 		msg += "        <renderer>"+it.next()+"</renderer>\n";
 	    }
 	    msg += "      </classList>\n    </listrenderersResponse>\n";
-	} else if ( method.equals("listservicesRequest") ) { // -> List of String
+	} else if ( method.equals("listservicesRequest") || method.equals("listservices") ) { // -> List of String
 	    msg += "    <listservicesResponse>\n      <classList>\n";
 	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
 		msg += "        <service>"+it.next()+"</service>\n";
 	    }
 	    msg += "      </classList>\n    </listservicesResponse>\n";
-	} else if ( method.equals("storeRequest") ) { // URI -> URI
+	} else if ( method.equals("storeRequest") || method.equals("store") ) { // URI -> URI
 	    Message answer = null;
 	    msg += "    <storeResponse>\n";
-	    Parameters params = getParameters( domMessage );
+	    Parameters params = param;
+	    if( restful.equals("false") ) {
+		params = getParameters( domMessage );
+ 	    }
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -272,9 +275,12 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer );
 	    }
 	    msg += "    </storeResponse>\n";
-	} else if ( method.equals("invertRequest") ) { // URI -> URI
-	    Parameters params = getParameters( domMessage );
+	} else if ( method.equals("invertRequest") || method.equals("invert") ) { // URI -> URI
 	    Message answer = null;
+	    Parameters params = param;
+	    if( restful.equals("false") ) {
+		params = getParameters( domMessage );
+ 	    }
 	    msg += "    <invertResponse>\n";
 
 	    if ( params.getParameter( "id" ) == null ) {
@@ -289,11 +295,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer );
 	    }
 	    msg += "    </invertResponse>\n";
-	} else if ( method.equals("cutRequest") ) { // URI * string * float -> URI
-	    Parameters params = getParameters( domMessage );
+	} else if ( method.equals("cutRequest") || method.equals("cut") ) { // URI * string * float -> URI
 	    Message answer = null;
 	    msg += "    <cutResponse>\n";
-
+	    Parameters params = param;
+	    if( restful.equals("false") ) {
+		params = getParameters( domMessage );
+ 	    }
 	    if ( params.getParameter( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 	    }
@@ -317,9 +325,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	} else if ( method.equals("matchRequest") || method.equals("match") ) { // URL * URL * URI * String * boolean * (params) -> URI
 	    Message answer = null;
 	    msg += "    <matchResponse>\n";
-	    Parameters prmt = param;
+	    Parameters params = param;
 	    if( restful.equals("false") ) {
-		Parameters params = getParameters( domMessage );
+		params = getParameters( domMessage );
 	    	if ( params.getParameter( "url1" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 		} else {
@@ -331,11 +339,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		} else {
 		     params.setParameter( "onto2", params.getParameter( "url2" ) );
 	    	}
-		prmt = params;
 	    }
 
 	    if ( answer == null )
-		 answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", prmt) );
+		 answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", params) );
  
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
@@ -347,9 +354,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    // This is a dummy method for emulating a WSAlignement service
 	    Message answer = null;
 	    msg += "    <alignResponse>\n";
-	    Parameters prmt = param;
+	    Parameters params = param;
 	    if( restful.equals("false") ) {
-		Parameters params = getParameters( domMessage );
+		params = getParameters( domMessage );
 	    	if ( params.getParameter( "url1" ) == null ) {
 		    answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 		} else {
@@ -367,15 +374,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		} else {
 		     params.setParameter( "method", params.getParameter( "wsmethod" ) );
 	    	}
-		prmt = params;
 	    }
 
 	    if ( answer == null ) {
-		Message result = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", prmt) );
+		Message result = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", params) );
 		if ( result instanceof ErrorMsg ) {
 		    answer = result;
 		} else {
-		    Parameters params = new BasicParameters();
+		    params = new BasicParameters();
 		    params.setParameter( "id",  result.getContent() );
 		    if ( params.getParameter( "id" ) == null ) {
 			answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -400,10 +406,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	} else if ( method.equals("findRequest") || method.equals("find") ) { // URI * URI -> List of URI
 	    Message answer = null;
 	    msg += "    <findResponse>\n";
-	    Parameters prmt = param;		
+	    Parameters params = param;		
 
 	    if( restful.equals("false") ) {
-		Parameters params = getParameters( domMessage );
+		params = getParameters( domMessage );
 		if ( params.getParameter( "url1" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 		} else {
@@ -415,11 +421,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		} else {
 		     params.setParameter( "onto2", params.getParameter( "url2" ) );
 		}
-		prmt = params;
 	    }
 
 	    if ( answer == null ) {
-		    answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", prmt) );
+		    answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", params) );
             }
 	    	    
 	    if ( answer instanceof ErrorMsg ) {
@@ -434,10 +439,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    
 	    Message answer = null;
 	    msg += "    <retrieveResponse>\n";		
-            Parameters prmt = param;		
+            Parameters params = param;		
 
 	    if( restful.equals("false") ) {
-		Parameters params = getParameters( domMessage );
+		params = getParameters( domMessage );
 		if ( params.getParameter( "alid" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
 		} else {
@@ -446,12 +451,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 
 	    	if ( params.getParameter( "method" ) == null )
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-		prmt = params;
 	    }
 
 	    if ( answer == null )
-		prmt.setParameter( "embedded", "true" );
-		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", prmt) );
+		params.setParameter( "embedded", "true" );
+		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg += displayError( answer );
 	    } else {
