@@ -67,6 +67,7 @@ public class AlignmentClient {
     private String RESTStr = null;
     private String SOAPAction = null;
     private String RESTAction = null;
+    private String lang = "XML";
 
     public static void main(String[] args) {
 	try { new AlignmentClient().run( args ); }
@@ -337,10 +338,12 @@ public class AlignmentClient {
         URL RESTUrl = new URL( RESTStr + "/" +  message);
         // Open a connection with RESTUrl
 	HttpURLConnection httpConn = (HttpURLConnection)(RESTUrl.openConnection());
-	 
+	
+	//switch for return format : HTML or XML (by defaut)
+	httpConn.setRequestProperty( "lang", lang );
 	// REST uses GET method : all parameters are included in URL
 	httpConn.setRequestMethod( "GET" );
-	 
+
         httpConn.setDoOutput(true);
         httpConn.setDoInput(true);
 	

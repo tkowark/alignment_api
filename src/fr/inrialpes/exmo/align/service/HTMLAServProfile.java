@@ -355,13 +355,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
 
-	    //System.err.println("RESTAction=" + uri.substring(start) );
+	    //System.err.println("Lang=" + header.getProperty("lang") );
 	    //System.err.println("onto1=" +  params.getParameter("onto1") );
 	    //System.err.println("onto2=" +  params.getParameter("onto2") );
-	    
+	    String lang = header.getProperty("lang");
 	    params.setParameter( "restful", "true" );
 	    if ( wsmanager != null ) {
-		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		if( lang == null || lang.equals("XML") )
+		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		else {
+		    return htmlAnswer( uri, "align", header, params );	    
+		}
 	    } else {
 		// This is not correct: I shoud return an error
 		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
@@ -560,8 +564,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg += displayAnswer( answer, params );
 		}
 	    }
-	} else if ( perf.equals("prmalign") ) {
-	    msg ="<h1>Match ontologies</h1><form action=\"align\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
+	} else if ( perf.equals("prmmatch") ) {
+	    msg ="<h1>Match ontologies</h1><form action=\"match\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
@@ -575,7 +579,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Match\"/>";
 	    msg += "  <input type=\"checkbox\" name=\"force\" /> Force <input type=\"checkbox\" name=\"async\" /> Asynchronous<br />";
 	    msg += "Additional parameters:<br /><input type=\"text\" name=\"paramn1\" size=\"15\"/> = <input type=\"text\" name=\"paramv1\" size=\"65\"/><br /><input type=\"text\" name=\"paramn2\" size=\"15\"/> = <input type=\"text\" name=\"paramv2\" size=\"65\"/><br /><input type=\"text\" name=\"paramn3\" size=\"15\"/> = <input type=\"text\" name=\"paramv3\" size=\"65\"/><br /><input type=\"text\" name=\"paramn4\" size=\"15\"/> = <input type=\"text\" name=\"paramv4\" size=\"65\"/></form>";
-	} else if ( perf.equals("align") ) {
+	} else if ( perf.equals("match") ) {
 	    Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
@@ -742,7 +746,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"../admin/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
 	    msg += "<form action=\"prmload\"><button title=\"Upload an existing alignment in this server\" type=\"submit\">Load alignments</button></form>";
 	    msg += "<form action=\"prmfind\"><button title=\"Find existing alignements between two ontologies\" type=\"submit\">Find alignment</button></form>";
-	    msg += "<form action=\"prmalign\"><button title=\"Apply matchers to ontologies for obtaining an alignment\" type=\"submit\">Match ontologies</button></form>";
+	    msg += "<form action=\"prmmatch\"><button title=\"Apply matchers to ontologies for obtaining an alignment\" type=\"submit\">Match ontologies</button></form>";
 	    msg += "<form action=\"prmcut\"><button title=\"Trim an alignment above some threshold\" type=\"submit\">Trim alignment</button></form>";
 	    msg += "<form action=\"prminv\"><button title=\"Swap the two ontologies of an alignment\" type=\"submit\">Invert alignment</button></form>";
 	    msg += "<form action=\"prmstore\"><button title=\"Persistently store an alignent in this server\" type=\"submit\" >Store alignment</button></form>";
