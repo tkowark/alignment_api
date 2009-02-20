@@ -52,6 +52,10 @@ public class Message {
 	return "<ErrorMsg/>";
     }
 
+    public String HTMLRESTString(){
+	return "<ErrorMsg/>";
+    }
+
     public String SOAPString(){
 	return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content>";	
     }

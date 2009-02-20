@@ -199,16 +199,16 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	String method = null;
 	String message = null;
 	String restful = (String)param.getParameter("restful");
-	if ( restful.equals("true") ) 
-		method= perf;
-	else {
+	if ( restful == null ) {
 		method= header.getProperty("SOAPAction");
 		message = ((String)param.getParameter("content")).trim();
+	} else {
+		method= perf;
 	}
 
 	// Create the DOM tree for the SOAP message
 	Document domMessage = null;
-	if( restful.equals("false") )
+	if( restful == null )
 	try {
 		 
 	    domMessage = BUILDER.parse( new ByteArrayInputStream( message.getBytes()) );
@@ -260,7 +260,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <storeResponse>\n";
 	    Parameters params = param;
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
  	    }
 	    if ( params.getParameter( "id" ) == null ) {
@@ -278,7 +278,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	} else if ( method.equals("invertRequest") || method.equals("invert") ) { // URI -> URI
 	    Message answer = null;
 	    Parameters params = param;
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
  	    }
 	    msg += "    <invertResponse>\n";
@@ -299,7 +299,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <cutResponse>\n";
 	    Parameters params = param;
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
  	    }
 	    if ( params.getParameter( "id" ) == null ) {
@@ -326,7 +326,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <matchResponse>\n";
 	    Parameters params = param;
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
 	    	if ( params.getParameter( "url1" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -355,7 +355,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <alignResponse>\n";
 	    Parameters params = param;
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
 	    	if ( params.getParameter( "url1" ) == null ) {
 		    answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -408,7 +408,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "    <findResponse>\n";
 	    Parameters params = param;		
 
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
 		if ( params.getParameter( "url1" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -441,7 +441,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "    <retrieveResponse>\n";		
             Parameters params = param;		
 
-	    if( restful.equals("false") ) {
+	    if( restful == null ) {
 		params = getParameters( domMessage );
 		if ( params.getParameter( "alid" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
@@ -512,8 +512,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 
 	SOAPMsg += msg + "</SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
 	RESTMsg += msg;
-	if( restful.equals("true") ) return RESTMsg;
-	else return SOAPMsg;
+	if( restful == null ) return SOAPMsg;
+	else return RESTMsg;
     }
 
     public static String wsdlAnswer() { return wsdlSpec; }

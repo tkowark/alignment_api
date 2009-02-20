@@ -284,13 +284,24 @@ public class AServProtocolManager {
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
+	Set<Alignment> alignments = new HashSet<Alignment>();
 	try {
-	    uri1 = new URI((String)params.getParameter("onto1"));
-	    uri2 = new URI((String)params.getParameter("onto2"));
+	    if( params.getParameter("onto1") == null ) {
+		uri2 = new URI((String)params.getParameter("onto2"));
+		alignments = alignmentCache.getAlignments( uri2 );
+	    }
+	    else if( params.getParameter("onto2") == null ) {
+		uri1 = new URI((String)params.getParameter("onto1"));
+		alignments = alignmentCache.getAlignments( uri1 );
+	    }
+	    else {
+		uri1 = new URI((String)params.getParameter("onto1"));
+	    	uri2 = new URI((String)params.getParameter("onto2"));
+		alignments = alignmentCache.getAlignments( uri1, uri2 );
+	    }
 	} catch (Exception e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Parameters)null);
 	}; //done below
-	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
 	String msg = "";
 	for( Iterator it = alignments.iterator(); it.hasNext(); ){
 	    msg += ((Alignment)it.next()).getExtension( Annotations.ALIGNNS, Annotations.ID );
@@ -874,11 +885,13 @@ public class AServProtocolManager {
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 		try {
+			 
 		    aresult.init( uri1, uri2 );
+			 
 		    long time = System.currentTimeMillis();
 		    
 		    aresult.align( init, params ); // add opts
-			 
+			  
 		    long newTime = System.currentTimeMillis();
 			 
 		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );

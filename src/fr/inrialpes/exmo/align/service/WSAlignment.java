@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
@@ -114,6 +115,8 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 message += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
 	 byte[] byteMess = message.getBytes();
 
+	 //System.err.println("SOAP for sending=" + message);
+
 	 // Connect with the web service (in parameter)
 	 HttpURLConnection httpConn = null;
 	 try {
@@ -123,6 +126,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     httpConn.setRequestProperty( "Content-Length",
 					  String.valueOf( byteMess.length ) );
 	     httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
+	     //httpConn.setRequestProperty("SOAPAction","http://kameleon.ijs.si/ontolight/align");
 	     httpConn.setRequestProperty("SOAPAction","align");
 	     httpConn.setRequestMethod( "POST" );
 	     httpConn.setDoOutput(true);
@@ -145,13 +149,32 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 // Get the result
 	 // Parse the result in this alignment
 	 try {
+	     
+             //System.err.println("  response code =" + httpConn.getResponseCode() );
+             //System.err.println("  response mess =" + httpConn.getResponseMessage() );
+	     //InputStream  inSt = httpConn.getInputStream(); 
+ 	     //InputStreamReader isr = new InputStreamReader( inSt );
+	     //BufferedReader in = new BufferedReader(isr);
+	      
+	     //String line;
+	     //String res= "";
+	     
+	      
+             //while( (line = in.readLine()) !=null ) {
+		//res += line + "\n";
+                
+		//}
+ 
 	     AlignmentParser parser = new AlignmentParser( 0 );
 	     parser.initAlignment( this );
 	     parser.setEmbedded( true );
 	     parser.parse( httpConn.getInputStream() );
+	     //parser.parseString( res ); 
+
 	 } catch (SAXException saxex) {
-	     throw new AlignmentException( "Malformed XML/SOAP result", saxex );
+	     throw new AlignmentException( "Malformed XML/SOAP result ("+saxex.getMessage()+")", saxex );
 	 } catch (IOException ioex) {
+	     
 	     throw new AlignmentException( "XML/SOAP parsing error", ioex );
 	 } catch (javax.xml.parsers.ParserConfigurationException pcex) {
 	     throw new AlignmentException( "XML/SOAP parsing error", pcex );

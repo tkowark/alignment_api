@@ -41,7 +41,9 @@ public class AlignmentId extends Success {
     public String HTMLString(){
 	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
     }
-
+    public String HTMLRESTString(){
+	return "Alignment ID: <a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
+    }
     public String RESTString(){
 	return "<alid>"+content+"</alid>";	
     }

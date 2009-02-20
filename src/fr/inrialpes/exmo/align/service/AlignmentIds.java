@@ -39,6 +39,20 @@ public class AlignmentIds extends Success {
 	}
 	return result += "</ul>";
     }
+
+    public String HTMLRESTString(){
+	String result = "Alignment Ids: <ul>";
+	String id[] = content.split(" ");
+	for ( int i = id.length-1; i >= 0; i-- ){
+	    result += "<li><a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a>";
+	    result += "<table><tr>";
+result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
+result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
+	    result += "</li>";
+	}
+	return result += "</ul>";
+    }
+
     public String RESTString(){
 	String msg = "<alignmentList>";
 	String id[] = content.split(" ");

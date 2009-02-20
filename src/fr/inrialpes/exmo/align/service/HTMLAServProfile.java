@@ -342,7 +342,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	}
 
 	if ( oper.equals( "aserv" ) ){
-	    params.setParameter( "restful", "false" );
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
@@ -355,16 +354,21 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
 
-	    //System.err.println("Lang=" + header.getProperty("lang") );
+	    //System.err.println("Renderer=" + header.getProperty("renderer") );
 	    //System.err.println("onto1=" +  params.getParameter("onto1") );
 	    //System.err.println("onto2=" +  params.getParameter("onto2") );
-	    String lang = header.getProperty("lang");
+ 
 	    params.setParameter( "restful", "true" );
+	    if ( header.getProperty("renderer") == null || ((String)header.getProperty("renderer")).equals("HTML") ) 
+		 params.setParameter( "renderer", "HTML" );
+	    else 
+		 params.setParameter( "renderer", "XML" );
+
 	    if ( wsmanager != null ) {
-		if( lang == null || lang.equals("XML") )
-		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		if( ((String)params.getParameter("renderer")).equals("HTML") )
+		    return htmlAnswer( uri, uri.substring(start), header, params );	    
 		else {
-		    return htmlAnswer( uri, "align", header, params );	    
+		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 		}
 	    } else {
 		// This is not correct: I shoud return an error
@@ -565,7 +569,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} else if ( perf.equals("prmmatch") ) {
-	    msg ="<h1>Match ontologies</h1><form action=\"match\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
+	    String RESTOnto1 = "";
+	    String RESTOnto2 = "";
+	    String readonlyOnto = "";
+	    //Ontologies from Cupboard may be already provided here.
+	    if((String)params.getParameter("restful") != null && ((String)params.getParameter("renderer")).equals("HTML") ){
+		   RESTOnto1 = (String)params.getParameter("onto1");
+		   RESTOnto2 = (String)params.getParameter("onto2");
+		   //if(RESTOnto1 != null && !RESTOnto1.equals("") && RESTOnto2 != null && !RESTOnto2.equals("")) 
+		   readonlyOnto = "readonly=\"readonly\"";
+	    }
+	    msg ="<h1>Match ontologies</h1><form action=\"match\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\" value="+RESTOnto1+ " " + readonlyOnto+"> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\" value="+RESTOnto2+ " " + readonlyOnto+ "> (uri)<br /><small>These are the URL of places where to find these ontologies. They must be reachable by the server (i.e., file:// URI are acceptable if they are on the server)</small><br /><!--input type=\"submit\" name=\"action\" value=\"Find\"/><br /-->Methods: <select name=\"method\">";
 	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
 		String id = (String)it.next();
 		msg += "<option value=\""+id+"\">"+id+"</option>";
@@ -635,6 +649,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
 	} else if ( perf.equals("metadata") ) {
+	    if( params.getParameter("renderer") == null || ((String)params.getParameter("renderer")).equals("HTML") )
+	    	params.setParameter("method", "fr.inrialpes.exmo.align.impl.renderer.HTMLMetadataRendererVisitor");
+	    else
+		params.setParameter("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    //System.err.println("Content: "+answer.getContent());
 	    if ( answer instanceof ErrorMsg ) {
@@ -790,8 +808,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private String displayAnswer( Message answer, Parameters param ) {
 	String result = null;
-	if ( param.getParameter("restful") != null ) {
-	    result = answer.RESTString();
+	if( (String)param.getParameter("restful") != null ) {
+	    if( ((String)param.getParameter("renderer")).equals("HTML") ) {
+	    	result = answer.HTMLRESTString();
+	    	//Return for Cupboard
+	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+		     result += "<table><tr>";
+result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
+result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
+	             result += "</tr></table>";
+	    	} else if( answer instanceof AlignmentIds && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null )) {
+			   result = answer.HTMLRESTString();
+		  }
+	    } else 
+		result = answer.RESTString();
 	} else {
 	    result = answer.HTMLString();
 	    // Improved return
