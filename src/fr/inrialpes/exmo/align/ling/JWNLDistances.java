@@ -33,6 +33,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Stack;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -41,11 +42,14 @@ import org.apache.log4j.Level;
 
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
+
+import net.didion.jwnl.dictionary.Dictionary;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.POS;
 import net.didion.jwnl.data.Synset;
-import net.didion.jwnl.dictionary.Dictionary;
 import net.didion.jwnl.data.PointerUtils;
+import net.didion.jwnl.data.PointerTarget;
+import net.didion.jwnl.data.PointerType;
 import net.didion.jwnl.data.list.PointerTargetNode;
 import net.didion.jwnl.data.list.PointerTargetNodeList;
 
@@ -133,7 +137,7 @@ public class JWNLDistances {
      * @return Distance between s1 & s2 (return 1 if s2 is a synonym of s1, else
      *         return a BasicStringDistance between s1 & s2)
      */
-    public double basicSynonymDistance(String s1, String s2) {
+    public double basicSynonymDistance( String s1, String s2 ) {
         Dictionary dictionary = Dictionary.getInstance();
         double Dist = 0.0;
         double Dists1s2;
@@ -141,7 +145,6 @@ public class JWNLDistances {
         int synonymNb = 0;
         int besti = 0;
 	int bestj = 0;
-        //int syno = 0;
         double DistTab[];
         IndexWord index = null;
         Synset Syno[] = null;
@@ -189,11 +192,9 @@ public class JWNLDistances {
     }
 
     /**
-     * Compute a basic distance between 2 strings using WordNet synonym.
-     * @param s1
-     * @param s2
-     * @return Distance between s1 & s2 (return 1 if s2 is a synonym of s1, else
-     *         return a BasicStringDistance between s1 & s2)
+     * Retrieve all WordNet sense of a term
+     * @param term
+     * @return the set of senses of term
      */
 
     Set<Synset> getAllSenses( String term ) throws AlignmentException {
@@ -251,7 +252,7 @@ public class JWNLDistances {
 		}
 	    }
 	    //System.err.println( "= "+inter+" / "+union );
-	    return inter/union;
+	    return (double)inter/(double)union;
         } else {
 	    //System.err.println( "Failure : "+s1+" / "+s2 );
 	    return 1. - StringDistances.equalDistance(s1,s2); 
@@ -280,6 +281,7 @@ public class JWNLDistances {
     }
 
     /**
+     * NOT FINISHED
      * Compute the overlap between all glosses of two strings
      * @param s1
      * @param s2
@@ -299,7 +301,6 @@ public class JWNLDistances {
      * because it would require to much add on to the API
      */
     public double basicGlossOverlap( String s1, String s2 ) throws AlignmentException {
-	//	getGloss() applied to synset...
         Dictionary dictionary = Dictionary.getInstance();
 
 	// Strange to uppercase...
@@ -313,11 +314,11 @@ public class JWNLDistances {
 	    // Collect gloss
 	    String gloss1 = ""+s1;
 	    for ( Synset s : sense1 ){
-		gloss1 += " "+s.getGloss();
+		gloss1 += " "+StringDistances.stripQuotations( s.getGloss() );
 	    }
 	    String gloss2 = ""+s2;
 	    for ( Synset s : sense2 ){
-		gloss2 += " "+s.getGloss();
+		gloss2 += " "+StringDistances.stripQuotations( s.getGloss() );
 	    }
 	    // Clean-up gloss
 	    // Tokenize gloss
@@ -336,7 +337,171 @@ public class JWNLDistances {
 	}
     }
 
-    public double computeSimilarity(String s1, String s2) {
+    /**
+     * Compute the Wu-Palmer similarity defined by
+     * score = 2*depth(lcs(s1,s2)) / (depth(s1) + depth(s2))
+     * @param s1
+     * @param s2
+     * @return the Wu-Palmer similarity
+     * The algorithm returns the best Wu-Palmer similarity among the pairs
+     * of synsets corresponding to s1 and s2
+     *
+     * Assumption: JE**1: root is when no hypernyms exists...
+     *
+     * Sketck:
+     * 1) full depth-first search from s1 with record shortest path distance from s1 and depth
+     * 2) depth-first search from s2 until reached lcs with record the best Wu-Palmer
+     *
+     * NOTE: The first phase (on s1) is a preprocessing step.
+     * In the case when the user want to compute a whole Wu-Palmer matrix,
+     * this step is made |s2| times: it may be worth caching this step
+     */
+    public double wuPalmerSimilarity( String s1, String s2 ) throws AlignmentException {
+        Dictionary dictionary = Dictionary.getInstance();
+	// For each encountered node, record:
+	// [0] how far is it from s1
+	// [1] how far is it from s2
+	// [2] how far is it from a root (depth)
+	Hashtable<Synset,int[]> depth = new Hashtable<Synset,int[]>();
+
+	// Strange to uppercase...
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+	if ( s1.equals( s2 ) ) return 1.;
+
+	Set<Synset> sense1 = getAllSenses( s1 );
+	Set<Synset> sense2 = getAllSenses( s2 );
+
+	// Traverse the graph from s1 and collect distance
+	Stack<Synset> queue = new Stack<Synset>();
+	for ( Synset s : sense1 ) { // Stack s ith 0
+	    int[] v = new int[3]; v[0]=0; v[1]=-1; v[2]=-1;//{ 0, -1, -1 };
+	    depth.put( s, v );
+	    queue.push( s );
+	}
+	// Traversal from s1 (marking the distance from start)
+	// (introducing distance from top)
+	Stack<Synset> passed = new Stack<Synset>();
+	while ( !queue.empty() ) { // Stack non empty
+	    //System.err.println("QUEUE: "+queue);
+	    //System.err.println("PASSED: "+passed);
+	    Synset curnode = queue.pop(); // Unstack
+	    int[] curval = depth.get( curnode );
+	    int curdepth = curval[0]; // Retrieve depth
+	    //System.err.println(">> ["+curdepth+"] "+curnode);
+	    try {
+		PointerTarget[] hyps = curnode.getTargets( PointerType.HYPERNYM );
+		if ( hyps.length == 0 ) { // JE**1: Hitting a root
+		    //System.err.println("  == ROOT");
+		    int level = 0;
+		    curval[2] = level;
+		    // Mark second queue
+		    boolean firstmark = false; 
+		    for ( int i = passed.size()-1; i >= 0; i-- ){
+			Synset current = passed.get(i);
+			if ( !firstmark ) passed.pop(); // unstack until first mark
+			if ( current != null ) {
+			    level++;
+			    //System.err.println("  <== ("+level+") "+current);
+			    int[] val = depth.get( current ); // record depth
+			    if ( val[2] == -1 || val[2] > level ) val[2] = level;
+			} else { firstmark = true; } // end of poping after first mark
+		    }
+		} else {
+		    passed.push( curnode ); // stack me
+		    for ( PointerTarget s : hyps ) {
+			if ( s instanceof Synset ){
+			    Synset current = (Synset)s;
+			    int[] val = depth.get( current );
+			    //System.err.println("  -> "+current);
+			    if ( val == null ){ // not encounted yet
+				int[] v = new int[3]; v[0]=curdepth+1; v[1]=-1; v[2]=-1;
+				//int[] v = { curdepth+1, -1, -1 };
+				depth.put( current, v );
+				queue.push( current );
+				passed.push( (Synset)null );
+				//System.err.println("  - pushed(1) "+v[0]);
+			    } else if ( val[0] > curdepth+1 ) { // updating shortpath
+				val[0] = curdepth+1;
+				queue.push( current );
+				passed.push( (Synset)null );
+				//System.err.println("  - pushed(2) "+val[0]);
+			    } else { // We must unstack here
+				//System.err.println("  == MEET");
+				int level = val[0];
+				// Mark second queue
+				for ( int i = passed.size()-1; i >= 0; i-- ){
+				    Synset n = passed.get(i);
+				    if ( n != null ) {
+					level++;
+					//System.err.println("  <== ("+level+") "+n);
+					int[] v = depth.get( n ); // record depth
+					if ( v[2] == -1 || v[2] > level ) v[2] = level;
+				    }
+				}
+			    }
+			}
+		    }
+		    // Either unstack the last mark or s if nothing has been put in queue
+		    passed.pop();
+		}
+	    } catch ( JWNLException ex ) {}
+	}
+
+	// Traverse the graph from s2 and collect distance
+	double bestvalue = 0.;
+	for ( Synset s : sense2 ) { // Stack s ith 0
+	    queue.push( s );
+	    int[] val = depth.get( s );
+	    if ( val == null ) {
+		int[] v = new int[3]; v[0]=-1; v[1]=0; v[2]=-1;
+		depth.put( s, v );
+	    } else {
+		val[1] = 0;
+		//System.err.println(val[0]+"/"+val[1]+"/"+val[2]);
+		//System.err.println( s );
+		double newvalue = (double)(2*val[2])/(double)(val[0]+2*val[2]);
+		if ( newvalue > bestvalue ) {
+		    bestvalue = newvalue;
+		}
+	    }
+	}
+	while ( !queue.empty() ) { // Stack non empty
+	    Synset s = queue.pop(); // Unstack
+	    int i = (depth.get( s ))[1]; // Retrieve depth
+	    try {
+		for ( PointerTarget h : s.getTargets( PointerType.HYPERNYM ) ) {
+		    if ( h instanceof Synset ){
+			Synset current = (Synset)h;
+			int [] level = depth.get( current );
+			if ( level == null ){ // not encounted yet
+			    //if ( bestvalue == -1 || i < bestvalue ) { // modest branch and bound
+			        int[] v = new int[3]; v[0]=-1; v[1]=i+1; v[2]=-1;
+				//int[] v = { -1, i+1, -1 };
+				depth.put( current, v );
+				queue.push( current );
+				//}
+			} else if ( level[0] != -1 ){ // This is a least common subsumer
+			    level[1] = i+1;
+			    //System.err.println(level[0]+"/"+level[1]+"/"+level[2]);
+			    //System.err.println( current );
+			    double newvalue = (double)(2*level[2])/(double)(level[0]+i+1+2*level[2]);
+			    if ( newvalue > bestvalue ){
+				bestvalue = newvalue;
+			    }
+			} else if ( level[1] > i+1 ){
+			    level[1] = i+1;
+			    queue.push( current );
+			}
+		    }
+		}
+	    } catch ( JWNLException ex ) {}
+	}
+
+	return bestvalue;
+    }
+
+    public double computeSimilarity( String s1, String s2 ) {
         Dictionary dictionary = Dictionary.getInstance();
         double sim = 0.0;
         double dists1s2;
@@ -610,7 +775,7 @@ public class JWNLDistances {
         int nbrLines = matrix.length;
         if (nbrLines == 0) return 0;
         int nbrColumns = matrix[0].length;
-        double sim = 0;
+        double sim = 0.;
         int minSize = (nbrLines >= nbrColumns) ? nbrColumns : nbrLines;
         if (minSize == 0) return 0;
         for (int k = 0; k < minSize; k++) {
@@ -641,7 +806,7 @@ public class JWNLDistances {
             }
             sim += max_val;
         }
-        return sim / (nbrLines + nbrColumns - minSize);
+        return sim / (double)(nbrLines + nbrColumns - minSize);
     }
 
     /**
