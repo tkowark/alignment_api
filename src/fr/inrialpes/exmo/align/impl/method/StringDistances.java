@@ -327,6 +327,23 @@ public class StringDistances {
 	return 1.0 - (double)metrics.score( s1, s2 );
     }
 	
+    /**
+     * @param s a String
+     * @return s without included quotations between ' or "
+     */
+    public static String stripQuotations( String s ) {
+	int sLength = s.length();
+	String result = "";
+	int sStart = 0;
+	int sEnd = sStart;
+	while ( sStart < sLength ) {
+	    while ( sEnd < sLength  && s.charAt(sStart) != '\"' ) sEnd++;
+	    if ( sEnd < sLength ) result += s.substring(sStart, sEnd);
+	    while ( sEnd < sLength  && s.charAt(sStart) != '\"' ) sEnd++;
+	    sStart = sEnd;
+	}
+	return result;
+    }
 
     /**
      * JE//: This is independent from WordNet and should go to StringDistances
@@ -340,8 +357,10 @@ public class StringDistances {
      * if it is a suffix
      * otherwise the last letter will be taken as the new token
      * start
+     *
+     * Would be useful to parameterise with stop words as well
      */
-    public static Vector<String> tokenize(String s) {
+    public static Vector<String> tokenize( String s ) {
 	String str1 = s;
 	int sLength = s.length();
 	Vector<String> vTokens = new Vector<String>();
@@ -394,10 +413,7 @@ public class StringDistances {
 		}			
 		tkStart=tkEnd;
 	    }			
-	}
-		
-	// else the standard naming convention will be used
-	else{
+	} else { // else the standard naming convention will be used
 	    // start at the beginning of the string
 	    tkStart = 0;			
 	    tkEnd = tkStart;
