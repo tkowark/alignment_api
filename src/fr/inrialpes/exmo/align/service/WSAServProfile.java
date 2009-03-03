@@ -464,11 +464,32 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += "      <result>\n" + answer.getContent() + "      \n</result>";
 	    }
 	    msg += "    </retrieveResponse>\n";
-	} else if ( method.equals("metadataRequest") ) { // URI -> XML
+	} else if ( method.equals("metadataRequest") || method.equals("metadata") ) { // URI -> XML
+	    Message answer = null;
 	    msg += "    <metadataResponse>\n";
-	    // Not done yet
+	    Parameters params = param;		
+	    if( restful == null ) {
+		params = getParameters( domMessage );
+		if ( params.getParameter( "alid" ) == null ) {
+		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+		} else {
+		     params.setParameter( "id", params.getParameter( "alid" ) );
+	    	}
+	    }
+	    if ( answer == null ) {
+		     params.setParameter( "embedded", "true" );
+		     params.setParameter( "method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
+		     answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", params) );
+            }
+	    	    
+	    if ( answer instanceof ErrorMsg ) {
+		msg += displayError( answer );
+		 
+	    } else {
+		msg += displayAnswer( answer );
+	    }
 	    msg += "    </metadataResponse>\n";
-	} else if ( method.equals("loadRequest") ) { // URL -> URI
+	} else if ( method.equals("loadRequest") || method.equals("load") ) { // URL -> URI
 	    msg += "    <loadResponse>\n";
 	    Parameters params = getParameters( domMessage );
 	    Message answer = null;

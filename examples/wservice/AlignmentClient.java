@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.FileInputStream;
 import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -60,6 +61,7 @@ public class AlignmentClient {
     private boolean rest = false;
     private String filename = null;
     private String outfile = null;
+    private String uploadFile = null;
     private String paramfile = null;
     private Hashtable services = null;
 
@@ -67,7 +69,7 @@ public class AlignmentClient {
     private String RESTStr = null;
     private String SOAPAction = null;
     private String RESTAction = null;
-    private String lang = "XML";
+    private String renderer = "XML";
 
     public static void main(String[] args) {
 	try { new AlignmentClient().run( args ); }
@@ -259,12 +261,16 @@ public class AlignmentClient {
 	    RESTParams += "&id=" + uri ;
 	    
 	} else if ( cmd.equals("load" ) ) {
-	    // REST?
 	    String url = (String)params.getParameter( "arg1" );
+	    RESTAction = "load";
+	    messageBody= "    <url>"+url+"</url>\n";
+	    uploadFile = url;
+	    /*
 	    if ( url == null ){
 		SOAPAction = "loadRequest";
 		//usage();
 		//System.exit(-1);
+		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String line;
 		String content = "";
@@ -274,14 +280,15 @@ public class AlignmentClient {
 		if (in != null) in.close();
 		System.err.println(content);
 		messageBody = "    <content>"+content+"</content>\n";
+		
 	    } else {
-		if ( rest ) {
-		    messageBody = "load?file="+url;
-		} else {
 		    SOAPAction = "loadfileRequest";
+		    RESTAction = "loadfile";
 		    messageBody = "    <url>"+url+"</url>\n";
-		}
+		    uploadFile = url;
+		    //RESTParams += "";
 	    }
+	    */
 	    /* This may read the input stream!
 			// Most likely Web service request
 			int length = request.getContentLength();
@@ -304,9 +311,9 @@ public class AlignmentClient {
 	    }
 	    messageBody = "    <alid>"+uri+"</alid>\n    <method>"+method+"</method>\n";
 	    RESTParams += "&id=" + uri + "&method=" + method;
-	} else if ( cmd.equals("metadata" ) ) {
-	    // REST?
+	} else if ( cmd.equals("metadata" ) ) {	     
 	    SOAPAction = "metadata";
+	    RESTAction = "metadata";
 	    String uri = (String)params.getParameter( "arg1" );
 	    String key = (String)params.getParameter( "arg2" );
 	    if ( key == null ){
@@ -314,6 +321,7 @@ public class AlignmentClient {
 		System.exit(-1);
 	    }
 	    messageBody = "    <alid>"+uri+"</alid>\n    <key>"+key+"</key>\n";
+	    RESTParams += "&id=" + uri ;
 	} else {
 	    usage();
 	    System.exit(-1);
@@ -334,19 +342,61 @@ public class AlignmentClient {
     }
 
     public String sendRESTMessage( String message, Parameters param ) throws Exception {
+	URL RESTUrl = null;
+	URLConnection connection = null;
+	HttpURLConnection httpConn = null;
 	
-        URL RESTUrl = new URL( RESTStr + "/" +  message);
-        // Open a connection with RESTUrl
-	HttpURLConnection httpConn = (HttpURLConnection)(RESTUrl.openConnection());
-	
-	//switch for return format : HTML or XML (by defaut)
-	httpConn.setRequestProperty( "lang", lang );
-	// REST uses GET method : all parameters are included in URL
-	httpConn.setRequestMethod( "GET" );
+	//httpConn.setRequestProperty( "renderer", renderer );
+ 	//"POST" is used only for "loadfile"
+	if( RESTAction.equals("load") ) { 
+	    RESTUrl = new URL( RESTStr + "/" + RESTAction);
+	    connection = RESTUrl.openConnection();
 
-        httpConn.setDoOutput(true);
-        httpConn.setDoInput(true);
-	
+	    httpConn = (HttpURLConnection) connection;
+	    httpConn.setRequestMethod( "POST" );
+	    httpConn.setUseCaches ( false );
+	    httpConn.setDefaultUseCaches (false);
+	            
+	    File f = new File(uploadFile);
+	    FileInputStream fi = new FileInputStream(f);
+	    // set headers and their values.
+	    httpConn.setRequestProperty("Content-Type",
+	                                         "application/octet-stream");
+	    httpConn.setRequestProperty("Content-Length",
+	                                        Long.toString(f.length()));
+	           
+	    // create file stream and write stream to write file data.
+	    httpConn.setDoOutput(true);
+            httpConn.setDoInput(true);        
+
+	    OutputStream os =  httpConn.getOutputStream();
+	     
+	    try {
+	         // transfer the file in 4K chunks.
+	         byte[] buffer = new byte[4096];
+	         //long byteCnt = 0;
+	         int bytes=0;
+	         while (true) {
+	              bytes = fi.read(buffer);    
+	              if (bytes < 0)  break;    
+	              os.write(buffer, 0, bytes );
+	         }
+	               
+	         os.flush();
+	    } catch (Exception ex) {}
+	            
+	    os.close();
+	    fi.close();
+	} else {
+	    //switch for return format : HTML or XML (by defaut)
+	    RESTUrl = new URL( RESTStr + "/" +  message + "&return=XML");
+            //Open a connection with RESTUrl
+	    httpConn = (HttpURLConnection)(RESTUrl.openConnection());
+	    httpConn.setRequestMethod( "GET" );
+            httpConn.setDoOutput(true);
+            httpConn.setDoInput(true);
+	}	
+
 	// Read output
 	InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
         BufferedReader in = new BufferedReader(isr);
