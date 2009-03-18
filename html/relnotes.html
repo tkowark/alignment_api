@@ -64,31 +64,32 @@ Currently the development and maintainance of 3 versions continue.
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.6 (9xx): xx/02/2009 - Sabai sabai</h2-->
+<!--h2>Version 3.6 (95x): xx/03/2009 - Sabai sabai</h2-->
 
 <p><span style="color: red;">BEWARE:</span>
-Upgraded to JWNL 1.4.1rc2 (from 1.3rc3). This is included in the lib
-  directory.
+Java WordNet Library (JWNL) has been upgraded 1.4.1rc2 (from 1.3rc3). This is included in the lib directory.
 Hence, it is necessary to use WordNet-3.0 (the jwnl part will not work
   anymore with 2.0).
 If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
-  library by the older one and this will work.
+  library by the older one and this will work. However, using WordNet
+  with the Alignment API is not compulsory.
 </p>
 <p>
 <ul compact="1">
 <li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
 <li>Added REST interface to the HTML interface (server)</li>
 <li>Added new gap based (hardgap and propgap) methods in <tt>BasicAlignment.cut()</tt> (impl)</li>
-<li>Added new methods in JWNLDistances (ling)</li>
+<li>Added new methods (Cosynonymy, Wu-Palmer) in JWNLDistances (ling)</li>
 <li>Added tests for ling and set noling as default in build (test)</li>
 <li>Improved renderers with more metadata (renderer)</li>
 <li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
 <li><tt>ConcatenatedIterator</tt> is now parameterised and iterable (impl)</li>
 <li>Corrected a bug in <tt>XMLMetadataRendererVisitor</tt> (renderer)</li>
+<li>Corrected a bug in <tt>RDFRendererVisitor</tt> that output rdf:ID="" (renderer)</li>
 <li>Corrected a bug in <tt>BasicAlignment.cut("best")</tt> (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
-  between Data and Object properties and, in general, heterorgeneous equivalences (impl)</li>
+  between Data and Object properties and, in general, heterogeneous equivalences (impl)</li>
 </ul>
 </p>
 
