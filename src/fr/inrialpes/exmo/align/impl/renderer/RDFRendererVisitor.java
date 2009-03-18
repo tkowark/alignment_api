@@ -158,7 +158,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	     || alignment.getLevel().equals("2OMWG") ){
 	    writer.print("  <map>\n");
 	    writer.print("    <Cell");
-	    if ( cell.getId() != null ){
+	    if ( cell.getId() != null && !cell.getId().equals("") ){
 		writer.print(" rdf:about=\""+cell.getId()+"\"");
 	    }
 	    writer.print(">\n");
