@@ -213,10 +213,10 @@ public class SWTInterface extends JPanel {
 	public File alignFolder = null;
 	public static File basicFolder = null;
 	public Frame rootFrame;
-	public SWTInterface(Frame f) {
+	//public SWTInterface(Frame f) {
 		//It is needed
-		rootFrame = f;
-	}
+	//	rootFrame = f;
+	//}
 	public void offlineInit(boolean init){
 		//OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
 		online = false;
