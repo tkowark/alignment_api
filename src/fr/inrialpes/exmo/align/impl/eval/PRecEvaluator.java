@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2008
+ * Copyright (C) INRIA, 2004-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -66,7 +66,11 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 
     private int nbcorrect = 0; // nb of cells correctly identified
 
-    /** Creation **/
+    /** Creation
+     * Initiate Evaluator for precision and recall
+     * @param align1 : the reference alignment
+     * @param align2 : the alignment to evaluate
+     **/
     public PRecEvaluator(Alignment align1, Alignment align2) throws AlignmentException {
 	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
     }
