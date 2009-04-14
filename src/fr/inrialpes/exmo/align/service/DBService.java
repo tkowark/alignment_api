@@ -32,7 +32,7 @@ public interface DBService {
     public void connect(String port, String user, String password) throws SQLException; // password in database
     public void connect(String IPAdress, String port, String user, String password) throws SQLException; // with userID, password in database
     public void connect(String IPAdress, String port, String user, String password, String database) throws SQLException;    // with userID, password in database
-    public Connection getConnection();
-
+    public Connection getConnection() throws SQLException;
+    public Connection reconnect() throws SQLException;
     public void close();
 }

@@ -286,11 +286,11 @@ public class AServProtocolManager {
 	URI uri2 = null;
 	Set<Alignment> alignments = new HashSet<Alignment>();
 	try {
-	    if( params.getParameter("onto1") == null ) {
+	    if( params.getParameter("onto1") == null || ((String)params.getParameter("onto1")).equals("") ) {
 		uri2 = new URI((String)params.getParameter("onto2"));
 		alignments = alignmentCache.getAlignments( uri2 );
 	    }
-	    else if( params.getParameter("onto2") == null ) {
+	    else if( params.getParameter("onto2") == null || ((String)params.getParameter("onto2")).equals("") ) {
 		uri1 = new URI((String)params.getParameter("onto1"));
 		alignments = alignmentCache.getAlignments( uri1 );
 	    }
@@ -349,6 +349,9 @@ public class AServProtocolManager {
 	Parameters params = mess.getParameters();
 	// Retrieve the alignment
 	String id = (String)params.getParameter("id");
+
+	System.err.println("Id from Render in AServProtocol =" +  id );
+
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -405,11 +408,20 @@ public class AServProtocolManager {
     // Implementation specific
     public Message store( Message mess ){
 	String id = mess.getContent();
+	Alignment al=null;
+	System.err.println("Id from Store in AServProtocol=" +  id );
 	try {
-	    Alignment al = alignmentCache.getAlignment( id );
+	    try{
+	    	al = alignmentCache.getAlignment( id );
+	    } catch(Exception ex) {
+	    	//System.err.println("Unknown Id in Store :=" + id );
+	    	ex.printStackTrace();
+	    }
 	    // Be sure it is not already stored
-	    if ( !alignmentCache.isAlignmentStored( al ) ){
+	    if ( !alignmentCache.isAlignmentStored( al ) ) {
+
 		alignmentCache.storeAlignment( id );
+		 
 		// Retrieve the alignment again
 		al = alignmentCache.getAlignment( id );
 		// for all directories...

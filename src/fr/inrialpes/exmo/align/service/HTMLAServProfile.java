@@ -341,6 +341,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//return r;
 	}
 
+	System.err.println("Id from HTMLAServ =" +  params.getParameter("id") );
+
 	if ( oper.equals( "aserv" ) ){
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
@@ -354,15 +356,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
 
-	    //System.err.println("Renderer=" + header.getProperty("renderer") );
+	    //System.err.println("Return format=" + params.getParameter("return") );
 	    //System.err.println("onto1=" +  params.getParameter("onto1") );
-	    //System.err.println("onto2=" +  params.getParameter("onto2") );
+	    //System.err.println("Id from HTMLAServ =" +  params.getParameter("id") );
  
 	    params.setParameter( "restful", "true" );
-	    if ( header.getProperty("renderer") == null || ((String)header.getProperty("renderer")).equals("HTML") ) 
-		 params.setParameter( "renderer", "HTML" );
+
+	    //The return format is XML by default 
+	    if ( params.getParameter("return") == null || ((String)params.getParameter("return")).equals("XML") ) 
+	    	 params.setParameter( "renderer", "XML" );
 	    else 
-		 params.setParameter( "renderer", "XML" );
+	    	 params.setParameter( "renderer", "HTML" );
 
 	    if ( wsmanager != null ) {
 		if( ((String)params.getParameter("renderer")).equals("HTML") )
@@ -809,9 +813,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     private String displayAnswer( Message answer, Parameters param ) {
 	String result = null;
 	if( (String)param.getParameter("restful") != null ) {
-	    if( ((String)param.getParameter("renderer")).equals("HTML") ) {
+	    if( ((String)param.getParameter("return")).equals("HTML") ) {
 	    	result = answer.HTMLRESTString();
-	    	//Return for Cupboard
 	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
 		     result += "<table><tr>";
 result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";

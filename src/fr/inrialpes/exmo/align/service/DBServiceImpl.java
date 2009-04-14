@@ -37,16 +37,22 @@ public class DBServiceImpl implements DBService{
     static String port = "3306";
     static String user = "adminAServ";
     static String database = "AServDB";
+     
+    //To be used in reconnect()
+    static String dbpass = null;
     String driverPrefix = "jdbc:mysql";
+    //String driverPrefix = "jdbc:postgresql";
     CacheImpl cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 	Class.forName("com.mysql.jdbc.Driver").newInstance();
+	//Class.forName("org.postgresql.Driver").newInstance();
     }
 
-    public DBServiceImpl( String driver, String prefix ) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public DBServiceImpl( String driver, String prefix, String DBPort ) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 	Class.forName(driver).newInstance();
 	driverPrefix = prefix;
+	port = DBPort;
     }
 
     public void init() {
@@ -69,13 +75,21 @@ public class DBServiceImpl implements DBService{
 	}
 
     public void connect(String IPAddress, String port, String user, String password, String database ) throws SQLException {
+	dbpass = password;
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, password);
 	}
-
-    public Connection getConnection() {
+    //with "dbpass" given by "connect"
+    public Connection reconnect() throws SQLException {
+	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, dbpass);
 	return conn;
     }
-	
+
+    public Connection getConnection() throws SQLException {
+	if (conn==null || conn.isClosed())
+		return reconnect();
+	return conn;
+    }
+
     public void close() {
 	try {
 	    conn.close();

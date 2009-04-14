@@ -69,7 +69,8 @@ public class AlignmentService {
 	DBPORT = "3306",
 	DBUSER = "adminAServ",
 	DBPASS = "aaa345",
-	DBBASE = "AServDB";
+	DBBASE = "AServDB",
+	DBMS   = "mysql";
 
     public static final String //Port Strings
 	HTML = "8089",
@@ -114,7 +115,17 @@ public class AlignmentService {
 		public void run() { close(); } });
 
 	// Connect database
-	connection = new DBServiceImpl();
+	if( DBMS.equals("postgres") ) {
+	    System.err.println("postgres");
+	    DBPORT = "5432";
+	    connection = new DBServiceImpl( "org.postgresql.Driver" ,  "jdbc:postgresql", DBPORT );
+	} else {
+	    	    System.err.println("mysql");
+	    DBPORT = "3306";
+	    connection = new DBServiceImpl( "com.mysql.jdbc.Driver" ,  "jdbc:mysql", DBPORT );
+	}	
+	
+	//connection = new DBServiceImpl();
 	connection.init();
 	connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
 	if ( debug > 0 ) System.err.println("Database connected");
@@ -198,7 +209,7 @@ public class AlignmentService {
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[18];
+	LongOpt[] longopts = new LongOpt[19];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -218,11 +229,12 @@ public class AlignmentService {
 	longopts[13] = new LongOpt("dbmsuser", LongOpt.REQUIRED_ARGUMENT, null, 'u');
 	longopts[14] = new LongOpt("dbmspass", LongOpt.REQUIRED_ARGUMENT, null, 'p');
 	longopts[15] = new LongOpt("dbmsbase", LongOpt.REQUIRED_ARGUMENT, null, 'b');
-	longopts[16] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
-	longopts[17] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+	longopts[16] = new LongOpt("dbms", LongOpt.REQUIRED_ARGUMENT, null, 'B');
+	longopts[17] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
+	longopts[18] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	// Is there a way for that in LongOpt ???
 
-	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::O::U::m:s:u:p:b:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::O::U::m:s:u:p:b:B:i:", longopts);
 	int c;
 	String arg;
 
@@ -369,6 +381,16 @@ public class AlignmentService {
 	    case 'b' :
 		DBBASE = g.getOptarg();
 		break;
+	    case 'B' :
+		arg   = g.getOptarg();
+		if ( arg != null ) {
+		    params.setParameter( "DBMS", arg );
+		    DBMS = arg;
+		} else {
+		    params.setParameter( "DBMS", "mysql" );
+		    DBMS = "mysql";
+		}
+		break;
 	    case 'D' :
 		/* Parameter definition */
 		arg = g.getOptarg();
@@ -417,6 +439,7 @@ public class AlignmentService {
 	System.err.println("\t--dbmsuser=name -u name\t\t\tUse DBMS user name");
 	System.err.println("\t--dbmspass=pwd -p pwd\t\t\tUse DBMS password");
 	System.err.println("\t--dbmsbase=name -b name\t\t\tUse Database name");
+	System.err.println("\t--dbms=name -B name\t\t\tUse Database Management System");
 	System.err.println("\t--debug[=n] -d[n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");

@@ -35,6 +35,7 @@ import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -48,6 +49,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
+import java.io.PrintStream;
+import java.io.EOFException;
 
 /**
  * This class caches the content of the alignment database. I.e.,
@@ -86,16 +89,20 @@ public class CacheImpl {
     static public final String OURI2 = "ouri2";
 	
     //**********************************************************************
+
     public CacheImpl( DBService serv ) {
 	service = serv;
-	//try {
+	try {
 	    conn = service.getConnection();
-	    //} catch(Exception e) {
+	} catch(Exception e) {
 	    // Rather raise an exception
 	    //System.err.println(e.toString());
-	    //}
+	}
 	alignmentTable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
+	//try {
+	//System.setErr( new PrintStream( "messages" ) );
+	//} catch (Exception e){}
     }
 
     public void reset() throws SQLException {
@@ -114,7 +121,8 @@ public class CacheImpl {
 	host = (String)p.getParameter("host");
 	Statement st = createStatement();
 	// test if a database is here, otherwise create it
-	ResultSet rs = (ResultSet)st.executeQuery("SHOW TABLES LIKE 'server'");
+	//ResultSet rs = (ResultSet)st.executeQuery("SHOW TABLES LIKE 'server'");
+	ResultSet rs = conn.getMetaData().getTables(null,null, "server", new String[]{"TABLE"});
 	if ( !rs.next() ) {
 	    initDatabase();
 	} else {
@@ -136,14 +144,22 @@ public class CacheImpl {
     }
 
     public Statement createStatement() throws SQLException {
-	Statement st = null;
+	    try {
+		conn = service.getConnection();
+	    } catch (SQLException ex) { 
+	    }
+	return conn.createStatement();
+
+	/*Statement st = null;
 	try {
-	     st = (Statement) conn.createStatement();
+	    st = (Statement) conn.createStatement();
 	} catch ( SQLException ex ) {
-	    conn = service.getConnection();
+	    //conn = service.getConnection();
+	    conn = service.reconnect();
+	    System.err.println(" DB reconnected.");
 	    st = (Statement) conn.createStatement();
 	}
-	return st;
+	return st;*/
     }
 
     // **********************************************************************
@@ -354,16 +370,31 @@ public class CacheImpl {
      * retrieve full alignment from id (and cache it)
      */
     public Alignment getAlignment( String id ) throws AlignmentException, SQLException {
-	Alignment result = alignmentTable.get( id );
+	Set<String> keys = (Set<String>)alignmentTable.keySet();
+	for( String aId : keys ) {
+	    System.err.println("Id=" + aId);
+	}
+	System.err.println("End of list.");
+
+	Alignment result = null;
+	try{
+		result = alignmentTable.get( id );
+	} catch(Exception ex) {
+	  System.err.println("Unknown exception: Id =" + id);
+	  ex.printStackTrace();
+	}
 	
-	if ( result == null )
+	if ( result == null ) {
+	    System.err.println("Cache: Id =" + id + " is not found.");
 	    throw new AlignmentException("getAlignment: Cannot find alignment");
+	}
 
 	// If not cached, retrieve it now
 	if ( result.getExtension( SVCNS, CACHED) == "" 
 	     && result.getExtension(SVCNS, STORED) != "") {
 	    try { retrieveAlignment( id, result ); }
 	    catch (URISyntaxException urisex) {
+		System.err.println("Cache: cannot read from DB");
 		throw new AlignmentException("getAlignment: Cannot find alignment", urisex);
 	    };
 	}
@@ -512,96 +543,102 @@ public class CacheImpl {
 	}
     }
 
-    public void storeAlignment( String id ) throws AlignmentException, SQLException {
+    public void storeAlignment( String id ) throws AlignmentException, SQLException  {
 	String query = null;
 	Alignment alignment = getAlignment( id );
-	Statement st = createStatement();
+	Statement st = null;
 
-	// We store stored date
-	alignment.setExtension( SVCNS, STORED, new Date().toString());
-	// We empty cached date
-	alignment.setExtension( SVCNS, CACHED, "");
-
-	try {
-	    String s_O1 = alignment.getExtension(SVCNS, OURI1);
-	    String s_O2 = alignment.getExtension(SVCNS, OURI2);
+	//Try to store at most 3 times. Otherwise, an exception EOFException will be thrown.
+	for(int i=0; i < 3 ; i++) {
+	    st = createStatement();
+	    try {
+	    	String s_O1 = alignment.getExtension(SVCNS, OURI1);
+	    	String s_O2 = alignment.getExtension(SVCNS, OURI2);
 	    
-	    // file attribute
-	    String s_File1 = null;
-	    String s_File2 = null;
-	    if (alignment.getFile1() != null) 
-		s_File1 = alignment.getFile1().toString();
-	    if (alignment.getFile2() != null) 
-		s_File2 = alignment.getFile2().toString();
+	    	// file attribute
+		String s_File1 = null;
+	    	String s_File2 = null;
+	    	if (alignment.getFile1() != null) 
+			s_File1 = alignment.getFile1().toString();
+	    	if (alignment.getFile2() != null) 
+			s_File2 = alignment.getFile2().toString();
 	    
-	    // uri attribute
-	    String s_uri1 = alignment.getOntology1URI().toString();
-	    String s_uri2 = alignment.getOntology2URI().toString();
+	    	// uri attribute
+	    	String s_uri1 = alignment.getOntology1URI().toString();
+	    	String s_uri2 = alignment.getOntology2URI().toString();
 
-	    String type = alignment.getType();
-	    String level = alignment.getLevel();
+	    	String type = alignment.getType();
+	    	String level = alignment.getLevel();
 			
-	    query = "INSERT INTO alignment " + 
+	    	query = "INSERT INTO alignment " + 
 		"(id, owlontology1, owlontology2, type, level, file1, file2, uri1, uri2) " +
 		"VALUES ('" + quote(id) + "','" +  quote(s_O1) + "','" + quote(s_O2) + "','" + quote(type) + "','" + quote(level) + "','" + quote(s_File1) + "','" + quote(s_File2) + "','" + quote(s_uri1) + "','" + quote(s_uri2) + "')";
-	    st.executeUpdate(query);
-	    for ( Object ext : ((BasicParameters)alignment.getExtensions()).getValues() ){
-		String uri = ((String[])ext)[0];
-		String tag = ((String[])ext)[1];
-		String val = ((String[])ext)[2];
-		query = "INSERT INTO extension " + 
-		    "(id, uri, tag, val) " +
-		    "VALUES ('" + quote(id) + "','" +  quote(uri) + "','" +  quote(tag) + "','" + quote(val) + "')";
-		st.executeUpdate(query);
-	    }
-
-	    for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
-		Cell c = (Cell)e.nextElement();
-		String cellid = null;
-		if ( c.getObject1() != null && c.getObject2() != null ){
-		    cellid = c.getId();
-		    if ( cellid != null ){
-			if ( cellid.startsWith("#") ) {
-			    cellid = alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) + cellid;
-			}
-		    } else if ( c.getExtensions() != null ) {
-			// JE: In case of extensions create an ID
-			c.setId( generateCellId( id ) );
-			cellid = c.getId();
-		    }
-		    else cellid = "";
-		    String uri1 = c.getObject1AsURI(alignment).toString();
-		    String uri2 = c.getObject2AsURI(alignment).toString();
-		    String strength = c.getStrength() + ""; // crazy Java
-		    String sem;
-		    if ( !c.getSemantics().equals("first-order") )
-			sem = c.getSemantics();
-		    else sem = "";
-		    String rel =  ((BasicRelation)c.getRelation()).getRelation();	
-		    query = "INSERT INTO cell " + 
-			"(id, cell_id, uri1, uri2, measure, semantics, relation) " +
-			"VALUES ('" + quote(id) + "','" + quote(cellid) + "','" + quote(uri1) + "','" + quote(uri2) + "','" + quote(strength) + "','" + quote(sem) + "','" + quote(rel) + "')";
-		    st.executeUpdate(query);
-		}
-		if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
-		    // JE: I must now store all the extensions
-		    // JE:EXT
-		    for ( Object ext : ((BasicParameters)c.getExtensions()).getValues() ){
+	    	st.executeUpdate(query);
+	    	for ( Object ext : ((BasicParameters)alignment.getExtensions()).getValues() ) {
 			String uri = ((String[])ext)[0];
 			String tag = ((String[])ext)[1];
 			String val = ((String[])ext)[2];
 			query = "INSERT INTO extension " + 
+		    "(id, uri, tag, val) " +
+		    "VALUES ('" + quote(id) + "','" +  quote(uri) + "','" +  quote(tag) + "','" + quote(val) + "')";
+			st.executeUpdate(query);
+	    	}
+
+	    	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
+			Cell c = (Cell)e.nextElement();
+			String cellid = null;
+			if ( c.getObject1() != null && c.getObject2() != null ){
+		    		cellid = c.getId();
+		    		if ( cellid != null ){
+				if ( cellid.startsWith("#") ) {
+			    		cellid = alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) + cellid;
+				}
+		    		} else if ( c.getExtensions() != null ) {
+					// JE: In case of extensions create an ID
+					c.setId( generateCellId( id ) );
+					cellid = c.getId();
+		    		}
+		    		else cellid = "";
+		    		String uri1 = c.getObject1AsURI(alignment).toString();
+		    		String uri2 = c.getObject2AsURI(alignment).toString();
+		    		String strength = c.getStrength() + ""; // crazy Java
+		    		String sem;
+		    		if ( !c.getSemantics().equals("first-order") )
+					sem = c.getSemantics();
+		    		else sem = "";
+		    		String rel =  ((BasicRelation)c.getRelation()).getRelation();	
+		    		query = "INSERT INTO cell " + 
+			"(id, cell_id, uri1, uri2, measure, semantics, relation) " +
+			"VALUES ('" + quote(id) + "','" + quote(cellid) + "','" + quote(uri1) + "','" + quote(uri2) + "','" + quote(strength) + "','" + quote(sem) + "','" + quote(rel) + "')";
+		    		st.executeUpdate(query);
+			}
+			if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
+		    	// JE: I must now store all the extensions
+		    	// JE:EXT
+		    		for ( Object ext : ((BasicParameters)c.getExtensions()).getValues() ){
+					String uri = ((String[])ext)[0];
+					String tag = ((String[])ext)[1];
+					String val = ((String[])ext)[2];
+					query = "INSERT INTO extension " + 
 			    "(id, uri, tag, val) " +
 			    "VALUES ('" + quote(cellid) + "','" +  quote(uri) + "','" +  quote(tag) + "','" + quote(val) + "')";
-			st.executeUpdate(query);
-		    }
-		}
-	    }
-	} catch (Exception e) { 
+					st.executeUpdate(query);
+		    		}
+			}
+	    	}
+	    } catch (Exception e) { 
 	    // We should cancel this... IF NOT STORED!
+	    //System.err.println("Cannot store id=" + id );
 	    alignment.setExtension( SVCNS, STORED, "");
-	    e.printStackTrace(); 
+	    e.printStackTrace();
+	    continue;
 	};
+	// We store stored date
+	alignment.setExtension( SVCNS, STORED, new Date().toString());
+	// We empty cached date
+	alignment.setExtension( SVCNS, CACHED, "");
+	break;
+	}
 	st.close();
 	// We reset cached date
 	resetCacheStamp(alignment);
@@ -673,11 +710,17 @@ public class CacheImpl {
 	Statement st = createStatement();
 	// Create tables
 	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), owlontology1 VARCHAR(250), owlontology2 VARCHAR(250), type VARCHAR(5), level VARCHAR(1), file1 VARCHAR(250), file2 VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), primary key (id))");
-	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(5))");
+	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(10))");
 	st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), edit BOOLEAN, version VARCHAR(5))");
-	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('dbms', 'port', 0, '"+VERSION+"')");
+	//st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('dbms', 'port', 0, '"+VERSION+"')");
 	st.close();
+
+	PreparedStatement pst = conn.prepareStatement("INSERT INTO server (host, port, edit, version) VALUES ('dbms','port',?,?)");
+	pst.setBoolean(1,false);
+	pst.setString(2,VERSION+"");
+	pst.executeUpdate();
+	pst.close();
     }
 
     public void resetDatabase( boolean force ) throws SQLException, AlignmentException {
@@ -700,8 +743,19 @@ public class CacheImpl {
 	// Redo it
 	initDatabase();
 	// Register this server, etc. characteristics (incl. version name)
-	st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('"+host+"','"+port+"','"+rights+"',"+VERSION+")");
+	
+	//st.executeUpdate("INSERT INTO server (host, port, edit, version) VALUES ('"+host+"','"+port+"',"+rights+","+VERSION+")");
 	st.close();
+	
+	PreparedStatement pst = conn.prepareStatement("INSERT INTO server (host, port, edit, version) VALUES (?,?,?,?)");
+	pst.setString(1,host);
+	pst.setString(2,port);
+	pst.setBoolean(3,rights==1);
+	pst.setString(4,VERSION+"");
+	pst.executeUpdate();
+	pst.close();
+	
+	
     }
 
     public void updateDatabase( ) throws SQLException, AlignmentException {
