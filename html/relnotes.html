@@ -64,7 +64,8 @@ Currently the development and maintainance of 3 versions continue.
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.6 (95x): xx/03/2009 - Sabai sabai</h2-->
+<!--h2>Version 3.7/4.0 (95x): xx/09/2009 - Rouquine carmélite</h2-->
+<!--h2>Version 3.6 (95x): xx/04/2009 - Sabai sabai</h2-->
 
 <p><span style="color: red;">BEWARE:</span>
 Java WordNet Library (JWNL) has been upgraded 1.4.1rc2 (from 1.3rc3). This is included in the lib directory.
@@ -81,12 +82,16 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Added new gap based (hardgap and propgap) methods in <tt>BasicAlignment.cut()</tt> (impl)</li>
 <li>Added new methods (Cosynonymy, Wu-Palmer) in JWNLDistances (ling)</li>
 <li>Added tests for ling and set noling as default in build (test)</li>
+<li>Added the possibility for <tt>OWLAxiomsRendererVisitor</tt> to output properties between individuals (renderer)</li>
+<li>Added JDBC drivers for Postgress and improved mySQL code for genericity (server)</li>
 <li>Improved renderers with more metadata (renderer)</li>
 <li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
 <li><tt>ConcatenatedIterator</tt> is now parameterised and iterable (impl)</li>
 <li>Corrected a bug in <tt>XMLMetadataRendererVisitor</tt> (renderer)</li>
 <li>Corrected a bug in <tt>RDFRendererVisitor</tt> that output rdf:ID="" (renderer)</li>
+<li>Corrected a bug in <tt>OWLAxiomsRendererVisitor</tt> for generating disjointWith statements (renderer)</li>
+<li>Corrected a (rare) bug in server which was not able to recognise URIs (server)</li>
 <li>Corrected a bug in <tt>BasicAlignment.cut("best")</tt> (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
   between Data and Object properties and, in general, heterogeneous equivalences (impl)</li>
