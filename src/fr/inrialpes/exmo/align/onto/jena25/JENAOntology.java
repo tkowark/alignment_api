@@ -35,7 +35,11 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
 import fr.inrialpes.exmo.align.onto.BasicOntology;
@@ -46,25 +50,41 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     public Object getEntity(URI u) throws AlignmentException {
 	return onto.getOntResource(u.toString());
     }
+    
+    public void getEntityAnnotations(Object o, Set<String> annots) throws AlignmentException {
+	OntResource or = (OntResource) o;
+	Iterator<?> z = onto.listAnnotationProperties();
+	while (z.hasNext()) {
+	    NodeIterator j = or.listPropertyValues((Property) z.next());
+		while (j.hasNext()) {
+		    RDFNode n = j.nextNode();
+		    if (n.isResource())
+			getEntityAnnotations(n, annots);
+		    else if (n.isLiteral()) {
+			annots.add(((Literal) n.as(Literal.class)).getLexicalForm());
+		    }
+		}
+	}
+    }
 
     public Set<String> getEntityAnnotations(Object o) throws AlignmentException {
 	Set<String> annots = new HashSet<String>();
-	OntResource or = (OntResource) o;
-	Iterator i = or.listComments(null);
+	getEntityAnnotations(o,annots);
+	/*Iterator i = or.listComments(null);
 	while (i.hasNext()) {
 	    annots.add(((LiteralImpl) i.next()).getLexicalForm());
 	}
 	i = or.listLabels(null);
 	while (i.hasNext()) {
 	    annots.add(((LiteralImpl) i.next()).getLexicalForm());
-	}
+	}*/
 	return annots;
     }
 
     public Set<String> getEntityComments(Object o, String lang) throws AlignmentException {
 	Set<String> comments = new HashSet<String>();
 	OntResource or = (OntResource) o;
-	Iterator i = or.listComments(lang);
+	Iterator<?> i = or.listComments(lang);
 	while (i.hasNext()) {
 	    String comment = ((LiteralImpl) i.next()).getLexicalForm();
 	    comments.add(comment);
@@ -91,7 +111,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {
 	Set<String> labels = new HashSet<String>();
 	OntResource or = (OntResource) o;
-	Iterator i = or.listLabels(lang);
+	Iterator<?> i = or.listLabels(lang);
 	while (i.hasNext()) {
 	    String label = ((LiteralImpl) i.next()).getLexicalForm();
 	    labels.add(label);
