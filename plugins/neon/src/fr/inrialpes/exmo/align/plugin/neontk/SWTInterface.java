@@ -155,7 +155,7 @@ public class SWTInterface extends JPanel {
 	public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
 	static String [] forUniqueness = new String[0];
 	static int alignId = 0;
- 
+
 	JComponent phrases;
 	
     JTextField fileName1, fileName2, hostField, portField, serverField, methodField;  
@@ -163,11 +163,11 @@ public class SWTInterface extends JPanel {
      
     JEditorPane htmlView;
     
-    JButton cancelButton, discardButton,  fetchButton, resButton, ontoRefresh,
+    JButton cancelButton, discardButton,  resButton, ontoRefresh,
     		localAlignImportButton, alignUploadButton, 
     		localAlignTrimButton, connButton, goButton, offlineButton, onlineButton;
     
-    static JButton alignStoreButton, alignImportButton, serverAlignTrimButton, mapButton, alignFindButton, allAlignButton;
+    static JButton alignStoreButton, alignImportButton, serverAlignTrimButton, mapButton, alignFindButton, allAlignButton, fetchButton;
     
     JDialog connDialog, matchDialog; 
     //JPanel pane2;
@@ -212,11 +212,8 @@ public class SWTInterface extends JPanel {
 	public File ontoFolder = null;
 	public File alignFolder = null;
 	public static File basicFolder = null;
-	public Frame rootFrame;
-	//public SWTInterface(Frame f) {
-		//It is needed
-	//	rootFrame = f;
-	//}
+	 
+	 
 	public void offlineInit(boolean init){
 		//OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
 		online = false;
@@ -349,9 +346,9 @@ public class SWTInterface extends JPanel {
 		alignImportButton.setEnabled( flag );
 		alignStoreButton.setEnabled( flag );
 		serverAlignTrimButton.setEnabled( flag );
-		mapButton.setEnabled( flag );
-		alignFindButton.setEnabled( flag );
-		allAlignButton.setEnabled( flag );
+		//mapButton.setEnabled( flag );
+		//alignFindButton.setEnabled( flag );
+		//allAlignButton.setEnabled( flag );
 	
 		}
 	
@@ -360,6 +357,17 @@ public class SWTInterface extends JPanel {
 		alignFindButton.setEnabled( true );
 		allAlignButton.setEnabled( true );
 		}
+	
+	public static void setFetchButton( boolean flag) { 
+		fetchButton.setEnabled( flag );
+		//alignFindButton.setEnabled( flag );
+		//allAlignButton.setEnabled( flag );
+		alignImportButton.setEnabled( !flag );
+		alignStoreButton.setEnabled( !flag );
+		serverAlignTrimButton.setEnabled( !flag );
+		}
+	
+	 
 	
     public void initialize() {
 
@@ -688,12 +696,22 @@ public class SWTInterface extends JPanel {
 				    	JOptionPane.showMessageDialog(null, "Choose an alignment ID from list!","Warning",2);
     					return;
         			}
-        			
+        			/*
         			alignIdList = new String[1];
 					alignIdList[0] = selectedAlign;
 					alignBox.removeAllItems();
 					alignBox.addItem(selectedAlign);
 					onAlign.getRDFAlignment( selectedAlign );
+        			*/
+        			
+        			JOptionPane.showMessageDialog(null, "This operation may take a while.","Warning",2);
+        			alignIdList = new String[1];
+					alignIdList[0] = selectedAlign;
+					alignBox.removeAllItems();
+					alignBox.addItem(selectedAlign);
+					onAlign.getRDFAlignmentMonoThread( selectedAlign );
+					setFetchButton( false );
+					
         		} 
 	};
     });
@@ -726,7 +744,7 @@ public class SWTInterface extends JPanel {
 					alignIdList = new String[1];
 					alignIdList[0] = selectedAlign;
 	        	    alignBox.removeAllItems();
-	        		alignBox.addItem(alignIdList[0]);
+	        		alignBox.addItem( alignIdList[0] );
 	        		
 					String rdfPath =  alignKey + ".rdf";
 					
@@ -736,8 +754,7 @@ public class SWTInterface extends JPanel {
 					try {
 						
 						File rdfFile = new File( rdfPath );
-						//if (rdfFile.exists()) rdfFile.delete();
-						
+				
 						out = new FileWriter( rdfFile );
 						out.write( rdfalignStr );
 						out.flush();
@@ -753,7 +770,7 @@ public class SWTInterface extends JPanel {
 					
 						String[] list  = offAlign.getAllAlign( );
 						
-						if(list!=null) {
+						if(list != null) {
 							localAlignIdList = new String[1];
 							localAlignBox.removeAllItems();
 							
@@ -882,9 +899,7 @@ public class SWTInterface extends JPanel {
         					if(alignIdList.length > 0) { 
         						selectedAlign = alignIdList[0];
         					}
-        			
-        				
-        				
+        	 			
         			String[] list1  = offAlign.getAllAlign( );
         			if(list1!=null) {
         					localAlignIdList = new String[list1.length];
@@ -940,7 +955,7 @@ public class SWTInterface extends JPanel {
 					
 					String[] list =  onAlign.findAlignForOntos(selectedOnto1, selectedOnto2);
 	        		if(list == null || list.length==0) 
-					    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+					    	JOptionPane.showMessageDialog(null, "No alignment is found!","Warning",2);
 					else {  
         			//String[] list = getResultsFromAnswer(ao, "alid", null ); 
         			
@@ -985,7 +1000,7 @@ public class SWTInterface extends JPanel {
     						String at = onAlign.trimAlign(selectedAlign, thres);
     						
     		        		if(at == null || at.equals("")) 
-    						    	JOptionPane.showMessageDialog(null, "Impossible connection!","Warning",2);
+    						    	JOptionPane.showMessageDialog(null, "No alignment is obtained!","Warning",2);
     						else {  
   
     						alignIdList = new String[1];
@@ -1084,17 +1099,27 @@ public class SWTInterface extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 		   if (e.getSource() == goButton) {
 			   wserver  = serverField.getText();
-			   if(wserver.equals(""))  wserver = null;
+			   if(wserver.equals(""))  
+				   wserver = null;
 			   wsmethod = methodField.getText();
-			   if(wsmethod.equals("")) wsmethod = null;
+			   if(wsmethod.equals("")) 
+				   wsmethod = null;
 			   matchDialog.dispose();
 			   
 			   resetActionButtons( false );
    			   
-			   onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
- 		   
+			   //onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+			   
+			   String alignId = onAlign.getAlignIdMonoThread( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+			   //System.out.println("match from sji  finished ");
+			   alignIdList = new String[1];
+			   alignIdList[0] = alignId;
+			   selectedAlign = alignIdList[0];
+			   alignBox.removeAllItems();
+			   alignBox.addItem(selectedAlign);
+			   setFetchButton( true );
+			    
 		   } // getsource
-		    
 		};
 	});
 		   
@@ -1137,8 +1162,16 @@ public class SWTInterface extends JPanel {
 				   			matchDialog.setVisible(true);
 				   		} else {
 				   			resetActionButtons( false );
-							onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+				   			String alignId = onAlign.getAlignIdMonoThread( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+							//onAlign.getAlignId( matchMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
+				   			alignIdList = new String[1];
+							alignIdList[0] = alignId;
+							selectedAlign = alignIdList[0];
+							alignBox.removeAllItems();
+							alignBox.addItem(selectedAlign);
+							setFetchButton( true );
 				   		}
+				   		
 					    //String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
 						//if(answer==null || answer.equals(""))  {
 						//	JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
@@ -1222,7 +1255,7 @@ public class SWTInterface extends JPanel {
     this.setLayout (new BorderLayout());
     this.add (new JLabel ("Computing and managing ontology alignments"), BorderLayout.NORTH);
 	
-    phrases = createPhraseList(rootFrame);
+    phrases = createPhraseList( );
     phrases.setBorder(BorderFactory.createEmptyBorder (10, 5, 10, 5)  );
     
     JScrollPane top = new JScrollPane( phrases );
@@ -1242,7 +1275,7 @@ public class SWTInterface extends JPanel {
 	
    }
  
-private JPanel createPhraseList (Frame root) {
+private JPanel createPhraseList ( ) {
     JPanel phrasePane = new JPanel (new GridLayout (0, 1, 0, 10));
       
      
