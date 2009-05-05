@@ -795,8 +795,12 @@ public class SWTInterface extends JPanel {
 						if(htmlMessage.toString()==null || htmlMessage.toString().equals("")) {
 							htmlView.setText( "" );
 						} else {
-							
-							htmlView.setText( htmlMessage.toString() );
+							 
+							//String htmlText = htmlMessage.toString();
+							//if(htmlText.length() > 1000000)
+							//	JOptionPane.showMessageDialog(null, "Too big alignment!","Warning",2);
+							//htmlView.getEditorKit().createDefaultDocument();	
+							htmlView.setText( htmlMessage.toString()  );
 						}
 					
 						htmlView.setLocation( new Point( 0, 0 ) );
@@ -805,10 +809,10 @@ public class SWTInterface extends JPanel {
 						//get align from server, then  export it as owl onto
  						StringWriter owlMessage = new StringWriter();
 						AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlMessage )  );
-						//align.init( );
 						ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+						//BasicAlignment al =  (BasicAlignment)align;
 						al.render( owlV );
-						
+			
 						owlalignStr = owlMessage.toString();
 						 
 					}
@@ -1005,16 +1009,13 @@ public class SWTInterface extends JPanel {
   
     						alignIdList = new String[1];
         					alignBox.removeAllItems();
-        							
         					alignIdList[0]= at;
-    						alignBox.addItem(at);
-    						                      
+    						alignBox.addItem(at);              
     						selectedAlign = alignIdList[0]; 	
-        			
+    						setFetchButton( true );
         					 
     						}
         				}
-    				
         		}
 		};
         });

@@ -170,6 +170,7 @@ public class OnlineAlign {
 				params.setParameter( "command","trim");
 				params.setParameter( "arg1",alignId);
 				params.setParameter( "arg2",thres);
+				//params.setParameter( "arg2","best");
 					
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -178,9 +179,9 @@ public class OnlineAlign {
 				//System.out.println("Message :"+ message);
 				
 				// Send message
-				System.out.println("Trim Message="+ message);
+				//System.out.println("Trim Message="+ message);
 				answer = sendMessage( message, params );
-				System.out.println("Trim Align="+ answer);
+				//System.out.println("Trim Align="+ answer);
 				
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
