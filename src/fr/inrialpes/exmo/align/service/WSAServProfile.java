@@ -263,8 +263,11 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if( restful == null ) {
 		params = getParameters( domMessage );
  	    }
-	    if ( params.getParameter( "id" ) == null ) {
-		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+
+	    if ( params.getParameter( "alid" ) == null ) {
+		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		     params.setParameter( "id", params.getParameter( "alid" ) );
 	    }
 
 	    if ( answer == null )
@@ -283,8 +286,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
  	    }
 	    msg += "    <invertResponse>\n";
 
-	    if ( params.getParameter( "id" ) == null ) {
-		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    if ( params.getParameter( "alid" ) == null ) {
+		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		     params.setParameter( "id", params.getParameter( "alid" ) );
 	    }
 
 	    if ( answer == null )
@@ -296,14 +301,19 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </invertResponse>\n";
 	} else if ( method.equals("cutRequest") || method.equals("cut") ) { // URI * string * float -> URI
-	    Message answer = null;
-	    msg += "    <cutResponse>\n";
+	    Message answer = null;	    
 	    Parameters params = param;
 	    if( restful == null ) {
 		params = getParameters( domMessage );
+		 
  	    }
-	    if ( params.getParameter( "id" ) == null ) {
-		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+
+	    msg += "    <cutResponse>\n";
+
+	    if ( params.getParameter( "alid" ) == null ) {
+		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
+	    } else {
+		     params.setParameter( "id", params.getParameter( "alid" ) );
 	    }
 
 	    if ( params.getParameter( "method" ) == null ) {
