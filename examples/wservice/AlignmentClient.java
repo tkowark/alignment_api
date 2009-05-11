@@ -65,6 +65,7 @@ public class AlignmentClient {
     private String paramfile = null;
     private Hashtable services = null;
 
+    private String SERVUrl = null;
     private URL SOAPUrl = null;
     private String RESTStr = null;
     private String SOAPAction = null;
@@ -80,8 +81,9 @@ public class AlignmentClient {
 	services = new Hashtable();
 	// Read parameters
 	Parameters params = readParameters( args );
-	SOAPUrl = new URL( "http://" + HOST + ":" + HTML + "/aserv" );
-	RESTStr = "http://" + HOST + ":" + HTML + "/rest" ;
+	if ( SERVUrl == null ) SERVUrl = "http://" + HOST + ":" + HTML;
+	SOAPUrl = new URL( SERVUrl + "/aserv" );
+	RESTStr =  SERVUrl + "/rest" ;
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
@@ -95,12 +97,7 @@ public class AlignmentClient {
 	}
 	// Create the SOAP message
 	String message = createMessage( params );
-	if ( debug > 1 ){
-	    System.err.print("***** Send to "+SOAPUrl+" :: "+SOAPAction);
-	    System.err.println("==>");
-	    System.err.println(message);
-	    System.err.println();
-	}
+
 	// Send message
 	String answer;
 	if ( rest ) {
@@ -350,6 +347,12 @@ public class AlignmentClient {
  	//"POST" is used only for "loadfile"
 	if( RESTAction.equals("load") ) { 
 	    RESTUrl = new URL( RESTStr + "/" + RESTAction);
+	if ( debug > 1 ){
+	    System.err.print("***** Send(REST) to "+RESTUrl);
+	    System.err.println(" ==>");
+	    System.err.println(message);
+	    System.err.println();
+	}
 	    connection = RESTUrl.openConnection();
 
 	    httpConn = (HttpURLConnection) connection;
@@ -390,6 +393,12 @@ public class AlignmentClient {
 	} else {
 	    //switch for return format : HTML or XML (by defaut)
 	    RESTUrl = new URL( RESTStr + "/" +  message + "&return=XML");
+	if ( debug > 1 ){
+	    System.err.print("***** Send(REST) to "+RESTUrl);
+	    System.err.println(" ==>");
+	    System.err.println(message);
+	    System.err.println();
+	}
             //Open a connection with RESTUrl
 	    httpConn = (HttpURLConnection)(RESTUrl.openConnection());
 	    httpConn.setRequestMethod( "GET" );
@@ -411,6 +420,12 @@ public class AlignmentClient {
     }
 
     public String sendSOAPMessage( String message, Parameters param ) throws Exception {
+	if ( debug > 1 ){
+	    System.err.print("***** Send(SOAP) to "+SOAPUrl+" :: "+SOAPAction);
+	    System.err.println(" ==>");
+	    System.err.println(message);
+	    System.err.println();
+	}
 	HttpURLConnection httpConn = (HttpURLConnection)(SOAPUrl.openConnection());
         byte[] b = message.getBytes();
 
@@ -478,7 +493,7 @@ public class AlignmentClient {
 	    case 'S' :
 		/* HTTP Server + port */
 		arg = g.getOptarg();
-		SOAPUrl = new URL( arg );
+		SERVUrl = arg;
 		break;
 	    case 'D' :
 		/* Parameter definition */
