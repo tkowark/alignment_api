@@ -25,12 +25,6 @@
  *
 */
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
-
-import fr.inrialpes.exmo.align.util.NullStream;
-
-import org.semanticweb.owl.align.Parameters;
-
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.io.PrintStream;
@@ -43,6 +37,7 @@ import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Properties;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -80,7 +75,7 @@ public class AlignmentClient {
     public void run(String[] args) throws Exception {
 	services = new Hashtable();
 	// Read parameters
-	Parameters params = readParameters( args );
+	Properties params = readParameters( args );
 	if ( SERVUrl == null ) SERVUrl = "http://" + HOST + ":" + HTML;
 	SOAPUrl = new URL( SERVUrl + "/aserv" );
 	RESTStr =  SERVUrl + "/rest" ;
@@ -114,13 +109,13 @@ public class AlignmentClient {
 	displayAnswer( answer );
     }
 
-    public String createMessage( Parameters params ) throws Exception {
+    public String createMessage( Properties params ) throws Exception {
 	String messageBody = "";
 	String RESTParams  = "";
-	String cmd = (String)params.getParameter( "command" );
+	String cmd = params.getProperty( "command" );
 	if ( cmd.equals("list" ) ) {
 	    // REST: HTML there is on listmethods => all methods, not good
-	    String arg = (String)params.getParameter( "arg1" );
+	    String arg = (String)params.getProperty( "arg1" );
 	    if ( arg.equals("methods" ) ){
 		SOAPAction = "listmethodsRequest";
 		RESTAction = "listmethods";
@@ -143,8 +138,8 @@ public class AlignmentClient {
 	} else if ( cmd.equals("find" ) ) {
 	    SOAPAction = "findRequest";
 	    RESTAction = "find";  
-	    String uri1 = (String)params.getParameter( "arg1" );
-	    String uri2 = (String)params.getParameter( "arg2" );
+	    String uri1 = (String)params.getProperty( "arg1" );
+	    String uri2 = (String)params.getProperty( "arg2" );
 	    if ( uri2 == null ){
 		usage();
 		System.exit(-1);
@@ -154,14 +149,14 @@ public class AlignmentClient {
 	} else if ( cmd.equals("match" ) ) {
 	    SOAPAction = "matchRequest";
 	    RESTAction = "match";
-	    String uri1 = (String)params.getParameter( "arg1" );
-	    String uri2 = (String)params.getParameter( "arg2" );
+	    String uri1 = (String)params.getProperty( "arg1" );
+	    String uri2 = (String)params.getProperty( "arg2" );
 	    if ( uri2 == null ){
 		usage();
 		System.exit(-1);
 	    }
 	    String method = null;
-	    String arg3 = (String)params.getParameter( "arg3" );
+	    String arg3 = (String)params.getProperty( "arg3" );
 	    if ( arg3 != null ) {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
@@ -172,13 +167,13 @@ public class AlignmentClient {
 		RESTParams += "&method=" + method;
 	    }
 	    //for wserver
-	    arg3 = (String)params.getParameter( "arg4" );
+	    arg3 = (String)params.getProperty( "arg4" );
 	    if ( arg3 != null ) {
 		 messageBody += "   <wserver>"+arg3+"</wserver>\n";
 		 RESTParams += "&paramn1=wserver&paramv1=" + arg3;
 	    }
 	    //for wsmethod
-	    String arg4 = (String)params.getParameter( "arg5" );
+	    String arg4 = (String)params.getProperty( "arg5" );
 	    if ( arg4 != null ) {
 		 messageBody += "   <wsmethod>"+arg4+"</wsmethod>\n";
 		 RESTParams += "&paramn2=wsmethod&paramv2=" + arg4;
@@ -189,14 +184,14 @@ public class AlignmentClient {
 	} else if ( cmd.equals("align" ) ) {
 	    SOAPAction = "align";
 	    RESTAction = "align";
-	    String uri1 = (String)params.getParameter( "arg1" );
-	    String uri2 = (String)params.getParameter( "arg2" );
+	    String uri1 = (String)params.getProperty( "arg1" );
+	    String uri2 = (String)params.getProperty( "arg2" );
 	    if ( uri2 == null ){
 		usage();
 		System.exit(-1);
 	    }
 	    String method = null;
-	    String arg3 = (String)params.getParameter( "arg3" );
+	    String arg3 = (String)params.getProperty( "arg3" );
 	    if ( arg3 != null ) {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
@@ -208,7 +203,7 @@ public class AlignmentClient {
 		RESTParams += "&method=" + method;
 	    }
 	    //for wserver
-	    arg3 = (String)params.getParameter( "arg4" );
+	    arg3 = (String)params.getProperty( "arg4" );
 	    if ( arg3 != null ) {
 		 messageBody += "   <wserver>"+arg3+"</wserver>\n";
 		 RESTParams += "&paramn1=wserver&paramv1=" + arg3;
@@ -219,14 +214,14 @@ public class AlignmentClient {
 	} else if ( cmd.equals("trim" ) ) {
 	    SOAPAction = "cutRequest";
 	    RESTAction = "cut";
-	    String id = (String)params.getParameter( "arg1" );
-	    String thres = (String)params.getParameter( "arg2" );
+	    String id = (String)params.getProperty( "arg1" );
+	    String thres = (String)params.getProperty( "arg2" );
 	    if ( thres == null ){
 		usage();
 		System.exit(-1);
 	    }
 	    String method = null;
-	    String arg3 = (String)params.getParameter( "arg3" );
+	    String arg3 = (String)params.getProperty( "arg3" );
 	    if ( arg3 != null ) {
 		method = thres; thres = arg3;
 	    }
@@ -239,7 +234,7 @@ public class AlignmentClient {
 	} else if ( cmd.equals("invert" ) ) {
 	    SOAPAction = "invertRequest";
 	    RESTAction = "invert";
-	    String uri = (String)params.getParameter( "arg1" );
+	    String uri = (String)params.getProperty( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
@@ -249,7 +244,7 @@ public class AlignmentClient {
 	} else if ( cmd.equals("store" ) ) {
 	    SOAPAction = "storeRequest";
 	    RESTAction = "store";
-	    String uri = (String)params.getParameter( "arg1" );
+	    String uri = (String)params.getProperty( "arg1" );
 	    if ( uri == null ){
 		usage();
 		System.exit(-1);
@@ -258,7 +253,7 @@ public class AlignmentClient {
 	    RESTParams += "&id=" + uri ;
 	    
 	} else if ( cmd.equals("load" ) ) {
-	    String url = (String)params.getParameter( "arg1" );
+	    String url = (String)params.getProperty( "arg1" );
 	    RESTAction = "load";
 	    messageBody= "    <url>"+url+"</url>\n";
 	    uploadFile = url;
@@ -300,8 +295,8 @@ public class AlignmentClient {
 	} else if ( cmd.equals( "retrieve" ) ) {
 	    SOAPAction = "retrieveRequest";
 	    RESTAction = "retrieve";
-	    String uri = (String)params.getParameter( "arg1" );
-	    String method = (String)params.getParameter( "arg2" );
+	    String uri = (String)params.getProperty( "arg1" );
+	    String method = (String)params.getProperty( "arg2" );
 	    if ( method == null ){
 		usage();
 		System.exit(-1);
@@ -311,8 +306,8 @@ public class AlignmentClient {
 	} else if ( cmd.equals("metadata" ) ) {	     
 	    SOAPAction = "metadata";
 	    RESTAction = "metadata";
-	    String uri = (String)params.getParameter( "arg1" );
-	    String key = (String)params.getParameter( "arg2" );
+	    String uri = (String)params.getProperty( "arg1" );
+	    String key = (String)params.getProperty( "arg2" );
 	    if ( key == null ){
 		usage();
 		System.exit(-1);
@@ -338,7 +333,7 @@ public class AlignmentClient {
 	return message;
     }
 
-    public String sendRESTMessage( String message, Parameters param ) throws Exception {
+    public String sendRESTMessage( String message, Properties param ) throws Exception {
 	URL RESTUrl = null;
 	URLConnection connection = null;
 	HttpURLConnection httpConn = null;
@@ -419,7 +414,7 @@ public class AlignmentClient {
 	return answer;
     }
 
-    public String sendSOAPMessage( String message, Parameters param ) throws Exception {
+    public String sendSOAPMessage( String message, Properties param ) throws Exception {
 	if ( debug > 1 ){
 	    System.err.print("***** Send(SOAP) to "+SOAPUrl+" :: "+SOAPAction);
 	    System.err.println(" ==>");
@@ -455,10 +450,10 @@ public class AlignmentClient {
 
 	return answer;
     }
-    public Parameters readParameters( String[] args ) throws java.net.MalformedURLException {
-	Parameters params = new BasicParameters();
+    public Properties readParameters( String[] args ) throws java.net.MalformedURLException {
+	Properties params = new Properties();
 
-	params.setParameter( "host", HOST );
+	params.setProperty( "host", HOST );
 
 	// Read parameters
 
@@ -500,7 +495,7 @@ public class AlignmentClient {
 		arg = g.getOptarg();
 		int index = arg.indexOf('=');
 		if ( index != -1 ) {
-		    params.setParameter( arg.substring( 0, index), 
+		    params.setProperty( arg.substring( 0, index), 
 					 arg.substring(index+1));
 		} else {
 		    System.err.println("Bad parameter syntax: "+g);
@@ -512,9 +507,9 @@ public class AlignmentClient {
 	}
 	
 	if (debug > 0) {
-	    params.setParameter("debug", new Integer(debug));
-	} else if ( params.getParameter("debug") != null ) {
-	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	    params.setProperty("debug", Integer.toString( debug ) );
+	} else if ( params.getProperty("debug") != null ) {
+	    debug = Integer.parseInt((String)params.getProperty("debug"));
 	}
 
 	// Store the remaining arguments in param
@@ -523,9 +518,9 @@ public class AlignmentClient {
 	    usage();
 	    System.exit(-1);
 	} else {
-	    params.setParameter("command", args[i++]);
+	    params.setProperty("command", args[i++]);
 	    for ( int k = 1; i < args.length; i++,k++ ){
-		params.setParameter("arg"+k, args[i]);
+		params.setProperty("arg"+k, args[i]);
 	    }
 	}
 	return params;
