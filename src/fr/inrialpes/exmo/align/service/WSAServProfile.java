@@ -260,14 +260,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <storeResponse>\n";
 	    Parameters params = param;
+	     
 	    if( restful == null ) {
 		params = getParameters( domMessage );
- 	    }
-
-	    if ( params.getParameter( "alid" ) == null ) {
+		if ( params.getParameter( "alid" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-	    } else {
+		} else {
 		     params.setParameter( "id", params.getParameter( "alid" ) );
+	    	}
 	    }
 
 	    if ( answer == null )
@@ -478,6 +478,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    Message answer = null;
 	    msg += "    <metadataResponse>\n";
 	    Parameters params = param;		
+	
 	    if( restful == null ) {
 		params = getParameters( domMessage );
 		if ( params.getParameter( "alid" ) == null ) {

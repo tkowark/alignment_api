@@ -341,8 +341,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//return r;
 	}
 
-	System.err.println("Id from HTMLAServ =" +  params.getParameter("id") );
-
 	if ( oper.equals( "aserv" ) ){
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
@@ -355,10 +353,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "html" ) ){
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
-
-	    //System.err.println("Return format=" + params.getParameter("return") );
-	    //System.err.println("onto1=" +  params.getParameter("onto1") );
-	    //System.err.println("Id from HTMLAServ =" +  params.getParameter("id") );
  
 	    params.setParameter( "restful", "true" );
 

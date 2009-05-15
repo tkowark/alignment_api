@@ -370,12 +370,7 @@ public class CacheImpl {
      * retrieve full alignment from id (and cache it)
      */
     public Alignment getAlignment( String id ) throws AlignmentException, SQLException {
-	Set<String> keys = (Set<String>)alignmentTable.keySet();
-	for( String aId : keys ) {
-	    System.err.println("Id=" + aId);
-	}
-	System.err.println("End of list.");
-
+	 
 	Alignment result = null;
 	try{
 		result = alignmentTable.get( id );

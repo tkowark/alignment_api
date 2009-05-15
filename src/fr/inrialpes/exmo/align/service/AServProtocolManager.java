@@ -409,7 +409,7 @@ public class AServProtocolManager {
     public Message store( Message mess ){
 	String id = mess.getContent();
 	Alignment al=null;
-	System.err.println("Id from Store in AServProtocol=" +  id );
+	 
 	try {
 	    try{
 	    	al = alignmentCache.getAlignment( id );
