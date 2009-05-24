@@ -33,6 +33,12 @@ the main ruptures that will appear:
   support from OMWGAlignments which are currently based on Jena, (c)
   release of separated subpackages offering OWL API 1.0, OWL API 2.0,
   Jena 2.5, OLGraph and SKOS. (onto)</li>
+<li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
+  ontologies and alignments within the API.</li>
+<li>Creation of a different project, OntoSim, for supporting distances
+  and similarities across ontologies. This project will adopt several
+  parts of the current implementation part. It will have no impact on
+  the API.</li>
 </ul>
 Other less radical changes include:
 <ul compact="1">
@@ -52,6 +58,8 @@ Currently the development and maintainance of 3 versions continue.
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
 <li>Added get-aligned to interface (server)</li>
+<li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
+  ontologies and alignments within the API (api/impl/test).</li>
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
@@ -64,6 +72,7 @@ Currently the development and maintainance of 3 versions continue.
 
 <h2>Current SVN trunk version</h2>
 
+<!--h2>Version 3.7/4.0 (95x): xx/09/2009 - Tring</h2-->
 <!--h2>Version 3.7/4.0 (95x): xx/09/2009 - Rouquine carmélite</h2-->
 <!--h2>Version 3.6 (95x): xx/04/2009 - Sabai sabai</h2-->
 
@@ -95,6 +104,7 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Corrected a bug in <tt>BasicAlignment.cut("best")</tt> (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
   between Data and Object properties and, in general, heterogeneous equivalences (impl)</li>
+<li>Cleaned up the wservice example (examples)</li>
 </ul>
 </p>
 
