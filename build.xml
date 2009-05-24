@@ -203,6 +203,7 @@
       <!--xmlfileset dir="${test14.dir}" includes="testng.xml"/-->
       <classfileset dir="test" includes="classes/**/*.class"/>
     </testng>
+    <echo message="For results: open test/html/index.html" />
   </target>
 
   <!-- tested -->
