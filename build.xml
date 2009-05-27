@@ -3,6 +3,8 @@
 
 <project name="align" default="compile" basedir=".">
 
+  <taskdef name="testng" classpath="lib/testng.jar" classname="org.testng.TestNGAntTask" />
+
   <!-- tested -->
   <target name="usage" depends="init">
     <echo message="ant _target_ _options_"/>
@@ -50,9 +52,6 @@
       </fileset>
     </path>
     
-    <taskdef name="testng" classpathref="classpath"
-             classname="org.testng.TestNGAntTask" />
-
   </target>
 
   <!-- tested -->
@@ -194,8 +193,8 @@
     <!-- ling requires WordNet and takes ages initialising it -->
     <testng groups="noling"
 	    sourcedir="test/src"
-	    outputDir="test/html"
-	    haltOnFailure="true" verbose="1">
+	    outputDir="test/html"  verbose="1"
+	    haltOnFailure="false" failureProperty="failed">
       <classpath>
         <path refid="classpath"/>
         <pathelement location="test/classes"/>
@@ -203,7 +202,7 @@
       <!--xmlfileset dir="${test14.dir}" includes="testng.xml"/-->
       <classfileset dir="test" includes="classes/**/*.class"/>
     </testng>
-    <echo message="For results: open test/html/index.html" />
+    <fail if="failed" message="For results: open test/html/index.html" />
   </target>
 
   <!-- tested -->
