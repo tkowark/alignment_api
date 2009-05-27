@@ -27,7 +27,7 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="version" value="3.5"/>
+    <property name="version" value="3.6"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="${user.name}"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
