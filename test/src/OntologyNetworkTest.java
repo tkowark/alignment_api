@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 import org.omwg.mediation.parser.rdf.RDFParserException;
 
 import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Alignment;
@@ -81,7 +82,7 @@ public class OntologyNetworkTest {
     }
 
     @Test(groups = { "full", "noling" }, dependsOnMethods = {"ontologyTest"})
-	public void alignmentTest() throws ParserConfigurationException, SAXException, IOException, RDFParserException, AlignmentException {
+	public void alignmentTest() throws ParserConfigurationException, SAXException, IOException, URISyntaxException, RDFParserException, AlignmentException {
 	assertEquals( noo.getAlignments().size(), 0 );
 	assertEquals( noo.getOntologies().size(), 2);
 	// addAlignment
@@ -89,7 +90,8 @@ public class OntologyNetworkTest {
 	noo.addAlignment( al1 );
 	assertEquals( noo.getOntologies().size(), 4);
 	// addAlignment
-	Alignment al2 = new AlignmentParser( 0 ).parse( "file:examples/rdf/srcalign.owl" );
+	Alignment al2 = new URIAlignment();
+	al2.init( al1.getOntology1URI(), al1.getOntology2URI() );
 	noo.addAlignment( al2 );
 	assertEquals( noo.getAlignments().size(), 2 );
 	assertEquals( noo.getOntologies().size(), 4);
