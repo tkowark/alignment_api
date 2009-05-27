@@ -35,6 +35,7 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
@@ -166,11 +167,10 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	}
     }
 
-    // JE: I assume this is incorrect
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
 	URI u2 = onto2.getEntityURI( ob2 );
-	writer.print("    <owl:inverseOf rdf:resource=\""+u2+"\"/>\n");
+	writer.print("    <owl:disjointWith rdf:resource=\""+u2+"\"/>\n");
     }
 
     public void visit( Relation rel ) throws AlignmentException {
@@ -192,6 +192,19 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
+	    else {
+		if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.BasicRelation").isInstance(rel) ){
+		    Object ob2 = cell.getObject2();
+		    URI u2 = onto2.getEntityURI( ob2 );
+		    if ( onto2.isIndividual( ob2 ) ) { // ob1 has been checked before
+			// It would be better to check that r is a relation of one of the ontologies by
+			// onto1.isObjectProperty( onto1.getEntity( new URI ( r ) ) )
+			String r = ((BasicRelation)rel).getRelation();
+			if ( r!=null && !r.equals("") )
+			    writer.print("    <"+r+" rdf:resource=\""+u2+"\"/>\n");
+		    }
+		}
+	    }
 	} catch (IllegalAccessException e) {
 	    e.printStackTrace();
 	} catch (ClassNotFoundException e) {
