@@ -1,5 +1,5 @@
 /*
- * $Id: AlignmentClient.java 522 2007-07-18 09:08:08Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2007-2008
  *
@@ -21,7 +21,7 @@
 /** 
  * Example of connection to the Alignment Server through  HTTP/SOAP 
  * Inspired from SOAPClient4XG by Bob DuCharme
- * $Id: Client.java 521 2007-07-18 09:02:04Z euzenat $
+ * $Id$
  *
 */
 
