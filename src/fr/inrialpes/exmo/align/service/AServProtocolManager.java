@@ -349,9 +349,6 @@ public class AServProtocolManager {
 	Parameters params = mess.getParameters();
 	// Retrieve the alignment
 	String id = (String)params.getParameter("id");
-
-	System.err.println("Id from Render in AServProtocol =" +  id );
-
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
