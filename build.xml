@@ -3,7 +3,14 @@
 
 <project name="align" default="compile" basedir=".">
 
-  <taskdef name="testng" classpath="lib/testng.jar" classname="org.testng.TestNGAntTask" />
+  <!-- this is useful but introduces, Xlint:path warnings -->
+  <path id="classpath">
+    <fileset dir="./lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+    
+  <taskdef name="testng" classpath="lib/testng/testng.jar" classname="org.testng.TestNGAntTask" />
 
   <!-- tested -->
   <target name="usage" depends="init">
@@ -43,15 +50,8 @@
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
-    <property name="jarclasspath" value="mappingapilite.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar align.jar procalign.jar"/>
+    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi1/api.jar owlapi1/impl.jar owlapi1/io.jar owlapi1/rdfparser.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar owlapi1/rdfapi.jar align.jar procalign.jar"/>
 
-    <!-- this is useful but introduces, Xlint:path warnings -->
-    <path id="classpath">
-      <fileset dir="./lib">
-	<include name="*.jar"/>
-      </fileset>
-    </path>
-    
   </target>
 
   <!-- tested -->
