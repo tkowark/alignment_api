@@ -33,8 +33,6 @@ the main ruptures that will appear:
   support from OMWGAlignments which are currently based on Jena, (c)
   release of separated subpackages offering OWL API 1.0, OWL API 2.0,
   Jena 2.5, OLGraph and SKOS. (onto)</li>
-<li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
-  ontologies and alignments within the API.</li>
 <li>Creation of a different project, OntoSim, for supporting distances
   and similarities across ontologies. This project will adopt several
   parts of the current implementation part. It will have no impact on
@@ -46,6 +44,7 @@ Other less radical changes include:
 <li>Implementation of <tt>Relation</tt> and <tt>Confidence</tt> interfaces </li>
 <li>Implement <tt>onto</tt> support in database store (server)</li>
 <li>Move <tt>OLgraphs</tt> as HeavyLoadedOntology (onto)</li>
+<li>Integrate OWMG as part of the Alignment API code (impl)</li>
 <li>Implement database store for OMWG Language (server)</li>
 </ul>
 Currently the development and maintainance of 3 versions continue.
@@ -58,8 +57,6 @@ Currently the development and maintainance of 3 versions continue.
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
 <li>Added get-aligned to interface (server)</li>
-<li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
-  ontologies and alignments within the API (api/impl/test).</li>
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
@@ -72,8 +69,16 @@ Currently the development and maintainance of 3 versions continue.
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.7/4.0 (95x): xx/09/2009 - Tring</h2-->
-<!--h2>Version 3.7/4.0 (95x): xx/09/2009 - Rouquine carmélite</h2-->
+<!--h2>Version 3.8/4.0/4.1 (1xxx): xx/09/2009 - Tring</h2-->
+<!--h2>Version 3.7/4.0 (1xxx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
+
+<p>
+<ul compact="1">
+<li>Added pretty-printing of names in server (server)</li>
+<li>Reorganised the lib directory hierarchically (build)</li>
+<li>Corrected a bug when the server is launched without -S (server)</li>
+</ul>
+</p>
 
 <h2>Version 3.6 (988): 27/05/2009 - Sabai sabai</h2>
 
@@ -89,6 +94,8 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <ul compact="1">
 <li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
 <li>Added REST interface to the HTML interface (server)</li>
+<li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
+  ontologies and alignments within the API (api/impl/test).</li>
 <li>Added new gap based (hardgap and propgap) methods in <tt>BasicAlignment.cut()</tt> (impl)</li>
 <li>Added new methods (Cosynonymy, Wu-Palmer) in JWNLDistances (ling)</li>
 <li>Added tests for ling and set noling as default in build (test)</li>

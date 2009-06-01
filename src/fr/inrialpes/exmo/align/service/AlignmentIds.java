@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,14 +28,23 @@ import org.semanticweb.owl.align.Parameters;
 
 public class AlignmentIds extends Success {
 
+    String pretty = null;
+
     public AlignmentIds ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
+    }
+    public AlignmentIds ( int surr, Message rep, String from, String to, String cont, Parameters param, String pretty ) {
+	super( surr, rep, from, to, cont, param );
+	this.pretty = pretty;
     }
     public String HTMLString(){
 	String result = "Alignment Ids: <ul>";
 	String id[] = content.split(" ");
+	String pid[] = pretty.split("???");
 	for ( int i = id.length-1; i >= 0; i-- ){
-	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a></li>";
+	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
+	    if ( pid != null && !pid[i].equals("") ) result += " ("+pid[i]+")";
+	    result += "</a></li>";
 	}
 	return result += "</ul>";
     }

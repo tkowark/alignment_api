@@ -14,22 +14,24 @@
 
   <!-- tested -->
   <target name="usage" depends="init">
-    <echo message="ant _target_ _options_"/>
-    <echo/>
-    <echo message="usage: this message"/>
-    <echo message="init: sets necessary variables"/>
-    <echo message="compile: incrementaly compiles sources"/>
-    <echo message="compileall: recompiles all sources"/>
-    <echo message="lint: compiles all sources with bug flags on"/>
-    <echo message="jar: archives compiled code"/>
-    <echo message="test: performs unit tests"/>
-    <echo message="zip: creates a new zip file"/>
-    <echo message="javadoc: generates documentation"/>
-    <echo message="release: releases a new version"/>
-    <echo message="svnbranch: copy the version under svn"/>
-    <echo message="clean: clean-up before release"/>
-    <echo/>
-    <echo message="	-Dversion=${version}"/>
+    <echo>ant _target_ _options_
+
+      usage: this message
+      init: sets necessary variables
+      upgrade: retrieve necessary libraries from other projects (local)
+      compile: incrementaly compiles sources
+      compileall: recompiles all sources
+      lint: compiles all sources with bug flags on
+      jar: archives compiled code
+      test: performs unit tests
+      zip: creates a new zip file
+      javadoc: generates documentation
+      release: releases a new version
+      svnbranch: copy the version under svn
+      clean: clean-up before release
+
+	-Dversion=${version}
+    </echo>
   </target>
 
   <!-- tested -->
@@ -52,6 +54,12 @@
     
     <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi1/api.jar owlapi1/impl.jar owlapi1/io.jar owlapi1/rdfparser.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar owlapi1/rdfapi.jar align.jar procalign.jar"/>
 
+  </target>
+
+  <target name="upgrade">
+    <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim"
+    filtering="false"/>
+    <echo message="mappingapi is only updated from its directory"/>
   </target>
 
   <!-- tested -->
@@ -122,7 +130,7 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
-        <attribute name="Class-Path" value="procalign.jar jwnl.jar"/>
+        <attribute name="Class-Path" value="procalign.jar jwnl/jwnl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment API WordNet support"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
@@ -135,7 +143,7 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
-        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade.jar iiop.jar http.jar mysql-connector-java-5.0.3-bin.jar servlet-api.jar jetty.jar jetty-util.jar"/>
+        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade/jade.jar iiop.jar jade/http.jar jdbc/mysql-connector-java-5.0.3-bin.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>

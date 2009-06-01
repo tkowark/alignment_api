@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Date;
@@ -196,6 +197,10 @@ public class CacheImpl {
 
     protected Enumeration<Alignment> listAlignments() {
 	return alignmentTable.elements();
+    }
+
+    protected Collection<Alignment> alignments() {
+	return alignmentTable.values();
     }
 
     protected void flushCache() {// throws AlignmentException

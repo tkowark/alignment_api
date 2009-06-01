@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -116,11 +116,11 @@ public class AlignmentService {
 
 	// Connect database
 	if( DBMS.equals("postgres") ) {
-	    System.err.println("postgres");
+	    if ( debug > 0 ) System.err.println("postgres driver");
 	    DBPORT = "5432";
 	    connection = new DBServiceImpl( "org.postgresql.Driver" ,  "jdbc:postgresql", DBPORT );
 	} else {
-	    	    System.err.println("mysql");
+	    if ( debug > 0 ) System.err.println("mysql driver");
 	    DBPORT = "3306";
 	    connection = new DBServiceImpl( "com.mysql.jdbc.Driver" ,  "jdbc:mysql", DBPORT );
 	}	
@@ -206,6 +206,8 @@ public class AlignmentService {
 
     public Parameters readParameters( String[] args ) {
 	Parameters params = new BasicParameters();
+	// Default values
+	params.setParameter( "host", HOST );
 
 	// Read parameters
 

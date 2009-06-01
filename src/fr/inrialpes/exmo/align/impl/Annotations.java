@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ public class Annotations {
     public static String METHOD = "method";
     public static String TIME = "time";
     public static String ID = "id";
+    public static String PRETTY = "pretty";
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
     public static boolean STRICT_IMPLEMENTATION = false;

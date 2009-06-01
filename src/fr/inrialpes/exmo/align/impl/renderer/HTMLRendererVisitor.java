@@ -98,7 +98,13 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
-	writer.print("<h1></h1>\n");
+	String id = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
+	String pid = align.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	if ( pid == null ) {
+	    writer.print("<h1>"+id+"</h1>\n");
+	} else {
+	    writer.print("<h1>"+id+" ("+pid+")</h1>\n");
+	}
 	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
 	writer.print("<table border=\"0\">\n");

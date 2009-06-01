@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -33,10 +33,16 @@ public class AlignmentId extends Success {
     public AlignmentId ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
 	super( surr, rep, from, to, cont, param );
     }
+    public AlignmentId ( int surr, Message rep, String from, String to, String cont, Parameters param, String pretty ) {
+	super( surr, rep, from, to, cont, param );
+	this.pretty = pretty;
+    }
     public String getPretty( String alid ) {
-	// getextension "pretty"
-	// if no pretty then 
-	return alid;
+	if ( pretty == null ) {
+	    return alid;
+	} else {
+	    return alid+" ("+pretty+")";
+	}
     };
     public String HTMLString(){
 	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
@@ -45,7 +51,7 @@ public class AlignmentId extends Success {
 	return "Alignment ID: <a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
     }
     public String RESTString(){
-	return "<alid>"+content+"</alid>";	
+	return "<alid>"+getContent()+"</alid>";	
     }
 
 }
