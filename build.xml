@@ -66,6 +66,7 @@
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
+    <mkdir dir="classes"/>
     <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
