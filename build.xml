@@ -144,7 +144,7 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
-        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade/jade.jar iiop.jar jade/http.jar jdbc/mysql-connector-java-5.0.3-bin.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar"/>
+        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade/jade.jar iiop.jar jade/http.jar jdbc/mysql-connector-java-5.0.3-bin.jar jdbc/postgresql-8.3-603.jdbc3.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
@@ -185,7 +185,7 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs -->
 	<!-- oyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
-        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.2.jar sboa.jar TaxoMap.jar"/>
+        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.2.jar sboa.jar TaxoMap.jar AROMA_aserv.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
