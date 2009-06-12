@@ -43,14 +43,26 @@ div.logic {
 </dd>
 </dl>
 
-<p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid
-	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">Here is a
-  small tutorial for the alignment <abbr>API</abbr>. Most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely.
+<p style="border-top: 2px solid
+	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">
+Here is a more advanced   tutorial for the
+alignment <abbr>API</abbr>. 
+This tutorial will learn you to:
+<ul>
+<li>communicate the alignment server
+through its REST web service API,</li>
+<li>manipulate the Alignments with the Alignment API in Java,</li>
+<li>perform OWL reasoning on alignmed ontologies and compose
+  alignments.</li>
+</ul>
+This time, the tutorial is based on Java programming and using various
+related APIs.
 </p>
-<p>A small <a href="server.html">companion tutorial</a> has been designed for the Alignment
-  Server. It follows, as much as possible, the reasoning of this
-  tutorial but provides input and output through a web browser.</p>
-<small>This tutorial has been designed for the Alignment API version 3.6.</small>
+<p>
+
+A more <a href="../tutorial/index.html">simple tutorial</a> as well as
+  a small <a href="../tutorial/server.html">server tutorial</a> are also available.</p>
+<p  style="border-top: 2px solid #AAAAAA;"><small>This tutorial has been designed for the Alignment API version 3.6.</small></p>
 	
 <h2>Preparation</h2>
 	
@@ -108,8 +120,8 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
 
 <p>Do you want to see a possible solution?</p>
 <div class="button">
-  <input type="button" onclick="show('qu7')" value="Cheat"/>
-  <input type="button" onclick="hide('qu7')" value="Teacher is comming"/>
+  <input type="button" onclick="show('qu7')" value="Show solution"/>
+  <input type="button" onclick="hide('qu7')" value="Hide solution"/>
 </div>
 <div class="explain" id="qu7"><p>The main piece of code in Skeleton.java is replaced by:</p>
 <pre>
@@ -174,6 +186,6 @@ writer.close();
 <p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial2/</p>
 </small>
 <hr />
-<p>$Id: index.html 742 2008-07-07 23:20:07Z euzenat $</p>
+<p>$Id$</p>
 </body>
 </html>
