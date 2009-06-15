@@ -43,7 +43,7 @@ Other less radical changes include:
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Implementation of <tt>Relation</tt> and <tt>Confidence</tt> interfaces </li>
 <li>Implement <tt>onto</tt> support in database store (server)</li>
-<li>Move <tt>OLgraphs</tt> as HeavyLoadedOntology (onto)</li>
+<!--li>Move <tt>OLgraphs</tt> as HeavyLoadedOntology (onto)</li-->
 <li>Integrate OWMG as part of the Alignment API code (impl)</li>
 <li>Implement database store for OMWG Language (server)</li>
 </ul>
@@ -67,6 +67,20 @@ Currently the development and maintainance of 3 versions continue.
 <li>Add more tests</li>
 </ul></p>
 
+<h2>Next version (3.7: Rouquine carm&eacute;lite)</h2>
+
+<p>
+This version under development is planned for next September. It is
+likely to include:
+<ul>
+<li>Integration of OMWG alignments</li>
+<li>Migration to OWL API 2 as the default Ontology implementation</li>
+<li>Separation from <a href="http://ontosim.gforge.inria.fr">OntoSim</a></li>
+<li>Integrate some basic reasoning.</li>
+</ul>
+</p>
+
+
 <h2>Current SVN trunk version</h2>
 
 <!--h2>Version 3.8/4.0/4.1 (1xxx): xx/09/2009 - Tring</h2-->
@@ -77,6 +91,7 @@ Currently the development and maintainance of 3 versions continue.
 <li>Added pretty-printing of names in server (server)</li>
 <li>Reorganised the lib directory hierarchically (build)</li>
 <li>Corrected a bug when the server is launched without -S (server)</li>
+<!--li>Suppressed the capability to export alignments in WSML (impl/omwg)</li-->
 </ul>
 </p>
 
@@ -242,7 +257,7 @@ For better conforming with RDF practice, we have
 <p>
 Other improvements include:
 <ul compact="1">
-<li>Implement level 2OMWG alignments by using OMWG Mapping API (impl)</li>
+<li>Implement level 2OMWG alignments by using OMWG Mapping API (impl/omwg)</li>
 <li>Integrated first <a href="http://www.neon-project.org">NeOn</a> toolkit plugin (plugin)</li>
 <li>Added a <tt>parseString( String )</tt> method
   in <tt>AlignmentParser</tt> (parser)</li>
