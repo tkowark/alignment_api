@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.lang.StringBuffer;
 
 import java.io.FileInputStream;
 import java.io.DataOutputStream;
@@ -145,8 +146,7 @@ public class WSInterface {
 				 
 				Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
+				 
 				params.setParameter( "command","trim");
 				params.setParameter( "arg1",alignId);
 				params.setParameter( "arg2",thres);
@@ -194,8 +194,7 @@ public class WSInterface {
 				 
 				Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
+				 
 				params.setParameter( "command","list");
 				params.setParameter( "arg1","methods");
 					
@@ -236,17 +235,13 @@ public class WSInterface {
 				// Read parameters 
 				Parameters params = new BasicParameters();
 				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
+				 
 				params.setParameter( "command","find");
 				params.setParameter( "arg1", onto1);
 				params.setParameter( "arg2", onto2);	
 				// Create the SOAP message
 				String message = createMessage( params );
-				  
-				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message :"+ message);
-				
+				  	
 				// Send message
 				answer = sendMessage( message, params );
 			}
@@ -265,9 +260,7 @@ public class WSInterface {
 				
 			String[] result = getTagFromSOAP( domMessage,  "findResponse/alignmentList/alid" );
 				
-			//for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
-				
-		    return result; 
+		        return result; 
 			 
 	    }
 	    
@@ -469,13 +462,6 @@ public class WSInterface {
 				
 			} catch ( Exception ex ) { ex.printStackTrace();  };
 				 
-				 
-				// Cut SOAP header
-			
-			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-			answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
-			 
-			
 			Document domMessage = null;
 			try {
 			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
@@ -488,14 +474,55 @@ public class WSInterface {
 			
 			 
 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
-			 
-			 
-			//System.out.println("RDFAlign="+ result[0]); 
-				
+			 	
 			return result[0];
 		}
 	    
-	     
+	    public String render(String alignId, String method) {
+ 
+			Parameters params = new BasicParameters();
+			params.setParameter( "host", HOST );
+			//params.setParameter( "http", PORT );
+			//params.setParameter( "wsdl", WSDL );
+			params.setParameter( "command","retrieve");
+			params.setParameter( "arg1", alignId);
+			params.setParameter( "arg2", method);
+			
+			String answer=null;
+		     
+			try {
+				// Read parameters
+				//Parameters params = ws.readParameters( aservArgRetrieve );
+				
+				// Create the SOAP message
+				String message = createMessage( params );
+
+				// Send message
+				answer = sendMessage( message, params );
+				if(! connected ) return null; 
+				
+				
+				
+			} catch ( Exception ex ) { ex.printStackTrace();  };
+			
+			//there is a problem when trying to remove SOAP header from message for this case			
+			/*	 
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+			 
+			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result" );
+			*/
+			 	
+			return answer;
+		}
 	    
 	    public String storeAlign(String alignId) {
 			
@@ -507,7 +534,6 @@ public class WSInterface {
 			//params.setParameter( "wsdl", WSDL );
 			params.setParameter( "command","store");
 			params.setParameter( "arg1", alignId);
-			 
 			 
 			String answer = null;
 			
@@ -553,6 +579,101 @@ public class WSInterface {
 			
 	    }
 	    
+	    public String loadStringAsAlignment( String message  )   {
+	    	// Create the connection
+	        
+	        byte[] b = message.getBytes();
+
+	        String answer = "";
+	        // Create HTTP Request
+	        try {
+	        	 
+	    	    URLConnection connection = SOAPUrl.openConnection();
+	            HttpURLConnection httpConn = (HttpURLConnection) connection;
+	        	
+	            httpConn.setRequestProperty("SOAPAction","loadRequest");
+	            httpConn.setRequestMethod( "POST" );
+	            httpConn.setDoOutput( true );
+	            httpConn.setDoInput( true );
+	            
+	            // Don't use a cached version of URL connection.
+	            httpConn.setUseCaches ( false );
+	            httpConn.setDefaultUseCaches (false);
+	            
+	            //File f = new File("/home/exmo/cleduc/Desktop/align.rdf");
+		    //FileInputStream fi = new FileInputStream(f);
+	            // set headers and their values.
+	            httpConn.setRequestProperty("Content-Type",
+	                                         "application/octet-stream");
+	            httpConn.setRequestProperty("Content-Length",
+	                                        Long.toString(b.length ));
+	           
+	            // create file stream and write stream to write file data.
+	            
+	            OutputStream os =  httpConn.getOutputStream();
+		    
+                    try {
+		    	os.write( b, 0, b.length );
+	                os.flush();
+			os.close();
+	            } catch (Exception ex) {}
+		    
+	            /*
+		 
+	            try
+	            {
+	               // transfer the file in 4K chunks.
+	               byte[] buffer = new byte[4096];
+	               //long byteCnt = 0;
+	               int bytes=0;
+	               while (true)
+	               {
+	                  bytes = fi.read(buffer);
+	                  System.out.println("line1="+ buffer.toString() );
+	                  if (bytes < 0)  break;
+	                  
+	                  os.write( buffer, 0, bytes );
+	 
+	               }
+	                  
+	               os.flush();
+	            } catch (Exception ex) {}
+	            */	 
+	            // Read the response  
+	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+	            BufferedReader in = new BufferedReader(isr);
+	        
+	            String line;
+		    StringBuffer strBuff = new StringBuffer();
+		    while ((line = in.readLine()) != null) {
+	            	 strBuff.append( line + "\n");
+	            }
+	            if (in != null) in.close();
+	            answer = strBuff.toString();
+
+		     
+	        } catch  (Exception ex) {
+	        	connected= false; ex.printStackTrace() ; return null;
+	        	}
+	        
+	        connected = true;
+		
+	        Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+		
+		String[] result = getTagFromSOAP( domMessage,  "loadResponse" );
+
+	    	return result[0];
+	    }
+
 	    public String[] getTagFromSOAP( Document dom,  String tag ){
 	    	XPath XPATH = XPathFactory.newInstance().newXPath();
 	    	String[] result = null;
@@ -590,8 +711,7 @@ public class WSInterface {
 	    	   		  String nm = stream.toString();
 		    		  result = new String[1];
 	    	   		  result[0] = nm; 
-	    	   		  //System.out.println("result retrieve="+result[0]);
-	    	   		  //System.out.println("no first="+ n.getNodeValue());
+	    	   		  
 	    		} else {
 	    		  Node nn =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
 	    		  result = new String[1];
@@ -599,7 +719,7 @@ public class WSInterface {
     	 		  NodeList ns = nn.getChildNodes();
     	 		  
     	 		  //tag "alid" is third
-    	 		  Node n3  = (Node) ns.item(2);
+    	 		  Node n3  = (Node) ns.item(3);
     	 		  Node nx  = n3.getFirstChild();
     	   		  String nm = nx.getNodeValue();
     	   		   
@@ -645,7 +765,7 @@ public class WSInterface {
 			//usage();
 			System.exit(-1);
 		    }
-		    messageBody = "<uri1>"+uri1+"</uri1><uri2>"+uri2+"</uri2>";
+		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		} else if ( cmd.equals("match" ) ) {
 		    SOAPAction = "matchRequest";
 		    String uri1 = (String)params.getParameter( "arg1" );
@@ -796,10 +916,12 @@ public class WSInterface {
 	            BufferedReader in = new BufferedReader(isr);
 	        
 	            String line;
-	            while ((line = in.readLine()) != null) {
-	            	answer += line + "\n";
+	            StringBuffer strBuff = new StringBuffer();
+		    while ((line = in.readLine()) != null) {
+	            	 strBuff.append( line + "\n");
 	            }
 	            if (in != null) in.close();
+	            answer = strBuff.toString();
 	            
 	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
 	            
@@ -816,7 +938,7 @@ public class WSInterface {
 	    public String sendFile( String message, Parameters param )   {
 	    	// Create the connection
 	        	 
-	        byte[] b = message.getBytes();
+	        //byte[] b = message.getBytes();
 	        
 	        String answer = "";
 	        // Create HTTP Request
@@ -835,7 +957,7 @@ public class WSInterface {
 	            httpConn.setDefaultUseCaches (false);
 	            
 	            File f = new File(uploadFile);
-				FileInputStream fi = new FileInputStream(f);
+		    FileInputStream fi = new FileInputStream(f);
 	            // set headers and their values.
 	            httpConn.setRequestProperty("Content-Type",
 	                                         "application/octet-stream");

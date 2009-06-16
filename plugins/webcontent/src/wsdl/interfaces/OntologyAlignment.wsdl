@@ -16,17 +16,67 @@
 				schemaLocation="OntologyAlignmentTypes.xsd" />
 			<xsd:import
 				namespace="http://weblab-project.org/services/exception"
-				schemaLocation="http://ipcc-projects.org/weblab/core/services/1.0/exception.xsd" />
+				schemaLocation="http://ipcc-projects.org/weblab/core/back/services/1.0/exception.xsd" />
 		</xsd:schema>
 	</types>
 
-	<message name="processRequest">
-		<part name="args" element="types:processArgs" />
+	<message name="matchRequest">
+		<part name="args" element="types:matchArgs" />
 	</message>
-	<message name="processResponse">
-		<part name="return" element="types:processReturn" />
+	<message name="matchResponse">
+		<part name="return" element="types:matchReturn" />
 	</message>
-	<message name="processException">
+	<message name="matchException">
+		<part name="error" element="ex:webLabException" />
+	</message>
+
+	<message name="findRequest">
+		<part name="args" element="types:findArgs" />
+	</message>
+	<message name="findResponse">
+		<part name="return" element="types:findReturn" />
+	</message>
+	<message name="findException">
+		<part name="error" element="ex:webLabException" />
+	</message>
+
+	<message name="retrieveRequest">
+		<part name="args" element="types:retrieveArgs" />
+	</message>
+	<message name="retrieveResponse">
+		<part name="return" element="types:retrieveReturn" />
+	</message>
+	<message name="retrieveException">
+		<part name="error" element="ex:webLabException" />
+	</message>
+
+	<message name="trimRequest">
+		<part name="args" element="types:trimArgs" />
+	</message>
+	<message name="trimResponse">
+		<part name="return" element="types:trimReturn" />
+	</message>
+	<message name="trimException">
+		<part name="error" element="ex:webLabException" />
+	</message>
+
+	<message name="storeRequest">
+		<part name="args" element="types:storeArgs" />
+	</message>
+	<message name="storeResponse">
+		<part name="return" element="types:storeReturn" />
+	</message>
+	<message name="storeException">
+		<part name="error" element="ex:webLabException" />
+	</message>
+
+	<message name="loadRequest">
+		<part name="args" element="types:loadArgs" />
+	</message>
+	<message name="loadResponse">
+		<part name="return" element="types:loadReturn" />
+	</message>
+	<message name="loadException">
 		<part name="error" element="ex:webLabException" />
 	</message>
 
@@ -42,25 +92,100 @@
 
 	<portType name="OntologyAlignment">
 		<documentation>
-			A simple interface for a, ontology alignment. It contains a
+			A simple interface for an ontology alignment. It contains a
 			method to enable business analyser to process two ontologies,
 			given a usage content; and a method enabling to add some
 			resources to extract the knowledge from.
 		</documentation>
-		<operation name="process">
+		<operation name="match">
 			<documentation>
 				Ask to the service to process with its business method.
 			</documentation>
-			<input name="processInput" message="tns:processRequest" />
-			<output name="processOutput" message="tns:processResponse" />
-			<fault name="processException"
-				message="tns:processException">
+			<input name="matchInput" message="tns:matchRequest" />
+			<output name="matchOutput" message="tns:matchResponse" />
+			<fault name="matchException"
+				message="tns:matchException">
 				<documentation>
 					To be thrown when an error occurs in the process
 					method of the ontology alignment.
 				</documentation>
 			</fault>
 		</operation>
+		<operation name="find">
+			<documentation>
+				Ask to the service to process with its business method.
+			</documentation>
+			<input name="findInput" message="tns:findRequest" />
+			<output name="findOutput" message="tns:findResponse" />
+			<fault name="findException"
+				message="tns:findException">
+				<documentation>
+					To be thrown when an error occurs in the process
+					method of the ontology alignment.
+				</documentation>
+			</fault>
+		</operation>
+
+		<operation name="retrieve">
+			<documentation>
+				Ask to the service to process with its business method.
+			</documentation>
+			<input name="retrieveInput" message="tns:retrieveRequest" />
+			<output name="retrieveOutput" message="tns:retrieveResponse" />
+			<fault name="retrieveException"
+				message="tns:retrieveException">
+				<documentation>
+					To be thrown when an error occurs in the process
+					method of the ontology alignment.
+				</documentation>
+			</fault>
+		</operation>
+
+		<operation name="trim">
+			<documentation>
+				Ask to the service to process with its business method.
+			</documentation>
+			<input name="trimInput" message="tns:trimRequest" />
+			<output name="trimOutput" message="tns:trimResponse" />
+			<fault name="trimException"
+				message="tns:trimException">
+				<documentation>
+					To be thrown when an error occurs in the process
+					method of the ontology alignment.
+				</documentation>
+			</fault>
+		</operation>
+
+		<operation name="store">
+			<documentation>
+				Ask to the service to process with its business method.
+			</documentation>
+			<input name="storeInput" message="tns:storeRequest" />
+			<output name="storeOutput" message="tns:storeResponse" />
+			<fault name="storeException"
+				message="tns:storeException">
+				<documentation>
+					To be thrown when an error occurs in the process
+					method of the ontology alignment.
+				</documentation>
+			</fault>
+		</operation>
+
+		<operation name="load">
+			<documentation>
+				Ask to the service to process with its business method.
+			</documentation>
+			<input name="loadInput" message="tns:loadRequest" />
+			<output name="loadOutput" message="tns:loadResponse" />
+			<fault name="loadException"
+				message="tns:loadException">
+				<documentation>
+					To be thrown when an error occurs in the process
+					method of the ontology alignment.
+				</documentation>
+			</fault>
+		</operation>
+
 		<operation name="addResource">
 			<documentation>
 				Add the resource within a usage context to the service.
@@ -83,16 +208,76 @@
 		type="tns:OntologyAlignment">
 		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
 			style="document" />
-		<operation name="process">
-			<soap:operation soapAction="process" />
-			<input name="processInput">
+		<operation name="match">
+			<soap:operation soapAction="match" />
+			<input name="matchInput">
 				<soap:body use="literal" />
 			</input>
-			<output name="processOutput">
+			<output name="matchOutput">
 				<soap:body use="literal" />
 			</output>
-			<fault name="processException">
-				<soap:fault name="processException" use="literal" />
+			<fault name="matchException">
+				<soap:fault name="matchException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="find">
+			<soap:operation soapAction="find" />
+			<input name="findInput">
+				<soap:body use="literal" />
+			</input>
+			<output name="findOutput">
+				<soap:body use="literal" />
+			</output>
+			<fault name="findException">
+				<soap:fault name="findException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="retrieve">
+			<soap:operation soapAction="retrieve" />
+			<input name="retrieveInput">
+				<soap:body use="literal" />
+			</input>
+			<output name="retrieveOutput">
+				<soap:body use="literal" />
+			</output>
+			<fault name="retrieveException">
+				<soap:fault name="retrieveException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="trim">
+			<soap:operation soapAction="trim" />
+			<input name="trimInput">
+				<soap:body use="literal" />
+			</input>
+			<output name="trimOutput">
+				<soap:body use="literal" />
+			</output>
+			<fault name="trimException">
+				<soap:fault name="trimException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="store">
+			<soap:operation soapAction="store" />
+			<input name="storeInput">
+				<soap:body use="literal" />
+			</input>
+			<output name="storeOutput">
+				<soap:body use="literal" />
+			</output>
+			<fault name="storeException">
+				<soap:fault name="storeException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="load">
+			<soap:operation soapAction="load" />
+			<input name="loadInput">
+				<soap:body use="literal" />
+			</input>
+			<output name="loadOutput">
+				<soap:body use="literal" />
+			</output>
+			<fault name="loadException">
+				<soap:fault name="loadException" use="literal" />
 			</fault>
 		</operation>
 		<operation name="addResource">

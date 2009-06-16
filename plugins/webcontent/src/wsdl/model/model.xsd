@@ -106,7 +106,8 @@
 		<xs:complexContent>
 			<xs:extension base="tns:resource">
 				<xs:sequence>
-					<xs:element name="data" type="xs:anyType"
+					<!--<xs:element name="data" type="xs:anyType"-->
+					<xs:element name="data" type="xs:string"
 						minOccurs="1" maxOccurs="1">
 						<xs:annotation>
 							<xs:documentation>
