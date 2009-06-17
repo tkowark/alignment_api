@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -59,7 +59,7 @@ public class BasicRelation implements Relation
     }
 
     /** printable format **/
-    public String getRelation(){
+    public String getRelation() {
 	return relation;
     }
 
@@ -96,7 +96,7 @@ public class BasicRelation implements Relation
     }
 
     /** By default...**/
-    public Relation compose(Relation r) {
+    public Relation compose( Relation r ) {
     	return null;
     }
 
@@ -113,7 +113,6 @@ public class BasicRelation implements Relation
     public void dump( ContentHandler h ){};
 
     /** This is kept for displayig more correctly the result **/
-    //public void write( PrintStream writer ) {
     public void write( PrintWriter writer ) {
 	writer.print(relation);
     }
