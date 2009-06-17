@@ -36,7 +36,7 @@ public interface Relation
     /** Creation **/
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
-    public String relString();
+    public String getRelation();
 
     public Relation inverse();
     public Relation compose( Relation r );
