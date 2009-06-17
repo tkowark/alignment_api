@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,14 +36,15 @@ public interface Relation
     /** Creation **/
     public void accept( AlignmentVisitor visitor ) throws AlignmentException;
 
+    public String relString();
+
     public Relation inverse();
-    public Relation compose(Relation r);
+    public Relation compose( Relation r );
 
     public boolean equals( Relation r );
 
     /** Housekeeping **/
-    public void dump(ContentHandler h);
-    //public void write( PrintStream writer );
+    public void dump( ContentHandler h );
     public void write( PrintWriter writer );
 
 }
