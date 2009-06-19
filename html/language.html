@@ -1,0 +1,327 @@
+<html>
+<head>
+<title>Ontology alignment vocabulary</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+[<a href="format.html">Alignment format</a>]
+[<a href="./">API</a>]
+[<a href="aserv.html">Server</a>]
+
+<h1 class="titre">Expressive alignment language</h1>
+
+<p>This page presents the expressive ontology alignment vocabulary. This vocabulary allows the representation of correspondences between the entities of different ontologies. Unlike other formats, the alignment vocabulary allows to represent complex correspondences allowing to precisely describe the relation between the entities. The alignment vocabulary extends the <a href="format.html">alignment format</a>.</p>
+
+<dl>
+ <dt><a href="#sec:purpose">Purpose</a></dt>
+ <dt><a href="#sec:features">Features</a></dt>
+ <dt><a href="#sec:vocabulary">Vocabulary</a></dt>
+  <!--<dl>
+   <dd><a href="#ssec:classes">Classes</a></dd>
+   <dd><a href="#ssec:properties">Properties</a></dd>
+   <dd><a href="#ssec:relations">Relations</a></dd>
+   <dd><a href="#ssec:instances">Instances</a></dd>
+  </dl>-->
+ </dt>
+ <dt><a href="#sec:examples">Examples</a></dt>
+</dl>
+<h2 id="sec:purpose">Purpose</h2>
+<p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="format.html">alignment format</a> in order to enable the representation of <b>complex correspondences</b>.</p>
+
+<p>This format can be used for cases where expressing equivalence or subsumption between terms is not sufficient, when more precise relations need to be expressed. While term equivalence or subsumption might be enough for exchanging documents, more precise relations are needed to exchange and integrate data.</p>    
+
+<p>This vocabulary was originally designed with the goal of representing patterns of correspondence between ontologies. It was since then both simplified and extended to obtain a minimal vocabulary on top of the alignment format, able to express all possible kinds of ontology alignments.</p>
+
+<h2 id="sec:features">Features</h2>
+The alignment vocabulary has the following features:
+<ul>
+ <li><b>Restrictions</b> can be expressed on entities in order to narrow their scope. Narrowing the scope of an entity makes possible to better align this entity with the one corresponding in the other ontology.</li>
+ <li><b>Transformations</b> of property values can be specified. Property values using different encoding or units can be aligned using transformations.</li>
+ <li><b>Properties composition</b> can be expressed to target values through a path of properties.</li>
+</ul>
+
+<h2 id="sec:vocabulary">Vocabulary</h2>
+
+In the alignment format, an alignment is a set of cells, each cell being a correspondence between two entities. The alignment vocabulary extend this scheme by allowing cells to contain compound entity descriptions. Each entity can be typed according to one of the following category: Class, Instance, Relation, Property. A relation corresponds to an object property in OWL, a property to a datatype property. Each entity can then be restricted, and transformation can be specified on propery values. 
+
+The diagram below shows the vocabulary classes. 
+
+<img src="alignment-vocabulary-classes.png" border="0" alt="">
+
+<p>While <i>Alignment</i> and <i>Cell</i> are described by the alignment format, we will focus here on the remaining classes.</p>
+
+<h3 id="ssec:headers">Headers</h3>
+<h4 id="ssec:namespaces">Namespaces</h4>
+<p>The alignment vocabulary namespace for the vocabulary is the following: <i>align:</i>&lt;http://purl.org/net/oa><br />
+Comparators are taken from the W3C XPath functions recommendation: <i>function:</i> &lt;http://www.w3.org/2005/xpath-functions></p>
+
+<h4 id="ssec:alignment">Alignment</h4>
+<p>As specified by the alignment format, an alignment contains a set of correspondences (cells). Each cell can be linked to an alignment using the <i>map</i> property. The alignment moreover specifies the two aligned ontologies, and as exemplified in the code below.</p>
+
+<div class="fragment"><pre>
+&lt;align:Alignment rdf:about="">
+ &lt;align:xml>yes&lt;/align:xml>
+ &lt;dc:creator rdf:resource="http://sw.deri.org/~francois/"/>
+ &lt;dc:date>2006/06/07&lt;/dc:date>
+ &lt;align:method>manual&lt;/align:method>
+ &lt;align:purpose>example&lt;/align:purpose>
+ &lt;align:level>2&lt;/align:level>
+ &lt;align:type>**&lt;/align:type>
+ &lt;align:onto1 rdf:about="http://www.w3.org/TR/2003/CR-owl-guide-20030818/wine#"/>
+ &lt;align:onto2 rdf:about="http://www.scharffe.fr/ontologies/OntologieDuVin"/>
+&lt;/align:Alignment>
+</pre></div>
+
+<p>Details on each property are available on the <a href="format.html">alignment format</a> page.</p>
+
+<h3 id="ssec:entities">Entities</h3>
+<h4 id="ssec:classes">Classes</h4>
+<p>Class entities can be constructed using one of the three operators <i>and, or,
+not</i>.<ul>
+  <li><i>and</i> represents the interesection of the classes in the
+  expression</li>
+  <li><i>or</i> represents the union of the classes in the expression</li>
+
+  <li><i>not</i> represents the negation of a given class.</li>
+</ul>
+A class can be defined using its URI or a restriction. Restrictions are defined by giving an <i>attribute</i> (relation or property), a <i>comparator</i> defining the relation to a <i>value</i>.</p>
+
+<div class="fragment"><pre>
+classexpr ::= &lt;Class {rdf:about="uri"}?\&gt;
+               classconst*            
+              &lt;/Class\&gt;
+              
+classconst ::= &lt;and>
+                classexpr
+                | class-restriction
+               &lt;/and>
+             | &lt;or>
+                classexpr
+                | class-restriction
+               &lt;/or>
+             | &lt;not>classexpr&lt;/not>
+
+class-restriction ::= &lt;Restriction>
+                       &lt;onProperty>attrexpr&lt;/onProperty>
+                       &lt;comparator rdf:about={xsd-comparator} />
+                       &lt;value>value&lt;/value>
+                      &lt;/Restriction>
+</pre></div>
+
+<p>Comparators are taken from the XPath function specification [<a href="http://www.w3.org/TR/xpath-functions">1</a>].</p>
+
+<h4 id="ssec:properties">Properties</h4>
+<p>Properties entities can be constructed using one of the operators <i>and, or,
+not</i>. Using <i>first</i> and <i>next</i>, properties can be composed using a path of relations ending with a data property.
+Property values can be transformed by applying a <i>Transformation</i> function. </p>
+
+<div class="fragment"><pre>
+propexpr ::= &lt;Property {rdf:about="uri"}? >
+              propconst*             
+             &lt;/Property>
+             | transformation
+
+propconst ::= &lt;and>
+               propexpr
+               | property-restriction
+              &lt;/and> 
+              &lt;or>
+               propexpr
+               | property-restriction
+              &lt;/or> 
+              &lt;not>propexpr&lt;/not>
+            | &lt;first>relexpr&lt;/first>
+            | &lt;next>propexpr&lt;/next>
+
+property-restriction ::= &lt;Restriction>
+                          &lt;comparator rdf:about={xsd-comparator} />
+                          &lt;value>value&lt;/value>
+                         &lt;/Restriction>
+                       | &lt;Restriction>&lt;domainRestriction>classexpr&lt;/domainRestriction>&lt;/Restriction>
+                       | &lt;Restriction>&lt;typeRestriction>value&lt;/typeRestriction>&lt;/Restriction>
+
+transformation ::= &lt;Transformation>
+                    xpath-transformation
+                   &lt;/Transformation>
+                   | &lt;Transformation>            
+                      &lt;transformation rdf:resource="uri"/>
+                      &lt;parameters>
+                       &lt;rdf:Seq>
+                      	&lt;rdf:li />*	
+                       &lt;/rdf:Seq>
+                      &lt;/parameters>                  
+                     &lt;/Transformation>
+</pre></div>
+<p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p>
+
+<h4 id="ssec:relations">Relations</h4>
+<p>Relations correspond to object properties in OWL. Relation entities can be constructed using the operators <i>and, or,
+not</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetric</i>. Like properties they can also be composed in a path of relations using <i>first</i> and <i>next</i>. Relations <i>domain</i> and <i>range</i> can be restricted.</p>
+
+<div class="fragment"><pre>
+relexpr ::= &lt;Relation {rdf:about="uri"}? >
+             relconst *
+            &lt;/Relation>
+relconst ::= &lt;and>
+              relexpr
+              | relation-restriction
+             &lt;/and>
+           | &lt;or>
+             relexpr
+             | relation-restriction
+             &lt;/or>
+           | &lt;not>relexpr&lt;/not>
+           | &lt;inverse>relexpr&lt;/inverse>
+           | &lt;symmetric>relexpr&lt;/symmetric>
+           | &lt;transitive>relexpr&lt;/transitive>
+           | &lt;reflexive>relexpr&lt;/reflexive>
+           | &lt;first>relexpr&lt;/first>
+           | &lt;next>relexpr&lt;/next>
+
+relation-restriction ::= &lt;Restriction>&lt;domainRestriction>classexpr&lt;/domainRestriction>&lt;/Restriction>
+                         | &lt;Restriction>&lt;rangeRestriction>classexpr&lt;/rangeRestriction>&lt;/Restriction>
+</pre></div>
+
+<h4 id="ssec:instances">Instances</h4>
+<p>Instances are always single entitie.</p>
+<div class="fragment"><pre>
+instance ::= &lt;Instance rdf:about="uri"/>
+</pre></div>
+
+<h3 id="ssec:variables">Variables</h3>
+<p>Variables are useful to represent alignment patterns. (see <a href="#ssec:ex4">Example 4</a>) A variable can be linked to an identifier string, and can be bounded to an entity.</p>
+<div class="fragment"><pre>
+variable ::= &lt;Variable>
+              &lt;var_id>string&lt;/var_id>
+              &lt;var_binding rdf:resource="uri"/>
+             &lt;/Variable>
+</pre></div>
+
+<h2 id="sec:examples">Examples</h2>
+<p>The following exmples illustrate various kids of usage of the vocabulary.</p>
+<h3 id="ssec:ex1">Class partition</h3>
+<p>This example shows how to express a correspondence between a classes in one ontology corresponding to a set of classes in the other ontology. In order to graps the precise correspondence, the one class is partitioned according to the value of one of its attributes. In this example one ontology has a class LED which has a property color, while the other ontology has three classes RedLED, BlueLED, and GreenLED. The LED class is aligned with the three corresponding classes by specifying a restriction of its scope to the corresponding value of the <i>color</i> attribute.</p>
+
+<!--The following figure illustrates the alignment:</p>
+<img src="class-by-attribute-range-partition-small.png"  border="0" alt="">-->
+<p>The alignment expressed in RDF/N3 is the following:</p>
+
+<div class="detail" id="ex1n3"><pre>
+O1:LED a align:Class;
+O1:hasColor a align:Relation.
+O1:Blue a align:Instance.
+O2:BlueLED a align:Class.
+:cell1 a align:Cell;
+	align:entity1 [
+		align:and [
+			align:onProperty O1:hasColor;
+			align:comparator function:equals;
+			align:value O1:Blue.
+		];
+		align:and O1:LED.
+	align:entity2 O2:BlueLED.
+O1:Red a align:Instance.
+O2:RedLED a align:Class.
+:cell2 a align:Cell;
+	align:entity1  [
+		align:and [
+			align:onProperty O1:hasColor;
+			align:comparator function:equals;
+			align:value O1:Red.
+		];
+		align:and O1:LED.
+	align:entity2 O2:RedLED.
+O1:Green a align:Instance.
+O2:GreenLED a align:Class.
+:cell3 a align:Cell;
+	align:entity1  [
+		align:and [
+			align:onProperty O1:hasColor;
+			align:comparator function:equals;
+			align:value O1:Green.
+		];
+		align:and O1:LED.
+	align:entity2 O2:GreenLED.
+</pre></div>
+
+<p>The corresponding graph:</p>
+
+<!--<img src="graph-partition-pattern-alignment-representation-small.png" border="0" alt="">-->
+<object type="image/svg+xml" data="graph-partition-pattern-alignment-representation-corrected.svg" width="600" height="300">
+</object> 
+
+<h3 id="ssec:ex2">Property value transformation (XPath function)</h3>
+<p>This exemple shows how to use a transformation between property values. Two cases can be considered: static transformations such as unit conversion, and transformations which vary over time such as currency conversions. This example illustrates a static conversion from pounds to kilograms using a XPath function.</p>
+<div class="detail" id="ex2n3"><pre>
+01:hasWeight a align:Property.
+O2:weight a align:Property.
+:cell a align:Cell;
+	align:entity1 O1:hasWeight;
+	align:entity2 [
+		a Transformation;
+		fn:safe-divide [
+			a rdf:Seq;
+			rdf:li O2:weight;
+			rdf:li 2.679229.
+		].
+	].
+</pre></div>
+<p>The corresponding graph:</p>
+<!--<img src="graph-property-value-xpath-transformation-small.png" border="0" alt="RDF graph of a property value transformation using a XPath function">-->
+<object data="graph-property-value-xpath-transformation.svg" type="image/svg+xml" width="500" height="70">
+</object>
+
+<h3 id="ssec:ex3">Property value transformation (other service)</h3>
+<p>This example illustrate the conversion between two currencies. A transformation service is specified.</p>
+
+<!--<img src="property-data-transformation-small.png" border="0" alt="Property value transformation pattern">-->
+<p>The alignment expressed in RDF/N3 is the following:</p>
+<div class="detail" id="ex3n3"><pre>
+O1:price a align:Property.
+O2:hasPrice a align:Property.
+:cell a align:Cell;
+	align:entity1 [
+			align:function &lt;http://www.google.com/finance/converter?>;
+			align:parameters [ rdf:li O1:price;
+			  rdf:li "from=EUR";
+			  rdf:li "to=CNY".
+		   ].
+	];
+	align:entity2 O2:hasPrice.
+</pre></div>
+<p>The corresponding graph:</p>
+<!--<img src="graph-property-value-transformation-small.png" border="0" alt="Property data transformation RDF graph">-->
+<object data="graph-property-value-transformation.svg" type="image/svg+xml" width="600" height="150">
+</object>
+
+<h3 id="ssec:ex4">Class with attribute value restriction</h3>
+<p>This alignment pattern makes use of three variables. Var3 is a property variable representing a property having in its domain the class of the class variable Var1. Morover, the property Var3 has an interger value. This pattern thus captures all correspondences between two classes, the scope of one class being restricted to only those instances having a specific value (not specified by the pattern) for one of its property whith datatype "integer".</p>
+<div class="detail" id="ex4n3"><pre>
+:var1 a align:Variable;
+	a align:Class.
+:var2 a align:Variable;
+	a align:Class;
+:var3 a align:Variable;
+	a align:Property;
+	and [
+		domainRestriction :var1.
+	].
+	and [
+		typeRestriction &lt;http://www.w3.org/2001/XMLSchema#integer>.
+	].
+:Cell1 a align:Cell;
+	align:entity1 [
+		and :var1;
+		and [
+			a Restriction;
+			align:onProperty :var3.
+		].
+	].
+	align:entity2 :var2.
+</pre></div>
+<p>The corresponding graph:</p>
+<object data="graph-class-with-attribute-value-restriction.svg" type="image/svg+xml" width="530" height="120">
+</object>
