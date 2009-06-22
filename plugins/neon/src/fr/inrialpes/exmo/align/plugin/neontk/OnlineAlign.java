@@ -35,11 +35,10 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.StringBuffer;
 
 //mport javax.swing.JOptionPane;
 import javax.swing.ProgressMonitorInputStream;
-//import javax.swing.JComponent;
-//import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
  
@@ -313,6 +312,7 @@ public class OnlineAlign {
 				
 				// Send message
 				answer = sendMessage( message, params );
+				//System.out.println("Answer get All :"+ answer);
 			}
 			catch ( Exception ex ) { ex.printStackTrace(); };
 			
@@ -1244,11 +1244,12 @@ public class OnlineAlign {
 	            BufferedReader in = new BufferedReader(isr);
 	        
 	            String line;
+	            StringBuffer strBuff = new StringBuffer();
 	            while ((line = in.readLine()) != null) {
-	            	answer += line + "\n";
+	            	 strBuff.append( line + "\n");
 	            }
 	            if (in != null) in.close();
-	            
+	            answer = strBuff.toString();
 	        	
 	        } catch  (Exception ex) {
 	        	connected= false; ex.printStackTrace() ; return null;

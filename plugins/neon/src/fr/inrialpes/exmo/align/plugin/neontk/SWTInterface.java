@@ -590,7 +590,7 @@ public class SWTInterface extends JPanel {
 		}
 	});
     
-    localAlignImportButton = new JButton("Export",null);
+    localAlignImportButton = new JButton("Import",null);
 	localAlignImportButton.setEnabled(false);
 	localAlignImportButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
@@ -716,7 +716,7 @@ public class SWTInterface extends JPanel {
 	};
     });
         			
-	alignImportButton = new JButton("Export",null);
+	alignImportButton = new JButton("Import",null);
 	alignImportButton.setEnabled(false);
 	alignImportButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e) {
@@ -763,7 +763,7 @@ public class SWTInterface extends JPanel {
 						File file = new File(rdfPath);
 						
 						AlignmentParser ap = new AlignmentParser(0);
-						ap.setEmbedded(true);
+						ap.setEmbedded( true );
 						align = (URIAlignment)ap.parse(file.toURI().toString());
 						
 						SWTInterface.alignmentTable.put( alignKey , (Alignment)align );
@@ -1201,9 +1201,7 @@ public class SWTInterface extends JPanel {
         			 
         			selectedLocalAlign = localAlignIdList[0];
         			
-        			//System.out.println("offline matching done. ");
-        		    
-        			 
+        			//System.out.println("offline matching done. "); 			 
 				   } //else for ""offline"
 			       } // getsource
 		    

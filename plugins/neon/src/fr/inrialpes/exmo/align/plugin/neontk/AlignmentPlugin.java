@@ -21,7 +21,7 @@
 
 package fr.inrialpes.exmo.align.plugin.neontk;
 
-import org.eclipse.ui.plugin.*;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
