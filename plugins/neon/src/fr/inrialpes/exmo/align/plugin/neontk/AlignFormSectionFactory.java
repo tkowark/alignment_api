@@ -46,6 +46,7 @@ public class AlignFormSectionFactory {
                                      SWT.WRAP );
     section.setText( sectionTitle );    
     section.setDescription( sectionDescription );
+    
     toolkit.createCompositeSeparator( section );
     section.setLayout( AlignFormLayoutFactory.createClearTableWrapLayout( false, 1 ) );
     TableWrapData data = new TableWrapData( TableWrapData.FILL_GRAB );
@@ -67,7 +68,7 @@ public class AlignFormSectionFactory {
 	                                       ExpandableComposite.TWISTIE | 
 	                                       SWT.WRAP );
 	  section.setText(sectionTitle);
-	 
+	   
 	  Composite client = toolkit.createComposite( section );
 	   
 	  section.setClient( client );

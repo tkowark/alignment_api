@@ -47,8 +47,7 @@ public class OnlineDialog extends Dialog {
 	  public OnlineDialog(Shell parent, int style) {
 	    // Let users override the default styles
 	    super(parent, style);
-	    setText("Alignment Server");
-	    setMessage("Please enter server URL:");
+	    setText("Input");
 	  }
  
 	  public String getMessage() {
@@ -100,7 +99,7 @@ public class OnlineDialog extends Dialog {
 
 	    // Display the input box
 	    final Text text = new Text(shell, SWT.BORDER);
-	    text.setText("aserv.inrialpes.fr");
+	    text.setText(input);
 	    data = new GridData(GridData.FILL_HORIZONTAL);
 	    data.horizontalSpan = 2;
 	    text.setLayoutData(data);

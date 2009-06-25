@@ -66,8 +66,8 @@ public class OfflineAlign {
 	  
 	  //export ontologies
       ImportExportControl ieControl = new ImportExportControl();
-      //Integer name1 = new Integer(SWTInterface.alignId++);  
-	  //Integer name2 = new Integer(SWTInterface.alignId++);
+      //Integer name1 = new Integer(AlignView.alignId++);  
+	  //Integer name2 = new Integer(AlignView.alignId++);
 	  File f1 = new File( selectedNeOnOnto1.replace("file:","") );
 	  File f2 = new File( selectedNeOnOnto2.replace("file:","") );
 	  
@@ -81,7 +81,7 @@ public class OfflineAlign {
       AlignmentProcess A1 = null;
       //String htmlString = null;
       //Vector corrList = new Vector();
-      Integer name = new Integer(SWTInterface.getNewAlignId());
+      Integer name = new Integer(AlignView.getNewAlignId());
       
       try {
   	
@@ -99,8 +99,8 @@ public class OfflineAlign {
 	   
 	  	A1.align((Alignment)null,p);
 	  	
-	  	//SWTInterface.alignObjects.clear();
-	  	SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
+	  	//AlignView.alignObjects.clear();
+	  	AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
 	  
 	  	
 	  	//for saving locally
@@ -130,9 +130,9 @@ public class OfflineAlign {
    
    String trimAndExportAlign (Double thres, String id) {	 
 		  
-	      Integer name = new Integer(SWTInterface.getNewAlignId());
+	      Integer name = new Integer(AlignView.getNewAlignId());
 	      
-	      Alignment A1 = SWTInterface.alignmentTable.get( id );
+	      Alignment A1 = AlignView.alignmentTable.get( id );
 	      //BasicAlignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
 	      BasicAlignment clonedA1 = null;
 	      
@@ -155,7 +155,7 @@ public class OfflineAlign {
 		  rdfF.close();
 		  
 		  clonedA1.cut(thres);
-	      SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
+	      AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
 	         
 		  File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl");
 		  if (owlFile.exists()) owlFile.delete();
@@ -176,10 +176,10 @@ public class OfflineAlign {
    
    public String[] getAllAlign() {
 	    
-	   if (SWTInterface.alignmentTable.keys() == null) return null;
+	   if (AlignView.alignmentTable.keys() == null) return null;
 	   Vector<String> v = new Vector<String>();
 	   
-	   for (Enumeration e = SWTInterface.alignmentTable.keys() ; e.hasMoreElements() ;) {
+	   for (Enumeration e = AlignView.alignmentTable.keys() ; e.hasMoreElements() ;) {
 	       v.add((String)e.nextElement()); 
 	   }
 	   
@@ -206,7 +206,7 @@ public class OfflineAlign {
     	   		
     	   		String key = v.get(i).replace(".rdf", "");
     	   		//System.out.println("Path ="+   alignFolder.getAbsolutePath() + File.separator  + v.get(i) );
-    	   		SWTInterface.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + key , 
+    	   		AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + key , 
     	   				parser.parse(alignFolder.getAbsolutePath() + File.separator  + v.get(i)) );
     	   	}
 			   

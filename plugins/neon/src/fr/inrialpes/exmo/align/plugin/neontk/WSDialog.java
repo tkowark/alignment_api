@@ -104,7 +104,9 @@ public class WSDialog extends Dialog {
 	    GridData data = new GridData();
 	    data.horizontalSpan = 6;
 	    label.setLayoutData(data);
-
+	    
+	    Label serverLabel = new Label(shell, SWT.NONE);
+		serverLabel.setText("Server: ");
 	    // Display the input box for server
 	    final Text server = new Text(shell, SWT.BORDER);
 	    server.setText("http://kameleon.ijs.si/ontolight/ontolight.asmx");
@@ -112,6 +114,8 @@ public class WSDialog extends Dialog {
 	    data.horizontalSpan = 6;
 	    server.setLayoutData(data);
 	    
+	    Label methodLabel = new Label(shell, SWT.NONE);
+		methodLabel.setText("Method: ");
 	    // Display the input box for method
 	    final Text wsmethod = new Text(shell, SWT.BORDER);
 	    //text.setText("");
