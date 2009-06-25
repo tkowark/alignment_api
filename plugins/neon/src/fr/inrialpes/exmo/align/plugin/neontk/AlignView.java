@@ -83,7 +83,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
-import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
+//import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormSectionFactory;
@@ -1054,7 +1054,7 @@ public class AlignView extends ViewPart
 		 
 		private HashMap<String,String> refreshOntoList(boolean online) {
 			HashMap<String,String>  vec = new HashMap<String,String>();
-			OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
+			//OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
 			try {
 				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 				if(projects != null) {
@@ -1068,11 +1068,11 @@ public class AlignView extends ViewPart
 								for(int k=0; k < uris.length; k++) {
 									//get only http URL
 									if(uris[k].startsWith("http://"))
-									try {
-										fact.loadOntology(new URI(uris[k]));
+									//try {
+									//	fact.loadOntology(new URI(uris[k]));
 										vec.put(uris[k],projects[i]);
-									} catch (Exception ex) {
-									}
+									//} catch (Exception ex) {
+									//}
 								}
 							} else {
 								for(int k=0; k < uris.length; k++) {
