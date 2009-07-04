@@ -314,7 +314,7 @@ public class AServProtocolManager {
 	String prettys = "";
 	for ( Alignment al : alignments ) {
 	    msg += al.getExtension( Annotations.ALIGNNS, Annotations.ID )+" ";
-	    prettys += al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	    prettys += al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY )+ ":";
 	}
 	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null,prettys);
     }

@@ -40,10 +40,24 @@ public class AlignmentIds extends Success {
     public String HTMLString(){
 	String result = "Alignment Ids: <ul>";
 	String id[] = content.split(" ");
-	String pid[] = pretty.split("???");
+	String pid[] = pretty.split(":");
+ 
 	for ( int i = id.length-1; i >= 0; i-- ){
+		//System.err.println("id["+i+"]"+id[i]);
 	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
-	    if ( pid != null && !pid[i].equals("") ) result += " ("+pid[i]+")";
+	    result += id[i];
+	    String pp = null;
+	    if ( pid != null ) {
+	    	try {
+			pp = pid[i];
+	    	        if (pp != null && !pp.equals("") && !pp.equals("null"))  {		
+				result += " ("+pp+")";
+			}
+			//System.err.println("pid["+i+"]="+pp);
+		} catch(Exception ex) { 
+		}
+	    } 
+		
 	    result += "</a></li>";
 	}
 	return result += "</ul>";

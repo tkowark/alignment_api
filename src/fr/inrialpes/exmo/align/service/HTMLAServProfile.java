@@ -351,6 +351,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "admin" ) ){
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "html" ) ){
+	    //System.err.println( "perf =" + uri.substring(start));
+	    //System.err.println( "onto1 =" +params.getParameter("onto1"));
+	    //System.err.println( "onto2 =" +params.getParameter("onto2"));
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){
  
