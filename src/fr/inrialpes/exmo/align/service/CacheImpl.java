@@ -409,35 +409,22 @@ public class CacheImpl {
     public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
 	// Create the set and compare
 	Set<Alignment> result = new HashSet<Alignment>();
-	String uri2String = uri2.toString();
-	String uri1String = uri1.toString();
-	Set<String> potentials = alignmentTable.keySet();
-	for(  String it : potentials ) {
-		Alignment al = (Alignment)alignmentTable.get( it );
-		//System.err.println("get2="+al.getExtension(SVCNS, OURI2));
-		//System.err.println("get1="+al.getExtension(SVCNS, OURI1));
-		if ( al.getExtension(SVCNS, OURI1).equals( uri1String ) && al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
-			result.add( al );
- 		}
-	}
-	/*
 	Set<Alignment> potentials = ontologyTable.get( uri1 );
 	if ( potentials != null ) {
 	    String uri2String = uri2.toString();
 	    String uri1String = uri1.toString();
-	    for( Iterator it = potentials.iterator(); it.hasNext(); ) {
-		Alignment al = (Alignment)it.next();
+	    for(  Alignment al : potentials ) {
 		// This is not the best because URI are not resolved here...
 		System.out.println("get2="+al.getExtension(SVCNS, OURI2));
 		System.out.println("get1="+al.getExtension(SVCNS, OURI1));
 		System.out.println("uri2String="+uri2String);
 			System.out.println("uri1String="+uri1String);
-		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
-			result.add( al );
+		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) 
+		     && al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
+		    result.add( al );
  		}
 	    }
 	}
-	*/
 	return result;
     }
 
