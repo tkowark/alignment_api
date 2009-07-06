@@ -27,7 +27,7 @@
  xmlns:bibtex	="&bibtex;">
   
   <owl:Ontology rdf:about="">
-    <dc:creator>J&eacute;r&ocirc;me Euzenat</dc:creator>
+    <dc:creator>Jérôme Euzenat</dc:creator>
     <dc:description>Example for </dc:description>
     <dc:date>2009-07-06</dc:date>
     <rdfs:label>Second ontology</rdfs:label>
