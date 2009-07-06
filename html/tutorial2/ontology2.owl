@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE rdf:RDF [
+          <!ENTITY xsd		"http://www.w3.org/2001/XMLSchema#" >
+	  <!ENTITY rdf		"http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+	  <!ENTITY rdfs		"http://www.w3.org/2000/01/rdf-schema#" >
+	  <!ENTITY dc		"http://purl.org/dc/elements/1.1/" > 
+	  <!ENTITY owl		"http://www.w3.org/2002/07/owl#" >
+	  <!ENTITY units	"http://visus.mit.edu/fontomri/0.01/units.owl#" >
+	  <!ENTITY bibtex	"http://purl.org/net/nknouf/ns/bibtex#">
+	  <!ENTITY dcterms 	"http://purl.org/dc/terms/">
+	  <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
+
+<rdf:RDF
+ xmlns="http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#"
+ xml:base="http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#"
+ xmlns:units	="&units;"
+ xmlns:foaf	="http://xmlns.com/foaf/0.1/"
+ xmlns:rdf	="&rdf;"
+ xmlns:xsd	="&xsd;"
+ xmlns:rdfs	="&rdfs;"
+ xmlns:owl	="http://www.w3.org/2002/07/owl#"
+ xmlns:wot	="http://xmlns.com/wot/0.1/"
+ xmlns:dc	="&dc;"
+ xmlns:dcterms	="&dcterms;"
+ xmlns:dctype	="&dctype;"
+ xmlns:bibtex	="&bibtex;">
+  
+  <owl:Ontology rdf:about="">
+    <dc:creator>J&eacute;r&ocirc;me Euzenat</dc:creator>
+    <dc:description>Example for </dc:description>
+    <dc:date>2009-07-06</dc:date>
+    <rdfs:label>Second ontology</rdfs:label>
+    <dc:title>bibtex.owl: an ontology for bibTeX entries</dc:title>
+    <dc:identifier rdf:datatype="&xsd;anyURI">http://visus.mit.edu/bibtex/0.01/bibtex.owl</dc:identifier>
+  </owl:Ontology>
+
+  <owl:Class rdf:ID="myclass">
+    <rdfs:label xml:lang="en">myclass</rdfs:label>
+  </owl:Class>
+
+  <myClass rdf:ID="bbb"/>
+
+</rdf:RDF>
