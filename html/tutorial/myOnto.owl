@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- NE PAS OUBLIER DE MODIFIER DES URIREFS -->
 <!DOCTYPE rdf:RDF [
           <!ENTITY xsd		"http://www.w3.org/2001/XMLSchema#" >
 	  <!ENTITY rdf		"http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
@@ -1167,13 +1166,4 @@ Les adresses seront indiqu̩es dans les descriptions des objets adequats
     <rdfs:comment xml:lang="en">A shorten version of the title.</rdfs:comment>
   </owl:DatatypeProperty> 
   
-<!-- 
-
-A FAIRE:
-
- - ecrire les criteres d'unfification en un pseudo langage formel
- - mettre a jour BibTeX2RDF **rapidement**
-
--->
-
 </rdf:RDF>
