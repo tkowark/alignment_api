@@ -174,7 +174,8 @@
   <lastname>Vandenbussche</lastname>
   <firstname>Pierre-Yves</firstname>
   <gender>Male</gender>
-  <affiliation>SPIM & Mondeca company</affiliation>
+  <affiliation>SPIM</affiliation>
+  <affiliation>Mondeca</affiliation>
   <city>PARIS</city>
   <country>FR</country>
   <year>1</year>
@@ -336,7 +337,8 @@
   <lastname>HAMDI</lastname>
   <firstname>FayÃ§al</firstname>
   <gender>Male</gender>
-  <affiliation>University Paris-sud & INRIA Saclay</affiliation>
+  <affiliation>University Paris-sud</affiliation>
+  <affiliation>INRIA Saclay</affiliation>
   <city>Orsay</city>
   <country>FR</country>
   <year>1</year>
@@ -393,7 +395,8 @@
   <lastname>Milian</lastname>
   <firstname>Krystyna</firstname>
   <gender>Female</gender>
-  <affiliation>Vrije Universiteit & PhilipsResearch</affiliation>
+  <affiliation>Vrije Universiteit</affiliation>
+  <affiliation>Philips Research</affiliation>
   <city>Amsterdam</city>
   <country>NL</country>
   <year>1</year>
