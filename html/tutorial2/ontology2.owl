@@ -44,19 +44,19 @@
   </owl:Class>
 
 <Student>
-  <lastname>Abdul Manaf</lastname>
+  <name>Abdul Manaf</name>
   <firstname>Nor Azlinayati</firstname>
   <gender>Female</gender>
   <affiliation>University of Manchester</affiliation>
   <city>Manchester</city>
   <country>GB</country>
-  <year>1</year>
-  <topic>OWL and SKOS: Exploring the relationship between formal and informal knowledge representation</topic>
-  <supervisor>Dr. Robert Stevens</supervisor>
-  <supervisor>Sean Bechhofer</supervisor>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>OWL and SKOS: Exploring the relationship between formal and informal knowledge representation</topics-of-interest>
+  <phd-supervisor>Dr. Robert Stevens</phd-supervisor>
+  <phd-supervisor>Sean Bechhofer</phd-supervisor>
 </Student>
 
-<Student>
+<!--Student>
   <lastname>Durao</lastname>
   <firstname>Frederico</firstname>
   <gender>Male</gender>
@@ -306,6 +306,6 @@
   <affiliation>UPM</affiliation>
   <city>Boadilla del Monte</city>
   <country>ES</country>
-</Student>
+</Student-->
 
 </rdf:RDF>
