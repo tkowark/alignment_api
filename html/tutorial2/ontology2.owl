@@ -45,267 +45,267 @@
 
 <Student>
   <name>Abdul Manaf</name>
-  <firstname>Nor Azlinayati</firstname>
+  <first-name>Nor Azlinayati</first-name>
   <gender>Female</gender>
-  <affiliation>University of Manchester</affiliation>
-  <city>Manchester</city>
-  <country>GB</country>
+  <institution>University of Manchester</institution>
+  <city-of-study>Manchester</city-of-study>
+  <country-of-study>GB</country-of-study>
   <year-in-phd>1</year-in-phd>
   <topics-of-interest>OWL and SKOS: Exploring the relationship between formal and informal knowledge representation</topics-of-interest>
-  <phd-supervisor>Dr. Robert Stevens</phd-supervisor>
-  <phd-supervisor>Sean Bechhofer</phd-supervisor>
-</Student>
-
-<!--Student>
-  <lastname>Durao</lastname>
-  <firstname>Frederico</firstname>
-  <gender>Male</gender>
-  <affiliation>Aalborg University</affiliation>
-  <city>Aalborg</city>
-  <country>DK</country>
-  <year>1</year>
-  <topic>Social Web Applications, Personalization, Semantic Web</topic>
-  <supervisor>Peter Dolog</supervisor>
+  <phd-advisor>Dr. Robert Stevens</phd-advisor>
+  <phd-advisor>Sean Bechhofer</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>HAMDI</lastname>
-  <firstname>FayÃ§al</firstname>
+  <name>Durao</name>
+  <first-name>Frederico</first-name>
   <gender>Male</gender>
-  <affiliation>University Paris-sud</affiliation>
-  <affiliation>INRIA Saclay</affiliation>
-  <city>Orsay</city>
-  <country>FR</country>
-  <year>1</year>
-  <topic>Ontology Matching and Alignment</topic>
-  <supervisor>Prof. Chantal Reynaud</supervisor>
+  <institution>Aalborg University</institution>
+  <city-of-study>Aalborg</city-of-study>
+  <country-of-study>DK</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Social Web Applications, Personalization, Semantic Web</topics-of-interest>
+  <phd-advisor>Peter Dolog</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Burel</lastname>
-  <firstname>Gregoire</firstname>
+  <name>HAMDI</name>
+  <first-name>FayÃ§al</first-name>
   <gender>Male</gender>
-  <affiliation>University of Sheffield</affiliation>
-  <city>Sheffield</city>
-  <country>GB</country>
-  <year>1</year>
-  <topic>Digital Identities and Contextual Knowledge</topic>
-  <supervisor>Professor Fabio Ciravegna</supervisor>
+  <institution>University Paris-sud</institution>
+  <institution>INRIA Saclay</institution>
+  <city-of-study>Orsay</city-of-study>
+  <country-of-study>FR</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Ontology Matching and Alignment</topics-of-interest>
+  <phd-advisor>Prof. Chantal Reynaud</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Maio</lastname>
-  <firstname>Paulo</firstname>
+  <name>Burel</name>
+  <first-name>Gregoire</first-name>
   <gender>Male</gender>
-  <affiliation>School of Engineering, Polytechnic of Porto</affiliation>
-  <city>Porto</city>
-  <country>PT</country>
-  <year>3</year>
-  <topic>Ontology Alignment</topic>
-  <supervisor>Nuno Silva</supervisor>
+  <institution>University of Sheffield</institution>
+  <city-of-study>Sheffield</city-of-study>
+  <country-of-study>GB</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Digital Identities and Contextual Knowledge</topics-of-interest>
+  <phd-advisor>Professor Fabio Ciravegna</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Wagner</lastname>
-  <firstname>Claudia</firstname>
+  <name>Maio</name>
+  <first-name>Paulo</first-name>
+  <gender>Male</gender>
+  <institution>School of Engineering, Polytechnic of Porto</institution>
+  <city-of-study>Porto</city-of-study>
+  <country-of-study>PT</country-of-study>
+  <year-in-phd>3</year-in-phd>
+  <topics-of-interest>Ontology Alignment</topics-of-interest>
+  <phd-advisor>Nuno Silva</phd-advisor>
+</Student>
+
+<Student>
+  <name>Wagner</name>
+  <first-name>Claudia</first-name>
   <gender>Female</gender>
-  <affiliation>JOANNEUM RESEARCH</affiliation>
-  <city>Graz</city>
-  <country>AT</country>
-  <topic>Social Semantic Web</topic>
+  <institution>JOANNEUM RESEARCH</institution>
+  <city-of-study>Graz</city-of-study>
+  <country-of-study>AT</country-of-study>
+  <topics-of-interest>Social Semantic Web</topics-of-interest>
 </Student>
 
 <Student>
-  <lastname>Priyatna</lastname>
-  <firstname>Freddy</firstname>
+  <name>Priyatna</name>
+  <first-name>Freddy</first-name>
   <gender>Male</gender>
-  <affiliation>UPM</affiliation>
-  <city>Madrid</city>
-  <country>ES</country>
-  <topic>ODEMapster</topic>
-  <supervisor>Asun Gomez-Perez</supervisor>
-  <supervisor>Oscar Corcho</supervisor>
+  <institution>UPM</institution>
+  <city-of-study>Madrid</city-of-study>
+  <country-of-study>ES</country-of-study>
+  <topics-of-interest>ODEMapster</topics-of-interest>
+  <phd-advisor>Asun Gomez-Perez</phd-advisor>
+  <phd-advisor>Oscar Corcho</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Milian</lastname>
-  <firstname>Krystyna</firstname>
+  <name>Milian</name>
+  <first-name>Krystyna</first-name>
   <gender>Female</gender>
-  <affiliation>Vrije Universiteit</affiliation>
-  <affiliation>Philips Research</affiliation>
-  <city>Amsterdam</city>
-  <country>NL</country>
-  <year>1</year>
-  <topic>A combined approach to alignment of patient record data with a clinical context using computerized guidelines and semantic reasoning.</topic>
-  <supervisor>Frank van Harmelen</supervisor>
+  <institution>Vrije Universiteit</institution>
+  <institution>Philips Research</institution>
+  <city-of-study>Amsterdam</city-of-study>
+  <country-of-study>NL</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>A combined approach to alignment of patient record data with a clinical context using computerized guidelines and semantic reasoning.</topics-of-interest>
+  <phd-advisor>Frank van Harmelen</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Laniado</lastname>
-  <firstname>David</firstname>
+  <name>Laniado</name>
+  <first-name>David</first-name>
   <gender>Male</gender>
-  <affiliation>Politecnico di Milano</affiliation>
-  <city>Milano</city>
-  <country>IT</country>
-  <year>1</year>
-  <topic>social construction of semantic models</topic>
-  <supervisor>Marco Colombetti</supervisor>
+  <institution>Politecnico di Milano</institution>
+  <city-of-study>Milano</city-of-study>
+  <country-of-study>IT</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>social construction of semantic models</topics-of-interest>
+  <phd-advisor>Marco Colombetti</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Mirizzi</lastname>
-  <firstname>Roberto</firstname>
+  <name>Mirizzi</name>
+  <first-name>Roberto</first-name>
   <gender>Male</gender>
-  <affiliation>Politecnico di Bari</affiliation>
-  <city>Bari</city>
-  <country>IT</country>
-  <year>1</year>
-  <topic>Semantic Web</topic>
-  <supervisor>Tommaso Di Noia</supervisor>
+  <institution>Politecnico di Bari</institution>
+  <city-of-study>Bari</city-of-study>
+  <country-of-study>IT</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Semantic Web</topics-of-interest>
+  <phd-advisor>Tommaso Di Noia</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>JAABARI</lastname>
-  <firstname>Mohanad</firstname>
+  <name>JAABARI</name>
+  <first-name>Mohanad</first-name>
   <gender>Male</gender>
-  <affiliation>University of Namur</affiliation>
-  <city>Namur</city>
-  <country>BE</country>
-  <year>3</year>
-  <topic>Semantic Web Application: Enhancing Web Usability by Handling the Local Contexts of Web Users</topic>
-  <supervisor>Jean-Luc HAINAUT</supervisor>
-  <supervisor>Philippe THIRAN</supervisor>
+  <institution>University of Namur</institution>
+  <city-of-study>Namur</city-of-study>
+  <country-of-study>BE</country-of-study>
+  <year-in-phd>3</year-in-phd>
+  <topics-of-interest>Semantic Web Application: Enhancing Web Usability by Handling the Local Contexts of Web Users</topics-of-interest>
+  <phd-advisor>Jean-Luc HAINAUT</phd-advisor>
+  <phd-advisor>Philippe THIRAN</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>GrÃ¼n</lastname>
-  <firstname>Christoph</firstname>
+  <name>GrÃ¼n</name>
+  <first-name>Christoph</first-name>
   <gender>Male</gender>
-  <affiliation>Vienna University of Technology</affiliation>
-  <city>Vienna</city>
-  <country>AT</country>
-  <year>3</year>
-  <topic>Context-aware Trip Planning</topic>
-  <supervisor>Prof. Werthner</supervisor>
+  <institution>Vienna University of Technology</institution>
+  <city-of-study>Vienna</city-of-study>
+  <country-of-study>AT</country-of-study>
+  <year-in-phd>3</year-in-phd>
+  <topics-of-interest>Context-aware Trip Planning</topics-of-interest>
+  <phd-advisor>Prof. Werthner</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Adamou</lastname>
-  <firstname>Alessandro</firstname>
+  <name>Adamou</name>
+  <first-name>Alessandro</first-name>
   <gender>Male</gender>
-  <affiliation>ISTC-CNR</affiliation>
-  <city>Rome</city>
-  <country>IT</country>
+  <institution>ISTC-CNR</institution>
+  <city-of-study>Rome</city-of-study>
+  <country-of-study>IT</country-of-study>
 </Student>
 
 <Student>
-  <lastname>Feilmayr</lastname>
-  <firstname>Christina</firstname>
+  <name>Feilmayr</name>
+  <first-name>Christina</first-name>
   <gender>Female</gender>
-  <affiliation>Johannes Kepler University</affiliation>
-  <city>Linz</city>
-  <country>AT</country>
-  <year>1</year>
-  <topic>Ontology-driven Information Extraction</topic>
-  <supervisor>a.Univ.Prof.DI.Dr. Birgit PrÃ¶ll</supervisor>
+  <institution>Johannes Kepler University</institution>
+  <city-of-study>Linz</city-of-study>
+  <country-of-study>AT</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Ontology-driven Information Extraction</topics-of-interest>
+  <phd-advisor>a.Univ.Prof.DI.Dr. Birgit PrÃ¶ll</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Garcia Castro</lastname>
-  <firstname>Leyla Jael</firstname>
+  <name>Garcia Castro</name>
+  <first-name>Leyla Jael</first-name>
   <gender>Female</gender>
-  <affiliation>UniversitÃ¤t der Bundeswehr</affiliation>
-  <city>Munich</city>
-  <country>DE</country>
-  <year>1</year>
-  <topic>Emergent semantics</topic>
-  <supervisor>Pr. Dr. Martin Hepp</supervisor>
+  <institution>UniversitÃ¤t der Bundeswehr</institution>
+  <city-of-study>Munich</city-of-study>
+  <country-of-study>DE</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Emergent semantics</topics-of-interest>
+  <phd-advisor>Pr. Dr. Martin Hepp</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Lim</lastname>
-  <firstname>Michelle Sien Niu</firstname>
+  <name>Lim</name>
+  <first-name>Michelle Sien Niu</first-name>
   <gender>Female</gender>
-  <affiliation>MIMOS BERHAD</affiliation>
-  <city>Kuala Lumpur</city>
-  <country>MY</country>
+  <institution>MIMOS BERHAD</institution>
+  <city-of-study>Kuala Lumpur</city-of-study>
+  <country-of-study>MY</country-of-study>
 </Student>
 
 <Student>
-  <lastname>Cano</lastname>
-  <firstname>Amparo Elizabeth</firstname>
+  <name>Cano</name>
+  <first-name>Amparo Elizabeth</first-name>
   <gender>Female</gender>
-  <affiliation>University of Sheffield</affiliation>
-  <city>Sheffield</city>
-  <country>GB</country>
-  <year>1</year>
-  <supervisor>Prof. Fabio Ciravegna</supervisor>
+  <institution>University of Sheffield</institution>
+  <city-of-study>Sheffield</city-of-study>
+  <country-of-study>GB</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <phd-advisor>Prof. Fabio Ciravegna</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Elahi</lastname>
-  <firstname>Salman</firstname>
+  <name>Elahi</name>
+  <first-name>Salman</first-name>
   <gender>Male</gender>
-  <affiliation>Open University</affiliation>
-  <city>Milton Keynes</city>
-  <country>GB</country>
-  <topic>Personal Information Management</topic>
+  <institution>Open University</institution>
+  <city-of-study>Milton Keynes</city-of-study>
+  <country-of-study>GB</country-of-study>
+  <topics-of-interest>Personal Information Management</topics-of-interest>
 </Student>
 
 <Student>
-  <lastname>Nikolaou</lastname>
-  <firstname>Charalampos</firstname>
+  <name>Nikolaou</name>
+  <first-name>Charalampos</first-name>
   <gender>Male</gender>
-  <affiliation>National Kapodistrian University of Athens</affiliation>
-  <city>Athens</city>
-  <country>GR</country>
-  <year>1</year>
-  <topic>Query evaluation on spatial and temporal RDF databases in Semantic Web</topic>
-  <supervisor>Manolis Koubarakis</supervisor>
+  <institution>National Kapodistrian University of Athens</institution>
+  <city-of-study>Athens</city-of-study>
+  <country-of-study>GR</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Query evaluation on spatial and temporal RDF databases in Semantic Web</topics-of-interest>
+  <phd-advisor>Manolis Koubarakis</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Eisenbarth</lastname>
-  <firstname>Thomas</firstname>
+  <name>Eisenbarth</name>
+  <first-name>Thomas</first-name>
   <gender>Male</gender>
-  <affiliation>University of Augsburg</affiliation>
-  <city>Augsburg</city>
-  <country>DE</country>
-  <year>1</year>
-  <topic>Semantic technologies in business processes and rules</topic>
-  <supervisor>Prof. Dr. Bernhard Bauer</supervisor>
+  <institution>University of Augsburg</institution>
+  <city-of-study>Augsburg</city-of-study>
+  <country-of-study>DE</country-of-study>
+  <year-in-phd>1</year-in-phd>
+  <topics-of-interest>Semantic technologies in business processes and rules</topics-of-interest>
+  <phd-advisor>Prof. Dr. Bernhard Bauer</phd-advisor>
 </Student>
 
 <Student>
-  <lastname>Verslyppe</lastname>
-  <firstname>Bert</firstname>
-  <affiliation>Ghent University</affiliation>
-  <city>Gent</city>
-  <country>BE</country>
+  <name>Verslyppe</name>
+  <first-name>Bert</first-name>
+  <institution>Ghent University</institution>
+  <city-of-study>Gent</city-of-study>
+  <country-of-study>BE</country-of-study>
 </Student>
 
 <Student>
-  <lastname>Ruiz</lastname>
-  <firstname>Carlos</firstname>
-  <affiliation>iSOCO</affiliation>
-  <city>Madrid</city>
-  <country>ES</country>
+  <name>Ruiz</name>
+  <first-name>Carlos</first-name>
+  <institution>iSOCO</institution>
+  <city-of-study>Madrid</city-of-study>
+  <country-of-study>ES</country-of-study>
 </Student>
 
 <Student>
-  <lastname>CÃ³rdoba</lastname>
-  <firstname>Carmen</firstname>
-  <affiliation>iSOCO</affiliation>
-  <city>Madrid</city>
-  <country>ES</country>
+  <name>CÃ³rdoba</name>
+  <first-name>Carmen</first-name>
+  <institution>iSOCO</institution>
+  <city-of-study>Madrid</city-of-study>
+  <country-of-study>ES</country-of-study>
 </Student>
 
 <Student>
-  <lastname>Calbimonte</lastname>
-  <firstname>Jean Paul</firstname>
-  <affiliation>UPM</affiliation>
-  <city>Boadilla del Monte</city>
-  <country>ES</country>
-</Student-->
+  <name>Calbimonte</name>
+  <first-name>Jean Paul</first-name>
+  <institution>UPM</institution>
+  <city-of-study>Boadilla del Monte</city-of-study>
+  <country-of-study>ES</country-of-study>
+</Student>
 
 </rdf:RDF>
