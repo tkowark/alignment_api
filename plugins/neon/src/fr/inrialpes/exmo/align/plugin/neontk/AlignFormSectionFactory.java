@@ -68,7 +68,11 @@ public class AlignFormSectionFactory {
 	                                       ExpandableComposite.TWISTIE | 
 	                                       SWT.WRAP );
 	  section.setText(sectionTitle);
-	   
+	  TableWrapData td = new TableWrapData();
+	  td.grabHorizontal = true;
+	  td.heightHint = 400; //added
+	  section.setLayoutData(td);
+	  
 	  Composite client = toolkit.createComposite( section );
 	   
 	  section.setClient( client );

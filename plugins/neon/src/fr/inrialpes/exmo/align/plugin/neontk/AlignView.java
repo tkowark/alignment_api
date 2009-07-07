@@ -22,11 +22,7 @@ package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.swt.SWT;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Point;
+ 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -37,12 +33,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.events.SelectionEvent;
@@ -83,6 +73,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
+import fr.inrialpes.exmo.align.onto.OntologyFactory;
 //import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
@@ -112,13 +103,14 @@ public class AlignView extends ViewPart
 		private String selectedOnto1, selectedOnto2,  selectedLocalAlign, selectedServerAlign;
 		private String[] ontoList = new String[0];
 		private String[]  methodList = new String[0];
-		public HashMap<String,String> ontoByProj = new HashMap<String,String>(0);
+		private HashMap<String,String> ontoByProj = new HashMap<String,String>(0);
 		
 		private Composite htmlClient = null;
 		private Browser htmlBrowser = null;
 		private FormToolkit formToolkit = null;
 		
 		public static Hashtable<String,Alignment>  alignmentTable = new Hashtable<String,Alignment>();
+		private Hashtable<String,String>  idMap = new Hashtable<String,String>();
 		static String [] forUniqueness = new String[0];
 		static int alignId = 0;
 		
@@ -373,32 +365,90 @@ public class AlignView extends ViewPart
 			
 			
 			String sectionTitle = "View Alignment";
-			//Composite client = AlignFormSectionFactory.createHtmlSection(
-			//		toolkit, parent, sectionTitle);
+			 
 			htmlClient = AlignFormSectionFactory.createHtmlSection(
 					toolkit, parent, sectionTitle);
-			
-			htmlClient.setSize(450, 100);
-			
+ 
 			FillLayout fillLayout = new FillLayout(SWT.VERTICAL);
 			
 			htmlClient.setLayout( fillLayout );
 			
 			htmlClient.setLocation(0, 0);
-			
-			
-		    htmlBrowser = new Browser(htmlClient, SWT.BORDER );
+			htmlBrowser = new Browser(htmlClient, SWT.BORDER );
 		     
 			toolkit.paintBordersFor(htmlClient);
 		}
 		
-		public void viewHTMLAlign(String html, final FormToolkit toolkit) {
+		public void viewHTMLAlign(String alignKey) {
+			//System.out.println(" html with alignKey="+alignKey);
 			htmlBrowser.setText("");
-			toolkit.paintBordersFor(htmlClient);
-			htmlBrowser.setText(html);
-			toolkit.paintBordersFor(htmlClient);
+			formToolkit.paintBordersFor(htmlClient);
+			URIAlignment align = (URIAlignment)AlignView.alignmentTable.get(alignKey);
+			 
+			StringWriter htmlMessage = null;
+			try {
+				htmlMessage = new StringWriter();
+				AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
+				align.render( htmlV );
+			} catch(Exception ex) { ex.printStackTrace(); }
+			
+			String html = htmlMessage.toString();
+			if(html == null || html.equals("")) {
+				htmlBrowser.setText("");
+				//System.out.println(" no html");
+			} else {
+				htmlBrowser.setText( html );
+				//System.out.println(" some html");
+			}
+			formToolkit.paintBordersFor(htmlClient);
 		}
 
+		//fill "alignmentTable"
+		public String fetchAlignFromServer(String id) {
+			   URIAlignment align = null;
+			   String alignKey = null;
+			   
+			   if( idMap.containsKey(id) ) {
+				   alignKey = idMap.get(id);
+				   align = (URIAlignment)AlignView.alignmentTable.get( alignKey );
+			   } else {
+				   onlineAlign.getRDFAlignmentMonoThread( id );
+			   	    
+			   	   FileWriter out = null;
+						
+			   	   String rdfalignStr = onlineAlign.getRDFAlignmentParsed( );// selectedAlign , alignImportButton, alignStoreButton, 
+						                                            //serverAlignTrimButton, allAlignButton, alignFindButton, mapButton );
+				 	
+			   	   alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
+			   	   String rdfPath =  alignKey + ".rdf";
+				
+			   	   try {
+					
+					File rdfFile = new File( rdfPath );
+					out = new FileWriter( rdfFile );
+					out.write( rdfalignStr );
+					out.flush();
+					out.close();
+					
+					File file = new File(rdfPath);
+					
+					AlignmentParser ap = new AlignmentParser(0);
+					ap.setEmbedded( true );
+					align = (URIAlignment)ap.parse(file.toURI().toString());	
+					AlignView.alignmentTable.put( alignKey , (Alignment)align );
+					idMap.put(id, alignKey);
+					localAlignBox.setEnabled(true);
+       			   	localAlignBox.add(alignKey, 0);
+       			   	selectedLocalAlign = alignKey; 	
+       			   	localAlignBox.select(0);
+       			   	localAlignBox.redraw();
+					
+			   	   } catch ( Exception ex ) { ex.printStackTrace();}
+			   }
+			   
+			   return alignKey;
+		}
+		
 		public void handleEvent(Event e) { 
 			
 		}
@@ -480,10 +530,15 @@ public class AlignView extends ViewPart
 			} else if (e.getSource() == serverAlignBox) {			
 					int index = serverAlignBox.getSelectionIndex();
 					selectedServerAlign = serverAlignBox.getItem(index);
+					String alignKey = fetchAlignFromServer(selectedServerAlign);
+					viewHTMLAlign( alignKey );
 					
-			} else if (e.getSource() == localAlignBox) {			
+			} else if (e.getSource() == localAlignBox) {		
+				
 				int index = localAlignBox.getSelectionIndex();
 				selectedLocalAlign = localAlignBox.getItem(index);
+				System.out.println(" local selected="+selectedLocalAlign);
+				viewHTMLAlign(selectedLocalAlign);
 				
 			//processing ontology matching
 			} else if (e.getSource() == matchButton) {
@@ -526,6 +581,8 @@ public class AlignView extends ViewPart
 				   			   storeButton.setEnabled( true );
 				 			   serverAlignBox.select(0);
 				 			   serverAlignBox.redraw(); 
+				 			   String alignKey = fetchAlignFromServer(selectedServerAlign);
+							   viewHTMLAlign(alignKey);
 				   			}
 				   				
 				   		} else {
@@ -547,36 +604,23 @@ public class AlignView extends ViewPart
 							
 							serverAlignBox.select(0);
 							serverAlignBox.redraw();
+							String alignKey = fetchAlignFromServer(selectedServerAlign);
+							viewHTMLAlign(alignKey);
 				   		}
-				   		
-					    //String answer = onAlign.getAlignId( matchMethod, selectedOnto1, selectedOnto2  );
-						//if(answer==null || answer.equals(""))  {
-						//	JOptionPane.showMessageDialog(null, "Alignment is not produced.","Warning",2);
-						//	return;
-						//}
-						//alignIdList = new String[1];
-						//alignIdList[0] = answer;
-						//selectedAlign = alignIdList[0];
-						//alignBox.removeAllItems();
-						//alignBox.addItem(selectedAlign);
-						//onAlign.getRDFAlignment( selectedAlign, alignImportButton, alignStoreButton, 
-						//		                 serverAlignTrimButton, allAlignButton, alignFindButton, mapButton);
-						 		 
-				  }
+ 				  }
 				  else { //offline
 						
 					String resId  = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
 					
 					//localAlignBox.removeAll();
-					
+					localAlignBox.add(resId, 0);
 					localAlignBox.setEnabled( true );
 					localImportButton.setEnabled( true );
 					localTrimButton.setEnabled( true );
-					 
-					localAlignBox.add(resId, 0);
 					selectedLocalAlign = resId;
         			localAlignBox.select(0);
         			localAlignBox.redraw();
+        			viewHTMLAlign(selectedLocalAlign);
 				  } //offline
 			   //processing alignment fetching
 			   }  else if (e.getSource() == storeButton) {
@@ -623,6 +667,8 @@ public class AlignView extends ViewPart
 				   selectedServerAlign = at; 	
        			   serverAlignBox.select(0);
        			   serverAlignBox.redraw();
+       			   String alignKey = fetchAlignFromServer(selectedServerAlign);
+       			   viewHTMLAlign(alignKey);
        	 
 			   } else if (e.getSource() == localTrimButton) {
 				   if(selectedLocalAlign == null) { 
@@ -647,6 +693,7 @@ public class AlignView extends ViewPart
 				   selectedLocalAlign = resId; 	
        			   localAlignBox.select(0);
        			   localAlignBox.redraw();	 
+       			   viewHTMLAlign(selectedLocalAlign);
 				   
 			   } else if (e.getSource() == serverImportButton) {
 				 
@@ -655,81 +702,33 @@ public class AlignView extends ViewPart
 				    	return;
        			   }
 				   
-				   onlineAlign.getRDFAlignmentMonoThread( selectedServerAlign );
-				     
-       			   String inputName = null;
-       			
-       			   FileWriter out = null;
-					 
-					//export to local List
-							
-				   String rdfalignStr = onlineAlign.getRDFAlignmentParsed( );// selectedAlign , alignImportButton, alignStoreButton, 
-							                                            //serverAlignTrimButton, allAlignButton, alignFindButton, mapButton );
-					 	
-				   String alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
-					
-				   localAlignBox.add(alignKey, 0);
-				   selectedLocalAlign = alignKey; 	
-       			   localAlignBox.select(0);
-       			   localAlignBox.redraw();	 
-	        		
-				   String rdfPath =  alignKey + ".rdf";
-					
 				   URIAlignment align = null;
 				   String owlalignStr = null;
-					
+				   String alignKey = fetchAlignFromServer( selectedServerAlign );
+				   align = (URIAlignment)(URIAlignment)AlignView.alignmentTable.get( alignKey );
 				   try {
-						
-						File rdfFile = new File( rdfPath );
-				
-						out = new FileWriter( rdfFile );
-						out.write( rdfalignStr );
-						out.flush();
-						out.close();
-						
-						File file = new File(rdfPath);
-						
-						AlignmentParser ap = new AlignmentParser(0);
-						ap.setEmbedded( true );
-						align = (URIAlignment)ap.parse(file.toURI().toString());
-						
-						AlignView.alignmentTable.put( alignKey , (Alignment)align );
-						
-						StringWriter htmlMessage = new StringWriter();
-						AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
-						 
-						align.render( htmlV );
-						
-						if(htmlMessage.toString()==null || htmlMessage.toString().equals("")) {
-							viewHTMLAlign( "", formToolkit );
-						} else {
-							viewHTMLAlign( htmlMessage.toString(), formToolkit );
-						}
-						//get align from server, then  export it as owl onto
-						StringWriter owlMessage = new StringWriter();
-						AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlMessage )  );
-						ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+					   StringWriter owlMessage = new StringWriter();
+					   AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlMessage )  );
+					   ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
 						//BasicAlignment al =  (BasicAlignment)align;
-						al.render( owlV );
-			
-						owlalignStr = owlMessage.toString();
-						 
-					}
-					catch ( Exception ex ) { ex.printStackTrace();};
-					
-						
-					if(owlalignStr==null)  {
+					   al.render( owlV );
+					   owlalignStr = owlMessage.toString();
+				   }catch(Exception ex) {
+					   ex.printStackTrace();
+				   }
+				   
+       			   if(owlalignStr==null)  {
 						MessageDialog.openError(this.getSite().getShell(), "Error message", "OWL alignment cannot be imported.");
 						return;
-					}
+       			   }
 					
-					try {
+       			   try {
 						 	
 						OnlineDialog localImportDialog = new OnlineDialog( getSite().getShell() );
 						localImportDialog.setInput("AlignmentProject");
 						localImportDialog.setMessage("Enter a project name:");
 						localImportDialog.open();
-						inputName = localImportDialog.getInput(); 
+						String inputName = localImportDialog.getInput(); 
 						   
 						if (inputName==null || inputName.equals("")) {
 							MessageDialog.openError(this.getSite().getShell(), "Error message", "Project name is not valid!"); 
@@ -759,7 +758,7 @@ public class AlignView extends ViewPart
 						File owlFile = new File( owlPath );
 						if (owlFile.exists()) owlFile.delete();
 						
-						out = new FileWriter( owlFile );
+						FileWriter out = new FileWriter( owlFile );
 						out.write( owlalignStr );
 					    out.flush();
 						out.close();
@@ -767,7 +766,7 @@ public class AlignView extends ViewPart
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
 							URI uris[] = new URI[1];
-   	    				uris[0] = new File( owlPath).toURI();
+							uris[0] = new File( owlPath).toURI();
 							String[] importedModules = ieControl.importFileSystem(inputName, uris,  null);
 					
 							//ieControl.addOntologies2Project(importedModules, inputName);
@@ -783,7 +782,6 @@ public class AlignView extends ViewPart
 				   }
 			        
 				   File fn = new File(selectedLocalAlign + ".owl");
-       		 
        		
 				   StringWriter htmlMessage = new StringWriter();
 				   AlignmentVisitor htmlV = new HTMLRendererVisitor(  new PrintWriter ( htmlMessage )  );
@@ -791,7 +789,7 @@ public class AlignView extends ViewPart
 				   try {
 					   AlignView.alignmentTable.get(selectedLocalAlign).render( htmlV );
 				
-					   viewHTMLAlign( htmlMessage.toString(), formToolkit );
+					   viewHTMLAlign(  selectedLocalAlign  );
 		         
 					   String inputName=null;
 					   OnlineDialog localImportDialog = new OnlineDialog( getSite().getShell() );
@@ -1055,6 +1053,7 @@ public class AlignView extends ViewPart
 		private HashMap<String,String> refreshOntoList(boolean online) {
 			HashMap<String,String>  vec = new HashMap<String,String>();
 			//OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
+			OntologyFactory fact =  OntologyFactory.getFactory();
 			try {
 				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 				if(projects != null) {
@@ -1068,11 +1067,11 @@ public class AlignView extends ViewPart
 								for(int k=0; k < uris.length; k++) {
 									//get only http URL
 									if(uris[k].startsWith("http://"))
-									//try {
-									//	fact.loadOntology(new URI(uris[k]));
+									try {
+										fact.loadOntology(new URI(uris[k]));
 										vec.put(uris[k],projects[i]);
-									//} catch (Exception ex) {
-									//}
+									} catch (Exception ex) {
+									}
 								}
 							} else {
 								for(int k=0; k < uris.length; k++) {
