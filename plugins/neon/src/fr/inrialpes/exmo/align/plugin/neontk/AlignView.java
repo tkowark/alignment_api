@@ -81,11 +81,7 @@ import fr.inrialpes.exmo.align.plugin.neontk.AlignFormSectionFactory;
 import fr.inrialpes.exmo.align.plugin.neontk.OnlineAlign;
 import fr.inrialpes.exmo.align.plugin.neontk.WSDialog;
 import fr.inrialpes.exmo.align.plugin.neontk.OnlineDialog;
-//import org.eclipse.swt.awt.SWT_AWT;
-//import java.awt.BorderLayout;
-//import javax.swing.JPanel;
-//import java.awt.Frame;
-//import org.eclipse.albireo.core.SwingControl;
+ 
  
 public class AlignView extends ViewPart 
 	implements SelectionListener, Listener {
@@ -383,7 +379,8 @@ public class AlignView extends ViewPart
 			//System.out.println(" html with alignKey="+alignKey);
 			htmlBrowser.setText("");
 			formToolkit.paintBordersFor(htmlClient);
-			URIAlignment align = (URIAlignment)AlignView.alignmentTable.get(alignKey);
+			//I do not know why it no longer works if URI casting is put here!!!
+			Alignment align = AlignView.alignmentTable.get(alignKey);
 			 
 			StringWriter htmlMessage = null;
 			try {
@@ -537,7 +534,7 @@ public class AlignView extends ViewPart
 				
 				int index = localAlignBox.getSelectionIndex();
 				selectedLocalAlign = localAlignBox.getItem(index);
-				System.out.println(" local selected="+selectedLocalAlign);
+				//System.out.println(" local selected="+selectedLocalAlign);
 				viewHTMLAlign(selectedLocalAlign);
 				
 			//processing ontology matching
@@ -612,7 +609,6 @@ public class AlignView extends ViewPart
 						
 					String resId  = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
 					
-					//localAlignBox.removeAll();
 					localAlignBox.add(resId, 0);
 					localAlignBox.setEnabled( true );
 					localImportButton.setEnabled( true );
@@ -620,6 +616,8 @@ public class AlignView extends ViewPart
 					selectedLocalAlign = resId;
         			localAlignBox.select(0);
         			localAlignBox.redraw();
+        			//if( AlignView.alignmentTable.get( selectedLocalAlign ) !=null) System.out.println("Offline match OK");
+        			//else System.out.println("Offline match Non ");
         			viewHTMLAlign(selectedLocalAlign);
 				  } //offline
 			   //processing alignment fetching
