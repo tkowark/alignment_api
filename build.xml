@@ -52,7 +52,7 @@
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
-    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi1/api.jar owlapi1/impl.jar owlapi1/io.jar owlapi1/rdfparser.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar owlapi1/rdfapi.jar align.jar procalign.jar"/>
+    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi2/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar procalign.jar"/>
 
   </target>
 
@@ -119,22 +119,10 @@
 	<attribute name="Implementation-Title" value="Alignment API implementation"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
-      <fileset dir="classes" includes="org/ivml/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/onto/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <delete file="lib/alignwn.jar"/>
-    <jar jarfile="lib/alignwn.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
-        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
-        <attribute name="Class-Path" value="procalign.jar jwnl/jwnl.jar"/>
-	<attribute name="Implementation-Title" value="Alignment API WordNet support"/>
-	<attribute name="Implementation-Version" value="${version}"/> 
-      </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
@@ -144,7 +132,7 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
-        <attribute name="Class-Path" value="procalign.jar alignwn.jar jade/jade.jar iiop.jar jade/http.jar jdbc/mysql-connector-java-5.0.3-bin.jar jdbc/postgresql-8.3-603.jdbc3.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
+        <attribute name="Class-Path" value="procalign.jar jade/jade.jar iiop.jar jade/http.jar jdbc/mysql-connector-java-5.0.3-bin.jar jdbc/postgresql-8.3-603.jdbc3.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
@@ -172,7 +160,6 @@
     <echo message="Erasing..."/>
     <delete file="lib/align.jar"/>
     <delete file="lib/alignsvc.jar"/>
-    <delete file="lib/alignwn.jar"/>
     <delete file="lib/procalign.jar"/>
   </target>
 
