@@ -11,6 +11,10 @@
 	  <!ENTITY dcterms 	"http://purl.org/dc/terms/">
 	  <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
 
+<!--
+   xmlns="http://xmlns.com/foaf/0.1/#"
+   xml:base="http://xmlns.com/foaf/0.1/#"
+-->
 <rdf:RDF
  xmlns="http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#"
  xml:base="http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#"
@@ -35,13 +39,11 @@
     <dc:identifier rdf:datatype="&xsd;anyURI">http://visus.mit.edu/bibtex/0.01/bibtex.owl</dc:identifier>
   </owl:Ontology>
 
-  <owl:Class rdf:ID="Person">
-    <rdfs:label xml:lang="en">Person</rdfs:label>
+  <owl:Class rdf:ID="Student">
+    <rdfs:label xml:lang="en">Student</rdfs:label>
   </owl:Class>
 
-  <myClass rdf:ID="bbb"/>
-
-<Person>
+<Student>
   <lastname>Abdul Manaf</lastname>
   <firstname>Nor Azlinayati</firstname>
   <gender>Female</gender>
@@ -52,9 +54,9 @@
   <topic>OWL and SKOS: Exploring the relationship between formal and informal knowledge representation</topic>
   <supervisor>Dr. Robert Stevens</supervisor>
   <supervisor>Sean Bechhofer</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Durao</lastname>
   <firstname>Frederico</firstname>
   <gender>Male</gender>
@@ -64,9 +66,9 @@
   <year>1</year>
   <topic>Social Web Applications, Personalization, Semantic Web</topic>
   <supervisor>Peter Dolog</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>HAMDI</lastname>
   <firstname>FayÃ§al</firstname>
   <gender>Male</gender>
@@ -77,9 +79,9 @@
   <year>1</year>
   <topic>Ontology Matching and Alignment</topic>
   <supervisor>Prof. Chantal Reynaud</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Burel</lastname>
   <firstname>Gregoire</firstname>
   <gender>Male</gender>
@@ -89,9 +91,9 @@
   <year>1</year>
   <topic>Digital Identities and Contextual Knowledge</topic>
   <supervisor>Professor Fabio Ciravegna</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Maio</lastname>
   <firstname>Paulo</firstname>
   <gender>Male</gender>
@@ -101,9 +103,9 @@
   <year>3</year>
   <topic>Ontology Alignment</topic>
   <supervisor>Nuno Silva</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Wagner</lastname>
   <firstname>Claudia</firstname>
   <gender>Female</gender>
@@ -111,9 +113,9 @@
   <city>Graz</city>
   <country>AT</country>
   <topic>Social Semantic Web</topic>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Priyatna</lastname>
   <firstname>Freddy</firstname>
   <gender>Male</gender>
@@ -123,9 +125,9 @@
   <topic>ODEMapster</topic>
   <supervisor>Asun Gomez-Perez</supervisor>
   <supervisor>Oscar Corcho</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Milian</lastname>
   <firstname>Krystyna</firstname>
   <gender>Female</gender>
@@ -136,9 +138,9 @@
   <year>1</year>
   <topic>A combined approach to alignment of patient record data with a clinical context using computerized guidelines and semantic reasoning.</topic>
   <supervisor>Frank van Harmelen</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Laniado</lastname>
   <firstname>David</firstname>
   <gender>Male</gender>
@@ -148,9 +150,9 @@
   <year>1</year>
   <topic>social construction of semantic models</topic>
   <supervisor>Marco Colombetti</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Mirizzi</lastname>
   <firstname>Roberto</firstname>
   <gender>Male</gender>
@@ -160,9 +162,9 @@
   <year>1</year>
   <topic>Semantic Web</topic>
   <supervisor>Tommaso Di Noia</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>JAABARI</lastname>
   <firstname>Mohanad</firstname>
   <gender>Male</gender>
@@ -173,9 +175,9 @@
   <topic>Semantic Web Application: Enhancing Web Usability by Handling the Local Contexts of Web Users</topic>
   <supervisor>Jean-Luc HAINAUT</supervisor>
   <supervisor>Philippe THIRAN</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>GrÃ¼n</lastname>
   <firstname>Christoph</firstname>
   <gender>Male</gender>
@@ -185,18 +187,18 @@
   <year>3</year>
   <topic>Context-aware Trip Planning</topic>
   <supervisor>Prof. Werthner</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Adamou</lastname>
   <firstname>Alessandro</firstname>
   <gender>Male</gender>
   <affiliation>ISTC-CNR</affiliation>
   <city>Rome</city>
   <country>IT</country>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Feilmayr</lastname>
   <firstname>Christina</firstname>
   <gender>Female</gender>
@@ -206,9 +208,9 @@
   <year>1</year>
   <topic>Ontology-driven Information Extraction</topic>
   <supervisor>a.Univ.Prof.DI.Dr. Birgit PrÃ¶ll</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Garcia Castro</lastname>
   <firstname>Leyla Jael</firstname>
   <gender>Female</gender>
@@ -218,18 +220,18 @@
   <year>1</year>
   <topic>Emergent semantics</topic>
   <supervisor>Pr. Dr. Martin Hepp</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Lim</lastname>
   <firstname>Michelle Sien Niu</firstname>
   <gender>Female</gender>
   <affiliation>MIMOS BERHAD</affiliation>
   <city>Kuala Lumpur</city>
   <country>MY</country>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Cano</lastname>
   <firstname>Amparo Elizabeth</firstname>
   <gender>Female</gender>
@@ -238,9 +240,9 @@
   <country>GB</country>
   <year>1</year>
   <supervisor>Prof. Fabio Ciravegna</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Elahi</lastname>
   <firstname>Salman</firstname>
   <gender>Male</gender>
@@ -248,9 +250,9 @@
   <city>Milton Keynes</city>
   <country>GB</country>
   <topic>Personal Information Management</topic>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Nikolaou</lastname>
   <firstname>Charalampos</firstname>
   <gender>Male</gender>
@@ -260,9 +262,9 @@
   <year>1</year>
   <topic>Query evaluation on spatial and temporal RDF databases in Semantic Web</topic>
   <supervisor>Manolis Koubarakis</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Eisenbarth</lastname>
   <firstname>Thomas</firstname>
   <gender>Male</gender>
@@ -272,38 +274,38 @@
   <year>1</year>
   <topic>Semantic technologies in business processes and rules</topic>
   <supervisor>Prof. Dr. Bernhard Bauer</supervisor>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Verslyppe</lastname>
   <firstname>Bert</firstname>
   <affiliation>Ghent University</affiliation>
   <city>Gent</city>
   <country>BE</country>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Ruiz</lastname>
   <firstname>Carlos</firstname>
   <affiliation>iSOCO</affiliation>
   <city>Madrid</city>
   <country>ES</country>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>CÃ³rdoba</lastname>
   <firstname>Carmen</firstname>
   <affiliation>iSOCO</affiliation>
   <city>Madrid</city>
   <country>ES</country>
-</Person>
+</Student>
 
-<Person>
+<Student>
   <lastname>Calbimonte</lastname>
   <firstname>Jean Paul</firstname>
   <affiliation>UPM</affiliation>
   <city>Boadilla del Monte</city>
   <country>ES</country>
-</Person>
+</Student>
 
 </rdf:RDF>

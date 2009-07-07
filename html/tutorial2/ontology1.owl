@@ -35,11 +35,11 @@
     <dc:identifier rdf:datatype="&xsd;anyURI">http://visus.mit.edu/bibtex/0.01/bibtex.owl</dc:identifier>
   </owl:Ontology>
 
-  <owl:Class rdf:ID="Person">
-    <rdfs:label xml:lang="en">Person</rdfs:label>
+  <owl:Class rdf:ID="Estudiante">
+    <rdfs:label xml:lang="en">Estudiante</rdfs:label>
   </owl:Class>
 
-<Person>
+<Estudiante>
   <lastname>Tran Thi Kim</lastname>
   <firstname>Thanh</firstname>
   <gender>Female</gender>
@@ -49,9 +49,9 @@
   <year>1</year>
   <topic>Semantic Process Mining</topic>
   <supervisor>Prof. Hannes Werthner</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Hermida Carbonell</lastname>
   <firstname>Jesus Maria</firstname>
   <gender>Male</gender>
@@ -62,9 +62,9 @@
   <topic>Semantic Web applications</topic>
   <supervisor>Andres Montoyo</supervisor>
   <supervisor>Jaime Gomez</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Thomas</lastname>
   <firstname>Hendrik</firstname>
   <gender>Male</gender>
@@ -74,9 +74,9 @@
   <year>1</year>
   <topic>Conceptualization and Implementation of a ontology based Meta-Layer for the Management of Ontology Mapping Representations in Order to Support Sharing and Reuse of Ontology Mappings</topic>
   <supervisor>Declan O'Sullivan</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Kaiser</lastname>
   <firstname>Rene</firstname>
   <gender>Male</gender>
@@ -86,9 +86,9 @@
   <year>1</year>
   <topic>Automatic Metadata-Based Video Editing Systems</topic>
   <supervisor>Univ.-Prof. Dr. Klaus Tochtermann</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Daga</lastname>
   <firstname>Enrico</firstname>
   <gender>Male</gender>
@@ -96,9 +96,9 @@
   <city>Rome</city>
   <country>IT</country>
   <topic>Semantic web applications, ontology management systems</topic>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Nitchot</lastname>
   <firstname>Athitaya</firstname>
   <gender>Female</gender>
@@ -109,9 +109,9 @@
   <topic>Adaptive Hypermedia and Competency Model</topic>
   <supervisor>Dr.Gary Wills</supervisor>
   <supervisor>Mr. Lester Gilbert</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Bettencourt</lastname>
   <firstname>Nuno</firstname>
   <gender>Male</gender>
@@ -121,9 +121,9 @@
   <year>1</year>
   <topic>Semantic Web Annotation and Distributed Resource Authorization</topic>
   <supervisor>Nuno Silva</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Novalija</lastname>
   <firstname>Inna</firstname>
   <gender>Female</gender>
@@ -132,9 +132,9 @@
   <country>SI</country>
   <year>3</year>
   <supervisor>Dunja Mladenic</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Zemirline</lastname>
   <firstname>Nadjet</firstname>
   <gender>Female</gender>
@@ -143,9 +143,9 @@
   <country>FR</country>
   <year>1</year>
   <supervisor>Chantal Reynaud</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Fernandez-Barrera</lastname>
   <firstname>Meritxell</firstname>
   <gender>Female</gender>
@@ -155,9 +155,9 @@
   <year>3</year>
   <topic>Legal ontologies and legal theory</topic>
   <supervisor>Giovanni Sartor</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Florczyk</lastname>
   <firstname>Aneta</firstname>
   <gender>Female</gender>
@@ -168,9 +168,9 @@
   <topic>Semantic Web</topic>
   <supervisor>Muro Medrano</supervisor>
   <supervisor>Pedro Rafael</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Vandenbussche</lastname>
   <firstname>Pierre-Yves</firstname>
   <gender>Male</gender>
@@ -181,9 +181,9 @@
   <year>1</year>
   <topic>The design and the implementation of an Information resources meta-model and its services : application to the medical field</topic>
   <supervisor>Jean Charlet</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Albakour</lastname>
   <firstname>MDyaa</firstname>
   <gender>Male</gender>
@@ -193,18 +193,18 @@
   <year>1</year>
   <supervisor>Udo Kruschwitz</supervisor>
   <supervisor>Simon Lucas</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Wrigley</lastname>
   <firstname>Stuart</firstname>
   <gender>Male</gender>
   <affiliation>University of Sheffield</affiliation>
   <city>Sheffield</city>
   <country>GB</country>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Lima</lastname>
   <firstname>Tarcisio</firstname>
   <gender>Male</gender>
@@ -214,9 +214,9 @@
   <year>1</year>
   <topic>Semantic Integration of Information</topic>
   <supervisor>Prof. Dr. Rubens Nascimento Melo</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>sellami</lastname>
   <firstname>mohamed</firstname>
   <gender>Male</gender>
@@ -226,9 +226,9 @@
   <year>1</year>
   <topic>semantic Web services discovery</topic>
   <supervisor>Samir Tata</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Ronzano</lastname>
   <firstname>Francesco</firstname>
   <gender>Male</gender>
@@ -238,9 +238,9 @@
   <year>1</year>
   <topic>Collaborative building of knowledge resources for the Semantic Web</topic>
   <supervisor>Dott. Andrea Marchetti</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Zentek</lastname>
   <firstname>Tom</firstname>
   <gender>Male</gender>
@@ -250,9 +250,9 @@
   <year>1</year>
   <topic>health informatics</topic>
   <supervisor>Prof. Rudi Studer</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>StÃ¼hmer</lastname>
   <firstname>Roland</firstname>
   <gender>Male</gender>
@@ -262,9 +262,9 @@
   <year>1</year>
   <topic>Complex Event Processing</topic>
   <supervisor>Prof. Rudi Studer</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Cobden</lastname>
   <firstname>Marcus</firstname>
   <gender>Male</gender>
@@ -274,9 +274,9 @@
   <year>1</year>
   <topic>Trust and the Semantic Web</topic>
   <supervisor>Dr Nicholas Gibbins</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Peroni</lastname>
   <firstname>Silvio</firstname>
   <gender>Male</gender>
@@ -286,25 +286,25 @@
   <year>1</year>
   <topic>Markup Languages and Semantic Web</topic>
   <supervisor>Paolo Ciancarini</supervisor>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Ruiz</lastname>
   <firstname>Manuela</firstname>
   <gender>Female</gender>
   <affiliation>University of MÃ¡laga</affiliation>
   <city>Malaga</city>
   <country>ES</country>
-</Person>
+</Estudiante>
 
-<Person>
+<Estudiante>
   <lastname>Stankovic</lastname>
   <firstname>Milan</firstname>
   <gender>Male</gender>
   <affiliation>University Paris-Sud XI</affiliation>
   <city>Orsay</city>
   <country>FR</country>
-</Person>
+</Estudiante>
 
 
 
