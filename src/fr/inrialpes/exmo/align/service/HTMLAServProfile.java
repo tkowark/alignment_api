@@ -558,7 +558,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} else if ( perf.equals("prminv") ) {
-	    msg ="<h1>Inverse alignment</h1><form action=\"inv\">";
+	    msg ="<h1>Invert alignment</h1><form action=\"inv\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
 		Alignment al = (Alignment)e.nextElement();
