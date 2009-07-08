@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -35,7 +35,8 @@ import org.semanticweb.owl.align.Evaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
-import fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -97,20 +98,23 @@ public class MyApp {
 
 	    double best = 0.;
 	    Alignment result = null;
-	    for ( int i = 0; i <= 10 ; i = i+2 ){
+	    Parameters p = new BasicParameters();
+	    for ( int i = 0; i <= 10 ; i += 2 ){
 		a1.cut( ((double)i)/10 );
-		evaluator.eval( new BasicParameters() );
-		System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure());
+		// JE: I do not understand why I must create a new one!
+		evaluator = new PRecEvaluator( reference, a1 );
+		evaluator.eval( p );
+		System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure()+" over "+a1.nbCells()+" cells");
 		if ( ((PRecEvaluator)evaluator).getFmeasure() > best ) {
 		    result = (BasicAlignment)((BasicAlignment)a1).clone();
 		    best = ((PRecEvaluator)evaluator).getFmeasure();
 		}
 	    }
-	    // Displays it as SWRL Rules
+	    // Displays it as OWL Rules
 	    PrintWriter writer = new PrintWriter (
 				  new BufferedWriter(
 		                   new OutputStreamWriter( System.out, "UTF-8" )), true);
-	    AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
+	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
 	    a1.render(renderer);
 	    writer.flush();
 	    writer.close();

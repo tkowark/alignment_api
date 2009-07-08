@@ -79,11 +79,10 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refal
 #####################
 # Embedding
 
-javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
+javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
 
 java -cp ../../lib/Procalign.jar:results Skeleton file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 
-javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
+javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
 
-#///////////// STRANGE RESULTS
 java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl

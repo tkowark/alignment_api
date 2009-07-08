@@ -39,19 +39,20 @@ div.logic {
 <dt>This version:</dt>
 <dd>http://alignapi.gforge.inria.fr/tutorial/</dd>
 <dt>Author:</dt>
-<dd><a href="http://exmo.inrialpes.fr/people/euzenat">J&eacute;r&ocirc;me Euzenat</a>, INRIA Grenoble Rh&ocirc;ne-Alpes &amp; LIG
+<dd><a href="http://exmo.inrialpes.fr/people/euzenat">J&eacute;r&ocirc;me Euzenat</a>, INRIA &amp; LIG
 </dd>
 </dl>
 
 <p style="border-bottom: 2px solid #AAAAAA; border-top: 2px solid
 	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">Here is a
-  small tutorial for the alignment <abbr>API</abbr>. Most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely. The complete tutorial is also available as a self-contained <a href="script.sh" title="script for UNIX systems">script.sh</a> or <a href="script.bat" title="script for Windows systems">script.bat</a>
+  small tutorial for the alignment <abbr>API</abbr>. Most of the tutorial is based on command-lines invocations. Of course, it is not the natural way to use this <abbr>API</abbr>: it is made for being embedded in some application programme and we are working towards implementing an alignment server that can help programmes to use the <abbr>API</abbr> remotely. The complete tutorial is also available as a self-contained <a href="script.sh" title="script for UNIX systems">script.sh</a> or <a href="script.bat" title="script for Windows systems">script.bat</a>.
+We make no garantee on the MS-DOS script, it is only here for helping.
 </p>
 <p>A small <a href="server.html">companion tutorial</a> has been designed for the Alignment
   Server. It follows, as much as possible, the reasoning of this
   tutorial but provides input and output through a web browser.</p>
 <small>This tutorial has been designed for the Alignment API version
-  2.4 (it has been updated to work with version 3.2).</small>
+  2.4 (it has been updated to work with version 3.6).</small>
 	
 <h2>Preparation</h2>
 	
@@ -280,7 +281,7 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter -i
 	
 <h2>Output</h2>
 	
-<p>Once a good alignment has been found, only half of the work has been done. In order to actually use our result it is necessary to transform it into some processable format. For instance, if one wants to merge two OWL ontologies, the alignment can be changed into as set of <acronym>OWL</acronym> "bridging" axioms. This is achieved by "rendering" the alignment in <acronym>OWL</acronym> (through the <tt>-r</tt> switch):</p>
+<p>Once a good alignment has been found, only half of the work has been done. In order to actually use our result it is necessary to transform it into some processable format. For instance, if one wants to merge two OWL ontologies, the alignment can be changed into set of <acronym>OWL</acronym> "bridging" axioms. This is achieved by "rendering" the alignment in <acronym>OWL</acronym> (through the <tt>-r</tt> switch):</p>
 <div class="fragment">
 $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 </div>
@@ -354,20 +355,21 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 
 <p>The first argument is always the reference alignment, the second one is the alignment to be evaluated. The result is given here:</p>
 <div class="owl"><pre>
-&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
-&lt;rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:map="http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#"&gt;
-  &lt;map:output rdf:about=""&gt;
-    &lt;map:reference rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/refalign.rdf"&gt;
-    &lt;map:input rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/equal.rdf"&gt;
-    &lt;map:precision&gt;1.0&lt;/map:precision&gt;
-    &lt;map:recall&gt;0.22916666666666666&lt;/map:recall&gt;
-    &lt;fallout&gt;0.0&lt;/fallout&gt;
-    &lt;map:fMeasure&gt;0.37288135593220334&lt;/map:fMeasure&gt;
-    &lt;map:oMeasure&gt;0.22916666666666666&lt;/map:oMeasure&gt;
-    &lt;result&gt;0.22916666666666666&lt;/result&gt;
-  &lt;/map:output&gt;
-&lt;/rdf:RDF&gt;
+&lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
+&lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
+  &lt;map:output rdf:about=''>
+    &lt;map:input1 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl"/>
+    &lt;map:input2 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl"/>
+    &lt;map:precision>1.0&lt;/map:precision>
+    &lt;map:recall>0.3541666666666667&lt;/map:recall>
+    &lt;fallout>0.0&lt;/fallout>
+    &lt;map:fMeasure>0.5230769230769231&lt;/map:fMeasure>
+    &lt;map:oMeasure>0.3541666666666667&lt;/map:oMeasure>
+    &lt;time>22&lt;/time>
+    &lt;result>0.3541666666666667&lt;/result>
+  &lt;/map:output>
+&lt;/rdf:RDF>
 </pre></div>
 
 <p>Of course, since that method only match objects with the same name, it is accurate, yielding a high precision. However, it has poor recall.</p>
@@ -387,20 +389,21 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.
 	<input type="button" onclick="hide('qu6')" value="Hide result"/>
 </div>
 <div class="explain" id="qu6"><pre>
-&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
-&lt;rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:map="http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#"&gt;
-  &lt;map:output rdf:about=""&gt;
-    &lt;map:reference rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/refalign.rdf"&gt;
-    &lt;map:input rdf:resource="file://localhost/JAVA/alignapi/html/tutorial/results/levenshtein33.rdf"&gt;
-    &lt;map:precision>0.6811594202898551&lt;/map:precision&gt;
-    &lt;map:recall>0.9791666666666666&lt;/map:recall&gt;
-    &lt;fallout>0.3188405797101449&lt;/fallout&gt;
-    &lt;map:fMeasure>0.8034188034188035&lt;/map:fMeasure&gt;
-    &lt;map:oMeasure>0.5208333333333333&lt;/map:oMeasure&gt;
-    &lt;result>1.4374999999999998&lt;/result&gt;
-  &lt;/map:output&gt;
-&lt;/rdf:RDF&gt;
+&lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
+&lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
+  &lt;map:output rdf:about=''>
+    &lt;map:input1 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl"/>
+    &lt;map:input2 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl"/>
+    &lt;map:precision>0.6153846153846154&lt;/map:precision>
+    &lt;map:recall>1.0&lt;/map:recall>
+    &lt;fallout>0.38461538461538464&lt;/fallout>
+    &lt;map:fMeasure>0.761904761904762&lt;/map:fMeasure>
+    &lt;map:oMeasure>0.375&lt;/map:oMeasure>
+    &lt;time>28&lt;/time>
+    &lt;result>1.625&lt;/result>
+  &lt;/map:output>
+&lt;/rdf:RDF>
 </pre></div>
 <p>It is possible to summarize these results by comparing them to each others. This can be achieved by the <tt>GroupEval</tt> class. This class can output several formats (by default html) and takes all the alignments in the subdirectories of the current directory. Here we only have the <tt>results</tt> directory:</p>
 <div class="fragment">
@@ -451,39 +454,39 @@ $ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r ref
 <td>1.00</td>
 <td>1.00</td>
 <td>1.00</td>
-<td>0.23</td>
-<td>0.37</td>
-<td>0.55</td>
-<td>0.96</td>
-<td>0.70</td>
-<td>0.69</td>
-<td>0.96</td>
-<td>0.80</td>
+<td>0.35</td>
+<td>0.52</td>
 <td>0.53</td>
-<td>1.00</td>
+<td>0.96</td>
 <td>0.69</td>
+<td>0.66</td>
+<td>0.96</td>
+<td>0.78</td>
+<td>0.51</td>
+<td>1.00</td>
 <td>0.68</td>
-<td>0.98</td>
-<td>0.80</td>
+<td>0.62</td>
+<td>1.00</td>
+<td>0.76</td>
 </tr>
 <tr bgcolor="yellow"><td>H-mean</td><td>1.00</td>
 <td>1.00</td>
 <td>1.00</td>
 <td>1.00</td>
-<td>0.23</td>
-<td>0.37</td>
-<td>0.55</td>
-<td>0.96</td>
-<td>0.70</td>
-<td>0.69</td>
-<td>0.96</td>
-<td>0.80</td>
+<td>0.35</td>
+<td>0.52</td>
 <td>0.53</td>
-<td>1.00</td>
+<td>0.96</td>
 <td>0.69</td>
+<td>0.66</td>
+<td>0.96</td>
+<td>0.78</td>
+<td>0.51</td>
+<td>1.00</td>
 <td>0.68</td>
-<td>0.98</td>
-<td>0.80</td>
+<td>0.62</td>
+<td>1.00</td>
+<td>0.76</td>
 </tr>
 </tbody></table>
 </center>
@@ -502,7 +505,7 @@ $ java -jar ../../lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publicatio
 
 <p>A skeleton of program using the Alignment <abbr>API</abbr> is <a href="Skeleton.java">Skeleton.java</a>. It can be compiled by invoking:</p>
 <div class="fragment">
-$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
+$ javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results Skeleton.java
 </div>
 <p>and run by:</p>
 <div class="fragment">
@@ -515,12 +518,12 @@ $ java -cp ../../lib/Procalign.jar:results Skeleton file://$CWD/myOnto.owl file:
   <li>Merge the two results;</li>
   <li>Trim at various thresholds;</li>
   <li>Evaluate them against the reference alignment and choose the one with the best F-Measure;</li>
-  <li>Displays it as <acronym title="Semantic Web Rule Language">SWRL</acronym> Rules.</li>
+  <li>Displays it as <acronym title="The web ontology language OWL">OWL</acronym> Rules.</li>
 </ul>
 
 <p>Of course, you can do it progressively.</p>
 <div class="fragment">
-$ javac -classpath ../../lib/api.jar:../../lib/rdfparser.jar:../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
+$ javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
 $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl
 </div>
 
@@ -531,49 +534,61 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
 </div>
 <div class="explain" id="qu7"><p>The main piece of code in Skeleton.java is replaced by:</p>
 <pre>
-// Run two different alignment methods (e.g., ngram distance and smoa)
-AlignmentProcess a1 = new StringDistAlignment();
-a1.init( onto1, onto2 );
-params.setParameter("stringFunction","smoaDistance");
-a1.align( (Alignment)null, params );
-AlignmentProcess a2 = new StringDistAlignment();
-a2.init( onto1, onto2 );
-params = new BasicParameters();
-params.setParameter("stringFunction","ngramDistance");
-a2.align( (Alignment)null, params );
+  // Run two different alignment methods (e.g., ngram distance and smoa)
+  AlignmentProcess a1 = new StringDistAlignment();
+  params.setParameter("stringFunction","smoaDistance");
+  a1.init ( onto1, onto2 );
+  a1.align( (Alignment)null, params );
+  AlignmentProcess a2 = new StringDistAlignment();
+  a2.init ( onto1, onto2 );
+  params = new BasicParameters();
+  params.setParameter("stringFunction","ngramDistance");
+  a2.align( (Alignment)null, params );
 
-// Merge the two results.
-((BasicAlignment)a1).ingest(a2);
+  // Merge the two results.
+  ((BasicAlignment)a1).ingest(a2);
 
-// Threshold at various thresholds
-// Evaluate them against the references
-// and choose the one with the best F-Measure
-AlignmentParser aparser = new AlignmentParser(0);
-Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
-Evaluator evaluator = new PRecEvaluator( reference, a1 );
+  // Threshold at various thresholds
+  // Evaluate them against the references
+  // and choose the one with the best F-Measure
+  AlignmentParser aparser = new AlignmentParser(0);
+  // Changed by Angel for Windows
+  //Alignment reference = aparser.parse( "file://"+(new File ( "refalign.rdf" ) . getAbsolutePath()) );
+  Alignment reference = aparser.parse( (new File ( "refalign.rdf" ) ) . toURL() . toString());
+  Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
-double best = 0.;
-Alignment result = null;
-for ( int i = 0; i &lt;= 10 ; i = i+2 ){
-	a1.cut( ((double)i)/10 );
-	evaluator.eval( new BasicParameters() );
-	System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure());
-	if ( ((PRecEvaluator)evaluator).getFmeasure() &gt; best ) {
-             result = (BasicAlignment)((BasicAlignment)a1).clone();
-	     best = ((PRecEvaluator)evaluator).getFmeasure();
-	}
-}
-
-// Displays it as SWRL Rules
-PrintWriter writer = new PrintWriter (
-                      new BufferedWriter(
-	               new OutputStreamWriter( System.out, "UTF-8" )), true);
-AlignmentVisitor renderer = new SWRLRendererVisitor(writer);
-result.render(renderer);
-writer.flush();
-writer.close();
+  double best = 0.;
+  Alignment result = null;
+  Parameters p = new BasicParameters();
+  for ( int i = 0; i <= 10 ; i += 2 ){
+    a1.cut( ((double)i)/10 );
+    evaluator = new PRecEvaluator( reference, a1 );
+    evaluator.eval( p );
+    System.err.println("Threshold "+(((double)i)/10)+" : "+((PRecEvaluator)evaluator).getFmeasure()+" over "+a1.nbCells()+" cells");
+    if ( ((PRecEvaluator)evaluator).getFmeasure() > best ) {
+       result = (BasicAlignment)((BasicAlignment)a1).clone();
+       best = ((PRecEvaluator)evaluator).getFmeasure();
+    }
+  }
+  // Displays it as OWL Rules
+  PrintWriter writer = new PrintWriter (
+		        new BufferedWriter(
+	                 new OutputStreamWriter( System.out, "UTF-8" )), true);
+  AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
+  a1.render(renderer);
+  writer.flush();
+  writer.close();
 </pre></div>
-
+<p>The execution provides an insight about the best threshold:
+<pre>
+Threshold 0.0 : 0.4693877551020408 over 148 cells
+Threshold 0.2 : 0.5227272727272727 over 128 cells
+Threshold 0.4 : 0.5476190476190476 over 120 cells
+Threshold 0.6 : 0.6478873239436619 over 94 cells
+Threshold 0.8 : 0.75 over 72 cells
+Threshold 1.0 : 0.5151515151515151 over 18 cells
+</pre>
+<p>
 <p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
 
 <div class="logic"><p><b>More work:</b> Can you add a switch like the <tt>-i</tt> switch of <tt>Procalign</tt> so that the main class of the application can be passed at commant-line.</p></div>
@@ -585,13 +600,6 @@ writer.close();
 <h2>Further exercises</h2>
 	
 <p>More info: <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a></p>
-	
-<!--
-Planning:
-- Alignment server (incl. DB storage, agents, WSDL service)
-- Extensive composition operators (with comp. tables)
-- Expressive alignment language (with SEKT/Fran篩s Sharffe)
--->
 	
 <h2>Acknowledgements</h2>
 	

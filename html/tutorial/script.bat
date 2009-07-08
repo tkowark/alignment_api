@@ -86,11 +86,11 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refal
 rem #####################
 rem # Embedding
 
-javac -classpath ../../lib/api.jar;../../lib/rdfparser.jar;../../lib/align.jar;../../lib/procalign.jar;results -d results Skeleton.java
+javac -classpath ../../lib/align.jar;../../lib/procalign.jar;results -d results Skeleton.java
 
 java -cp ../../lib/procalign.jar;results Skeleton file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl
 
-javac -classpath ../../lib/api.jar;../../lib/rdfparser.jar;../../lib/align.jar;../../lib/procalign.jar -d results MyApp.java
+javac -classpath ../../lib/align.jar;../../lib/procalign.jar -d results MyApp.java
 
 java -cp ../../lib/procalign.jar;results MyApp file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl
 
