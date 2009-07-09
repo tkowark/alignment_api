@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -77,9 +77,7 @@ public class SymMeanEvaluator extends BasicEvaluator {
 	LoadedOntology onto1 = (LoadedOntology)((ObjectAlignment)align1).getOntologyObject1();
 	LoadedOntology onto2 = (LoadedOntology)((ObjectAlignment)align2).getOntologyObject1();
 	
-	//for ( Cell c1 : align1.getElements() ){
-	for (Enumeration e = align1.getElements() ; e.hasMoreElements() ;) {
-	    Cell c1 = (Cell)e.nextElement();
+	for ( Cell c1 : align1 ){
 	    if ( onto1.isClass( c1.getObject1() ) ) nbClassCell++;
 	    else if ( onto1.isProperty( c1.getObject1() ) ) nbPropCell++;
 	    else nbIndCell++;
@@ -94,9 +92,7 @@ public class SymMeanEvaluator extends BasicEvaluator {
 			} else {
 			    indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}}}
 		
-	//for( Cell c2: align2.getElements() ) {
-	for (Enumeration e = align2.getElements() ; e.hasMoreElements() ;) {
-	    Cell c2 = (Cell)e.nextElement();
+	for( Cell c2: align2 ) {
 	    if ( onto1.isClass( c2.getObject1() ) ) nbClassCell++ ;
 	    else if ( onto1.isProperty( c2.getObject1() ) ) nbPropCell++;
 	    else nbIndCell++;
