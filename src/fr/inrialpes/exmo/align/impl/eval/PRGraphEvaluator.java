@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -57,6 +57,15 @@ import java.net.URI;
  * [R=0%] What should be P when R is 0% (obviously 100%)
  * [R=100%] What should be P when R=100% is unreachable
  * [Interp.] How is a chaotic curve interpolated
+ *
+ * Note: a very interesting measure is the MAP (mean average precision)
+ * which is figuratively the area under the curve and more precisely
+ * the average precision obtained for each correspondence in the reference
+ * alignment.
+ * The problem is that it can only be valid if the compared alignment has 
+ * provided all the correspondences in the reference.
+ * Otherwise, it would basically be:
+ * SUM_c\in correct( P( c ) ) / nbexpected
  */
 
 public class PRGraphEvaluator extends BasicEvaluator {
@@ -65,6 +74,8 @@ public class PRGraphEvaluator extends BasicEvaluator {
 
     // The eleven values of precision and recall
     private double[] precisions = null;
+
+    private double map = 0.0; // For MAP
 
     private Vector<Pair> points;
 
@@ -94,6 +105,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	int nbexpected = align1.nbCells();
 	int nbfound = 0;
 	int nbcorrect = 0;
+	double sumprecisions = 0.; // For MAP
 
 	// unchecked
 	if( params.getParameter("step") != null ){
@@ -109,7 +121,6 @@ public class PRGraphEvaluator extends BasicEvaluator {
 				    throws ClassCastException{
 				    try {
 					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
-					//*/3.0
 				    if ( o1 instanceof Cell && o2 instanceof Cell ) {
 					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
 					    return -1;
@@ -157,6 +168,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 		      nbcorrect++;
 		      double recall = (double)nbcorrect / (double)nbexpected;
 		      double precision = (double)nbcorrect / (double)nbfound;
+		      sumprecisions += precision; // For MAP
 		      // Create a new pair to put in the list
 		      // It records real precision and recall at that point
 		      points.add( new Pair( recall, precision ) );
@@ -194,8 +206,9 @@ public class PRGraphEvaluator extends BasicEvaluator {
       }
       precisions[0] = best; // It should be 1. that's why it is now added in points. [R=0%]
 
-      return 0.0; // useless
-      }
+      map = sumprecisions / nbexpected; // For MAP
+      return map;
+    }
 
     /**
      * This output the result
@@ -211,6 +224,7 @@ public class PRGraphEvaluator extends BasicEvaluator {
 	    writer.print(precisions[i]);
 	    writer.print("</precision>\n    </step>\n");
 	}
+	writer.print("    <MAP>"+map+"</MAP>\n");
 	writer.print("  </output>\n</rdf:RDF>\n");
 	writePlot( writer );
     }
@@ -237,6 +251,10 @@ public class PRGraphEvaluator extends BasicEvaluator {
 
     public double getPrecision( int i ){
 	return precisions[i];
+    }
+
+    public double getMAP(){
+	return map;
     }
 }
 
