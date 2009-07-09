@@ -1,11 +1,9 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      29/02/2008, version 3.3                        #
+#                      09/07/2009, version 4.0a                       #
 #######################################################################
 
-Copyright (C) 2003 The University of Manchester.
-Copyright (C) 2003 The University of Karlsruhe.
-Copyright (C) 2003-2008 INRIA Rhône-Alpes.
+Copyright (C) 2003-2009 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
@@ -85,7 +83,7 @@ Using with JWNL (Wordnet)
 
 $ setenv WNDIR ../WordNet-2.0/dict
 
-$ java -jar lib/alignwn.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
+$ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
 
 LAST RELEASE
 ------------
@@ -116,8 +114,9 @@ examples/	examples of use of the API and server
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
 html/tutorial/  web based tutorial
+html/tutorial2/ advanced programming tutorial
 javadoc/	javadoc API documentation in HTML (not very useful)
-lib/		contains align.jar, alignwn.jar, procalign.jar, alignsvc.jar
+lib/		contains align.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles
 plugins/neon/	Plug-in for the NeOn toolkit
 src/		Java sources of ontoalign
