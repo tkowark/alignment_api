@@ -48,23 +48,23 @@ import java.net.URI;
 
 public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 
-    private double precision = 0.;
+    protected double precision = 0.;
 
-    private double recall = 0.;
+    protected double recall = 0.;
 
-    private double fallout = 0.;
+    protected double fallout = 0.;
 
-    private double overall = 0.;
+    protected double overall = 0.;
 
-    private double fmeasure = 0.;
+    protected double fmeasure = 0.;
 
-    private long time = 0;
+    protected long time = 0;
 
-    private int nbexpected = 0;
+    protected int nbexpected = 0;
 
-    private int nbfound = 0;
+    protected int nbfound = 0;
 
-    private int nbcorrect = 0; // nb of cells correctly identified
+    protected int nbcorrect = 0; // nb of cells correctly identified
 
     /** Creation
      * Initiate Evaluator for precision and recall
@@ -106,14 +106,11 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     }
     public double eval(Parameters params, Object cache) throws AlignmentException {
 	init();
-	nbexpected = 0;
 	nbfound = align2.nbCells();
-	precision = 0.;
-	recall = 0.;
 
-	for ( Enumeration e = align1.getElements(); e.hasMoreElements(); nbexpected++) {
-	    Cell c1 = (Cell)e.nextElement();
+	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
+	    nbexpected++;
 	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
@@ -127,7 +124,6 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 		}
 	    }
 	}
-
 	// What is the definition if:
 	// nbfound is 0 (p, r are 0)
 	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
@@ -135,6 +131,10 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	// precision is 0 [= nbcorrect is 0]
 	precision = (double) nbcorrect / (double) nbfound;
 	recall = (double) nbcorrect / (double) nbexpected;
+	return computeDerived();
+    }
+
+    protected double computeDerived() {
 	fallout = (double) (nbfound - nbcorrect) / (double) nbfound;
 	fmeasure = 2 * precision * recall / (precision + recall);
 	overall = recall * (2 - (1 / precision));
