@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: Jerome.Euzenat@inrialpes.fr 
-Class-Path: procalign.jar jwnl.jar
-Main-Class: fr.inrialpes.exmo.align.util.Procalign
