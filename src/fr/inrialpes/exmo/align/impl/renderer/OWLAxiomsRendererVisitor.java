@@ -47,6 +47,7 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  */
 
 public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
+    boolean heterogeneous = false;
     PrintWriter writer = null;
     Alignment alignment = null;
     LoadedOntology onto1 = null;
@@ -57,7 +58,9 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	this.writer = writer;
     }
 
-    public void init( Parameters p ) {};
+    public void init( Parameters p ) {
+	if ( p.getParameter("heterogeneous") != null ) heterogeneous = true;
+    };
 
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !( align instanceof ObjectAlignment ))  {
@@ -89,12 +92,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	    Object ob1 = c.getObject1();
 	    Object ob2 = c.getObject2();
 
-	    if ( ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
+	    if ( heterogeneous ||
+		 ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
 		 ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
 	  	 ( onto1.isObjectProperty( ob1 ) && onto2.isObjectProperty( ob2 ) ) ||
                  ( onto1.isIndividual( ob1 ) && onto2.isIndividual( ob2 ) ) )
-
-		     c.accept( this );
+		c.accept( this );
                       			 
 	} //end for
 	writer.print("</rdf:RDF>\n");
