@@ -27,13 +27,15 @@ import java.util.TreeSet;
 import java.util.SortedSet;
 import java.util.Comparator;
 
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
+
+import fr.inrialpes.exmo.align.onto.LoadedOntology;
+
+import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
 
 /**
  *

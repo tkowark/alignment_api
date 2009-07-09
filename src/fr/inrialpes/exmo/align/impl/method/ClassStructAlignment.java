@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2008
+ * Copyright (C) INRIA, 2003-2004, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,8 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
+
+import fr.inrialpes.exmo.ontosim.string.StringDistances;
 
 /** This class has been built for ISWC experiments with bibliography.
  * It implements a non iterative (one step) OLA algorithms based on

@@ -25,6 +25,8 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
 
+import fr.inrialpes.exmo.ontosim.string.StringDistances;
+
 /**
  * This class aligns ontology with regard to the editing distance between 
  * class names.
