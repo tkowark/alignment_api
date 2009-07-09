@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,11 +86,11 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    if ( f != null ) methodName = f.trim();
 	    Class sClass = Class.forName("java.lang.String");
 	    Class[] mParams = { sClass, sClass };
-	    dissimilarity = Class.forName("fr.inrialpes.exmo.align.impl.method.StringDistances").getMethod( methodName, mParams );
+	    dissimilarity = Class.forName("fr.inrialpes.exmo.ontosim.string.StringDistances").getMethod( methodName, mParams );
 	} catch (ClassNotFoundException e) {
-	    e.printStackTrace();
+	    e.printStackTrace(); // never happens
 	} catch (NoSuchMethodException e) {
-	    e.printStackTrace();
+	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+(String)params.getParameter("stringFunction"), e );
 	}
 
 	// Initialize matrix
