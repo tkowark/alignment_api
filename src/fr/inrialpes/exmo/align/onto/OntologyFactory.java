@@ -45,7 +45,7 @@ public abstract class OntologyFactory {
 
     protected static Hashtable<String,OntologyFactory> instances = null;
 
-    private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory";
+    private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory";
 
     public static String getDefaultFactory(){
 	return API_NAME;
