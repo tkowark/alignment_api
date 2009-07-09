@@ -402,21 +402,21 @@ public class AlignView extends ViewPart
 
 		//fill "alignmentTable"
 		public String fetchAlignFromServer(String id) {
-			   URIAlignment align = null;
+			   Alignment align = null;
 			   String alignKey = null;
 			   
 			   if( idMap.containsKey(id) ) {
 				   alignKey = idMap.get(id);
-				   align = (URIAlignment)AlignView.alignmentTable.get( alignKey );
+				   align =  AlignView.alignmentTable.get( alignKey );
 			   } else {
-				   onlineAlign.getRDFAlignmentMonoThread( id );
-			   	    
+				     
 			   	   FileWriter out = null;
 						
-			   	   String rdfalignStr = onlineAlign.getRDFAlignmentParsed( );// selectedAlign , alignImportButton, alignStoreButton, 
-						                                            //serverAlignTrimButton, allAlignButton, alignFindButton, mapButton );
+			   	   String rdfalignStr = onlineAlign.getRDFAlignment( id );
 				 	
 			   	   alignKey =  alignFolder.getAbsolutePath() + File.separator + getNewAlignId();
+			   	   
+			   	   //System.out.println("alignKey="+alignKey);
 			   	   String rdfPath =  alignKey + ".rdf";
 				
 			   	   try {
@@ -431,12 +431,18 @@ public class AlignView extends ViewPart
 					
 					AlignmentParser ap = new AlignmentParser(0);
 					ap.setEmbedded( true );
-					align = (URIAlignment)ap.parse(file.toURI().toString());	
+					
+					//System.out.println(" parsing string ... ");
+					//align = ap.parseString( rdfalignStr  );
+					align = ap.parse( file.toURI().toString() );
+ 				
+					//if(align==null) System.out.println("align null" ); else System.out.println("align non null" );
+					
 					AlignView.alignmentTable.put( alignKey , (Alignment)align );
 					idMap.put(id, alignKey);
 					localAlignBox.setEnabled(true);
        			   	localAlignBox.add(alignKey, 0);
-       			   	selectedLocalAlign = alignKey; 	
+       			   	selectedLocalAlign = alignKey;
        			   	localAlignBox.select(0);
        			   	localAlignBox.redraw();
 					

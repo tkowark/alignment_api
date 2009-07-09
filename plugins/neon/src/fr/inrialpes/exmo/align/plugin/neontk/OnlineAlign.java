@@ -525,7 +525,7 @@ public class OnlineAlign {
  			return result[0];
 	    }
 	    
-	    public void getRDFAlignment(String alignId ) {
+	    public String getRDFAlignment(String alignId ) {
 			
 			//retrieve alignment for storing in OWL file
 			 
@@ -538,7 +538,7 @@ public class OnlineAlign {
 	    	params.setParameter( "arg1", alignId);
 	    	params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
 			
-			//String answer = null;
+			String answer = null;
 		     
 			try {
 				// Read parameters
@@ -546,18 +546,26 @@ public class OnlineAlign {
 				
 				// Create the SOAP message
 				String message = createMessage( params );
-				//globalMess = createMessage( globalParam );
-				//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-				//System.out.println("Message :" + message);
-				
-				// Send message
-				//answer = sendMessage( message, params );
-				
-				//the result is put in "globalAnswer"
-				sendMessageMonoThread( message, params );
+				 
+				answer = sendMessageMonoThread( message, params );
  				//if(! connected ) return null; 
 				
 			} catch ( Exception ex ) { ex.printStackTrace();  };
+			
+			Document domMessage = null;
+			try {
+			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+			    
+			} catch  ( IOException ioex ) {
+			    ioex.printStackTrace();
+			} catch  ( SAXException saxex ) {
+			    saxex.printStackTrace();
+			}
+			
+ 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
+ 			
+			return result[0];
+			
  		}
 	    
 	    public void getRDFAlignmentMonoThread(String alignId) {
@@ -907,8 +915,8 @@ public class OnlineAlign {
 	        
 	        		StringBuffer lineBuff =  new StringBuffer();
 	        		String line;
-	        		while ((line = in.readLine()) != null) {
-	        			lineBuff.append(line + "\n");
+	        		while ( (line = in.readLine()) != null) {
+	        			lineBuff.append( line + "\n");
 	        		}
 	        		if (in != null) 
 	        			in.close();

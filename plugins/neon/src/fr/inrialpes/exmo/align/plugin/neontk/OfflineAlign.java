@@ -29,7 +29,7 @@ import java.net.URI;
 import java.util.Vector;
 import java.util.Enumeration;
 
-import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
+//import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -68,14 +68,9 @@ public class OfflineAlign {
       ImportExportControl ieControl = new ImportExportControl();
       //Integer name1 = new Integer(AlignView.alignId++);  
 	  //Integer name2 = new Integer(AlignView.alignId++);
-	  File f1 = new File( selectedNeOnOnto1.replace("file:","") );
-	  File f2 = new File( selectedNeOnOnto2.replace("file:","") );
+	  //File f1 = new File( selectedNeOnOnto1.replace("file:","") );
+	  //File f2 = new File( selectedNeOnOnto2.replace("file:","") );
 	  
-	  //String fname1 =  f1.getName();
-	  //String fname2 =  f2.getName();
-	  
-	  //System.out.println("Filename 1="+ selectedNeOnOnto1);
-	  //System.out.println("Filename 2="+ selectedNeOnOnto2);
 	  
       Parameters p = new BasicParameters();
       AlignmentProcess A1 = null;
@@ -100,6 +95,7 @@ public class OfflineAlign {
 	  	A1.align((Alignment)null,p);
 	  	
 	  	//AlignView.alignObjects.clear();
+	  	//System.out.println(" alignKey From Offline"+ alignFolder.getAbsolutePath() + File.separator + name.toString());
 	  	AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
 	  
 	  	
@@ -207,7 +203,7 @@ public class OfflineAlign {
     	   		String key = v.get(i).replace(".rdf", "");
     	   		//System.out.println("Path ="+   alignFolder.getAbsolutePath() + File.separator  + v.get(i) );
     	   		AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + key , 
-    	   				parser.parse(alignFolder.getAbsolutePath() + File.separator  + v.get(i)) );
+    	   				parser.parse( alignFolder.getAbsolutePath() + File.separator  + v.get(i)) );
     	   	}
 			   
        } catch ( Exception ex ) { ex.printStackTrace();};
