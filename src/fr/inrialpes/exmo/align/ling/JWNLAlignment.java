@@ -23,6 +23,8 @@ package fr.inrialpes.exmo.align.ling;
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
 
+import fr.inrialpes.exmo.ontosim.string.JWNLDistances;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
