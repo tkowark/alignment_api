@@ -35,9 +35,9 @@ java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringD
 
 java -jar ../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\SMOA.html
 
-java -jar ../../lib/alignwn.jar -Dwndict=%WNDIR% -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -o results\jwnl.rdf
+java -jar ../../lib/procalign.jar -Dwndict=%WNDIR% -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -o results\jwnl.rdf
 
-java -jar ../../lib/alignwn.jar -Dwndict=%WNDIR% -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\jwnl.html
+java -jar ../../lib/procalign.jar -Dwndict=%WNDIR% -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\jwnl.html
 
 rem #####################
 rem # Manipulating
