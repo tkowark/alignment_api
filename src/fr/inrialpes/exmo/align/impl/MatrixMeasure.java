@@ -29,10 +29,12 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
+import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import fr.inrialpes.exmo.align.impl.Similarity;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 
 /**
  * Implements the structure needed for recording class similarity
@@ -72,6 +74,39 @@ public abstract class MatrixMeasure implements Similarity {
     public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ){
 	initialize( onto1, onto2 );
 	// Set the values of the initial alignment in the cells
+	try {
+	    ObjectAlignment oalign;
+	    if ( align instanceof URIAlignment ){
+		oalign = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+	    } else if ( align instanceof ObjectAlignment ) {
+		oalign = (ObjectAlignment)align;
+	    } else {
+		throw new AlignmentException(""); 
+	    };
+	    // Beware, I consider that confidence is similarity
+	    for ( Cell c : align ){
+		Object o1 = c.getObject1();
+		if ( onto1.isClass( o1 ) ) {
+		    Integer i1 = classlist1.get( o1 );
+		    Integer i2 = classlist2.get( c.getObject2() );
+		    if ( i1 != null && i2 != null ) {
+			clmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+		    }
+		} else if ( onto1.isProperty( o1 ) ) {
+		    Integer i1 = proplist1.get( o1 );
+		    Integer i2 = proplist2.get( c.getObject2() );
+		    if ( i1 != null && i2 != null ) {
+			prmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+		    }
+		} else {
+		    Integer i1 = indlist1.get( o1 );
+		    Integer i2 = indlist2.get( c.getObject2() );
+		    if ( i1 != null && i2 != null ) {
+			indmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+		    }
+		}
+	    }
+	} catch (Exception ex) {}; // ignore silently
     }
 
     public void initialize( LoadedOntology o1, LoadedOntology o2 ){
