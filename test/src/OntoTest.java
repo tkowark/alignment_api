@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,8 +35,8 @@ import fr.inrialpes.exmo.align.onto.BasicOntology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntology;
-import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
+import fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2Ontology;
+import fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory;
 import fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory;
 import fr.inrialpes.exmo.align.onto.jena25.JENAOntology;
 
@@ -65,14 +65,14 @@ public class OntoTest {
     @Test(groups = { "full", "impl", "noling" })
     public void factoryTest() throws Exception {
 	assertNotNull( OntologyFactory.getDefaultFactory() );
-	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory") );
+	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory") );
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
 	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory") );
 	factory = OntologyFactory.getFactory();
 	assertTrue( factory instanceof JENAOntologyFactory );
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
 	factory = OntologyFactory.getFactory();
-	assert( factory instanceof OWLAPIOntologyFactory );
+	assert( factory instanceof OWLAPI2OntologyFactory );
 	assertEquals( factory, OntologyFactory.getFactory() );
     }
 
@@ -108,7 +108,7 @@ public class OntoTest {
 	assertTrue( ontology instanceof JENAOntology );
 	LoadedOntology onto = (LoadedOntology)ontology;
 	// Doing this now prevent from having problems in case of errors
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
 	assertEquals( onto.nbEntities(), 42 );
 	assertEquals( onto.nbClasses(), 13 );
 	assertEquals( onto.nbProperties(), 29 );
@@ -151,17 +151,17 @@ public class OntoTest {
     @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"loadedTest"})
     public void heavyLoadedTest() throws Exception {
 	// load ontologies
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	ontology = OntologyFactory.getFactory().loadOntology(u);
 	assertNotNull( ontology );
-	assertTrue( ontology instanceof OWLAPIOntology );
+	assertTrue( ontology instanceof OWLAPI2Ontology );
 	HeavyLoadedOntology onto = (HeavyLoadedOntology)ontology;
 	// Special tests
 	assertTrue( onto.getCapabilities( OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ) );
 	// Here insert what is supposed to be done with Jena...
-	assertEquals( onto.nbEntities(), 43 );
-	assertEquals( onto.nbClasses(), 14 );
+	assertEquals( onto.nbEntities(), 44 );
+	assertEquals( onto.nbClasses(), 15 );
 	assertEquals( onto.nbProperties(), 29 );
 	assertEquals( onto.nbDataProperties(), 25 );
 	assertEquals( onto.nbObjectProperties(), 4 );
@@ -229,7 +229,7 @@ public class OntoTest {
     @AfterClass(groups = { "full", "impl", "noling" })
     public void tearDown() throws Exception {
 	//System.err.println("I have been executed");
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
     }
 
 }

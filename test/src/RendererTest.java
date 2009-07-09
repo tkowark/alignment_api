@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,7 +78,7 @@ public class RendererTest {
 	assertEquals( alignment.nbCells(), 0 );
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 43 );
+	assertEquals( alignment.nbCells(), 44 );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -91,7 +91,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14006, "Rendered differently" );
+	assertEquals( stream.toString().length(), 14297, "Rendered differently" );
 	Parameters params = new BasicParameters();
 	params.setParameter( "embedded", "1");
     }
@@ -106,7 +106,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7344, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7478, "Rendered differently" );
 	Parameters params = new BasicParameters();
 	params.setParameter( "embedded", "1");
 	stream = new ByteArrayOutputStream();
@@ -118,7 +118,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7289, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7423, "Rendered differently" );
 	params.setParameter( "pre2008", "1");
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
@@ -129,7 +129,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7165, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7296, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -142,7 +142,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 7535, "Rendered differently" );
+	assertEquals( stream.toString().length(), 7666, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -156,7 +156,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 6435, "Rendered differently" );
+	assertEquals( stream.toString().length(), 6551, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -169,7 +169,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 21304, "Rendered differently" );
+	assertEquals( stream.toString().length(), 21699, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -182,7 +182,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 8040, "Rendered differently" );
+	assertEquals( stream.toString().length(), 8203, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -195,7 +195,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 15100, "Rendered differently" );
+	assertEquals( stream.toString().length(), 15394, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
@@ -208,7 +208,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 18062, "Rendered differently" );
+	assertEquals( stream.toString().length(), 18393, "Rendered differently" );
     }
 
     @Test(groups = { "full", "impl", "noling" })
