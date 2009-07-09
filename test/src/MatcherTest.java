@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,7 @@ import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
-import fr.inrialpes.exmo.align.impl.method.StringDistances;
+import fr.inrialpes.exmo.ontosim.string.StringDistances;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -79,7 +79,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	assertEquals( alignment.nbCells(), 0 );
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 43 );
+	assertEquals( alignment.nbCells(), 44 );
 	FileOutputStream stream = new FileOutputStream("test/output/bibref.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
@@ -104,39 +104,16 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "Noling" })
-    public void tokenizeTest() throws Exception {
-	Vector<String> res = StringDistances.tokenize( "ComputerScience" );
-	// [Computer, Science]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "Science" );
-	res = StringDistances.tokenize( "FullProfessor in ComputerScience" );
-	// [FullProfessor, in, ComputerScience]
-	assertEquals( res.size(), 3 );
-	assertEquals( res.get(1), "in" );
-	res = StringDistances.tokenize( "USofAmerica" );
-	// [USof, America]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "America" );
-	res = StringDistances.tokenize( "SpiritofAmerica" );
-	// [Spiritof, America]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "America" );
-	res = StringDistances.tokenize( "SpiritOfAmerica" );
-	// [Spirit, Of, America]
-	assertEquals( res.size(), 3 );
-	assertEquals( res.get(1), "Of" );
-	res = StringDistances.tokenize( "ProtoDL" );
-	// [Proto, DL]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "DL" );
-	res = StringDistances.tokenize( "And/or" );
-	// [And, or]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "or" );
-	res = StringDistances.tokenize( "title: FullProfessor" );
-	// [title, FullProfessor]
-	assertEquals( res.size(), 2 );
-	assertEquals( res.get(1), "FullProfessor" );
+    /* This tests an error when the distance name is incorrect */
+    @Test(groups = { "full", "impl", "noling" }, expectedExceptions = AlignmentException.class)
+    public void routineTest9() throws Exception {
+	Parameters params = new BasicParameters();
+	params.setParameter( "stringFunction", "teinDistance");
+	params.setParameter( "noinst", "1");
+	alignment = new StringDistAlignment();
+	assertNotNull( alignment, "ObjectAlignment should not be null" );
+	assertEquals( alignment.nbCells(), 0 );
+	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	alignment.align( (Alignment)null, params );
     }
 }
