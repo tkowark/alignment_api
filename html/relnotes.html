@@ -14,10 +14,10 @@
   change your code; minor release numbers bring bug fixes and new
   functionnalities but should not require change in existing code.</p>
 
-<h2>Plan for release 4 (you can comment)</h2>
+<h2>Plan for release 5 (you can comment)</h2>
 
 <p>
-The next major release, release 4, is now in sight due to various
+The next major release, release 5, is now in sight due to various
 constraints and needs that have arousen in the past months. Here are
 the main ruptures that will appear:
 <ul compact="1">
@@ -27,25 +27,16 @@ the main ruptures that will appear:
   will provide the opportunity to define everyone owns relation (and
   generalise the use of relation algebras). (api/impl)</li>
 <li>The <tt>onto</tt> package will be fully externalised from the
-  Alignment API. This means in particular (a) the full disappearance
-  of the the <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
-  deprecated since version 3.3, (b) virtualisation of the Ontology
-  support from OMWGAlignments which are currently based on Jena, (c)
+  Alignment API. This means in particular (a) virtualisation of the Ontology
+  support from OMWGAlignments which are currently based on Jena, (b)
   release of separated subpackages offering OWL API 1.0, OWL API 2.0,
-  Jena 2.5, OLGraph and SKOS. (onto)</li>
-<li>Creation of a different project, OntoSim, for supporting distances
-  and similarities across ontologies. This project will adopt several
-  parts of the current implementation part. It will have no impact on
-  the API.</li>
+  Jena 2.5, and SKOS. (onto)</li>
 </ul>
 Other less radical changes include:
 <ul compact="1">
-<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Implementation of <tt>Relation</tt> and <tt>Confidence</tt> interfaces </li>
 <li>Implement <tt>onto</tt> support in database store (server)</li>
 <!--li>Move <tt>OLgraphs</tt> as HeavyLoadedOntology (onto)</li-->
-<li>Integrate OWMG as part of the Alignment API code (impl)</li>
-<li>Implement database store for OMWG Language (server)</li>
 </ul>
 Currently the development and maintainance of 3 versions continue.
 </p>
@@ -60,6 +51,8 @@ Currently the development and maintainance of 3 versions continue.
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
+<li>Implement semantic precision and recall (impl)</li>
+<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Render alignments as module descriptions (impl)</li>
 <li>Implement extensive evaluation framework (impl)</li>
 <li>Implement debug options with log4j</li>
@@ -67,16 +60,21 @@ Currently the development and maintainance of 3 versions continue.
 <li>Add more tests</li>
 </ul></p>
 
-<h2>Next version (3.7: Rouquine carm&eacute;lite)</h2>
+<h2>Next version (4.0: Rouquine carm&eacute;lite)</h2>
 
 <p>
 This version under development is planned for next September. It is
 likely to include:
 <ul>
-<li>Integration of OMWG alignments</li>
-<li>Migration to OWL API 2 as the default Ontology implementation</li>
-<li>Separation from <a href="http://ontosim.gforge.inria.fr">OntoSim</a></li>
 <li>Integrate some basic reasoning.</li>
+<li>Implementing semantic precision and recall /bug (impl).</li>
+<li>Added a parameter to the OWLAxiomsRenderer so that it could render
+  heterogeneous axioms, like Class sameAs Property (impl).</li>
+<li>Bug in triming, maybe leaves one item to much (impl)</li>
+<li>Integration of OMWG alignments (impl)</li>
+<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
+<li>Implement database store for OMWG Language (server)</li>
+<li>Addition of advanced tutorial (doc)</li>
 </ul>
 </p>
 
@@ -88,9 +86,24 @@ likely to include:
 
 <p>
 <ul compact="1">
+<li>Separated the Alignment API from <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl/ling)</li>
+<li>Reintegrated <tt>JWNLAlignment</tt> in implementation (procalign)</li>
+<li>Migrated to OWL API 2 as the default Ontology implementation (onto)</li>
+<li>Lifted OWL API 2 as <tt>HeavyLoadedOntology</tt> (onto)</li>
+<li>Added computation of MAP (Mean Average Precision)
+  in <tt>PRGraphEvaluator</tt> (impl).</li>
 <li>Added pretty-printing of names in server (server)</li>
+<li>Added initialisation through initial alignment
+  in <tt>MatrixMeasure</tt> (impl)</li>
+<li>Suppressed of the <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
+  (deprecated since version 3.3) (impl)</li>
 <li>Reorganised the lib directory hierarchically (build)</li>
-<li>Corrected a bug when the server is launched without -S (server)</li>
+<li>Corrected a bug when the server is launched without -S
+  (server)</li>
+<li>Corrected a bug in retrieving alignments from ontologies when the
+  two ontologies are the same (server)</li>
+<li>Corrected a bug when <tt>StringDistAignment<tt> fail to raise
+      exception when bad method given (impl)</tt>
 <!--li>Suppressed the capability to export alignments in WSML (impl/omwg)</li-->
 </ul>
 </p>

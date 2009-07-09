@@ -43,6 +43,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 // Jena
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.ResultSet;
@@ -50,7 +51,14 @@ import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 
-// Pellet
+// Pellet and OWL API
+import org.mindswap.pellet.owlapi.Reasoner;
+import org.semanticweb.owl.model.OWLOntologyManager;
+import org.semanticweb.owl.model.OWLOntology;
+import org.semanticweb.owl.model.OWLOntologyCreationException;
+import org.semanticweb.owl.model.OWLClass;
+import org.semanticweb.owl.model.OWLAxiom;
+import org.semanticweb.owl.apibinding.OWLManager;
 
 // IDDL
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
@@ -78,6 +86,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathConstants;
 
 // Java standard classes
+import java.util.Set;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
@@ -101,7 +110,7 @@ import java.net.URISyntaxException;
 /**
  * MyApp
  *
- * Takes two files as arguments and align them.
+ * Reconcile two ontologies in various ways
  */
 
 public class MyApp {
@@ -117,9 +126,12 @@ public class MyApp {
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//	String u1 = "http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl";
-	//	String u2 = "http://alignapi.gforge.inria.fr/tutorial/myOnto.owl";
+	//String u1 = "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl";
+	//String u2 = "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl";
+	String u1 = "file:ontology1.owl";
+	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+	String tempOntoFileName = "/tmp/myresult.owl";
 	Parameters params = new BasicParameters();
 	try {
 	    uri1 = new URI( u1 );
@@ -127,77 +139,89 @@ public class MyApp {
 	} catch (URISyntaxException use) { use.printStackTrace(); }
 
 	// ***** First exercise: matching *****
-	// Try to find an alignment between two ontologies from the server
+	// (Sol1) Try to find an alignment between two ontologies from the server
+	// ask for it
 	String found = getFromURLString( RESTServ+"find?onto1="+u1+"&onto2="+u2, false );
+	// retrieve it
 	// If there exists alignments, ask for the first one
 	NodeList alset = extractFromResult( found, "//findResponse/alignmentList/alid[1]/text()", false );
 
-	// Alternative: match the ontologies from the server
-	if ( alset.getLength() == -1 ) {
+	// (Sol3) Match the ontologies on the server
+	if ( alset.getLength() == 0 ) {
+	    // call for matching
 	    // * tested (must add force = true)
 	    //String match = getFromURLString( RESTServ+"match?onto1="+u1+"&onto2="+u2+"&method="+method+"&pretty="+myId+"&action=Match", true );
 	    // This returns a URI
 	}
 
-	// Ask it
-	String alid = alset.item(0).getNodeValue();
-	found = getFromURLString( RESTServ+"retrieve?method=fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor&id="+alid, false );
-	alset = extractFromResult( found, "//retrieveResponse/result/*[1]",true );
+	if ( alset.getLength() > 0 ) {
+	    // Ask it
+	    String alid = alset.item(0).getNodeValue();
+	    found = getFromURLString( RESTServ+"retrieve?method=fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor&id="+alid, false );
+	    alset = extractFromResult( found, "//retrieveResponse/result/*[1]",true );
 
-	// This code is heavy as hell
-	String xmlString = null;
-	try {
-	    // Set up the output transformer
-	    TransformerFactory transfac = TransformerFactory.newInstance();
-	    Transformer trans = transfac.newTransformer();
-	    trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    trans.setOutputProperty(OutputKeys.INDENT, "yes");
+	    // This code is heavy as hell
+	    String xmlString = null;
+	    try {
+		// Set up the output transformer
+		TransformerFactory transfac = TransformerFactory.newInstance();
+		Transformer trans = transfac.newTransformer();
+		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
-	    // Print the DOM node
-	    StringWriter sw = new StringWriter();
-	    DOMSource source = new DOMSource( alset.item(0) );
-	    trans.transform(source, new StreamResult(sw));
-	    xmlString = sw.toString();
+		// Print the DOM node
+		StringWriter sw = new StringWriter();
+		DOMSource source = new DOMSource( alset.item(0) );
+		trans.transform(source, new StreamResult(sw));
+		xmlString = sw.toString();
+		//System.out.println(xmlString);
+	    } catch (TransformerException e) {
+		e.printStackTrace();
+	    }
 
-	    //System.out.println(xmlString);
-	} catch (TransformerException e) {
-	    e.printStackTrace();
+	    // parse it as an alignment
+	    // (better passing to the SAXHandler)
+	    try {
+		AlignmentParser aparser = new AlignmentParser(0);
+		Alignment alu = aparser.parseString( xmlString );
+		al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
+	    } catch (ParserConfigurationException pce) { 
+		pce.printStackTrace();
+	    } catch (SAXException saxe) { 
+		saxe.printStackTrace(); 
+	    } catch (IOException ioe) { 
+		ioe.printStackTrace();
+	    } catch (AlignmentException ae) { 
+		ae.printStackTrace();
+	    }
 	}
 
-	// Parse it (better passing to the SAXHandler)
-	try {
-	    AlignmentParser aparser = new AlignmentParser(0);
-	    Alignment alu = aparser.parseString( xmlString );
-	    al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
-	} catch (ParserConfigurationException pce) { 
-	    pce.printStackTrace();
-	} catch (SAXException saxe) { 
-	    saxe.printStackTrace(); 
-	} catch (IOException ioe) { 
-	    ioe.printStackTrace();
-	} catch (AlignmentException ae) { 
-	    ae.printStackTrace();
-	}
-
+	// (Sol2) Match the ontologies with a local algorithm
 	if ( al == null ){ // Unfortunatelly no alignment was available
-	    // Match the ontologies with a local algorithm
 	    AlignmentProcess ap = new StringDistAlignment();
 	    try {
 		ap.init( uri1, uri2 );
 		params.setParameter("stringFunction","smoaDistance");
+		params.setParameter("noinst","1");
 		ap.align( (Alignment)null, params );
 		al = ap;
+		// Supplementary:
+		// upload the result on the server
+		// store it
 	    } catch (AlignmentException ae) { ae.printStackTrace(); }
 	}
 
-	// Alternative: find an intermediate ontology between which there is matching + Compose it!
+	// Alternative: find an intermediate ontology between which there are alignments
+	// find (basically a graph traversal operation)
+	// retrieve them
+	// parse them
+	// compose them
 
 	// ***** Second exercise: merging/transforming *****
 
-	// generate a merged ontology between the ontologies (OWLAxioms)
-	// @@@@@@@@@@@@@@@@TODO => Set in a file...
+	// (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
 	PrintWriter writer = null;
-	File merged = new File( "/tmp/myresult.owl" );
+	File merged = new File( tempOntoFileName );
 	try {
 	    writer = new PrintWriter ( new FileWriter( merged, false ), true );
 	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
@@ -215,31 +239,35 @@ public class MyApp {
 	    }
 	}
 
-	// Alternative: import the data from one ontology into the other
+	// (Sol2) import the data from one ontology into the other
 
-	// ***** Third exercise: querying *****
+	// ***** Third exercise: querying/reasoning *****
 
-	// Use SPARQL to answer queries
-	// @@@@@@@@@@@@@@@@TOTEST
+	// (Sol1) Use SPARQL to answer queries (at the data level)
 	InputStream in = null;
 	QueryExecution qe = null;
 	try {
-	    // Open the bloggers RDF graph from the filesystem
-	    in = new FileInputStream( merged );
-	    
-	    // Create an empty in-memory model and populate it from the graph
-	    Model model = ModelFactory.createDefaultModel();
-	    //Model model = ModelFactory.createMemModelMaker().createModel();
-	    model.read(in,null); // null base URI, since model URIs are absolute
+	        in = new FileInputStream( merged );
+		//in = new URL("http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl").openStream();
+		//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
+		Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
+	    model.read(in,"file:///tmp/myresult.owl"); 
 	    in.close();
 	
 	    // Create a new query
+	    // Could also be selected by supervisor ???
 	    String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
-		"SELECT ?url " +
+		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#> " +
+		"SELECT ?fn ?ln ?t ?s " +
+		//"SELECT ?fn ?ln " +
 		"WHERE {" +
-		"      ?contributor foaf:name \"Jon Foobar\" . " +
-		"      ?contributor foaf:weblog ?url . " +
+                "      ?student rdf:type aa:Estudiante . " +
+		"      ?student aa:firstname  ?fn. " +
+		"      ?student aa:lastname  ?ln. " +
+		"OPTIONAL   {   ?student aa:affiliation ?t . } " +
+		"OPTIONAL   {   ?student aa:supervisor ?s . } " +
 		"      }";
 
 	    Query query = QueryFactory.create(queryString);
@@ -260,33 +288,49 @@ public class MyApp {
 	}
 
 	// Alternative: Use Pellet to answer queries
-	// @@@@@@@@@@@@@@@@TODO
-	
+
 	// ***** Fourth exercise: reasoning *****
-	PelletReasoner reasoner = new PelletReasoner();
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-	// should not be a file
-	OWLOntology ontology = manager.loadOntology( merged );
-	OWLAxiom axiom = df.getOWLSubClassAxiom( headache, pain );
+	Reasoner reasoner = new Reasoner( manager );
+
+	// ontology that will be used
+	String file = "http://www.mindswap.org/2004/owl/mindswappers";
+
+	// Load the ontology 
+	try {
+	    OWLOntology ontology = manager.loadOntology( URI.create( "file://"+tempOntoFileName ) );
+	    reasoner.loadOntology( ontology );
+	} catch (OWLOntologyCreationException ooce) { ooce.printStackTrace(); }
+
+	// get the instances of a class
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
+	Set instances  = reasoner.getIndividuals( person, false );
+	System.err.println("There are "+instances.size()+" students "+person.getURI());
+
+	/*
+	OWLClass person2 = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) );   
+	OWLAxiom axiom = manager.getOWLSubClassAxiom( person, person2 );
+	boolean isit = reasoner.isEntailed( axiom );
+	*/
 	/*
 	// test consistency of aligned ontologies
-	IDDLReasoner reasoner = new IDDLReasoner( Semantics.DL );
+	IDDLReasoner reasoner = new IDDLReasoner( Semantics.IDDL );
 	reasoner.addOntology( uri1 );
 	reasoner.addOntology( uri2 );
-	reasoner.addAlignment( align1 );
+	reasoner.addAlignment( al );
 	// What to do if not consistent?
 	if ( reasoner.isConsistent() ) {
 	    Alignment al2 = new URIAlignment();
-	    al2.init( uri1, uri2 );
+	    try {
+		al2.init( uri1, uri2 );
 	    // add the cell
 	    //al2.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
+	    } catch (AlignmentException ae) { ae.printStackTrace(); }
 	    reasoner.isEntailed( al2 );
          } else {
 	System.err.println( "your alignment is inconsistent");
-    }
+	}
 	*/
-	// 
-
     }
 
     public String getFromURLString( String u, boolean print ){
