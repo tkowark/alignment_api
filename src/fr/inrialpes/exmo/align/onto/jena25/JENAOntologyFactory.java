@@ -33,20 +33,21 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.align.onto.OntologyCache;
 
-public class JENAOntologyFactory extends OntologyFactory{
+public class JENAOntologyFactory extends OntologyFactory {
 
     private static URI formalismUri = null;
     private static String formalismId = "OWL1.0";
 
+    private static OntologyCache<JENAOntology> cache = null;
+
     public JENAOntologyFactory() {
+	cache = new OntologyCache<JENAOntology>();
 	try { 
 	    formalismUri = new URI("http://www.w3.org/2002/07/owl#");
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
     }
-
-    // No cache management so far
-    public void clearCache() {};
 
     public JENAOntology newOntology( Object ontology ) throws AlignmentException {
 	if ( ontology instanceof OntModel ) {
@@ -68,6 +69,7 @@ public class JENAOntologyFactory extends OntologyFactory{
 		// Better put in the AlignmentException of loaded
 		throw new AlignmentException( "URI Error ", usex );
 	    }
+	    cache.recordOntology( onto.getURI(), onto );
 	    return onto;
 	} else {
 	    throw new AlignmentException( "Argument is not an OntModel: "+ontology );
@@ -75,10 +77,15 @@ public class JENAOntologyFactory extends OntologyFactory{
     }
 
     public JENAOntology loadOntology( URI uri ) throws AlignmentException {
+	JENAOntology onto = null;
+	onto = cache.getOntologyFromURI( uri );
+	if ( onto != null ) return onto;
+	onto = cache.getOntology( uri );
+	if ( onto != null ) return onto;
 	try {
 	    OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM, null );
 	    m.read(uri.toString());
-	    JENAOntology onto = new JENAOntology();
+	    onto = new JENAOntology();
 	    onto.setFile(uri);
 	    // to be checked : why several ontologies in a model ???
 	    // If no URI can be extracted from ontology, then we use the physical URI
@@ -90,10 +97,16 @@ public class JENAOntologyFactory extends OntologyFactory{
 	    }
 	    //onto.setURI(new URI(m.listOntologies()getOntology(null).getURI()));
 	    onto.setOntology(m);
+	    cache.recordOntology( uri, onto );
 	    return onto;
         } catch (Exception e) {
 	    throw new AlignmentException("Cannot load "+uri, e );
 	}
     }
+
+    @Override
+    public void clearCache() {
+	cache.clear();
+    };
 
 }

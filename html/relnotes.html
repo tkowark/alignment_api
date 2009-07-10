@@ -51,8 +51,6 @@ Currently the development and maintainance of 3 versions continue.
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
-<li>Implement semantic precision and recall (impl)</li>
-<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Render alignments as module descriptions (impl)</li>
 <li>Implement extensive evaluation framework (impl)</li>
 <li>Implement debug options with log4j</li>
@@ -66,11 +64,10 @@ Currently the development and maintainance of 3 versions continue.
 This version under development is planned for next September. It is
 likely to include:
 <ul>
+<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Integrate some basic reasoning.</li>
-<li>Implementing semantic precision and recall /bug (impl).</li>
-<li>Added a parameter to the OWLAxiomsRenderer so that it could render
-  heterogeneous axioms, like Class sameAs Property (impl).</li>
 <li>Bug in triming, maybe leaves one item to much (impl)</li>
+<li>Integration of SKOS API (onto)</li>
 <li>Integration of OMWG alignments (impl)</li>
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Implement database store for OMWG Language (server)</li>
@@ -90,11 +87,15 @@ likely to include:
 <li>Reintegrated <tt>JWNLAlignment</tt> in implementation (procalign)</li>
 <li>Migrated to OWL API 2 as the default Ontology implementation (onto)</li>
 <li>Lifted OWL API 2 as <tt>HeavyLoadedOntology</tt> (onto)</li>
+<li>Added cache management to <tt>JENAOntology</tt> (onto)</li>
+<li>Implemented semantic precision and recall (impl).</li>
 <li>Added computation of MAP (Mean Average Precision)
   in <tt>PRGraphEvaluator</tt> (impl).</li>
 <li>Added pretty-printing of names in server (server)</li>
 <li>Added initialisation through initial alignment
   in <tt>MatrixMeasure</tt> (impl)</li>
+<li>Added a parameter to the <tt>OWLAxiomsRendererVisitor</tt> so that it could render
+  heterogeneous axioms, like Class sameAs Property (impl).</li>
 <li>Suppressed of the <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
   (deprecated since version 3.3) (impl)</li>
 <li>Reorganised the lib directory hierarchically (build)</li>
@@ -102,8 +103,8 @@ likely to include:
   (server)</li>
 <li>Corrected a bug in retrieving alignments from ontologies when the
   two ontologies are the same (server)</li>
-<li>Corrected a bug when <tt>StringDistAignment<tt> fail to raise
-      exception when bad method given (impl)</tt>
+<li>Corrected a bug when <tt>StringDistAlignment</tt> fail to raise
+      exception when bad method given (impl)</li>
 <!--li>Suppressed the capability to export alignments in WSML (impl/omwg)</li-->
 </ul>
 </p>

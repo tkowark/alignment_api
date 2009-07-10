@@ -47,6 +47,9 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 
+    // JE: this is not very Java 1.5...
+    // This is because of the version of Jena we use apparently
+
     public Object getEntity(URI u) throws AlignmentException {
 	return onto.getOntResource(u.toString());
     }
@@ -70,14 +73,6 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     public Set<String> getEntityAnnotations(Object o) throws AlignmentException {
 	Set<String> annots = new HashSet<String>();
 	getEntityAnnotations(o,annots);
-	/*Iterator i = or.listComments(null);
-	while (i.hasNext()) {
-	    annots.add(((LiteralImpl) i.next()).getLexicalForm());
-	}
-	i = or.listLabels(null);
-	while (i.hasNext()) {
-	    annots.add(((LiteralImpl) i.next()).getLexicalForm());
-	}*/
 	return annots;
     }
 
