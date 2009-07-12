@@ -49,10 +49,6 @@ import fr.inrialpes.exmo.align.onto.BasicOntology;
  * Represents a basic ontology alignment, i.e., a fully functionnal alignment
  * for wich the type of aligned objects is not known.
  *
- * NOTE(JE): hashtabale are indexed by URI.
- * This is strange, but there might be a reason
- * NOTE(JE): I do not think that this is the case anymore
- *
  * In version 3.0 this class is virtually abstract.
  * But it cannot be declared abstract because it uses its own constructor.
  *
@@ -208,8 +204,8 @@ public class BasicAlignment implements Alignment {
 
     public ArrayList<Cell> getArrayElements() {
 	ArrayList<Cell> array = new ArrayList<Cell>();
-	for (Enumeration e = getElements(); e.hasMoreElements(); ) {
-	    array.add( (BasicCell)e.nextElement() );
+	for ( Cell c : this ) {
+	    array.add( c );
 	}
 	return array;
     }
@@ -243,7 +239,7 @@ public class BasicAlignment implements Alignment {
 
     protected void addCell( Cell c ) throws AlignmentException {
 	boolean found = false;
-	Set<Cell> s1 = (Set<Cell>)hash1.get(c.getObject1());
+	Set<Cell> s1 = hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
 	    for (Iterator i = s1.iterator(); !found && i.hasNext(); ) {
@@ -270,6 +266,14 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
+    public void remCell( Cell c ) throws AlignmentException {
+	boolean found = false;
+	Set<Cell> s1 = hash1.get(c.getObject1());
+	if ( s1 != null ) s1.remove( c );
+	Set<Cell> s2 = hash2.get(c.getObject2());
+	if( s2 != null ) s2.remove( c );
+    }
+
     public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
 	return hash1.get( ob );
     }
@@ -284,12 +288,11 @@ public class BasicAlignment implements Alignment {
 	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell1: deprecated (use getAlignCells1 instead)");
 	} else {
-	    Set s2 = (Set)hash1.get(ob);
+	    Set<Cell> s2 = hash1.get(ob);
 	    Cell bestCell = null;
 	    double bestStrength = 0.;
 	    if ( s2 != null ) {
-		for( Iterator it2 = s2.iterator(); it2.hasNext(); ){
-		    Cell c = (Cell)it2.next();
+		for( Cell c : s2 ){
 		    double val = c.getStrength();
 		    if ( val > bestStrength ) {
 			bestStrength = val;
@@ -305,12 +308,11 @@ public class BasicAlignment implements Alignment {
 	if ( Annotations.STRICT_IMPLEMENTATION == true ){
 	    throw new AlignmentException("getAlignCell2: deprecated (use getAlignCells2 instead)");
 	} else {
-	    Set s1 = (Set)hash2.get(ob);
+	    Set<Cell> s1 = hash2.get(ob);
 	    Cell bestCell = null;
 	    double bestStrength = 0.;
 	    if ( s1 != null ){
-		for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
-		    Cell c = (Cell)it1.next();
+		for( Cell c : s1 ){
 		    double val = c.getStrength();
 		    if ( val > bestStrength ) {
 			bestStrength = val;
@@ -394,8 +396,7 @@ public class BasicAlignment implements Alignment {
      * particulat threshold
      **************************************************************************/
     public void cut2(double threshold) throws AlignmentException {
-	for (Enumeration e = getElements(); e.hasMoreElements(); ) {
-	    Cell c = (Cell)e.nextElement();
+	for ( Cell c : this ) {
 	    if ( c.getStrength() < threshold )
 		removeAlignCell( c );
 	}
@@ -481,8 +482,7 @@ public class BasicAlignment implements Alignment {
      * The harden function acts like threshold but put all weights to 1.
      */
     public void harden(double threshold) throws AlignmentException {
-	for (Enumeration e = getElements(); e.hasMoreElements();) {
-	    Cell c = (Cell)e.nextElement();
+	for ( Cell c : this ) {
 	    if (c.getStrength() < threshold) removeAlignCell( c );
 	    else c.setStrength(1.);
 	}
@@ -522,9 +522,7 @@ public class BasicAlignment implements Alignment {
 	if ( onto2.getURI() != align.getOntology2URI() )
 	    throw new AlignmentException("Can only diff alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
-	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
-	    Cell c1 = (Cell)e.nextElement();
-	    //URI uri1 = c1.getObject2AsURI();
+	for ( Cell c1 : this ) {
 	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
@@ -554,8 +552,7 @@ public class BasicAlignment implements Alignment {
 	if ( onto2.getURI() != align.getOntology2URI() )
 	    throw new AlignmentException("Can only meet alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
-	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
-	    Cell c1 = (Cell)e.nextElement();
+	for ( Cell c1 : this ) {
 	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
@@ -586,9 +583,7 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException("Can only join alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
 	result.ingest( align );
-	//for ( Cell e : getElements() ){//I should do an iterator!
-	for ( Enumeration e = getElements(); e.hasMoreElements(); ) {
-	    Cell c1 = (Cell)e.nextElement();
+	for ( Cell c1 : this ) {
 	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
@@ -614,17 +609,16 @@ public class BasicAlignment implements Alignment {
 	if ( onto2.getURI() != align.getOntology1URI() )
 	    throw new AlignmentException("Can only compose alignments with a common ontologies");
 	BasicAlignment result = createNewAlignment( onto1, ((BasicAlignment)align).getOntologyObject2() );
-	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
-		Cell c1 = (Cell)e.nextElement();
-		Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
-		if (cells2 !=null) {
-			for (Cell c2 : cells2) {
-				Cell newCell = c1.compose(c2);
-				if (newCell != null) {
-				    result.addCell(newCell);
-				}
-			}
+	for ( Cell c1 : this ) {
+	    Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
+	    if (cells2 !=null) {
+		for (Cell c2 : cells2) {
+		    Cell newCell = c1.compose(c2);
+		    if (newCell != null) {
+			result.addCell(newCell);
+		    }
 		}
+	    }
 	}
 	return result;
     }
@@ -678,11 +672,9 @@ public class BasicAlignment implements Alignment {
      *     useful
      */
     public void ingest(Alignment alignment) throws AlignmentException {
-	if ( alignment != null ) {
-	    for (Enumeration e = alignment.getElements(); e.hasMoreElements();) {
-		addCell((Cell)e.nextElement());
-	    }
-	}
+	if ( alignment != null )
+	    for ( Cell c : alignment ) 
+		addCell( c );
     }
 
     /**
