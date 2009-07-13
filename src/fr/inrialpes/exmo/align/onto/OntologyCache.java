@@ -54,6 +54,7 @@ public class OntologyCache <O extends LoadedOntology> {
     public void recordOntology( URI uri, O ontology ){
 	ontologies.put( uri, ontology );
 	ontologyUris.put( ontology.getURI(), ontology );
+	//displayCache();
     }
 
     public O getOntology( URI uri ){
@@ -65,11 +66,25 @@ public class OntologyCache <O extends LoadedOntology> {
     }
 
     public void unloadOntology( URI uri, O ontology ){
+	//System.err.println("UNLOAD");
+	//displayCache();
 	O o = ontologyUris.get(uri);
 	o.unload();
 	ontologyUris.remove( uri );
 	ontologies.remove( uri );
     }
+
+    /* debugging utility */
+    public void displayCache(){
+	System.err.println("CACHE: "+ontologies.size()+"/"+ontologyUris.size()+" elements cached");
+	for( Enumeration<URI> e = ontologies.keys(); e.hasMoreElements(); ){
+	    URI u = e.nextElement();
+	    LoadedOntology o = ontologies.get( u );
+	    System.err.println( "      "+u );
+	    System.err.println( "      "+o.getURI() );
+	    System.err.println( "  --> "+o+" ("+o.getOntology()+")" );
+	}
+    };
 
     public void clear(){
 	for ( LoadedOntology o : ontologies.values() ){
