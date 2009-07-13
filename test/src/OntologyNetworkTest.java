@@ -50,17 +50,17 @@ import fr.inrialpes.exmo.align.onto.OntologyFactory;
 public class OntologyNetworkTest {
     private OntologyNetwork noo = null;
 
-    @BeforeClass(groups = { "full", "noling" })
+    @BeforeClass(groups = { "full", "raw" })
     private void init(){
 	noo = new BasicOntologyNetwork();
     }
 
-    @Test(groups = { "full", "noling" })
+    @Test(groups = { "full", "raw" })
     public void aFastTest() {
 	assertNotNull( noo, "Alignment was null" );
     }
 
-    @Test(groups = { "full", "noling" }, dependsOnMethods = {"aFastTest"})
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"aFastTest"})
 	public void ontologyTest() throws URISyntaxException, AlignmentException {
 	assertEquals( noo.getOntologies().size(), 0 );
 	// Load
@@ -81,7 +81,7 @@ public class OntologyNetworkTest {
 	assertEquals( noo.getOntologies().size(), 2);
     }
 
-    @Test(groups = { "full", "noling" }, dependsOnMethods = {"ontologyTest"})
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"ontologyTest"})
 	public void alignmentTest() throws ParserConfigurationException, SAXException, IOException, URISyntaxException, RDFParserException, AlignmentException {
 	assertEquals( noo.getAlignments().size(), 0 );
 	assertEquals( noo.getOntologies().size(), 2);
@@ -107,7 +107,7 @@ public class OntologyNetworkTest {
 	// impact on ontologies?
     }
 
-    @Test(groups = { "full", "noling" }, dependsOnMethods = {"ontologyTest","alignmentTest"})
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"ontologyTest","alignmentTest"})
     public void lambdaTest() throws URISyntaxException {
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	assertEquals( noo.getTargetingAlignments(u).size(), 0 );

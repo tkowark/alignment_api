@@ -35,12 +35,12 @@ import org.semanticweb.owl.align.Alignment;
 public class BasicAlignmentTest {
     private Alignment alignment = null;
 
-    @BeforeClass(groups = { "full", "noling" })
+    @BeforeClass(groups = { "full", "raw" })
     private void init(){
 	alignment = new BasicAlignment();
     }
 
-    @Test(groups = { "full", "noling" })
+    @Test(groups = { "full", "raw" })
     public void aFastTest() {
 	assertNotNull( alignment, "Alignment was null" );
     }

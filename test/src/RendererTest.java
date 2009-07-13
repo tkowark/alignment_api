@@ -69,7 +69,7 @@ public class RendererTest {
     private AlignmentProcess alignment = null;
 
     // Create the Alignement that will be rendered by everyone
-    @BeforeClass(groups = { "full", "impl", "noling" })
+    @BeforeClass(groups = { "full", "impl", "raw" })
     private void init() throws Exception {
 	Parameters params = new BasicParameters();
 	params.setParameter( "stringFunction", "levenshteinDistance");
@@ -81,7 +81,7 @@ public class RendererTest {
 	assertEquals( alignment.nbCells(), 44 );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void RDFrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -96,7 +96,7 @@ public class RendererTest {
 	params.setParameter( "embedded", "1");
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void SKOSrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -132,7 +132,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 7296, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void OWLrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -145,7 +145,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 7666, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void SEKTMappingrenderer() throws Exception {
 	// not really
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
@@ -159,7 +159,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 6551, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void SWRLrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -172,7 +172,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 21699, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void XSLTrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -185,7 +185,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 8203, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void COWLrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -198,7 +198,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 15394, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void HTMLrenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
@@ -211,7 +211,7 @@ public class RendererTest {
 	assertEquals( stream.toString().length(), 18393, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void XMLMetadatarenderer() throws Exception {
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (

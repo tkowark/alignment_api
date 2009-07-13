@@ -66,7 +66,7 @@ public class MatcherTest {
 
     // Add one test with instances in the ontology (the same ontology)
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineTest8() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
@@ -105,7 +105,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
     }
 
     /* This tests an error when the distance name is incorrect */
-    @Test(groups = { "full", "impl", "noling" }, expectedExceptions = AlignmentException.class)
+    @Test(groups = { "full", "impl", "raw" }, expectedExceptions = AlignmentException.class)
     public void routineTest9() throws Exception {
 	Parameters params = new BasicParameters();
 	params.setParameter( "stringFunction", "teinDistance");

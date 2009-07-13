@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -49,7 +49,7 @@ public class OMWGTest {
     private Alignment alignment = null;
     private AlignmentParser aparser1 = null;
 
-    @Test(groups = { "full", "omwg", "noling" })
+    @Test(groups = { "full", "omwg", "raw" })
     public void loadPrintTest() throws Exception {
 	/*
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine.xml > wine2.xml
@@ -69,7 +69,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	writer.close();
     }
 
-    @Test(groups = { "full", "omwg", "noling" }, dependsOnMethods = {"loadPrintTest"})
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"loadPrintTest"})
     public void roundTripTest() throws Exception {
 	/*
 java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine2.xml > wine3.xml
@@ -87,7 +87,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	writer.close();
     }
 
-    @Test(groups = { "full", "omwg", "noling" }, dependsOnMethods = {"roundTripTest"})
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"roundTripTest"})
     public void diffTest() throws Exception {
 	/*
 diff wine2.xml wine3.xml

@@ -67,7 +67,7 @@ public class AlgTest {
     Alignment align1 = null;
     Alignment align2 = null;
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void initTest() throws Exception {
 	Parameters params = new BasicParameters();
 	AlignmentProcess alignment1 = new StringDistAlignment();
@@ -80,13 +80,13 @@ public class AlgTest {
 	align2 = alignment2;
     }
 
-    @Test(expectedExceptions = AlignmentException.class, dependsOnMethods = {"initTest"}, groups = { "full", "impl", "noling" })
+    @Test(expectedExceptions = AlignmentException.class, dependsOnMethods = {"initTest"}, groups = { "full", "impl", "raw" })
     public void errorTest1() throws Exception {
 	// should throw an exception: 
 	align1.join( align2 );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"initTest"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"initTest"})
     public void genericityTest() throws Exception {
 	// does createNewAlignment is able to return the correct method
 	Alignment al = (Alignment)((BasicAlignment)align1).clone();
@@ -94,9 +94,9 @@ public class AlgTest {
 	assertTrue( al.getExtension( Annotations.ALIGNNS, "method" ).equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment#clone") );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"genericityTest"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"genericityTest"})
     public void fullTest() throws Exception {
-/*   	AlignmentProcess alignment1 = new NameAndPropertyAlignment();
+   	AlignmentProcess alignment1 = new NameAndPropertyAlignment();
 	alignment1.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment1.align( (Alignment)null, new BasicParameters() );
 	align1 = alignment1;
@@ -120,15 +120,14 @@ public class AlgTest {
 	al = align1.join( align2 );
 	assertEquals( al.getOntology1(), align1.getOntology1() );
 	assertEquals( al.nbCells(), 46 );
-    */
 	}
 
-    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "impl", "noling" }, dependsOnMethods = {"fullTest"})
+    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "impl", "raw" }, dependsOnMethods = {"fullTest"})
     public void composeErrorTest() throws Exception {
 	Alignment al = align1.compose( align2 );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"initTest"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"initTest"})
     public void composeTest() throws Exception {
 	AlignmentProcess alignment1 = new NameAndPropertyAlignment();
 	alignment1.init( new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"), new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"));

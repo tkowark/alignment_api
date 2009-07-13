@@ -62,14 +62,14 @@ public class READMETest {
 
     private AlignmentProcess alignment = null;
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineTest1() {
 	/*
 $ java -jar lib/procalign.jar --help
 	*/
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineTest2() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl
@@ -83,7 +83,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 	assertEquals( alignment.nbCells(), 1 );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineTest3() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
@@ -105,7 +105,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 	assertEquals( alignment.nbCells(), 2 );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineTest5() throws Exception {
 	/*
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples/rdf/newsample.rdf
@@ -126,7 +126,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	assertEquals( stream.toString().length(), 1706, "Rendered differently" );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest3"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
     public void routineTest6() throws Exception {
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf
@@ -134,7 +134,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 	*/
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest3"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
     public void routineTest7() throws Exception {
     /*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl
@@ -150,7 +150,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	  */
 	}
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest7"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest7"})
     public void routineTest8() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
@@ -215,12 +215,12 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 
     }
 
-    @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "noling" }, dependsOnMethods = {"routineTest8"})
+    @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
     public void routineErrorTest8() throws Exception {
 	alignment.cut( "prec", 0.55 );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest8"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
     public void routineEvalTest() throws Exception {
 	/*
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
@@ -254,7 +254,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineEvalTest"})
+    @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"})
     public void specificEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
@@ -273,7 +273,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	OutputStream stream = new NullStream();
 	PrintWriter writer = new PrintWriter (
 				  new BufferedWriter(
-					new OutputStreamWriter( System.err, "UTF-8" )), true);
+					new OutputStreamWriter( stream, "UTF-8" )), true);
 	eval.write( writer );
 	writer.flush();
 	writer.close();
@@ -286,14 +286,14 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
-    @Test(groups = { "full", "impl", "noling" })
+    @Test(groups = { "full", "impl", "raw" })
     public void routineMatrixTest() throws Exception {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > examples/rdf/matrix.tex
 	*/
     }
 
-    @Test(groups = { "full", "impl", "noling" }, dependsOnMethods = {"routineTest3"})
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
     public void routineJWNLTest() throws Exception {
     /*
 $ setenv WNDIR ../WordNet-2.0/dict

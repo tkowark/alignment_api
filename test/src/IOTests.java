@@ -1,7 +1,7 @@
 /*
  * $Id: OMWGTest.java 799 2008-08-28 22:07:58Z euzenat $
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -54,7 +54,7 @@ public class IOTests {
     private Alignment alignment = null;
     private AlignmentParser aparser = null;
 
-    @Test(groups = { "full", "io", "noling" }, expectedExceptions = SAXException.class)
+    @Test(groups = { "full", "io", "raw" }, expectedExceptions = SAXException.class)
     public void loadSOAPErrorTest() throws Exception {
 	aparser = new AlignmentParser( 0 );
 	assertNotNull( aparser );
@@ -62,7 +62,7 @@ public class IOTests {
 	// error (we forgot to tell the parser that the alignment is embedded)
     }
 
-    @Test(groups = { "full", "io", "noling" }, dependsOnMethods = {"loadSOAPErrorTest"})
+    @Test(groups = { "full", "io", "raw" }, dependsOnMethods = {"loadSOAPErrorTest"})
     public void loadSOAPTest() throws Exception {
 	aparser.initAlignment( null );
 	aparser.setEmbedded( true );

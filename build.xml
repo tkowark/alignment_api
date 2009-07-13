@@ -185,9 +185,9 @@
     <javac srcdir="test/src" destdir="test/classes" debug="on">
       <classpath refid="classpath"/>
     </javac>
-    <!-- possible groups: impl, serv, ling, noling, io, onto, omwg, full -->
+    <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
     <!-- ling requires WordNet and takes ages initialising it -->
-    <testng groups="noling"
+    <testng groups="raw"
 	    sourcedir="test/src"
 	    outputDir="test/html"  verbose="1"
 	    haltOnFailure="false" failureProperty="failed">
