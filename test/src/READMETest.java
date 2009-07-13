@@ -138,16 +138,14 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
     public void routineTest7() throws Exception {
     /*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl
-    *//*
+    */
 	Parameters params = new BasicParameters();
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
-	//alignment.init( new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
-		alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
 	assertEquals( alignment.nbCells(), 10 );
-	  */
 	}
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest7"})
@@ -293,11 +291,4 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	*/
     }
 
-    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
-    public void routineJWNLTest() throws Exception {
-    /*
-$ setenv WNDIR ../WordNet-2.0/dict
-$ java -jar lib/alignwn.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
-    */
-    }
 }

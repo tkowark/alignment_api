@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-//package test.com.acme.dona.dep;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -54,15 +52,18 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 /**
- * These tests corresponds to the README file in the main directory
+ * This test the encapsulation of various ontologies
  */
 
+// The following assertion is fundamental for having the AfterClass method
+// in the end run properly (otherwise, we have bugs around)
+@Test(sequential = true)
 public class OntoTest {
 
     private OntologyFactory factory = null;
     private Ontology ontology = null;
 
-    @Test(groups = { "full", "impl", "raw" })
+    @Test(groups = { "full", "onto", "raw" })
     public void factoryTest() throws Exception {
 	assertNotNull( OntologyFactory.getDefaultFactory() );
 	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory") );
@@ -76,13 +77,13 @@ public class OntoTest {
 	assertEquals( factory, OntologyFactory.getFactory() );
     }
 
-    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "impl", "raw" }, dependsOnMethods = {"factoryTest"})
+    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "onto", "raw" }, dependsOnMethods = {"factoryTest"})
     public void concreteFactoryTest() throws Exception {
 	// not really useful
 	factory.newOntology( null );
     }
 
-    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"factoryTest"})
+    @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"factoryTest"})
     public void basicTest() throws Exception {
 	// not really useful
 	//factory.newOntology( null );
@@ -98,7 +99,7 @@ public class OntoTest {
 	assertEquals( onto.getOntology(), "MyBeautifulOntology" );
     }
 
-    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"basicTest"})
+    @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"basicTest"})
     public void loadedTest() throws Exception {
 	// load ontologies
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
@@ -148,7 +149,7 @@ public class OntoTest {
 	onto.unload();
     }
 
-    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"loadedTest"})
+    @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"loadedTest"})
     public void heavyLoadedTest() throws Exception {
 	// load ontologies
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
@@ -220,15 +221,14 @@ public class OntoTest {
 	onto.unload();
     }
 
-    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"heavyLoadedTest"})
+    @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"heavyLoadedTest"})
     public void cleanUpTest() throws Exception {
 	OntologyFactory.getFactory().clear();
 	// Check if things remain or not...
     }
 
-    @AfterClass(groups = { "full", "impl", "raw" })
+    @AfterClass(groups = { "onto", "raw", "full" }, alwaysRun = true )
     public void tearDown() throws Exception {
-	//System.err.println("I have been executed");
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
     }
 

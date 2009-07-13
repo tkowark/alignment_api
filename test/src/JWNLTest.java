@@ -65,8 +65,8 @@ public class JWNLTest {
     @Test(groups = { "full", "ling" })
     public void routineJWNLAlignmentTest() throws Exception {
     /*
-$ setenv WNDIR 
-$ java -jar lib/alignwn.jar -D=$WNDIR file://$CWD/examples/rdf/ file://$CWD/examples/rdf/ -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
+$ setenv WNDIR ../WordNet-2.0/dict
+$ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
     */
 	Parameters params = new BasicParameters();
 	//System.getenv("WNDIR");
