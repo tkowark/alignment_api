@@ -109,6 +109,7 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
     public Cell addAlignCell( Object ob1, Object ob, String relation, double measure) throws AlignmentException;
     public Cell addAlignCell( Object ob1, Object ob2) throws AlignmentException;
 
+    public void remCell( Cell c ) throws AlignmentException;
     /**
      * Cells are retrieved
      * These primitives are deprecated. Use getAlignCells1 and getAlignCells2
