@@ -58,6 +58,7 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLOntologyCreationException;
 import org.semanticweb.owl.model.OWLClass;
 import org.semanticweb.owl.model.OWLAxiom;
+import org.semanticweb.owl.model.OWLDescription;
 import org.semanticweb.owl.apibinding.OWLManager;
 
 // IDDL
@@ -290,11 +291,10 @@ public class MyApp {
 	// Alternative: Use Pellet to answer queries
 
 	// ***** Fourth exercise: reasoning *****
+
+	// Variant 1: reasoning with merged ontologies
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	Reasoner reasoner = new Reasoner( manager );
-
-	// ontology that will be used
-	String file = "http://www.mindswap.org/2004/owl/mindswappers";
 
 	// Load the ontology 
 	try {
@@ -305,32 +305,41 @@ public class MyApp {
 	// get the instances of a class
 	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
 	Set instances  = reasoner.getIndividuals( person, false );
-	System.err.println("There are "+instances.size()+" students "+person.getURI());
+	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+person.getURI());
 
-	/*
-	OWLClass person2 = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) );   
-	OWLAxiom axiom = manager.getOWLSubClassAxiom( person, person2 );
-	boolean isit = reasoner.isEntailed( axiom );
-	*/
-	/*
+	testSubClass( manager, reasoner, person, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
+	testSubClass( manager, reasoner, person, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
+
+	// Variant 2: reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
-	IDDLReasoner reasoner = new IDDLReasoner( Semantics.IDDL );
-	reasoner.addOntology( uri1 );
-	reasoner.addOntology( uri2 );
-	reasoner.addAlignment( al );
+	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.IDDL );
+	dreasoner.addOntology( uri1 );
+	dreasoner.addOntology( uri2 );
+	dreasoner.addAlignment( al );
 	// What to do if not consistent?
-	if ( reasoner.isConsistent() ) {
-	    Alignment al2 = new URIAlignment();
+	System.err.println( al );
+	if ( dreasoner.isConsistent() ) {
+	    System.err.println( "IDDL: the alignment network is consistent");
+	    Alignment al2 = new ObjectAlignment();
 	    try {
 		al2.init( uri1, uri2 );
-	    // add the cell
-	    //al2.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
+		// add the cell
+		//al2.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
 	    } catch (AlignmentException ae) { ae.printStackTrace(); }
-	    reasoner.isEntailed( al2 );
+	    dreasoner.isEntailed( al2 );
          } else {
-	System.err.println( "your alignment is inconsistent");
+	    System.err.println( "IDDL: the alignment network is inconsistent");
 	}
-	*/
+    }
+
+    public void testSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
+	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassAxiom( d1, d2 );
+	boolean isit = reasoner.isEntailed( axiom );
+	if ( isit ) {
+	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
+	} else {
+	    System.out.println( "Pellet(Merged): "+d1+" is not necessarily subclass of "+d2 );
+	}
     }
 
     public String getFromURLString( String u, boolean print ){
