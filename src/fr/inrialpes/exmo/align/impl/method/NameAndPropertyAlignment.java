@@ -79,8 +79,6 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
 	honto2 = (HeavyLoadedOntology<Object>)getOntologyObject2();
-	//System.err.println( honto1+" ==> "+honto1.getOntology() );
-	//System.err.println( honto2+" ==> "+honto2.getOntology() );
 	double threshold = 1.; // threshold above which distances are too high
 	int i, j = 0;     // index for onto1 and onto2 classes
 	int nbclass1 = 0; // number of classes in onto1
