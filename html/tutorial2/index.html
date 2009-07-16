@@ -104,7 +104,7 @@ $ javac -classpath ../../lib/align.jar:../../lib/procalign.jar:../../lib/jena/je
 </div>
 and run by:
 <div class="fragment">
-$ java -classpath .:../../lib/align.jar:../../lib/procalign.jar:../../lib/jena/jena.jar:../../lib/jena/arq.jar:../../lib/iddl/iddl.jar:../../lib/pellet/pellet.jar:../../lib/ontosim/ontosim.jar:../../lib/log4j/commons-logging.jar:../../lib/log4j/log4j.jar:../../lib/xerces/xercesImpl.jar:../../lib/jena/iri.jar:../../lib/jena/icu4j_3_4.jar:../../lib/jena/concurrent.jar MyApp
+$ java -classpath .:../../lib/align.jar:../../lib/procalign.jar:../../lib/jena/jena.jar:../../lib/jena/arq.jar:../../lib/iddl/iddl.jar:../../lib/pellet/pellet.jar:../../lib/ontosim/ontosim.jar:../../lib/log4j/commons-logging.jar:../../lib/log4j/log4j.jar:../../lib/xerces/xercesImpl.jar:../../lib/jena/iri.jar:../../lib/jena/icu4j_3_4.jar:../../lib/jena/concurrent.jar:../../lib/pellet/relaxngDatatype.jar:../../lib/pellet/xsdlib.jar MyApp
 </div>
 The long list of jar is boring, but at list it is explicit and you
 should be safe with this one.
@@ -179,7 +179,8 @@ and, if none is found, computes one.
 	al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
 </pre>
 </div>
-<div class="explain" id="qu2"><p>:</p>
+<div class="explain" id="qu2"><p>Just create an instance of
+    AlignmentProcess and call it:</p>
 <pre>
 	// (Sol2) Match the ontologies with a local algorithm
 	if ( al == null ){ // Unfortunatelly no alignment was available
@@ -308,8 +309,26 @@ ontologies instead of the merged one.
 	ResultSetFormatter.out(System.out, results, query);
 </pre>
 </div>
-<div class="explain" id="qu8"><p>Not yet available</p>
+<div class="explain" id="qu8">
+<p>Create Reasoner instance and load the merged ontologies:</p>
 <pre>
+	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+	Reasoner reasoner = new Reasoner( manager );
+	try {
+	    OWLOntology ontology = manager.loadOntology( URI.create( "file://"+tempOntoFileName ) );
+	    reasoner.loadOntology( ontology );
+	} catch (OWLOntologyCreationException ooce) { ooce.printStackTrace(); }
+</pre>
+<p>Get the instances of "Estudiantes":</p>
+<pre>
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
+	Set instances  = reasoner.getIndividuals( estud, false );
+	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
+</pre>
+<p>Some subsumption tests:</p>
+<pre>
+	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
+	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
 </pre>
 </div>
 	

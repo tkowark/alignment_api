@@ -38,6 +38,7 @@ import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
+import fr.inrialpes.exmo.align.util.NullStream;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 // Jena
@@ -96,6 +97,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
@@ -296,6 +298,8 @@ public class MyApp {
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	Reasoner reasoner = new Reasoner( manager );
 
+	//Does not seem to work
+	//System.setErr( new PrintStream( new NullStream() ) );
 	// Load the ontology 
 	try {
 	    OWLOntology ontology = manager.loadOntology( URI.create( "file://"+tempOntoFileName ) );
@@ -303,16 +307,16 @@ public class MyApp {
 	} catch (OWLOntologyCreationException ooce) { ooce.printStackTrace(); }
 
 	// get the instances of a class
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
-	Set instances  = reasoner.getIndividuals( person, false );
-	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+person.getURI());
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
+	Set instances  = reasoner.getIndividuals( estud, false );
+	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
 
-	testSubClass( manager, reasoner, person, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
-	testSubClass( manager, reasoner, person, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
+	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
+	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
 
 	// Variant 2: reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
-	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.IDDL );
+	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
 	dreasoner.addOntology( uri1 );
 	dreasoner.addOntology( uri2 );
 	dreasoner.addAlignment( al );
@@ -324,7 +328,7 @@ public class MyApp {
 	    try {
 		al2.init( uri1, uri2 );
 		// add the cell
-		//al2.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
+		al2.addAlignCell( estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ), "=", 1. );
 	    } catch (AlignmentException ae) { ae.printStackTrace(); }
 	    dreasoner.isEntailed( al2 );
          } else {
