@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2008
+ * Copyright (C) INRIA Rhï¿½ne-Alpes, 2008
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,12 +30,56 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public Object getEntity( URI u ) throws AlignmentException;
 
     public URI getEntityURI( Object o ) throws AlignmentException;
+    
+    /**
+     * return one of the "rdfs:label" property values for a given entity.
+     * @param o the entity
+     * @return a label
+     * @throws AlignmentException
+     */
     public String getEntityName( Object o ) throws AlignmentException;
 
+    /**
+     * Returns the values of the "rdfs:label" property for a given entity and for a given natural language (attribute xml:lang).
+     * @param o the entity
+     * @param lang the code of the language ("en", "fr", "es", etc.) 
+     * @return the set of labels
+     * @throws AlignmentException
+     */
     public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException;
+    /**
+     * Returns all the values of the "rdfs:label" property for a given entity.
+     * @param o the entity
+     * @return the set of labels
+     * @throws AlignmentException
+     */
     public Set<String> getEntityNames( Object o ) throws AlignmentException;
+    
+    /**
+     * Returns the values of the "rdfs:comment" property for a given entity and for a given natural language (attribute xml:lang).
+     * @param o the entity
+     * @param lang the code of the language ("en", "fr", "es", etc.) 
+     * @return the set of comments
+     * @throws AlignmentException
+     */
     public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException;
+    
+    /**
+     * Returns all the values of the "rdfs:comment" property for a given entity
+     * @param o the entity
+     * @return the set of comments
+     * @throws AlignmentException
+     */
     public Set<String> getEntityComments( Object o ) throws AlignmentException;
+    
+    /**
+     * Returns all the values of the "owl:AnnotationProperty" property for a given entity. 
+     * These annotations are those predefined in owl (owl:versionInfo, rdfs:label, rdfs:comment, rdfs:seeAlso and rdfs:isDefinedBy)
+     * but also all other defined annotation properties which are subClass of "owl:AnnotationProperty"
+     * @param o the entity
+     * @return the set of annotation values
+     * @throws AlignmentException
+     */
     public Set<String> getEntityAnnotations( Object o ) throws AlignmentException;
 
     public boolean isEntity( Object o );
