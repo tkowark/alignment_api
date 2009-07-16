@@ -41,7 +41,11 @@ import java.util.ArrayList;
 public class OntologyNetworkWeakener {
 
     /**
-     * suppress n% of the correspondences at random in all alignments
+     * suppress alignments in the ontology network so that it retain n-connectivity,
+     * i.e., any pairs of ontologies connected by less than n alignments
+     * are still connected through at most n alignments. 
+     * JE: this is an interesting graph theoretic problem and I do not know where
+     * to find it.
      */
     public static OntologyNetwork unconnect( OntologyNetwork on, int n ){
 	return on;
@@ -51,8 +55,9 @@ public class OntologyNetworkWeakener {
      * suppress n% of the correspondences at random in all alignments
      * n is a number between 0. and 1.
      * Returns a brand new BasicOntologyNetwork (with new alignments and cells)
+     * the @threshold parameter tells if the corrrespondences are suppressed at random of by suppressing the n% of lower confidence
      */
-    public static OntologyNetwork weakenAlignments( OntologyNetwork on, double n ) throws AlignmentException {
+    public static OntologyNetwork weakenAlignments( OntologyNetwork on, double n, boolean threshold ) throws AlignmentException {
 	if ( n < 0. || n > 1. )
 	    throw new AlignmentException( "Argument must be between 0 and 1.: "+n );
 	OntologyNetwork newon = new BasicOntologyNetwork();
@@ -61,27 +66,32 @@ public class OntologyNetworkWeakener {
 	}
 	for ( Alignment al : on.getAlignments() ){
 	    Alignment newal = (Alignment)al.clone();
-	    int size = newal.nbCells();
-	    // --------------------------------------------------------------------
-	    // JE: Here is a tricky one.
-	    // Using collection schuffle randomly reorganises a list
-	    // Then choosing the fist n% and destroying them in the Set is performed
-	    // The complexity is O(copy=N)+O(shuffle=N)+n%*O(delete=N)
-	    // That's not bad... (and also avoid checking if the same nb is drawn)
-	    // But in practice other solutions may be better, like:
-	    // Generating randomly n%*N numbers between 0 and N (util.Random)
-	    // Ordering them 
-	    // Traversing the initial structure and deleting the choosen ones...
-	    // This one (deleting when traversing) is tricky in Java.
-	    // --------------------------------------------------------------------
-	    ArrayList<Cell> array = new ArrayList<Cell>( size );
-	    for ( Cell c : newal ) {
-		array.add( c );
+	    if ( threshold ) {
+		newal.cut( "perc", (100.-(double)n)/100. );
+	    } else {
+		int size = newal.nbCells();
+		// --------------------------------------------------------------------
+		// JE: Here is a tricky one.
+		// Using collection schuffle randomly reorganises a list
+		// Then choosing the fist n% and destroying them in the Set is performed
+		// The complexity is O(copy=N)+O(shuffle=N)+n%*O(delete=N)
+		// That's not bad... (and also avoid checking if the same nb is drawn)
+		// But in practice other solutions may be better, like:
+		// Generating randomly n%*N numbers between 0 and N (util.Random)
+		// Ordering them 
+		// Traversing the initial structure and deleting the choosen ones...
+		// This one (deleting when traversing) is tricky in Java.
+		// --------------------------------------------------------------------
+		ArrayList<Cell> array = new ArrayList<Cell>( size );
+		for ( Cell c : newal ) {
+		    array.add( c );
+		}
+		Collections.shuffle( array );
+		for ( int i = (int)(n*size); i > 0; i-- ){
+		    newal.remCell( array.get( i ) );
+		}
 	    }
-	    Collections.shuffle( array );
-	    for ( int i = (int)(n*size); i > 0; i-- ){
-		newal.remCell( array.get( i ) );
-	    }
+	    newon.addAlignment( newal );
 	}
 	return newon;
     }
