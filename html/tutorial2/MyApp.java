@@ -308,11 +308,13 @@ public class MyApp {
 
 	// get the instances of a class
 	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) );   
 	Set instances  = reasoner.getIndividuals( estud, false );
 	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
 
-	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
-	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
+	testPelletSubClass( manager, reasoner, estud, person );
+	testPelletSubClass( manager, reasoner, estud, student );
 
 	// Variant 2: reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
@@ -320,29 +322,36 @@ public class MyApp {
 	dreasoner.addOntology( uri1 );
 	dreasoner.addOntology( uri2 );
 	dreasoner.addAlignment( al );
-	// What to do if not consistent?
-	System.err.println( al );
 	if ( dreasoner.isConsistent() ) {
-	    System.err.println( "IDDL: the alignment network is consistent");
-	    Alignment al2 = new ObjectAlignment();
-	    try {
-		al2.init( uri1, uri2 );
-		// add the cell
-		al2.addAlignCell( estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ), "=", 1. );
-	    } catch (AlignmentException ae) { ae.printStackTrace(); }
-	    dreasoner.isEntailed( al2 );
+	    System.out.println( "IDDL: the alignment network is consistent");
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
          } else {
-	    System.err.println( "IDDL: the alignment network is inconsistent");
+	    System.out.println( "IDDL: the alignment network is inconsistent");
 	}
     }
 
-    public void testSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
+    public void testPelletSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
 	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassAxiom( d1, d2 );
 	boolean isit = reasoner.isEntailed( axiom );
 	if ( isit ) {
 	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
 	} else {
 	    System.out.println( "Pellet(Merged): "+d1+" is not necessarily subclass of "+d2 );
+	}
+    }
+
+    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLDescription d1, OWLDescription d2 ) {
+	Alignment al2 = new ObjectAlignment();
+	try {
+	    al2.init( onto1, onto2 );
+	    // add the cell
+	    al2.addAlignCell( d1, d2, "&lt;", 1. );
+	} catch (AlignmentException ae) { ae.printStackTrace(); }
+	if ( dreasoner.isEntailed( al2 ) ) {
+	    System.out.println( "IDDL: "+d1+" <= "+d2+" is entailed" );
+	} else {
+	    System.out.println( "IDDL: "+d1+" <= "+d2+" is not entailed" );
 	}
     }
 

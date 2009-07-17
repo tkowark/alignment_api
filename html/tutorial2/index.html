@@ -270,7 +270,8 @@ ontologies instead of the merged one.
 <div class="button">
   <input type="button" onclick="show('qu7')" value="Show solution 1"/>
   <input type="button" onclick="show('qu8')" value="Show solution 2"/>
-  <input type="button" onclick="hide('qu7');hide('qu8');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu9')" value="Show solution 3"/>
+  <input type="button" onclick="hide('qu7');hide('qu8');hide('qu9');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu7">
 <p>Prepare the system:</p>
@@ -322,15 +323,49 @@ ontologies instead of the merged one.
 <p>Get the instances of "Estudiantes":</p>
 <pre>
 	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) );   
 	Set instances  = reasoner.getIndividuals( estud, false );
 	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
 </pre>
 <p>Some subsumption tests:</p>
 <pre>
-	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) ) );
-	testSubClass( manager, reasoner, estud, manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) ) );
+	testSubClass( manager, reasoner, estud, person );
+	testSubClass( manager, reasoner, estud, student );
 </pre>
 </div>
+<div class="explain" id="qu9">
+<p>Load the two ontologies and the alignment in the IDDL reasoner:</p>
+<pre>
+	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
+	dreasoner.addOntology( uri1 );
+	dreasoner.addOntology( uri2 );
+	dreasoner.addAlignment( al );
+</pre>
+<p>Test consistency and check if a particular correspondence is a consequence:</p>
+<pre>
+	if ( dreasoner.isConsistent() ) {
+	    System.out.println( "IDDL: the alignment network is consistent");
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
+         } else {
+	    System.out.println( "IDDL: the alignment network is inconsistent");
+	}
+</pre>
+</div>
+
+The results for these execution are (for Pellet):
+<pre>
+Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante
+Pellet(Merged): Estudiante is not necessarily subclass of Person
+Pellet(Merged): Estudiante is subclass of Student
+</pre>
+and for IDDL:
+<pre>
+IDDL: the alignment network is consistent
+IDDL: Estudiante <= Person is not entailed
+IDDL: Estudiante <= Student is entailed
+</pre>
 	
 <h2>Full solution</h2>
 	
