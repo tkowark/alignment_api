@@ -302,18 +302,16 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "    </invertResponse>\n";
 	} else if ( method.equals("cutRequest") || method.equals("cut") ) { // URI * string * float -> URI
 	    Message answer = null;	    
-	    Parameters params = param;
-	    if( restful == null ) {
-		params = getParameters( domMessage );
-		 
- 	    }
-
 	    msg += "    <cutResponse>\n";
+	    Parameters params = param;
 
-	    if ( params.getParameter( "alid" ) == null ) {
+	    if( restful == null ) {
+		params = getParameters( domMessage ); 	    
+	    	if ( params.getParameter( "alid" ) == null ) {
 		     answer = new NonConformParameters(0,(Message)null,myId,"",message,(Parameters)null);
-	    } else {
+	    	} else {
 		     params.setParameter( "id", params.getParameter( "alid" ) );
+	    	}
 	    }
 
 	    if ( params.getParameter( "method" ) == null ) {
