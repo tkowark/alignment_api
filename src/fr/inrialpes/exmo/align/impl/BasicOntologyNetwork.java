@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.lang.Cloneable;
 import java.lang.Iterable;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
@@ -38,7 +39,7 @@ import org.semanticweb.owl.align.OntologyNetwork;
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.
  *
- * @author Jérôme Euzenat
+ * @author Jï¿½rï¿½me Euzenat
  * @version $Id$ 
  */
 
@@ -89,9 +90,11 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	return ontologies.keySet(); // ??
     };
     public Set<Alignment> getTargetingAlignments( URI onto ){
+	if (!ontologies.containsKey(onto)) return Collections.emptySet();
 	return ontologies.get( onto ).targettingAlignments;
     };
     public Set<Alignment> getSourceAlignments( URI onto ){
+	if (!ontologies.containsKey(onto)) return Collections.emptySet();
 	return ontologies.get( onto ).sourceAlignments;
     };
 
