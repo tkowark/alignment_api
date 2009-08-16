@@ -3,11 +3,10 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Advanced tutorial on the Alignment API</title>
+<title>Manipulating alignments in Java programs</title>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="Contributor" content="Antoine Zimmermann" />
-<link rel="stylesheet" type="text/css" href="../base.css" />
-<link rel="stylesheet" type="text/css" href="../style.css" />
+<link rel="stylesheet" type="text/css" href="../../base.css" />
+<link rel="stylesheet" type="text/css" href="../../style.css" />
 <script type="text/javascript">
 <!--
 function show(id) {
@@ -33,11 +32,11 @@ div.logic {
 </head>
 <body style="background-color: #FFFFFF;">
 
-<h1>Advanced tutorial on the Alignment <abbr title="Application Programming Interface">API</abbr> and server</h1>
+<h1>Manipulating alignments in Java programs: advanced tutorial on the Alignment <abbr title="Application Programming Interface">API</abbr> and server</h1>
 
 <dl>
 <dt>This version:</dt>
-<dd>http://alignapi.gforge.inria.fr/tutorial2/</dd>
+<dd>http://alignapi.gforge.inria.fr/tutorial/tutorial2/</dd>
 <dt>Author:</dt>
 <dd><a href="http://exmo.inrialpes.fr/people/euzenat">J&eacute;r&ocirc;me Euzenat</a>, INRIA  &amp; LIG
 </dd>
@@ -45,9 +44,10 @@ div.logic {
 
 <p style="border-top: 2px solid
 	  #AAAAAA; padding-top: 15px; padding-bottom: 15px;">
-Here is a more advanced   tutorial for the
-alignment <abbr>API</abbr>. 
-This tutorial will learn you to:
+Here is a more advanced tutorial for the
+alignment <abbr>API</abbr> which explains how to interface the API
+with other components.
+This tutorial will show how to:
 <ul>
 <li>communicate the alignment server
 through its REST web service API,</li>
@@ -65,28 +65,19 @@ A more <a href="../tutorial/index.html">simple tutorial</a> as well as
 	
 <h2>Preparation</h2>
 	
-<p>
-See the <a href="../tutorial/index.html">simple tutorial
-preparation part</a>.
-</p>
-<p>
-Looking at the last section of this tutorial can help to manipulate
-the Alignment API constructs alone. In the present tutorial, we will
-interface the Alignment API with other components:
-<ul>
-<li>The Alignment server as a web service;</li>
-<li>A SPARQL reasoner (<a href=""></a>ARQ) using <a href=""></a>Jena;</li>
-<li>An OWL reasoner (<a href=""></a>Pellet) using OWL API.</li>
-</ul>
+<p>Just:
+<div class="fragment">
+$ cd tutorial2
+</div>
 </p>
 	
 <h2>Data</h2>
 	
 <p>
 We have two ontologies, <a href="ontology1.owl">ontology1.owl</a>
-and <a href="ontology2.owl">ontology2.owl</a>, under which two half of
-the summerschool participants are described. Unfortunately, the
-organiser started to record participants with their own ontology
+and <a href="ontology2.owl">ontology2.owl</a>, under which two sets of
+students are described. Unfortunately, the
+administration started to record participants with their own ontology
 before recogning that using <a href="http://foaf-project.org">FOAF</a>
 would be a better idea. We now end up with two incomplete lists of
 participants.
@@ -94,19 +85,21 @@ participants.
 <p>
 The goal is to have a unified view of these participants. For that
 purpose, we will match the two ontologies and reason with the result
-in order to 
+in order to view participants from boths ontologies under the other
+ontology. This is not a difficult task, the goal here is only to show
+how this could be achieved.
 </p>
 	
 <p>For that purpose, you have to develop a program in Java. This
   programme can be compiled by:
 <div class="fragment">
-$ javac -classpath ../../lib/align.jar:../../lib/procalign.jar:../../lib/jena/jena.jar:../../lib/jena/arq.jar:../../lib/iddl/iddl.jar:../../lib/pellet/pellet.jar MyApp.java
+$ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet.jar MyApp.java
 </div>
 and run by:
 <div class="fragment">
-$ java -classpath .:../../lib/align.jar:../../lib/procalign.jar:../../lib/jena/jena.jar:../../lib/jena/arq.jar:../../lib/iddl/iddl.jar:../../lib/pellet/pellet.jar:../../lib/ontosim/ontosim.jar:../../lib/log4j/commons-logging.jar:../../lib/log4j/log4j.jar:../../lib/xerces/xercesImpl.jar:../../lib/jena/iri.jar:../../lib/jena/icu4j_3_4.jar:../../lib/jena/concurrent.jar:../../lib/pellet/relaxngDatatype.jar:../../lib/pellet/xsdlib.jar MyApp
+$ java -classpath .:../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet.jar:../../../lib/ontosim/ontosim.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/pellet/relaxngDatatype.jar:../../../lib/pellet/xsdlib.jar MyApp
 </div>
-The long list of jar is boring, but at list it is explicit and you
+The long list of jar is boring, but at least it is explicit and you
 should be safe with this one.
 <p>
 </p>
@@ -144,8 +137,8 @@ and, if none is found, computes one.
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl";
+	//String u1 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl";
+	//String u2 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
@@ -254,10 +247,13 @@ This can be done with the alignment API support.
 <h2>Generate the answers</h2>
 
 <p>
-This can be done in two ways:
+This can be done in three ways:
 <ul>
 <li>using SPARQL</li>
-<li>using Pellet or something to answer these queries.</li>
+<li>using a reasonner such as Pellet to answer these queries against
+  the merged ontologies.</li>
+<li>using a "distributed" reasoner, in our case IDDL, to answer these
+  queries against non merged aligned ontologies.</li>
 </ul>
 </p>
 <p>
@@ -283,13 +279,13 @@ ontologies instead of the merged one.
 	model.read(in,"file:///tmp/myresult.owl"); 
 	in.close();
 </pre>	
-<p>Query (please play by chaging the query)</p>
+<p>Query (please play by changing the query)</p>
 <pre>
         // Create a new query
 	String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
 		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#> " +
+		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#> " +
 		"SELECT ?fn ?ln ?t " +
 		"WHERE {" +
                 "      ?student rdf:type aa:Person . " +
@@ -322,16 +318,28 @@ ontologies instead of the merged one.
 </pre>
 <p>Get the instances of "Estudiantes":</p>
 <pre>
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl#Student" ) );   
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Student" ) );   
 	Set instances  = reasoner.getIndividuals( estud, false );
 	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
 </pre>
 <p>Some subsumption tests:</p>
 <pre>
-	testSubClass( manager, reasoner, estud, person );
-	testSubClass( manager, reasoner, estud, student );
+	testPelletSubClass( manager, reasoner, estud, person );
+	testPelletSubClass( manager, reasoner, estud, student );
+</pre>
+<p>Such that:</p>
+<pre>
+    public void testPelletSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
+	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassAxiom( d1, d2 );
+	boolean isit = reasoner.isEntailed( axiom );
+	if ( isit ) {
+	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
+	} else {
+	    System.out.println( "Pellet(Merged): "+d1+" is not necessarily subclass of "+d2 );
+	}
+    }
 </pre>
 </div>
 <div class="explain" id="qu9">
@@ -352,11 +360,27 @@ ontologies instead of the merged one.
 	    System.out.println( "IDDL: the alignment network is inconsistent");
 	}
 </pre>
+<p>Such that:</p>
+<pre>
+    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLDescription d1, OWLDescription d2 ) {
+	Alignment al2 = new ObjectAlignment();
+	try {
+	    al2.init( onto1, onto2 );
+	    // add the cell
+	    al2.addAlignCell( d1, d2, "&lt;", 1. );
+	} catch (AlignmentException ae) { ae.printStackTrace(); }
+	if ( dreasoner.isEntailed( al2 ) ) {
+	    System.out.println( "IDDL: "+d1+" <= "+d2+" is entailed" );
+	} else {
+	    System.out.println( "IDDL: "+d1+" <= "+d2+" is not entailed" );
+	}
+    }
+</pre>
 </div>
 
 The results for these execution are (for Pellet):
 <pre>
-Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl#Estudiante
+Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante
 Pellet(Merged): Estudiante is not necessarily subclass of Person
 Pellet(Merged): Estudiante is subclass of Student
 </pre>
@@ -372,19 +396,9 @@ IDDL: Estudiante <= Student is entailed
 <p>Do you want to see a possible solution?</p>
 <p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
 
-
-<h2>Further exercises</h2>
-	
-<p>More info: <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a></p>
-
-	
-<h2>Acknowledgements</h2>
-	
-<p>The format of this tutorial has been shamelessly borrowed from Sean Bechhofer's <a href="http://owl.man.ac.uk/2005/07/sssw/"><acronym>OWL</acronym> tutorial</a>.</p>	
-
 <hr />
 <small>
-<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial2/</p>
+<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial2/</p>
 </small>
 <hr />
 <p>$Id$</p>
