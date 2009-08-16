@@ -40,6 +40,7 @@ public interface LogicOntologyNetwork extends OntologyNetwork {
     public void setSemantics( String s );
     public String getSemantics();
     public boolean isConsistent(); 
-    public boolean isConsequence( Alignment al );
+    public boolean isEntailed( Alignment al );
+    //public boolean isEntailed( URI ontology, Object axiom );
 
 }
