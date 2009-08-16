@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -92,15 +92,18 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     }
 
 
-    public String getEntityName(Object o) throws AlignmentException {
+    public String getEntityName( Object o ) throws AlignmentException {
 	try {
-	    // Try to get labels first... (done in the OWLAPI way)
-	    URI u = new URI(((OntResource) o).getURI());
-	    if ( u != null ) return u.getFragment();
-	    else return "";
-	} catch (Exception oex) {
+	    // Should try to get labels first... (done in the OWLAPI way)
+	    return getFragmentAsLabel( new URI( ((OntResource) o).getURI() ) );
+	} catch ( Exception oex ) {
 	    return null;
 	}
+    }
+
+    public String getEntityName( Object o, String lang ) throws AlignmentException {
+	// Should first get the label in the language
+	return getEntityName( o );
     }
 
     public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh�ne-Alpes, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,7 +32,11 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public URI getEntityURI( Object o ) throws AlignmentException;
     
     /**
-     * return one of the "rdfs:label" property values for a given entity.
+     * returns the default name of an entity if specified.
+     * otherwise, returns one of its names (e.g., "rdfs:label" property values)
+     * In case no such official name is given to the entity it is possible to 
+     * use the entity URI to return its fragment identifier (after the '#') or 
+     * last fragment (after the last "/" or just before) in this order.
      * @param o the entity
      * @return a label
      * @throws AlignmentException
@@ -40,15 +44,27 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public String getEntityName( Object o ) throws AlignmentException;
 
     /**
-     * Returns the values of the "rdfs:label" property for a given entity and for a given natural language (attribute xml:lang).
+     * returns the default name of an entity in a language (attribute xml:lang)
+     * if specified.
+     * otherwise, returns one of its names (e.g., "rdfs:label" property values)
+     * otherwise returns the default name (getEntityName)
      * @param o the entity
-     * @param lang the code of the language ("en", "fr", "es", etc.) 
-     * @return the set of labels
+     * @return a label
      * @throws AlignmentException
      */
-    public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException;
+    public String getEntityName( Object o, String lang ) throws AlignmentException;
+
     /**
-     * Returns all the values of the "rdfs:label" property for a given entity.
+     * returns all the names of an entity in a language if specified.
+     * otherwise, returns null
+     * @param o the entity
+     * @param lang the code of the language ("en", "fr", "es", etc.) 
+     * @return the default name
+     * @throws AlignmentException
+     */
+    public Set<String> getEntityNames( Object o, String lang ) throws AlignmentException;
+    /**
+     * Returns all the names a given entity (e.g., rdfs:labels in OWL/RDFS).
      * @param o the entity
      * @return the set of labels
      * @throws AlignmentException
@@ -56,7 +72,7 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public Set<String> getEntityNames( Object o ) throws AlignmentException;
     
     /**
-     * Returns the values of the "rdfs:comment" property for a given entity and for a given natural language (attribute xml:lang).
+     * Returns the values ofof textual properties (e.g., "rdfs:comment", rdfs:label in RDFS/OWL) for a given entity and for a given natural language (attribute xml:lang).
      * @param o the entity
      * @param lang the code of the language ("en", "fr", "es", etc.) 
      * @return the set of comments
@@ -65,7 +81,7 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException;
     
     /**
-     * Returns all the values of the "rdfs:comment" property for a given entity
+     * Returns all the values of textual properties (e.g., "rdfs:comment", rdfs:label in RDFS/OWL) for a given entity
      * @param o the entity
      * @return the set of comments
      * @throws AlignmentException

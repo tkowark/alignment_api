@@ -108,24 +108,32 @@ public class OWLAPI2Ontology extends BasicOntology<OWLOntology> implements
 
     public String getEntityName(Object o) throws AlignmentException {
 	try {
-	    return ((OWLEntity) o).getURI().getFragment();
-	} catch (NullPointerException e) {
-	    return null;
+	    // Should try to get the label first
+	    return getFragmentAsLabel( ((OWLEntity) o).getURI() );
 	} catch (ClassCastException e) {
-	    throw new AlignmentException(o + " is not an entity for "
-		    + onto.getURI());
+	    throw new AlignmentException(o+" is not an entity for "+ onto.getURI());
 	}
     }
 
-    public Set<String> getEntityNames(Object o, String lang)
-	    throws AlignmentException {
-	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(),
-		lang);
+    public String getEntityName( Object o, String lang ) throws AlignmentException {
+	// Should first get the label in the language
+	return getEntityName( o );
+    }
+
+    public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {
+	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), lang);
     }
 
     public Set<String> getEntityNames(Object o) throws AlignmentException {
-	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(),
-		null);
+	Set<String> result = getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), null);
+	if ( result == null ) {
+	    String label = getEntityName( o );
+	    if ( label != null ) {
+		result = new HashSet();
+		result.add( label );
+	    }
+	}
+	return result;
     }
 
     public URI getEntityURI(Object o) throws AlignmentException {
@@ -382,8 +390,8 @@ public class OWLAPI2Ontology extends BasicOntology<OWLOntology> implements
 	list.add( (Object)rest.getProperty() );
     }
     public void getProperties( OWLNaryBooleanDescription d, Set<Object> list, Set<Object> visited ) throws OWLException {
-	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
-	    getProperties( (OWLDescription)it.next(), list, visited );
+	for ( OWLDescription desc : d.getOperands() ){
+	    getProperties( desc, list, visited );
 	}
     }
     public void getProperties( OWLClass cl, Set<Object> list, Set<Object> visited ) throws OWLException {
