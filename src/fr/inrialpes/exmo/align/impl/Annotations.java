@@ -23,10 +23,16 @@ package fr.inrialpes.exmo.align.impl;
 public class Annotations {
 
     public static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
-    public static String METHOD = "method";
-    public static String TIME = "time";
     public static String ID = "id";
+    public static String METHOD = "method";
+    public static String DERIVEDFROM = "derivedFrom";
+    public static String PARAMETERS = "parameters";
+    public static String CERTIFICATE = "certificate";
+    public static String TIME = "time";
+    public static String LIMITATIONS = "limitations";
+    public static String PROPERTIES = "properties";
     public static String PRETTY = "pretty";
+    public static String PROVENANCE = "provenance";
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
     public static boolean STRICT_IMPLEMENTATION = false;
