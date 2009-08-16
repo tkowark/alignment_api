@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004, 2008
+ * Copyright (C) INRIA, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,13 +21,12 @@
 package org.semanticweb.owl.align;
 
 /**
- *
+ * The interface of the objects that can be visited by a renderer
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
-public interface AlignmentVisitor {
-    public void init( Parameters p );
-    public void visit( Visitable o ) throws AlignmentException;
+public interface Visitable {
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
  }

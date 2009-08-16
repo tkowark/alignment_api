@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ import org.xml.sax.ContentHandler;
  */
 
 
-public interface Alignment extends Cloneable, Iterable<Cell> {
+public interface Alignment extends Cloneable, Iterable<Cell>, Visitable {
 
     /** Initialize the alignement before using it **/
 
@@ -52,7 +52,6 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
 
     /** Alignment methods **/
 
-    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
     /**
      * The alignment has reference to the two aligned ontology.
      * All Alignment cells contain firts the entity from the first ontology
@@ -163,6 +162,21 @@ public interface Alignment extends Cloneable, Iterable<Cell> {
     public Enumeration<Cell> getElements();
     public Iterator<Cell> iterator();
     public int nbCells();
+
+    // What about implementing methods here?
+    // enum CutMethod {
+    // HARD,
+    // ...
+    // }
+    /*
+     * - getting those cells with strength above n (hard)
+     * - getting the n best cells (best)
+     * - getting those cells with strength at worse n under the best (span)
+     * - getting the n% best cells (perc)
+     * - getting those cells with strength at worse n% of the best (prop)
+     * - getting all cells until a gap of n (hardgap)
+     * - getting all cells until a gap of n% of the last (propgap)
+     */
 
     public void cut( String method, double threshold ) throws AlignmentException;
     public void cut( double threshold ) throws AlignmentException;

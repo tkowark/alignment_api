@@ -31,11 +31,8 @@ import org.xml.sax.ContentHandler;
  */
 
 
-public interface Relation
-{
+public interface Relation extends Visitable {
     /** Creation **/
-    public void accept( AlignmentVisitor visitor ) throws AlignmentException;
-
     public String getRelation();
 
     public Relation inverse();
