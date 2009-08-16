@@ -403,8 +403,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	String msg = "";
         if ( perf.equals("listalignments") ){
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID );
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -496,11 +495,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    // JE: only those non stored please (retrieve metadata + stored)
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.ID);
+	    for ( Alignment al : manager.alignments() ) {
+		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		params.setParameter("id", id);
 		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
-		    String pid = ((Alignment)e.nextElement()).getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		    String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		    msg += "<option value=\""+id+"\">"+pid+"</option>";
 		}
@@ -532,8 +531,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String sel = (String)params.getParameter("id");
 	    msg ="<h1>Trim alignments</h1><form action=\"cut\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -560,8 +558,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prminv") ) {
 	    msg ="<h1>Invert alignment</h1><form action=\"inv\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -596,8 +593,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />Initial alignment id:  <select name=\"id\"><option value=\"\" selected=\"1\"></option>";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -630,8 +626,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String sel = (String)params.getParameter("id");
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -660,8 +655,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -706,8 +700,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmtranslate") ) {
 	    msg = "<h1>Translate query</h1><form action=\"translate\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -729,8 +722,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -752,8 +744,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg ="<h1>Evaluate alignment</h1><form action=\"eval\">";
 	    msg += "Alignment to evaluate: ";
 	    msg += "<select name=\"id\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -762,8 +753,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg +="Reference alignment: ";
 	    msg += "<select name=\"ref\">";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		Alignment al = (Alignment)e.nextElement();
+	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
 		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";

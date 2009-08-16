@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2007-2009
+ * Copyright (C) INRIA, 2004-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -148,16 +148,15 @@ public class PRGraphEvaluator extends BasicEvaluator {
 			    );
 
       // Set the found cells in the sorted structure
-      for (Enumeration e = align2.getElements(); e.hasMoreElements();) {
-	  cellSet.add( (Cell)e.nextElement() );
+      for ( Cell c : align2 ) {
+	  cellSet.add( c );
       }
 
       // Collect the points that change recall
       // (the other provide lower precision from the same recall and are not considered)
       points.add( new Pair( 0., 1. ) ); // [R=0%]
-      for( Iterator it = cellSet.iterator(); it.hasNext(); ){
+      for( Cell c2 : cellSet ){
 	  nbfound++;
-	  Cell c2 = (Cell)it.next();
 	  Set s1 = (Set)align1.getAlignCells1( c2.getObject1() );
 	  if( s1 != null ){ // for all cells matching our first entity
 	      for( Iterator it1 = s1.iterator(); it1.hasNext() && c2 != null; ){

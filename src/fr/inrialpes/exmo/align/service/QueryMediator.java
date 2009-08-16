@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -186,8 +186,7 @@ public class QueryMediator implements QueryProcessor {
             }
         } else mainQuery = aQuery;
 	// The second part replaces the named items by their counterparts
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell cell = (Cell)e.nextElement();
+	for( Cell cell : align ){
 	    mainQuery = mainQuery.replaceAll(
 					     cell.getObject1AsURI(align).toString(),
 					     cell.getObject2AsURI(align).toString() );

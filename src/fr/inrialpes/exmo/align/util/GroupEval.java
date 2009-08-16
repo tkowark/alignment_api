@@ -226,14 +226,15 @@ public class GroupEval {
 	Vector<Object> result = new Vector<Object>();
 	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
-	int i = 1;
+	int i = 0;
 	// for all alignments there,
-	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	for ( String m: listAlgo ) {
+	    i++;
 	    // call eval
 	    // store the result in a record
 	    // return the record.
 	    if ( debug > 2) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+(String)e.nextElement()+".rdf");
+	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -282,7 +283,7 @@ public class GroupEval {
 	else if ( type.equals("triangle") ) printTRIANGLE( result );
     }
 
-    public void printTRIANGLE( Vector result ) {
+    public void printTRIANGLE( Vector<Vector> result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -296,10 +297,10 @@ public class GroupEval {
 	    correctVect[k] = 0;
 	    timeVect[k] = 0;
 	}
-	for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
+	for ( Vector test : result ) {
 	    int nexpected = -1;
-	    Vector test = (Vector)e.nextElement();
 	    Enumeration f = test.elements();
+	    // Too bad the first element must be skipped
 	    f.nextElement();
 	    for( int k = 0 ; f.hasMoreElements() ; k++) {
 		PRecEvaluator eval = (PRecEvaluator)f.nextElement();
@@ -338,7 +339,7 @@ public class GroupEval {
 	//System.out.println("\\draw (10,-0.3) node {1.}; ");
 	System.out.println("% Plots");
 	int k = 0;
-	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
+	for ( String m: listAlgo ) {
 	    double precision = (double)correctVect[k]/foundVect[k];
 	    double recall = (double)correctVect[k]/expected;
 	    double prec2 = precision*precision;
@@ -346,7 +347,8 @@ public class GroupEval {
 	    double b = java.lang.Math.sqrt( prec2 - (a*a) );
 	    a = a*10; b = b*10; //for printing scale 10.
 	    System.out.println("\\draw plot[mark=+,] coordinates {("+a+","+b+")};");
-	    System.out.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+(String)e.nextElement()+"};");
+	    System.out.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+m+"};");
+	    k++;
 	}
 	System.out.println("\\end{tikzpicture}");
 	System.out.println();
@@ -402,7 +404,7 @@ and
 
 which the program does...
     */
-    public void printHTML( Vector result ) {
+    public void printHTML( Vector<Vector> result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -426,18 +428,18 @@ which the program does...
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( String m : listAlgo ) {
 		writer.println("<colgroup align='center' span='"+fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;) {
-		writer.println("<th colspan='"+fsize+"'>"+e.nextElement()+"</th>");
+	    for ( String m : listAlgo ) {
+		writer.println("<th colspan='"+fsize+"'>"+m+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( String m : listAlgo ) {
 		for ( int i = 0; i < fsize; i++){
 		    writer.print("<td>");
 		    if ( format.charAt(i) == 'p' ) {
@@ -469,9 +471,8 @@ which the program does...
 	    // </tr>
 	    // For each directory <tr>
 	    boolean colored = false;
-	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
+	    for ( Vector test : result ) {
 		int nexpected = -1;
-		Vector test = (Vector)e.nextElement();
 		if ( colored == true && color != null ){
 		    colored = false;
 		    writer.println("<tr bgcolor=\""+color+"\">");
@@ -530,8 +531,8 @@ which the program does...
 	    // here we use the real values, i.e., add 0 to both correctVect and
 	    // foundVect, so this is OK for computing the average.
 	    int k = 0;
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
-		e.nextElement();
+	    // ???
+	    for ( String m : listAlgo ) {
 		double precision = (double)correctVect[k]/foundVect[k];
 		double recall = (double)correctVect[k]/expected;
 		for ( int i = 0 ; i < fsize; i++){
@@ -555,6 +556,7 @@ which the program does...
 		    }
 		    writer.println("</td>");
 		};
+		k++;
 	    }
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");

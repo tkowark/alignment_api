@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA
+ * Copyright (C) 2003-2009, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -217,8 +217,7 @@ public class GroupOutput {
 
     public void iterateAlgorithm(){
 	// for all alignments there,
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; ) {
-	    String algo = (String)e.nextElement();
+	for ( String algo : listAlgo ) {
 	    if ( debug > 0 ) System.err.println("Algorithm: "+algo);
 	    // type
 	    if ( type.equals("tex") ) {

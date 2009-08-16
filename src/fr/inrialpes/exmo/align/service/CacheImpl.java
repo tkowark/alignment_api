@@ -282,7 +282,6 @@ public class CacheImpl {
     protected Alignment retrieveAlignment( String id, Alignment alignment ) throws SQLException, AlignmentException, URISyntaxException {
 	String query;
 	URI ent1 = null, ent2 = null;
-	Cell cell = null;
 
 	Statement st = createStatement();
 
@@ -296,15 +295,14 @@ public class CacheImpl {
 	    ent1 = new URI(rs.getString("uri1"));
 	    ent2 = new URI(rs.getString("uri2"));
 	    if(ent1 == null || ent2 == null) break;
-	    cell = alignment.addAlignCell(ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")));
+	    Cell cell = alignment.addAlignCell(ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")));
 	    cell.setId(rs.getString("cell_id"));
 	    cell.setSemantics(rs.getString("semantics"));
 
 	}
 
 	// JE: I must now retrieve all the extensions of the cells
-	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
-	    cell = (Cell)e.nextElement();
+	for ( Cell cell: alignment ){
 	    String cid = cell.getId();
 	    if ( cid != null && !cid.equals("") ){
 		query = "SELECT * FROM extension WHERE id = '" + cid + "'";
@@ -591,8 +589,7 @@ public class CacheImpl {
 			st.executeUpdate(query);
 	    	}
 
-	    	for( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
-			Cell c = (Cell)e.nextElement();
+	    	for( Cell c : alignment ) {
 			String cellid = null;
 			if ( c.getObject1() != null && c.getObject2() != null ){
 		    		cellid = c.getId();

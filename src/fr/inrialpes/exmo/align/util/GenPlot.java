@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA
+ * Copyright (C) 2003-2009, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -224,8 +224,7 @@ public class GenPlot {
 
 	if( debug > 0 ) System.err.println("Directory : "+dir);
 	// for all alignments there,
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
-	    String algo = (String)e.nextElement();
+	for ( String algo : listAlgo ) {
 	    // call eval
 	    if ( debug > 0 ) System.err.println("  Considering result "+algo+" ("+i+")");
 	    PRGraphEvaluator evaluator = eval( prefix+"refalign.rdf", prefix+algo+".rdf");
@@ -235,6 +234,7 @@ public class GenPlot {
 		    result[i][j] = result[i][j] + evaluator.getPrecision(j);
 		}
 	    }
+	    i++;
 	}
 	// Unload the ontologies.
 	OntologyFactory.clear();
@@ -303,23 +303,24 @@ public class GenPlot {
 	output.println("\\draw (-0.3,5) node[rotate=90] {$precision$}; ");
 	output.println("\\draw (-0.3,10) node {1.}; ");
 	output.println("% Plots");
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
-	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] file {"+(String)e.nextElement()+".table};");
+	for ( String m : listAlgo ) {
+	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] file {"+m+".table};");
+	    i++;
 	}
 	// And a legend
 	output.println("% Legend");
 	i = 0;
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	for ( String m : listAlgo ) {
 	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
-	    output.println("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+(String)e.nextElement()+"};");
+	    output.println("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
+	    i++;
 	}
 	output.println("\\end{tikzpicture}");
 	output.println();
 	output.println("\\end{document}");
 
 	i = 0;
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
-	    String algo = (String)e.nextElement();
+	for ( String algo : listAlgo ) {
 	    // Open one file
 	    PrintWriter writer;
 	    try {
@@ -346,13 +347,14 @@ public class GenPlot {
 		writer.close();
 	    } catch (Exception ex) { ex.printStackTrace(); }
 	    // UnsupportedEncodingException + FileNotFoundException
+	    i++;
 	}
     }
 
     public void printTSV( double[][] result ) {
 	// Print first line
-	for ( Enumeration e = listAlgo.elements() ; e.hasMoreElements() ; ) {
-	    output.print("\t"+(String)e.nextElement() );
+	for ( String m : listAlgo ) {
+	    output.print("\t"+m );
 	}
 	output.println();
 

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, 2007-2008 INRIA
+ * Copyright (C) 2003-2005, 2007-2009 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -192,8 +192,8 @@ public class ExtGroupEval {
 	print( iterateDirectories() );
     }
 
-    public Vector<Object> iterateDirectories (){
-	Vector<Object> result = null;
+    public Vector<Vector> iterateDirectories (){
+	Vector<Vector> result = null;
 	File [] subdir = null;
 	try {
 	    if (ontoDir == null) {
@@ -207,14 +207,14 @@ public class ExtGroupEval {
 	}
 	int size = subdir.length;
         Arrays.sort(subdir);
-	result = new Vector<Object>(size);
+	result = new Vector<Vector>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
 		if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
 		// eval the alignments in a subdirectory
 		// store the result
-		Object vect = (Object)iterateAlignments( subdir[j] );
+		Vector vect = (Vector)iterateAlignments( subdir[j] );
 		if ( vect != null ){
 		    result.add(i, vect);
 		    i++;
@@ -229,14 +229,15 @@ public class ExtGroupEval {
 	Vector<Object> result = new Vector<Object>();
 	boolean ok = false;
 	result.add(0,(Object)dir.getName().toString());
-	int i = 1;
+	int i = 0;
 	// for all alignments there,
-	for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; i++) {
+	for ( String m : listAlgo ) {
+	    i++;
 	    // call eval
 	    // store the result in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+e.nextElement()+".rdf");
+	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -280,7 +281,7 @@ public class ExtGroupEval {
     /**
      * This does not only print the results but compute the average as well
      */
-    public void print( Vector result ) {
+    public void print( Vector<Vector> result ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -301,18 +302,18 @@ public class ExtGroupEval {
 	    writer.println("<table border='2' frame='sides' rules='groups'>");
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( String m : listAlgo ) {
 		writer.println("<colgroup align='center' span='"+fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;) {
-		writer.println("<th colspan='"+(fsize+1)+"'>"+e.nextElement()+"</th>");
+	    for ( String m : listAlgo ) {
+		writer.println("<th colspan='"+(fsize+1)+"'>"+m+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ;e.nextElement()) {
+	    for ( String m : listAlgo ) {
 		for ( int i = 0; i < fsize; i++){
 		    if ( format.charAt(i) == 's' ) {
 			writer.println("<td colspan='2'>Symmetric</td>");
@@ -334,9 +335,8 @@ public class ExtGroupEval {
 	    // </tr>
 	    // For each directory <tr>
 	    boolean colored = false;
-	    for ( Enumeration e = result.elements() ; e.hasMoreElements() ;) {
+	    for ( Vector test : result ) {
 		int nexpected = -1;
-		Vector test = (Vector)e.nextElement();
 		if ( colored == true && color != null ){
 		    colored = false;
 		    writer.println("<tr bgcolor=\""+color+"\">");
@@ -392,8 +392,7 @@ public class ExtGroupEval {
 	    }
 	    writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
 	    int k = 0;
-	    for ( Enumeration<String> e = listAlgo.elements() ; e.hasMoreElements() ; k++) {
-		e.nextElement();
+	    for ( String m : listAlgo ) {
 		if ( foundVect[k] != -1 ){
 		    double precision = (double)correctVect[k]/foundVect[k];
 		    double recall = (double)correctVect[k]/expected;
@@ -407,6 +406,7 @@ public class ExtGroupEval {
 		    writer.println("<td colspan='2'><center>Error</center></td>");
 		}
 		//};
+		k++;
 	    }
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");

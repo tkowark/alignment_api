@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008.
+ * Copyright (C) INRIA, 2007-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -231,29 +231,28 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += wsdlAnswer();
 	} else if ( method.equals("listalignmentsRequest") || method.equals("listalignments") ) {
 	    msg += "      <listalignmentsResponse>\n      <alignmentList>";
-	    for( Enumeration e = manager.alignments(); e.hasMoreElements(); ){
-		String id = ((Alignment)e.nextElement()).getExtension(Annotations.ALIGNNS, Annotations.ID);
+	    for( Alignment al: manager.alignments() ){
+		String id = al.getExtension(Annotations.ALIGNNS, Annotations.ID);
 		msg += "        <alid>"+id+"</alid>\n";
 	    }
 	    msg += "      </alignmentList>\n    </listalignmentsResponse>\n";
 	    // -> List of URI
 	} else if ( method.equals("listmethodsRequest") || method.equals("listmethods") ) { // -> List of String
 	    msg += "    <listmethodsResponse>\n      <classList>\n";
-	    for( Iterator it = manager.listmethods().iterator(); it.hasNext(); ) {
-		String mt = (String) it.next();
+	    for( String mt: manager.listmethods() ) {
 		msg += "        <method>"+mt+"</method>\n";
 	    }
 	    msg += "      </classList>\n    </listmethodsResponse>\n";
 	} else if ( method.equals("listrenderersRequest") || method.equals("listrenderers") ) { // -> List of String
 	    msg += "    <listrenderersResponse>\n      <classList>\n";
-	    for( Iterator it = manager.listrenderers().iterator(); it.hasNext(); ) {
-		msg += "        <renderer>"+it.next()+"</renderer>\n";
+	    for( String m: manager.listrenderers() ) {
+		msg += "        <renderer>"+m+"</renderer>\n";
 	    }
 	    msg += "      </classList>\n    </listrenderersResponse>\n";
 	} else if ( method.equals("listservicesRequest") || method.equals("listservices") ) { // -> List of String
 	    msg += "    <listservicesResponse>\n      <classList>\n";
-	    for( Iterator it = manager.listservices().iterator(); it.hasNext(); ) {
-		msg += "        <service>"+it.next()+"</service>\n";
+	    for( String m: manager.listservices() ) {
+		msg += "        <service>"+m+"</service>\n";
 	    }
 	    msg += "      </classList>\n    </listservicesResponse>\n";
 	} else if ( method.equals("storeRequest") || method.equals("store") ) { // URI -> URI

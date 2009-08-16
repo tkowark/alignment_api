@@ -61,6 +61,7 @@ import java.net.JarURLConnection;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -156,8 +157,13 @@ public class AServProtocolManager {
 	return evaluators;
     }
 
+    /*
     public Enumeration alignments(){
 	return alignmentCache.listAlignments();
+    }
+    */
+    public Collection<Alignment> alignments() {
+	return alignmentCache.alignments();
     }
 
     public String query( String query ){
@@ -215,7 +221,9 @@ public class AServProtocolManager {
 	Message result = null;
 	Parameters p = mess.getParameters();
 	// These are added to the parameters wich are in the message
-	for (Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
+	//for ( String key : commandLineParams ) {
+	// Unfortunately non iterable
+	for ( Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
 	    String key = e.nextElement();
 	    if ( p.getParameter( key ) == null ){
 		p.setParameter( key , commandLineParams.getParameter( key ) );
@@ -271,10 +279,9 @@ public class AServProtocolManager {
 	// Try to retrieve first
 	Set alignments = alignmentCache.getAlignments( onto1.getURI(), onto2.getURI() );
 	*/
-	Set alignments = alignmentCache.getAlignments( uri1, uri2 );
+	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getParameter("force") == null ) {
-	    for ( Iterator it = alignments.iterator(); it.hasNext() ; ){
-		Alignment al = ((Alignment)it.next());
+	    for ( Alignment al: alignments ){
 		if ( al.getExtension( Annotations.ALIGNNS, Annotations.METHOD ).equals(method) ) {
 		    return new AlignmentId(newId(),mess,myId,mess.getSender(),
 					   al.getExtension( Annotations.ALIGNNS, Annotations.ID ),(Parameters)null,
@@ -815,6 +822,7 @@ public class AServProtocolManager {
  				// in the path or at the local place?
 				//classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
 				// This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
+				// Is there a way to make it iterable???
 				for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
 				    classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
 			    }
