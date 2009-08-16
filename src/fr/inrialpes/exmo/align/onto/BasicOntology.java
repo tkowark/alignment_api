@@ -22,11 +22,15 @@ package fr.inrialpes.exmo.align.onto;
 
 import java.net.URI;
 
+import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.AlignmentException;
+
 /**
  * Store the information regarding ontologies in a specific structure
  */
 
 public class BasicOntology<O> implements Ontology<O> {
+
     protected URI uri = null;
     protected URI file = null;
     protected URI formalismURI = null;
@@ -34,6 +38,10 @@ public class BasicOntology<O> implements Ontology<O> {
     protected O onto = null;
 
     public BasicOntology() {};
+
+    public void accept( AlignmentVisitor visitor) throws AlignmentException {
+        visitor.visit( this );
+    }
 
     public URI getURI() { return uri; }
     public URI getFile() { return file; }
@@ -46,4 +54,17 @@ public class BasicOntology<O> implements Ontology<O> {
     public void setFormURI( URI u ) { formalismURI = u; }
     public void setFormalism( String name ) { formalism = name; }
     public void setOntology( O o ) { this.onto = o; }
+
+    public String getFragmentAsLabel( URI u ){
+	String result = u.getFragment();
+	if ( result == null ) {
+	    String suri = u.toString();
+	    int end = suri.length()-1;
+	    if ( suri.charAt(end) == '/' ) end--;
+	    int start = end-1;
+	    for ( ; suri.charAt( start ) != '/' && start != 0 ; start-- );
+	    result = suri.substring( start+1, end+1 );
+	}
+	return result;
+    }
 }
