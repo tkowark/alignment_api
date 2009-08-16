@@ -45,8 +45,8 @@ import org.semanticweb.owl.align.OntologyNetwork;
 
 public class BasicOntologyNetwork implements OntologyNetwork {
 
-    private Hashtable<URI,OntologyTriple> ontologies;
-    private HashSet<Alignment> alignments;
+    protected Hashtable<URI,OntologyTriple> ontologies;
+    protected HashSet<Alignment> alignments;
 
     public BasicOntologyNetwork(){
 	ontologies = new Hashtable<URI,OntologyTriple>();
