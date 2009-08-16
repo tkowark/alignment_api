@@ -77,8 +77,10 @@ public class OntologyCache <O extends LoadedOntology> {
     /* debugging utility */
     public void displayCache(){
 	System.err.println("CACHE: "+ontologies.size()+"/"+ontologyUris.size()+" elements cached");
+	// No way to make this iterable??
+	//for ( URI u : ontologies.keys() ){
 	for( Enumeration<URI> e = ontologies.keys(); e.hasMoreElements(); ){
-	    URI u = e.nextElement();
+	URI u = e.nextElement();
 	    LoadedOntology o = ontologies.get( u );
 	    System.err.println( "      "+u );
 	    System.err.println( "      "+o.getURI() );
