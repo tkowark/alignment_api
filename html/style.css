@@ -101,4 +101,8 @@ body {
   padding: 2em 1em 2em 1em;
  }
 
+address {
+  font-size: 80%;
+}
+
 h2 { border-bottom: 1px solid #000088; }

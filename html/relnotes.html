@@ -44,6 +44,7 @@ Currently the development and maintainance of 3 versions continue.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
+<li>Implementation of a provenance metadata tag (server/impl)</li>
 <li>Online evaluation (server)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
@@ -71,15 +72,15 @@ likely to include:
 <li>Integration of OMWG alignments (impl)</li>
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Implement database store for OMWG Language (server)</li>
-<li>Addition of advanced tutorial (doc)</li>
+<li>Addition of advanced tutorial and reengineered tutorials (doc)</li>
 </ul>
 </p>
 
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 3.8/4.0/4.1 (1xxx): xx/09/2009 - Tring</h2-->
-<!--h2>Version 3.7/4.0 (1xxx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
+<!--h2>Version 4.1 (1xxx): xx/09/2009 - Tring</h2-->
+<!--h2>Version 4.0 (1xxx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
 
 <p>
 <ul compact="1">
@@ -92,19 +93,26 @@ likely to include:
 <li>Added computation of MAP (Mean Average Precision)
   in <tt>PRGraphEvaluator</tt> (impl).</li>
 <li>Added pretty-printing of names in server (server)</li>
+<li>Added provenance tracking in server (server)</li>
 <li>Added initialisation through initial alignment
   in <tt>MatrixMeasure</tt> (impl)</li>
 <li>Added a parameter to the <tt>OWLAxiomsRendererVisitor</tt> so that it could render
   heterogeneous axioms, like Class sameAs Property (impl).</li>
-<li>Suppressed of the <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
+<li>Suppressed <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
   (deprecated since version 3.3) (impl)</li>
+<li>Changed the signature of <tt></tt> from <tt>Enumeration</tt>
+  to <tt>Collection&lt;Alignment&gt;</tt> (server)</tt>
 <li>Reorganised the lib directory hierarchically (build)</li>
 <li>Corrected a bug when the server is launched without -S
   (server)</li>
 <li>Corrected a bug in retrieving alignments from ontologies when the
   two ontologies are the same (server)</li>
 <li>Corrected a bug when <tt>StringDistAlignment</tt> fail to raise
-      exception when bad method given (impl)</li>
+      exception when unknown method is given (impl)</li>
+<li>Corrected a bug in tests that did not forced to clean-up the state
+  after <tt>OntoTest</tt> (test)</li>
+<li>Corrected a (commented) error in the <tt>wine.xml</tt> OMWG
+  example (omwg)</li>
 <!--li>Suppressed the capability to export alignments in WSML (impl/omwg)</li-->
 </ul>
 </p>
