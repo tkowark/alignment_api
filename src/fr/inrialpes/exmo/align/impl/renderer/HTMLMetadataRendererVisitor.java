@@ -25,17 +25,15 @@ import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
-import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.ObjectCell;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 /**
@@ -54,7 +52,6 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
     
     PrintWriter writer = null;
     Alignment alignment = null;
-    Cell cell = null;
     Hashtable<String,String> nslist = null;
     boolean embedded = false; // if the output is XML embeded in a structure
 
@@ -66,6 +63,10 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
 	if ( p.getParameter( "embedded" ) != null 
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
     };
+
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+    }
 
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
@@ -126,17 +127,7 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
 	}
 	writer.print("</table>\n");
 	writer.print("</div>\n");
-	//writer.print("<h2>Correspondences</h2>\n");
-	//writer.print("<div rel=\"align:map\"><table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
-	//for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	//    Cell c = (Cell)e.nextElement();
-	//    c.accept( this );
-	//} //end for
-	//writer.print("</table>\n");
-	//writer.print("</div></div>\n");
 	writer.print("</body>\n</html>\n");
     }
 
-    public void visit( Cell cell ) {}
-    public void visit( Relation rel ) {}
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,7 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -61,6 +62,12 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
 
     public void init( Parameters p ) {};
 
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
+
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !(align instanceof ObjectAlignment) )
 	    throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
@@ -71,8 +78,7 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
 	writer.print("  source(<\""+onto1.getURI()+"\">)\n");
 	writer.print("  target(<\""+onto2.getURI()+"\">)\n");
 
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
+	for( Cell c : align ){
 	    c.accept( this );
 	} //end for
 	writer.print(")\n");

@@ -26,6 +26,7 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -62,6 +63,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	if ( p.getParameter("heterogeneous") != null ) heterogeneous = true;
     };
 
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
+
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !( align instanceof ObjectAlignment ))  {
 	    throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
@@ -87,8 +94,7 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	writer.print("    <owl:imports rdf:resource=\""+align.getOntology2URI().toString()+"\"/>\n");
 	writer.print("  </owl:Ontology>\n\n");
 	
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
+	for( Cell c : align ){
 	    Object ob1 = c.getObject1();
 	    Object ob2 = c.getObject2();
 

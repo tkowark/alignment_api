@@ -27,6 +27,7 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -64,6 +65,12 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
    };
 
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
+
     public void visit( Alignment align ) throws AlignmentException {
 	if ( !( align instanceof ObjectAlignment) )
 	    throw new AlignmentException("SWRLRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
@@ -84,8 +91,7 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
 	}
 	writer.print("\n");
 	writer.println("  <owlx:Imports rdf:resource=\""+onto1.getURI()+"\"/>\n");
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
+	for( Cell c : align ){
 	    c.accept( this );
 	}
 	writer.println("</swrlx:Ontology>");

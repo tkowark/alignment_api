@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2008
+ * Copyright (C) INRIA, 2003-2004, 2006-2009
  * Copyright (C) Quentin Reul, 2008
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import java.net.URI;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -67,6 +68,12 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     };
 
     // This must be considered
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
+
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
@@ -91,8 +98,7 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	    writer.print("  <!-- "+name+": "+((String[])ext)[2]+" -->\n");
 	}
 	writer.print("\n");
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
+	for( Cell c : align ){
 	    c.accept( this );
 	} //end for
 	writer.print("</rdf:RDF>\n");

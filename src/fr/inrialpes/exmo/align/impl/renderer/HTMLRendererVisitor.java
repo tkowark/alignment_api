@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -49,8 +50,7 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
  * @version $Id$ 
  */
 
-public class HTMLRendererVisitor implements AlignmentVisitor
-{
+public class HTMLRendererVisitor implements AlignmentVisitor {
     
     PrintWriter writer = null;
     Alignment alignment = null;
@@ -66,6 +66,12 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	if ( p.getParameter( "embedded" ) != null 
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
     };
+
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
 
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
@@ -100,6 +106,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
 	String id = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
 	String pid = align.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	if ( id == null ) id = "Anonymous alignment";
 	if ( pid == null ) {
 	    writer.print("<h1>"+id+"</h1>\n");
 	} else {
@@ -133,8 +140,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");
 	writer.print("<div rel=\"align:map\"><table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
-	for( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
+	for( Cell c : align ){
 	    c.accept( this );
 	} //end for
 	writer.print("</table>\n");

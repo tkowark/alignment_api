@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.net.URI;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -71,14 +72,20 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
     };
 
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+	else if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+    }
+
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
 	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
 	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
 	}
-	for( Enumeration e = align.getElements(); e.hasMoreElements(); ){
-	    collectURIs( (Cell)e.nextElement() );
+	for( Cell c : align ){
+	    collectURIs( c );
 	}
 	alignment = align;
 	if ( embedded == false )

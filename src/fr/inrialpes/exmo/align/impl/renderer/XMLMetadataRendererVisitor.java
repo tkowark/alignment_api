@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007
+ * Copyright (C) INRIA, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,12 +24,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.io.PrintWriter;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
-import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -58,6 +57,10 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	if ( p.getParameter( "embedded" ) != null 
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
     };
+
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Alignment ) visit( (Alignment)o );
+    }
 
     public void visit( Alignment align ) throws AlignmentException {
 	String extensionString = "";
@@ -146,6 +149,4 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	writer.print("</rdf:RDF>\n");
     }
 
-    public void visit( Cell c ) {}
-    public void visit( Relation r ) {}
 }
