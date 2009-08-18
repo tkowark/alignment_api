@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -67,6 +68,18 @@ public class RDFRendererVisitor implements AlignmentVisitor
     public void init( Parameters p ) {
 	if ( p.getParameter( "embedded" ) != null 
 	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    }
+
+    /*
+     * JE: These major dispatches are a pain.
+     * I should learn a bit more Java about that 
+     * (and at least inverse the order
+     */
+    public void visit( Visitable o ) throws AlignmentException {
+	if ( o instanceof Cell ) visit( (Cell)o );
+	else if ( o instanceof Relation ) visit( (Relation)o );
+	//	else if ( o instanceof Ontology ) visit( (Ontology)o );
+	else if ( o instanceof Alignment ) visit( (Alignment)o );
     }
 
     public void visit( Alignment align ) throws AlignmentException {
