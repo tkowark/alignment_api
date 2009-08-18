@@ -97,6 +97,11 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	if (!ontologies.containsKey(onto)) return Collections.emptySet();
 	return ontologies.get( onto ).sourceAlignments;
     };
+    public void invert() throws AlignmentException {
+	for ( Alignment al : alignments ) {
+	    addAlignment( al.inverse() );
+	}
+    }
 
 }
 

@@ -47,6 +47,11 @@ public interface OntologyNetwork extends Cloneable {
     public Set<Alignment> getTargetingAlignments( URI onto );
     public Set<Alignment> getSourceAlignments( URI onto );
 
+    /**
+     * close reflexively the network.
+     * The network is modified.
+     */
+    public void invert() throws AlignmentException;
 }
 
 
