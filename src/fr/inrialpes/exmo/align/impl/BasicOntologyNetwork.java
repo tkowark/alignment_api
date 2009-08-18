@@ -98,9 +98,9 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	return ontologies.get( onto ).sourceAlignments;
     };
     public void invert() throws AlignmentException {
-	for ( Alignment al : alignments ) {
-	    addAlignment( al.inverse() );
-	}
+	HashSet<Alignment> newal = new HashSet<Alignment>();
+	for ( Alignment al : alignments ) newal.add( al.inverse() );
+	for ( Alignment al : newal ) addAlignment( al );
     }
 
 }
