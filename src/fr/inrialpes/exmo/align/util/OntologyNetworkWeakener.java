@@ -55,7 +55,7 @@ public class OntologyNetworkWeakener {
      * suppress n% of the correspondences at random in all alignments
      * n is a number between 0. and 1.
      * Returns a brand new BasicOntologyNetwork (with new alignments and cells)
-     * the @threshold parameter tells if the corrrespondences are suppressed at random of by suppressing the n% of lower confidence
+     * the @threshold parameter tells if the corrrespondences are suppressed at random (false) of by suppressing the n% of lower confidence (true)
      */
     public static OntologyNetwork weakenAlignments( OntologyNetwork on, double n, boolean threshold ) throws AlignmentException {
 	if ( n < 0. || n > 1. )
@@ -92,6 +92,28 @@ public class OntologyNetworkWeakener {
 		}
 	    }
 	    newon.addAlignment( newal );
+	}
+	return newon;
+    }
+
+    /**
+     * randomly drops n% of all alignments
+     * n is a number between 0. and 1.
+     * Returns a brand new BasicOntologyNetwork (with the initial alignments)
+     */
+    public static OntologyNetwork dropAlignments( OntologyNetwork on, double n ) throws AlignmentException {
+	if ( n < 0. || n > 1. )
+	    throw new AlignmentException( "Argument must be between 0 and 1.: "+n );
+	OntologyNetwork newon = new BasicOntologyNetwork();
+	for ( URI ontouri : on.getOntologies() ){
+	    newon.addOntology( ontouri );
+	}
+	Set<Alignment> alignments = on.getAlignments();
+	int size = alignments.size();
+	ArrayList<Alignment> array = new ArrayList<Alignment>( size );
+	Collections.shuffle( array );
+	for ( int i = size - (int)(n*size); i > 0; i-- ) {
+	    on.addAlignment( array.get( i ) );
 	}
 	return newon;
     }
