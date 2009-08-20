@@ -102,6 +102,7 @@ public class OntologyNetworkWeakener {
      * Returns a brand new BasicOntologyNetwork (with the initial alignments)
      */
     public static OntologyNetwork dropAlignments( OntologyNetwork on, double n ) throws AlignmentException {
+	System.err.println( " >>>> "+n );
 	if ( n < 0. || n > 1. )
 	    throw new AlignmentException( "Argument must be between 0 and 1.: "+n );
 	OntologyNetwork newon = new BasicOntologyNetwork();
@@ -111,9 +112,12 @@ public class OntologyNetworkWeakener {
 	Set<Alignment> alignments = on.getAlignments();
 	int size = alignments.size();
 	ArrayList<Alignment> array = new ArrayList<Alignment>( size );
+	for ( Alignment al : alignments ){
+	    array.add( al );
+	}
 	Collections.shuffle( array );
 	for ( int i = size - (int)(n*size); i > 0; i-- ) {
-	    on.addAlignment( array.get( i ) );
+	    newon.addAlignment( array.get( i ) );
 	}
 	return newon;
     }
