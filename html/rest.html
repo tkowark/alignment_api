@@ -1,0 +1,92 @@
+<html>
+<head>
+<title>Alignment API: REST interface</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcolor="#ffffff">
+
+<h1 style="text-align: center;">REST interface for the Alignment server</h1>
+
+<p>
+The Alignment server provides a REST interface for accessing the
+functions available on the server. Each request is an URL starting
+with a prefix, e.g., http://aserv.inrialpes.fr/rest/. The request type
+is identified by a string followed by a question mark, e.g., match?,
+and parameters are given in the classical URL syntax, e.g.,
+debug=true&amp;level=1.
+</p>
+<p>
+The result of these requests are provided in XML.
+In the sequel, we describe the various request types.
+</p>
+
+<h2>find</h2>
+<p>Find alignments related to one or two ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/find?onto1=&onto2=& </p>
+<p>Parameters:<br />
+ <b>onto1</b> and <b>onto2</b> are ontology URIs. One of them may be not provided.
+</p>
+
+<h2>listmethods</h2>
+<p>Get the list of matching methods available on the server.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/listmethods?</p>
+
+<h2>match</h2>
+<p>Match two ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/match?onto1=&onto2=&method=&force=&</p>
+<p>Parameters:<br />
+ <b>onto1</b> and <b>onto2</b> are ontology URIs to be matched,
+  <br />
+<b>method</b> is a matching method from the list
+  obtained by  http://aserv.inrialpes.fr/rest/listmethods?<br />
+The parameter <b>force</b> is optional and 
+  "force=off" by default,<br />
+If "force=on", a new alignment will be
+  produced.<br />
+If "force=off", the server first tries to find
+  an existing alignment for the two ontologies. If no alignment is found a new alignment will be produced.</p>
+
+<h2>retrieve</h2>
+<p>Retrieve an alignment in a specific format.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/retrieve?id=&method=&</p>
+<p>Parameters:<br />
+ <b>id</b> is URI of alignment to be retrieved<br />
+<b>method</b> indicates the format in which the alignment will be
+  serialised this is a classname taken from those provided
+  by <a href="#listrenderers">listrenderers</a> request.</p>
+
+<h2>trim</h2>
+<p>Trim an alignment with a threshhold.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/cut?id=&threshold=& </p>
+<p>Parameters:<br />
+ <b>id</b> is URI of alignment to be trimmed<br />
+<b>threshold</b> indicates a threshold for trimming</p>
+
+<h2>metadata</h2>
+<p>Get metadata of an alignment, i.e., avoid downloading all correspondences.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/metadata?id= </p>
+<p>Parameters:<br />
+ <b>id</b> is URI of alignment</p>
+
+<h2>store</h2>
+<p>Store an alignment on the server.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/store?id= </p>
+<p>Parameters:<br />
+ <b>id</b> is URI of alignment to be stored</p>
+
+<h2>load</h2>
+<p>Upload an alignment to the server.</p>
+<p>URI: http://aserv.inrialpes.fr/rest/load? </p>
+<p>Since this function uses POST request method, the content of alignment does not appear in URL.</p>
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/rest.html</center>
+<hr />
+$Id$
+</small>
+</body>
+</html>
