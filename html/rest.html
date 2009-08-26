@@ -29,9 +29,29 @@ In the sequel, we describe the various request types.
  <b>onto1</b> and <b>onto2</b> are ontology URIs. One of them may be not provided.
 </p>
 
+<p>XML result :<br />
+<findResponse>
+<id>3</id>
+<in-reply-to>fr.inrialpes.exmo.align.service.Message@1cc3436</in-reply-to>
+<alignmentList>
+<alid>Alignment URI</alid> 
+...
+</alignmentList>
+</findResponse>
+<p>
+
+
 <h2>listmethods</h2>
 <p>Get the list of matching methods available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/listmethods?</p>
+<p>XML result :<br />
+    <listmethodsResponse>
+      <classList>
+        <method> Class Name </method>
+	...
+      </classList>
+    </listmethodsResponse>
+</p>
 
 <h2>match</h2>
 <p>Match two ontologies.</p>
@@ -47,6 +67,12 @@ If "force=on", a new alignment will be
   produced.<br />
 If "force=off", the server first tries to find
   an existing alignment for the two ontologies. If no alignment is found a new alignment will be produced.</p>
+<p>XML result :<br />
+<matchResponse>
+<id>5</id><in-reply-to>fr.inrialpes.exmo.align.service.Message@b3869c</in-reply-to>
+<alid> Found alignment URI</alid>
+</matchResponse> 
+</p>
 
 <h2>retrieve</h2>
 <p>Retrieve an alignment in a specific format.</p>
@@ -57,29 +83,60 @@ If "force=off", the server first tries to find
   serialised this is a classname taken from those provided
   by <a href="#listrenderers">listrenderers</a> request.</p>
 
+<p>Result :<br />
+  Alignment in indicated format	
+</p>
+
 <h2>trim</h2>
 <p>Trim an alignment with a threshhold.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/cut?id=&threshold=& </p>
 <p>Parameters:<br />
  <b>id</b> is URI of alignment to be trimmed<br />
 <b>threshold</b> indicates a threshold for trimming</p>
+<p>XML result :<br />
+<metadataResponse>
+ Metadata in RDF
+</metadataResponse> 
+</p>
 
 <h2>metadata</h2>
 <p>Get metadata of an alignment, i.e., avoid downloading all correspondences.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/metadata?id= </p>
 <p>Parameters:<br />
  <b>id</b> is URI of alignment</p>
+<p>XML result :<br />
+<metadataResponse>
+ Metadata in RDF
+</metadataResponse> 
+</p>
 
 <h2>store</h2>
 <p>Store an alignment on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/store?id= </p>
 <p>Parameters:<br />
  <b>id</b> is URI of alignment to be stored</p>
+<p>XML result :<br />
+<storeResponse>
+<id>11</id>
+<in-reply-to>
+	fr.inrialpes.exmo.align.service.Message@11dee5e
+</in-reply-to>
+<alid> Alignment URI stored </alid>
+</storeResponse>
+</p>
 
 <h2>load</h2>
 <p>Upload an alignment to the server.</p>
 <p>URI: http://aserv.inrialpes.fr/rest/load? </p>
-<p>Since this function uses POST request method, the content of alignment does not appear in URL.</p>
+<p>Since this function uses POST request method, the content of alignment does not appear in URL. Therefore, this function should be called from a Java programme.</p>
+<p>XML result :<br />
+<loadResponse>
+<id>11</id>
+<in-reply-to>
+	fr.inrialpes.exmo.align.service.Message@11dee5e
+</in-reply-to>
+<alid> Alignment URI loaded </alid>
+</loadResponse>
 
 <address>
 <small>
