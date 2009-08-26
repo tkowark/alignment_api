@@ -58,23 +58,32 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 //import org.eclipse.jface.dialogs.MessageDialog;
-import org.semanticweb.kaon2.api.OntologyManager;
+//import org.semanticweb.kaon2.api.OntologyManager;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
-import com.ontoprise.config.IConfig;
-import com.ontoprise.ontostudio.datamodel.DatamodelPlugin;
-import com.ontoprise.ontostudio.datamodel.DatamodelTypes;
-import com.ontoprise.ontostudio.datamodel.exception.ControlException;
-import com.ontoprise.ontostudio.gui.commands.project.CreateProject;
-import com.ontoprise.ontostudio.io.ImportExportControl;
+//import com.ontoprise.config.IConfig;
+import org.neontoolkit.core.NeOnCorePlugin;
+
+//import org.neontoolkit.datamodel.DatamodelPlugin;
+//import org.neontoolkit.core.DatamodelTypes;
+//import com.ontoprise.ontostudio.datamodel.exception.ControlException;
+
+import org.neontoolkit.core.command.project.CreateProject;
+import org.neontoolkit.core.project.IOntologyProject;
+import org.neontoolkit.core.project.OntologyProjectManager;
+//import org.neontoolkit.io.ImportExportControl;
+import org.neontoolkit.io.util.ImportExportUtils;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntology;
+import com.ontoprise.ontostudio.owl.model.OWLManchesterProjectFactory;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-//import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
+
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormSectionFactory;
@@ -739,7 +748,9 @@ public class AlignView extends ViewPart
 							return;
 						}
                                
-						String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+						String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
+						 
+						//String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 	    				if(projects!=null) {
 	    				boolean found = false;	
 	    				
@@ -752,9 +763,12 @@ public class AlignView extends ViewPart
 	    				
 	    				if(!found) {
 	    					 
-	    					Properties proper = new Properties();
-   						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
-   						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+	    					//Properties proper = new Properties();
+   						//proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+	    					
+   						new CreateProject( inputName, OWLManchesterProjectFactory.FACTORY_ID, new Properties()).run();
+   						
+   						//new CreateProject( inputName, DatamodelTypes.RAM, proper ).run();
 	    				}
 	    			    }
 	    				
@@ -766,7 +780,13 @@ public class AlignView extends ViewPart
 						out.write( owlalignStr );
 					    out.flush();
 						out.close();
-						 
+						
+						ImportExportUtils ieControl = new ImportExportUtils();
+   	    				
+   	    				URI uris[] = new URI[1];
+   	    				uris[0] = new File(owlPath).toURI();
+   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
+   	    				/*
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
 							URI uris[] = new URI[1];
@@ -775,7 +795,7 @@ public class AlignView extends ViewPart
 					
 							//ieControl.addOntologies2Project(importedModules, inputName);
 						} catch (  ControlException ex ) { }
-							 
+						*/ 
 					} 
 					catch ( Exception ex ) { ex.printStackTrace();}
 				   
@@ -807,7 +827,7 @@ public class AlignView extends ViewPart
 						   return;
 					   }
    						
-					   String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+					   String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
 					   
 					   if(projects!=null) {
 	 					boolean found = false;	
@@ -819,16 +839,20 @@ public class AlignView extends ViewPart
    	    				}
    	    				
    	    				if(!found) {
-   	    						Properties proper = new Properties();
-   	    						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
-   	    						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+   	    						//Properties proper = new Properties();
+   	    						//proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+   	    						new CreateProject( inputName, OWLManchesterProjectFactory.FACTORY_ID, new Properties()).run();
+   	    						//new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
            				
    	    				}
    					 
-   	    				ImportExportControl ieControl = new ImportExportControl();	
+   	    				//ImportExportControl ieControl = new ImportExportControl();
+   	    				ImportExportUtils ieControl = new ImportExportUtils();
+   	    				
    	    				URI uris[] = new URI[1];
    	    				uris[0] = new File(fn.getAbsolutePath()).toURI();
-   	    				ieControl.importFileSystem(inputName, uris, null);
+   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
+   	    				//ieControl.importFileSystem(inputName, uris, null);
    	    				 
    	    				}
        				}
@@ -1058,14 +1082,17 @@ public class AlignView extends ViewPart
 			HashMap<String,String>  vec = new HashMap<String,String>();
 			//OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
 			OntologyFactory fact =  OntologyFactory.getFactory();
+			 
 			try {
-				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+				String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
 				if(projects != null) {
 				for(int i=0; i < projects.length; i++) {	 
 					if(projects[i]!=null) {  
-							 
-							OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
-							Set<String> strSet = connection.getAvailableOntologyURIs();
+							  
+							//OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
+							//Set<String> strSet = connection.getAvailableOntologyURIs();
+							IOntologyProject ontoProject = OntologyProjectManager.getDefault().getOntologyProject( projects[i] );
+							Set<String> strSet = ontoProject.getAvailableOntologyURIs();
 							String[] uris = (String[])strSet.toArray(new String[0]);
 							if(online) {
 								for(int k=0; k < uris.length; k++) {
@@ -1079,7 +1106,8 @@ public class AlignView extends ViewPart
 								}
 							} else {
 								for(int k=0; k < uris.length; k++) {
-									vec.put(DatamodelPlugin.getDefault().getPhysicalOntologyUri(projects[i], uris[k]).toString(),projects[i]);
+									vec.put(  (uris[k]).toString(), projects[i]);
+									//vec.put(DatamodelPlugin.getDefault().getPhysicalOntologyUri(projects[i], uris[k]).toString(),projects[i]);
 								}
 							}
 					}

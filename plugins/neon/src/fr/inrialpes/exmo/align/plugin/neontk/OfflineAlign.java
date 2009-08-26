@@ -42,7 +42,7 @@ import org.semanticweb.owl.align.Parameters;
 //import com.ontoprise.api.formatting.OntoBrokerOntologyFileFormat;
 //import com.ontoprise.config.IConfig;
 //import com.ontoprise.config.IConfig.OntologyLanguage;
-import com.ontoprise.ontostudio.io.ImportExportControl;
+//import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
@@ -65,7 +65,7 @@ public class OfflineAlign {
    String matchAndExportAlign (String method, String proj1, String selectedNeOnOnto1, String proj2, String selectedNeOnOnto2) {	 
 	  
 	  //export ontologies
-      ImportExportControl ieControl = new ImportExportControl();
+      //ImportExportControl ieControl = new ImportExportControl();
       //Integer name1 = new Integer(AlignView.alignId++);  
 	  //Integer name2 = new Integer(AlignView.alignId++);
 	  //File f1 = new File( selectedNeOnOnto1.replace("file:","") );
