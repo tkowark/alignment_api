@@ -2,7 +2,7 @@
 #                    NeOn Toolkit Alignment plug-in                   #
 #######################################################################
 
-(C) INRIA Rhône-Alpes, 2007-2008
+(C) INRIA Rhône-Alpes, 2007-2009
 Licensed under the LGPL 2.0 or above
 
 This program is free software; you can redistribute it and/or
@@ -24,3 +24,4 @@ $ ant jar
 This produces a neonalign.jar to put in the "plugins" directory
 of the NeOnToolkit
 
+Beware, this plug-in requires Java 1.6
