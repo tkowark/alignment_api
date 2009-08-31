@@ -85,15 +85,20 @@ public class OfflineAlign {
     	  uris.add( new URI(selectedNeOnOnto2 ) );
 	   
 		  // Create alignment object
+    	  
+    	  
 		Object[] mparams = {};
 	  	Class alignmentClass = Class.forName(method);
 	  	Class[] cparams = {};
 	  	java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
-	  	A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-	  	A1.init( (URI)uris.get(0), (URI)uris.get(1), (OntologyCache)null );
 	   
+	  	A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+	  	A1.init( (URI)uris.get(0), (URI)uris.get(1) );
+	  	
+	  	//System.out.println("matched offline 3" );
 	  	A1.align((Alignment)null,p);
 	  	
+	  	//System.out.println("matched=" +name.toString());
 	  	//AlignView.alignObjects.clear();
 	  	//System.out.println(" alignKey From Offline"+ alignFolder.getAbsolutePath() + File.separator + name.toString());
 	  	AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
@@ -119,7 +124,7 @@ public class OfflineAlign {
 	
 	  
 	  } catch ( Exception ex ) { ex.printStackTrace(); };
-	  
+	  //System.out.println("match=" +name.toString());
 	  return alignFolder.getAbsolutePath() + File.separator + name.toString();
    }
    
@@ -166,7 +171,7 @@ public class OfflineAlign {
 		  owlF.close();	  
 		  } 
 		  catch ( Exception ex ) { ex.printStackTrace();};
-		  
+		  //System.out.println("trim=" +name.toString());
 		  return alignFolder.getAbsolutePath() + File.separator + name.toString();
 	   }
    

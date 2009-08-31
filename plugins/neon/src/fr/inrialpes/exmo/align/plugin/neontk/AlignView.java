@@ -72,7 +72,6 @@ import org.neontoolkit.core.NeOnCorePlugin;
 import org.neontoolkit.core.command.project.CreateProject;
 import org.neontoolkit.core.project.IOntologyProject;
 import org.neontoolkit.core.project.OntologyProjectManager;
-//import org.neontoolkit.io.ImportExportControl;
 import org.neontoolkit.io.util.ImportExportUtils;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -621,11 +620,10 @@ public class AlignView extends ViewPart
 				   		}
  				  }
 				  else { //offline
-						
+					  
 					String resId  = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
-					
-					localAlignBox.add(resId, 0);
 					localAlignBox.setEnabled( true );
+					localAlignBox.add(resId, 0);
 					localImportButton.setEnabled( true );
 					localTrimButton.setEnabled( true );
 					selectedLocalAlign = resId;
@@ -1094,21 +1092,26 @@ public class AlignView extends ViewPart
 							IOntologyProject ontoProject = OntologyProjectManager.getDefault().getOntologyProject( projects[i] );
 							Set<String> strSet = ontoProject.getAvailableOntologyURIs();
 							String[] uris = (String[])strSet.toArray(new String[0]);
-							if(online) {
-								for(int k=0; k < uris.length; k++) {
-									//get only http URL
-									if(uris[k].startsWith("http://"))
-									try {
-										fact.loadOntology(new URI(uris[k]));
+							if( !online ) {						
+								for(int k=0; k < uris.length; k++) {	
+									if(uris[k].startsWith("file:"))
 										vec.put(uris[k],projects[i]);
-									} catch (Exception ex) {
-									}
 								}
 							} else {
 								for(int k=0; k < uris.length; k++) {
-									vec.put(  (uris[k]).toString(), projects[i]);
+									//get only http URL
+									//if(uris[k].startsWith("http://")) {
+									//try {
+										//fact.loadOntology(new URI(uris[k]));
+										//vec.put(uris[k],projects[i]);
+									//} catch (Exception ex) {}
+									//} else {
+										vec.put(uris[k],projects[i]);
+									//}
+									//vec.put(  (uris[k]).toString(), projects[i]);
 									//vec.put(DatamodelPlugin.getDefault().getPhysicalOntologyUri(projects[i], uris[k]).toString(),projects[i]);
-								}
+									
+							}
 							}
 					}
 				}
