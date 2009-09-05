@@ -21,18 +21,30 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.swt.SWT;
+import java.lang.ClassNotFoundException;
+import java.io.File;
 
  
-import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.HashSet;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes.Name;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.Enumeration;
+import java.util.Dictionary;
 
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.events.SelectionEvent;
@@ -54,8 +66,14 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.core.resources.IWorkspaceRoot;
+ 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.dialogs.MessageDialog;
+ 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.osgi.framework.Bundle;
 
 //import org.eclipse.jface.dialogs.MessageDialog;
 //import org.semanticweb.kaon2.api.OntologyManager;
@@ -140,6 +158,7 @@ public class AlignView extends ViewPart
 		public File ontoFolder = null;
 		public File alignFolder = null;
 		public static File basicFolder = null;
+		 
 		
 		@Override
 		public void createPartControl(final Composite parent) {
@@ -158,6 +177,8 @@ public class AlignView extends ViewPart
 			//createMUPSSection(composite, formToolkit);	
 			//createInconsistencyResultSection(composite, formToolkit);
 			//this.refreshProjectList();
+			 
+			//IWorkbench wb = AlignmentPlugin.getDefault().getWorkbench();
 			IWorkspaceRoot root =  org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot();
 		    IPath location = root.getLocation();
 		    String  path = location.toOSString();
@@ -973,6 +994,147 @@ public class AlignView extends ViewPart
 			   return alignId;
 		}
 		
+		/**
+	     *  This function is taken from Alignment Server 
+	     */
+		
+		public static void implementations( Class tosubclass, Set<String> list , String cp,  boolean debug ){
+			Set<String> visited = new HashSet<String>();
+			//String classPath = System.getProperty("java.class.path",".");
+			String classPath = cp;
+			// Hack: this is not necessary
+			//classPath = classPath.substring(0,classPath.lastIndexOf(File.pathSeparatorChar));
+			//System.out.println("classes="+classPath);
+			//StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
+			StringTokenizer tk = new StringTokenizer(classPath, ":" );
+			classPath = "";
+			while ( tk != null && tk.hasMoreTokens() ){
+			    StringTokenizer tk2 = tk;
+			    tk = null;
+			    //System.out.println( "path" + tk2.toString());
+			    // Iterate on Classpath
+			    while ( tk2.hasMoreTokens() ) {
+				try {
+				    File file = new File( tk2.nextToken() );
+				    if ( file.isDirectory() ) {
+					//System.err.println("DIR "+file);
+					String subs[] = file.list();
+					for(int index = 0 ; index < subs.length ; index ++ ){
+						//System.out.println("    "+subs[index]);
+					    // IF class
+					    if ( subs[index].endsWith(".class") ) {
+						String classname = subs[index].substring(0,subs[index].length()-6);
+						if (classname.startsWith(File.separator)) 
+						    classname = classname.substring(1);
+						classname = classname.replace(File.separatorChar,'.');
+						try {
+						    // JE: Here there is a bug that is that it is not possible
+						    // to have ALL interfaces with this function!!!
+						    // This is really stupid but that's life
+						    // So it is compulsory that AlignmentProcess be declared 
+						    // as implemented
+						    Class[] cls = Class.forName(classname).getInterfaces();
+						    for ( int i=0; i < cls.length ; i++ ){
+							if ( cls[i] == tosubclass ) {
+							    if (debug ) System.err.println(" -j-> "+classname);
+							    list.add( classname );
+							}
+							if ( debug ) System.err.println("       I> "+cls[i] );
+						    }
+						    // Not one of our classes
+						} catch ( NoClassDefFoundError ncdex ) {
+						} catch (ClassNotFoundException cnfex) {
+						} catch (UnsatisfiedLinkError ule) {
+						} catch (ExceptionInInitializerError eiie) {
+						    // This one has been added for OMWG, this is a bad error
+						}
+					    }
+					}
+				    } else if ( file.toString().endsWith(".jar") &&
+						!visited.contains( file.toString() ) &&
+						file.exists() ) {
+					if ( debug ) System.err.println("JAR "+file);
+					visited.add( file.toString() );
+					try { 
+					    JarFile jar = new JarFile( file );
+					    Enumeration enumeration = jar.entries();
+					    while( enumeration.hasMoreElements() ){
+						String classname = enumeration.nextElement().toString();
+						if ( debug ) System.err.println("    "+classname);
+						int len = classname.length()-6;
+						if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
+						    classname = classname.substring(0,len);
+						    // Beware, in a Jarfile the separator is always "/"
+						    // and it would not be dependent on the current system anyway.
+						    //classname = classname.replaceAll(File.separator,".");
+						    classname = classname.replaceAll("/",".");
+						    try {
+							if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
+							Class cl = Class.forName(classname);
+							Class[] ints = cl.getInterfaces();
+							for ( int i=0; i < ints.length ; i++ ){
+							    if ( ints[i] == tosubclass ) {
+								if (debug ) System.err.println(" -j-> "+classname);
+								list.add( classname );
+							    }
+							    if ( debug ) System.err.println("       I> "+ints[i] );
+							}
+						    } catch ( NoClassDefFoundError ncdex ) {
+						    } catch ( ClassNotFoundException cnfex ) {
+							if ( debug ) System.err.println("   ******** "+classname);
+						    } catch ( UnsatisfiedLinkError ule ) {
+						    } catch (ExceptionInInitializerError eiie) {
+						    // This one has been added for OMWG, this is a bad error
+						    }
+						}
+					    }
+					    // Iterate on needed Jarfiles
+					    // JE(caveat): this deals naively with Jar files,
+					    // in particular it does not deal with section'ed MANISFESTs
+					    Attributes mainAttributes = jar.getManifest().getMainAttributes();
+					    String path = mainAttributes.getValue( Name.CLASS_PATH );
+					    if ( debug ) System.err.println("  >CP> "+path);
+					    if ( path != null && !path.equals("") ) {
+						// JE: Not sure where to find the other Jars:
+		 				// in the path or at the local place?
+						//classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+						// This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
+						// Is there a way to make it iterable???
+						for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
+						    //classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
+							classPath += ":"+file.getParent()+File.separator+token.nextToken();
+					    }
+					} catch (NullPointerException nullexp) { //Raised by JarFile
+					    System.err.println("Warning "+file+" unavailable");
+					}
+				    }
+				} catch( IOException e ) {
+				    continue;
+				}
+			    }
+			    if ( !classPath.equals("") ) {
+				//tk =  new StringTokenizer(classPath,File.pathSeparator);
+			    tk =  new StringTokenizer(classPath,":");
+				classPath = "";
+			    }
+			}
+		    }
+
+		    /**
+		     *  This function is taken from Alignment Server 
+		     */
+		    public static Set<String> implementations( String interfaceName, String cp ) {
+			Set<String> list = new HashSet<String>();
+			try {
+			    Class toclass = Class.forName(interfaceName);
+			     
+			    implementations( toclass, list, cp, false );
+			} catch (ClassNotFoundException ex) {
+			    System.err.println("Class "+interfaceName+" not found!");
+			}
+			return list;
+		    }
+		 	
 		void offlineInit(boolean init) {
 			online = false;
 			methods.removeAll();
@@ -981,24 +1143,52 @@ public class AlignView extends ViewPart
 			ontoBox1.removeAll();
 			ontoBox2.removeAll();
 			
-		 	String[] methodList = new String[8];
-			methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
-				 
-			methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-				 
-			methodList[2] = "fr.inrialpes.exmo.align.impl.method.SMOANameAlignment";
-				 
-			methodList[3] = "fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment";
-				 
-			methodList[4] = "fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment";
-				 
-			methodList[5] = "fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment";
-				 
-			methodList[6] = "fr.inrialpes.exmo.align.impl.method.ClassStructAlignment";
-				 
-			methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
+			Bundle bundle = AlignmentPlugin.getDefault().getBundle();
 			
-			selectedMethod = methodList[0];
+			Dictionary dic = bundle.getHeaders();
+			
+			String classpath = dic.get("Bundle-ClassPath").toString();
+		 
+			URL url = FileLocator.find(AlignmentPlugin.getDefault().getBundle(), new Path(""), null);
+			try {
+				url = FileLocator.resolve(url);
+			}catch (IOException ioe){ }
+			 
+			 
+			
+			String[] files = classpath.split(",");
+			classpath = "";
+			for(int k=0; k < files.length; k++) {
+				classpath += url.toString()+files[k]+":";
+			}
+			//System.out.println("classpath2="+  classpath);
+			
+ 			Set<String> ms = new HashSet<String>();
+			ms = implementations( "org.semanticweb.owl.align.AlignmentProcess", classpath );
+			ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
+			ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
+			//System.out.println("ms="+ms.size());
+		 	String[] methodList = new String[ms.size()];
+		 	int j=0;
+		 	for(String m : ms) methodList[j++] = m;
+		   	
+			//methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
+				 
+			//methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+				 
+			//methodList[2] = "fr.inrialpes.exmo.align.impl.method.SMOANameAlignment";
+				 
+			//methodList[3] = "fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment";
+				 
+			//methodList[4] = "fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment";
+				 
+			//methodList[5] = "fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment";
+				 
+			//methodList[6] = "fr.inrialpes.exmo.align.impl.method.ClassStructAlignment";
+				 
+			//methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
+			
+			if(methodList.length > 0) selectedMethod = methodList[0];
 			methods.removeAll();
 			methods.setItems( methodList );
 			methods.setEnabled(true);
