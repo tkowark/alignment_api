@@ -124,14 +124,14 @@ will be available at a later moment. By default, matching is
 synchronous, i.e., the server answers only once the alignment process
 has returned an alignment.
 <br /><b>pretty:</b> a string that will name the resulting alignment.
-<br /><b>alid:</b> the URI of an initial alignment.
+<br /><b>id:</b> the URI of an initial alignment.
 <br /><b>paramn<i>n</i></b> and <b>paramv<i>n</i>:</b> the name
 and value of parameter <i>n</i>.
 </p>
 <p>Result:<br />
 <div class="fragment">
 &lt;matchResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;alid> URI &lt;/alid>
 &lt;/matchResponse> 
@@ -149,7 +149,7 @@ and value of parameter <i>n</i>.
 <p>Result:<br />
 <div class="fragment">
 &lt;findResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> messageId &lt;/in-reply-to>
     &lt;alignmentList>
         &lt;alid> URI &lt;/alid> 
@@ -161,10 +161,10 @@ and value of parameter <i>n</i>.
 
 <h2>retrieve<a name="retrieve"></a></h2>
 <p>Retrieves an alignment in a specific format.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>retrieve</b> ? <b>alid</b> =
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>retrieve</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>method</b> = &lt;classname&gt;</p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment to be retrieved.
+<br /><b>id:</b> the URI of the alignment to be retrieved.
 <br /><b>method:</b> indicates the format in which the alignment will be
   serialised this is a classname taken from those provided
   by <a href="#listrenderers">listrenderers</a> request.
@@ -181,10 +181,10 @@ and value of parameter <i>n</i>.
 
 <h2>trim<a name="trim"></a></h2>
 <p>Trims an alignment with a threshhold.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>trim</b> ? <b>alid</b> =
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>trim</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>threshold</b> = &lt;float&gt; &amp; type = &lt;label&gt; </p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment to be trimmed.
+<br /><b>id:</b> the URI of the alignment to be trimmed.
 <br /><b>threshold:</b> the threshold for trimming.
 <br /><b>type:</b> the method used for trimming (values: hard, perc, best,
 span, prop; default: hard).
@@ -192,7 +192,7 @@ span, prop; default: hard).
 <p>Result:<br />
 <div class="fragment">
 &lt;trimResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;alid> URI &lt;/alid>
 &lt;/trimResponse> 
@@ -201,15 +201,15 @@ span, prop; default: hard).
 
 <h2>invert<a name="invert"></a></h2>
 <p>Inverts an alignment.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>invert</b> ? <b>alid</b> =
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>invert</b> ? <b>id</b> =
   &lt;URI&gt; </p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment to be inverted.
+<br /><b>id:</b> the URI of the alignment to be inverted.
 </p>
 <p>Result:<br />
 <div class="fragment">
 &lt;invertResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;alid> URI &lt;/alid>
 &lt;/invertResponse> 
@@ -218,14 +218,14 @@ span, prop; default: hard).
 
 <h2>store<a name="store"></a></h2>
 <p>Stores an alignment on the server.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>store</b> ? <b>alid</b> = &lt;URI&gt;</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>store</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment to be stored.
+<br /><b>id:</b> the URI of the alignment to be stored.
 </p>
 <p>Result:<br />
 <div class="fragment">
 &lt;storeResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to>  MessageId &lt;/in-reply-to>
     &lt;alid> URI &lt;/alid>
 &lt;/storeResponse>
@@ -249,7 +249,7 @@ or
 <p>Result:<br />
 <div class="fragment">
 &lt;loadResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;alid> URI &lt;/alid>
 &lt;/loadResponse>
@@ -264,9 +264,9 @@ or
 
 <h2>metadata<a name="metadata"></a></h2>
 <p>Gets metadata of an alignment, i.e., avoid downloading all correspondences.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>metadata</b> ? <b>alid</b> = &lt;URI&gt;</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>metadata</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment from which metadata is retrieved.
+<br /><b>id:</b> the URI of the alignment from which metadata is retrieved.
 </p>
 <p>Result:<br />
 <div class="fragment">
@@ -279,9 +279,9 @@ or
 
 <h2>translate<a name="translate"></a></h2>
 <p>Translates a message (resp. a query) with regard to an alignment.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>alid</b> = &lt;URI&gt;</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
-<br /><b>alid:</b> the URI of the alignment used for the translation.
+<br /><b>id:</b> the URI of the alignment used for the translation.
 </p>
 <p>Result:<br />
 <div class="fragment">
@@ -302,7 +302,7 @@ to be matched.
 <p>Result: the alignment in RDF/XML.
 <div class="fragment">
 &lt;alignResponse>
-    &lt;id> MessageId &lt;/id>
+    &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to>  MessageId &lt;/in-reply-to>
     &lt;result> The alignment in RDF/XML &lt;/result>
 &lt;/alignResponse>
@@ -354,12 +354,13 @@ and answers:
 <ul>
 <li>The content of <tt>classList</tt> is now <tt>classname</tt>
   (instead of <tt>method</tt>, <tt>service</tt>, or <tt>renderer</tt>) (REST &amp; SOAP);</li>
-<li><tt>id</tt> for identying alignment ids is now replaced by <tt>alid</tt> (REST);</li>
 <li><tt>cut</tt> is now <tt>trim</tt> (REST &amp; SOAP);</li>
 <li><tt>method</tt> in <tt>trim</tt> is now <tt>type</tt> (REST &amp; SOAP);</li>
 <li>All primitives return <tt>in-reply-to</tt> and can
-  send <tt>id</tt> (REST);</li>
+  send <tt>msgid</tt> (REST);</li>
 <li><tt>listevaluators</tt> has been added (REST &amp; SOAP);</li>
+<li>The <tt>alid</tt> parameter for identying alignment ids is now replaced by <tt>id</tt> (SOAP);</li>
+<li>The <tt>id</tt> parameter for identying messages is now replaced by <tt>msgid</tt> (SOAP);</li>
 </ul>
 
 <p>
