@@ -22,6 +22,10 @@ debug=true&amp;level=1.
 The result of these requests are provided in XML.
 In the sequel, we describe the various request types.
 </p>
+<p>
+The <tt>msgid</tt> and <tt>in-reply-to</tt> elements are not
+compulsory and may not be present in messages.
+</p>
 
 <h2>listalignments<a name="listalignments"></a></h2>
 <p>Gets the list of the alignments available on the server.</p>
@@ -356,10 +360,9 @@ and answers:
   (instead of <tt>method</tt>, <tt>service</tt>, or <tt>renderer</tt>) (REST &amp; SOAP);</li>
 <li><tt>cut</tt> is now <tt>trim</tt> (REST &amp; SOAP);</li>
 <li><tt>method</tt> in <tt>trim</tt> is now <tt>type</tt> (REST &amp; SOAP);</li>
-<li>All primitives return <tt>in-reply-to</tt> and can
-  send <tt>msgid</tt> (REST);</li>
+<li>All primitives may return <tt>in-reply-to</tt> and may send <tt>msgid</tt> (REST);</li>
 <li><tt>listevaluators</tt> has been added (REST &amp; SOAP);</li>
-<li>The <tt>alid</tt> parameter for identying alignment ids is now replaced by <tt>id</tt> (SOAP);</li>
+<li>The <tt>alid</tt> parameter for identying alignment ids in requests is now replaced by <tt>id</tt> (SOAP);</li>
 <li>The <tt>id</tt> parameter for identying messages is now replaced by <tt>msgid</tt> (SOAP);</li>
 </ul>
 
