@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA
+ * Copyright (C) 2003-2009, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -561,7 +561,7 @@ which the program does...
 	    writer.println("</tr>");
 	    writer.println("</tbody></table>");
 	    writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
-	    writer.println("NaN: division per zero, likely due to empty alignent.</small></p>");
+	    writer.println("NaN: division per zero, likely due to empty alignment.</small></p>");
 	    if ( embedded != true ) writer.println("</body></html>");
 	    writer.close();
 	} catch (Exception ex) {
