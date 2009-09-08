@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,13 +21,9 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import java.io.BufferedReader;
-//import java.io.BufferedInputStream;
 import java.io.File;
-
 import java.io.FileInputStream;
-//import java.io.FileWriter;
 import java.io.IOException;
-//import java.io.InputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
@@ -35,23 +31,15 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.lang.StringBuffer;
 
-//mport javax.swing.JOptionPane;
-import javax.swing.ProgressMonitorInputStream;
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
- 
-import java.io.OutputStream;
-//import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
- 
 import java.net.URL;
 import java.net.URLConnection;
  
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -70,985 +58,340 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import org.semanticweb.owl.align.AlignmentException;
- 
 public class OnlineAlign {
 		
-		//public AlignmentClient ws = null;
-		public  String HOST = null;
-		public  String PORT = null;
-		public  String WSDL = "7777";
-		public  boolean connected = false;
-		URL SOAPUrl = null;
-		String SOAPAction = null;
-		String uploadFile = null;
+    public  boolean connected = false;
+    URL SOAPUrl = null;
+    String SOAPAction = null;
 		 
-		HttpURLConnection globalConn = null;
-		HttpURLConnection globalConn2 = null;
+    HttpURLConnection globalConn = null;
+    HttpURLConnection globalConn2 = null;
 		 
-		String globalAnswer = null;
+    String globalAnswer = null;
 			
-		private static DocumentBuilder BUILDER = null;
-		final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+    private static DocumentBuilder BUILDER = null;
+    final DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
 		
-	    public OnlineAlign( String htmlPort, String host   )  {
-	    	try {
-	    		HOST = host;
-	    		PORT = htmlPort;
-	    		
-	    		SOAPUrl = new URL( "http://" + host + ":" + htmlPort + "/aserv" );
-	    		
-	    	} catch ( Exception ex ) { ex.printStackTrace(); };
-	    	
-			fac.setValidating(false);
-			fac.setNamespaceAware(false);
-			try { BUILDER = fac.newDocumentBuilder(); }
-			catch (ParserConfigurationException e) { };
-	    }
+    public OnlineAlign( String htmlPort, String host   )  {
+	try {
+	    SOAPUrl = new URL( "http://" + host + ":" + htmlPort + "/aserv" );
+	} catch ( Exception ex ) { ex.printStackTrace(); };
+	fac.setValidating(false);
+	fac.setNamespaceAware(false);
+	try { BUILDER = fac.newDocumentBuilder(); }
+	catch (ParserConfigurationException e) { };
+    }
 	    
-	    public String uploadAlign(String alignId) {
-	    	
-			String answer = null;
-			try {
-				Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","load");
-				//params.setParameter( "arg1", alignId);
-				
-				uploadFile = alignId;
-				//System.out.println("Load file= "+ uploadFile);
-					
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("HOST= "+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message for load file :"+ message);
-				
-				// Send message
-				//answer = sendMessage( message, params );
-				answer = sendFile( message, params );
-				//System.out.println("SOAP loaded align=" + answer );
-				
-			} catch ( Exception ex ) { ex.printStackTrace(); };
-			//if(! connected ) return null;
-			
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-				   
-			String[] result = getTagFromSOAP( domMessage,  "loadResponse" );
-			//System.out.println("Loaded Align="+ result[0]);
-			
-			return result[0];
-			
-	    }
+    public String uploadAlign( String alignId ) {
+	SOAPAction = "loadRequest";
+	String content = OfflineAlign.fileToString( new File( alignId ) );
+	String answer = sendFile( content, alignId );
+	String result[] = getResultsFromMessage( answer, "loadResponse" );
+	//System.out.println("Loaded Align="+ result[0]);
+	return result[0];
+    }
 	    
-	    public String trimAlign(String alignId, String thres) {
-	    	
-			String answer = null;
-			try {
-				// Read parameters
-				 
-				Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","trim");
-				params.setParameter( "arg1",alignId);
-				params.setParameter( "arg2",thres);
-				//params.setParameter( "arg2","best");
-					
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message :"+ message);
-				
-				// Send message
-				//System.out.println("Trim Message="+ message);
-				answer = sendMessageMonoThread( message, params );
-				//System.out.println("Trim Align="+ answer);
-				
-			}
-			catch ( Exception ex ) { ex.printStackTrace(); };
-			//if(! connected ) return null; 
-			
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			String[] result = getTagFromSOAP( domMessage,  "cutResponse" );
-			
-			//System.out.println("Trim Align="+ result[0]);
-			
-			return result[0];
- 	
-	    }
-	    
-	    public String[] getMethods() {
-	    	
-			String answer = null;
-		     
-			try {
-				// Read parameters			 
-				Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command", "list");
-				params.setParameter( "arg1", "methods");
-					
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message (methods) :"+ message);
-				
-				// Send message
-				answer = sendMessageMonoThread( message, params );
-			}
-			catch ( Exception ex ) { ex.printStackTrace(); };
-			//if(! connected ) return null; 
-			
-			Document domMessage = null;
-			try {
-				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-				    
-				} catch  ( IOException ioex ) {
-				    ioex.printStackTrace();
-				} catch  ( SAXException saxex ) {
-				    saxex.printStackTrace();
-				}
-				
-				 
-			String[] result = getTagFromSOAP( domMessage,  "listmethodsResponse/classList/method" ) ;
-			//for(int i=0; i< result.length;i++) //System.out.println("methods=" + result[i]);
-			return result;
-		 
-	    }
-	    
-	    public String[] findAlignForOntos(String onto1, String onto2) {
-	    	
-			String answer = null;
-		     
-			try {
-				// Read parameters 
-				Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","find");
-				params.setParameter( "arg1", onto1);
-				params.setParameter( "arg2", onto2);	
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message :"+ message);
-				
-				// Send message
-				answer = sendMessageMonoThread( message, params );
-				//System.out.println("answer find=" + answer);
-			}
-			catch ( Exception ex ) { ex.printStackTrace(); };
-			//if(!connected ) return null; 
-				   
-			Document domMessage = null;
-				try {
-				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-				    
-				} catch  ( IOException ioex ) {
-				    ioex.printStackTrace();
-				} catch  ( SAXException saxex ) {
-				    saxex.printStackTrace();
-				}
-				
-			String[] result = getTagFromSOAP( domMessage,  "findResponse/alignmentList/alid" );
-				
-			//for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
-				
-		    return result; 
-			 
-	    }
-	    
-	    public String[] getAllAlign() {
-	    	
-			String answer = null;
-		     
-			try {
-				// Read parameters
-				 
-				Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","list");
-				params.setParameter( "arg1","alignments");
-					
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("HOST= :"+ HOST + ", PORT=  " + PORT + ",  Action = "+ SOAPAction);
-				//System.out.println("Message :"+ message);
-				
-				// Send message
-				answer = sendMessageMonoThread( message, params );
-				//System.out.println("Answer get All :"+ answer);
-			}
-			catch ( Exception ex ) { ex.printStackTrace(); };
-			
-			//if(! connected ) return null; 
-			
-			// Cut SOAP header
-			//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-		    Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			String[] result = getTagFromSOAP( domMessage,  "listalignmentsResponse/alignmentList/alid" );
-		 
-			return result;
- 		
-	    }
-	    
-	    //Used without ProgressBar
-	    public String getAlignIdMonoThread(String method, String wserver, String wsmethod, String onto1, String onto2) {
-	    	
-	    		String answer = null ;
-				
-			    Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				params.setParameter( "command","match");
-				params.setParameter( "arg1", method);
-				params.setParameter( "arg2", onto1);
-				params.setParameter( "arg3", onto2);
-				params.setParameter( "arg4", wserver);
-				if(wsmethod != null ) 
-					params.setParameter( "arg5", wsmethod);
-				
-			    try {
-			    	// Read parameters
-			    	// Create the SOAP message
-			    	String message = createMessage( params );
-			  
-			    	// Send message
-			    	answer = sendMessageMonoThread( message, params );
-			 
-			    	//System.out.println("SOAP Match align=" + answer );
-			    	 
-			    }
-			    
-			    catch ( Exception ex ) { ex.printStackTrace(); };
-			    //if(! connected ) return null; 
-			    
-			    // Cut SOAP header
-				//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-			    Document domMessage = null;
-				try {
-				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-				    
-				} catch  ( IOException ioex ) {
-				    ioex.printStackTrace();
-				} catch  ( SAXException saxex ) {
-				    saxex.printStackTrace();
-				}
-				
-				 
-				String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
-				
-				//System.out.println("Match align Id=" + result[0]);
-				
-			    return result[0];
-			 
-	    }
-	    
-	    public void getAlignId(String method, String wserver, String wsmethod, String onto1, String onto2 ) {
-	    	
-	     
-	    	String[] aservArgAlign = new String[6];		
-	    	String answer = null ;
-				 
-			    Parameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				params.setParameter( "command","match");
-				params.setParameter( "arg1", method);
-				params.setParameter( "arg2", onto1);
-				params.setParameter( "arg3", onto2);
-				params.setParameter( "arg4", wserver);
-				if(wsmethod != null ) params.setParameter( "arg5", wsmethod);
-				
-			    try {
-			    	// Read parameters
-			    	// Create the SOAP message
-			    	String message = createMessage( params );
-			  
-			    	// Send message
-			    	//answer = sendMessage( message, params );
-			    	sendMessageMonoThread( message, params );
-			 
-			    	//System.out.println("SOAP Match align=" + answer );
-			    	 
-			    }
-			    
-			    catch ( Exception ex ) { ex.printStackTrace(); };
-			    
-			    /*
-			    if(! connected ) return null; 
-			    
-			    Document domMessage = null;
-				try {
-				    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-				    
-				} catch  ( IOException ioex ) {
-				    ioex.printStackTrace();
-				} catch  ( SAXException saxex ) {
-				    saxex.printStackTrace();
-				}
-				
-				String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
-				
-			    return result[0];	 
-			    */
-			    
-	    }
-	    
-	    public String getAlignIdParsed( String input ) {
-	    	 
-	    	Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( input.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			String result[] = getTagFromSOAP( domMessage,  "matchResponse" );
-			
-		    return result[0];	 
-	    }
-	    
-		
-	    public String getOWLAlignment(String alignId) {
-		
-		//retrieve alignment for storing in OWL file
-		
-		 
-		Parameters params = new BasicParameters();
-	    
-		params.setParameter( "host", HOST );
-		//params.setParameter( "http", PORT );
-		//params.setParameter( "wsdl", WSDL );
-		params.setParameter( "command","retrieve");
-		params.setParameter( "arg1", alignId);
-		params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor");
-		
-		String answer=null;
-	     
-		try {
-			// Read parameters
-			//Parameters params = ws.readParameters( aservArgRetrieve );
-			
-			// Create the SOAP message
-			String message = createMessage( params );
+    public String trimAlign( String alignId, String thres ) {
+	SOAPAction = "trimRequest";
+	// JE: method is not implemented
+	String message = createMessage( "<id>"+alignId+"</id><threshold>"+thres+"</threshold>" );
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "trimResponse" );
+	//System.out.println("Trim Align="+ result[0]);
+	return result[0];
+    }
 
-			//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-			//System.out.println("Message :" + message);
-			
-			// Send message
-			answer = sendMessageMonoThread( message, params );
-			//if(! connected ) return null; 
-			
-		} catch ( Exception ex ) { ex.printStackTrace();  };
-			 
-			 
-		// Cut SOAP header
-		//answer =  "<?xml version='1.0' encoding='utf-8' standalone='no'?>" + answer ; 
-		//answer = answer.replace("<?xml version='1.0' encoding='utf-8' standalone='no'?>", "");
-		 
-		
-		Document domMessage = null;
-		try {
-		    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-		    
-		} catch  ( IOException ioex ) {
-		    ioex.printStackTrace();
-		} catch  ( SAXException saxex ) {
-		    saxex.printStackTrace();
-		}
-		
-		String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
-	 	
-		//System.out.println("OWLAlign="+ result[0]);
-		return result[0];
-	    }
+    public String[] getMethods() {
+	SOAPAction = "listmethodsRequest";
+	String message = createMessage( "" );
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "listmethodsResponse/classList/classname" );
+	//for(int i=0; i< result.length;i++) //System.out.println("methods=" + result[i]);
+	return result;
+    }
 	    
-	    public String getRDFAlignmentParsed( ) { 
- 	    	Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( globalAnswer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			 
-			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
- 			return result[0];
-	    }
+    public String[] findAlignForOntos( String onto1, String onto2 ) {
+	SOAPAction = "findRequest";
+	String message = createMessage( "<onto1>"+onto1+"</onto1><onto2>"+onto2+"</onto2>" );
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "findResponse/alignmentList/alid" );
+	//for(int i=0; i< result.length;i++) System.out.println("aligns for ontos=" + result[i]);
+	return result; 
+    }
 	    
-	    public String getRDFAlignment(String alignId ) {
-			
-			//retrieve alignment for storing in OWL file
-			 
-	    	Parameters params = new BasicParameters();
-	    	params = new BasicParameters();
-	    	params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-	    	params.setParameter( "command","retrieve");
-	    	params.setParameter( "arg1", alignId);
-	    	params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
-			
-			String answer = null;
-		     
-			try {
-				// Read parameters
-				//Parameters params = ws.readParameters( aservArgRetrieve );
-				
-				// Create the SOAP message
-				String message = createMessage( params );
-				 
-				answer = sendMessageMonoThread( message, params );
- 				//if(! connected ) return null; 
-				
-			} catch ( Exception ex ) { ex.printStackTrace();  };
-			
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
- 			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
- 			
-			return result[0];
-			
- 		}
+    public String[] getAllAlign() {
+	SOAPAction = "listalignmentsRequest";
+	String message = createMessage( "");
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "listalignmentsResponse/alignmentList/alid" );
+	return result;
+    }
 	    
-	    public void getRDFAlignmentMonoThread(String alignId) {
-			
-			//retrieve alignment for storing in OWL file
-			
-			
-			Parameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","retrieve");
-			params.setParameter( "arg1", alignId);
-			params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-			
-			String answer=null;
-		     
-			try {
-				// Read parameters
-				//Parameters params = ws.readParameters( aservArgRetrieve );
-				
-				// Create the SOAP message
-				String message = createMessage( params );
+    /**
+     * store an alignment on the server
+     */
+    public String storeAlign( String alignId ) {
+	SOAPAction = "storeRequest";
+	String message = createMessage( "<id>"+alignId+"</id>" );
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "storeResponse" );
+	//System.out.println("Stored Align="+ result[0]); 
+	return result[0];
+    }
 
-				//System.out.println("URL SOAP :"+ SOAPUrl + ",  Action:"+  SOAPAction);
-				//System.out.println("Message :" + message);
-				
-				// Send message
-				answer = sendMessageMonoThread( message, params );
-				
-				
-			} catch ( Exception ex ) { ex.printStackTrace();  };
-				 
-			/*
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			
-			String result[] = getTagFromSOAP( domMessage,  "retrieveResponse/result/RDF" );
-			
-			globalAnswer = result[0];
-			*/
-			globalAnswer = answer;
-			
-			//return result[0];
-		}
-	    
-	    public String storeAlign(String alignId) {
-			
-	    	//retrieve alignment for displaying
-			
-			Parameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","store");
-			params.setParameter( "arg1", alignId);
-			 
-			 
-			String answer = null;
-			
-			try {
-				// Read parameters
-				 
-				//Parameters params = ws.readParameters( aservArgRetrieve );
-				
-				// Create the SOAP message
-				String message = createMessage( params );
-				  
-				//System.out.println("URL SOAP :"+ SOAPUrl+ ",  Action:"+ SOAPAction);
-				//System.out.println("Message :"+ message);
-				
-				// Send message
-				answer = sendMessageMonoThread( message, params );
-				
- 			}
-			catch ( Exception ex ) { ex.printStackTrace() ;};
-			
-			//if(! connected ) return null; 
-			
-			Document domMessage = null;
-			try {
-			    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
-			    
-			} catch  ( IOException ioex ) {
-			    ioex.printStackTrace();
-			} catch  ( SAXException saxex ) {
-			    saxex.printStackTrace();
-			}
-			
-			 
-			String result[] = getTagFromSOAP( domMessage,  "storeResponse" );
-			 			 
-			//System.out.println("Stored Align="+ result[0]); 
-				
-			return result[0];
-			
-	    }
-	    
-	    public String[] getTagFromSOAP( Document dom,  String tag ){
-	    	XPath XPATH = XPathFactory.newInstance().newXPath();
-	    	String[] result = null;
-	    	Node n = null;
-	    	NodeList nl = null;
-	    	try {
-	    	    // The two first elements are prefixed by: "SOAP-ENV:"
-	    		if(tag.equals("listmethodsResponse/classList/method") || tag.equals("listalignmentsResponse/alignmentList/alid") 
-	    		|| tag.equals("findResponse/alignmentList/alid") ) {
-	    			nl = (NodeList)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODESET));
-	    			result = new String[nl.getLength()];
-	    			
-	    			 for (int i=0; i< nl.getLength(); i++) {
-	    	 		      Node method = (Node) nl.item(i);
- 
-	    	 		      Node firstnode = method.getFirstChild();
-	    	   		      String nm = firstnode.getNodeValue();
-	    	 		      
-	    	 		      if(nm!=null) result[i] = nm; 
-	    	 		             
-	    	 		 }
-	    		} else  if (tag.equals("retrieveResponse/result/RDF") ) {
-	    			  n =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
-	    			  ByteArrayOutputStream stream = new ByteArrayOutputStream();
-	    			  try {
-	    				  Transformer tf = TransformerFactory.newInstance().newTransformer();
-	    				  tf.setOutputProperty(OutputKeys.ENCODING,"utf-8");
-	    		          tf.setOutputProperty(OutputKeys.INDENT,"yes");
-	    		           
-	    		          tf.transform(new DOMSource(n),new StreamResult(stream));
-	    			  }
-	    			  catch (Exception e){}
-	    			  //Node firstnode = n.getFirstChild();
-	    			  
-	    	   		  String nm = stream.toString();
-		    		  result = new String[1];
-	    	   		  result[0] = nm; 
-	    	   		  
-	    		} else {
-	    		  Node nn =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
-	    		  result = new String[1];
-	    		  
-    	 		  NodeList ns = nn.getChildNodes();
-    	 		  
-    	 		  //tag "alid" is third
-    	 		  Node n3  = (Node) ns.item(3);
-    	 		  Node nx  = n3.getFirstChild();
-    	   		  String nm = nx.getNodeValue();
-    	   		   
-    	   		  result[0] = nm; 
-	    		}  
-	    	     
-	    	} catch (XPathExpressionException e) {
-	    	} catch (NullPointerException e) {
-	    	}
-	    	
-	    	return result;  
-	    }
-
-	    
-	    public String createMessage( Parameters params ) throws Exception {
-	        String messageBegin = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
-				                  "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\' " + 
-				                  "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
-				                  "<SOAP-ENV:Body>";
-		String messageBody = "";
-		String cmd = (String)params.getParameter( "command" );
-		if ( cmd.equals("list" ) ) {
-		    String arg = (String)params.getParameter( "arg1" );
-		    if ( arg.equals("methods" ) ){  
-			SOAPAction = "listmethodsRequest";
-		    } else if ( arg.equals("renderers" ) ){
-			SOAPAction = "listrenderersRequest";
-		    } else if ( arg.equals("services" ) ){
-			SOAPAction = "listservicesRequest";
-		    } else if ( arg.equals("alignments" ) ){
-			SOAPAction = "listalignmentsRequest";
-		    } else {
-			//usage();
-			System.exit(-1);
-		    }
-		} else if ( cmd.equals("wsdl" ) ) {
-		    SOAPAction = "wsdlRequest";
-		    
-		} else if ( cmd.equals("find" ) ) {
-		    SOAPAction = "findRequest";
-		    String uri1 = (String)params.getParameter( "arg1" );
-		    String uri2 = (String)params.getParameter( "arg2" );
-		    //if ( uri2 == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
-		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
-		} else if ( cmd.equals("match" ) ) {
-		    SOAPAction = "matchRequest";
-		    String uri1 = (String)params.getParameter( "arg1" );
-		    String uri2 = (String)params.getParameter( "arg2" );
-		    String wserver = (String)params.getParameter( "arg4" );
-		    String wsmethod = (String)params.getParameter( "arg5" );
-		     
-		    String method = null;
-		    String arg3 = (String)params.getParameter( "arg3" );
-		    if ( arg3 != null ) {
-		    	method = uri1; uri1 = uri2; uri2 = arg3;
-		    }
-		    //arg3 = (String)params.getParameter( "arg4" );
-		    messageBody = "	<url1>"+uri1+"</url1>\n   <url2>"+uri2+"</url2>\n";
-		    
-		    if ( method != null )
-		    	messageBody += "	<method>"+method+"</method>\n";
-		    if ( wserver != null )
-		    	messageBody += "	<wserver>"+ wserver +"</wserver>\n";
-		    if ( wsmethod != null )
-			    messageBody += "	<wsmethod>"+ wsmethod +"</wsmethod>\n";    
-		    messageBody += "	<force>on</force>";
-		} else if ( cmd.equals("trim" ) ) {
-		    SOAPAction = "cutRequest";
-		    String id = (String)params.getParameter( "arg1" );
-		    String thres = (String)params.getParameter( "arg2" );
-		    //if ( thres == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
-		    String method = null;
-		    String arg3 = (String)params.getParameter( "arg3" );
-		    if ( arg3 != null ) {
-			method = thres; thres = arg3;
-		    }
-		    messageBody = "<alid>"+id+"</alid><threshold>"+thres+"</threshold>";
-		    if ( method != null )
-			messageBody += "<method>"+method+"</method>";
-		} else if ( cmd.equals("invert" ) ) {
-		    SOAPAction = "invertRequest";
-		    String uri = (String)params.getParameter( "arg1" );
-		    //if ( uri == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
-		    messageBody = "<alid>"+uri+"</alid>";
-		} else if ( cmd.equals("store" ) ) {
-		    SOAPAction = "storeRequest";
-		    String uri = (String)params.getParameter( "arg1" );
-		    //if ( uri == null ) {
-			//usage();
-			//System.exit(-1);
-		    //}
-		    messageBody = "<alid>"+uri+"</alid>";
-		} else if ( cmd.equals("load" ) ) {
-		    String url = (String)params.getParameter( "arg1" );
-		    if ( url == null ){
-			SOAPAction = "loadRequest";
-			/* 
-			BufferedReader in = new BufferedReader(new FileReader( new File(uploadFile) ));
-			String line;
-			String content = "";
-			while ((line = in.readLine()) != null) {
-			    content += line + "\n";
-			}
-			if (in != null) in.close();
-			*/
-			String content = OfflineAlign.fileToString(new File(uploadFile));
-			
-			return  content;
-			
-			//messageBody = "<content>"+content+"</content>";
-		    } else {
-			SOAPAction = "loadfileRequest";
-			messageBody = "<url>"+url+"</url>";
-		    }
-		    /* This may read the input stream!
-				// Most likely Web service request
-				int length = request.getContentLength();
-				char [] mess = new char[length+1];
-				try { 
-				    new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
-				} catch (Exception e) {
-				    e.printStackTrace(); // To clean up
-				}
-				params.setProperty( "content", new String( mess ) );
-		    */
-		} else if ( cmd.equals("retrieve" ) ) {
-		    SOAPAction = "retrieveRequest";
-		    String uri = (String)params.getParameter( "arg1" );
-		    String method = (String)params.getParameter( "arg2" );
-		    //if ( method == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
-		    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
-		} else if ( cmd.equals("metadata" ) ) {
-		    SOAPAction = "metadata";
-		    String uri = (String)params.getParameter( "arg1" );
-		    String key = (String)params.getParameter( "arg2" );
-		    //if ( key == null ){
-			//usage();
-			//System.exit(-1);
-		    //}
-		    messageBody = "<alid>"+uri+"</alid><key>"+key+"</key>";
-		} else {
-		    //usage();
-		    //System.exit(-1);
-		}
-			// Create input message and URL
-		String messageEnd = "</SOAP-ENV:Body>"+"</SOAP-ENV:Envelope>";
-		String message = messageBegin + messageBody + messageEnd;
-		return message;
-	    }
-	    
-	    public String sendMessageMonoThread( String message, Parameters param )   {
-	    	// Create the connection
-	        	 
-	        byte[] b = message.getBytes();
-	        
-	        String answer = "";
-	        // Create HTTP Request
-	        try {
-	        	 
-	    		URLConnection connection = SOAPUrl.openConnection();
-	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
-	        	 
-	            httpConn.setRequestProperty( "Content-Length",
-	                                         String.valueOf( b.length ) );
-	            httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
-	            
-	            
-	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
-	            httpConn.setRequestMethod( "POST" );
-	            httpConn.setDoOutput(true);
-	            httpConn.setDoInput(true);
-
-	            // Send the request through the connection
-	            OutputStream out = httpConn.getOutputStream();
-	            
-	            out.write( b );
-	        	out.close( );
-	        	
-	        	if( param.getParameter("command").equals("retrieve") ) {
-	        		 
-	        		InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	        		BufferedReader in = new BufferedReader(isr);
-	        
-	        		StringBuffer lineBuff =  new StringBuffer();
-	        		String line;
-	        		while ( (line = in.readLine()) != null) {
-	        			lineBuff.append( line + "\n");
-	        		}
-	        		if (in != null) 
-	        			in.close();
-	        		answer = lineBuff.toString();
-	        		
-	        		//System.out.println("RDF=" + answer );
-	        	}
-	        	else {
-	        		// Read the response and write it to standard output
-	        		InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	        		BufferedReader in = new BufferedReader(isr);
-	        
-	        		String line;
-	        		while ((line = in.readLine()) != null) {
-	        			answer += line + "\n";
-	        		}
-	        		if (in != null) 
-	        			in.close();
-	            
-	        		if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
-	        	}
-	             
-	        	
-	        } catch  (Exception ex) {
-	        	connected= false; ex.printStackTrace() ; return null;
-	        	}
-	      
-	    	return answer;
-	    }
-	    
-	    
-	    
-	    public String sendFile( String message, Parameters param )   {
-	    	// Create the connection
-	        	 
-	        byte[] b = message.getBytes();
-	        
-	        String answer = "";
-	        // Create HTTP Request
-	        try {
-	        	 
-	    		URLConnection connection = SOAPUrl.openConnection();
-	        	HttpURLConnection httpConn = (HttpURLConnection) connection;
-	        	
-	            httpConn.setRequestProperty("SOAPAction",SOAPAction);
-	            httpConn.setRequestMethod( "POST" );
-	            httpConn.setDoOutput( true );
-	            httpConn.setDoInput( true );
-	            
-	            // Don't use a cached version of URL connection.
-	            httpConn.setUseCaches ( false );
-	            httpConn.setDefaultUseCaches (false);
-	            
-	            File f = new File(uploadFile);
-				FileInputStream fi = new FileInputStream(f);
-	            // set headers and their values.
-	            httpConn.setRequestProperty("Content-Type",
-	                                         "application/octet-stream");
-	            httpConn.setRequestProperty("Content-Length",
-	                                        Long.toString(f.length()));
-	           
-	            // create file stream and write stream to write file data.
-	            
-	            OutputStream os =  httpConn.getOutputStream();
-		        String str ="";
-	            try
-	            {
-	               // transfer the file in 4K chunks.
-	               byte[] buffer = new byte[4096];
-	               //long byteCnt = 0;
-	               int bytes=0;
-	               while (true)
-	               {
-	                  bytes = fi.read(buffer);
-	                  
-	                  if (bytes < 0)  break;
-	                  
-	                  os.write(buffer, 0, bytes );
+    //Used without ProgressBar
+    public String getAlignIdMonoThread( String method, String wserver, String wsmethod, String onto1, String onto2 ) {
+	SOAPAction = "matchRequest";
+	String messageBody = "	<onto1>"+onto1+"</onto1>\n   <onto2>"+onto2+"</onto2>\n";
+	if ( method != null )
+	    messageBody += "	<method>"+method+"</method>\n";
+	if ( wserver != null )
+	    messageBody += "	<wserver>"+ wserver +"</wserver>\n";
+	if ( wsmethod != null )
+	    messageBody += "	<wsmethod>"+ wsmethod +"</wsmethod>\n";    
+	messageBody += "	<force>on</force>";
+	String message = createMessage( messageBody );
+	String answer = sendMessageMonoThread( message, false );
+	String result[] = getResultsFromMessage( answer, "matchResponse" );
 	 
-	               }
-	               
-	               
-	               os.flush();
-	            } catch (Exception ex) {}
-	            
-	            os.close();
-	            fi.close();
-				//System.out.println("Upload Read done.");
-	        	
-				
-	            // Read the response  
-	            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	            BufferedReader in = new BufferedReader(isr);
-	        
-	            String line;
-	            StringBuffer strBuff = new StringBuffer();
-	            while ((line = in.readLine()) != null) {
-	            	 strBuff.append( line + "\n");
-	            }
-	            if (in != null) in.close();
-	            answer = strBuff.toString();
-	        	
-	        } catch  (Exception ex) {
-	        	connected= false; ex.printStackTrace() ; return null;
-	        	}
-	        
-	        connected = true;
-	    	return answer;
-	    }
+	return result[0];
+    }
 	    
-	    public static String fileToString(File f){
-		    String texto = "";
-		    StringBuffer toto = new StringBuffer();
-		    int i=0;
-		    try{
-		   
-		    	FileReader rd = new FileReader(f);
-		    	i = rd.read();
-		    
-		    	while(i!=-1){
-		          //texto = texto+(char)i;
-		    		toto.append((char)i);
-		    		i = rd.read();
-		    	}
-		 
-		   }	catch(IOException e){
-			   System.err.println(e.getMessage());
-		   }
-		   
-		return toto.toString();
+    public void getAlignId( String method, String wserver, String wsmethod, String onto1, String onto2 ) {
+	String[] aservArgAlign = new String[6];		
+	SOAPAction = "matchRequest";
+	String messageBody = "	<onto1>"+onto1+"</onto1>\n   <onto2>"+onto2+"</onto2>\n";
+	if ( method != null )
+	    messageBody += "	<method>"+method+"</method>\n";
+	if ( wserver != null )
+	    messageBody += "	<wserver>"+ wserver +"</wserver>\n";
+	if ( wsmethod != null )
+	    messageBody += "	<wsmethod>"+ wsmethod +"</wsmethod>\n";    
+	messageBody += "	<force>on</force>";
+	String message = createMessage( messageBody );
+	String answer = sendMessageMonoThread( message, false );
+    }
+	    
+    public String getAlignIdParsed( String answer ) {
+    	
+	String result[] = getResultsFromMessage( answer, "matchResponse" );
+	return result[0];	 
+    }
+
+    /**
+     * retrieve alignment for storing in OWL file
+     */
+    public String getOWLAlignment( String alignId ) {
+	SOAPAction = "retrieveRequest";
+	String message = createMessage( "<id>"+alignId+"</id><method>fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor</method>" );
+	String answer = sendMessageMonoThread( message, true );
+	String result[] = getResultsFromMessage( answer, "retrieveResponse/result/RDF" );
+	//System.out.println("OWLAlign="+ result[0]);
+	return result[0];
+    }
+	    
+    /**
+     * retrieve alignment for storing in OWL file
+     */
+    public String getRDFAlignment( String alignId ) {
+	SOAPAction = "retrieveRequest";
+	String message = createMessage( "<id>"+alignId+"</id><method>fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor</method>" );
+	String answer = sendMessageMonoThread( message, true );
+	String result[] = getResultsFromMessage( answer, "retrieveResponse/result/RDF" );
+	return result[0];
+    }
+	    
+    /**
+     * retrieve alignment for storing in OWL file
+     */
+    public void getRDFAlignmentMonoThread( String alignId ) {
+	SOAPAction = "retrieveRequest";
+	String message = createMessage( "<id>"+alignId+"</id><method>fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor</method>" );
+	String answer = sendMessageMonoThread( message, true );
+	globalAnswer = answer;
+    }
+	    
+    public String getRDFAlignmentParsed() { 
+	String result[] = getResultsFromMessage( globalAnswer, "retrieveResponse/result/RDF" );
+	return result[0];
+    }
+	    
+    protected String[] getResultsFromMessage( String answer, String xpath ){
+	Document domMessage = null;
+	try {
+	    domMessage = BUILDER.parse( new ByteArrayInputStream( answer.getBytes()) );
+	} catch  ( IOException ioex ) {
+	    ioex.printStackTrace();
+	} catch  ( SAXException saxex ) {
+	    saxex.printStackTrace();
+	}
+	return getTagFromSOAP( domMessage, xpath );
+    }
+
+    protected String[] getTagFromSOAP( Document dom,  String tag ){
+	XPath XPATH = XPathFactory.newInstance().newXPath();
+	String[] result = null;
+	Node n = null;
+	NodeList nl = null;
+	try {
+	    // The two first elements are prefixed by: "SOAP-ENV:"
+	    if(tag.equals("listmethodsResponse/classList/classname") || tag.equals("listalignmentsResponse/alignmentList/alid") 
+	       || tag.equals("findResponse/alignmentList/alid") ) {
+		nl = (NodeList)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODESET));
+		result = new String[nl.getLength()];
+		for (int i=0; i< nl.getLength(); i++) {
+		    Node method = (Node)nl.item(i);
+		    String nm = method.getFirstChild().getNodeValue();
+		    if(nm!=null) result[i] = nm; 
 		}
-	    
-	     
-	    
+	    } else  if (tag.equals("retrieveResponse/result/RDF") ) {
+		n =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODE));
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		try {
+		    Transformer tf = TransformerFactory.newInstance().newTransformer();
+		    tf.setOutputProperty(OutputKeys.ENCODING,"utf-8");
+		    tf.setOutputProperty(OutputKeys.INDENT,"yes");
+		    tf.transform(new DOMSource(n),new StreamResult(stream));
+		} catch (Exception e) {}
+		//Node firstnode = n.getFirstChild();
+		String nm = stream.toString();
+		result = new String[1];
+		result[0] = nm; 
+	    } else {
+		Node nn =  (Node)(XPATH.evaluate("/Envelope/Body/" + tag +"/alid", dom, XPathConstants.NODE));
+		result = new String[1];
+		 
+		Node nx  = nn.getFirstChild();
+		 
+		String nm = nx.getNodeValue();
+		result[0] = nm; 
+	    }  
+	} catch (XPathExpressionException e) {
+	} catch (NullPointerException e) {
+	}
+	return result;  
+    }
+
+    public String createMessage( String body ) {
+	return "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
+	    "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\' " + 
+	    "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
+	    "<SOAP-ENV:Body>" + body + "</SOAP-ENV:Body>"+"</SOAP-ENV:Envelope>";
+    }
+
+    public String sendMessageMonoThread( String message, boolean buffered ) {
+	// Create the connection
+	byte[] b = message.getBytes();
+	String answer = "";
+	// Create HTTP Request
+	try {
+	    HttpURLConnection httpConn = (HttpURLConnection)SOAPUrl.openConnection();
+	    httpConn.setRequestProperty( "Content-Length",
+					 String.valueOf( b.length ) );
+	    httpConn.setRequestProperty("Content-Type","text/xml; charset=utf-8");
+	    httpConn.setRequestProperty("SOAPAction",SOAPAction);
+	    httpConn.setRequestMethod( "POST" );
+	    httpConn.setDoOutput(true);
+	    httpConn.setDoInput(true);
+	    // Send the request through the connection
+	    OutputStream out = httpConn.getOutputStream();
+	    out.write( b );
+	    out.close( );
+	    InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+	    BufferedReader in = new BufferedReader(isr);
+	    // Buffering is better for large files
+	    if( buffered ) {
+		StringBuffer lineBuff =  new StringBuffer();
+		String line;
+		while ( (line = in.readLine()) != null) {
+		    lineBuff.append( line + "\n");
+		}
+		if (in != null) in.close();
+		answer = lineBuff.toString();
+		//System.out.println("RDF=" + answer );
+	    } else {
+		// Read the response and set it to answer
+		String line;
+		while ((line = in.readLine()) != null) {
+		    answer += line + "\n";
+		}
+		if (in != null) in.close();
+		if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
+	    }
+	} catch  (Exception ex) {
+	    connected= false; ex.printStackTrace() ; return null;
+	}
+	return answer;
+    }
+
+    public String sendFile( String message, String uploadFile ) {
+	// Create HTTP Request
+	try {
+	    HttpURLConnection httpConn = (HttpURLConnection)SOAPUrl.openConnection();
+	    httpConn.setRequestProperty("SOAPAction",SOAPAction);
+	    httpConn.setRequestMethod( "POST" );
+	    httpConn.setDoOutput( true );
+	    httpConn.setDoInput( true );
+	    // Don't use a cached version of URL connection.
+	    httpConn.setUseCaches ( false );
+	    httpConn.setDefaultUseCaches (false);
+	    File f = new File( uploadFile );
+	    FileInputStream fi = new FileInputStream(f);
+	    // set headers and their values.
+	    httpConn.setRequestProperty("Content-Type",
+					"application/octet-stream");
+	    httpConn.setRequestProperty("Content-Length",
+					Long.toString(f.length()));
+	    // create file stream and write stream to write file data.
+	    OutputStream os =  httpConn.getOutputStream();
+	    String str ="";
+	    try {
+		// transfer the file in 4K chunks.
+		byte[] buffer = new byte[4096];
+		//long byteCnt = 0;
+		int bytes=0;
+		while (true) {
+		    bytes = fi.read(buffer);
+		    if (bytes < 0)  break;
+		    os.write(buffer, 0, bytes );
+		}
+		os.flush();
+	    } catch (Exception ex) {}
+	    os.close();
+	    fi.close();
+	    //System.out.println("Upload Read done.");
+
+	    // Read the response  
+	    InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+	    BufferedReader in = new BufferedReader(isr);
+	    String line;
+	    StringBuffer strBuff = new StringBuffer();
+	    while ((line = in.readLine()) != null) {
+		strBuff.append( line + "\n");
+	    }
+	    if (in != null) in.close();
+	    String answer = strBuff.toString();
+	    connected = true;
+	    return answer;
+	} catch  (Exception ex) {
+	    connected = false;
+	    ex.printStackTrace();
+	    return null;
+	}
+    }
+
+    // With a StringBuffer ??
+    public static String fileToString ( File f ) {
+	String text = "";
+	int i=0;
+	try{
+	    FileReader rd = new FileReader(f);
+	    i = rd.read();
+	    while( i != -1 ) {
+		text += (char)i;
+		i = rd.read();
+	    }
+	} catch ( IOException e ) { System.err.println(e.getMessage());	}
+	return text;
+    }
 }

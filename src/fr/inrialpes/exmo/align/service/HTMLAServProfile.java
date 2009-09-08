@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Parameters;
@@ -155,16 +156,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// JE: Jetty implementation
 	server = new Server(tcpPort);
 
+	// The handler deals with the request
+	// most of its work is to deal with large content sent in specific ways 
 	Handler handler = new AbstractHandler(){
 		public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) 
-		    throws IOException, ServletException
-		{
+		    throws IOException, ServletException {
 		    String method = request.getMethod();
 		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
 		    // Should be decoded?
 		    String uri = request.getPathInfo();
 		    Properties params = new Properties();
-		    try { decodeParms( request.getQueryString(), params ); }
+		    try { decodeParams( request.getQueryString(), params ); }
 		    catch ( Exception e) {};
 		    // I do not decode them here because it is useless
 		    // See below how it is done.
@@ -176,11 +178,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    }
 
 		    // Get the content if any
-		    // Multi part?
 		    // This is supposed to be only an uploaded file
-		    // We use jetty MultiPartFilter to decode this file,
-		    // and only this
+		    // We use jetty MultiPartFilter to decode this file.
+		    // Note that this could be made more uniform 
+		    // with the text/xml part stored in a file as well.
 		    String mimetype = request.getContentType();
+		    // Multi part: the content provided by an upload HTML form
 		    if ( mimetype != null && mimetype.startsWith("multipart/form-data") ) {
 			MultiPartFilter filter = new MultiPartFilter();
 			// This is in fact useless
@@ -199,7 +202,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			    params.setProperty( "filename", request.getAttribute("content").toString() );
 			filter.destroy();
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
-			// Most likely Web service request
+			// Most likely Web service request (REST through POST)
 			int length = request.getContentLength();
 			char [] mess = new char[length+1];
 			try { 
@@ -211,10 +214,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    // File attached to SOAP messages
 		    } else if ( mimetype != null && mimetype.startsWith("application/octet-stream") ) {
          		File alignFile = new File(File.separator + "tmp" + File.separator + newId() +"XXX.rdf");
-
          		// check if file already exists - and overwrite if necessary.
          		if (alignFile.exists()) alignFile.delete();
-           
                	 	FileOutputStream fos = new FileOutputStream(alignFile);
             		InputStream is = request.getInputStream();
 			
@@ -239,12 +240,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    Response r = serve( uri, method, header, params );
 
 		    // Return it
-		    response.setContentType(r.getContentType());
-		    //response.setStatus(r.getStatus());
-		    response.setStatus(HttpServletResponse.SC_OK);
-		    response.getWriter().println(r.getData());
-		    // r.getStatus(); r.getContentType; r.getData();
-		    ((Request)request).setHandled(true);
+		    response.setContentType( r.getContentType() );
+		    response.setStatus( HttpServletResponse.SC_OK );
+		    response.getWriter().println( r.getData() );
+		    ((Request)request).setHandled( true );
 		}
 	    };
 	server.setHandler(handler);
@@ -312,53 +311,41 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	Parameters params = new BasicParameters();
 	Enumeration e = parms.propertyNames();
 	while ( e.hasMoreElements()) {
-	    String value = (String)e.nextElement();
-	    if ( debug > 1 ) System.err.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
-	    if ( value.startsWith( "paramn" ) ){
-		params.setParameter( parms.getProperty( value ),
-				     parms.getProperty( "paramv"+value.substring( 6 ) ) );
-	    } else if ( !value.startsWith( "paramv" ) ) {
-		params.setParameter( value, parms.getProperty( value ) );
+	    String key = (String)e.nextElement();
+	    if ( debug > 1 ) System.err.println( "  PRM: '" + key + "' = '" +parms.getProperty( key ) + "'" );
+	    if ( key.startsWith( "paramn" ) ){
+		params.setParameter( parms.getProperty( key ),
+				     parms.getProperty( "paramv"+key.substring( 6 ) ) );
+	    } else if ( !key.startsWith( "paramv" ) ) {
+		params.setParameter( key, parms.getProperty( key ) );
 	    }
 	}
 	
 	int start = 0;
-	if ( uri.charAt(0) == '/' ) start = 1;
+	while ( start < uri.length() && uri.charAt(start) == '/' ) start++;
 	int end = uri.indexOf( '/', start+1 );
 	String oper = "";
 	if ( end != -1 ) {
 	    oper = uri.substring( start, end );
 	    start = end+1;
 	} else {
-	    // Old implementation
 	    oper = uri.substring( start );
 	    start = uri.length();
-	    // No '/' after the tag cause problems, send redirect
-	    //uri += "/";
-	    //Response r = new Response( HTTP_REDIRECT, MIME_HTML,
-	    // 			       "<html><body>Redirected: <a href=\""+uri+"\">" +uri+"</a></body></html>");
-	//r.addHeader( "Location", uri );
-	//return r;
 	}
 
-	if ( oper.equals( "aserv" ) ){
+	if ( oper.equals( "aserv" ) ){ // Classical web service SOAP/HTTP
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
 		// This is not correct: I shoud return an error
 		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
 	    }
-	} else if ( oper.equals( "admin" ) ){
+	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
 	    return adminAnswer( uri, uri.substring(start), header, params );
-	} else if ( oper.equals( "html" ) ){
-	    //System.err.println( "perf =" + uri.substring(start));
-	    //System.err.println( "onto1 =" +params.getParameter("onto1"));
-	    //System.err.println( "onto2 =" +params.getParameter("onto2"));
+	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
 	    return htmlAnswer( uri, uri.substring(start), header, params );
-	} else if ( oper.equals( "rest" ) ){
- 
+	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
 	    params.setParameter( "restful", "true" );
-
 	    //The return format is XML by default 
 	    if ( params.getParameter("return") == null || ((String)params.getParameter("return")).equals("XML") ) 
 	    	 params.setParameter( "renderer", "XML" );
@@ -367,7 +354,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
 	    if ( wsmanager != null ) {
 		if( ((String)params.getParameter("renderer")).equals("HTML") )
-		    return htmlAnswer( uri, uri.substring(start), header, params );	    
+		    return htmlAnswer( uri, uri.substring(start), header, params );
 		else {
 		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 		}
@@ -389,7 +376,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"/html/\">Access</a></center>"
-	    + "(C) INRIA Rh&ocirc;ne-Alpes, 2006-2009<br />"
+	    + "(C) INRIA, 2006-2009<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"
 	    + "</center>";
     }
@@ -404,8 +391,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
         if ( perf.equals("listalignments") ){
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for ( Alignment al : manager.alignments() ) {
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID );
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
 	    }
@@ -496,10 +483,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment id:  <select name=\"id\">";
 	    // JE: only those non stored please (retrieve metadata + stored)
 	    for ( Alignment al : manager.alignments() ) {
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
 		params.setParameter("id", id);
 		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
-		    String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		    msg += "<option value=\""+id+"\">"+pid+"</option>";
 		}
@@ -527,13 +514,13 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg += displayAnswer( answer, params );
 		}
 	    }
-	} else if ( perf.equals("prmcut") ) {
+	} else if ( perf.equals("prmtrim") ) {
 	    String sel = (String)params.getParameter("id");
-	    msg ="<h1>Trim alignments</h1><form action=\"cut\">";
+	    msg ="<h1>Trim alignments</h1><form action=\"trim\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		if ( sel != null && sel.equals( id ) ){
 		    msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -542,12 +529,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	    msg += "</select><br />";
-	    msg += "Methods: <select name=\"method\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
-	} else if ( perf.equals("cut") ) {
+	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
+	} else if ( perf.equals("trim") ) {
 	    String id = (String)params.getParameter("id");
 	    String threshold = (String)params.getParameter("threshold");
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
-		Message answer = manager.cut( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		Message answer = manager.trim( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -559,8 +546,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg ="<h1>Invert alignment</h1><form action=\"inv\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -568,7 +555,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\"/><br /></form>";
 	} else if ( perf.equals("inv") ) {
 	    String id = (String)params.getParameter("id");
-	    if ( id != null && !id.equals("") ){ // Trim it
+	    if ( id != null && !id.equals("") ){ // Invert it
 		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
@@ -582,7 +569,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String RESTOnto2 = "";
 	    String readonlyOnto = "";
 	    //Ontologies from Cupboard may be already provided here.
-	    if((String)params.getParameter("restful") != null && ((String)params.getParameter("renderer")).equals("HTML") ){
+	    if ( (String)params.getParameter("restful") != null && 
+		 ((String)params.getParameter("renderer")).equals("HTML") ) {
 		RESTOnto1 = (String)params.getParameter("onto1");
 		RESTOnto2 = (String)params.getParameter("onto2");
 		//if(RESTOnto1 != null && !RESTOnto1.equals("") && RESTOnto2 != null && !RESTOnto2.equals("")) 
@@ -594,8 +582,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br />Initial alignment id:  <select name=\"id\"><option value=\"\" selected=\"1\"></option>";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -627,8 +615,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		if ( sel != null && sel.equals( id ) ){
 		    msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -656,8 +644,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -701,8 +689,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Translate query</h1><form action=\"translate\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -723,8 +711,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -745,8 +733,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Alignment to evaluate: ";
 	    msg += "<select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -754,8 +742,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg +="Reference alignment: ";
 	    msg += "<select name=\"ref\">";
 	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Annotations.ALIGNNS, Annotations.ID);
-		String pid = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		msg += "<option value=\""+id+"\">"+pid+"</option>";
 	    }
@@ -787,7 +775,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmload\"><button title=\"Upload an existing alignment in this server\" type=\"submit\">Load alignments</button></form>";
 	    msg += "<form action=\"prmfind\"><button title=\"Find existing alignements between two ontologies\" type=\"submit\">Find alignment</button></form>";
 	    msg += "<form action=\"prmmatch\"><button title=\"Apply matchers to ontologies for obtaining an alignment\" type=\"submit\">Match ontologies</button></form>";
-	    msg += "<form action=\"prmcut\"><button title=\"Trim an alignment above some threshold\" type=\"submit\">Trim alignment</button></form>";
+	    msg += "<form action=\"prmtrim\"><button title=\"Trim an alignment above some threshold\" type=\"submit\">Trim alignment</button></form>";
 	    msg += "<form action=\"prminv\"><button title=\"Swap the two ontologies of an alignment\" type=\"submit\">Invert alignment</button></form>";
 	    msg += "<form action=\"prmstore\"><button title=\"Persistently store an alignent in this server\" type=\"submit\" >Store alignment</button></form>";
 	    msg += "<form action=\"prmretrieve\"><button title=\"Render an alignment in a particular format\" type=\"submit\">Render alignment</button></form>";
@@ -802,22 +790,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // Util
 
     public Response wsdlAnswer(String uri, String perf, Properties header, Parameters params  ) {
-	/*
-	String msg = "";
-	try {
-	    FileReader fr = null;
-	    String temp;
-	    // JE: I would not... but absolutely not do this
-	    fr = new FileReader ("WSAlignSVC.wsdl");
-	    BufferedReader inFile = new BufferedReader( fr );
-	    while ((temp = inFile.readLine()) != null) {
-		//msg = msg + line + "\n";
-		msg =msg + temp;
-	    }
-	    if (fr != null)  fr.close();
-	} catch (IOException e) { e.printStackTrace(); }
-	*/
-	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer() );
+	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer( false ) );
     }	 
 
     private String testErrorMessages( Message answer, Parameters param ) {
@@ -851,7 +824,7 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
 		// STORE
 		result += "<td><form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
 		// TRIM (2)
-		result += "<td><form action=\"prmcut\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form></td>";
+		result += "<td><form action=\"prmtrim\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Trim\"/></form></td>";
 		// RETRIEVE (1)
 		result += "<td><form action=\"prmretrieve\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form></td>";
 		// Note at that point it is not possible to get the methods
@@ -871,10 +844,10 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
 
     private int newId() { return localId++; }
 
-    private void decodeParms( String parms, Properties p ) throws InterruptedException {
-	if ( parms == null ) return;
+    private void decodeParams( String params, Properties p ) throws InterruptedException {
+	if ( params == null ) return;
 	
-	StringTokenizer st = new StringTokenizer( parms, "&" );
+	StringTokenizer st = new StringTokenizer( params, "&" );
 	while ( st.hasMoreTokens())	{
 	    String next = st.nextToken();
 	    int sep = next.indexOf( '=' );

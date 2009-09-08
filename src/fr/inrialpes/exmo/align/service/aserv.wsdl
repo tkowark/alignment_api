@@ -11,9 +11,36 @@
 
   <!-- Type definitions -->
 
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2000/10/XMLSchema"
+		targetNamespace="http://exmo.inrialpes.fr/align/service">
+      <xsd:element name="alignmentList">
+	<xsd:complexType>
+          <xsd:all>
+            <xsd:element name="alid" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded"/>
+          </xsd:all>
+	</xsd:complexType>
+      </xsd:element>
+      <xsd:element name="classList">
+	<xsd:complexType>
+          <xsd:all> <!-- classname as strings -->
+            <xsd:element name="classname" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+          </xsd:all>
+	</xsd:complexType>
+      </xsd:element>
+      <xsd:element name="param">
+	<xsd:complexType>
+	  <xsd:simpleContent>
+	    <xsd:extension base="xsd:string">
+	      <xsd:attribute name="name" type="xsd:string" use="required"/>
+	    </xsd:extension>
+	  </xsd:simpleContent>
+	</xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+
   <!-- Message definitions -->
-  <!-- JE: why not simplifying this by the type of returned results
-  (like Alignment ) -->
 
    <wsdl:message name="wsdlRequest"/>
    <wsdl:message name="wsdlResponse"><!-- JE: should be XML -->
@@ -21,105 +48,110 @@
    </wsdl:message>
 
    <wsdl:message name="listalignmentsRequest"/>
-   <wsdl:message name="listalignmentsResponse"> <!-- JE: list of URI -->
-      <wsdl:part name="alignmentList" type="xsd:string"/>
+   <wsdl:message name="listalignmentsResponse">
+     <wsdl:part name="alignmentList" type="alignmentList"/>
    </wsdl:message>
 
    <wsdl:message name="listmethodsRequest"/>
-   <wsdl:message name="listmethodsResponse"> <!-- JE: list of strings -->
-      <wsdl:part name="classList" type="xsd:string"/>
+   <wsdl:message name="listmethodsResponse">
+     <wsdl:part name="classList" type="classList"/>
    </wsdl:message>
 
    <wsdl:message name="listservicesRequest"/>
-   <wsdl:message name="listservicesResponse"> <!-- JE: list of strings -->
-      <wsdl:part name="classList" type="xsd:string"/>
+   <wsdl:message name="listservicesResponse">
+     <wsdl:part name="classList" type="classList"/>
+   </wsdl:message>
+
+   <wsdl:message name="listevaluatorsRequest"/>
+   <wsdl:message name="listevaluatorsResponse">
+     <wsdl:part name="classList" type="classList"/>
    </wsdl:message>
 
    <wsdl:message name="listrenderersRequest"/>
-   <wsdl:message name="listrenderersResponse"> <!-- JE: list of strings -->
-      <wsdl:part name="classList" type="xsd:string"/>
+   <wsdl:message name="listrenderersResponse">
+     <wsdl:part name="classList" type="classList"/>
    </wsdl:message>
 
    <wsdl:message name="matchRequest">
-      <wsdl:part name="url1" type="xsd:anyURI"/>
-      <wsdl:part name="url2" type="xsd:anyURI"/>
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+      <wsdl:part name="onto1" type="xsd:anyURI"/>
+      <wsdl:part name="onto2" type="xsd:anyURI"/>
+      <wsdl:part name="id" type="xsd:anyURI"/>
       <wsdl:part name="method" type="xsd:string"/>
       <wsdl:part name="force" type="xsd:boolean"/>
-      <wsdl:part name="params" type="xsd:string"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
+      <wsdl:part name="pretty" type="xsd:string"/>
    </wsdl:message>
    <wsdl:message name="matchResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
    </wsdl:message>
 
    <wsdl:message name="align">
-      <wsdl:part name="url1" type="xsd:anyURI"/>
-      <wsdl:part name="url2" type="xsd:anyURI"/>
-      <!-- JE: beware, this one should at least have parameters -->
+      <wsdl:part name="onto1" type="xsd:anyURI"/>
+      <wsdl:part name="onto2" type="xsd:anyURI"/>
+      <wsdl:part name="method" type="xsd:string"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="alignResponse"> <!-- JE: XML -->
       <wsdl:part name="alignment" type="xsd:anyType"/>
    </wsdl:message>
 
-   <wsdl:message name="metadataRequest">
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+   <!--wsdl:message name="metadataRequest">
+      <wsdl:part name="id" type="xsd:anyURI"/>
       <wsdl:part name="key" type="xsd:string"/>
    </wsdl:message>
    <wsdl:message name="metadataResponse">
       <wsdl:part name="metadata" type="xsd:string"/>
-   </wsdl:message>
+   </wsdl:message-->
 
    <wsdl:message name="retrieveRequest">
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+      <wsdl:part name="id" type="xsd:anyURI"/>
    </wsdl:message>
    <wsdl:message name="retrieveResponse"> <!-- JE: XML -->
       <wsdl:part name="alignment" type="xsd:anyType"/>
    </wsdl:message>
 
-   <wsdl:message name="cutRequest">
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+   <wsdl:message name="trimRequest">
+      <wsdl:part name="id" type="xsd:anyURI"/>
       <wsdl:part name="threshold" type="xsd:float"/>
-      <wsdl:part name="method" type="xsd:string"/>
+      <wsdl:part name="type" type="xsd:string"/>
    </wsdl:message>
-   <wsdl:message name="cutResponse">
+   <wsdl:message name="trimResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
    </wsdl:message>
 
    <wsdl:message name="invertRequest">
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+      <wsdl:part name="id" type="xsd:anyURI"/>
    </wsdl:message>
    <wsdl:message name="invertResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
    </wsdl:message>
 
    <wsdl:message name="findRequest">
-      <wsdl:part name="uri1" type="xsd:anyURI"/>
-      <wsdl:part name="uri2" type="xsd:anyURI"/>
+      <wsdl:part name="onto1" type="xsd:anyURI"/>
+      <wsdl:part name="onto2" type="xsd:anyURI"/>
    </wsdl:message>
-   <wsdl:message name="findResponse"> <!-- list of URI -->
-      <wsdl:part name="alignmentList" type="xsd:anyType"/>
+   <wsdl:message name="findResponse">
+     <wsdl:part name="alignmentList" type="alignmentList"/>
    </wsdl:message>
 
-   <wsdl:message name="loadfileRequest"> <!-- JE : XML -->
-      <wsdl:part name="filecontents" type="xsd:anyType"/>
-   </wsdl:message>
-   <wsdl:message name="loadRequest">
-      <wsdl:part name="url" type="xsd:string"/>
+   <wsdl:message name="loadRequest"> <!--xsd:choice OR better multipart-->
+     <wsdl:part name="url" type="xsd:string"/>
+      <wsdl:part name="pretty" type="xsd:string"/>
    </wsdl:message>
    <wsdl:message name="loadResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
    </wsdl:message>
 
-   <wsdl:message name="translateRequest">
-      <wsdl:part name="contents" type="xsd:anyType"/> <!-- JE: XML -->
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+   <!--wsdl:message name="translateRequest">
+      <wsdl:part name="contents" type="xsd:anyType"/> 
+      <wsdl:part name="id" type="xsd:anyURI"/>
    </wsdl:message>
-   <wsdl:message name="translateResponse"> <!-- JE: XML -->
+   <wsdl:message name="translateResponse"> 
       <wsdl:part name="message" type="xsd:anyType"/>
-   </wsdl:message>
+   </wsdl:message-->
 
    <wsdl:message name="storeRequest">
-      <wsdl:part name="alid" type="xsd:anyURI"/>
+      <wsdl:part name="id" type="xsd:anyURI"/>
    </wsdl:message>
    <wsdl:message name="storeResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
@@ -140,51 +172,51 @@
        <wsdl:input message="impl:listrenderersRequest" name="listrenderersRequest"/>
        <wsdl:output message="impl:listrenderersResponse" name="listrenderersResponse"/>
      </wsdl:operation>
+     <wsdl:operation name="listevaluators">
+       <wsdl:input message="impl:listevaluatorsRequest" name="listevaluatorsRequest"/>
+       <wsdl:output message="impl:listevaluatorsResponse" name="listevaluatorsResponse"/>
+     </wsdl:operation>
      <wsdl:operation name="listservices">
        <wsdl:input message="impl:listservicesRequest" name="listservicesRequest"/>
        <wsdl:output message="impl:listservicesResponse" name="listservicesResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="metadata" parameterOrder="alid key">
+     <!--wsdl:operation name="metadata" parameterOrder="id key">
        <wsdl:input message="impl:metadataRequest" name="metadataRequest"/>
        <wsdl:output message="impl:metadataResponse" name="metadataResponse"/>
-     </wsdl:operation>
-     <wsdl:operation name="loadfile" parameterOrder="filecontents">
-       <wsdl:input message="impl:loadfileRequest" name="loadfileRequest"/>
-       <wsdl:output message="impl:loadfileResponse" name="loadfileResponse"/>
-     </wsdl:operation>
-     <wsdl:operation name="find" parameterOrder="uri1 uri2">
+     </wsdl:operation-->
+     <wsdl:operation name="find" parameterOrder="onto1 onto2">
        <wsdl:input message="impl:findRequest" name="findRequest"/>
        <wsdl:output message="impl:findResponse" name="findResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="load" parameterOrder="url">
+     <wsdl:operation name="load" parameterOrder="url pretty">
        <wsdl:input message="impl:loadRequest" name="loadRequest"/>
        <wsdl:output message="impl:loadResponse" name="loadResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="store" parameterOrder="alid">
+     <wsdl:operation name="store" parameterOrder="id">
        <wsdl:input message="impl:storeRequest" name="storeRequest"/>
        <wsdl:output message="impl:storeResponse" name="storeResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="translate" parameterOrder="contents alid">
+     <!--wsdl:operation name="translate" parameterOrder="contents id">
        <wsdl:input message="impl:translateRequest" name="translateRequest"/>
        <wsdl:output message="impl:translateResponse" name="translateResponse"/>
-     </wsdl:operation>
-     <wsdl:operation name="match" parameterOrder="url1 url2 method alid force params">
+     </wsdl:operation-->
+     <wsdl:operation name="match" parameterOrder="onto1 onto2 method id force async pretty param">
        <wsdl:input message="impl:matchRequest" name="matchRequest"/>
        <wsdl:output message="impl:matchResponse" name="matchResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="align" parameterOrder="url1 url2">
+     <wsdl:operation name="align" parameterOrder="onto1 onto2 method param">
        <wsdl:input message="impl:align" name="align"/>
        <wsdl:output message="impl:alignResponse" name="alignResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="cut" parameterOrder="alid method threshold">
-       <wsdl:input message="impl:cutRequest" name="cutRequest"/>
-       <wsdl:output message="impl:cutResponse" name="cutResponse"/>
+     <wsdl:operation name="trim" parameterOrder="id type threshold">
+       <wsdl:input message="impl:trimRequest" name="trimRequest"/>
+       <wsdl:output message="impl:trimResponse" name="trimResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="invert" parameterOrder="alid">
+     <wsdl:operation name="invert" parameterOrder="id">
        <wsdl:input message="impl:invertRequest" name="invertRequest"/>
        <wsdl:output message="impl:invertResponse" name="invertResponse"/>
      </wsdl:operation>
-     <wsdl:operation name="retrieve" parameterOrder="alid">
+     <wsdl:operation name="retrieve" parameterOrder="id method">
        <wsdl:input message="impl:retrieveRequest" name="retrieveRequest"/>
        <wsdl:output message="impl:retrieveResponse" name="retrieveResponse"/>
      </wsdl:operation>
@@ -228,6 +260,17 @@
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
      </wsdl:operation>
+     <wsdl:operation name="listevaluators">
+       <wsdlsoap:operation soapAction=""/>
+       <wsdl:input name="listevaluatorsRequest">
+         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
+       </wsdl:input>
+       <wsdl:output name="listevaluatorsResponse">
+         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
+       </wsdl:output>
+     </wsdl:operation>
      <wsdl:operation name="listservices">
        <wsdlsoap:operation soapAction=""/>
        <wsdl:input name="listservicesRequest">
@@ -239,7 +282,7 @@
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
      </wsdl:operation>
-     <wsdl:operation name="metadata">
+     <!--wsdl:operation name="metadata">
        <wsdlsoap:operation soapAction=""/>
        <wsdl:input name="metadataRequest">
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
@@ -249,18 +292,7 @@
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
-     </wsdl:operation>
-     <wsdl:operation name="loadfile">
-       <wsdlsoap:operation soapAction=""/>
-       <wsdl:input name="loadfileRequest">
-         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
-       </wsdl:input>
-       <wsdl:output name="loadfileResponse">
-         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
-       </wsdl:output>
-     </wsdl:operation>
+     </wsdl:operation-->
      <wsdl:operation name="find">
        <wsdlsoap:operation soapAction=""/>
        <wsdl:input name="findRequest">
@@ -294,7 +326,7 @@
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
      </wsdl:operation>
-     <wsdl:operation name="translate">
+     <!--wsdl:operation name="translate">
        <wsdlsoap:operation soapAction=""/>
        <wsdl:input name="translateRequest">
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
@@ -304,7 +336,7 @@
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
-     </wsdl:operation>
+     </wsdl:operation-->
      <wsdl:operation name="match">
        <wsdlsoap:operation soapAction=""/>
        <wsdl:input name="matchRequest">
@@ -327,13 +359,13 @@
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>
      </wsdl:operation>
-     <wsdl:operation name="cut">
+     <wsdl:operation name="trim">
        <wsdlsoap:operation soapAction=""/>
-       <wsdl:input name="cutRequest">
+       <wsdl:input name="trimRequest">
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:input>
-       <wsdl:output name="cutResponse">
+       <wsdl:output name="trimResponse">
          <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
 			namespace="urn:http://exmo.inrialpes.fr/align/service" use="encoded"/>
        </wsdl:output>

@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -202,10 +203,10 @@ public class AServProtocolManager {
 	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),name,(Parameters)null);
 	}
 	// We preserve the pretty tag within the loaded ontology
-	String pretty = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	if ( pretty == null ) pretty = (String)params.getParameter("pretty");
-	if ( pretty != null ) {
-	    al.setExtension( Annotations.ALIGNNS, Annotations.PRETTY, pretty );
+	if ( pretty != null && !pretty.equals("") ) {
+	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	}
 	// register it
 	String id = alignmentCache.recordNewAlignment( al, true );
@@ -282,10 +283,10 @@ public class AServProtocolManager {
 	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getParameter("force") == null ) {
 	    for ( Alignment al: alignments ){
-		if ( al.getExtension( Annotations.ALIGNNS, Annotations.METHOD ).equals(method) ) {
+		if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ).equals(method) ) {
 		    return new AlignmentId(newId(),mess,myId,mess.getSender(),
-					   al.getExtension( Annotations.ALIGNNS, Annotations.ID ),(Parameters)null,
-					   al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY ) );
+					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ),(Parameters)null,
+					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) );
 		}
 	    }
 	}
@@ -320,8 +321,8 @@ public class AServProtocolManager {
 	String msg = "";
 	String prettys = "";
 	for ( Alignment al : alignments ) {
-	    msg += al.getExtension( Annotations.ALIGNNS, Annotations.ID )+" ";
-	    prettys += al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY )+ ":";
+	    msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
+	    prettys += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY )+ ":";
 	}
 	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null,prettys);
     }
@@ -447,7 +448,7 @@ public class AServProtocolManager {
 	    // register by them
 	    // Could also be an AlreadyStoredAlignment error
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null,
-				   al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY ));
+				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
@@ -471,8 +472,8 @@ public class AServProtocolManager {
 	Parameters params = new BasicParameters();
 	params.setParameter( "file1", al.getFile1() );
 	params.setParameter( "file2", al.getFile2() );
-	params.setParameter( Annotations.ALIGNNS+"level", al.getLevel() );
-	params.setParameter( Annotations.ALIGNNS+"type", al.getType() );
+	params.setParameter( Namespace.ALIGNMENT.uri+"#level", al.getLevel() );
+	params.setParameter( Namespace.ALIGNMENT.uri+"#type", al.getType() );
 	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
 	    params.setParameter( ((String[])ext)[0]+((String[])ext)[1], ((String[])ext)[2] );
 	}
@@ -486,7 +487,7 @@ public class AServProtocolManager {
      * There is no way an alignment server could modify an alignment
      *********************************************************************/
 
-    public Message cut( Message mess ) {
+    public Message trim( Message mess ) {
 	// Retrieve the alignment
 	String id = (String)mess.getParameters().getParameter("id");
 	Alignment al = null;
@@ -495,22 +496,22 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
 	}
-	// get the cut parameters
-	String method = (String)mess.getParameters().getParameter("method");
-	if ( method == null ) method = "hard";
+	// get the trim parameters
+	String type = (String)mess.getParameters().getParameter("type");
+	if ( type == null ) type = "hard";
 	double threshold = Double.parseDouble((String)mess.getParameters().getParameter("threshold"));
 	al = (BasicAlignment)((BasicAlignment)al).clone();
-	try { al.cut( method, threshold );}
+	try { al.cut( type, threshold );}
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
-	String pretty = al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
-	    al.setExtension( Annotations.ALIGNNS, Annotations.PRETTY, pretty+"/trimmed "+threshold );
+	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/trimmed "+threshold );
 	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null,
-			       al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY ));
+			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
 
     public Message harden( Message mess ){
@@ -533,9 +534,13 @@ public class AServProtocolManager {
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
 	}
+	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	if ( pretty != null ){
+	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/inverted" );
+	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null,
-			       al.getExtension( Annotations.ALIGNNS, Annotations.PRETTY ));
+			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
 
     public Message meet( Message mess ){
@@ -610,7 +615,7 @@ public class AServProtocolManager {
      * Evaluate a track: a set of results
      */
     // It is also possible to try a groupeval ~> with a zipfile containing results
-    //            ~~> But it is more difficut to know where is the reference (non public)
+    //            ~~> But it is more difficult to know where is the reference (non public)
     // There should also be options for selecting the result display
     //            ~~> PRGraph (but this may be a Evaluator)
     //            ~~> Triangle
@@ -922,11 +927,11 @@ public class AServProtocolManager {
 		    long time = System.currentTimeMillis();
 		    aresult.align( init, params ); // add opts
 		    long newTime = System.currentTimeMillis();
-		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
-		    aresult.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
+		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 		    String pretty = (String)params.getParameter( "pretty" );
-		    if ( pretty != null )
-			aresult.setExtension( Annotations.ALIGNNS, Annotations.PRETTY, pretty );
+		    if ( pretty != null && !pretty.equals("") )
+			aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 		} catch (AlignmentException e) {
 		    // The unreachability test has already been done
 		    // JE 15/1/2009: commented the unreachability test
@@ -942,7 +947,7 @@ public class AServProtocolManager {
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
 		result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null,
-			       aresult.getExtension( Annotations.ALIGNNS, Annotations.PRETTY ));
+			       aresult.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
 	    } catch (ClassNotFoundException e) {
 		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
 	    } catch (NoSuchMethodException e) {

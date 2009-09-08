@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2008-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -60,6 +60,7 @@ import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
  /**
@@ -170,14 +171,8 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     parser.setEmbedded( true );
 	     parser.parse( httpConn.getInputStream() );
 	     //parser.parseString( res ); 
-
-	 } catch (SAXException saxex) {
-	     throw new AlignmentException( "Malformed XML/SOAP result ("+saxex.getMessage()+")", saxex );
 	 } catch (IOException ioex) {
-	     
 	     throw new AlignmentException( "XML/SOAP parsing error", ioex );
-	 } catch (javax.xml.parsers.ParserConfigurationException pcex) {
-	     throw new AlignmentException( "XML/SOAP parsing error", pcex );
 	 }
      }
 
@@ -197,12 +192,12 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
-	String oldid = align.getExtension( Annotations.ALIGNNS, "id" );
+	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, "id" );
 	if ( oldid != null && !oldid.equals("") ) {
-	    align.setExtension( Annotations.ALIGNNS, "derivedFrom", oldid );
-	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+"id" );
+	    align.setExtension( Namespace.ALIGNMENT.uri, "derivedFrom", oldid );
+	    align.getExtensions().unsetParameter( Namespace.ALIGNMENT.uri+"id" );
 	}
-	align.setExtension( Annotations.ALIGNNS, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
+	align.setExtension( Namespace.ALIGNMENT.uri, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

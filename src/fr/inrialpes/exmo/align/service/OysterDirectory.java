@@ -27,6 +27,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 
 import fr.inrialpes.exmo.align.onto.Ontology;
 
@@ -70,16 +71,16 @@ public class OysterDirectory implements Directory {
 	oyster2Conn.replace( onto1 ); // or use submit?
 	oyster2Conn.replace( onto2 );
 	OMVMapping align = new OMVMapping();
-	align.setURI( al.getExtension( Annotations.ALIGNNS, Annotations.ID ) );
+	align.setURI( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) );
 	align.setLevel( al.getLevel() );
 	align.setType( al.getType() );
-	if ( al.getExtension( Annotations.ALIGNNS, Annotations.TIME ) != null ) 
-	    align.setProcessingTime( new Double( al.getExtension( Annotations.ALIGNNS, Annotations.TIME ) ) );
+	if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME ) != null ) 
+	    align.setProcessingTime( new Double( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME ) ) );
 	align.setHasSourceOntology( onto1 );
 	align.setHasTargetOntology( onto2 );
-	if ( al.getExtension( Annotations.ALIGNNS, Annotations.METHOD ) != null ) {
+	if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ) != null ) {
 	    OMVMappingMethod meth = new OMVMappingMethod();
-	    meth.setID( al.getExtension( Annotations.ALIGNNS, Annotations.METHOD ) );
+	    meth.setID( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ) );
 	    align.setUsedMethod( meth );
 	    oyster2Conn.replace( meth );
 	}

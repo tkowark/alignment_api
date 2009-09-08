@@ -77,14 +77,14 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
     }
 
     public String RESTString(){
-	String msg = "<alignmentList>";
+	String msg = "<alignmentList>\n";
 	String id[] = content.split(" ");
 	for ( int i = id.length-1; i >= 0; i-- ){
 	    if ( id[i].trim() != "" ) {
-		msg += "<alid>"+id[i].trim()+"</alid>";
+		msg += "        <alid>"+id[i].trim()+"</alid>\n";
 	    }
 	}	
-	msg += "</alignmentList>";
+	msg += "      </alignmentList>";
 	return msg;
     }
 }

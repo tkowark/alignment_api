@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2008
+ * Copyright (C) INRIA, 2006-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,9 +35,14 @@ public class ErrorMsg extends Message {
 	return "Generic error: "+content;
     }
     public String RESTString(){
-	return "<ErrorMsg><content>" + content + "</content></ErrorMsg>";
+	return "<error>" + content + "</error>";
     }
     public String SOAPString(){
-	return "<ErrorMsg><id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content></ErrorMsg>";
+	String res = "    <ErrorMsg>\n";
+	res += "      <msgid>"+surrogate+"</msgid>\n"+"        <sender>"+sender+"</sender>\n" + "        <receiver>"+receiver+"</receiver>\n" ;
+	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
+	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
+	res += "      "+RESTString()+"\n"+"    </ErrorMsg>\n";
+	return res;
     }
 }

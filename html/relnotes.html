@@ -62,16 +62,16 @@ Currently the development and maintainance of 3 versions continue.
 <h2>Next version (4.0: Rouquine carm&eacute;lite)</h2>
 
 <p>
-This version under development is planned for next September. It is
+This version under development is planned for end of September. It is
 likely to include:
 <ul>
 <li>Implement fully relaxed precision and recall (impl)</li>
 <li>Integrate some basic reasoning.</li>
 <li>Bug in triming, maybe leaves one item to much (impl)</li>
 <li>Integration of SKOS API (onto)</li>
-<li>Integration of OMWG alignments (impl)</li>
+<li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
-<li>Implement database store for OMWG Language (server)</li>
+<li>Implement database store for EDOAL (server)</li>
 <li>Addition of advanced tutorial and reengineered tutorials (doc)</li>
 </ul>
 </p>
@@ -79,9 +79,14 @@ likely to include:
 
 <h2>Current SVN trunk version</h2>
 
+<!--h2>Version 4.2 (1xxx): xx/09/2009 - Zimt</h2-->
 <!--h2>Version 4.1 (1xxx): xx/09/2009 - Tring</h2-->
 <!--h2>Version 4.0 (1xxx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
 
+<!--p><span style="color: red;">BEWARE (major upgrade):</span>
+UPGRADE ALL LIBRARIES
+</p-->
+<p>The Alignment API is now compiled in Java 1.6 (older versions should still be able to run it).</p>
 <p>
 <ul compact="1">
 <li>Separated the Alignment API from <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl/ling)</li>
@@ -90,6 +95,10 @@ likely to include:
 <li>Lifted OWL API 2 as <tt>HeavyLoadedOntology</tt> (onto)</li>
 <li>Added cache management to <tt>JENAOntology</tt> (onto)</li>
 <li>Implemented semantic precision and recall (impl).</li>
+<li>Completely modified the web service interface so that SOAP and
+  REST are fully aligned. This is
+  now  <a href="rest.html#version4">documented</a> (serv)</li>
+<li>Added a <tt>listevaluators</tt> primitive to the service interface (serv)</li>
 <li>Added computation of MAP (Mean Average Precision)
   in <tt>PRGraphEvaluator</tt> (impl).</li>
 <li>Added pretty-printing of names in server (server)</li>
@@ -98,6 +107,8 @@ likely to include:
   in <tt>MatrixMeasure</tt> (impl)</li>
 <li>Added a parameter to the <tt>OWLAxiomsRendererVisitor</tt> so that it could render
   heterogeneous axioms, like Class sameAs Property (impl).</li>
+<li>Upgraded NeOn plug-in to work with <span style="color: green">NeOn toolkit 1.2.3</span> (plugin)</li>
+<li>Rewritten NeOn plug-in interface so that it works on more platforms (plugin)</li>
 <li>Suppressed <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
   (deprecated since version 3.3) (impl)</li>
 <li>Changed the signature of <tt></tt> from <tt>Enumeration</tt>
@@ -105,22 +116,25 @@ likely to include:
 <li>Reorganised the lib directory hierarchically (build)</li>
 <li>Corrected a bug when the server is launched without -S
   (server)</li>
+<li>Corrected a bug in <tt>HTMLRendererVisitor</tt> that made the
+  display of alignments, especially stored, to break (server)</li>
+<li>Corrected the README.TXT of examples/wservice (serv)</li>
 <li>Corrected a bug in retrieving alignments from ontologies when the
   two ontologies are the same (server)</li>
-<li>Corrected a bug when <tt>StringDistAlignment</tt> fail to raise
+<li>Corrected a bug when <tt>StringDistAlignment</tt> fails to raise
       exception when unknown method is given (impl)</li>
 <li>Corrected a bug in tests that did not forced to clean-up the state
   after <tt>OntoTest</tt> (test)</li>
 <li>Corrected a (commented) error in the <tt>wine.xml</tt> OMWG
-  example (omwg)</li>
-<!--li>Suppressed the capability to export alignments in WSML (impl/omwg)</li-->
+  example (edoal)</li>
+<!--li>Suppressed the capability to export alignments in WSML (edoal)</li-->
 </ul>
 </p>
 
 <h2>Version 3.6 (988): 27/05/2009 - Sabai sabai</h2>
 
 <p><span style="color: red;">BEWARE:</span>
-Java WordNet Library (JWNL) has been upgraded 1.4.1rc2 (from 1.3rc3). This is included in the lib directory.
+Java WordNet Library (JWNL) has been upgraded to version 1.4.1rc2 (from 1.3rc3). This is included in the lib directory.
 Hence, it is necessary to use WordNet-3.0 (the jwnl part will not work
   anymore with 2.0).
 If you want to stay with WordNet-2.0, you need to replace the jwnl.jar

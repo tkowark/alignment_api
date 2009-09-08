@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      09/07/2008, version 3.3+                       #
+#                      07/09/2009, version 4+                       #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
@@ -83,10 +83,12 @@ RUNNING THE ALIGNMENT SERVER
 ----------------------------
 
 $ java -jar lib/alignsvc.jar -H
-$ java -jar lib/alignsvc.jar -Dwndict=../WordNet-2.0/dict -H
+$ java -jar lib/alignsvc.jar -Dwndict=../WordNet-3.0/dict -H
 
 The alignment server is then available through HTTP with:
 
     	      http://localhost:8089/html/
+
+(hint: use -d)
 
 

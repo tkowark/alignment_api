@@ -42,6 +42,7 @@ import java.sql.SQLException;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
@@ -413,10 +414,6 @@ public class CacheImpl {
 	    String uri1String = uri1.toString();
 	    for(  Alignment al : potentials ) {
 		// This is not the best because URI are not resolved here...
-		System.out.println("get2="+al.getExtension(SVCNS, OURI2));
-		System.out.println("get1="+al.getExtension(SVCNS, OURI1));
-		System.out.println("uri2String="+uri2String);
-			System.out.println("uri1String="+uri1String);
 		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) 
 		     && al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
 		    result.add( al );
@@ -460,8 +457,8 @@ public class CacheImpl {
 	// record the Id!
 
 	//CLD put in comment this line for allowing to create a new ID for any alignment  
-	//if ( alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) == null )
-	    alignment.setExtension(  Annotations.ALIGNNS, Annotations.ID, id );
+	//if ( alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) == null )
+	    alignment.setExtension(  Namespace.ALIGNMENT.uri, Annotations.ID, id );
  
 	// Store it
 	try {
@@ -595,7 +592,7 @@ public class CacheImpl {
 		    		cellid = c.getId();
 		    		if ( cellid != null ){
 				if ( cellid.startsWith("#") ) {
-			    		cellid = alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) + cellid;
+			    		cellid = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) + cellid;
 				}
 		    		} else if ( c.getExtensions() != null ) {
 					// JE: In case of extensions create an ID
@@ -794,7 +791,7 @@ public class CacheImpl {
 				ns = tag.substring( 0, pos+1 );
 				name = tag.substring( pos+1 );
 			    } else {
-				ns = Annotations.ALIGNNS;
+				ns = Namespace.ALIGNMENT.uri;
 				name = tag;
 			    }
 			    //System.err.println("  >> "+ns+" : "+name);

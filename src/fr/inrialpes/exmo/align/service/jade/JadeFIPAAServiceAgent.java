@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA Rhône-Alpes, 2006, 2008
+ * Copyright (C) INRIA, 2006, 2008-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -199,7 +199,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 								myAgent.send(JADEanswer);
 							}else{myLogger.log(Logger.WARNING, answer.getContent());}
 						}else if (ce instanceof CUT){
-							Message answer = manager.cut(new Message(newId(), (Message)null,myId,serverId,"",params));
+							Message answer = manager.trim(new Message(newId(), (Message)null,myId,serverId,"",params));
 							if(!(answer instanceof ErrorMsg)){
 								ACLMessage JADEanswer=msg.createReply();
 								JADEanswer.setLanguage(codec.getName());
