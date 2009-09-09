@@ -34,6 +34,7 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
@@ -57,6 +58,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
     Cell cell = null;
     Hashtable<String,String> nslist = null;
     boolean embedded = false; // if the output is XML embeded in a structure
+    String alid = "";
 
     public HTMLRendererVisitor( PrintWriter writer ){
 	this.writer = writer;
@@ -76,7 +78,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
 	nslist = new Hashtable<String,String>();
-	nslist.put(Annotations.ALIGNNS,"align");
+	nslist.put(Namespace.ALIGNMENT.uri,"align");
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
@@ -104,13 +106,13 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
-	String id = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
-	String pid = align.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
-	if ( id == null ) id = "Anonymous alignment";
+	alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	String pid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	if ( alid == null ) alid = "Anonymous alignment";
 	if ( pid == null ) {
-	    writer.print("<h1>"+id+"</h1>\n");
+	    writer.print("<h1>"+alid+"</h1>\n");
 	} else {
-	    writer.print("<h1>"+id+" ("+pid+")</h1>\n");
+	    writer.print("<h1>"+alid+" ("+pid+")</h1>\n");
 	}
 	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<h2>Alignment metadata</h2>\n");
@@ -167,7 +169,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	if ( cell.getId() != null ) {
 	    String id = cell.getId();
 	    // Would be useful to test for the Alignment URI
-	    if ( id.startsWith( (String)alignment.getExtension( Annotations.ALIGNNS, Annotations.ID ) ) ){
+	    if ( alid != null && id.startsWith( alid ) ) {
 		writer.print("<td>"+id.substring( id.indexOf( '#' ) )+"</td>");
 	    } else {
 		writer.print("<td>"+id+"</td>");
