@@ -22,7 +22,6 @@ package fr.inrialpes.exmo.align.impl;
 
 public class Annotations {
 
-    public static String ALIGNNS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
     public static String ID = "id";
     public static String METHOD = "method";
     public static String DERIVEDFROM = "derivedFrom";
@@ -35,6 +34,7 @@ public class Annotations {
     public static String PROVENANCE = "provenance";
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
+    // JE2009: Unrelated to Annotations...
     public static boolean STRICT_IMPLEMENTATION = false;
 
 }
