@@ -86,7 +86,7 @@ public class BasicAlignment implements Alignment {
 	hash2 = new Hashtable<Object,Set<Cell>>();
 	extensions = new BasicParameters();
 	namespaces = new BasicParameters();
-	if ( this instanceof AlignmentProcess ) setExtension( Annotations.ALIGNNS, Annotations.METHOD, getClass().getName() );
+	if ( this instanceof AlignmentProcess ) setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, getClass().getName() );
 	onto1 = new BasicOntology<Object>();
 	onto2 = new BasicOntology<Object>();
     }
@@ -641,18 +641,18 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	String oldid = result.getExtension( Annotations.ALIGNNS, Annotations.ID );
+	String oldid = result.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( oldid != null && !oldid.equals("") ) {
-	    result.setExtension( Annotations.ALIGNNS, Annotations.DERIVEDFROM, oldid );
-	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
+	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.DERIVEDFROM, oldid );
+	    result.getExtensions().unsetParameter( Namespace.ALIGNMENT.uri+Annotations.ID );
 	}
-	String pretty = result.getExtension( Annotations.ALIGNNS, Annotations.PRETTY );
+	String pretty = result.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
-	    result.setExtension( Annotations.ALIGNNS, Annotations.PRETTY, pretty+"/inverted" );
+	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/inverted" );
 	};
-	result.setExtension( Annotations.ALIGNNS, Annotations.PROVENANCE,
-			     result.getExtension( Annotations.ALIGNNS, Annotations.PROVENANCE )+"" );
-	result.setExtension( Annotations.ALIGNNS, Annotations.METHOD, "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" );
+	result.setExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE,
+			     result.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE )+"" );
+	result.setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    result.setXNamespace( label, getXNamespace( label ) );
@@ -695,12 +695,12 @@ public class BasicAlignment implements Alignment {
 	for ( Object ext : ((BasicParameters)extensions).getValues() ){
 	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	}
-	String oldid = align.getExtension( Annotations.ALIGNNS, Annotations.ID );
+	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( oldid != null && !oldid.equals("") ) {
-	    align.setExtension( Annotations.ALIGNNS, Annotations.DERIVEDFROM, oldid );
-	    align.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
+	    align.setExtension( Namespace.ALIGNMENT.uri, Annotations.DERIVEDFROM, oldid );
+	    align.getExtensions().unsetParameter( Namespace.ALIGNMENT.getUriPrefix()+Annotations.ID );
 	}
-	align.setExtension( Annotations.ALIGNNS, Annotations.METHOD, this.getClass().getName()+"#clone" );
+	align.setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, this.getClass().getName()+"#clone" );
 	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	    String label = (String)e.nextElement();
 	    align.setXNamespace( label, getXNamespace( label ) );

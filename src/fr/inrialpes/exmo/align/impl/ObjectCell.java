@@ -108,7 +108,7 @@ public class ObjectCell extends BasicCell {
 	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
 		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
 	    }
-	    result.getExtensions().unsetParameter( Annotations.ALIGNNS+Annotations.ID );
+	    result.getExtensions().unsetParameter( Namespace.ALIGNMENT.getUriPrefix()+Annotations.ID );
 	}
 	// The sae should be done for the measure
 	return result;

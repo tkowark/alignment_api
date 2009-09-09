@@ -29,6 +29,7 @@ import org.semanticweb.owl.align.Evaluator;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -139,7 +140,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	fmeasure = 2 * precision * recall / (precision + recall);
 	overall = recall * (2 - (1 / precision));
 	result = recall / precision;
-	String timeExt = align2.getExtension( Annotations.ALIGNNS, Annotations.TIME );
+	String timeExt = align2.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
 	return (result);
