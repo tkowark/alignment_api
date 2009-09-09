@@ -87,7 +87,9 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	String extensionString = "";
 	alignment = align;
 	nslist = new Hashtable<String,String>();
-	nslist.put(Namespace.ALIGNMENT.uri,"align");
+        //nslist.put(Namespace.ALIGNMENT.uri,"align");
+        // I must fix this # problem
+        nslist.put( Namespace.ALIGNMENT.uri+"#" , Namespace.ALIGNMENT.shortCut );
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
@@ -110,6 +112,7 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	    writer.print("' standalone='no'?>\n");
 	}
 	writer.print("<rdf:RDF xmlns='"+Namespace.ALIGNMENT.uri+"'");
+        //writer.print(NL+"         xml:base='"+Namespace.ALIGNMENT.uri+"'");
 	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
 	    String k = (String)e.nextElement();
 	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
