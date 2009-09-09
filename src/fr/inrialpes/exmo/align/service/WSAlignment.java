@@ -173,6 +173,8 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     //parser.parseString( res ); 
 	 } catch (IOException ioex) {
 	     throw new AlignmentException( "XML/SOAP parsing error", ioex );
+	 } catch (Exception ex) { // JE2009: To suppress in Version 4 (??)
+	     throw new AlignmentException( "XML/SOAP parsing error", ex );
 	 }
      }
 
