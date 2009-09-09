@@ -77,7 +77,7 @@
   <target name="compileall" depends="init">
     <echo message="Erasing..."/>
     <delete>
-      <fileset dir="classes" includes="**/*.class"/>
+      <fileset dir="." includes="classes/**/*.class"/>
     </delete>
     <antcall target="cleanjar"/>
     <antcall target="jar"/>
