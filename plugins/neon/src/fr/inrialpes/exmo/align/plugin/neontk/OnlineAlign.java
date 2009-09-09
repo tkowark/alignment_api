@@ -84,7 +84,7 @@ public class OnlineAlign {
 	    
     public String uploadAlign( String alignId ) {
 	SOAPAction = "loadRequest";
-	String content = OfflineAlign.fileToString( new File( alignId ) );
+	String content = fileToString( new File( alignId ) );
 	String answer = sendFile( content, alignId );
 	String result[] = getResultsFromMessage( answer, "loadResponse" );
 	//System.out.println("Loaded Align="+ result[0]);
