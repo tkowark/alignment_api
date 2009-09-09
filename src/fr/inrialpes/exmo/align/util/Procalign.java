@@ -33,6 +33,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import java.io.OutputStream;
@@ -242,7 +243,7 @@ public class Procalign {
 	    long time = System.currentTimeMillis();
 	    result.align(  init, params ); // add opts
 	    long newTime = System.currentTimeMillis();
-	    result.setExtension( Annotations.ALIGNNS, Annotations.TIME, Long.toString(newTime - time) );
+	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
