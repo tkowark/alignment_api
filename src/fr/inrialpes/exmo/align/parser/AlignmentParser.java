@@ -57,6 +57,7 @@ import fr.inrialpes.exmo.align.onto.BasicOntology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -268,7 +269,7 @@ public class AlignmentParser extends DefaultHandler {
 	    System.err.println("startElement AlignmentParser : " + pName);
 	parseLevel++;
 	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
-	    || namespaceURI.equals(Annotations.ALIGNNS) )  {
+	    || namespaceURI.equals(Namespace.ALIGNMENT.uri) )  {
 	    if (pName.equals("relation")) {
 	    } else if (pName.equals("semantics")) {
 	    } else if (pName.equals("measure")) {
@@ -346,7 +347,7 @@ public class AlignmentParser extends DefaultHandler {
 		onto1 = ((URIAlignment)alignment).getOntologyObject1();
 		onto2 = ((URIAlignment)alignment).getOntologyObject2();
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
-		    alignment.setExtension( Annotations.ALIGNNS, Annotations.ID, atts.getValue("rdf:about") );
+		    alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, atts.getValue("rdf:about") );
 		};
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[AlignmentParser] Unknown element name : "+pName);
@@ -415,7 +416,7 @@ public class AlignmentParser extends DefaultHandler {
 	if(debugMode > 2) 
 	    System.err.println("endElement AlignmentParser : " + pName);
 	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
-	    || namespaceURI.equals(Annotations.ALIGNNS) )  {
+	    || namespaceURI.equals(Namespace.ALIGNMENT.uri) )  {
 	    try {
 		if (pName.equals("relation")) {
 		    relation = content;
