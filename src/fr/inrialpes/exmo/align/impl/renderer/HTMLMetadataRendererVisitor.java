@@ -32,6 +32,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
@@ -71,7 +72,7 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
     public void visit( Alignment align ) throws AlignmentException {
 	alignment = align;
 	nslist = new Hashtable<String,String>();
-	nslist.put(Annotations.ALIGNNS,"align");
+	nslist.put(Namespace.ALIGNMENT.uri,"align");
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
