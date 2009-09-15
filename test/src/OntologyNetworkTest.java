@@ -46,6 +46,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.OntologyNetwork;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.align.util.OntologyNetworkWeakener;
 
 public class OntologyNetworkTest {
     private OntologyNetwork noo = null;
@@ -121,5 +122,33 @@ public class OntologyNetworkTest {
 	u = new URI("http://www.example.org/ontology2");
 	assertEquals( noo.getTargetingAlignments(u).size(), 2 );
 	assertEquals( noo.getSourceAlignments(u).size(), 0 );
+    }
+
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"})
+	public void weakenTest() throws URISyntaxException, AlignmentException {
+	OntologyNetwork noon = null;
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, .5, true );
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, 0., true );
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, 1., true );
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, 0., false );
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, .5, false );
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, 1., false );
+    }
+
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"},expectedExceptions = AlignmentException.class)
+    public void weakenExceptionTest1() throws URISyntaxException, AlignmentException {
+	OntologyNetworkWeakener.weakenAlignments( noo, 1.2, true );
+    }
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"},expectedExceptions = AlignmentException.class)
+    public void weakenExceptionTest2() throws URISyntaxException, AlignmentException {
+	OntologyNetworkWeakener.weakenAlignments( noo, -.2, true );
+    }
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"},expectedExceptions = AlignmentException.class)
+    public void weakenExceptionTest3() throws URISyntaxException, AlignmentException {
+	OntologyNetworkWeakener.weakenAlignments( noo, 1.2, false );
+    }
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"},expectedExceptions = AlignmentException.class)
+    public void weakenExceptionTest4() throws URISyntaxException, AlignmentException {
+	OntologyNetworkWeakener.weakenAlignments( noo, -.2, false );
     }
 }
