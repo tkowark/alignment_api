@@ -249,7 +249,7 @@ public class XMLParser extends DefaultHandler {
     public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
 	if(debugMode > 2) System.err.println("startElement XMLParser : " + pName);
 	parseLevel++;
-	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
+	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    if (pName.equals("relation")) {
 	    } else if (pName.equals("semantics")) {
@@ -346,7 +346,7 @@ public class XMLParser extends DefaultHandler {
     }
 
     private Object getEntity( Object ontology, String name ) throws SAXException {
-	try { return new URI( name );}
+	try { return new URI( name ); }
 	catch (URISyntaxException e) {
 	    throw new SAXException("[XMLParser] bad URI syntax : "+name);}
     }
@@ -396,7 +396,7 @@ public class XMLParser extends DefaultHandler {
     public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
 	if(debugMode > 2) 
 	    System.err.println("endElement XMLParser : " + pName);
-	if( namespaceURI.equals("http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
+	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    try {
 		if (pName.equals("relation")) {
