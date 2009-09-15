@@ -67,7 +67,7 @@ public class OntologyNetworkWeakener {
 	for ( Alignment al : on.getAlignments() ){
 	    Alignment newal = (Alignment)al.clone();
 	    if ( threshold ) {
-		newal.cut( "perc", (100.-(double)n)/100. );
+		newal.cut( "perc", 1.-n );
 	    } else {
 		int size = newal.nbCells();
 		// --------------------------------------------------------------------
@@ -87,7 +87,7 @@ public class OntologyNetworkWeakener {
 		    array.add( c );
 		}
 		Collections.shuffle( array );
-		for ( int i = (int)(n*size); i > 0; i-- ){
+		for ( int i = (int)(n*size)-1; i >= 0; i-- ){
 		    newal.remCell( array.get( i ) );
 		}
 	    }
