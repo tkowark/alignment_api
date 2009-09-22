@@ -209,9 +209,6 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	al.cut( "hardgap", 0.5 );
 	assertEquals( al.nbCells(), 44 );
 	al.cut( "hardgap", 0.05 );
-	for ( Cell c: al ) {
-	    System.err.println("******************** "+c.getStrength() );
-	} 
 	assertEquals( al.nbCells(), 10 );
 	al = (Alignment)al2.clone();
 	al.cut( "propgap", 0.55 );
