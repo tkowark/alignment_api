@@ -461,6 +461,7 @@ public class BasicAlignment implements Alignment {
 	    for( i=0; i < size && !found ; i++) {
 		if ( ((Cell)buffer.get(i)).getStrength() < max ) found = true;
 	    }
+	    if ( i != 0 ) i--;
 	}
 	// Introduce the result back in the structure
 	size = i;
