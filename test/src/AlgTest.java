@@ -36,6 +36,7 @@ import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -91,7 +92,7 @@ public class AlgTest {
 	// does createNewAlignment is able to return the correct method
 	Alignment al = (Alignment)((BasicAlignment)align1).clone();
 	assertTrue( al instanceof ObjectAlignment );
-	assertTrue( al.getExtension( Annotations.ALIGNNS, "method" ).equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment#clone") );
+	assertTrue( al.getExtension( Namespace.ALIGNMENT.uri, "method" ).equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment#clone") );
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"genericityTest"})
