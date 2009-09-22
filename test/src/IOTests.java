@@ -54,7 +54,7 @@ public class IOTests {
     private Alignment alignment = null;
     private AlignmentParser aparser = null;
 
-    @Test(groups = { "full", "io", "raw" }, expectedExceptions = SAXException.class)
+    @Test(groups = { "full", "io", "raw" }, expectedExceptions = AlignmentException.class)
     public void loadSOAPErrorTest() throws Exception {
 	aparser = new AlignmentParser( 0 );
 	assertNotNull( aparser );
