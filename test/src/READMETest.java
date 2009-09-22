@@ -186,7 +186,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	writer.close();
 	//assertEquals( stream.toString().length(), 1740, "Rendered differently" );
 
-	// Tests of cutting
+	// Tests of cutting -- all checked
 	Alignment al = (Alignment)al2.clone();
 	al.cut( "hard", 0.55 );
 	assertEquals( al.nbCells(), 32 );
