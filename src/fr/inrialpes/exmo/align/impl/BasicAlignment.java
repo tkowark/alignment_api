@@ -433,7 +433,6 @@ public class BasicAlignment implements Alignment {
 	List<Cell> buffer = getArrayElements();
 	Collections.sort( buffer );
 	int size = buffer.size();
-	boolean found = false;
 	int i = 0; // the number of cells to keep
 	// Depending on the method, find the limit
 	if ( method.equals("perc") ){
@@ -445,8 +444,8 @@ public class BasicAlignment implements Alignment {
 	    double last = ((Cell)buffer.get(0)).getStrength();
 	    if ( method.equals("propgap") ) gap = last * threshold;
 	    else gap = threshold;
-	    for( i=1; i < size && !found ; i++) {
-		if ( last - ((Cell)buffer.get(i)).getStrength() > gap ) found = true;
+	    for( i=1; i < size ; i++ ) {
+		if ( last - ((Cell)buffer.get(i)).getStrength() > gap ) break;
 		else {
 		    last = ((Cell)buffer.get(i)).getStrength();
 		    if ( method.equals("propgap") ) gap = last * threshold;
@@ -458,10 +457,9 @@ public class BasicAlignment implements Alignment {
 	    else if ( method.equals("span") ) max = ((Cell)buffer.get(0)).getStrength() - threshold;
 	    else if ( method.equals("prop") ) max = ((Cell)buffer.get(0)).getStrength() * threshold;
 	    else throw new AlignmentException( "Not a cut specification : "+method );
-	    for( i=0; i < size && !found ; i++) {
-		if ( ((Cell)buffer.get(i)).getStrength() < max ) found = true;
+	    for( i=0; i < size ; i++) {
+		if ( ((Cell)buffer.get(i)).getStrength() < max ) break;
 	    }
-	    if ( i != 0 ) i--;
 	}
 	// Introduce the result back in the structure
 	size = i;

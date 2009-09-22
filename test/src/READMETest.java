@@ -33,6 +33,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
@@ -102,7 +103,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
 	*/
 	alignment.cut( "hard", 0.5 );
-	assertEquals( alignment.nbCells(), 2 );
+	assertEquals( alignment.nbCells(), 1 );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -175,7 +176,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	*/
 	Alignment al2 = (Alignment)alignment.clone();
 	alignment.cut( "hard", 0.55 );
-	assertEquals( alignment.nbCells(), 33 ); /* With  .4, I have either 36 or 35! */
+	assertEquals( alignment.nbCells(), 32 ); /* checked! */
 	stream = new FileOutputStream("test/output/bibref2.rdf");
 	writer = new PrintWriter (
 			  new BufferedWriter(
@@ -188,28 +189,35 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	// Tests of cutting
 	Alignment al = (Alignment)al2.clone();
 	al.cut( "hard", 0.55 );
-	assertEquals( al.nbCells(), 33 );
+	assertEquals( al.nbCells(), 32 );
 	al = (Alignment)al2.clone();
 	al.cut( "best", 0.55 );
 	assertEquals( al.nbCells(), 44 );
 	al = (Alignment)al2.clone();
 	al.cut( "span", 0.55 );
-	assertEquals( al.nbCells(), 34 );
-	al = (Alignment)al2.clone();
-	al.cut( "prop", 0.55 );
 	assertEquals( al.nbCells(), 33 );
 	al = (Alignment)al2.clone();
 	al.cut( "prop", 0.55 );
-	assertEquals( al.nbCells(), 33 );
+	assertEquals( al.nbCells(), 32 );
+	al = (Alignment)al2.clone();
+	al.cut( "prop", 0.55 );
+	assertEquals( al.nbCells(), 32 );
 	al = (Alignment)al2.clone();
 	al.cut( "perc", 0.55 );
 	assertEquals( al.nbCells(), 24 );
 	al = (Alignment)al2.clone();
 	al.cut( "hardgap", 0.5 );
 	assertEquals( al.nbCells(), 44 );
+	al.cut( "hardgap", 0.05 );
+	for ( Cell c: al ) {
+	    System.err.println("******************** "+c.getStrength() );
+	} 
+	assertEquals( al.nbCells(), 10 );
 	al = (Alignment)al2.clone();
 	al.cut( "propgap", 0.55 );
 	assertEquals( al.nbCells(), 44 );
+	al.cut( "propgap", 0.1 );
+	assertEquals( al.nbCells(), 10 );
 
     }
 
