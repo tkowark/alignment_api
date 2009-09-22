@@ -1,5 +1,5 @@
 /*
- * $Id: OMWGTest.java 799 2008-08-28 22:07:58Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2008-2009
  *
@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
-//package test.com.acme.dona.dep;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -42,8 +40,6 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
-
-import org.xml.sax.SAXException;
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
@@ -72,5 +68,4 @@ public class IOTests {
 	assertEquals( alignment.getOntology2URI().toString(), "http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl" );
 	assertEquals( alignment.nbCells(), 57 );
     }
-
 }
