@@ -44,6 +44,10 @@ Currently the development and maintainance of 3 versions continue.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
+<li>Integration of SKOS API (onto)</li>
+<li>Implement database store for EDOAL (server)</li>
+<li>Implement fully relaxed precision and recall (impl)</li>
+<li>Integrate some basic reasoning.</li>
 <li>Implementation of a provenance metadata tag (server/impl)</li>
 <li>Online evaluation (server)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
@@ -65,14 +69,10 @@ Currently the development and maintainance of 3 versions continue.
 This version under development is planned for end of September. It is
 likely to include:
 <ul>
-<li>Implement fully relaxed precision and recall (impl)</li>
-<li>Integrate some basic reasoning.</li>
-<li>Bug in triming, maybe leaves one item to much (impl)</li>
-<li>Integration of SKOS API (onto)</li>
-<li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
-<li>Implement database store for EDOAL (server)</li>
+<li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
 <li>Addition of advanced tutorial and reengineered tutorials (doc)</li>
+<li>Upgrade all included libraries (distrib)</li>
 </ul>
 </p>
 
@@ -81,7 +81,7 @@ likely to include:
 
 <!--h2>Version 4.2 (1xxx): xx/09/2009 - Zimt</h2-->
 <!--h2>Version 4.1 (1xxx): xx/09/2009 - Tring</h2-->
-<!--h2>Version 4.0 (1xxx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
+<!--h2>Version 4.0 (11xx): xx/09/2009 - Rouquine carm&eacute;lite</h2-->
 
 <!--p><span style="color: red;">BEWARE (major upgrade):</span>
 UPGRADE ALL LIBRARIES
@@ -121,8 +121,11 @@ UPGRADE ALL LIBRARIES
 <li>Corrected the README.TXT of examples/wservice (serv)</li>
 <li>Corrected a bug in retrieving alignments from ontologies when the
   two ontologies are the same (server)</li>
+<li>Corrected a bug in triming, which left one item too much (impl)</li>
 <li>Corrected a bug when <tt>StringDistAlignment</tt> fails to raise
-      exception when unknown method is given (impl)</li>
+  exception when unknown method is given (impl)</li>
+<li>Corrected a bug introduced in 3.6 which prevented from storing the
+  "stored" date of alignments (server)</li>
 <li>Corrected a bug in tests that did not forced to clean-up the state
   after <tt>OntoTest</tt> (test)</li>
 <li>Corrected a (commented) error in the <tt>wine.xml</tt> OMWG
