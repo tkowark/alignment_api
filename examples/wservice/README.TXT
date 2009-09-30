@@ -23,7 +23,7 @@ genoptions:
 
 java AlignmentClient wsdl			-> XML
 java AlignmentClient find URI URI		-> AURI
-java AlignmentClient match [method] URI URI	-> AURI
+java AlignmentClient match [method] URI URI	-> AURI 
      -> CleanUp reception (err messages)
 java AlignmentClient trim [method] AURI float	-> AURI
 java AlignmentClient invert AURI		-> AURI
@@ -46,7 +46,7 @@ USE WITH THE ALIGNMENT SERVER
 
 $ javac -cp .:../../lib/getopt/getopt.jar AlignmentClient.java
 
-$ java -cp .:../../lib/getopt/getopt.jar AlignmentClient match align http://alignapi.gforge.inria.fr/tutorial/myOnto.owl http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl
+$ java -cp .:../../lib/getopt/getopt.jar AlignmentClient match http://alignapi.gforge.inria.fr/tutorial/myOnto.owl http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl
 <SOAP-ENV:Envelope
    xmlns='http://exmo.inrialpes.fr/align/service'
    xml:base='http://exmo.inrialpes.fr/align/service'
