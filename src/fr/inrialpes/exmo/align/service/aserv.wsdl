@@ -79,7 +79,6 @@
       <wsdl:part name="method" type="xsd:string"/>
       <wsdl:part name="force" type="xsd:boolean"/>
       <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
-      <wsdl:part name="pretty" type="xsd:string"/>
    </wsdl:message>
    <wsdl:message name="matchResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
@@ -98,6 +97,7 @@
    <!--wsdl:message name="metadataRequest">
       <wsdl:part name="id" type="xsd:anyURI"/>
       <wsdl:part name="key" type="xsd:string"/>
+      <wsdl:part name="param" type="param"/> <minOccurs="0" maxOccurs="unbounded">
    </wsdl:message>
    <wsdl:message name="metadataResponse">
       <wsdl:part name="metadata" type="xsd:string"/>
@@ -105,6 +105,7 @@
 
    <wsdl:message name="retrieveRequest">
       <wsdl:part name="id" type="xsd:anyURI"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="retrieveResponse"> <!-- JE: XML -->
       <wsdl:part name="alignment" type="xsd:anyType"/>
@@ -114,6 +115,7 @@
       <wsdl:part name="id" type="xsd:anyURI"/>
       <wsdl:part name="threshold" type="xsd:float"/>
       <wsdl:part name="type" type="xsd:string"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="trimResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
@@ -121,6 +123,7 @@
 
    <wsdl:message name="invertRequest">
       <wsdl:part name="id" type="xsd:anyURI"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="invertResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
@@ -129,6 +132,7 @@
    <wsdl:message name="findRequest">
       <wsdl:part name="onto1" type="xsd:anyURI"/>
       <wsdl:part name="onto2" type="xsd:anyURI"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="findResponse">
      <wsdl:part name="alignmentList" type="alignmentList"/>
@@ -136,7 +140,7 @@
 
    <wsdl:message name="loadRequest"> <!--xsd:choice OR better multipart-->
      <wsdl:part name="url" type="xsd:string"/>
-      <wsdl:part name="pretty" type="xsd:string"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="loadResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
@@ -145,6 +149,7 @@
    <!--wsdl:message name="translateRequest">
       <wsdl:part name="contents" type="xsd:anyType"/> 
       <wsdl:part name="id" type="xsd:anyURI"/>
+      <wsdl:part name="param" type="param"/>
    </wsdl:message>
    <wsdl:message name="translateResponse"> 
       <wsdl:part name="message" type="xsd:anyType"/>
@@ -152,6 +157,7 @@
 
    <wsdl:message name="storeRequest">
       <wsdl:part name="id" type="xsd:anyURI"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
    </wsdl:message>
    <wsdl:message name="storeResponse">
       <wsdl:part name="alid" type="xsd:anyURI"/>
