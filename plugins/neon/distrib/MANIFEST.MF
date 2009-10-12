@@ -1,37 +1,21 @@
 Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.0
+Created-By: 10.0-b23 (Sun Microsystems Inc.)
 Bundle-ManifestVersion: 2
 Bundle-Name: Neontk Plug-in
-Bundle-SymbolicName: fr.inrialpes.exmo.align.plugin.neontk;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-SymbolicName: fr.inrialpes.exmo.align.plugin.neontk;singleton:=
+ true
+Bundle-Version: 2.0.0
 Bundle-Localization: plugin
-Bundle-Activator: fr.inrialpes.exmo.align.plugin.neontk.AlignmentPlugin
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.resources,
- org.eclipse.core.runtime,
- com.ontoprise.ontostudio.owl.gui,
- com.ontoprise.ontostudio.io,
- com.ontoprise.ontostudio.datamodel,
- com.ontoprise.ontostudio.gui,
- datamodel,
- datamodelBase
+Bundle-Activator: fr.inrialpes.exmo.align.plugin.neontk.AlignmentPlugi
+ n
+Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.co
+ re.resources,com.ontoprise.ontostudio.datamodel,com.ontoprise.ontostu
+ dio.gui,com.ontoprise.ontostudio.io,com.ontoprise.ontostudio.owl.gui,
+ util,datamodel,datamodelBase,org.eclipse.ui.forms
 Eclipse-AutoStart: true
-Bundle-ClassPath: .,
- lib/align.jar,
- lib/alignwn.jar,
- lib/api.jar,
- lib/commons-logging.jar,
- lib/icu4j_3_4.jar,
- lib/iiop.jar,
- lib/impl.jar,
- lib/io.jar,
- lib/jena.jar,
- lib/jetty.jar,
- lib/jetty-utils.jar,
- lib/jwnl.jar,
- lib/log4j.jar,
- lib/mappingapilite.jar,
- lib/procalign.jar,
- lib/rdfapi.jar,
- lib/rdfparser.jar,
- lib/wsmo-api-0.6.1.jar,
- lib/xercesImpl.jar
+Bundle-ClassPath: .,lib/procalign.jar,lib/commons-logging.jar,lib/impl
+ .jar,lib/io.jar,lib/mappingparser.jar,lib/mappingapi.jar,lib/align.ja
+ r,lib/rdfapi.jar,lib/rdfparser.jar,lib/api.jar,lib/log4j.jar
+
+
