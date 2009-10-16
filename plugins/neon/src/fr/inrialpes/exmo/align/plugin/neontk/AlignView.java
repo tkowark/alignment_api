@@ -21,13 +21,15 @@
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.swt.SWT;
-import java.lang.ClassNotFoundException;
-import java.io.File;
 
  
+import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -42,6 +44,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 import java.util.Enumeration;
 import java.util.Dictionary;
@@ -66,41 +69,33 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.core.resources.IWorkspaceRoot;
- 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.dialogs.MessageDialog;
- 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.osgi.framework.Bundle;
-
+ 
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.FileLocator;
+ 
+ 
 //import org.eclipse.jface.dialogs.MessageDialog;
-//import org.semanticweb.kaon2.api.OntologyManager;
+import org.semanticweb.kaon2.api.OntologyManager;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
-//import com.ontoprise.config.IConfig;
-import org.neontoolkit.core.NeOnCorePlugin;
-
-//import org.neontoolkit.datamodel.DatamodelPlugin;
-//import org.neontoolkit.core.DatamodelTypes;
-//import com.ontoprise.ontostudio.datamodel.exception.ControlException;
-
-import org.neontoolkit.core.command.project.CreateProject;
-import org.neontoolkit.core.project.IOntologyProject;
-import org.neontoolkit.core.project.OntologyProjectManager;
-import org.neontoolkit.io.util.ImportExportUtils;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.model.OWLOntology;
-import com.ontoprise.ontostudio.owl.model.OWLManchesterProjectFactory;
+import com.ontoprise.config.IConfig;
+import com.ontoprise.ontostudio.datamodel.DatamodelPlugin;
+import com.ontoprise.ontostudio.datamodel.DatamodelTypes;
+import com.ontoprise.ontostudio.datamodel.exception.ControlException;
+import com.ontoprise.ontostudio.gui.commands.project.CreateProject;
+import com.ontoprise.ontostudio.io.ImportExportControl;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
-
+//import fr.inrialpes.exmo.align.onto.owlapi10.OWLAPIOntologyFactory;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormSectionFactory;
@@ -158,7 +153,6 @@ public class AlignView extends ViewPart
 		public File ontoFolder = null;
 		public File alignFolder = null;
 		public static File basicFolder = null;
-		 
 		
 		@Override
 		public void createPartControl(final Composite parent) {
@@ -177,8 +171,6 @@ public class AlignView extends ViewPart
 			//createMUPSSection(composite, formToolkit);	
 			//createInconsistencyResultSection(composite, formToolkit);
 			//this.refreshProjectList();
-			 
-			//IWorkbench wb = AlignmentPlugin.getDefault().getWorkbench();
 			IWorkspaceRoot root =  org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot();
 		    IPath location = root.getLocation();
 		    String  path = location.toOSString();
@@ -408,7 +400,7 @@ public class AlignView extends ViewPart
 			//System.out.println(" html with alignKey="+alignKey);
 			htmlBrowser.setText("");
 			formToolkit.paintBordersFor(htmlClient);
-			//I do not know why it no longer works if URI casting is put here!!!
+			 
 			Alignment align = AlignView.alignmentTable.get(alignKey);
 			 
 			StringWriter htmlMessage = null;
@@ -641,10 +633,11 @@ public class AlignView extends ViewPart
 				   		}
  				  }
 				  else { //offline
-					  
+						
 					String resId  = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
-					localAlignBox.setEnabled( true );
+					
 					localAlignBox.add(resId, 0);
+					localAlignBox.setEnabled( true );
 					localImportButton.setEnabled( true );
 					localTrimButton.setEnabled( true );
 					selectedLocalAlign = resId;
@@ -767,9 +760,7 @@ public class AlignView extends ViewPart
 							return;
 						}
                                
-						String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
-						 
-						//String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
+						String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 	    				if(projects!=null) {
 	    				boolean found = false;	
 	    				
@@ -780,15 +771,15 @@ public class AlignView extends ViewPart
 	    					}
 	    				}
 	    				
-	    				if(!found) {
-	    					 
-	    					//Properties proper = new Properties();
-   						//proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
-	    					
-   						new CreateProject( inputName, OWLManchesterProjectFactory.FACTORY_ID, new Properties()).run();
-   						
-   						//new CreateProject( inputName, DatamodelTypes.RAM, proper ).run();
+	    				if(!found) {	 
+	    					Properties proper = new Properties();
+   						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+   						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+	    				} else {
+	   	    					MessageDialog.openError(this.getSite().getShell(), "Error message", "Project name is already existing!");
+	 						    return;
 	    				}
+	    				
 	    			    }
 	    				
 	    				String owlPath =  ontoFolder.getAbsolutePath() + File.separator + getNewAlignId() + ".owl";
@@ -799,13 +790,7 @@ public class AlignView extends ViewPart
 						out.write( owlalignStr );
 					    out.flush();
 						out.close();
-						
-						ImportExportUtils ieControl = new ImportExportUtils();
-   	    				
-   	    				URI uris[] = new URI[1];
-   	    				uris[0] = new File(owlPath).toURI();
-   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
-   	    				/*
+						 
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
 							URI uris[] = new URI[1];
@@ -814,7 +799,7 @@ public class AlignView extends ViewPart
 					
 							//ieControl.addOntologies2Project(importedModules, inputName);
 						} catch (  ControlException ex ) { }
-						*/ 
+							 
 					} 
 					catch ( Exception ex ) { ex.printStackTrace();}
 				   
@@ -846,7 +831,7 @@ public class AlignView extends ViewPart
 						   return;
 					   }
    						
-					   String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
+					   String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 					   
 					   if(projects!=null) {
 	 					boolean found = false;	
@@ -858,20 +843,19 @@ public class AlignView extends ViewPart
    	    				}
    	    				
    	    				if(!found) {
-   	    						//Properties proper = new Properties();
-   	    						//proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
-   	    						new CreateProject( inputName, OWLManchesterProjectFactory.FACTORY_ID, new Properties()).run();
-   	    						//new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
-           				
+   	    						Properties proper = new Properties();
+   	    						proper.put(IConfig.ONTOLOGY_LANGUAGE.toString(), IConfig.OntologyLanguage.OWL.toString());
+   	    						new CreateProject(	inputName, DatamodelTypes.RAM, proper ).run();
+       
+   	    				} else {
+   	    					MessageDialog.openError(this.getSite().getShell(), "Error message", "Project name is already existing!");
+ 						    return;
    	    				}
    					 
-   	    				//ImportExportControl ieControl = new ImportExportControl();
-   	    				ImportExportUtils ieControl = new ImportExportUtils();
-   	    				
+   	    				ImportExportControl ieControl = new ImportExportControl();	
    	    				URI uris[] = new URI[1];
    	    				uris[0] = new File(fn.getAbsolutePath()).toURI();
-   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
-   	    				//ieControl.importFileSystem(inputName, uris, null);
+   	    				ieControl.importFileSystem(inputName, uris, null);
    	    				 
    	    				}
        				}
@@ -995,35 +979,42 @@ public class AlignView extends ViewPart
 		}
 		
 		/**
-	     *  This function is taken from Alignment Server 
+	     *  This function is taken from Alignment Server with processing Jar in Jar
 	     */
 		
 		public static void implementations( Class tosubclass, Set<String> list , String cp,  boolean debug ){
 			Set<String> visited = new HashSet<String>();
 			//String classPath = System.getProperty("java.class.path",".");
 			String classPath = cp;
+			int count=0;
 			// Hack: this is not necessary
 			//classPath = classPath.substring(0,classPath.lastIndexOf(File.pathSeparatorChar));
-			//System.out.println("classes="+classPath);
+			
 			//StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
-			StringTokenizer tk = new StringTokenizer(classPath, ":" );
+			StringTokenizer tk = new StringTokenizer(classPath, "," );
+			//System.out.println("classPath for Impl.="+ classPath );
+			
 			classPath = "";
-			while ( tk != null && tk.hasMoreTokens() ){
+			while ( tk != null && tk.hasMoreTokens() ) {
 			    StringTokenizer tk2 = tk;
 			    tk = null;
 			    //System.out.println( "path" + tk2.toString());
 			    // Iterate on Classpath
 			    while ( tk2.hasMoreTokens() ) {
 				try {
-				    File file = new File( tk2.nextToken() );
+					
+					URI nn = new URI( tk2.nextToken() );
+					//System.out.println("token="+ nn);
+				    File file = new File( nn );
 				    if ( file.isDirectory() ) {
-					//System.err.println("DIR "+file);
-					String subs[] = file.list();
-					for(int index = 0 ; index < subs.length ; index ++ ){
-						//System.out.println("    "+subs[index]);
+				    	//System.out.println("DIR "+file);
+				    	String subs[] = file.list();
+				    	for(int index = 0 ; index < subs.length ; index ++ ){
+				    	//System.out.println("subs=    "+subs[index]);
 					    // IF class
 					    if ( subs[index].endsWith(".class") ) {
 						String classname = subs[index].substring(0,subs[index].length()-6);
+						//System.out.println("classname=    "+classname);
 						if (classname.startsWith(File.separator)) 
 						    classname = classname.substring(1);
 						classname = classname.replace(File.separatorChar,'.');
@@ -1050,24 +1041,29 @@ public class AlignView extends ViewPart
 						}
 					    }
 					}
-				    } else if ( file.toString().endsWith(".jar") &&
+				    } else if ( (file.toString().endsWith(".jar") ) &&
 						!visited.contains( file.toString() ) &&
 						file.exists() ) {
-					if ( debug ) System.err.println("JAR "+file);
+					 
 					visited.add( file.toString() );
 					try { 
 					    JarFile jar = new JarFile( file );
 					    Enumeration enumeration = jar.entries();
-					    while( enumeration.hasMoreElements() ){
-						String classname = enumeration.nextElement().toString();
-						if ( debug ) System.err.println("    "+classname);
+					    while( enumeration.hasMoreElements() ) {
+					    JarEntry je = (JarEntry)enumeration.nextElement();
+						String classname = je.toString();
+						 
 						int len = classname.length()-6;
-						if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
+						
+						if( len > 0 && classname.substring(len).compareTo(".class") == 0 ) {
 						    classname = classname.substring(0,len);
 						    // Beware, in a Jarfile the separator is always "/"
 						    // and it would not be dependent on the current system anyway.
 						    //classname = classname.replaceAll(File.separator,".");
 						    classname = classname.replaceAll("/",".");
+						    
+						    //System.out.println("classname in jar =    "+classname);
+						    
 						    try {
 							if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
 							Class cl = Class.forName(classname);
@@ -1086,8 +1082,67 @@ public class AlignView extends ViewPart
 						    } catch (ExceptionInInitializerError eiie) {
 						    // This one has been added for OMWG, this is a bad error
 						    }
-						}
-					    }
+						} else if( classname.endsWith(".jar") ) {
+							//If jarEntry is a jarfile
+							//System.out.println(  "jarEntry is a jarfile="+je.getName() );
+							InputStream jarSt = jar.getInputStream( (ZipEntry)je );
+							
+							File f = new File("tmpFileXXX"+ count++);
+							
+							try {			
+								OutputStream out=new FileOutputStream( f );
+								byte buf[]=new byte[1024];
+								int len1 ;
+								while( (len1 = jarSt.read(buf))>0 )
+									out.write(buf,0,len1);
+								out.close();
+								jarSt.close();
+						    }
+						    catch (IOException e){
+						    	System.err.println( "Cannot write tmp data!" );
+						    }
+						    
+							JarFile inJar = new JarFile( f );
+							Enumeration enumeration2 = inJar.entries();
+							
+						    while( enumeration2.hasMoreElements() ) {
+						    JarEntry je2 = (JarEntry)enumeration2.nextElement();
+							String classname2 = je2.toString();
+							 
+							int len3 = classname2.length()-6;
+							
+							if( len3 > 0 && classname2.substring(len3).compareTo(".class") == 0 ) {
+							    classname2 = classname2.substring(0,len3);
+							    // Beware, in a Jarfile the separator is always "/"
+							    // and it would not be dependent on the current system anyway.
+							    //classname = classname.replaceAll(File.separator,".");
+							    classname2 = classname2.replaceAll("/",".");
+							    
+							    //System.out.println("classname in jar in jar =    "+classname2);
+							    
+							    try {
+								if ( classname2.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
+								Class cl = Class.forName(classname2);
+								Class[] ints = cl.getInterfaces();
+								for ( int i=0; i < ints.length ; i++ ){
+								    if ( ints[i] == tosubclass ) {
+								    	//System.out.println(classname2 + " added");
+								    	list.add( classname2 );
+								    }
+								}
+							    } catch ( NoClassDefFoundError ncdex ) {
+							    } catch ( ClassNotFoundException cnfex ) {
+								 
+							    } catch ( UnsatisfiedLinkError ule ) {
+							    } catch (ExceptionInInitializerError eiie) {
+							    // This one has been added for OMWG, this is a bad error
+							    }
+								}
+						    }//while
+						    f.delete();
+					    } // else If endWith .jar
+					    
+					    
 					    // Iterate on needed Jarfiles
 					    // JE(caveat): this deals naively with Jar files,
 					    // in particular it does not deal with section'ed MANISFESTs
@@ -1102,38 +1157,42 @@ public class AlignView extends ViewPart
 						// Is there a way to make it iterable???
 						for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
 						    //classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
-							classPath += ":"+file.getParent()+File.separator+token.nextToken();
+							classPath += ","+file.getParent()+File.separator+token.nextToken();
 					    }
+					    
+					} //while 
 					} catch (NullPointerException nullexp) { //Raised by JarFile
 					    System.err.println("Warning "+file+" unavailable");
 					}
 				    }
-				} catch( IOException e ) {
+				} catch( Exception e ) {
 				    continue;
 				}
 			    }
+				    
 			    if ( !classPath.equals("") ) {
 				//tk =  new StringTokenizer(classPath,File.pathSeparator);
-			    tk =  new StringTokenizer(classPath,":");
+			    tk =  new StringTokenizer(classPath,",");
 				classPath = "";
 			    }
 			}
-		    }
+		}
 
 		    /**
 		     *  This function is taken from Alignment Server 
 		     */
-		    public static Set<String> implementations( String interfaceName, String cp ) {
+		public static Set<String> implementations( String interfaceName, String cp ) {
 			Set<String> list = new HashSet<String>();
+		 
 			try {
-			    Class toclass = Class.forName(interfaceName);
-			     
+			    Class toclass = Class.forName(interfaceName);    
 			    implementations( toclass, list, cp, false );
 			} catch (ClassNotFoundException ex) {
 			    System.err.println("Class "+interfaceName+" not found!");
 			}
+			 
 			return list;
-		    }
+		}
 		 	
 		void offlineInit(boolean init) {
 			online = false;
@@ -1146,47 +1205,66 @@ public class AlignView extends ViewPart
 			Bundle bundle = AlignmentPlugin.getDefault().getBundle();
 			
 			Dictionary dic = bundle.getHeaders();
-			
+			Set<String> ms = new HashSet<String>();
 			String classpath = dic.get("Bundle-ClassPath").toString();
-		 
+			//System.out.println("classpath="+  classpath);
+			
 			URL url = FileLocator.find(AlignmentPlugin.getDefault().getBundle(), new Path(""), null);
 			try {
 				url = FileLocator.resolve(url);
 			}catch (IOException ioe){ }
-			 
-			 
 			
-			String[] files = classpath.split(",");
-			classpath = "";
-			for(int k=0; k < files.length; k++) {
-				classpath += url.toString()+files[k]+":";
-			}
-			//System.out.println("classpath2="+  classpath);
+			//System.out.println("url ="+  url.toString() );
 			
- 			Set<String> ms = new HashSet<String>();
-			ms = implementations( "org.semanticweb.owl.align.AlignmentProcess", classpath );
-			ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
-			ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
-			//System.out.println("ms="+ms.size());
-		 	String[] methodList = new String[ms.size()];
-		 	int j=0;
-		 	for(String m : ms) methodList[j++] = m;
+			
+			if( ! url.toString().startsWith("jar") ) {
+
+				String[] files = classpath.split(",");
+				classpath = "";
+				for(int k=0; k < files.length; k++) {
+					//System.out.println("files="+  files[k]);
+					classpath += url.toString()+files[k]+",";
+				}
+				//System.out.println("classpath2="+  classpath);
+			
+				ms = implementations( "org.semanticweb.owl.align.AlignmentProcess", classpath );
+				ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
+				ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
+				//System.out.println("ms="+ms.size());
+				methodList = new String[ms.size()];
+				int j=0;
+				for(String m : ms) methodList[j++] = m;
 		   	
-			//methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
+				//methodList[0] = "fr.inrialpes.exmo.align.impl.method.NameEqAlignment";
 				 
-			//methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+				//methodList[1] = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 				 
-			//methodList[2] = "fr.inrialpes.exmo.align.impl.method.SMOANameAlignment";
+				//methodList[2] = "fr.inrialpes.exmo.align.impl.method.SMOANameAlignment";
 				 
-			//methodList[3] = "fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment";
+				//methodList[3] = "fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment";
 				 
-			//methodList[4] = "fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment";
+				//methodList[4] = "fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment";
 				 
-			//methodList[5] = "fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment";
+				//methodList[5] = "fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment";
 				 
-			//methodList[6] = "fr.inrialpes.exmo.align.impl.method.ClassStructAlignment";
+				//methodList[6] = "fr.inrialpes.exmo.align.impl.method.ClassStructAlignment";
 				 
-			//methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
+				//methodList[7] = "fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment";
+			} else { // Plugin is a jarfile
+				 
+				String path = url.getFile();
+				
+				//To avoid "!/"
+				if( ! path.endsWith(".jar") ) path = path.substring( 0, path.length() - 2 );
+					
+				ms = implementations( "org.semanticweb.owl.align.AlignmentProcess",  path);
+				ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
+				ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
+				//System.out.println("ms="+ms.size());
+				methodList = new String[ms.size()];
+				int j=0;
+				for(String m : ms) methodList[j++] = m;
+			}
 			
 			if(methodList.length > 0) selectedMethod = methodList[0];
 			methods.removeAll();
@@ -1270,38 +1348,29 @@ public class AlignView extends ViewPart
 			HashMap<String,String>  vec = new HashMap<String,String>();
 			//OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
 			OntologyFactory fact =  OntologyFactory.getFactory();
-			 
 			try {
-				String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
+				String[] projects = DatamodelPlugin.getDefault().getOntologyProjects();
 				if(projects != null) {
 				for(int i=0; i < projects.length; i++) {	 
 					if(projects[i]!=null) {  
-							  
-							//OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
-							//Set<String> strSet = connection.getAvailableOntologyURIs();
-							IOntologyProject ontoProject = OntologyProjectManager.getDefault().getOntologyProject( projects[i] );
-							Set<String> strSet = ontoProject.getAvailableOntologyURIs();
+							 
+							OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
+							Set<String> strSet = connection.getAvailableOntologyURIs();
 							String[] uris = (String[])strSet.toArray(new String[0]);
-							if( !online ) {						
-								for(int k=0; k < uris.length; k++) {	
-									if(uris[k].startsWith("file:"))
+							if(online) {
+								for(int k=0; k < uris.length; k++) {
+									//get only http URL
+									if(uris[k].startsWith("http://"))
+									try {
+										fact.loadOntology(new URI(uris[k]));
 										vec.put(uris[k],projects[i]);
+									} catch (Exception ex) {
+									}
 								}
 							} else {
 								for(int k=0; k < uris.length; k++) {
-									//get only http URL
-									//if(uris[k].startsWith("http://")) {
-									//try {
-										//fact.loadOntology(new URI(uris[k]));
-										//vec.put(uris[k],projects[i]);
-									//} catch (Exception ex) {}
-									//} else {
-										vec.put(uris[k],projects[i]);
-									//}
-									//vec.put(  (uris[k]).toString(), projects[i]);
-									//vec.put(DatamodelPlugin.getDefault().getPhysicalOntologyUri(projects[i], uris[k]).toString(),projects[i]);
-									
-							}
+									vec.put(DatamodelPlugin.getDefault().getPhysicalOntologyUri(projects[i], uris[k]).toString(),projects[i]);
+								}
 							}
 					}
 				}
@@ -1331,6 +1400,7 @@ public class AlignView extends ViewPart
 			
 			return vec;	 
 		}
+
 		@Override
 		public void setFocus() {
 			// TODO Auto-generated method stub

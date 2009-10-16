@@ -319,7 +319,8 @@ public class OnlineAlign {
 		if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
 	    }
 	} catch  (Exception ex) {
-	    connected= false; ex.printStackTrace() ; return null;
+	    //connected= false; 
+	    ex.printStackTrace() ; return null;
 	}
 	return answer;
     }
@@ -371,10 +372,10 @@ public class OnlineAlign {
 	    }
 	    if (in != null) in.close();
 	    String answer = strBuff.toString();
-	    connected = true;
+	    //connected = true;
 	    return answer;
 	} catch  (Exception ex) {
-	    connected = false;
+	    //connected = false;
 	    ex.printStackTrace();
 	    return null;
 	}
