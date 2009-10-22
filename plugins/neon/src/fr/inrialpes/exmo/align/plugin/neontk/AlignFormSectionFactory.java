@@ -1,7 +1,7 @@
 /*
  * $Id: View.java 860 2008-10-17 07:43:35Z cleduc $
  *
- * Copyright (C) INRIA, 2007-2008
+ * Copyright (C) INRIA, 2007-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
-import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
 
 public class AlignFormSectionFactory {
   
