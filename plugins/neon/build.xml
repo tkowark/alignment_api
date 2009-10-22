@@ -54,7 +54,7 @@
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="neonalign">
+    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="neonalign" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
@@ -79,9 +79,10 @@
     <copy todir="neonalign/lib">
       <fileset dir="../../lib">
 	<include name="align.jar"/>
-	<include name="alignwn.jar"/>
-	<include name="api.jar"/>
-	<include name="commons-logging.jar"/>
+	<include name="procalign.jar"/>
+	<!-- This should not be necessary because in the toolkit -->
+	<include name="owlapi2/owlapi-bin.jar"/>
+	<include name="log4j/commons-logging.jar"/>
 	<include name="icu4j_3_4.jar"/>
 	<include name="iiop.jar"/>
 	<include name="impl.jar"/>
@@ -89,20 +90,12 @@
 	<!-- I think they should be here -->
 	<!--include name="iri.jar"/-->
 	<!--include name="jena.jar"/-->
-	<!-- Why are they still here??? -->
-	<include name="jetty.jar"/>
-	<include name="jetty-util.jar"/>
-	<include name="jwnl.jar"/>
-	<include name="log4j.jar"/>
-	<include name="mappingapilite.jar"/>
-	<!--include name="mtj.jar"/-->
-	<!--include name="oyster2.jar"/-->
-	<include name="procalign.jar"/>
+	<include name="jwnl/jwnl.jar"/>
+	<include name="ontosim/ontosim.jar"/>
+	<include name="log4j/log4j.jar"/>
 	<include name="rdfapi.jar"/>
 	<include name="rdfparser.jar"/>
-	<!--include name="sboa.jar"/-->
-	<include name="wsmo-api-0.6.1.jar"/>
-	<include name="xercesImpl.jar"/>
+	<include name="werces/xercesImpl.jar"/>
       </fileset>
     </copy>
     <!-- could be useful to take version # into account -->

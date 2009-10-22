@@ -67,7 +67,7 @@
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes">
+    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
@@ -172,7 +172,7 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs -->
 	<!-- oyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
-        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.2.jar sboa.jar TaxoMap.jar AROMA_aserv.jar"/>
+        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jar ontosim.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
@@ -182,7 +182,7 @@
   <!-- tested -->
   <target name="test" depends="init">
     <echo message="Testing..."/>
-    <javac srcdir="test/src" destdir="test/classes" debug="on">
+    <javac srcdir="test/src" destdir="test/classes" debug="on" encoding="iso8859-15">
       <classpath refid="classpath"/>
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
