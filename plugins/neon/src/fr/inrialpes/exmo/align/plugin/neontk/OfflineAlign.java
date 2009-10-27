@@ -80,26 +80,20 @@ public class OfflineAlign {
       
       try {
   	
-    	  Vector<URI> uris = new Vector<URI>();
-    	  uris.add( new URI(selectedNeOnOnto1) );
-    	  uris.add( new URI(selectedNeOnOnto2 ) );
-	   
-		  // Create alignment object
-    	  
-    	  
+    	Vector<URI> uris = new Vector<URI>();
+    	uris.add( new URI(selectedNeOnOnto1) );
+    	uris.add( new URI(selectedNeOnOnto2 ) );
+      
 		Object[] mparams = {};
 	  	Class alignmentClass = Class.forName(method);
 	  	Class[] cparams = {};
-	  	java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+	  	java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor( cparams );
 	   
 	  	A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 	  	A1.init( (URI)uris.get(0), (URI)uris.get(1) );
 	  	
 	  	//System.out.println("matched offline 3" );
 	  	A1.align((Alignment)null,p);
-	  	
-	  	//System.out.println("matched=" +name.toString());
-	  	//AlignView.alignObjects.clear();
 	  	//System.out.println(" alignKey From Offline"+ alignFolder.getAbsolutePath() + File.separator + name.toString());
 	  	AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
 	  

@@ -149,7 +149,6 @@ public class AlignView extends ViewPart
 	    String wserver = "http://kameleon.ijs.si/ontolight/ontolight.asmx";
 	    String wsmethod= "";
 	    
-	    
 		String alignProject = "AlignmentProject";
 		
 		public OnlineAlign   onlineAlign  = null;
@@ -171,10 +170,7 @@ public class AlignView extends ViewPart
 			
 			createOntologyChoosePart(composite, formToolkit);		
 			createAlignmentPart(composite, formToolkit);
-			//createOntologyInfoSection(composite, formToolkit);		
-			//createMUPSSection(composite, formToolkit);	
-			//createInconsistencyResultSection(composite, formToolkit);
-			//this.refreshProjectList();
+			 
 			IWorkspaceRoot root =  org.eclipse.core.resources.ResourcesPlugin.getWorkspace().getRoot();
 		    IPath location = root.getLocation();
 		    String  path = location.toOSString();
@@ -190,7 +186,7 @@ public class AlignView extends ViewPart
 		    
 		    offlineInit( true );
 		    
-			refreshOntoList( true );
+			//refreshOntoList( true );
 		}
 		
 		private void createOntologyChoosePart(final Composite parent,
@@ -1358,7 +1354,7 @@ public class AlignView extends ViewPart
 		 
 		private HashMap<String,String> refreshOntoList(boolean online) {
 			HashMap<String,String>  vec = new HashMap<String,String>();
-			//OWLAPIOntologyFactory fact = new OWLAPIOntologyFactory();
+			 
 			OntologyFactory fact =  OntologyFactory.getFactory();
 			 
 			try {
@@ -1366,17 +1362,14 @@ public class AlignView extends ViewPart
 				if(projects != null) {
 				for(int i=0; i < projects.length; i++) {	 
 					if(projects[i]!=null) {  
-							  
-							//OntologyManager connection = DatamodelPlugin.getDefault().getKaon2Connection(projects[i]);
-							//Set<String> strSet = connection.getAvailableOntologyURIs();
-							//System.out.println("projects=" + projects[i] );
+							 
 							IOntologyProject ontoProject = OntologyProjectManager.getDefault().getOntologyProject( projects[i] );
 							 
-							if(  !online ) {				
+							if( !online ) {				
 								URI[] strSet = ontoProject.getOntologyFiles();
 								
-								//System.out.println("size of uris=" + strSet.size() );
-								 
+								//System.out.println("size of uris offline=" + strSet.length + "("+ projects[i] +")" );
+								
 								for(int k=0; k < strSet.length; k++) {	
 									String st = strSet[k].toString();
 									if(st.startsWith("file:"))
@@ -1384,7 +1377,7 @@ public class AlignView extends ViewPart
 								}
 							} else {
 								Set<String> strSet = ontoProject.getAvailableOntologyURIs();
-								//System.out.println("size of uris=" + strSet.length );
+								//System.out.println("size of uris online=" + strSet.size() + "("+ projects[i] +")");
 								String[] uris = (String[])strSet.toArray(new String[0]);
 								for(int k=0; k < uris.length; k++) {
 							 
@@ -1405,7 +1398,7 @@ public class AlignView extends ViewPart
 			
 			String[] keys = (String[]) vec.keySet().toArray(new String[0]);
 			
-			if(keys.length>0){
+			if( keys.length > 0 ){
 				ontoList = new String[ keys.length ];
 				ontoBox1.setItems(keys);
 				ontoBox1.select(0);
