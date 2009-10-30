@@ -93,6 +93,7 @@ import org.neontoolkit.io.util.ImportExportUtils;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import com.ontoprise.ontostudio.owl.model.OWLManchesterProjectFactory;
+import com.ontoprise.ontostudio.owl.gui.io.OntologyFileSystemImport;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -785,18 +786,23 @@ public class AlignView extends ViewPart
 	    				
 	    				String owlPath =  ontoFolder.getAbsolutePath() + File.separator + getNewAlignId() + ".owl";
 						File owlFile = new File( owlPath );
-						if (owlFile.exists()) owlFile.delete();
+						if ( owlFile.exists() ) owlFile.delete();
+						
+						//System.out.println("owl impoted ="+owlalignStr);
 						
 						FileWriter out = new FileWriter( owlFile );
 						out.write( owlalignStr );
 					    out.flush();
 						out.close();
 						
-						ImportExportUtils ieControl = new ImportExportUtils();
+						//ImportExportUtils ieControl = new ImportExportUtils();
    	    				
    	    				URI uris[] = new URI[1];
    	    				uris[0] = new File(owlPath).toURI();
-   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
+   	    				new OntologyFileSystemImport(inputName, new String[] {uris[0].toString()}).run();
+   	    				//String[] importedUri = new String[1];
+   	    				//importedUri[0] = ImportExportUtils.copyOntologyFileToProject(uris[0].toString(), inputName);
+   	    				//ImportExportUtils.addOntologiesToProject(inputName, importedUri);
    	    				/*
 						try {
 							ImportExportControl ieControl = new ImportExportControl();
@@ -858,11 +864,16 @@ public class AlignView extends ViewPart
    	    				}
    					 
    	    				//ImportExportControl ieControl = new ImportExportControl();
-   	    				ImportExportUtils ieControl = new ImportExportUtils();
+   	    				//ImportExportUtils ieControl = new ImportExportUtils();
    	    				
    	    				URI uris[] = new URI[1];
    	    				uris[0] = new File(fn.getAbsolutePath()).toURI();
-   	    				ieControl.copyOntologyFileToProject(uris[0].toString(), inputName);
+
+   	    				new OntologyFileSystemImport(inputName, new String[] {uris[0].toString()}).run();
+
+   	    				//String[] importedUri = new String[1]; 
+   	    				//importedUri[0] = ImportExportUtils.copyOntologyFileToProject(uris[0].toString(), inputName);
+   	    				//ImportExportUtils.addOntologiesToProject(inputName, importedUri);
    	    				//ieControl.importFileSystem(inputName, uris, null);
    	    				 
    	    				}
