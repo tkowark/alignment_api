@@ -45,6 +45,7 @@ Currently the development and maintainance of 3 versions continue.
 
 <p><ul compact="1">
 <li>Integration of SKOS API (onto)</li>
+<li>Implementation of ROC curve output (eval)</li>
 <li>Implement database store for EDOAL (server)</li>
 <li>Implement fully relaxed precision and recall (impl)</li>
 <li>Integrate some basic reasoning.</li>
@@ -52,6 +53,8 @@ Currently the development and maintainance of 3 versions continue.
 <li>Online evaluation (server)</li>
 <li>Providing a <tt>DiffAlign( al1, al2 )</tt> operation and interface
   (util)</li>
+<li>Replace <tt>DistanceAlignment</tt> with a version more in line
+  with OntoSim (impl)</tt>
 <li>Added get-aligned to interface (server)</li>
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
@@ -66,13 +69,14 @@ Currently the development and maintainance of 3 versions continue.
 <h2>Next version (4.0: Rouquine carm&eacute;lite)</h2>
 
 <p>
-This version under development is planned for end of September. It is
+This version under development is planned for anytime soon. It is
 likely to include:
 <ul>
 <li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
 <li>Addition of advanced tutorial and reengineered tutorials (doc)</li>
 <li>Upgrade all included libraries (distrib)</li>
+<li>Corrected a bug that prevented proper search of <tt>aserv.wsdl</tt> file in all imported jars (server)</li>
 </ul>
 </p>
 
@@ -107,7 +111,7 @@ UPGRADE ALL LIBRARIES
   in <tt>MatrixMeasure</tt> (impl)</li>
 <li>Added a parameter to the <tt>OWLAxiomsRendererVisitor</tt> so that it could render
   heterogeneous axioms, like Class sameAs Property (impl).</li>
-<li>Upgraded NeOn plug-in to work with <span style="color: green">NeOn toolkit 1.2.3</span> (plugin)</li>
+<li>Upgraded NeOn plug-in to work with <span style="color: green">NeOn toolkit 1.3.0</span> (plugin)</li>
 <li>Rewritten NeOn plug-in interface so that it works on more platforms (plugin)</li>
 <li>Suppressed <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
   (deprecated since version 3.3) (impl)</li>
@@ -124,6 +128,8 @@ UPGRADE ALL LIBRARIES
 <li>Corrected a bug in triming, which left one item too much (impl)</li>
 <li>Corrected a bug when <tt>StringDistAlignment</tt> fails to raise
   exception when unknown method is given (impl)</li>
+<li>Corrected a problem due to parser reentrance which led two
+  alignment parsed by the same parser to go into the same alignment (parser)</li>
 <li>Corrected a bug introduced in 3.6 which prevented from storing the
   "stored" date of alignments (server)</li>
 <li>Corrected a bug in tests that did not forced to clean-up the state
