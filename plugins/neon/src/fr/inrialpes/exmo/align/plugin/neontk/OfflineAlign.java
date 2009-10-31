@@ -28,8 +28,8 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Properties;
 
-//import org.semanticweb.kaon2.api.formatting.OntologyFileFormat;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -37,20 +37,11 @@ import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
-//import com.ontoprise.api.formatting.OntoBrokerOntologyFileFormat;
-//import com.ontoprise.config.IConfig;
-//import com.ontoprise.config.IConfig.OntologyLanguage;
-//import com.ontoprise.ontostudio.io.ImportExportControl;
-
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-//import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-//import fr.inrialpes.exmo.align.impl.OWLAPIAlignment;
 
 public class OfflineAlign {
 	
@@ -72,7 +63,7 @@ public class OfflineAlign {
 	  //File f2 = new File( selectedNeOnOnto2.replace("file:","") );
 	  
 	  
-      Parameters p = new BasicParameters();
+      Properties p = new Properties();
       AlignmentProcess A1 = null;
       //String htmlString = null;
       //Vector corrList = new Vector();
@@ -93,7 +84,7 @@ public class OfflineAlign {
 	  	A1.init( (URI)uris.get(0), (URI)uris.get(1) );
 	  	
 	  	//System.out.println("matched offline 3" );
-	  	A1.align((Alignment)null,p);
+	  	A1.align( (Alignment)null, p );
 	  	//System.out.println(" alignKey From Offline"+ alignFolder.getAbsolutePath() + File.separator + name.toString());
 	  	AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), (Alignment)A1 );
 	  
