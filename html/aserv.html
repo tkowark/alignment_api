@@ -11,7 +11,7 @@
 
 <p>An extensive presentation of the alignment API can be
   found at <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>. We also have
-  an on-line <a href="tutorial">tutorial</a> on using it.</p>
+  an on-line <a href="tutorial/tutorial1/server/">tutorial</a> on using it.</p>
 
 <h2>Requirements</h2>
 
@@ -22,9 +22,9 @@ We see here, how to use mysql (http://dev.mysql.com/doc/refman).</p>
 
 <div class="fragment"><pre>
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
-$ /usr/local/mysql/bin/mysqladmin -u root password <mysqlpassword>
-$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password <mysqlpassword>
-$ /usr/local/mysql/bin/mysql -u root -p<mysqlpassword>
+$ /usr/local/mysql/bin/mysqladmin -u root password &lt;mysqlpassword><!--
+$ /usr/local/mysql/bin/mysqladmin -u root -h localhost password &lt;mysqlpassword>-->
+$ /usr/local/mysql/bin/mysql -u root -p&lt;mysqlpassword>
 sql> CREATE DATABASE AServDB;
 sql> GRANT ALL PRIVILEGES ON AServDB.* TO adminAServ@localhost IDENTIFIED BY 'aaa345';
 sql> quit
@@ -48,6 +48,11 @@ And restoring:
 $ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
 sql> source toto.sql;
 </pre></div>
+</p>
+
+<p>
+It is also possible to use Postgres instead of MySQL, but then you
+should know how to do it.
 </p>
 
 <h2>Launching the Alignment server</h2>
