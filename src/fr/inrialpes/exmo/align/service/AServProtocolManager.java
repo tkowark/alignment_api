@@ -32,7 +32,6 @@ import fr.inrialpes.exmo.align.onto.OntologyFactory;
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -65,6 +64,7 @@ import java.util.HashSet;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Attributes;
@@ -82,7 +82,7 @@ import java.util.zip.ZipEntry;
 public class AServProtocolManager {
 
     CacheImpl alignmentCache = null;
-    Parameters commandLineParams = null;
+    Properties commandLineParams = null;
     Set<String> renderers = null;
     Set<String> methods = null;
     Set<String> services = null;
@@ -102,11 +102,11 @@ public class AServProtocolManager {
 	directories = dir;
     }
 
-    public void init( DBService connection, Parameters p ) throws SQLException, AlignmentException {
+    public void init( DBService connection, Properties prop ) throws SQLException, AlignmentException {
 	alignmentCache = new CacheImpl( connection );
-	commandLineParams = p;
-	alignmentCache.init( p );
-	myId = "http://"+p.getParameter("host")+":"+p.getParameter("http");
+	commandLineParams = prop;
+	alignmentCache.init( prop );
+	myId = "http://"+prop.getProperty("host")+":"+prop.getProperty("http");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
 	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
@@ -184,12 +184,12 @@ public class AServProtocolManager {
     // Implements: store (different from store below)
     public Message load( Message mess ) {
 	boolean todiscard = false;
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// load the alignment
-	String name = (String)params.getParameter("url");
+	String name = (String)params.getProperty("url");
 	String file = null;
 	if ( name == null || name.equals("") ){
-	    file  = (String)params.getParameter("filename");
+	    file  = (String)params.getProperty("filename");
 	    if ( file != null && !file.equals("") ) name = "file://"+file;
 	}
 	//if ( debug > 0 ) System.err.println("Preparing for "+name);
@@ -200,11 +200,11 @@ public class AServProtocolManager {
 	    al = aparser.parse( name );
 	    //if (debug > 0) System.err.println(" Alignment parsed");
 	} catch (Exception e) {
-	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),name,(Parameters)null);
+	    return new UnreachableAlignment(newId(),mess,myId,mess.getSender(),name,(Properties)null);
 	}
 	// We preserve the pretty tag within the loaded ontology
 	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-	if ( pretty == null ) pretty = (String)params.getParameter("pretty");
+	if ( pretty == null ) pretty = (String)params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
 	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	}
@@ -214,20 +214,20 @@ public class AServProtocolManager {
 	if ( al != null && al != null ) {
 	    // try unlink
 	}
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null,pretty);
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,pretty);
     }
 
     // Implements: align
     public Message align( Message mess ){
 	Message result = null;
-	Parameters p = mess.getParameters();
+	Properties p = mess.getParameters();
 	// These are added to the parameters wich are in the message
 	//for ( String key : commandLineParams ) {
 	// Unfortunately non iterable
-	for ( Enumeration<String> e = commandLineParams.getNames(); e.hasMoreElements();) {
+	for ( Enumeration<String> e = (Enumeration<String>)commandLineParams.propertyNames(); e.hasMoreElements();) {
 	    String key = e.nextElement();
-	    if ( p.getParameter( key ) == null ){
-		p.setParameter( key , commandLineParams.getParameter( key ) );
+	    if ( p.getProperty( key ) == null ){
+		p.setProperty( key , commandLineParams.getProperty( key ) );
 	    }
 	}
 	// Do the fast part (retrieve)
@@ -238,7 +238,7 @@ public class AServProtocolManager {
 	Aligner althread = new Aligner( mess, id );
 	Thread th = new Thread(althread);
 	// Do the slow part (align)
-	if ( mess.getParameters().getParameter("async") != null ) {
+	if ( mess.getParameters().getProperty("async") != null ) {
 	    th.start();
 	    // Parameters are used
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,mess.getParameters());
@@ -246,7 +246,7 @@ public class AServProtocolManager {
 	    th.start();
 	    try{ th.join(); }
 	    catch ( InterruptedException is ) {
-		return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Interrupted exception",(Parameters)null);
+		return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Interrupted exception",(Properties)null);
 	    };
 	    return althread.getResult();
 	}
@@ -257,35 +257,35 @@ public class AServProtocolManager {
      * Otherwise returns AlignmentId or an ErrorMsg
      */
     private Message retrieveAlignment( Message mess ){
-	Parameters params = mess.getParameters();
-	String method = (String)params.getParameter("method");
+	Properties params = mess.getParameters();
+	String method = (String)params.getProperty("method");
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
 	Ontology onto1 = null;
 	Ontology onto2 = null;
 	try {
-	    uri1 = new URI((String)params.getParameter("onto1"));
-	    uri2 = new URI((String)params.getParameter("onto2"));
+	    uri1 = new URI((String)params.getProperty("onto1"));
+	    uri2 = new URI((String)params.getProperty("onto2"));
 	} catch (Exception e) {
-	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Properties)null);
 	};
 	// JE 15/1/2009: avoided to check for reachability
 	/*
 	if ( ( onto1 = reachable( uri1 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto1"),(Properties)null);
 	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto2"),(Properties)null);
 	}
 	// Try to retrieve first
 	Set alignments = alignmentCache.getAlignments( onto1.getURI(), onto2.getURI() );
 	*/
 	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
-	if ( alignments != null && params.getParameter("force") == null ) {
+	if ( alignments != null && params.getProperty("force") == null ) {
 	    for ( Alignment al: alignments ){
 		if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ).equals(method) ) {
 		    return new AlignmentId(newId(),mess,myId,mess.getSender(),
-					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ),(Parameters)null,
+					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ),(Properties)null,
 					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) );
 		}
 	    }
@@ -296,27 +296,27 @@ public class AServProtocolManager {
     // DONE
     // Implements: query-aligned
     public Message existingAlignments( Message mess ){
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
 	Set<Alignment> alignments = new HashSet<Alignment>();
 	try {
-	    if( params.getParameter("onto1") == null || ((String)params.getParameter("onto1")).equals("") ) {
-		uri2 = new URI((String)params.getParameter("onto2"));
+	    if( params.getProperty("onto1") == null || ((String)params.getProperty("onto1")).equals("") ) {
+		uri2 = new URI((String)params.getProperty("onto2"));
 		alignments = alignmentCache.getAlignments( uri2 );
 	    }
-	    else if( params.getParameter("onto2") == null || ((String)params.getParameter("onto2")).equals("") ) {
-		uri1 = new URI((String)params.getParameter("onto1"));
+	    else if( params.getProperty("onto2") == null || ((String)params.getProperty("onto2")).equals("") ) {
+		uri1 = new URI((String)params.getProperty("onto1"));
 		alignments = alignmentCache.getAlignments( uri1 );
 	    }
 	    else {
-		uri1 = new URI((String)params.getParameter("onto1"));
-	    	uri2 = new URI((String)params.getParameter("onto2"));
+		uri1 = new URI((String)params.getProperty("onto1"));
+	    	uri2 = new URI((String)params.getProperty("onto2"));
 		alignments = alignmentCache.getAlignments( uri1, uri2 );
 	    }
 	} catch (Exception e) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Properties)null);
 	}; //done below
 	String msg = "";
 	String prettys = "";
@@ -324,7 +324,7 @@ public class AServProtocolManager {
 	    msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
 	    prettys += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY )+ ":";
 	}
-	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Parameters)null,prettys);
+	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Properties)null,prettys);
     }
 
     // ABSOLUTELY NOT IMPLEMENTED
@@ -336,44 +336,44 @@ public class AServProtocolManager {
     //\prul{search-void}{a - request ( find (O, T) ) \rightarrow S}{S - failure (nomatch) \rightarrow a}{reachable(O)\wedge Match(O,T)=\emptyset}
 
     //\prul{search-unreachable}{a - request ( find (O, T) ) \rightarrow S}{S - failure ( unreachable (O) ) \rightarrow a}{\neg reachable(O)}
-	return new OntologyURI(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new OntologyURI(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     // Implements: translate
     // This should be applied to many more kind of messages with different kind of translation
     public Message translate(Message mess){
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getParameter("id");
+	String id = (String)params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// Translate the query
 	try {
-	    String translation = QueryMediator.rewriteSPARQLQuery( (String)params.getParameter("query"), al );
-	    return new TranslatedMessage(newId(),mess,myId,mess.getSender(),translation,(Parameters)null);
+	    String translation = QueryMediator.rewriteSPARQLQuery( (String)params.getProperty("query"), al );
+	    return new TranslatedMessage(newId(),mess,myId,mess.getSender(),translation,(Properties)null);
 	} catch (AlignmentException e) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),e.toString(),(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),e.toString(),(Properties)null);
 	}
     }
 
     // DONE
     // Implements: render
     public Message render( Message mess ){
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getParameter("id");
+	String id = (String)params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// Render it
-	String method = (String)params.getParameter("method");
+	String method = (String)params.getProperty("method");
 	AlignmentVisitor renderer = null;
 	// Redirect the output in a String
 	ByteArrayOutputStream result = new ByteArrayOutputStream(); 
@@ -390,7 +390,7 @@ public class AServProtocolManager {
 		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
 	    } catch (Exception ex) {
 		// should return the message
-		return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
+		return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Properties)null);
 	    }
 	    try {
 		renderer.init( params );
@@ -404,7 +404,7 @@ public class AServProtocolManager {
 	} catch (AlignmentException e) {
 	    writer.flush();
 	    writer.close();
-	    return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Parameters)null);
+	    return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Properties)null);
 	} catch (Exception e) { // These are exceptions related to I/O
 	    writer.flush();
 	    writer.close();
@@ -412,7 +412,7 @@ public class AServProtocolManager {
 	    e.printStackTrace();
 	}
 
-	return new RenderedAlignment(newId(),mess,myId,mess.getSender(),result.toString(),(Parameters)null);
+	return new RenderedAlignment(newId(),mess,myId,mess.getSender(),result.toString(),(Properties)null);
     }
 
     /*********************************************************************
@@ -447,10 +447,10 @@ public class AServProtocolManager {
 	    }
 	    // register by them
 	    // Could also be an AlreadyStoredAlignment error
-	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null,
+	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,
 				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
     }
 
@@ -460,22 +460,22 @@ public class AServProtocolManager {
      */
     public Message metadata( Message mess ){
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getParameter("id");
+	String id = (String)mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getMetadata( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// JE: Other possibility is to render the metadata through XMLMetadataRendererVisitor into content...
 	// Put all the local metadata in parameters
-	Parameters params = new BasicParameters();
-	params.setParameter( "file1", al.getFile1() );
-	params.setParameter( "file2", al.getFile2() );
-	params.setParameter( Namespace.ALIGNMENT.uri+"#level", al.getLevel() );
-	params.setParameter( Namespace.ALIGNMENT.uri+"#type", al.getType() );
-	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
-	    params.setParameter( ((String[])ext)[0]+((String[])ext)[1], ((String[])ext)[2] );
+	Properties params = new Properties();
+	params.setProperty( "file1", al.getFile1().toString() );
+	params.setProperty( "file2", al.getFile2().toString() );
+	params.setProperty( Namespace.ALIGNMENT.uri+"#level", al.getLevel() );
+	params.setProperty( Namespace.ALIGNMENT.uri+"#type", al.getType() );
+	for ( String[] ext : al.getExtensions() ){
+	    params.setProperty( ext[0]+ext[1], ext[2] );
 	}
 	return new AlignmentMetadata(newId(),mess,myId,mess.getSender(),id,params);
     }
@@ -489,95 +489,95 @@ public class AServProtocolManager {
 
     public Message trim( Message mess ) {
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getParameter("id");
+	String id = (String)mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// get the trim parameters
-	String type = (String)mess.getParameters().getParameter("type");
+	String type = (String)mess.getParameters().getProperty("type");
 	if ( type == null ) type = "hard";
-	double threshold = Double.parseDouble((String)mess.getParameters().getParameter("threshold"));
+	double threshold = Double.parseDouble((String)mess.getParameters().getProperty("threshold"));
 	al = (BasicAlignment)((BasicAlignment)al).clone();
 	try { al.cut( type, threshold );}
 	catch (AlignmentException e) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
 	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
 	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/trimmed "+threshold );
 	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null,
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Properties)null,
 			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
 
     public Message harden( Message mess ){
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     public Message inverse( Message mess ){
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getParameter("id");
+	String id = (String)params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Properties)null);
 	}
 
 	// Invert it
 	try { al = al.inverse(); }
 	catch (AlignmentException e) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
 	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
 	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/inverted" );
 	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Parameters)null,
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),newId,(Properties)null,
 			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
 
     public Message meet( Message mess ){
 	// Retrieve alignments
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     public Message join( Message mess ){
 	// Retrieve alignments
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     public Message compose( Message mess ){
 	// Retrieve alignments
-	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new AlignmentId(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     public Message eval( Message mess ){
-	Parameters params = mess.getParameters();
+	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getParameter("id");
+	String id = (String)params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Properties)null);
 	}
 	// Retrieve the reference alignment
-	String rid = (String)params.getParameter("ref");
+	String rid = (String)params.getProperty("ref");
 	Alignment ref = null;
 	try {
 	    ref = alignmentCache.getAlignment( rid );
 	} catch (Exception e) {
-	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+rid,(Parameters)null);
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+rid,(Properties)null);
 	}
 	// Set the comparison method
-	String classname = (String)params.getParameter("method");
+	String classname = (String)params.getProperty("method");
 	if ( classname == null ) classname = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
 	Evaluator eval = null;
 	try {
@@ -588,12 +588,12 @@ public class AServProtocolManager {
 	    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
 	    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
 	} catch (Exception ex) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
 	// Compare it
 	try { eval.eval(params); }
 	catch (AlignmentException e) {
-	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
 	// Return it, not easy
 	StringWriter sw = new StringWriter();
@@ -601,14 +601,14 @@ public class AServProtocolManager {
 	    eval.write( new PrintWriter( sw ) );
 	} catch (IOException ioex) {}; // never occurs
 	// Should not be alignment evaluation results...
-	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Parameters)null);
+	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Properties)null);
     }
 
     /**
      * Store evaluation result from its URI
      */
     public Message storeEval( Message mess ){
-	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Properties)null);
     }
 
     /**
@@ -621,26 +621,26 @@ public class AServProtocolManager {
     //            ~~> Triangle
     //            ~~> Cross
     public Message groupEval( Message mess ){
-	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Properties)null);
     }
 
     /**
      * Store the result
      */
     public Message storeGroupEval( Message mess ){
-	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Properties)null);
     }
 
     /**
      * Retrieve the results (all registered result) of a particular test
      */
     public Message getResults( Message mess ){
-	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Parameters)null);
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implemented",(Properties)null);
     }
 
     public boolean storedAlignment( Message mess ) {
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getParameter("id");
+	String id = (String)mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -688,7 +688,7 @@ public class AServProtocolManager {
     //\prul{redirect}{a - request ( q(x)~reply-with:~i) \rightarrow S}{
     //Q \Leftarrow Q\cup\{\langle a, i, !i', q(x), S'\rangle\}\		\
     //S - request( q( R(x) )~reply-with:~i')\rightarrow S'}{S'\in C(q)}
-	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     // Implements: reply-to
@@ -702,7 +702,7 @@ public class AServProtocolManager {
     //Q \Leftarrow Q-\{\langle a, i, i', _, S'\rangle\}\	\
     //R \Leftarrow R\cup\{\langle a, !y', y, S'\rangle\}\		\
     //S - inform( R^{-1}(y)~reply-to:~i)\rightarrow a}{\langle a, i, i', _, S'\rangle \in Q, surr(y)}
-	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     // Implements: failure
@@ -711,7 +711,7 @@ public class AServProtocolManager {
     //\prul{failure-return}{S' - failure ( y~reply-to:~i') \rightarrow S}{
     //Q \Leftarrow Q-\{\langle a, i, i', _, S'\rangle\}\		\
     //S - failure( R^{-1}(y)~reply-to:~i)\rightarrow a}{\langle a, i, i', _, S'\rangle \in Q}
-	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Parameters)null);
+	return new Message(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
 
     /*********************************************************************
@@ -786,7 +786,7 @@ public class AServProtocolManager {
 			try { 
 			    JarFile jar = new JarFile( file );
 			    Enumeration enumeration = jar.entries();
-			    while( enumeration.hasMoreElements() ){
+			    while( enumeration != null && enumeration.hasMoreElements() ){
 				String classname = enumeration.nextElement().toString();
 				if ( debug ) System.err.println("    "+classname);
 				int len = classname.length()-6;
@@ -882,33 +882,33 @@ public class AServProtocolManager {
 	}
 
 	public void run() {
-	    Parameters params = mess.getParameters();
-	    String method = (String)params.getParameter("method");
+	    Properties params = mess.getParameters();
+	    String method = (String)params.getProperty("method");
 	    // find and access o, o'
 	    URI uri1 = null;
 	    URI uri2 = null;
 
 	    try {
-		uri1 = new URI((String)params.getParameter("onto1"));
-		uri2 = new URI((String)params.getParameter("onto2"));
+		uri1 = new URI((String)params.getProperty("onto1"));
+		uri2 = new URI((String)params.getProperty("onto2"));
 	    } catch (Exception e) {
-		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Parameters)null);
+		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Properties)null);
 		return;
 	    };
 
 	    // find initial alignment
 	    Alignment init = null;
-	    if ( params.getParameter("init") != null && !params.getParameter("init").equals("") ) {
+	    if ( params.getProperty("init") != null && !params.getProperty("init").equals("") ) {
 		try {
 		    //if (debug > 0) System.err.println(" Retrieving init");
 		    try {
-			init = alignmentCache.getAlignment( (String)params.getParameter("init") );
+			init = alignmentCache.getAlignment( (String)params.getProperty("init") );
 		} catch (Exception e) {
-			result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
+			result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getProperty("init"),(Properties)null);
 			return;
 		    }
 		} catch (Exception e) {
-		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getParameter("init"),(Parameters)null);
+		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getProperty("init"),(Properties)null);
 		    return;
 		}
 	    }
@@ -929,39 +929,39 @@ public class AServProtocolManager {
 		    long newTime = System.currentTimeMillis();
 		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
-		    String pretty = (String)params.getParameter( "pretty" );
+		    String pretty = (String)params.getProperty( "pretty" );
 		    if ( pretty != null && !pretty.equals("") )
 			aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 		} catch (AlignmentException e) {
 		    // The unreachability test has already been done
 		    // JE 15/1/2009: commented the unreachability test
 		    if ( reachable( uri1 ) == null ){
-			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto1"),(Parameters)null);
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto1"),(Properties)null);
 		    } else if ( reachable( uri2 ) == null ){
-			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getParameter("onto2"),(Parameters)null);
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto2"),(Properties)null);
 		    } else {
-			result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Parameters)null);
+			result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Properties)null);
 		    }
 		    return;
 		}
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
-		result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Parameters)null,
+		result = new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,
 			       aresult.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
 	    } catch (ClassNotFoundException e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Class not found: "+method,(Properties)null);
 	    } catch (NoSuchMethodException e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"No such method: "+method+"(Object, Object)",(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"No such method: "+method+"(Object, Object)",(Properties)null);
 	    } catch (InstantiationException e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Instantiation",(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Instantiation",(Properties)null);
 	    } catch (IllegalAccessException e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Cannot access",(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Cannot access",(Properties)null);
 	    } catch (InvocationTargetException e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Invocation target",(Properties)null);
 	    } catch (AlignmentException e) {
-		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Parameters)null);
+		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/",(Properties)null);
 	    } catch (Exception e) {
-		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception :"+e,(Parameters)null);
+		result = new RunTimeError(newId(),mess,myId,mess.getSender(),"Unexpected exception :"+e,(Properties)null);
 	    }
 	}
     }
