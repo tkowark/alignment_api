@@ -25,7 +25,6 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 
 import java.io.File;
 import java.io.FileReader;
@@ -131,10 +130,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Starts a HTTP server to given port.<p>
      * Throws an IOException if the socket is already in use
      */
-    public void init( Parameters params, AServProtocolManager manager ) throws AServException {
+    public void init( Properties params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
-	tcpPort = Integer.parseInt( (String)params.getParameter( "http" ) );
-	tcpHost = (String)params.getParameter( "host" ) ;
+	tcpPort = Integer.parseInt( params.getProperty( "http" ) );
+	tcpHost = params.getProperty( "host" ) ;
 
 	/*
 	try {
@@ -256,7 +255,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//server.join();
 
 	// ********************************************************************
-	if ( params.getParameter( "wsdl" ) != null ){
+	if ( params.getProperty( "wsdl" ) != null ){
 	    wsmanager = new WSAServProfile();
 	    if ( wsmanager != null ) wsmanager.init( params, manager );
 	}
@@ -308,16 +307,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	*/
 
 	// Convert parms to parameters
-	Parameters params = new BasicParameters();
+	BasicParameters params = new BasicParameters();
 	Enumeration e = parms.propertyNames();
 	while ( e.hasMoreElements()) {
 	    String key = (String)e.nextElement();
 	    if ( debug > 1 ) System.err.println( "  PRM: '" + key + "' = '" +parms.getProperty( key ) + "'" );
 	    if ( key.startsWith( "paramn" ) ){
-		params.setParameter( parms.getProperty( key ),
+		params.setProperty( parms.getProperty( key ),
 				     parms.getProperty( "paramv"+key.substring( 6 ) ) );
 	    } else if ( !key.startsWith( "paramv" ) ) {
-		params.setParameter( key, parms.getProperty( key ) );
+		params.setProperty( key, parms.getProperty( key ) );
 	    }
 	}
 	
@@ -338,6 +337,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 	    } else {
 		// This is not correct: I shoud return an error
+		// Especially in WSDL, but we are not supposed to be a Web service server at that point
 		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
 	    }
 	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
@@ -345,22 +345,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
-	    params.setParameter( "restful", "true" );
+	    params.setProperty( "restful", "true" );
 	    //The return format is XML by default 
-	    if ( params.getParameter("return") == null || ((String)params.getParameter("return")).equals("XML") ) 
-	    	 params.setParameter( "renderer", "XML" );
+	    if ( params.getProperty("return") == null || ((String)params.getProperty("return")).equals("XML") ) 
+	    	 params.setProperty( "renderer", "XML" );
 	    else 
-	    	 params.setParameter( "renderer", "HTML" );
+	    	 params.setProperty( "renderer", "HTML" );
 
 	    if ( wsmanager != null ) {
-		if( ((String)params.getParameter("renderer")).equals("HTML") )
+		if( ((String)params.getProperty("renderer")).equals("HTML") )
 		    return htmlAnswer( uri, uri.substring(start), header, params );
 		else {
 		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 		}
 	    } else {
-		// This is not correct: I shoud return an error
-		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
+		//Message err = new ErrorMsg(int surr, Message rep, String from, String to, String cont, params );
+		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
 	    }
 	    // This already seems RESTful
 	} else if ( oper.equals( "alid" ) ){
@@ -385,19 +385,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * HTTP administration interface
      * Allows some limited administration of the server through HTTP
      */
-    public Response adminAnswer( String uri, String perf, Properties header, Parameters params ) {
+    public Response adminAnswer( String uri, String perf, Properties header, BasicParameters params ) {
 	if ( debug > 0 ) System.err.println("ADMIN["+perf+"]");
 	String msg = "";
-        if ( perf.equals("listalignments") ){
-	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
-	    for ( Alignment al : manager.alignments() ) {
-		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
-	    }
-	    msg += "</ul>";
-	} else if ( perf.equals("listmethods") ){
+        if ( perf.equals("listmethods") ){
 	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
 	    for( String m : manager.listmethods() ) {
 		msg += "<li>"+m+"</li>";
@@ -418,10 +409,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li>"+m+"</li>";
 	    }
 	    msg += "</ul>";
+	    // JE: This is unused because the menu below directly refers to /wsdl
+	    // This does not really work because the wsdl is hidden in the HTML
+        } else if ( perf.equals("wsdl") ){
+	    if ( wsmanager != null ){
+		msg = "<pre>"+WSAServProfile.wsdlAnswer( false )+"</pre>";
+	    } else {
+		msg = "Error: the server does not have Web service capabilities (use -W switch)";
+	    }
 	} else if ( perf.equals("prmsqlquery") ){
 	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
-	    String answer = manager.query( (String)params.getParameter("query") );
+	    String answer = manager.query( (String)params.getProperty("query") );
 	    msg = "<pre>"+answer+"</pre>";
 	} else if ( perf.equals("about") ){
 	    msg = about();
@@ -443,6 +442,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server administration</h1>";
 	    msg += "<form action=\"listmethods\"><button title=\"List embedded plug-ins\" type=\"submit\">Embedded classes</button></form>";
+	    if ( wsmanager != null )
+		msg += "<form action=\"/wsdl\"><button title=\"WSDL Description\" type=\"submit\">WSDL Description</button></form>";
 	    msg += "<form action=\"prmsqlquery\"><button title=\"Query the SQL database (unavailable)\" type=\"submit\">SQL Query</button></form>";
 	    msg += "<form action=\"prmflush\"><button title=\"Free memory by unloading correspondences\" type=\"submit\">Flush caches</button></form>";
 	    msg += "<form action=\"prmreset\"><button title=\"Restore launching state (reload from database)\" type=\"submit\">Reset server</button></form>";
@@ -459,9 +460,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Returns the alignment in RDF/XML
      */
     public Response returnAlignment( String uri ) {
-	Parameters params = new BasicParameters();
-	params.setParameter("id", manager.serverURL()+uri);
-	params.setParameter( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+	BasicParameters params = new BasicParameters();
+	params.setProperty("id", manager.serverURL()+uri);
+	params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
 	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	if ( answer instanceof ErrorMsg ) {
 	    return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
@@ -474,17 +475,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * User friendly HTTP interface
      * uses the protocol but offers user-targeted interaction
      */
-    public Response htmlAnswer( String uri, String perf, Properties header, Parameters params ) {
+    public Response htmlAnswer( String uri, String perf, Properties header, BasicParameters params ) {
 	//System.err.println("HTML["+perf+"]");
 	// REST get
 	String msg = "";
-	if ( perf.equals("prmstore") ) {
+	if ( perf.equals("listalignments") ){
+	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
+	    for ( Alignment al : manager.alignments() ) {
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
+	    }
+	    msg += "</ul>";
+	} else 	if ( perf.equals("prmstore") ) {
 	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    // JE: only those non stored please (retrieve metadata + stored)
 	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-		params.setParameter("id", id);
+		params.setProperty("id", id);
 		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
 		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
@@ -495,8 +505,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
-	    String id = (String)params.getParameter("id");
-	    String url = (String)params.getParameter("url");
+	    String id = (String)params.getProperty("id");
+	    String url = (String)params.getProperty("url");
 	    if ( url != null && !url.equals("") ) { // Load the URL
 		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -515,7 +525,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} else if ( perf.equals("prmtrim") ) {
-	    String sel = (String)params.getParameter("id");
+	    String sel = (String)params.getProperty("id");
 	    msg ="<h1>Trim alignments</h1><form action=\"trim\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
@@ -531,8 +541,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
 	} else if ( perf.equals("trim") ) {
-	    String id = (String)params.getParameter("id");
-	    String threshold = (String)params.getParameter("threshold");
+	    String id = (String)params.getProperty("id");
+	    String threshold = (String)params.getProperty("threshold");
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
 		Message answer = manager.trim( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -554,7 +564,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\"/><br /></form>";
 	} else if ( perf.equals("inv") ) {
-	    String id = (String)params.getParameter("id");
+	    String id = (String)params.getProperty("id");
 	    if ( id != null && !id.equals("") ){ // Invert it
 		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -569,10 +579,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String RESTOnto2 = "";
 	    String readonlyOnto = "";
 	    //Ontologies from Cupboard may be already provided here.
-	    if ( (String)params.getParameter("restful") != null && 
-		 ((String)params.getParameter("renderer")).equals("HTML") ) {
-		RESTOnto1 = (String)params.getParameter("onto1");
-		RESTOnto2 = (String)params.getParameter("onto2");
+	    if ( (String)params.getProperty("restful") != null && 
+		 ((String)params.getProperty("renderer")).equals("HTML") ) {
+		RESTOnto1 = (String)params.getProperty("onto1");
+		RESTOnto2 = (String)params.getProperty("onto2");
 		//if(RESTOnto1 != null && !RESTOnto1.equals("") && RESTOnto2 != null && !RESTOnto2.equals("")) 
 		readonlyOnto = "readonly=\"readonly\"";
 	    }
@@ -611,7 +621,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
-	    String sel = (String)params.getParameter("id");
+	    String sel = (String)params.getProperty("id");
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
@@ -651,10 +661,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
 	} else if ( perf.equals("metadata") ) {
-	    if( params.getParameter("renderer") == null || ((String)params.getParameter("renderer")).equals("HTML") )
-	    	params.setParameter("method", "fr.inrialpes.exmo.align.impl.renderer.HTMLMetadataRendererVisitor");
+	    if( params.getProperty("renderer") == null || ((String)params.getProperty("renderer")).equals("HTML") )
+	    	params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.HTMLMetadataRendererVisitor");
 	    else
-		params.setParameter("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
+		params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
 	    //System.err.println("Content: "+answer.getContent());
 	    if ( answer instanceof ErrorMsg ) {
@@ -702,7 +712,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Message translation</h1>";
-		msg += "<h2>Initial message</h2><pre>"+((String)params.getParameter("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
+		msg += "<h2>Initial message</h2><pre>"+((String)params.getProperty("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
 		msg += "<h2>Translated message</h2><pre>";
 		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 		msg += "</pre>";
@@ -771,7 +781,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("getresults") ) {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment Server commands</h1>";
-	    msg += "<form action=\"../admin/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
+	    msg += "<form action=\"../html/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
 	    msg += "<form action=\"prmload\"><button title=\"Upload an existing alignment in this server\" type=\"submit\">Load alignments</button></form>";
 	    msg += "<form action=\"prmfind\"><button title=\"Find existing alignements between two ontologies\" type=\"submit\">Find alignment</button></form>";
 	    msg += "<form action=\"prmmatch\"><button title=\"Apply matchers to ontologies for obtaining an alignment\" type=\"submit\">Match ontologies</button></form>";
@@ -789,29 +799,29 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // ===============================================
     // Util
 
-    public Response wsdlAnswer(String uri, String perf, Properties header, Parameters params  ) {
+    public Response wsdlAnswer(String uri, String perf, Properties header, BasicParameters params  ) {
 	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer( false ) );
     }	 
 
-    private String testErrorMessages( Message answer, Parameters param ) {
-	if ( param.getParameter("restful") != null ) {
+    private String testErrorMessages( Message answer, BasicParameters param ) {
+	if ( param.getProperty("restful") != null ) {
 	    return answer.RESTString();
 	} else {
 	    return "<h1>Alignment error</h1>"+answer.HTMLString();
 	}
     }
 
-    private String displayAnswer( Message answer, Parameters param ) {
+    private String displayAnswer( Message answer, BasicParameters param ) {
 	String result = null;
-	if( (String)param.getParameter("restful") != null ) {
-	    if( ((String)param.getParameter("return")).equals("HTML") ) {
+	if( (String)param.getProperty("restful") != null ) {
+	    if( ((String)param.getProperty("return")).equals("HTML") ) {
 	    	result = answer.HTMLRESTString();
-	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
 		     result += "<table><tr>";
 result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
 result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
 	             result += "</tr></table>";
-	    	} else if( answer instanceof AlignmentIds && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null )) {
+	    	} else if( answer instanceof AlignmentIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) {
 			   result = answer.HTMLRESTString();
 		  }
 	    } else 
@@ -819,7 +829,7 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
 	} else {
 	    result = answer.HTMLString();
 	    // Improved return
-	    if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+	    if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
 		result += "<table><tr>";
 		// STORE
 		result += "<td><form action=\"store\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
@@ -832,7 +842,7 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
 		// INV
 		result += "<td><form action=\"inv\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Invert\"/></form></td>";
 		result += "</tr></table>";
-	    } else if ( answer instanceof EvaluationId && ( answer.getParameters() == null || answer.getParameters().getParameter("async") == null ) ){
+	    } else if ( answer instanceof EvaluationId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
 		result += "<table><tr>";
 		// STORE (the value should be the id here, not the content)
 		result += "<td><form action=\"saveeval\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
