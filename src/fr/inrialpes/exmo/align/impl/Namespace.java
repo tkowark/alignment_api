@@ -37,6 +37,7 @@ public enum Namespace {
     // JE2009: I one use print(DEF), then it is not needed...
 	//ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align"),
     ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align", true),
+	ALIGNSVC("http://exmo.inrialpes.fr/align/service","alignsvc",true),
 	// JE2009: is this never used??
 	//OMWG("http://ns.inria.org/edoal/0.9", "omwg", true),
 	EDOAL("http://ns.inria.org/edoal/1.0/", "edoal", true),
