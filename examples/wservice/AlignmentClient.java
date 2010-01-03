@@ -78,19 +78,19 @@ public class AlignmentClient {
 	services = new Hashtable();
 	// Read parameters
 	Properties params = readParameters( args );
-	if ( SERVUrl == null ) SERVUrl = "http://" + HOST + ":" + HTML;
-	SOAPUrl = new URL( SERVUrl + "/aserv" );
-	RESTStr =  SERVUrl + "/rest" ;
-	if ( outfile != null ) {
-	    // This redirects error outout to log file given by -o
-	    System.setErr( new PrintStream( outfile ) );
-	}
 	if ( debug > 0 ) {
 	    System.err.println("***** Parameter parsed");
 	    for ( int i=0; i < args.length; i++ ){
 		System.err.print( args[i]+" / " );
 	    }
 	    System.err.println();
+	}
+	if ( SERVUrl == null ) SERVUrl = "http://" + HOST + ":" + HTML;
+	SOAPUrl = new URL( SERVUrl + "/aserv" );
+	RESTStr =  SERVUrl + "/rest" ;
+	if ( outfile != null ) {
+	    // This redirects error outout to log file given by -o
+	    System.setErr( new PrintStream( outfile ) );
 	}
 	// Create the message (SOAP Message or REST URI)
 	String message = createMessage( params );
@@ -179,7 +179,7 @@ public class AlignmentClient {
 		 messageBody += "   <wsmethod>"+arg4+"</wsmethod>\n";
 		 RESTParams += "&paramn2=wsmethod&paramv2=" + arg4;
 	    }
-	    messageBody += "	<force>on</force>";
+	    messageBody += "    <force>on</force>";
 	    RESTParams += "&force=on";
 	//we do not need this command from WS client
 	} else if ( cmd.equals("align" ) ) {
@@ -295,12 +295,41 @@ public class AlignmentClient {
 	// Create input message or URL
 	String message;
 	if ( rest ) {
-	    message = RESTAction + "?" + RESTParams;
+	    message = RESTAction + "?" + RESTParams + addParams( params );
 	} else {
-	    message = messageBody;
+	    message = messageBody+addParams( params );
 	}
 	return message;
     }
+
+    public String addParams( Properties params ){
+	String opt = "";
+	int i = 5;
+	for ( Object ko : params.keySet() ){
+	    String k = (String)ko;
+	    if ( !k.startsWith("arg") && !k.equals("host") && !k.equals("debug") && !k.equals("command") ) {
+		if ( rest ) {
+		    opt += "&paramn"+i+"="+k+"&paramv"+i+"="+params.getProperty(k);
+		    i++;
+		} else {
+		    opt += "    <param name=\""+k+"\">"+params.getProperty(k)+"</param>\n";
+		    // opt += "    <"+k+">"+params.getProperty(k)+"</"+k+">\n";
+		}
+	    }
+	}
+	return opt;
+    }
+    
+    public String addSOAPParams( Properties params ){
+	String opt = "";
+	for ( Object ko : params.keySet() ){
+	    String k = (String)ko;
+	    if ( !k.startsWith("arg") ) {
+	    }
+	}
+	return opt;
+    }
+    
 
     public HttpURLConnection sendRESTMessage( String message, Properties param ) throws Exception {
 	URL RESTUrl = null;
