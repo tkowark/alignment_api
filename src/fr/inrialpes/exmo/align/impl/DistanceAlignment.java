@@ -26,12 +26,12 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.SortedSet;
 import java.util.Comparator;
+import java.util.Properties;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
@@ -75,10 +75,10 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * - compute distance or similarity
      * - extract alignment
      **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+    public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
-	if (  params.getParameter("type") != null ) 
-	    setType((String)params.getParameter("type"));
+	if (  params.getProperty("type") != null ) 
+	    setType( params.getProperty("type") );
 	// This is a 1:1 alignment in fact
 	else setType("11");
 	if ( sim == null )
@@ -86,36 +86,30 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 
 	sim.initialize( ontology1(), ontology2(), init );
 	sim.compute( params );
-	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
+	if ( params.getProperty("printMatrix") != null ) printDistanceMatrix(params);
 	extract( getType(), params );
-    }
-
-    public static Parameters getParameters() {
-	Parameters p = new BasicParameters();
-	p.setParameter("type","11");
-	return p;
     }
 
     /**
      * Prints the distance matrix
      */
-    public void printDistanceMatrix( Parameters params ){
+    public void printDistanceMatrix( Properties params ){
 	System.out.println("\\documentclass{article}\n");
 	System.out.println("\\usepackage{graphics}\n");
 	System.out.println("\\begin{document}\n");
 	System.out.println("\\begin{table}");
 	sim.printClassSimilarityMatrix("tex");
-	System.out.println("\\caption{Class distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\caption{Class distance with measure "+params.getProperty("stringFunction")+"}");
 	System.out.println("\\end{table}");
 	System.out.println();
 	System.out.println("\\begin{table}");
 	sim.printPropertySimilarityMatrix("tex");
-	System.out.println("\\caption{Property distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\caption{Property distance with measure "+params.getProperty("stringFunction")+"}");
 	System.out.println("\\end{table}");
 	System.out.println();
 	System.out.println("\\begin{table}");
 	sim.printIndividualSimilarityMatrix("tex");
-	System.out.println("\\caption{Individual distance with measure "+(String)params.getParameter("stringFunction")+"}");
+	System.out.println("\\caption{Individual distance with measure "+params.getProperty("stringFunction")+"}");
 	System.out.println("\\end{table}");
 	System.out.println("\n\\end{document}");
     }
@@ -141,10 +135,10 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * ?* (covering 1*, 1+ and ?+)
      * *? (covering +?, *1 and +1)
      */
-    public Alignment extract(String type, Parameters params) throws AlignmentException {
+    public Alignment extract(String type, Properties params) throws AlignmentException {
 	double threshold = 0.;
-	if (  params.getParameter("threshold") != null )
-	    threshold = ((Double) params.getParameter("threshold")).doubleValue();
+	if (  params.getProperty("threshold") != null )
+	    threshold = Double.parseDouble( params.getProperty("threshold") );
 
 	//System.err.println("The type is "+type+" with length = "+type.length());
 	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
@@ -162,7 +156,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * Extract the alignment of a ?* type
      * Complexity: O(n^2)
      */
-    public Alignment extractqs( double threshold, Parameters params) {
+    public Alignment extractqs( double threshold, Properties params) {
       double max = 0.;
       boolean found = false;
       double val = 0;
@@ -199,7 +193,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      if ( found ) addAlignCell(class1, class2, "=", max);
 	  }
 	  // Extract for individuals
-	  if (  params.getParameter("noinst") == null ){
+	  if (  params.getProperty("noinst") == null ){
 	      for ( Object ind1 : ontology1().getIndividuals() ) {
 		  if ( ontology1().getEntityURI( ind1 ) != null ) {
 		      found = false; max = threshold; val = 0;
@@ -225,7 +219,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * 
      * exact algorithm using the Hungarian method
      */
-    public Alignment extractqq( double threshold, Parameters params) {
+    public Alignment extractqq( double threshold, Properties params) {
 	try {
 	    // A STRAIGHTFORWARD IMPLEMENTATION
 	    // (redoing the matrix instead of getting it)
@@ -300,7 +294,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	    }
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	// For individuals
-	if (  params.getParameter("noinst") == null ){
+	if (  params.getProperty("noinst") == null ){
 	try{
 	    // Create individual lists
 	    Object[] ind1 = new Object[ontology1().nbIndividuals()];
@@ -358,7 +352,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * overall similarity 1.1, while the optimum is the second solution
      * with overall of 1.8.
      */
-    public Alignment extractqqgreedy( double threshold, Parameters params) {
+    public Alignment extractqqgreedy( double threshold, Properties params) {
 	double val = 0;
 	//TreeSet could be replaced by something else
 	//The comparator must always tell that things are different!
@@ -420,7 +414,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      }
 	  }
 	  // for individuals
-	  if (  params.getParameter("noinst") == null ){
+	  if (  params.getProperty("noinst") == null ){
 	      for( Object ent1: ontology1().getIndividuals() ) {
 		  if ( ontology1().getEntityURI( ent1 ) != null ) {
 

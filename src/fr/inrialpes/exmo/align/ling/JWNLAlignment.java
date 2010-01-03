@@ -28,13 +28,12 @@ import fr.inrialpes.exmo.ontosim.string.JWNLDistances;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
+import java.util.Properties;
 import java.net.URI;
 
 /**
  * This Class uses JWNLDistances to align two ontologies.
- * @author  Jerome Pierson
  * @version $Id$
  */
 
@@ -95,22 +94,22 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
     };
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+    public void align( Alignment alignment, Properties prop ) throws AlignmentException {
 	int method = 0;
 	loadInit( alignment );
 	WordNetMatrixMeasure sim = (WordNetMatrixMeasure)getSimilarity();
-	String wnvers = (String)params.getParameter("wnvers");
+	String wnvers = prop.getProperty("wnvers");
 	if ( wnvers == null ) wnvers = WNVERS;
-	String function = (String)params.getParameter("wnfunction");
+	String function = prop.getProperty("wnfunction");
 	if ( function != null ) {
 	    if ( function.equals("cosynonymySimilarity") ) method = 1;
 	    else if ( function.equals("basicSynonymySimilarity") ) method = 2;
 	}
-	sim.init( (String)params.getParameter("wndict"), wnvers, method );
+	sim.init( prop.getProperty("wndict"), wnvers, method );
 	sim.initialize( ontology1(), ontology2(), alignment );
-	sim.compute( params );
-	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix(params);
-	extract( type, params );
+	sim.compute( prop );
+	if ( prop.getProperty("printMatrix") != null ) printDistanceMatrix( prop );
+	extract( type, prop );
     }
 }
 	

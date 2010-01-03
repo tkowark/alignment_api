@@ -29,7 +29,6 @@
 package fr.inrialpes.exmo.align.util;
 
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -93,7 +92,7 @@ $Id$
 
 public class ExtGroupEval {
 
-    Parameters params = null;
+    BasicParameters params = null;
     String filename = null;
     String reference = "refalign.rdf";
     String format = "s";
@@ -187,7 +186,7 @@ public class ExtGroupEval {
 	}
 
 	params = new BasicParameters();
-	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
+	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
 
 	print( iterateDirectories() );
     }
@@ -265,7 +264,7 @@ public class ExtGroupEval {
 	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1 ), 
 				      ObjectAlignment.toObjectAlignment( (URIAlignment)align2 ) );
 	    // Compare
-	    params.setParameter( "debug", new Integer( nextdebug ) );
+	    params.setParameter( "debug", Integer.toString( nextdebug ) );
 	    eval.eval( params ) ;
 	} catch (Exception ex) {
 	    if ( debug > 1 ) {

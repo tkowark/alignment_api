@@ -20,14 +20,14 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import org.semanticweb.owl.align.Parameters;
+import java.util.Properties;
 
 /**
  * Contains the messages that should be sent according to the protocol
  */
 
 public class CannotRenderAlignment extends ErrorMsg {
-    public CannotRenderAlignment ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
+    public CannotRenderAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){

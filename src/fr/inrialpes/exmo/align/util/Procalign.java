@@ -30,7 +30,6 @@ package fr.inrialpes.exmo.align.util;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -114,7 +113,7 @@ public class Procalign {
 	AlignmentVisitor renderer = null;
 	int debug = 0;
 	double threshold = 0;
-	Parameters params = new BasicParameters();
+	BasicParameters params = new BasicParameters();
 
 	LongOpt[] longopts = new LongOpt[10];
 
@@ -194,7 +193,7 @@ public class Procalign {
 	int i = g.getOptind();
 
 	if (debug > 0) {
-	    params.setParameter("debug", new Integer(debug));
+	    params.setParameter( "debug", Integer.toString(debug) );
 	} else if ( params.getParameter("debug") != null ) {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}

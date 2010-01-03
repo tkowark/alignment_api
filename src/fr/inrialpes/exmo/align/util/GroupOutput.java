@@ -29,7 +29,6 @@ package fr.inrialpes.exmo.align.util;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -108,7 +107,7 @@ public class GroupOutput {
 			    {257},//h=13
 			    {254,260,261},//i=14
 			    {262,265,266} };//emptyset=15
-    Parameters params = null;
+    BasicParameters params = null;
     Vector<String> listAlgo;
     String fileNames = "";
     String outFile = null;
@@ -177,9 +176,9 @@ public class GroupOutput {
 	}
 
 	params = new BasicParameters();
-	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
+	if (debug > 0) params.setParameter( "debug", Integer.toString(debug-1) );
 
-	params.setParameter("step", new Integer(SIZE));
+	params.setParameter( "step", Integer.toString(SIZE) );
 
 	// Set output file
 	OutputStream stream;
@@ -271,7 +270,7 @@ public class GroupOutput {
 	// Create evaluator object
 	eval = new PRecEvaluator( align1, align2 );
 	// Compare
-	params.setParameter( "debug", new Integer( nextdebug ) );
+	params.setParameter( "debug", Integer.toString( nextdebug ) );
 	eval.eval( params ) ;
 	return eval;
     }

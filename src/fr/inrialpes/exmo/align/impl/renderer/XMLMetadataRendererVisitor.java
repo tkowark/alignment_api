@@ -22,18 +22,17 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.io.PrintWriter;
 
 import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * Renders an alignment in its RDF format
@@ -54,9 +53,9 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	this.writer = writer;
     }
 
-    public void init( Parameters p ) {
-	if ( p.getParameter( "embedded" ) != null 
-	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    public void init( Properties p ) {
+	if ( p.getProperty( "embedded" ) != null 
+	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
     public void visit( Visitable o ) throws AlignmentException {
@@ -73,9 +72,9 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
 	// Get the keys of the parameter
 	int gen = 0;
-	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    String prefix = ((String[])ext)[0];
-	    String name = ((String[])ext)[1];
+	for ( String[] ext : align.getExtensions() ){
+	    String prefix = ext[0];
+	    String name = ext[1];
 	    String tag = (String)nslist.get(prefix);
 	    if ( tag == null ) {
 		tag = "ns"+gen++;
@@ -83,7 +82,7 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	    }
 	    if ( tag.equals("align") ) { tag = name; }
 	    else { tag += ":"+name; }
-	    extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
+	    extensionString += "  <"+tag+">"+ext[2]+"</"+tag+">\n";
 	}
 	if ( embedded == false ) {
 	    writer.print("<?xml version='1.0' encoding='utf-8");

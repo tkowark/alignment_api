@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2004, 2007
+ * Copyright (C) INRIA, 2003-2004, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,8 @@
 
 package org.semanticweb.owl.align; 
 
+import java.util.Properties;
+
 /**
  * Represents an executable alignment
  *
@@ -37,7 +39,7 @@ public interface AlignmentProcess extends Alignment
      * TODO: a set of parameters should better be passed to the alignment
      * method.
      */
-    public void align( Alignment alignment, Parameters param ) throws AlignmentException;
+    public void align( Alignment alignment, Properties param ) throws AlignmentException;
 
     /**
      * Returns the parameters that the align() method is able to process.

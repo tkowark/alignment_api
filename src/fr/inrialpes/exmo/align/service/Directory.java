@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007
+ * Copyright (C) INRIA, 2007, 2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,8 +20,9 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
+
+import java.util.Properties;
 
 public interface Directory {
 
@@ -31,7 +32,7 @@ public interface Directory {
      * - the directory address
      * - the declaration of the current service
      */
-    public void open( Parameters p ) throws AServException;
+    public void open( Properties p ) throws AServException;
 
     /**
      * Register an alignment to the directory (if necessary)

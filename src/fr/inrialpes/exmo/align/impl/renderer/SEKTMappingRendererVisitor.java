@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Random;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -31,7 +32,6 @@ import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -60,7 +60,7 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
 	generator = new Random();
     }
 
-    public void init( Parameters p ) {};
+    public void init( Properties p ) {};
 
     public void visit( Visitable o ) throws AlignmentException {
 	if ( o instanceof Alignment ) visit( (Alignment)o );

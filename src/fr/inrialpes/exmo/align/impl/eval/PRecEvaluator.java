@@ -23,7 +23,6 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
@@ -32,6 +31,7 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Iterator;
 import java.util.Set;
 import java.io.PrintWriter;
@@ -102,10 +102,10 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
      *
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
-    public double eval(Parameters params) throws AlignmentException {
+    public double eval( Properties params ) throws AlignmentException {
 	return eval( params, (Object)null );
     }
-    public double eval(Parameters params, Object cache) throws AlignmentException {
+    public double eval( Properties params, Object cache ) throws AlignmentException {
 	init();
 	nbfound = align2.nbCells();
 

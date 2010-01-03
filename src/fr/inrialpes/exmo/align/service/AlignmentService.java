@@ -27,13 +27,12 @@ import fr.inrialpes.exmo.queryprocessor.Type;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.util.NullStream;
 
-import org.semanticweb.owl.align.Parameters;
-
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.io.PrintStream;
 import java.io.File;
 
@@ -100,7 +99,7 @@ public class AlignmentService {
 	services = new Hashtable<String,AlignmentServiceProfile>();
 	directories = new Hashtable<String,Directory>();
 	// Read parameters
-	Parameters params = readParameters( args );
+	Properties params = readParameters( args );
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
@@ -125,7 +124,6 @@ public class AlignmentService {
 	    connection = new DBServiceImpl( "com.mysql.jdbc.Driver" ,  "jdbc:mysql", DBPORT );
 	}	
 	
-	//connection = new DBServiceImpl();
 	connection.init();
 	connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
 	if ( debug > 0 ) System.err.println("Database connected");
@@ -139,9 +137,9 @@ public class AlignmentService {
 	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try {
 		serv.init( params, manager );
-		if ( debug > 0 ) System.err.println(serv+" launched on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/");
+		if ( debug > 0 ) System.err.println(serv+" launched on http://"+params.getProperty( "host" )+":"+params.getProperty( "http" )+"/html/");
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't start "+serv+" server on http://"+params.getParameter( "host" )+":"+params.getParameter( "http" )+"/html/:\n");
+		System.err.println( "Couldn't start "+serv+" server on http://"+params.getProperty( "host" )+":"+params.getProperty( "http" )+"/html/:\n");
 		// Ideally remove the service
 		ex.printStackTrace();
 	    }
@@ -204,10 +202,10 @@ public class AlignmentService {
     }
 
 
-    public Parameters readParameters( String[] args ) {
-	Parameters params = new BasicParameters();
+    public Properties readParameters( String[] args ) {
+	Properties params = new Properties();
 	// Default values
-	params.setParameter( "host", HOST );
+	params.setProperty( "host", HOST );
 
 	// Read parameters
 
@@ -262,7 +260,7 @@ public class AlignmentService {
 	    case 'd' :
 		/* Debug level  */
 		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
+		if ( arg != null ) debug = Integer.parseInt( arg.trim() );
 		else debug = 4;
 		break;
 	    case 'i' :
@@ -279,9 +277,9 @@ public class AlignmentService {
 		/* HTTP Server + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "http", arg );
+		    params.setProperty( "http", arg );
 		} else {
-		    params.setParameter( "http", HTML );
+		    params.setProperty( "http", HTML );
 		}
 		// This shows that it does not work
 		try {
@@ -295,9 +293,9 @@ public class AlignmentService {
 		/* JADE Server + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "jade", arg );
+		    params.setProperty( "jade", arg );
 		} else {
-		    params.setParameter( "jade", JADE );
+		    params.setProperty( "jade", JADE );
 		}		    
 		try {
 		    services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile" ) );
@@ -310,14 +308,14 @@ public class AlignmentService {
 		/* Web service + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "wsdl", arg );
+		    params.setProperty( "wsdl", arg );
 		} else {
-		    params.setParameter( "wsdl", WSDL );
+		    params.setProperty( "wsdl", WSDL );
 		};
 		// The WSDL extension requires HTTP server (and the same one).
 		// Put the default port, may be overriden
-		if ( params.getParameter( "http" ) == null )
-		    params.setParameter( "http", HTML );
+		if ( params.getProperty( "http" ) == null )
+		    params.setProperty( "http", HTML );
 		try {
 		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
 		} catch (Exception ex) {
@@ -329,22 +327,22 @@ public class AlignmentService {
 		/* JXTA Server + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "jxta", arg );
+		    params.setProperty( "jxta", arg );
 		} else {
-		    params.setParameter( "jxta", JXTA );
+		    params.setProperty( "jxta", JXTA );
 		}		    
 		break;
 	    case 'S' :
 		/* Server */
-		params.setParameter( "host", g.getOptarg() );
+		params.setProperty( "host", g.getOptarg() );
 		break;
 	    case 'O' :
 		/* [JE: Currently not working]: Oyster directory + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "oyster", arg );
+		    params.setProperty( "oyster", arg );
 		} else {
-		    params.setParameter( "oyster", JADE );
+		    params.setProperty( "oyster", JADE );
 		}
 		try {
 		    directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.OysterDirectory" ) );
@@ -357,9 +355,9 @@ public class AlignmentService {
 		/* [JE: Currently not working]: UDDI directory + port */
 		arg = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "uddi", arg );
+		    params.setProperty( "uddi", arg );
 		} else {
-		    params.setParameter( "uddi", JADE );
+		    params.setProperty( "uddi", JADE );
 		}		    
 		try {
 		    directories.put( "fr.inrialpes.exmo.align.service.UDDIDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.UDDIDirectory" ) );
@@ -386,10 +384,10 @@ public class AlignmentService {
 	    case 'B' :
 		arg   = g.getOptarg();
 		if ( arg != null ) {
-		    params.setParameter( "DBMS", arg );
+		    params.setProperty( "DBMS", arg );
 		    DBMS = arg;
 		} else {
-		    params.setParameter( "DBMS", "mysql" );
+		    params.setProperty( "DBMS", "mysql" );
 		    DBMS = "mysql";
 		}
 		break;
@@ -398,7 +396,7 @@ public class AlignmentService {
 		arg = g.getOptarg();
 		int index = arg.indexOf('=');
 		if ( index != -1 ) {
-		    params.setParameter( arg.substring( 0, index), 
+		    params.setProperty( arg.substring( 0, index), 
 					 arg.substring(index+1));
 		} else {
 		    System.err.println("Bad parameter syntax: "+g);
@@ -411,9 +409,9 @@ public class AlignmentService {
 	}
 	
 	if (debug > 0) {
-	    params.setParameter("debug", new Integer(debug));
-	} else if ( params.getParameter("debug") != null ) {
-	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	    params.setProperty( "debug", Integer.toString( debug ) );
+	} else if ( params.getProperty( "debug" ) != null ) {
+	    debug = Integer.parseInt( params.getProperty( "debug" ) );
 	}
 
 	return params;

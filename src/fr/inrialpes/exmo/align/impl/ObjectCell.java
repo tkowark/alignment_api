@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -105,10 +105,10 @@ public class ObjectCell extends BasicCell {
     public Cell inverse() throws AlignmentException {
 	Cell result = (Cell)new ObjectCell( (String)null, object2, object1, relation.inverse(), strength );
 	if ( extensions != null ) {
-	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
-		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
+	    for ( String[] ext : extensions.getValues() ){
+		result.setExtension( ext[0], ext[1], ext[2] );
 	    }
-	    result.getExtensions().unsetParameter( Namespace.ALIGNMENT.getUriPrefix()+Annotations.ID );
+	    result.setExtension( Namespace.ALIGNMENT.getUriPrefix(), Annotations.ID, (String)null );
 	}
 	// The sae should be done for the measure
 	return result;

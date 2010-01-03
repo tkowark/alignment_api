@@ -25,7 +25,6 @@ package fr.inrialpes.exmo.align.util;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
@@ -84,7 +83,7 @@ public class EvalAlign {
 
 
     public void run(String[] args) {
-	Parameters params = new BasicParameters();
+	BasicParameters params = new BasicParameters();
 	Evaluator eval = null;
 	String alignName1 = null;
 	String alignName2 = null;
@@ -130,8 +129,8 @@ public class EvalAlign {
 	
 	int i = g.getOptind();
 
-	params.setParameter("debug",new Integer(debug));
-	// debug = ((Integer)params.getParameter("debug")).intValue();
+	params.setParameter( "debug", Integer.toString( debug ) );
+	// debug = Integer.parseInt( params.getParameter("debug") );
 	
 	if (args.length > i+1 ) {
 	    alignName1 = args[i];

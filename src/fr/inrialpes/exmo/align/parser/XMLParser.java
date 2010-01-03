@@ -51,9 +51,11 @@ import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.BasicOntology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.BasicCell;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.Extensions;
 
 /**
  * This class allows the creation of a parser for an Alignment file.
@@ -135,7 +137,7 @@ public class XMLParser extends DefaultHandler {
     /**
      * Cell extensions (default null)
      */
-    protected Parameters extensions = null;
+    protected Extensions extensions = null;
 
     /**
      * the measure content as text...
@@ -425,7 +427,7 @@ public class XMLParser extends DefaultHandler {
 			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
 		    if ( id != null ) cell.setId( id );
 		    if ( sem != null ) cell.setSemantics( sem );
-		    if ( extensions != null ) cell.setExtensions( extensions );
+		    if ( extensions != null ) ((BasicCell)cell).setExtensions( extensions );
 		} else if (pName.equals("map")) {
 		} else if (pName.equals("uri1")) {
 		    if ( onto1.getURI() == null ){//JE: Onto
@@ -484,8 +486,7 @@ public class XMLParser extends DefaultHandler {
 		    if ( parseLevel == 3 ){
 			alignment.setExtension( namespaceURI, pName, content );
 		    } else if ( parseLevel == 5 ) {
-			String[] ext = {namespaceURI, pName, content};
-			extensions.setParameter( namespaceURI+pName, ext );
+			extensions.setExtension( namespaceURI, pName, content );
 		    } else //if ( debugMode > 0 )
 			System.err.println("[XMLParser("+parseLevel+")] Unknown element name : "+pName);
 		    //throw new SAXException("[XMLParser] Unknown element name : "+pName);
@@ -502,9 +503,8 @@ public class XMLParser extends DefaultHandler {
 	    if ( parseLevel == 3 && alignLevel != -1 ){
 		alignment.setExtension( namespaceURI, pName, content );
 	    } else if ( parseLevel == 5 && alignLevel != -1 ) {
-		if ( extensions == null ) extensions = new BasicParameters();
-		String[] ext = {namespaceURI, pName, content};
-		extensions.setParameter( namespaceURI+pName, ext );
+		if ( extensions == null ) extensions = new Extensions();
+		extensions.setExtension( namespaceURI, pName, content );
 	    } else if (  !embedded ) throw new SAXException("[XMLParser] Unknown namespace : "+namespaceURI);
 	}
 	parseLevel--;

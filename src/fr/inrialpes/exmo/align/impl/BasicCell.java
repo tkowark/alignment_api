@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2008
+ * Copyright (C) INRIA, 2003-2005, 2007-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +22,7 @@
 package fr.inrialpes.exmo.align.impl;
 
 import java.net.URI;
-import java.util.Enumeration;
+import java.util.Collection;
 
 import org.xml.sax.ContentHandler;
 
@@ -31,7 +31,6 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.align.Parameters;
 
 /**
  * Represents an ontology alignment correspondence.
@@ -51,7 +50,7 @@ public class BasicCell implements Cell, Comparable<Cell> {
     protected Object object2 = null;
     protected Relation relation = null;
     protected double strength = 0;
-    protected Parameters extensions = null;
+    protected Extensions extensions = null;
 
     /** Creation **/
     public BasicCell( String id, Object ob1, Object ob2, Relation rel, double m ) throws AlignmentException {
@@ -138,33 +137,33 @@ public class BasicCell implements Cell, Comparable<Cell> {
     public double getStrength(){ return strength; };
     public void setStrength( double m ){ strength = m; };
 
-    public Parameters getExtensions(){ return extensions; }
-    public void setExtensions( Parameters p ){
+    public Collection<String[]> getExtensions(){ 
+	if ( extensions != null ) return extensions.getValues();
+	else return null;
+    }
+    public void setExtensions( Extensions p ){
 	extensions = p;
     }
 
     public void setExtension( String uri, String label, String value ) {
-	if ( extensions == null )
-	    extensions = new BasicParameters();
-	String [] ext = { uri, label, value };
-	extensions.setParameter( uri+label, ext );
+	if ( extensions == null ) extensions = new Extensions();
+	extensions.setExtension( uri, label, value );
     };
 
     public String getExtension( String uri, String label ) {
 	if ( extensions != null ) {
-	    return ((String [])extensions.getParameter( uri+label ))[2];
+	    return extensions.getExtension( uri, label );
 	} else {
 	    return (String)null;
 	}
     };
 
     public Cell inverse() throws AlignmentException {
-	Cell result = (Cell)new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
+	BasicCell result = new BasicCell( (String)null, object2, object1, relation.inverse(), strength );
 	if ( extensions != null ) {
-	    for ( Object ext : ((BasicParameters)extensions).getValues() ){
-		result.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
-	    }
-	    result.getExtensions().unsetParameter( Namespace.ALIGNMENT.getUriPrefix()+Annotations.ID );
+	    Extensions newext = (Extensions)extensions.clone();
+	    newext.unsetExtension( Namespace.ALIGNMENT.getUriPrefix(), Annotations.ID );
+	    result.setExtensions( newext );
 	}
 	// The sae should be done for the measure
 	return result;

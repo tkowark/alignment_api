@@ -34,7 +34,6 @@ package fr.inrialpes.exmo.align.util;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -88,7 +87,7 @@ $Id$
 
 public class GroupAlign {
 
-    Parameters params = null;
+    BasicParameters params = null;
     String filename = "align";
     String paramfile = null;
     String urlprefix = null;
@@ -210,8 +209,7 @@ public class GroupAlign {
 	if (debug == 0 && params.getParameter("debug") != null) {
 	    debug = Integer.parseInt((String)params.getParameter("debug"));
 	}
-	// Exception to the parameter as string rule
-	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
+	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
 
 	iterateDirectories();
     }

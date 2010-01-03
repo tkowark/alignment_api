@@ -24,6 +24,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -73,9 +74,12 @@ public interface Cell extends Comparable<Cell>, Visitable {
     /**
      * Extensions are a way to read and add other information (metadata)
      * to the Cell structure itself.
+     * getExtensions returns a set of tripes: uri*label*value
+     * all three being String
      */
-    public Parameters getExtensions();
-    public void setExtensions( Parameters param );
+    public Collection<String[]> getExtensions();
+    //public Parameters getExtensions();
+    //public void setExtensions( Parameters param );
     public String getExtension( String uri, String label );
     public void setExtension( String uri, String label, String value );
 

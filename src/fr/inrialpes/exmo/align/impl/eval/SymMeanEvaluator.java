@@ -23,7 +23,6 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -31,6 +30,7 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
 import java.lang.Math;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Iterator;
 import java.util.Set;
 import java.io.PrintWriter;
@@ -63,10 +63,10 @@ public class SymMeanEvaluator extends BasicEvaluator {
 	    throw new AlignmentException( "Alignments should be ObjectAlignments, try to " );
     }
 
-    public double eval(Parameters params) throws AlignmentException {
+    public double eval( Properties params ) throws AlignmentException {
 	return eval( params, (Object)null );
     }
-    public double eval(Parameters params, Object cache) throws AlignmentException {
+    public double eval( Properties params, Object cache ) throws AlignmentException {
 	int nbClassCell = 0;
 	int nbPropCell = 0;
 	int nbIndCell = 0;

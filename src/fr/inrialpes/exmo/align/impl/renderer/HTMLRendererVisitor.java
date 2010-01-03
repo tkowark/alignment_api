@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -29,13 +30,11 @@ import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
@@ -64,9 +63,9 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	this.writer = writer;
     }
 
-    public void init( Parameters p ) {
-	if ( p.getParameter( "embedded" ) != null 
-	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    public void init( Properties p ) {
+	if ( p.getProperty( "embedded" ) != null 
+	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
     public void visit( Visitable o ) throws AlignmentException {
@@ -84,9 +83,9 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
 	// Get the keys of the parameter
 	int gen = 0;
-	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    String prefix = ((String[])ext)[0];
-	    String name = ((String[])ext)[1];
+	for ( String[] ext : align.getExtensions() ){
+	    String prefix = ext[0];
+	    String name = ext[1];
 	    String tag = (String)nslist.get(prefix);
 	    if ( tag == null ) {
 		tag = "ns"+gen++;
@@ -94,7 +93,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	    }
 	    if ( tag.equals("align") ) { tag = name; }
 	    else { tag += ":"+name; }
-	    //extensionString += "  <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n";
+	    //extensionString += "  <"+tag+">"+ext[2]+"</"+tag+">\n";
 	}
 	if ( embedded == false ) {
 	    writer.print("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n");
@@ -136,8 +135,8 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	writer.print("<tr><td>level</td><td property=\"align:level\">"+align.getLevel()+"</td></tr>\n" );
 	writer.print("<tr><td>type</td><td property=\"align:type\">"+align.getType()+"</td></tr>\n" );
 	// RDFa: Get the keys of the parameter (to test)
-	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    writer.print("<tr><td>"+((String[])ext)[0]+" : "+((String[])ext)[1]+"</td><td property=\""+nslist.get(((String[])ext)[0])+":"+((String[])ext)[1]+"\">"+((String[])ext)[2]+"</td></tr>\n");
+	for ( String[] ext : align.getExtensions() ){
+	    writer.print("<tr><td>"+ext[0]+" : "+ext[1]+"</td><td property=\""+nslist.get(ext[0])+":"+ext[1]+"\">"+ext[2]+"</td></tr>\n");
 	}
 	writer.print("</table>\n");
 	writer.print("<h2>Correspondences</h2>\n");

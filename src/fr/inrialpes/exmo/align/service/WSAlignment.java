@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
@@ -53,7 +54,6 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.onto.Ontology;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -83,10 +83,10 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
       * Process matching
       * This does not work with regular AServ web service because it returns an URL
       **/
-     public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	 // Create the invokation message
-	 if ( params.getParameter("wserver") != null ) {
-	     serviceAddress = (String)params.getParameter("wserver");
+	 if ( params.getProperty("wserver") != null ) {
+	     serviceAddress = (String)params.getProperty("wserver");
 	 } else {
 	     throw new AlignmentException( "WSAlignment: required parameter : wserver" );
 	 }
@@ -107,10 +107,10 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 }
 	 message += "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	 // Parameter encoding
-	 for (Enumeration e = params.getNames(); e.hasMoreElements();) {
+	 for (Enumeration e = params.propertyNames(); e.hasMoreElements();) {
 	     String k = (String)e.nextElement();
              if ( k != null && !k.equals("") )
-	        message += "    <param name=\""+k+"\">"+params.getParameter(k)+"</param>\n";
+	        message += "    <param name=\""+k+"\">"+params.getProperty(k)+"</param>\n";
 	 }
 
 	 message += "  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
@@ -191,13 +191,13 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Object ext : ((BasicParameters)extensions).getValues() ){
-	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
+	for ( String[] ext : extensions.getValues() ){
+	    align.setExtension( ext[0], ext[1], ext[2] );
 	    }
 	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, "id" );
 	if ( oldid != null && !oldid.equals("") ) {
 	    align.setExtension( Namespace.ALIGNMENT.uri, "derivedFrom", oldid );
-	    align.getExtensions().unsetParameter( Namespace.ALIGNMENT.uri+"id" );
+	    align.setExtension( Namespace.ALIGNMENT.uri, "id", (String)null );
 	}
 	align.setExtension( Namespace.ALIGNMENT.uri, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
 	try {

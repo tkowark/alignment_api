@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.Collection;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
@@ -115,8 +116,8 @@ public class ObjectAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( Object ext : ((BasicParameters)extensions).getValues() ){
-	    align.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
+	for ( String[] ext : extensions.getValues() ) {
+	    align.setExtension( ext[0], ext[1], ext[2] );
 	}
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
@@ -134,19 +135,23 @@ public class ObjectAlignment extends BasicAlignment {
 	alignment.init( al.getFile1(), al.getFile2() );
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
-	for ( Object ext : ((BasicParameters)al.getExtensions()).getValues() ){
-	    alignment.setExtension( ((String[])ext)[0], ((String[])ext)[1], ((String[])ext)[2] );
+	for ( String[] ext : al.getExtensions() ) {
+	    alignment.setExtension( ext[0], ext[1], ext[2] );
 	}
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
-	for (Enumeration e = al.getElements(); e.hasMoreElements();) {
-	    Cell c = (Cell)e.nextElement();
-	    alignment.addAlignCell( c.getId(), 
-				    o1.getEntity( c.getObject1AsURI(alignment) ),
-				    o2.getEntity( c.getObject2AsURI(alignment) ),
-				    c.getRelation(), 
-				    c.getStrength(),
-				    c.getExtensions() );
+	for ( Cell c : al ) {
+	    Cell newc = alignment.addAlignCell( c.getId(), 
+						o1.getEntity( c.getObject1AsURI(alignment) ),
+						o2.getEntity( c.getObject2AsURI(alignment) ),
+						c.getRelation(), 
+						c.getStrength() );
+	    Collection<String[]> exts = c.getExtensions();
+	    if ( exts != null ) {
+		for ( String[] ext : exts ){
+		    newc.setExtension( ext[0], ext[1], ext[2] );
+		}
+	    }
 	};
 	return alignment;
     }

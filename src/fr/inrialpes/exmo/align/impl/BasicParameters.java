@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005, 2008
+ * Copyright (C) INRIA, 2004-2005, 2008-2009
  * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@ package fr.inrialpes.exmo.align.impl;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Collection;
+import java.util.Properties;
 import java.io.PrintStream;
 import java.io.File;
 
@@ -52,41 +53,51 @@ import org.semanticweb.owl.align.Parameters;
   * @version $Id$ 
  */
 
-public class BasicParameters implements Parameters {
+public class BasicParameters extends Properties implements Parameters, Cloneable {
  
-  /** The list of unlinked out  XML_Port */
-  Hashtable<String,Object> parameters = null;
+    /** The list of unlinked out  XML_Port */
+    //Hashtable<String,Object> parameters = null;
     
-  public BasicParameters() {
-      parameters = new Hashtable<String,Object>();
-  }
+    public BasicParameters() {}
   
-  public void setParameter(String name, Object value){
-    parameters.put(name,value);
-  }
+    public BasicParameters( Properties prop ) {
+	for ( Enumeration<String> e = (Enumeration<String>)prop.propertyNames(); e.hasMoreElements(); ) {
+	    String k = e.nextElement();
+	    setProperty( k, prop.getProperty(k) );
+	}
+    }
+  
+    public void setParameter( String name, String value ){
+	//parameters.put(name,value);
+	setProperty( name, value );
+    }
 
-  public void unsetParameter(String name){
-    parameters.remove(name);
-  }
+    public void unsetParameter( String name ){
+	//parameters.remove(name);
+	setProperty( name, (String)null );
+    }
 
-  public Object getParameter(String name){
-    return parameters.get(name);
-  }
+    // JE2009: returns a string...
+    public String getParameter( String name ){
+	//return parameters.get(name);
+	return getProperty( name );
+    }
+    
+    public Enumeration<String> getNames(){
+	//return parameters.keys();
+	return (Enumeration<String>)propertyNames();
+    }
 
-  public Enumeration<String> getNames(){
-    return parameters.keys();
-  }
-
-  public Collection getValues(){
-    return parameters.values();
-  }
+    public Collection getValues(){
+	return values();
+    }
 
     public void write(){
 	System.out.println("<?xml version='1.0' ?>");
 	System.out.println("<Parameters>");
-	for (Enumeration e = parameters.keys(); e.hasMoreElements();) {
-	    String k = (String)e.nextElement();
-	    System.out.println("  <param name='"+k+"'>"+parameters.get(k)+"</param>");
+	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements(); ) {
+	    String k = e.nextElement();
+	    System.out.println("  <param name='"+k+"'>"+getProperty(k)+"</param>");
 	}
 	System.out.println("</Parameters>");
     }
@@ -96,17 +107,17 @@ public class BasicParameters implements Parameters {
      */
     public void displayParameters( PrintStream stream ){
 	stream.println("Parameters:");
-	for (Enumeration e = parameters.keys(); e.hasMoreElements();) {
-	    String k = (String)e.nextElement();
-	    stream.println("  "+k+" = "+parameters.get(k));
+	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements();) {
+	    String k = e.nextElement();
+	    stream.println("  "+k+" = "+getProperty(k));
 	}
     }
 
-    public static Parameters read(String filename){
+    public static Parameters read( String filename ){
 	return read(new BasicParameters(), filename);
     }
 
-    public static Parameters read(Parameters p, String filename){
+    public static Parameters read( Parameters p, String filename ){
 	try {
 	    // open the stream
 	    DocumentBuilderFactory docBuilderFactory =
@@ -137,4 +148,8 @@ public class BasicParameters implements Parameters {
 
 	return p;
     }
+
+    public Object clone() {
+	return super.clone();
+    }    
 }

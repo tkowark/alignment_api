@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2006-2008
+ * Copyright (C) INRIA, 2004, 2006-2009
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,8 +20,9 @@
 
 package fr.inrialpes.exmo.align.impl;
 
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
+
+import java.util.Properties;
 
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
 
@@ -42,7 +43,7 @@ public interface Similarity
     // JE: OntoRewr: This should not be in init
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2 );
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align );
-    public void compute( Parameters p );
+    public void compute( Properties p );
     public double getClassSimilarity( Object c1, Object c2 );
     public double getPropertySimilarity( Object p1, Object p2);
     public double getIndividualSimilarity( Object i1, Object i2 );

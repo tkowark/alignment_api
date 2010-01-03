@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA Rhône-Alpes, 2006-2007
+ * Copyright (C) INRIA, 2006-2007, 2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,6 +36,7 @@ import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
 
 import java.io.File;
+import java.util.Properties;
 
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 
@@ -44,7 +45,7 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	private AgentController algagentcontroller;
 	private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
-	public void init( Parameters params, AServProtocolManager manager ) throws AServException {
+	public void init( Properties params, AServProtocolManager manager ) throws AServException {
 		int port = 8888;
 		int debug = 0;
 		Object args[] = new Object[2];
@@ -55,10 +56,10 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 		// set up the Parameters as an argument to pass to the JADEFIPAServiceAgent
 		args[1]=params;
 		
-		if ( params.getParameter( "jade" ) != null )
-			port = Integer.parseInt( (String)params.getParameter( "jade" ) );
-		if ( params.getParameter( "debug" ) != null )
-			debug = ((Integer)params.getParameter( "debug" )).intValue() - 1;
+		if ( params.getProperty( "jade" ) != null )
+			port = Integer.parseInt( params.getProperty( "jade" ) );
+		if ( params.getProperty( "debug" ) != null )
+		    debug = Integer.parseInt( params.getProperty( "debug" ) ) - 1;
 
 		/**		
 	Properties props = new Properties();

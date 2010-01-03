@@ -22,13 +22,13 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.Set;
 import java.text.NumberFormat;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.align.onto.LoadedOntology;
@@ -162,7 +162,7 @@ public abstract class MatrixMeasure implements Similarity {
 	} catch (AlignmentException e) { e.printStackTrace(); };
     }
 
-    public void compute( Parameters params ){
+    public void compute( Properties params ){
 	try {
 	    // Compute distances on classes
 	    for ( Object cl2: onto2.getClasses() ){

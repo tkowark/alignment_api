@@ -21,16 +21,15 @@
 package fr.inrialpes.exmo.align.impl.method; 
 
 import java.net.URI;
+import java.util.Properties;
 import java.lang.reflect.Method;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -77,11 +76,11 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     }
 
     /* Processing */
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+    public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 
 	// Get function from params
-	String f = (String)params.getParameter("stringFunction");
+	String f = (String)params.getProperty("stringFunction");
 	try {
 	    if ( f != null ) methodName = f.trim();
 	    Class sClass = Class.forName("java.lang.String");
@@ -90,7 +89,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	} catch (ClassNotFoundException e) {
 	    e.printStackTrace(); // never happens
 	} catch (NoSuchMethodException e) {
-	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+(String)params.getParameter("stringFunction"), e );
+	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+(String)params.getProperty("stringFunction"), e );
 	}
 
 	// Initialize matrix
@@ -100,18 +99,10 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	getSimilarity().compute( params );
 
 	// Print matrix if asked
-	if ( params.getParameter("printMatrix") != null ) printDistanceMatrix( params );
+	if ( params.getProperty("printMatrix") != null ) printDistanceMatrix( params );
 
 	// Extract alignment
 	extract( type, params );
-    }
-
-    public static Parameters getParameters() {
-	Parameters p = new BasicParameters();
-	p.setParameter("type","11");
-	p.setParameter("printMatrix",null);
-	p.setParameter("stringFunction","equalDistance");
-	return p;
     }
 
 }

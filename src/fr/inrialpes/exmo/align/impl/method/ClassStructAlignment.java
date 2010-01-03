@@ -22,12 +22,12 @@ package fr.inrialpes.exmo.align.impl.method;
 
 import java.util.Vector;
 import java.util.Set;
+import java.util.Properties;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
@@ -72,7 +72,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
     }
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+    public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
 	honto2 = (HeavyLoadedOntology<Object>)getOntologyObject2();

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2007
+ * Copyright (C) INRIA, 2006-2007, 2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import org.semanticweb.owl.align.Parameters;
+import java.util.Properties;
 
 /**
  * Contains the messages that should be sent according to the protocol
@@ -33,9 +33,9 @@ public class Message {
     String receiver = "";
     String sender = "";
     String content = "";
-    Parameters parameters = null;
+    Properties parameters = null;
 
-    public Message ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
+    public Message ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	surrogate = surr;
 	inReplyTo = rep;
 	receiver = to;
@@ -80,7 +80,7 @@ public class Message {
 	return sender;
     }
 
-    public Parameters getParameters() {
+    public Properties getParameters() {
 	return parameters;
     }
 

@@ -23,13 +23,13 @@ package fr.inrialpes.exmo.align.impl.method;
 
 import java.util.Vector;
 import java.util.Set;
+import java.util.Properties;
 import java.lang.Integer;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
@@ -76,7 +76,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
     }
 
     /** Processing **/
-    public void align( Alignment alignment, Parameters params ) throws AlignmentException {
+    public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
 	honto2 = (HeavyLoadedOntology<Object>)getOntologyObject2();
@@ -97,8 +97,8 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	double pia1 = 1.; // relation weight for name
 	double epsillon = 0.05; // stoping condition
 
-	if ( params.getParameter("debug") != null )
-	    debug = ((Integer)params.getParameter("debug")).intValue();
+	if ( params.getProperty("debug") != null )
+	    debug = Integer.parseInt( params.getProperty("debug") );
 
 	// Create property lists and matrix
 	for ( Object prop : honto1.getObjectProperties() ){

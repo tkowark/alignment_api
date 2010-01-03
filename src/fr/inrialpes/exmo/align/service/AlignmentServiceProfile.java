@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import org.semanticweb.owl.align.Parameters;
+import java.util.Properties;
 
 public interface AlignmentServiceProfile {
 
@@ -28,7 +28,7 @@ public interface AlignmentServiceProfile {
      * Creates the Service object and declares it after any
      * required registery
      */
-    public void init( Parameters p, AServProtocolManager m ) throws AServException;
+    public void init( Properties p, AServProtocolManager m ) throws AServException;
 
     /**
      * Shutdown the Service and undeclare it from any registery

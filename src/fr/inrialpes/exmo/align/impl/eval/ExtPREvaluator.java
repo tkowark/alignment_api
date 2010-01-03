@@ -23,7 +23,6 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -32,6 +31,7 @@ import fr.inrialpes.exmo.align.onto.LoadedOntology;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
@@ -97,10 +97,10 @@ public class ExtPREvaluator extends BasicEvaluator {
      * because the relations are not taken into account
      * (they are supposed to be always =) 
      */
-    public double eval(Parameters params) throws AlignmentException {
+    public double eval( Properties params ) throws AlignmentException {
 	return eval( params, (Object)null );
     }
-    public double eval(Parameters params, Object cache) throws AlignmentException {
+    public double eval( Properties params, Object cache ) throws AlignmentException {
 	// Better to transform them instead...
 	if ( !( align1 instanceof ObjectAlignment ) || !( align2 instanceof ObjectAlignment ) )
 	    throw new AlignmentException( "ExtPREvaluation: requires ObjectAlignments" );

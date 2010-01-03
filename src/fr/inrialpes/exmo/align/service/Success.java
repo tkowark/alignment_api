@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import org.semanticweb.owl.align.Parameters;
+import java.util.Properties;
 
 /**
  * Contains the messages that should be sent according to the protocol
@@ -28,7 +28,7 @@ import org.semanticweb.owl.align.Parameters;
 
 public class Success extends Message {
 
-    public Success ( int surr, Message rep, String from, String to, String cont, Parameters param ) {
+    public Success ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString(){

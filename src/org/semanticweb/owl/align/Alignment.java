@@ -24,6 +24,7 @@ import java.lang.Cloneable;
 import java.lang.Iterable;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Collection;
 import java.util.Set;
 import java.net.URI;
 
@@ -154,8 +155,10 @@ public interface Alignment extends Cloneable, Iterable<Cell>, Visitable {
     /**
      * Extensions are a way to read and add other information (metadata)
      * to the alignment structure itself.
+     * getExtensions returns a set of tripes: uri*label*value
+     * all three being String
      */
-    public Parameters getExtensions();
+    public Collection<String[]> getExtensions();
     public String getExtension( String uri, String label );
     public void setExtension( String uri, String label, String value );
 

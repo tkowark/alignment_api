@@ -42,8 +42,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.util.Logger;
 
-import org.semanticweb.owl.align.Parameters;
-
+import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.ErrorMsg;
 import fr.inrialpes.exmo.align.service.Message;
@@ -70,7 +69,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 	private String serverId;
 	private AServProtocolManager manager;
 	private int localId=0;
-	private Parameters initialParameters;
+	private BasicParameters initialParameters;
 
 	//	FIPA ACL stuff
 
@@ -100,8 +99,8 @@ public class JadeFIPAAServiceAgent extends Agent {
 				myLogger.log(Logger.INFO, "Arg-"+i+" = "+args[i]);
 			}**/
 
-			manager=(AServProtocolManager) args[0];
-			initialParameters = (Parameters) args[1];
+		    manager=(AServProtocolManager) args[0];
+		    initialParameters = (BasicParameters) args[1];
 		}
 
 		myId = "LocalJADEInterface";
@@ -115,7 +114,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 				String perf; // performative
 				String info; //parameters
-				Parameters params = initialParameters;
+				BasicParameters params = initialParameters;
 
 				MessageTemplate tpl =MessageTemplate.and(MessageTemplate.and(
 						MessageTemplate.MatchLanguage( codec.getName()),
@@ -259,16 +258,15 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 	private int newId(){return localId++;}
 
-	private Parameters decodeMessage(ContentElement ce, Parameters param){
-
-		Parameters toReturn = param;
-		Action action=(Action) ce;
-		for(Iterator<Parameter> iter=action.getAllHasParameter();iter.hasNext();){
-			Parameter OntoParam = (Parameter)iter.next();
-			toReturn.setParameter(OntoParam.getName(), OntoParam.getValue()); 
-		}
-		return toReturn;
+    private BasicParameters decodeMessage(ContentElement ce, BasicParameters param){
+	BasicParameters toReturn = param;
+	Action action= (Action)ce;
+	for( Iterator<Parameter> iter = action.getAllHasParameter(); iter.hasNext(); ){
+	    Parameter OntoParam = (Parameter)iter.next();
+	    toReturn.setParameter( OntoParam.getName(), OntoParam.getValue() ); 
 	}
+	return toReturn;
+    }
 
 
 }

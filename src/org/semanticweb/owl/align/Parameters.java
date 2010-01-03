@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2004, 2008
+ * Copyright (C) INRIA, 2004, 2008, 2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -40,9 +40,10 @@ import java.util.Enumeration;
 
 public interface Parameters {
  
-    public void setParameter(String name, Object value);
+    //public void setParameter(String name, Object value);
+    public void setParameter(String name, String value);
     public void unsetParameter(String name);
-    public Object getParameter(String name);
+    public String getParameter(String name);
     public Enumeration<String> getNames();
 
     public void write();

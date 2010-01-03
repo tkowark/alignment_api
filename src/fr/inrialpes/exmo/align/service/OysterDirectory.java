@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2009
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,8 +21,8 @@
 package fr.inrialpes.exmo.align.service;
 
 import java.lang.Double;
+import java.util.Properties;
 
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -49,7 +49,7 @@ public class OysterDirectory implements Directory {
      * - the directory address
      * - the declaration of the current service
      */
-    public void open( Parameters p ) throws AServException {
+    public void open( Properties p ) throws AServException {
 	System.err.println("Attempt to connect to Oyster" );
 	//oyster2Conn = Oyster2Manager.newConnection("new store","lib/kaon2.jar","totokaon","");
 	oyster2Conn = Oyster2Manager.newConnection(false);
