@@ -134,8 +134,11 @@ public class AlignmentParser {
 	try { 
 	    XMLParser parser = new XMLParser( debugMode );
 	    if ( embedded ) parser.setEmbedded( embedded );
-	    alignment = parser.parse( uri ); 
+	    alignment = parser.parse( uri );
 	} catch ( Exception e ) {
+	    /*
+	    System.err.println(" TEST TRAPPED FOR ALIGNMENT ");
+	    e.printStackTrace();
 	    try {
 		if ( !embedded ) { // Not ready yet
 		    alignment = new RDFParser().parse( new File( uri ) );
@@ -146,6 +149,7 @@ public class AlignmentParser {
 		// JE: should contain both ex and e
 		throw new AlignmentException( "Cannot parse "+uri, ex );
 	    }
+		*/
 	}
 	return alignment;
     }
