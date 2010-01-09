@@ -2,17 +2,22 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension point="org.eclipse.ui.views">
-   	  <category
-            id="fr.inrialpes.exmo.align.plugin.neontk.viewCategory"
-            name="Alignment"/>
+   	  <category id="fr.inrialpes.exmo.align.plugin.neontk.viewCategory" name="Alignment"/>
       <view
-      		category="fr.inrialpes.exmo.align.plugin.neontk.viewCategory"
             name="Alignment"
+            category="fr.inrialpes.exmo.align.plugin.neontk.viewCategory"
             allowMultiple="true"
             icon="icons/align.gif"
             class="fr.inrialpes.exmo.align.plugin.neontk.AlignView"
             id="fr.inrialpes.exmo.align.plugin.neontk.alignView">
       </view>
-   </extension>
-         
+   </extension>  
+   
+   <extension point="org.neontoolkit.upm.gontt">
+   <plugin
+    name= "Alignment"
+    viewId="fr.inrialpes.exmo.align.plugin.neontk.alignView"
+    activityId="ontologyAlignment">
+   </plugin>
+  </extension> 
 </plugin>
