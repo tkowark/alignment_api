@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,11 +42,11 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
-import fr.inrialpes.exmo.align.onto.BasicOntology;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
-import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.Ontology;
+import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,8 +45,8 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.OntologyNetwork;
-import fr.inrialpes.exmo.align.onto.Ontology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.Ontology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.align.util.OntologyNetworkWeakener;
 
 public class OntologyNetworkTest {

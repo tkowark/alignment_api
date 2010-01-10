@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,15 +28,15 @@ import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
-import fr.inrialpes.exmo.align.onto.BasicOntology;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
-import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2Ontology;
-import fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory;
-import fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory;
-import fr.inrialpes.exmo.align.onto.jena25.JENAOntology;
+import fr.inrialpes.exmo.ontowrap.Ontology;
+import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2Ontology;
+import fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory;
+import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
 
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -66,12 +66,12 @@ public class OntoTest {
     @Test(groups = { "full", "onto", "raw" })
     public void factoryTest() throws Exception {
 	assertNotNull( OntologyFactory.getDefaultFactory() );
-	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory") );
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
-	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory") );
+	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory") );
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory");
+	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory") );
 	factory = OntologyFactory.getFactory();
 	assertTrue( factory instanceof JENAOntologyFactory );
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
 	factory = OntologyFactory.getFactory();
 	assert( factory instanceof OWLAPI2OntologyFactory );
 	assertEquals( factory, OntologyFactory.getFactory() );
@@ -115,14 +115,14 @@ public class OntoTest {
     @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"basicTest"})
     public void loadedTest() throws Exception {
 	// load ontologies
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory");
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	ontology = OntologyFactory.getFactory().loadOntology(u);
 	assertNotNull( ontology );
 	assertTrue( ontology instanceof JENAOntology );
 	LoadedOntology onto = (LoadedOntology)ontology;
 	// Doing this now prevent from having problems in case of errors
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
 	assertEquals( onto.nbEntities(), 42 );
 	assertEquals( onto.nbClasses(), 13 );
 	assertEquals( onto.nbProperties(), 29 );
@@ -165,7 +165,7 @@ public class OntoTest {
     @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"loadedTest"})
     public void heavyLoadedTest() throws Exception {
 	// load ontologies
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	ontology = OntologyFactory.getFactory().loadOntology(u);
 	assertNotNull( ontology );
@@ -242,7 +242,7 @@ public class OntoTest {
 
     @AfterClass(groups = { "onto", "raw", "full" }, alwaysRun = true )
     public void tearDown() throws Exception {
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
     }
 
 }
