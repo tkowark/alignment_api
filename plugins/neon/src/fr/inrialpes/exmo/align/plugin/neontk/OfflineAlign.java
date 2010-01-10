@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,6 @@ import fr.inrialpes.exmo.align.impl.URIAlignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
-import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
