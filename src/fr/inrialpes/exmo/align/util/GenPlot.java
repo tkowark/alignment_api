@@ -1,8 +1,6 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003 The University of Manchester
- * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2009, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
@@ -27,9 +25,8 @@
 package fr.inrialpes.exmo.align.util;
 
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
+import fr.inrialpes.exmo.align.impl.eval.GraphEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
 import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
@@ -42,6 +39,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.lang.Integer;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -91,10 +89,11 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 public class GenPlot {
 
     int STEP = 10;
-    Parameters params = null;
+    Properties params = null;
     Vector<String> listAlgo;
     String fileNames = "";
     String outFile = null;
+    java.lang.reflect.Constructor evalConstructor = null;
     String type = "tsv";
     int debug = 0;
     PrintWriter output = null;
@@ -111,11 +110,13 @@ public class GenPlot {
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[3] = new LongOpt("type", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+	longopts[5] = new LongOpt("evaluator", LongOpt.REQUIRED_ARGUMENT, null, 'e');
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 
-	Getopt g = new Getopt("", args, "ho:d::l:t:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::l:e:t:", longopts);
 	int c;
 	String arg;
+	String cl = "fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator";
 
 	while ((c = g.getopt()) != -1) {
 	    switch (c) {
@@ -125,6 +126,10 @@ public class GenPlot {
 	    case 'o' :
 		/* Write output here */
 		outFile = g.getOptarg();
+		break;
+	    case 'e' :
+		/* Name of the class to compute */
+		cl = g.getOptarg();
 		break;
 	    case 't' :
 		/* Type of output (tex/tsv(/html/xml/ascii)) */
@@ -143,6 +148,11 @@ public class GenPlot {
 	    }
 	}
 
+	Class evalClass = Class.forName( cl );
+	Class oClass = Class.forName("org.semanticweb.owl.align.Alignment");
+	Class[] cparams = { oClass, oClass };
+	evalConstructor = evalClass.getConstructor( cparams );
+
 	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
 	listAlgo = new Vector<String>();
 	StringTokenizer st = new StringTokenizer(fileNames,",");
@@ -150,10 +160,10 @@ public class GenPlot {
 	    listAlgo.add(st.nextToken());
 	}
 
-	params = new BasicParameters();
-	if (debug > 0) params.setParameter("debug", new Integer(debug-1));
+	params = new Properties();
+	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
-	params.setParameter("step", new Integer(STEP));
+	params.setProperty("step", Integer.toString( STEP ) );
 
 	// Set output file
 	OutputStream stream;
@@ -227,11 +237,14 @@ public class GenPlot {
 	for ( String algo : listAlgo ) {
 	    // call eval
 	    if ( debug > 0 ) System.err.println("  Considering result "+algo+" ("+i+")");
+	    // JE2010GRAPH
 	    PRGraphEvaluator evaluator = eval( prefix+"refalign.rdf", prefix+algo+".rdf");
 	    // store the result
+	    // This cannot be done for ROC curves
+	    // JE2010GRAPH
 	    if ( evaluator != null ){
 		for( int j = 0; j <= STEP ; j++ ){
-		    result[i][j] = result[i][j] + evaluator.getPrecision(j);
+		    result[i][j] += evaluator.getPrecision(j);
 		}
 	    }
 	    i++;
@@ -254,11 +267,13 @@ public class GenPlot {
 	    Alignment align2 = aparser.parse( alignName2 );
 	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
 	    // Create evaluator object
-	    eval = new PRGraphEvaluator( align1, align2 );
+	    // JE2010GRAPH
+	    Object[] mparams = { align1, align2 };
+	    eval = (PRGraphEvaluator)evalConstructor.newInstance( mparams );
+	    //eval = new PRGraphEvaluator( align1, align2 );
 	    // Compare
-	    params.setParameter( "debug", new Integer( nextdebug ) );
+	    params.setProperty( "debug", Integer.toString( nextdebug ) );
 	    eval.eval( params ) ;
-
 	    // Unload the ontologies.
 	    //loaded.clear();
 	} catch (Exception ex) { 
@@ -295,11 +310,13 @@ public class GenPlot {
 	output.println("% Draw grid");
 	output.println("\\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
 	output.println("\\draw[->] (-0.2,0) -- (10.2,0);");
+	// JE2010GRAPH
 	output.println("\\draw (5,-0.3) node {$recall$}; ");
 	output.println("\\draw (0,-0.3) node {0.}; ");
 	output.println("\\draw (10,-0.3) node {1.}; ");
 	output.println("\\draw[->] (0,-0.2) -- (0,10.2);");
 	output.println("\\draw (-0.3,0) node {0.}; ");
+	// JE2010GRAPH
 	output.println("\\draw (-0.3,5) node[rotate=90] {$precision$}; ");
 	output.println("\\draw (-0.3,10) node {1.}; ");
 	output.println("% Plots");
@@ -340,6 +357,7 @@ public class GenPlot {
 		writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
 		writer.println("%% \\end{tikzpicture}");
 		writer.println();
+		// JE2010GRAPH: it outputs the plot by itself !!!!
 		for( int j = 0; j <= STEP; j++ ){
 		    writer.print((double)j*10/STEP);
 		    writer.println(" "+result[i][j]*10);
@@ -372,6 +390,7 @@ public class GenPlot {
 	System.out.println("usage: GenPlot [options]");
 	System.out.println("options are:");
 	System.out.println("\t--type=tsv|tex|(html|xml) -t tsv|tex|(html|xml)\tSpecifies the output format");
+	System.out.println("\t--evaluator=class -e class\tSpecifies the class of GraphEvaluator to be used");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
