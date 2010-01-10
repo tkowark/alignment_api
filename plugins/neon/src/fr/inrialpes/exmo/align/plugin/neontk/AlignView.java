@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -99,7 +99,6 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.plugin.neontk.AlignFormLayoutFactory;
@@ -1365,9 +1364,6 @@ public class AlignView extends ViewPart
 		 
 		private HashMap<String,String> refreshOntoList(boolean online) {
 			HashMap<String,String>  vec = new HashMap<String,String>();
-			 
-			OntologyFactory fact =  OntologyFactory.getFactory();
-			 
 			try {
 				String[] projects = OntologyProjectManager.getDefault().getOntologyProjects();
 				if(projects != null) {
