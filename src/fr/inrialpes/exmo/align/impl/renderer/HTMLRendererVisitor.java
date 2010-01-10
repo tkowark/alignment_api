@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
 /**
  * Renders an alignment in HTML

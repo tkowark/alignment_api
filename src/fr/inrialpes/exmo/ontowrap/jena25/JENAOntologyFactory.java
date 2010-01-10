@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.onto.jena25;
+package fr.inrialpes.exmo.ontowrap.jena25;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,9 +31,9 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.OntologyCache;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntologyCache;
 
 public class JENAOntologyFactory extends OntologyFactory {
 

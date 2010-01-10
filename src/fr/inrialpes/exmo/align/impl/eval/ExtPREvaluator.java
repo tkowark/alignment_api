@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2009
+ * Copyright (C) INRIA, 2004-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,9 +26,9 @@ import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
-import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.util.Enumeration;
 import java.util.Properties;

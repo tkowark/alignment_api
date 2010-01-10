@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2009
+ * Copyright (C) INRIA, 2003-2004, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,7 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.net.URI;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.ontowrap.Ontology;
 
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.

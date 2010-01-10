@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.onto.owlapi2;
+package fr.inrialpes.exmo.ontowrap.owlapi2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,9 +29,9 @@ import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.model.OWLOntologyCreationException;
 import org.semanticweb.owl.model.OWLOntologyManager;
 
-import fr.inrialpes.exmo.align.onto.OntologyCache;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
-import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyCache;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 
 public class OWLAPI2OntologyFactory extends OntologyFactory {
 

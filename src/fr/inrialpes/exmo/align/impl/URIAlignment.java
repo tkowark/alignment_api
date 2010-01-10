@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,7 +44,7 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.ontowrap.Ontology;
 
 /**
  * Represents an ontology alignment relating entities identified by their URIs

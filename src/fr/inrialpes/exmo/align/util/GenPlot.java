@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009, INRIA
+ * Copyright (C) 2003-2010, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,8 @@ import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.eval.GraphEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.io.File;
 import java.io.PrintStream;

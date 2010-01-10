@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2006-2009
+ * Copyright (C) INRIA, 2004, 2006-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,7 +24,7 @@ import org.semanticweb.owl.align.Alignment;
 
 import java.util.Properties;
 
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
 /**
  * Represents the implementation of a similarity measure

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2009
+ * Copyright (C) INRIA, 2003-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.onto.jena25;
+package fr.inrialpes.exmo.ontowrap.jena25;
 
 import java.net.URI;
 import java.util.AbstractSet;
@@ -42,8 +42,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
-import fr.inrialpes.exmo.align.onto.BasicOntology;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 

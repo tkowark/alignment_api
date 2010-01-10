@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,7 +29,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
+import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import org.neon_toolkit.registry.api.Oyster2Manager;
 import org.neon_toolkit.registry.api.Oyster2Connection;

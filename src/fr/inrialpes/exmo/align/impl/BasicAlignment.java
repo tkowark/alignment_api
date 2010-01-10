@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2009
+ * Copyright (C) INRIA, 2003-2010
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,8 +43,8 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
-import fr.inrialpes.exmo.align.onto.Ontology;
-import fr.inrialpes.exmo.align.onto.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.Ontology;
+import fr.inrialpes.exmo.ontowrap.BasicOntology;
 
 /**
  * Represents a basic ontology alignment, i.e., a fully functionnal alignment
@@ -94,9 +94,9 @@ public class BasicAlignment implements Alignment {
 
     /**
      * Initialises the Alignment object with two ontologies.
-     * These two ontologies can be either an instance of fr.inrialpes.exmo.align.onto.Ontology
+     * These two ontologies can be either an instance of fr.inrialpes.exmo.ontowrap.Ontology
      *        which will then replaced the one that was there at creation time
-     * or a "concrete" ontology which will be inserted in the fr.inrialpes.exmo.align.onto.Ontology
+     * or a "concrete" ontology which will be inserted in the fr.inrialpes.exmo.ontowrap.Ontology
      * object.
      */
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {

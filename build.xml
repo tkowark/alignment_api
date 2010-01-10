@@ -52,7 +52,7 @@
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
-    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi2/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar procalign.jar"/>
+    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi2/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar"/>
 
   </target>
 
@@ -110,6 +110,16 @@
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <delete file="lib/ontowrap.jar"/>
+    <jar jarfile="lib/ontowrap.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Specification-Title" value="Ontology wrapper"/>
+	<attribute name="Specification-Version" value="${version}"/>
+      </manifest>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/ontowrap/**/*.class"/>
+      <fileset dir="classes" includes="LICENSE.TXT"/>
+    </jar>
     <delete file="lib/procalign.jar"/>
     <jar jarfile="lib/procalign.jar">
       <manifest>
@@ -120,7 +130,6 @@
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/onto/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
@@ -141,24 +150,13 @@
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
-    <!-- anticipate separate onto release -->
-    <!--delete file="lib/alonto.jar"/>
-    <jar jarfile="lib/alonto.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
-        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
-	<attribute name="Implementation-Title" value="Ontology wrapping API"/>
-	<attribute name="Implementation-Version" value="${version}"/> 
-      </manifest>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/onto/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar-->
   </target>
 
   <!-- tested -->
   <target name="cleanjar" depends="init">
     <echo message="Erasing..."/>
     <delete file="lib/align.jar"/>
+    <delete file="lib/ontowrap.jar"/>
     <delete file="lib/alignsvc.jar"/>
     <delete file="lib/procalign.jar"/>
   </target>

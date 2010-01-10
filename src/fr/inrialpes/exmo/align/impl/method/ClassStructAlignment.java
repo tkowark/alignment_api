@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $id: ClassStructAlignment.java 1189 2010-01-03 17:57:13Z euzenat $
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2009
+ * Copyright (C) INRIA, 2003-2004, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,8 +30,8 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
-import fr.inrialpes.exmo.align.onto.HeavyLoadedOntology;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import fr.inrialpes.exmo.ontosim.string.StringDistances;
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008
+ * Copyright (C) INRIA, 2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.align.onto;
+package fr.inrialpes.exmo.ontowrap;
 
 import java.net.URI;
 import java.util.Hashtable;
@@ -45,7 +45,7 @@ public abstract class OntologyFactory {
 
     protected static Hashtable<String,OntologyFactory> instances = null;
 
-    private static String API_NAME="fr.inrialpes.exmo.align.onto.owlapi2.OWLAPI2OntologyFactory";
+    private static String API_NAME="fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory";
 
     public static String getDefaultFactory(){
 	return API_NAME;

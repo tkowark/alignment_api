@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2009, INRIA
+ * Copyright (C) 2003-2010, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,8 @@ import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
-import fr.inrialpes.exmo.align.onto.OntologyFactory;
+
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
