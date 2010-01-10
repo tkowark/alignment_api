@@ -32,12 +32,10 @@ import org.testng.annotations.Test;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -58,6 +56,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 /**
  * These tests corresponds to the README file in the main directory
@@ -70,7 +69,7 @@ public class AlgTest {
 
     @Test(groups = { "full", "impl", "raw" })
     public void initTest() throws Exception {
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	AlignmentProcess alignment1 = new StringDistAlignment();
 	alignment1.init( new URI("file:examples/rdf/onto1.owl"), new URI("file:examples/rdf/onto2.owl"));
 	alignment1.align( (Alignment)null, params );
@@ -99,7 +98,7 @@ public class AlgTest {
     public void fullTest() throws Exception {
    	AlignmentProcess alignment1 = new NameAndPropertyAlignment();
 	alignment1.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
-	alignment1.align( (Alignment)null, new BasicParameters() );
+	alignment1.align( (Alignment)null, new Properties() );
 	align1 = alignment1;
 	assertEquals( align1.nbCells(), 37 );
 	assertEquals( align2.nbCells(), 10 );
@@ -132,7 +131,7 @@ public class AlgTest {
     public void composeTest() throws Exception {
 	AlignmentProcess alignment1 = new NameAndPropertyAlignment();
 	alignment1.init( new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"), new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"));
-	alignment1.align( (Alignment)null, new BasicParameters() );
+	alignment1.align( (Alignment)null, new Properties() );
 	assertEquals( alignment1.nbCells(), 38 );
 	assertEquals( align2.nbCells(), 10 );
 

@@ -33,14 +33,12 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.ontosim.string.StringDistances;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.onto.OntologyCache;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -55,6 +53,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Vector;
+import java.util.Properties;
 
 /**
  * These tests corresponds to the README file in the main directory
@@ -71,9 +70,9 @@ public class MatcherTest {
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
 	*/
-	Parameters params = new BasicParameters();
-	params.setParameter( "stringFunction", "levenshteinDistance");
-	params.setParameter( "noinst", "1");
+	Properties params = new Properties();
+	params.setProperty( "stringFunction", "levenshteinDistance");
+	params.setProperty( "noinst", "1");
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -107,9 +106,9 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
     /* This tests an error when the distance name is incorrect */
     @Test(groups = { "full", "impl", "raw" }, expectedExceptions = AlignmentException.class)
     public void routineTest9() throws Exception {
-	Parameters params = new BasicParameters();
-	params.setParameter( "stringFunction", "teinDistance");
-	params.setParameter( "noinst", "1");
+	Properties params = new Properties();
+	params.setProperty( "stringFunction", "teinDistance");
+	params.setProperty( "noinst", "1");
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
