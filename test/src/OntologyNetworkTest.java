@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -127,9 +128,12 @@ public class OntologyNetworkTest {
     @Test(groups = { "full", "raw" }, dependsOnMethods = {"lambdaTest"})
 	public void weakenTest() throws URISyntaxException, AlignmentException {
 	OntologyNetwork noon = null;
+	noon = OntologyNetworkWeakener.weakenAlignments( noo, 1., true );
+	Set<Alignment> s = noon.getTargetingAlignments(new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"));
+
+
 	noon = OntologyNetworkWeakener.weakenAlignments( noo, .5, true );
 	noon = OntologyNetworkWeakener.weakenAlignments( noo, 0., true );
-	noon = OntologyNetworkWeakener.weakenAlignments( noo, 1., true );
 	noon = OntologyNetworkWeakener.weakenAlignments( noo, 0., false );
 	noon = OntologyNetworkWeakener.weakenAlignments( noo, .5, false );
 	noon = OntologyNetworkWeakener.weakenAlignments( noo, 1., false );
