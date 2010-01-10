@@ -100,6 +100,19 @@ public class OntoTest {
     }
 
     @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"basicTest"})
+    public void basicServiceTest() throws Exception {
+	BasicOntology<String> onto = new BasicOntology<String>();
+	assertNotNull( onto );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/#123" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com#123" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/aaaa#123" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/aaaa/#123" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/aaaa/123" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/aaaa/123/" ) ), "123" );
+	assertEquals( onto.getFragmentAsLabel( new URI("http://example.com/aaaa/123/#" ) ), "" );
+    }
+
+    @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"basicTest"})
     public void loadedTest() throws Exception {
 	// load ontologies
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.align.onto.jena25.JENAOntologyFactory");
