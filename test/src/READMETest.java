@@ -34,14 +34,12 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.util.NullStream;
@@ -54,6 +52,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 /**
  * These tests corresponds to the README file in the main directory
@@ -75,7 +74,7 @@ $ java -jar lib/procalign.jar --help
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl
 	*/
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -89,8 +88,8 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 	/*
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 	*/
-	Parameters params = new BasicParameters();
-	params.setParameter( "stringFunction", "levenshteinDistance");
+	Properties params = new Properties();
+	params.setProperty( "stringFunction", "levenshteinDistance");
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -140,7 +139,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
     /*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl
     */
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -154,8 +153,8 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	/*
 $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -o examples/rdf/bibref.rdf
 	*/
-	Parameters params = new BasicParameters();
-	params.setParameter( "stringFunction", "levenshteinDistance");
+	Properties params = new Properties();
+	params.setProperty( "stringFunction", "levenshteinDistance");
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -235,7 +234,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	aparser1.initAlignment( null );
 	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
 	assertNotNull( align2 );
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	assertNotNull( params );
 	PRecEvaluator eval = new PRecEvaluator( align1, align2 );
 	assertNotNull( eval );
@@ -249,11 +248,11 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	assertEquals( eval.getPrecision(), 0.75 );
+	assertEquals( eval.getPrecision(), 0.7272727272727273 );
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getFallout(), 0.25 );
-	assertEquals( eval.getFmeasure(), 0.8571428571428571 );
-	assertEquals( eval.getOverall(), 0.6666666666666667 );
+	assertEquals( eval.getFallout(), 0.2727272727272727 );
+	assertEquals( eval.getFmeasure(), 0.8421052631578948 );
+	assertEquals( eval.getOverall(), 0.625 );
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
@@ -266,7 +265,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	aparser1.initAlignment( null );
 	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
 	assertNotNull( align2 );
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	assertNotNull( params );
 	SemPRecEvaluator eval = new SemPRecEvaluator( align1, align2 );
 	assertNotNull( eval );
