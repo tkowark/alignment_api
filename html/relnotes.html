@@ -44,10 +44,7 @@ Currently the development and maintainance of 3 versions continue.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Integration of SKOS API (onto)</li>
-<li>Implementation of ROC curve output (eval)</li>
 <li>Implement database store for EDOAL (server)</li>
-<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Integrate some basic reasoning.</li>
 <li>Implementation of a provenance metadata tag (server/impl)</li>
 <li>Online evaluation (server)</li>
@@ -72,8 +69,9 @@ Currently the development and maintainance of 3 versions continue.
 This version under development is planned for anytime soon. It is
 likely to include:
 <ul>
-<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
+<li>Integration of SKOS API (onto)</li>
+<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Addition of advanced tutorial and reengineered tutorials (doc)</li>
 <li>Upgrade all included libraries (distrib)</li>
 <li>Corrected a bug that prevented proper search of <tt>aserv.wsdl</tt> file in all imported jars (server)</li>
@@ -94,11 +92,14 @@ UPGRADE ALL LIBRARIES
 <p>
 <ul compact="1">
 <li>Separated the Alignment API from <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl/ling)</li>
+<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
 <li>Reintegrated <tt>JWNLAlignment</tt> in implementation (procalign)</li>
+<li>Separated <tt>ontowrap</tt> as a dinsting library (onto)</li>
 <li>Migrated to OWL API 2 as the default Ontology implementation (onto)</li>
 <li>Lifted OWL API 2 as <tt>HeavyLoadedOntology</tt> (onto)</li>
 <li>Added cache management to <tt>JENAOntology</tt> (onto)</li>
 <li>Implemented semantic precision and recall (impl).</li>
+<li>Implemented ROC curve computing (eval)</li>
 <li>Completely modified the web service interface so that SOAP and
   REST are fully aligned. This is
   now  <a href="rest.html#version4">documented</a> (serv)</li>
