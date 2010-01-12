@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,7 +33,6 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
@@ -48,7 +47,6 @@ import fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor;
 
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 //import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 //import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 import java.io.ByteArrayOutputStream;
@@ -59,6 +57,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 /**
  * These tests corresponds to the README file in the main directory
@@ -71,8 +70,8 @@ public class RendererTest {
     // Create the Alignement that will be rendered by everyone
     @BeforeClass(groups = { "full", "impl", "raw" })
     private void init() throws Exception {
-	Parameters params = new BasicParameters();
-	params.setParameter( "stringFunction", "levenshteinDistance");
+	Properties params = new Properties();
+	params.setProperty( "stringFunction", "levenshteinDistance");
 	alignment = new StringDistAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -92,8 +91,8 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	assertEquals( stream.toString().length(), 14297, "Rendered differently" );
-	Parameters params = new BasicParameters();
-	params.setParameter( "embedded", "1");
+	Properties params = new Properties();
+	params.setProperty( "embedded", "1");
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -107,8 +106,8 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	assertEquals( stream.toString().length(), 7478, "Rendered differently" );
-	Parameters params = new BasicParameters();
-	params.setParameter( "embedded", "1");
+	Properties params = new Properties();
+	params.setProperty( "embedded", "1");
 	stream = new ByteArrayOutputStream();
 	writer = new PrintWriter (
 			  new BufferedWriter(
@@ -119,7 +118,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	assertEquals( stream.toString().length(), 7423, "Rendered differently" );
-	params.setParameter( "pre2008", "1");
+	params.setProperty( "pre2008", "1");
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
 			  new BufferedWriter(

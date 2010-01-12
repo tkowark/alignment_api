@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,10 +31,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.ling.JWNLAlignment;
 import fr.inrialpes.exmo.ontosim.string.JWNLDistances;
 
@@ -45,6 +43,7 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Vector;
+import java.util.Properties;
 
 /**
  * These tests corresponds to the JWNL test of the README file in the main directory
@@ -68,10 +67,10 @@ public class JWNLTest {
 $ setenv WNDIR ../WordNet-2.0/dict
 $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
     */
-	Parameters params = new BasicParameters();
+	Properties params = new Properties();
 	//System.getenv("WNDIR");
-	//params.setParameter( "wndict", "../WordNet-2.0/dict" );
-	params.setParameter( "wndict", "../WordNet-3.0/dict" );
+	//params.setProperty( "wndict", "../WordNet-2.0/dict" );
+	params.setProperty( "wndict", "../WordNet-3.0/dict" );
 	alignment = new JWNLAlignment();
 	assertNotNull( alignment, "ObjectAlignment should not be null" );
 	assertEquals( alignment.nbCells(), 0 );
@@ -91,7 +90,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	assertEquals( alignment.nbCells(), 38 );
 
 	// Different similarity
-	params.setParameter( "wnfunction", "cosynonymySimilarity" );
+	params.setProperty( "wnfunction", "cosynonymySimilarity" );
 	alignment = new JWNLAlignment();
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
