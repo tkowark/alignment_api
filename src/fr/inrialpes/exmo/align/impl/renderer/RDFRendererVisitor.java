@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2009
+ * Copyright (C) INRIA, 2003-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -29,7 +30,6 @@ import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
@@ -37,8 +37,7 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
-import fr.inrialpes.exmo.align.onto.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
 import org.omwg.mediation.language.export.omwg.OmwgSyntaxFormat;
 import org.omwg.mediation.parser.alignment.NamespaceDefs;
@@ -66,9 +65,9 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	this.writer = writer;
     }
 
-    public void init( Parameters p ) {
-	if ( p.getParameter( "embedded" ) != null 
-	     && !p.getParameter( "embedded" ).equals("") ) embedded = true;
+    public void init( Properties p ) {
+	if ( p.getProperty( "embedded" ) != null 
+	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     }
 
     /*
@@ -93,11 +92,10 @@ public class RDFRendererVisitor implements AlignmentVisitor
 	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
 	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
 	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
-	// Get the keys of the parameter
 	int gen = 0;
-	for ( Object ext : ((BasicParameters)align.getExtensions()).getValues() ){
-	    String prefix = ((String[])ext)[0];
-	    String name = ((String[])ext)[1];
+	for ( String[] ext : align.getExtensions() ) {
+	    String prefix = ext[0];
+	    String name = ext[1];
 	    String tag = (String)nslist.get(prefix);
 	    if ( tag == null ) {
 		tag = "ns"+gen++;
@@ -205,19 +203,18 @@ public class RDFRendererVisitor implements AlignmentVisitor
 		 !cell.getSemantics().equals("first-order") )
 		writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
 	    if ( cell.getExtensions() != null ) {
-		// could certainly be done better
-		for ( Object ext : ((BasicParameters)cell.getExtensions()).getValues() ){
-		    String uri = ((String[])ext)[0];
+		for ( String[] ext : cell.getExtensions() ){
+		    String uri = ext[0];
 		    String tag = (String)nslist.get( uri );
 		    if ( tag == null ){
-			tag = ((String[])ext)[1];
+			tag = ext[1];
 			// That's heavy.
 			// Maybe adding an extra: ns extension in the alignment at parsing time
 			// would help redisplaying it better...
-			writer.print("      <alignapilocalns:"+tag+" xmlns:alignapilocalns=\""+uri+"\">"+((String[])ext)[2]+"</alignapilocalns:"+tag+">\n");
+			writer.print("      <alignapilocalns:"+tag+" xmlns:alignapilocalns=\""+uri+"\">"+ext[2]+"</alignapilocalns:"+tag+">\n");
 		    } else {
-			tag += ":"+((String[])ext)[1];
-			writer.print("      <"+tag+">"+((String[])ext)[2]+"</"+tag+">\n");
+			tag += ":"+ext[1];
+			writer.print("      <"+tag+">"+ext[2]+"</"+tag+">\n");
 		    }
 		}
 	    }
