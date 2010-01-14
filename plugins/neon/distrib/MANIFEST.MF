@@ -21,3 +21,4 @@ Bundle-ClassPath: .,
  lib/mappingparser.jar,
  lib/owlapi-bin.jar,
  lib/ontosim.jar
+Export-Package: fr.inrialpes.exmo.align.plugin.neontk
