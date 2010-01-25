@@ -1,13 +1,13 @@
 <html>
 <head>
-<title>Alignment API: Annotation labels</title>
+<title>Alignment API: Extension labels</title>
 <!--style type="text/css">@import url(style.css);</style-->
 <link rel="stylesheet" type="text/css" href="base.css" />
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body bgcolor="#ffffff">
 
-<center><h1>Alignment API: Declared annotation labels</h1></center>
+<center><h1>Alignment API: Declared extension labels</h1></center>
 
 <p>The Alignment API provides the opportunity for applications to
   attach additional information to the alignments and the
@@ -48,6 +48,8 @@
 <dd>URI identifying the alignment.</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method</dd>
 <dd>CLASSNAME of the generating matching method (or operation).</dd>
+<dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#methodVersion</dd>
+<dd>STRING identifying the method version.</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#relation</dd>
 <dd>URI identifying the classname implementing the relation structure.</dd>
 <dt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#confidence</dd>
@@ -134,7 +136,7 @@ also defines it own sorts of objects that can be annotated.</p>
 <dl>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Mapping</dt>
 <dd>is the OMV type for all mapping objects, can be used as
-  annotation for specifying a subclass of omv:Mapping.</dd>
+  extensions for specifying a subclass of omv:Mapping.</dd>
 
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasParameter</dt>
 <dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#parameters instead</dd>
