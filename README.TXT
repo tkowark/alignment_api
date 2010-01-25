@@ -1,9 +1,9 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      09/07/2009, version 4.0a                       #
+#                      09/07/2010, version 4.0a                       #
 #######################################################################
 
-Copyright (C) 2003-2009 INRIA.
+Copyright (C) 2003-2010 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
