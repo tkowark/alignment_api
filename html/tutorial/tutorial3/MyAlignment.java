@@ -24,7 +24,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess; 
 import org.semanticweb.owl.align.AlignmentException; 
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment; 
+import fr.inrialpes.exmo.align.impl.URIAlignment; 
 
 //import my.domain.MyMatcher; 
 
@@ -32,7 +32,7 @@ import java.lang.Double;
 import java.util.Properties;
 import java.net.URI;
 
-public class MyAlignment extends BasicAlignment implements AlignmentProcess {
+public class MyAlignment extends URIAlignment implements AlignmentProcess {
 
     public MyAlignment() {};
      
@@ -40,8 +40,8 @@ public class MyAlignment extends BasicAlignment implements AlignmentProcess {
 
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 
-	URI url1 = getFile1();
-	URI url2 = getFile2();
+	URI url1 = getOntology1URI();
+	URI url2 = getOntology2URI();
 
 	MyMatcher matcher = new MyMatcher();
 	matcher.match( url1, url2 ); 

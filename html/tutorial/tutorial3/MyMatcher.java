@@ -50,7 +50,7 @@ public class MyMatcher implements Iterable<Object[]> {
 	try {
 	    al.init( u1, u2 );
 	    // Run matcher
-	    al.align( (Alignment)null, (Properties)null );
+	    al.align( (Alignment)null, new Properties() );
 	    // Extract result
 	    for ( Cell c : al ) {
 		Object[] r = new Object[4];
@@ -58,6 +58,7 @@ public class MyMatcher implements Iterable<Object[]> {
 		r[1] = c.getObject2AsURI( al );
 		r[2] = c.getRelation().toString();
 		r[3] = new Double( c.getStrength() );
+		result.add( r );
 	    }
 	} catch (AlignmentException ex) {
 	    ex.printStackTrace();
