@@ -44,7 +44,7 @@ div.logic {
 </dl>
 
 <p style="border-top: 2px solid #AAAAAA; padding-top: 15px;">
-This tutorial explains, step-by-step how to add your own ontology
+This tutorial explains, step-by-step, how to add your own ontology
 matcher, existing or new, to the Alignment API.
 </p>
 <p style="padding-top: 15px;border-top: 2px solid #AAAAAA;">
@@ -57,7 +57,7 @@ Extending the Alignment API with your matcher will enable:
 <li>To output alignments in various formats,</li>
 <li>To be embeded within any program using the Alignment API, and, in
   particular, the Alignment server,</li>
-<li>To manipulate your alignments (trimmed, composed) like any other alignement</li>
+<li>To manipulate your alignments (trimmed, composed) like any other alignment.</li>
 </ul>
 </p>
 <p>
@@ -128,13 +128,13 @@ section and see how it can be achieved.
 <h3>Subclassing BasicAlignment</h3>
 
 <p>
-Adding new matching methods amounts to create a new <tt>AlignmentProcess</tt> class implementing the interface. Generally, this class can extend the proposed <tt>BasicAlignment</tt> class.
+Adding new matching methods amounts to create a new <tt>AlignmentProcess</tt> class implementing the interface. Generally, this class can extend the proposed <tt>URIAlignment</tt> class, which extends the <tt>BasicAlignment</tt> class.
 The <tt>BasicAlignment</tt> class defines the storage structures for ontologies and alignment specification as well as the methods for dealing with alignment display. All methods can be refined (no one is final). The only method it does not implement is <tt>align</tt> itself. 
 </p>
 
 <p>
 So, the first thing to do is to create a subclass
-of <tt>BasicAlignment</tt> implementing <tt>AlignmentProcess</tt>.
+of <tt>URIAlignment</tt> implementing <tt>AlignmentProcess</tt>.
 </p>
 
 <div class="fragment">
@@ -146,11 +146,11 @@ import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 import my.domain.MyMatcher;
 
-public class MyAlignment extends BasicAlignment implements AlignmentProcess
+public class MyAlignment extends URIAlignment implements AlignmentProcess
 {
 
     public MyAlignment() {}
@@ -165,7 +165,7 @@ AlignmentException {
 <h3>Retrieving ontologies</h3>
 
 <p>
-In order to align the ontologies, at least, <tt>MyMatcher</tt> need to
+In order to align the ontologies, at least, <tt>MyMatcher</tt> needs to
 retrieve them. They have been provided to the <tt>Alignment</tt> at
 the moment of its initialisation through the <tt>init()</tt>
 method. The coordinate of these ontologies have been stored in
