@@ -21,6 +21,10 @@ debug=true&amp;level=1.
 <p>
 The result of these requests are provided in XML.
 In the sequel, we describe the various request types.
+They can be obtained by:
+<div class="fragment">
+$ curl -H "Content-Type: text/xml" &lt;URL&gt;
+</div>
 </p>
 <p>
 The <tt>msgid</tt> and <tt>in-reply-to</tt> elements are not
@@ -28,6 +32,7 @@ compulsory and may not be present in messages.
 </p>
 
 <h2>listalignments<a name="listalignments"></a></h2>
+
 <p>Gets the list of the alignments available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listalignments</b> ?</p>
 <p>Parameters: none</p>
