@@ -299,23 +299,18 @@ public class AServProtocolManager {
     public Message existingAlignments( Message mess ){
 	Properties params = mess.getParameters();
 	// find and access o, o'
+	String onto1 = params.getProperty("onto1");
+	String onto2 = params.getProperty("onto2");
 	URI uri1 = null;
 	URI uri2 = null;
 	Set<Alignment> alignments = new HashSet<Alignment>();
 	try {
-	    if( params.getProperty("onto1") == null || ((String)params.getProperty("onto1")).equals("") ) {
+	    if( onto1 != null || !onto1.equals("") ) {
+		uri1 = new URI((String)params.getProperty("onto1"));
+	    } else if ( onto2 != null || !onto2.equals("") ) {
 		uri2 = new URI((String)params.getProperty("onto2"));
-		alignments = alignmentCache.getAlignments( uri2 );
 	    }
-	    else if( params.getProperty("onto2") == null || ((String)params.getProperty("onto2")).equals("") ) {
-		uri1 = new URI((String)params.getProperty("onto1"));
-		alignments = alignmentCache.getAlignments( uri1 );
-	    }
-	    else {
-		uri1 = new URI((String)params.getProperty("onto1"));
-	    	uri2 = new URI((String)params.getProperty("onto2"));
-		alignments = alignmentCache.getAlignments( uri1, uri2 );
-	    }
+	    alignmentCache.getAlignments( uri1, uri2 );
 	} catch (Exception e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Properties)null);
 	}; //done below

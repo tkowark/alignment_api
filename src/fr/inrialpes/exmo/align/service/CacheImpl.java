@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -387,21 +387,34 @@ public class CacheImpl {
 	return ontologyTable.get( uri );
     }
 
+    /**
+     * returns the alignmants between two ontologies
+     * if one of the ontologies is null, then return them all
+     */
     public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
-	// Create the set and compare
-	Set<Alignment> result = new HashSet<Alignment>();
-	Set<Alignment> potentials = ontologyTable.get( uri1 );
-	if ( potentials != null ) {
+	Set<Alignment> result;
+	Set<Alignment> potential = new HashSet<Alignment>();
+
+	// Just does not work properly if there is a uri2 but no result
+	if ( uri2 != null ){
 	    String uri2String = uri2.toString();
-	    String uri1String = uri1.toString();
-	    for(  Alignment al : potentials ) {
-		// This is not the best because URI are not resolved here...
-		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) 
-		     && al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
-		    result.add( al );
- 		}
+	    for(  Alignment al : ontologyTable.get( uri2 ) ) {
+		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
+		    potential.add( al );
+		}
 	    }
-	}
+	} 
+	if ( uri1 != null ) {
+	    if ( potential.isEmpty() ) potential = ontologyTable.get( uri1 );
+	    result = new HashSet<Alignment>();
+	    for(  Alignment al : potential ) {
+		String uri1String = uri1.toString();
+		// This is not the best because URI are not resolved here...
+		if ( al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
+		    result.add( al );
+		}
+	    }
+	} else { result = potential; }
 	return result;
     }
 

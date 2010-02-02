@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -327,9 +327,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    </alignResponse>\n";
 	} else if ( method.equals("findRequest") || method.equals("find") ) { // URI * URI -> List of URI
-	    if ( newparameters.getProperty( "onto1" ) == null ) {
-		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
-	    } else if ( newparameters.getProperty( "onto2" ) == null ) {
+	    if ( newparameters.getProperty( "onto1" ) == null && newparameters.getProperty( "onto2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
 		answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
