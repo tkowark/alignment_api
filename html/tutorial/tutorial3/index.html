@@ -155,8 +155,8 @@ public class MyAlignment extends URIAlignment implements AlignmentProcess
 
     public MyAlignment() {}
 
-    public void align( Alignment alignment, Properties params ) throws
-AlignmentException {
+    public void align( Alignment alignment, Properties params )
+       throws AlignmentException {
       ... // to be replaced by the pieces of code below
     }
 }
@@ -229,9 +229,7 @@ $ javac -classpath .:../../../lib/align.jar:../../../lib/procalign.jar MyAlignme
 </div>
 and can be used in:
 <div class="fragment">
-$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar \\
-  fr.inrialpes.exmo.align.util.Procalign \\
-  -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
+$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar fr.inrialpes.exmo.align.util.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 </p>
 <p> 
@@ -339,8 +337,7 @@ Main-Class: fr/inrialpes/exmo/align/util/Procalign
 
 The jar may then be launched by:
 <div class="fragment">
-$ java -jar lib/mymatcher.jar file://$CWD/rdf/onto1.owl  file://$CWD/rdf/onto2.owl 
-       -i my.domain.MyAlignment
+$ java -jar lib/mymatcher.jar file://$CWD/rdf/onto1.owl  file://$CWD/rdf/onto2.owl -i my.domain.MyAlignment
 </div>
 
 <h3>Preparing the class for the Alignment server</h3>
