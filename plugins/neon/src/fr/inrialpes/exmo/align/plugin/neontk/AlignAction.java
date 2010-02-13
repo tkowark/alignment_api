@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -68,7 +68,7 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 		//          window.getShell(),
 		//          "Alignment Plug-in, Version 1.0.1",
 		//          "Hello, UPDATED Eclipse world");
-		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
+		IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
 		
 		try{
 		window.getActivePage().showView(AlignView.ID);
@@ -103,7 +103,7 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void init(IWorkbenchWindow window) {
 		this.window = window;
-		IViewPart view = (IViewPart)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
+		IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
 		try{
 		window.getActivePage().showView(AlignView.ID);
 		}
