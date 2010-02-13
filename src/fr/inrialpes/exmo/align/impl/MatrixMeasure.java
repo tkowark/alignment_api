@@ -84,7 +84,7 @@ public abstract class MatrixMeasure implements Similarity {
 		throw new AlignmentException(""); 
 	    };
 	    // Beware, I consider that confidence is similarity
-	    for ( Cell c : align ){
+	    for ( Cell c : oalign ){
 		Object o1 = c.getObject1();
 		if ( onto1.isClass( o1 ) ) {
 		    Integer i1 = classlist1.get( o1 );
