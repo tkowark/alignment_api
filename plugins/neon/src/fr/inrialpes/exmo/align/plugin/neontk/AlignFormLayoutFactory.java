@@ -36,7 +36,7 @@ public class AlignFormLayoutFactory {
   public static final int FORM_BODY_MARGIN_BOTTOM = 12;
   public static final int FORM_BODY_MARGIN_LEFT = 6;
   public static final int FORM_BODY_MARGIN_RIGHT = 6;
-  public static final int FORM_BODY_HORIZONTAL_SPACING = 8;
+    public static final int FORM_BODY_HORIZONTAL_SPACING = 8;
   public static final int FORM_BODY_VERTICAL_SPACING = 5;
   public static final int FORM_BODY_MARGIN_HEIGHT = 0;
   public static final int FORM_BODY_MARGIN_WIDTH = 0;

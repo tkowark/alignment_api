@@ -23,14 +23,13 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="piversion" value="1"/>
+    <property name="piversion" value="4"/>
+    <property name="ntkvers" value="2.3.0"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
     <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
     <property name="libdir"  value="lib" />
     <property name="debug" value="off"/>
-    <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
-    <!-- This should now be handled by GForge -->
     <property name="FTPDir" value="/Web/html/ftpexmo/software/ontoalign"/>
 
     <property name="classpath"  value="classes"/>
@@ -45,6 +44,7 @@
       <fileset dir="../../lib">
 	<include name="align.jar"/>
 	<include name="procalign.jar"/>
+	<include name="ontowrap.jar"/>
       </fileset>
     </path>
     
@@ -58,6 +58,14 @@
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
+  </target>
+
+  <!-- tested -->
+  <target name="lint" depends="init">
+    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, finally -->
+    <echo message="Setting property..."/>
+    <property name="javacargs" value="-Xlint:all" />
+    <antcall target="compileall"/>
   </target>
 
   <!-- tested -->
@@ -76,31 +84,26 @@
     <copy todir="neonalign/icons" filtering="false">
       <fileset dir="distrib" includes="*.gif"/>
     </copy>
+    <copy todir="neonalign/html">
+      <fileset dir="html">
+	<include name="**/*.html"/>
+	<include name="**/*.png"/>
+	<include name="toc.xml"/>
+      </fileset>
+    </copy>
     <copy todir="neonalign/lib">
       <fileset dir="../../lib">
 	<include name="align.jar"/>
 	<include name="procalign.jar"/>
-	<!-- This should not be necessary because in the toolkit -->
-	<include name="owlapi2/owlapi-bin.jar"/>
-	<include name="log4j/commons-logging.jar"/>
-	<include name="icu4j_3_4.jar"/>
-	<include name="iiop.jar"/>
-	<include name="impl.jar"/>
-	<include name="io.jar"/>
-	<!-- I think they should be here -->
-	<!--include name="iri.jar"/-->
-	<!--include name="jena.jar"/-->
-	<include name="jwnl/jwnl.jar"/>
-	<include name="ontosim/ontosim.jar"/>
-	<include name="log4j/log4j.jar"/>
-	<include name="rdfapi.jar"/>
-	<include name="rdfparser.jar"/>
-	<include name="werces/xercesImpl.jar"/>
+	<include name="ontowrap.jar"/>
       </fileset>
+      <fileset dir="../../lib/ontosim" includes="ontosim.jar"/>
+      <fileset dir="../../lib/jwnl" includes="jwnl.jar"/>
     </copy>
-    <!-- could be useful to take version # into account -->
     <delete file="neonalign.jar"/>
-    <jar jarfile="neonalign.jar" manifest="distrib/MANIFEST.MF">
+    <jar jarfile="fr.inrialpes.exmo.align.plugin.neontk_${ntkvers}-${piversion}.jar"
+    manifest="distrib/MANIFEST.MF">
+      <!-- Ant-based manifest does not seems to work with the NeOn toolkit -->
       <fileset dir="neonalign" includes="**/*.*"/>
     </jar>
     <antcall target="cleanup"/>

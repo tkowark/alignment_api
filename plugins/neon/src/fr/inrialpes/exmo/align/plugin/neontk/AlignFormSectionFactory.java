@@ -56,28 +56,27 @@ public class AlignFormSectionFactory {
     return client;
   }
   
-  public static Composite createHtmlSection( 	final FormToolkit toolkit, 
-          											final Composite parent, 
-          											final String sectionTitle) {
-	  Section section;
-	     
-	  section = toolkit.createSection( parent, 
-	                                       ExpandableComposite.TITLE_BAR | 
-	                                       Section.DESCRIPTION | 
-	                                       ExpandableComposite.TWISTIE | 
-	                                       SWT.WRAP );
-	  section.setText(sectionTitle);
-	  TableWrapData td = new TableWrapData();
-	  td.grabHorizontal = true;
-	  td.heightHint = 400; //added
-	  section.setLayoutData(td);
-	  
-	  Composite client = toolkit.createComposite( section );
+    public static Composite createHtmlSection( 	final FormToolkit toolkit, 
+						final Composite parent, 
+						final String sectionTitle) {
+	Section section = toolkit.createSection( parent, 
+						 ExpandableComposite.TITLE_BAR | 
+						 Section.DESCRIPTION | 
+						 ExpandableComposite.TWISTIE | 
+						 SWT.WRAP );
+	section.setText(sectionTitle);
+	TableWrapData td = new TableWrapData();
+	td.grabHorizontal = true;
+	td.heightHint = 400; //added
+	section.setLayoutData(td);
+	section.setExpanded( false ); 
+	
+	Composite client = toolkit.createComposite( section );
 	   
-	  section.setClient( client );
-	  return client;
-	  
+	section.setClient( client );
+	return client;
   }
+
   public static Composite createExpandableSection(  final FormToolkit toolkit, 
                                                     final Composite parent, 
                                                     final String sectionTitle, 

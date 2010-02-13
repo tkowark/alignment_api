@@ -18,7 +18,7 @@ Eclipse-AutoStart: true
 Bundle-ClassPath: .,
  lib/procalign.jar,
  lib/align.jar,
- lib/mappingparser.jar,
- lib/owlapi-bin.jar,
- lib/ontosim.jar
+ lib/ontowrap.jar,
+ lib/ontosim.jar,
+ lib/jwnl.jar
 Export-Package: fr.inrialpes.exmo.align.plugin.neontk
