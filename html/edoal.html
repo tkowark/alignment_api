@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Expressive alignment language</title>
+<title>EDOAL: Expressive and Declarative Ontology Alignment Language</title>
 <!--style type="text/css">@import url(style.css);</style-->
 <link rel="stylesheet" type="text/css" href="base.css" />
 <link rel="stylesheet" type="text/css" href="style.css" />
@@ -11,9 +11,20 @@
 [<a href="./">API</a>]
 [<a href="aserv.html">Server</a>]
 
-<h1 class="titre">Expressive alignment language</h1>
+<h1 class="titre">EDOAL: Expressive and Declarative Ontology Alignment Language</h1>
 
-<p>This page presents the expressive ontology alignment vocabulary. This vocabulary allows the representation of correspondences between the entities of different ontologies. Unlike other formats, the alignment vocabulary allows to represent complex correspondences allowing to precisely describe the relation between the entities. The alignment vocabulary extends the <a href="format.html">alignment format</a>.</p>
+<p style="background-color: yellow;">
+  This page is under heavy revision for the implementation of the
+  version 4.0 of the Alignment API.
+</p>
+<p>
+This page presents the support for expressive and declarative ontology alignment
+language built-in the Alignment API. This vocabulary allows the representation of
+correspondences between the entities of different ontologies. Unlike
+other formats, the alignment vocabulary allows to represent complex
+correspondences allowing to precisely describe the relation between
+the entities. The alignment vocabulary extends
+the <a href="format.html">alignment format</a>.</p> 
 
 <dl>
  <dt><a href="#sec:purpose">Purpose</a></dt>
@@ -45,18 +56,34 @@ The alignment vocabulary has the following features:
 
 <h2 id="sec:vocabulary">Vocabulary</h2>
 
+<p>
 In the alignment format, an alignment is a set of cells, each cell being a correspondence between two entities. The alignment vocabulary extend this scheme by allowing cells to contain compound entity descriptions. Each entity can be typed according to one of the following category: Class, Instance, Relation, Property. A relation corresponds to an object property in OWL, a property to a datatype property. Each entity can then be restricted, and transformation can be specified on propery values. 
+</p>
+<p>
+The diagram below shows the vocabulary classes ???
 
-The diagram below shows the vocabulary classes. 
+<img src="img/alignment-vocabulary-classes.png" border="0" alt="">
+</p>
 
-<img src="alignment-vocabulary-classes.png" border="0" alt="">
-
-<p>While <i>Alignment</i> and <i>Cell</i> are described by the alignment format, we will focus here on the remaining classes.</p>
+<p>
+While <i>Alignment</i> and <i>Cell</i> are described by the alignment format, we will focus here on the remaining classes.</p>
 
 <h3 id="ssec:headers">Headers</h3>
+
 <h4 id="ssec:namespaces">Namespaces</h4>
-<p>The alignment vocabulary namespace for the vocabulary is the following: <i>align:</i>&lt;http://purl.org/net/oa><br />
-Comparators are taken from the W3C XPath functions recommendation: <i>function:</i> &lt;http://www.w3.org/2005/xpath-functions></p>
+<p>
+The namespace for the Alignment format is
+still <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#</tt>
+(usual prefix: align).
+</p>
+<p>
+EDOAL's own namespace is <tt>http://ns.inria.org/edoal/</tt> (usual
+prefix: edoal).
+</p>
+<p>
+Comparators are taken from the W3C XPath functions
+recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt>
+(usual prefix: functions).</p>
 
 <h4 id="ssec:alignment">Alignment</h4>
 <p>As specified by the alignment format, an alignment contains a set of correspondences (cells). Each cell can be linked to an alignment using the <i>map</i> property. The alignment moreover specifies the two aligned ontologies, and as exemplified in the code below.</p>
