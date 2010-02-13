@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -240,7 +240,7 @@ public class OnlineAlign {
 		nl = (NodeList)(XPATH.evaluate("/Envelope/Body/" + tag, dom, XPathConstants.NODESET));
 		result = new String[nl.getLength()];
 		for (int i=0; i< nl.getLength(); i++) {
-		    Node method = (Node)nl.item(i);
+		    Node method = nl.item(i);
 		    String nm = method.getFirstChild().getNodeValue();
 		    if(nm!=null) result[i] = nm; 
 		}
