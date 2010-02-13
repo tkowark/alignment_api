@@ -60,13 +60,13 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
     public Similarity getSimilarity() { return sim; }
 
     public void addAlignDistanceCell( Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
-	addAlignCell( ob1, ob2, relation, 1-measure );
+	addAlignCell( ob1, ob2, relation, 1.-measure );
     }
     public double getAlignedDistance1( Object ob ) throws AlignmentException {
-	return (1 - getAlignedStrength1(ob));
+	return (1. - getAlignedStrength1(ob));
     };
     public double getAlignedDistance2( Object ob ) throws AlignmentException {
-	return (1 - getAlignedStrength2(ob));
+	return (1. - getAlignedStrength2(ob));
     };
 
     /**
