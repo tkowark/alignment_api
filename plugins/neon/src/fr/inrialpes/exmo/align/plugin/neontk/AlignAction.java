@@ -18,23 +18,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-
 package fr.inrialpes.exmo.align.plugin.neontk;
 
 import org.eclipse.jface.action.IAction;
-//import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
  
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
-//import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.IViewPart;
  
-
- 
-
 /**
  * Our sample action implements workbench action delegate.
  * The action proxy will be created by the workbench and
@@ -45,8 +39,6 @@ import org.eclipse.ui.IViewPart;
  */
 public class AlignAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
-	//private Shell shell;
-	//private Browser browser;
 	private IViewPart view;
 	
 	/**
@@ -54,7 +46,6 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public AlignAction() {
 		 
-	 
 	}
 
 	/**
@@ -64,10 +55,6 @@ public class AlignAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		//MessageDialog.openInformation(
-		//          window.getShell(),
-		//          "Alignment Plug-in, Version 1.0.1",
-		//          "Hello, UPDATED Eclipse world");
 		IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(AlignView.ID);
 		
 		try{
