@@ -71,3 +71,7 @@ $ java -cp .:../../lib/getopt/getopt.jar AlignmentClient -S http://aserv.inrialp
 FOR TESTING
 
 $ java -cp .:../../lib/getopt/getopt.jar AlignmentClient list methods  -S http://aserv.inrialpes.fr -r -d 4
+
+or
+
+$ curl -H "Content-Type: text/xml" 'http://aserv.inrialpes.fr/rest/listalignments?'
