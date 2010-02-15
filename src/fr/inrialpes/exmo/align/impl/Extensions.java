@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,6 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
-// import java classes
 import java.util.Hashtable;
 import java.util.Collection;
 import java.util.Set;
@@ -51,7 +50,7 @@ public class Extensions {
     }
 
     public void unsetExtension( String ns, String label ){
-	table.put( ns+label, (String[])null );
+	table.remove( ns+label );
     }
 
     public String getExtension( String ns, String label ){
