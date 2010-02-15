@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008
+ * Copyright (C) INRIA, 2003-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,8 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
+import org.semanticweb.owl.align.AlignmentProcess;
+
 /**
  * This class aligns ontology with regard to the editing distance between 
  * class names.
@@ -29,12 +31,11 @@ package fr.inrialpes.exmo.align.impl.method;
  * @version $Id$ 
  */
 
-public class SMOANameAlignment extends StringDistAlignment {
+public class SMOANameAlignment extends StringDistAlignment implements AlignmentProcess {
 
     /** Creation **/
     public SMOANameAlignment(){
 	methodName = "smoaDistance";
     };
-
 }
 
