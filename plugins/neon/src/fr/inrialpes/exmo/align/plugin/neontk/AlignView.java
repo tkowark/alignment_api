@@ -25,6 +25,7 @@ import org.eclipse.swt.SWT;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.io.PrintStream;// for debug
 import java.io.StringWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -205,6 +206,7 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
 	onlineButton.setSize(buttonWidth, buttonHeight);
 	onlineButton.addSelectionListener(this);
 	// JE-RR for current version of the Alignment plug in
+	//onlineButton.setEnabled( true );
 	onlineButton.setEnabled( false );
 			
 	offlineButton = new Button(client, SWT.PUSH);
@@ -996,29 +998,28 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 			
 	//StringTokenizer tk = new StringTokenizer(classPath,File.pathSeparator);
 	StringTokenizer tk = new StringTokenizer(classPath, "," );
-	//System.out.println("classPath for Impl.="+ classPath );
+	//System.err.println("classPath for Impl.="+ classPath );
 			
 	classPath = "";
 	while ( tk != null && tk.hasMoreTokens() ) {
 	    StringTokenizer tk2 = tk;
 	    tk = null;
-	    //System.out.println( "path" + tk2.toString());
+	    //System.err.println( "path" + tk2.toString());
 	    // Iterate on Classpath
 	    while ( tk2.hasMoreTokens() ) {
 		try {
-					
 		    URI nn = new URI( tk2.nextToken() );
-		    //System.out.println("token="+ nn);
+		    //System.err.println("token="+ nn);
 		    File file = new File( nn );
 		    if ( file.isDirectory() ) {
-			//System.out.println("DIR "+file);
+			//System.err.println("DIR "+file);
 			String subs[] = file.list();
 			for(int index = 0 ; index < subs.length ; index ++ ){
-			    //System.out.println("subs=    "+subs[index]);
+			    //System.err.println("subs=    "+subs[index]);
 			    // IF class
 			    if ( subs[index].endsWith(".class") ) {
 				String classname = subs[index].substring(0,subs[index].length()-6);
-				//System.out.println("classname=    "+classname);
+				//System.err.println("classname=    "+classname);
 				if (classname.startsWith(File.separator)) 
 				    classname = classname.substring(1);
 				classname = classname.replace(File.separatorChar,'.');
@@ -1053,7 +1054,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 			try { 
 			    JarFile jar = new JarFile( file );
 			    Enumeration enumeration = jar.entries();
-			    while( enumeration.hasMoreElements() ) {
+			    while( enumeration != null && enumeration.hasMoreElements() ) {
 				JarEntry je = (JarEntry)enumeration.nextElement();
 				String classname = je.toString();
 						 
@@ -1066,7 +1067,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 				    //classname = classname.replaceAll(File.separator,".");
 				    classname = classname.replaceAll("/",".");
 						    
-				    //System.out.println("classname in jar =    "+classname);
+				    //System.err.println("classname in jar =    "+classname);
 						    
 				    try {
 					if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
@@ -1088,13 +1089,14 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 				    }
 				} else if( classname.endsWith(".jar") ) {
 				    //If jarEntry is a jarfile
-				    //System.out.println(  "jarEntry is a jarfile="+je.getName() );
+				    //System.err.println(  "jarEntry is a jarfile="+je.getName() );
 				    InputStream jarSt = jar.getInputStream( (ZipEntry)je );
-							
-				    File f = new File("tmpFileXXX"+ count++);
+				    // JE2010: START OF CRITICAL SECTION
+				    //File f = new File("tmpFileXXX"+ count++);
+				    File f = File.createTempFile( "tmpFileXXX"+count++, "jar" );
 							
 				    try {			
-					OutputStream out=new FileOutputStream( f );
+					OutputStream out = new FileOutputStream( f );
 					byte buf[]=new byte[1024];
 					int len1 ;
 					while( (len1 = jarSt.read(buf))>0 )
@@ -1122,7 +1124,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 					    //classname = classname.replaceAll(File.separator,".");
 					    classname2 = classname2.replaceAll("/",".");
 							    
-					    //System.out.println("classname in jar in jar =    "+classname2);
+					    //System.err.println("classname in jar in jar =    "+classname2);
 							    
 					    try {
 						if ( classname2.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
@@ -1130,7 +1132,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 						Class[] ints = cl.getInterfaces();
 						for ( int i=0; i < ints.length ; i++ ){
 						    if ( ints[i] == tosubclass ) {
-							//System.out.println(classname2 + " added");
+							//System.err.println(classname2 + " added");
 							list.add( classname2 );
 						    }
 						}
@@ -1144,6 +1146,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 					}
 				    }//while
 				    f.delete();
+				    // JE2010: END OF CRITICAL SECTION
 				} // else If endWith .jar
 					    
 					    
@@ -1193,12 +1196,16 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	    implementations( toclass, list, cp, false );
 	} catch (ClassNotFoundException ex) {
 	    System.err.println("Class "+interfaceName+" not found!");
+	    //System.err.flush();
+	    //System.err.close();
 	}
 			 
 	return list;
     }
 		 	
     // JE: Most of this should only be called once: at the beginning
+    // And this should be pushed within OfflineAlign
+    // (with the same interface as for the Online version)
     void offlineInit( boolean init ) {
 	online = false;
 	//methods.removeAll();
@@ -1214,23 +1221,27 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	String classpath = dic.get("Bundle-ClassPath").toString();
 	//System.out.println("classpath="+  classpath);
 	
-	URL url = FileLocator.find(AlignmentPlugin.getDefault().getBundle(), new Path(""), null);
+	URL url = FileLocator.find( AlignmentPlugin.getDefault().getBundle(), new Path(""), null );
 	try {
 	    url = FileLocator.resolve(url);
-	}catch (IOException ioe){ }
+	}catch (IOException ioe){
+	    ioe.printStackTrace();
+	}
 	
-	//System.out.println("url ="+  url.toString() );
+	//try {
+	    //System.setErr( new PrintStream( new File( alignFolder.getAbsolutePath() + File.separator + "debug.txt") ) );
+	    //System.err.println( "AlignmentPlugin bundle??? : "+AlignmentPlugin.getDefault().getBundle() );
+	//System.err.println("url ="+  url.toString() );
 	
 	if( ! url.toString().startsWith("jar") ) {
 	    
 	    String[] files = classpath.split(",");
 	    classpath = "";
 	    for(int k=0; k < files.length; k++) {
-		//System.out.println("files="+  files[k]);
+		//System.err.println("files="+  files[k]);
 		classpath += url.toString()+files[k]+",";
 	    }
-	    //System.out.println("classpath2="+  classpath);
-	    
+	    System.err.println("classpath2="+  classpath);
 	    ms = implementations( "org.semanticweb.owl.align.AlignmentProcess", classpath );
 	    ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
 	    ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
@@ -1243,7 +1254,9 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	    ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
 	    ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
 	}
-	//System.out.println("ms="+ms.size());
+	System.err.println("ms="+ms.size());
+	//System.err.flush();
+	//System.err.close();
 	methodList = new String[ms.size()];
 	int j=0;
 	for( String m : ms ) methodList[j++] = m;
@@ -1262,6 +1275,11 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	methods.setEnabled(true);
 	methods.select(0);
 	methods.redraw();
+	//	}catch (IOException ioe){
+	//	    ioe.printStackTrace();
+	//System.err.flush();
+	//System.err.close();
+	//	}
 			
 	//System.out.println( "alignFolder=" + alignFolder );
 			
