@@ -70,12 +70,16 @@ public class CacheImpl {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    final int VERSION = 340; // Version of the API to be stored in the database
+    final int VERSION = 400; // Version of the API to be stored in the database
     /* 300: initial database format
        301: added alignment id as primary key
        302: changed cached/stored/ouri tag forms
        310: changed extension table with added URIs and method -> val 
        340: changed size of relation in cell table (5 -> 25)
+       400: changed size of relation in cell table (5 -> 255 because of URIs)
+            changed all URI size to 255
+	    changed level size to 25
+            added cell_id as keys?
      */
 
     DBService service = null;
@@ -203,7 +207,7 @@ public class CacheImpl {
      * onto1 is the Ontology object
      * uri1 is the URI object from which loading the ontologies
      * In the database we store:
-     * owlontology1 the URI string of the ontology
+     * ontology1 the URI string of the ontology
      * file1 the URI string from which loading the ontologies
      * uri1 which should be the same as the last one...
      * Since alignments are indexed by the URI of the ontologies, we use
@@ -226,10 +230,10 @@ public class CacheImpl {
 		// Either uri1 or file1
 		result.setFile1( new URI( rs.getString("file1") ) ); 
 		result.setFile2( new URI( rs.getString("file2") ) );
-		result.getOntologyObject1().setURI( new URI(rs.getString("owlontology1"))  );
-		result.getOntologyObject2().setURI( new URI(rs.getString("owlontology2"))  );
-		result.setExtension( SVCNS, OURI1, rs.getString("owlontology1") );
-		result.setExtension( SVCNS, OURI2, rs.getString("owlontology2") );
+		result.getOntologyObject1().setURI( new URI(rs.getString("ontology1"))  );
+		result.getOntologyObject2().setURI( new URI(rs.getString("ontology2"))  );
+		result.setExtension( SVCNS, OURI1, rs.getString("ontology1") );
+		result.setExtension( SVCNS, OURI2, rs.getString("ontology2") );
 		result.setLevel(rs.getString("level"));
 		result.setType(rs.getString("type"));	
 	    }
@@ -388,27 +392,33 @@ public class CacheImpl {
     }
 
     /**
-     * returns the alignmants between two ontologies
+     * returns the alignments between two ontologies
      * if one of the ontologies is null, then return them all
      */
     public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
 	Set<Alignment> result;
 	Set<Alignment> potential = new HashSet<Alignment>();
-
-	// Just does not work properly if there is a uri2 but no result
 	if ( uri2 != null ){
 	    String uri2String = uri2.toString();
-	    for(  Alignment al : ontologyTable.get( uri2 ) ) {
-		if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
-		    potential.add( al );
+	    Set<Alignment> found = ontologyTable.get( uri2 );
+	    if ( found != null ) {
+		for( Alignment al : found ) {
+		    if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
+			potential.add( al );
+		    }
 		}
 	    }
 	} 
 	if ( uri1 != null ) {
-	    if ( potential.isEmpty() ) potential = ontologyTable.get( uri1 );
+	    if ( potential.isEmpty() ) {
+		Set<Alignment> found = ontologyTable.get( uri1 );
+		if ( found != null ) {
+		    potential = found;
+		} else return potential;
+	    }
 	    result = new HashSet<Alignment>();
+	    String uri1String = uri1.toString();
 	    for(  Alignment al : potential ) {
-		String uri1String = uri1.toString();
 		// This is not the best because URI are not resolved here...
 		if ( al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
 		    result.add( al );
@@ -526,11 +536,11 @@ public class CacheImpl {
 	Alignment alignment = getAlignment( id );
 	if ( alignment != null ) {
 	    Statement st = createStatement();
-	    String query = "DELETE FROM extension WHERE id=''";
+	    String query = "DELETE FROM extension WHERE id='"+id+"'";
 	    st.executeUpdate(query);
-	    query = "DELETE FROM alignment WHERE id=''";
+	    query = "DELETE FROM alignment WHERE id='"+id+"'";
 	    st.executeUpdate(query);
-	    query = "DELETE FROM cell WHERE id=''";
+	    query = "DELETE FROM cell WHERE id='"+id+"'";
 	    st.executeUpdate(query);
 	    alignment.setExtension( SVCNS, STORED, (String)null);
 	    st.close();
@@ -569,7 +579,7 @@ public class CacheImpl {
 	    	String level = alignment.getLevel();
 			
 	    	query = "INSERT INTO alignment " + 
-		    "(id, owlontology1, owlontology2, type, level, file1, file2, uri1, uri2) " +
+		    "(id, ontology1, ontology2, type, level, file1, file2, uri1, uri2) " +
 		    "VALUES ('" + quote(id) + "','" +  quote(s_O1) + "','" + quote(s_O2) + "','" + quote(type) + "','" + quote(level) + "','" + quote(s_File1) + "','" + quote(s_File2) + "','" + quote(s_uri1) + "','" + quote(s_uri2) + "')";
 	    	st.executeUpdate(query);
 	    	for ( String[] ext : alignment.getExtensions() ) {
@@ -668,26 +678,26 @@ public class CacheImpl {
       
       create table alignment (
       id varchar(100), 
-      owlontology1 varchar(250),
-      owlontology2 varchar(250),
+      ontology1 varchar(255),
+      ontology2 varchar(255),
       type varchar(5),
-      level varchar(1),
-      file1 varchar(250),
-      file2 varchar(250),
-      uri1 varchar(250),
-      uri2 varchar(250),
+      level varchar(25),
+      file1 varchar(255),
+      file2 varchar(255),
+      uri1 varchar(255),
+      uri2 varchar(255),
       primary key (id));
 
       # cell info
 
       create table cell(
       id varchar(100),
-      cell_id varchar(250),
-      uri1 varchar(250),
-      uri2 varchar(250),
+      cell_id varchar(255),
+      uri1 varchar(255),
+      uri2 varchar(255),
       semantics varchar(30),
       measure varchar(20),
-      relation varchar(5));
+      relation varchar(255));
 
       # extension info
       
@@ -702,8 +712,8 @@ public class CacheImpl {
     public void initDatabase() throws SQLException {
 	Statement st = createStatement();
 	// Create tables
-	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), owlontology1 VARCHAR(250), owlontology2 VARCHAR(250), type VARCHAR(5), level VARCHAR(1), file1 VARCHAR(250), file2 VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), primary key (id))");
-	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(250), uri1 VARCHAR(250), uri2 VARCHAR(250), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(10))");
+	st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), ontology1 VARCHAR(255), ontology2 VARCHAR(255), type VARCHAR(5), level VARCHAR(25), file1 VARCHAR(255), file2 VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), primary key (id))");
+	st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255))");
 	st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), edit BOOLEAN, version VARCHAR(5))");
 	st.close();
@@ -787,9 +797,19 @@ public class CacheImpl {
 			}
 		    }
 		}
-		if ( version < 340 ) {
+		// Nothing to do with 340: subsumed by 400
+		if ( version < 400 ) {
 		    // Change database
-		    st.executeUpdate("ALTER TABLE cell CHANGE relation relation VARCHAR(25)");
+		    st.executeUpdate("ALTER TABLE cell CHANGE relation relation VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE cell CHANGE uri1 uri1 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE cell CHANGE uri2 uri2 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE level level VARCHAR(25)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE uri1 uri1 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE uri2 uri2 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE file1 file1 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE file2 file2 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology1 ontology1 VARCHAR(255)");
+		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology2 ontology2 VARCHAR(255)");
 		}
 		// Change version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"' WHERE port='port'");
