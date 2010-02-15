@@ -33,8 +33,10 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
-import fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2Ontology;
-import fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntology;
+import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntologyFactory;
+import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology;
+import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
 
@@ -66,14 +68,14 @@ public class OntoTest {
     @Test(groups = { "full", "onto", "raw" })
     public void factoryTest() throws Exception {
 	assertNotNull( OntologyFactory.getDefaultFactory() );
-	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory") );
+	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory") );
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory");
 	assertTrue( OntologyFactory.getDefaultFactory().equals("fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory") );
 	factory = OntologyFactory.getFactory();
 	assertTrue( factory instanceof JENAOntologyFactory );
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
 	factory = OntologyFactory.getFactory();
-	assert( factory instanceof OWLAPI2OntologyFactory );
+	assert( factory instanceof OWLAPI3OntologyFactory );
 	assertEquals( factory, OntologyFactory.getFactory() );
     }
 
@@ -122,7 +124,7 @@ public class OntoTest {
 	assertTrue( ontology instanceof JENAOntology );
 	LoadedOntology onto = (LoadedOntology)ontology;
 	// Doing this now prevent from having problems in case of errors
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
 	assertEquals( onto.nbEntities(), 42 );
 	assertEquals( onto.nbClasses(), 13 );
 	assertEquals( onto.nbProperties(), 29 );
@@ -165,11 +167,11 @@ public class OntoTest {
     @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"loadedTest"})
     public void heavyLoadedTest() throws Exception {
 	// load ontologies
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
 	URI u = new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl");
 	ontology = OntologyFactory.getFactory().loadOntology(u);
 	assertNotNull( ontology );
-	assertTrue( ontology instanceof OWLAPI2Ontology );
+	assertTrue( ontology instanceof OWLAPI3Ontology );
 	HeavyLoadedOntology onto = (HeavyLoadedOntology)ontology;
 	// Special tests
 	assertTrue( onto.getCapabilities( OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ) );
@@ -242,7 +244,7 @@ public class OntoTest {
 
     @AfterClass(groups = { "onto", "raw", "full" }, alwaysRun = true )
     public void tearDown() throws Exception {
-	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi2.OWLAPI2OntologyFactory");
+	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
     }
 
 }
