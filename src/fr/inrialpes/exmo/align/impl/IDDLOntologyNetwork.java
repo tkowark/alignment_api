@@ -85,7 +85,9 @@ public class IDDLOntologyNetwork extends BasicOntologyNetwork implements LogicOn
     }; 
     public boolean isEntailed( Alignment al ){
 	init();
-	return reasoner.isEntailed( al );
+	// Bug in OWL API 3
+	//return reasoner.isEntailed( al );
+	return true;
     };
 
 }
