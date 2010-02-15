@@ -10,7 +10,7 @@
     </fileset>
   </path>
     
-  <taskdef name="testng" classpath="lib/testng/testng.jar" classname="org.testng.TestNGAntTask" />
+  <taskdef name="testng" classpath="tools/testng/testng.jar" classname="org.testng.TestNGAntTask" />
 
   <!-- tested -->
   <target name="usage" depends="init">
@@ -27,12 +27,48 @@
       zip: creates a new zip file
       javadoc: generates documentation
       release: releases a new version
+      cover: check test coverage
+      analyse: perform static analysis
       svnbranch: copy the version under svn
       clean: clean-up before release
 
 	-Dversion=${version}
     </echo>
   </target>
+
+  <!--target name="analyse" depends="jar">
+    // Use Checkstyle
+    <taskdef resource="checkstyletask.properties"
+             classpath="tools/checkstyle/checkstyle-all-5.0.jar"/>
+    // I must have a checks.xml
+    <checkstyle config="docs/sun_checks.xml">
+      <fileset dir="src" includes="**/*.java"/>
+      // let see if we can put a css
+      <formatter type="xml" toFile="test/html/checkstyle.xml"/>
+    </checkstyle>
+    // Use FindBugs
+    <taskdef name="findbugs" classpath="tools/findbugs/findbugs-ant.jar" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <findbugs home="test/html/"
+	      output="xml"
+	      outputFile="bcel-fb.xml" >
+      //<auxClasspath path="${basedir}/lib/Regex.jar" />
+      <sourcePath path="src" />
+      <class location="lib/align.jar" />
+    </findbugs>
+    // Use PMD
+    <taskdef name="pmd" classpath="tools/pmd/pmd-ant.jar" classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <pmd shortFilenames="true">
+      <ruleset>rulesets/favorites.xml</ruleset>
+      <ruleset>basic</ruleset>
+      <formatter type="html" toFile="pmd_report.html" linkPrefix="http://pmd.sourceforge.net/xref/"/>
+      <fileset dir="/usr/local/j2sdk1.4.1_01/src/">
+	<include name="java/lang/*.java"/>
+      </fileset>
+    </pmd>
+  </target-->
+
+  <!-- cover: emma seems really difficult
+  <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
 
   <!-- tested -->
   <target name="init">
@@ -52,7 +88,7 @@
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
     
-    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi2/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar"/>
 
   </target>
 
@@ -83,9 +119,6 @@
     <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
     <ant dir="plugins/webcontent" target="compileall" />
-    <!-- anticipate separate onto release -->
-    <!--ant dir="onto/jena25" target="compileall" />
-    <ant dir="onto/owlapi10" target="compileall" /-->
   </target>
 
   <!-- tested -->
@@ -180,7 +213,8 @@
   <!-- tested -->
   <target name="test" depends="init">
     <echo message="Testing..."/>
-    <javac srcdir="test/src" destdir="test/classes" debug="on" encoding="iso8859-15">
+    <javac srcdir="test/src" destdir="test/classes" debug="on"
+	   classpath="tools/testng/testng.jar" encoding="iso8859-15">
       <classpath refid="classpath"/>
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
@@ -221,7 +255,7 @@
       Windowtitle="Alignment API and Server"
       doctitle="Alignment API and Server ${version}" 
       header="Alignment API and Server ${version}"
-      bottom="(C) INRIA &amp; friends, 2003-2008"
+      bottom="(C) INRIA &amp; friends, 2003-2010"
       >
      <classpath refid="classpath"/>
      <packageset dir="src" defaultexcludes="yes">
