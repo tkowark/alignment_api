@@ -52,9 +52,6 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     /** Creation **/
     public StringDistAlignment() {
 	setSimilarity( new MatrixMeasure() {
-		public double classMeasure( Object cl1, Object cl2 ) throws Exception {
-		    return measure( cl1, cl2 );
-		}
 		public double measure( Object o1, Object o2 ) throws Exception {
 		    String s1 = ontology1().getEntityName( o1 );
 		    String s2 = ontology2().getEntityName( o2 );
@@ -62,8 +59,11 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 		    if ( s1 == null || s2 == null ) return 1.;
 		    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
 		    if ( debug > 4 ) 
-			System.err.println( "OB:"+ontology1().getEntityName( o1 )+" ++ "+ontology2().getEntityName( o2 )+" ==> "+dissimilarity.invoke( null, params ));
+			System.err.println( "OB:"+s1+" ++ "+s2+" ==> "+dissimilarity.invoke( null, params ));
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
+		}
+		public double classMeasure( Object cl1, Object cl2 ) throws Exception {
+		    return measure( cl1, cl2 );
 		}
 		public double propertyMeasure( Object pr1, Object pr2 ) throws Exception{
 		    return measure( pr1, pr2 );
@@ -77,8 +77,6 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 
     /* Processing */
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
-	loadInit( alignment );
-
 	// Get function from params
 	String f = (String)params.getProperty("stringFunction");
 	try {
@@ -91,6 +89,11 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	} catch (NoSuchMethodException e) {
 	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+(String)params.getProperty("stringFunction"), e );
 	}
+
+	// JE2010: Strange: why does it is not equivalent to call
+	// super.align( alignment, params )
+	// Load initial alignment
+	loadInit( alignment );
 
 	// Initialize matrix
 	getSimilarity().initialize( ontology1(), ontology2(), alignment );
