@@ -22,6 +22,7 @@
     <plugin
        name= "Alignment"
        viewId="fr.inrialpes.exmo.align.plugin.neontk.alignView"
+       perspectiveId="com.ontoprise.ontostudio.owl.perspectives.OWLPerspective"
        activityId="ontologyAligning">
     </plugin>
   </extension> 
