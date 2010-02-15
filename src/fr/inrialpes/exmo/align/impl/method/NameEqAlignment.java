@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008
+ * Copyright (C) INRIA Rhône-Alpes, 2003-2005, 2007-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
+import org.semanticweb.owl.align.AlignmentProcess;
+
 /**
  * Matches two oontologies based on the equality of the name of their entities.
  * THIS CLASS IS ONLY HERE FOR COMPATIBILITY PURPOSES
@@ -28,7 +30,7 @@ package fr.inrialpes.exmo.align.impl.method;
  * @version $Id$ 
  */
 
-public class NameEqAlignment extends StringDistAlignment {
+public class NameEqAlignment extends StringDistAlignment implements AlignmentProcess {
 	
     /** Creation **/
     public NameEqAlignment(){

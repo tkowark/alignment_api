@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2009
+ * Copyright (C) INRIA, 2003-2005, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,8 @@
 
 package fr.inrialpes.exmo.align.impl.method; 
 
+import org.semanticweb.owl.align.AlignmentProcess;
+
 /**
  * This class implements alignment based on substring distance
  * of class and property labels
@@ -29,7 +31,7 @@ package fr.inrialpes.exmo.align.impl.method;
  * @version $Id$ 
  */
 
-public class SubsDistNameAlignment extends StringDistAlignment {
+public class SubsDistNameAlignment extends StringDistAlignment implements AlignmentProcess {
 
     /** Creation **/
     public SubsDistNameAlignment(){
