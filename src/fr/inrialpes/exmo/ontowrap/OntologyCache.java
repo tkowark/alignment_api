@@ -54,7 +54,6 @@ public class OntologyCache <O extends LoadedOntology> {
     public void recordOntology( URI uri, O ontology ){
 	ontologies.put( uri, ontology );
 	ontologyUris.put( ontology.getURI(), ontology );
-	//displayCache();
     }
 
     public O getOntology( URI uri ){
@@ -66,8 +65,6 @@ public class OntologyCache <O extends LoadedOntology> {
     }
 
     public void unloadOntology( URI uri, O ontology ){
-	//System.err.println("UNLOAD");
-	//displayCache();
 	O o = ontologyUris.get(uri);
 	o.unload();
 	ontologyUris.remove( uri );
