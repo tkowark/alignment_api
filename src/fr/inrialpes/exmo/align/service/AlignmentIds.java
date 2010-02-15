@@ -38,42 +38,50 @@ public class AlignmentIds extends Success {
 	this.pretty = pretty;
     }
     public String HTMLString(){
-	String result = "Alignment Ids: <ul>";
 	String id[] = content.split(" ");
 	String pid[] = pretty.split(":");
- 
-	for ( int i = id.length-1; i >= 0; i-- ){
+	String result = "No alignment.";
+
+	if ( id.length >= 1 ) {
+	    result = "Alignment Ids: <ul>";
+	    for ( int i = id.length-1; i >= 0; i-- ){
 		//System.err.println("id["+i+"]"+id[i]);
-	    result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
-	    result += id[i];
-	    String pp = null;
-	    if ( pid != null ) {
-	    	try {
+		result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
+		result += id[i];
+		String pp = null;
+		if ( pid != null ) {
+		    try {
 			pp = pid[i];
 	    	        if (pp != null && !pp.equals("") && !pp.equals("null"))  {		
-				result += " ("+pp+")";
+			    result += " ("+pp+")";
 			}
 			//System.err.println("pid["+i+"]="+pp);
-		} catch(Exception ex) { 
-		}
-	    } 
-		
-	    result += "</a></li>";
+		    } catch(Exception ex) { 
+		    }
+		} 
+		result += "</a></li>";
+	    }
+	    result += "</ul>";
 	}
-	return result += "</ul>";
+	return result;
     }
 
     public String HTMLRESTString(){
-	String result = "Alignment Ids: <ul>";
+	String result = "No alignment.";
 	String id[] = content.split(" ");
-	for ( int i = id.length-1; i >= 0; i-- ){
-	    result += "<li><a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a>";
-	    result += "<table><tr>";
-result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
-result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
-	    result += "</li>";
+
+	if ( id.length >= 1 ) {
+	    result = "Alignment Ids: <ul>";
+	    for ( int i = id.length-1; i >= 0; i-- ){
+		result += "<li><a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a>";
+		result += "<table><tr>";
+		result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
+		result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
+		result += "</li>";
+	    }
+	    result += "</ul>";
 	}
-	return result += "</ul>";
+	return result;
     }
 
     public String RESTString(){
