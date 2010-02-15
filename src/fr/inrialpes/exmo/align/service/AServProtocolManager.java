@@ -271,16 +271,6 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Properties)null);
 	};
-	// JE 15/1/2009: avoided to check for reachability
-	/*
-	if ( ( onto1 = reachable( uri1 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto1"),(Properties)null);
-	} else if ( ( onto2 = reachable( uri2 ) ) == null ){
-	    return new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto2"),(Properties)null);
-	}
-	// Try to retrieve first
-	Set alignments = alignmentCache.getAlignments( onto1.getURI(), onto2.getURI() );
-	*/
 	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getProperty("force") == null ) {
 	    for ( Alignment al: alignments ){
@@ -305,12 +295,13 @@ public class AServProtocolManager {
 	URI uri2 = null;
 	Set<Alignment> alignments = new HashSet<Alignment>();
 	try {
-	    if( onto1 != null || !onto1.equals("") ) {
-		uri1 = new URI((String)params.getProperty("onto1"));
-	    } else if ( onto2 != null || !onto2.equals("") ) {
-		uri2 = new URI((String)params.getProperty("onto2"));
+	    if( onto1 != null && !onto1.equals("") ) {
+		uri1 = new URI( onto1 );
 	    }
-	    alignmentCache.getAlignments( uri1, uri2 );
+	    if ( onto2 != null && !onto2.equals("") ) {
+		uri2 = new URI( onto2 );
+	    }
+	    alignments = alignmentCache.getAlignments( uri1, uri2 );
 	} catch (Exception e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Properties)null);
 	}; //done below
@@ -324,6 +315,7 @@ public class AServProtocolManager {
     }
 
     // ABSOLUTELY NOT IMPLEMENTED
+    // But look at existingAlignments
     // Implements: find
     // This may be useful when calling WATSON
     public Message find(Message mess){
@@ -815,6 +807,8 @@ public class AServProtocolManager {
 			    // Iterate on needed Jarfiles
 			    // JE(caveat): this deals naively with Jar files,
 			    // in particular it does not deal with section'ed MANISFESTs
+			    // JE2010: Chan did something for that purpose in the 
+			    // AlignView/OfflineAlign part of the NeOn plug-in that works!
 			    Attributes mainAttributes = jar.getManifest().getMainAttributes();
 			    String path = mainAttributes.getValue( Name.CLASS_PATH );
 			    if ( debug ) System.err.println("  >CP> "+path);
