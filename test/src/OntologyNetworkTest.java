@@ -36,7 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 // JE: this one is too much
-import org.omwg.mediation.parser.rdf.RDFParserException;
+//import org.omwg.mediation.parser.rdf.RDFParserException;
 
 import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -84,7 +84,8 @@ public class OntologyNetworkTest {
     }
 
     @Test(groups = { "full", "raw" }, dependsOnMethods = {"ontologyTest"})
-	public void alignmentTest() throws ParserConfigurationException, SAXException, IOException, URISyntaxException, RDFParserException, AlignmentException {
+	public void alignmentTest() throws ParserConfigurationException, SAXException, IOException, URISyntaxException, AlignmentException {
+	//, RDFParserException
 	assertEquals( noo.getAlignments().size(), 0 );
 	assertEquals( noo.getOntologies().size(), 2);
 	// addAlignment
