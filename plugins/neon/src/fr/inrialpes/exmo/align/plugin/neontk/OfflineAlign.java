@@ -131,7 +131,6 @@ public class OfflineAlign {
 	//onto.setURI( ontology.getURI() );
 	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
 
-	//fr.inrialpes.exmo.ontowrap.Ontology onto = ((fr.inrialpes.exmo.ontowrap.owlapi3.OWLAPI3OntologyFactory)factory).myLoadOntology( uri, toto );
     return onto;
 }
    
