@@ -112,7 +112,8 @@ public class SemPRecEvaluator //extends BasicEvaluator
 	    al.init( align2.getOntology1URI(), align2.getOntology2URI() );
 	    // add the cell
 	    al.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
-	    if ( reasoner.isEntailed( al ) ) nbfoundentailed++;
+	// Bug in OWL API 3
+	//    if ( reasoner.isEntailed( al ) ) nbfoundentailed++;
 	}
 
 	reasoner = new IDDLReasoner( semantics );
@@ -128,7 +129,8 @@ public class SemPRecEvaluator //extends BasicEvaluator
 	    al.init( align2.getOntology1URI(), align2.getOntology2URI() );
 	    // add the cell (too bad, addCell is not in the interface)
 	    al.addAlignCell( c1.getObject1(), c1.getObject2(), c1.getRelation().getRelation(), 1. );
-	    if ( reasoner.isEntailed( al ) ) nbexpectedentailed++;
+	// Bug in OWL API 3
+	//    if ( reasoner.isEntailed( al ) ) nbexpectedentailed++;
 	}
 
 	precision = (double) nbfoundentailed / (double) nbfound;
