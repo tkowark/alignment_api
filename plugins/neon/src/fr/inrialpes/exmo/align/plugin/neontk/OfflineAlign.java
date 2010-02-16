@@ -50,12 +50,12 @@ public class OfflineAlign {
     File  alignFolder = null;
     File  ontoFolder  = null;
 	
-    public OfflineAlign(File al, File on) {
+    public OfflineAlign( File al, File on ) {
 	ontoFolder  = on; 
 	alignFolder = al;
     }
 
-    String matchAndExportAlign (String method, String proj1, String selectedNeOnOnto1, String proj2, String selectedNeOnOnto2) {	 
+    String matchAndExportAlign (String method, String proj1, String selectedNeOnOnto1, String proj2, String selectedNeOnOnto2) throws Exception {	 
 	//export ontologies
 	//ImportExportControl ieControl = new ImportExportControl();
 	//Integer name1 = new Integer(AlignView.alignId++);  
@@ -68,11 +68,11 @@ public class OfflineAlign {
 	//Vector corrList = new Vector();
 	Integer name = new Integer(AlignView.getNewAlignId());
 
-	Vector<URI> uris = new Vector<URI>();
+	//Vector<URI> uris = new Vector<URI>();
 
-	try {
-	    uris.add( new URI(selectedNeOnOnto1) );
-	    uris.add( new URI(selectedNeOnOnto2 ) );
+	//try {
+	//uris.add( new URI(selectedNeOnOnto1) );
+	//uris.add( new URI(selectedNeOnOnto2 ) );
 	    Object[] mparams = {};
 	    Class<?> alignmentClass = Class.forName(method);
 	    Class[] cparams = {};
@@ -81,8 +81,8 @@ public class OfflineAlign {
 	    OntologyFactory factory = null; 
 	    // This should also be a static getInstance!
 	    factory = OntologyFactory.getFactory();
-	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto1 = loadOntology( factory, uris.get(0) );
-	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto2 = loadOntology( factory, uris.get(1) );
+	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto1 = loadOntology( factory, proj1, selectedNeOnOnto1 );
+	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto2 = loadOntology( factory, proj2, selectedNeOnOnto2 );
 	    A1.init( onto1, onto2 );
 	    //	    A1.init( (URI)uris.get(0), (URI)uris.get(1) );
 	    A1.align( (Alignment)null, p );
@@ -105,139 +105,131 @@ public class OfflineAlign {
 	   A1.render(V);
 	   owlF.flush();
 	   owlF.close();
-	} catch ( Exception ex ) { 
-	};
+	   //} catch ( Exception ex ) {};
        //System.out.println("match=" +name.toString());
        return alignFolder.getAbsolutePath() + File.separator + name.toString();
     }
    
 
-    public LoadedOntology loadOntology( OntologyFactory factory, URI uri ) {
+    public LoadedOntology loadOntology( OntologyFactory factory, String project, String ontoURI ) throws org.semanticweb.owlapi.model.OWLOntologyCreationException {
 	fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology onto = null;
 	org.semanticweb.owlapi.model.OWLOntology ontology = null;
-	try {
-	    ontology = ((fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory)factory).getManager().loadOntology( org.semanticweb.owlapi.model.IRI.create( uri ) );
-	} catch ( org.semanticweb.owlapi.model.OWLOntologyCreationException e ) {
+
+	try { // Try to get the local ontology object
+	    com.ontoprise.ontostudio.owl.model.OWLModel model = com.ontoprise.ontostudio.owl.model.OWLModelFactory.getOWLModel( ontoURI, project );
+	    ontology = model.getOntology();
+	} catch ( org.neontoolkit.core.exception.NeOnCoreException e ) {
 	    e.printStackTrace();
 	    //throw new org.semanticweb.owl.align.AlignmentException("Cannot load " + uri, e);
+	    // Let's try to load it from the web...
+	}
+	if ( ontology == null ) { // try to upload
+	    ontology = ((fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory)factory).getManager().loadOntology( org.semanticweb.owlapi.model.IRI.create( ontoURI ) );
 	}
 	onto = new fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology();
 	onto.setFormalism( "OWL 2.0" );
 	try {
 	    onto.setFormURI( new URI("http://www.w3.org/2002/07/owl#") );
+	    onto.setFile( new URI( ontoURI ) );
 	} catch ( Exception ex ) {}; // never happens
 	onto.setOntology( ontology );
-	onto.setFile( uri );
 	//onto.setURI( ontology.getURI() );
 	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
 
     return onto;
 }
    
-   String trimAndExportAlign (Double thres, String id) {	 
-		  
-	      Integer name = new Integer(AlignView.getNewAlignId());
+    String trimAndExportAlign (Double thres, String id) {	 
+	Integer name = new Integer(AlignView.getNewAlignId());
+	Alignment A1 = AlignView.alignmentTable.get( id );
+	//BasicAlignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
+	BasicAlignment clonedA1 = null;
 	      
-	      Alignment A1 = AlignView.alignmentTable.get( id );
-	      //BasicAlignment clonedA1 = (BasicAlignment)((BasicAlignment)A1).clone();
-	      BasicAlignment clonedA1 = null;
-	      
-	      try {
-	    
-	      File exFile = new File(id + ".rdf");
+	try {
+	    File exFile = new File(id + ".rdf");
+	    AlignmentParser ap = new AlignmentParser(0);
+	    ap.setEmbedded(true);
+	    clonedA1 = (BasicAlignment) ap.parse(exFile.toURI().toString());
 				
-		  AlignmentParser ap = new AlignmentParser(0);
-		  ap.setEmbedded(true);
-		  clonedA1 = (BasicAlignment) ap.parse(exFile.toURI().toString());
-				
-		  File fnRdf = new File( alignFolder.getAbsolutePath() + File.separator + name.toString()+ ".rdf" );
-		  if (fnRdf.exists()) fnRdf.delete();
+	    File fnRdf = new File( alignFolder.getAbsolutePath() + File.separator + name.toString()+ ".rdf" );
+	    if (fnRdf.exists()) fnRdf.delete();
 		  
-		  FileWriter rdfF = new FileWriter( fnRdf );
-		  AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
+	    FileWriter rdfF = new FileWriter( fnRdf );
+	    AlignmentVisitor rdfV = new RDFRendererVisitor(  new PrintWriter ( rdfF )  );
 		 
-		  clonedA1.render(rdfV);
-		  rdfF.flush();
-		  rdfF.close();
+	    clonedA1.render(rdfV);
+	    rdfF.flush();
+	    rdfF.close();
 		  
-		  clonedA1.cut(thres);
-	      AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
+	    clonedA1.cut(thres);
+	    AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + name.toString(), clonedA1 );
 	         
-		  File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl");
-		  if (owlFile.exists()) owlFile.delete();
+	    File owlFile = new File( ontoFolder.getAbsolutePath() + File.separator + name.toString()+ ".owl");
+	    if (owlFile.exists()) owlFile.delete();
 		  
-		  FileWriter owlF = new FileWriter( owlFile );
+	    FileWriter owlF = new FileWriter( owlFile );
 		  
-		  AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
-		  ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)clonedA1 );
-		  al.render( owlV );		     		  
-		  //clonedA1.render(owlV);
-		  owlF.flush();
-		  owlF.close();	  
-		  } 
-		  catch ( Exception ex ) { ex.printStackTrace();};
-		  //System.out.println("trim=" +name.toString());
-		  return alignFolder.getAbsolutePath() + File.separator + name.toString();
-	   }
+	    AlignmentVisitor owlV = new OWLAxiomsRendererVisitor(  new PrintWriter ( owlF )  );
+	    ObjectAlignment al = ObjectAlignment.toObjectAlignment( (URIAlignment)clonedA1 );
+	    al.render( owlV );		     		  
+	    //clonedA1.render(owlV);
+	    owlF.flush();
+	    owlF.close();	  
+	} catch ( Exception ex ) { ex.printStackTrace();};
+	//System.out.println("trim=" +name.toString());
+	return alignFolder.getAbsolutePath() + File.separator + name.toString();
+    }
    
    public String[] getAllAlign() {
-	    
-	   if (AlignView.alignmentTable.keys() == null) return null;
-	   Vector<String> v = new Vector<String>();
+       if (AlignView.alignmentTable.keys() == null) return null;
+       Vector<String> v = new Vector<String>();
 	   
-	   for (Enumeration e = AlignView.alignmentTable.keys() ; e.hasMoreElements() ;) {
-	       v.add((String)e.nextElement()); 
-	   }
+       for (Enumeration e = AlignView.alignmentTable.keys() ; e.hasMoreElements() ;) {
+	   v.add((String)e.nextElement()); 
+       }
 	   
-	   String[] ls = new String[v.size()];
-	   for(int i=0; i< v.size(); i++) ls[i] = v.get(i);
+       String[] ls = new String[v.size()];
+       for(int i=0; i< v.size(); i++) ls[i] = v.get(i);
 	   
-	   return ls;	  
+       return ls;	  
    }
    
    public void getAllAlignFromFiles() {
-	    
-	   String[] nameL = alignFolder.list();
+       String[] nameL = alignFolder.list();
        Vector<String> v = new Vector<String>();
 	   
        for(int i=0; i< nameL.length; i++) 
     	   if(nameL[i].contains(".rdf"))  v.add(nameL[i]);
        
        try {
-    	   	 
-    	    AlignmentParser parser = new AlignmentParser( 0 );
-    	    parser.setEmbedded( true );
+	   AlignmentParser parser = new AlignmentParser( 0 );
+	   parser.setEmbedded( true );
     	   	
-    	   	for(int i=0; i< v.size(); i++) {
+	   for(int i=0; i< v.size(); i++) {
     	   		
-    	   		String key = v.get(i).replace(".rdf", "");
-    	   		//System.out.println("Path ="+   alignFolder.getAbsolutePath() + File.separator  + v.get(i) );
-    	   		AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + key , 
-    	   				parser.parse( alignFolder.getAbsolutePath() + File.separator  + v.get(i)) );
-    	   	}
-			   
+	       String key = v.get(i).replace(".rdf", "");
+	       //System.out.println("Path ="+   alignFolder.getAbsolutePath() + File.separator  + v.get(i) );
+	       AlignView.alignmentTable.put( alignFolder.getAbsolutePath() + File.separator + key , 
+					     parser.parse( alignFolder.getAbsolutePath() + File.separator  + v.get(i)) );
+	   }
        } catch ( Exception ex ) { ex.printStackTrace();};
-	      
    }
    
    public static String fileToString(File f){
-	    String texto = "";
-	int i=0;
-	try{
-	   
+       String texto = "";
+       int i=0;
+       try{
 	   FileReader rd = new FileReader(f);
 	   i = rd.read();
-	    
-	     while(i!=-1){
-	          texto = texto+(char)i;
-	          i = rd.read();
-	     }
-	 
-	   }catch(IOException e){
-	    System.err.println(e.getMessage());
-	     }
 	   
-	return texto;
-	}
+	   while(i!=-1){
+	       texto = texto+(char)i;
+	       i = rd.read();
+	   }
+       } catch(IOException e){
+	   System.err.println(e.getMessage());
+       }
+       return texto;
+   }
 
 }
