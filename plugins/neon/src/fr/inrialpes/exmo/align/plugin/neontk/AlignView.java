@@ -206,8 +206,8 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
 	onlineButton.setSize(buttonWidth, buttonHeight);
 	onlineButton.addSelectionListener(this);
 	// JE-RR for current version of the Alignment plug in
-	//onlineButton.setEnabled( true );
-	onlineButton.setEnabled( false );
+	onlineButton.setEnabled( true );
+	//onlineButton.setEnabled( false );
 			
 	offlineButton = new Button(client, SWT.PUSH);
 	offlineButton.setText("Offline");
@@ -222,8 +222,9 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
  
 	// Choose ontology 1	
 	Label onto1 = new Label(client, SWT.NONE);		
-	onto1.setText("Ontology 1 ");			
-	ontoBox1 = new Combo( client, SWT.DROP_DOWN );
+	onto1.setText("Ontology 1 ");	
+	// Putting them read-only solves too many problems
+	ontoBox1 = new Combo( client, SWT.DROP_DOWN | SWT.READ_ONLY );
 	ontoBox1.setLayoutData( gd );
 	ontoBox1.setEnabled(true);
 	ontoBox1.addSelectionListener(this);
@@ -239,18 +240,20 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
 	//Choose ontology 2
 	Label onto2 = new Label(client, SWT.NONE);
 	onto2.setText("Ontology 2 ");		
-	ontoBox2 = new Combo( client, SWT.DROP_DOWN );
+	// Putting them read-only solves too many problems
+	ontoBox2 = new Combo( client, SWT.DROP_DOWN | SWT.READ_ONLY );
 	ontoBox2.setLayoutData(gd);
 	ontoBox2.setEnabled(true);
 	ontoBox2.addSelectionListener(this);
-	onto2Refresh = new Button(client, SWT.PUSH);
-	onto2Refresh.setText("Refresh");
-	onto2Refresh.setSize(buttonWidth, buttonHeight);
-	onto2Refresh.addSelectionListener(this);
-	onto2Refresh.setEnabled(true);
+	//onto2Refresh = new Button(client, SWT.PUSH);
+	//onto2Refresh.setText("Refresh");
+	//onto2Refresh.setSize(buttonWidth, buttonHeight);
+	//onto2Refresh.addSelectionListener(this);
+	//onto2Refresh.setEnabled(true);
 	Label dummy8 = new Label(client, SWT.NONE);
 	Label dummy9 = new Label(client, SWT.NONE);
-	//Label dummy10 = new Label(client, SWT.NONE);
+	// replaces the useless refresh
+	Label dummy10 = new Label(client, SWT.NONE);
 			
 	//methods
 	Label methodLabel = new Label(client, SWT.NONE);
@@ -590,7 +593,7 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
 			viewHTMLAlign(alignKey);
 		    }
 		    
-		} else {
+		} else { 
 		    String alignId = onlineAlign.getAlignIdMonoThread( selectedMethod, wserver, wsmethod, selectedOnto1, selectedOnto2 );
 		    if( alignId == null || alignId .equals(""))  {
 			MessageDialog.openError(this.getSite().getShell(), "Error message", "The alignment has not been produced.");
@@ -620,7 +623,12 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 MessageDialog.openError(this.getSite().getShell(), "Error message",
 					"onto2: "+selectedOnto2);
 		*/
-		selectedLocalAlign = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
+		try {
+		    selectedLocalAlign = offlineAlign.matchAndExportAlign( selectedMethod, ontoByProj.get(selectedOnto1), selectedOnto1, ontoByProj.get(selectedOnto2), selectedOnto2);
+		} catch ( Exception ex ) {
+		    MessageDialog.openError(this.getSite().getShell(), "Error message", ex.getMessage() );
+		    return;
+		}
 		/*
 MessageDialog.openError(this.getSite().getShell(), "Error message",
 					"returned: "+selectedLocalAlign);
@@ -925,7 +933,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 		localImportButton.setEnabled( true );
 		localTrimButton.setEnabled( true );
 	    }    			
-	} else if ( e.getSource().equals( this.findButton ) ) {
+	} else if ( e.getSource() == findButton ) {
 	    String[] onList = null;
 	    selectedOnto1 = ontoBox1.getText();
 	    selectedOnto2 = ontoBox2.getText();
@@ -1241,19 +1249,16 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 		//System.err.println("files="+  files[k]);
 		classpath += url.toString()+files[k]+",";
 	    }
-	    System.err.println("classpath2="+  classpath);
+	    //System.err.println("classpath2="+  classpath);
 	    ms = implementations( "org.semanticweb.owl.align.AlignmentProcess", classpath );
-	    ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
-	    ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
 	} else { // Plugin is a jarfile
 	    String path = url.getFile();
 	    //To avoid "!/"
 	    if( ! path.endsWith(".jar") ) path = path.substring( 0, path.length() - 2 );
-	    
 	    ms = implementations( "org.semanticweb.owl.align.AlignmentProcess",  path);
-	    ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
-	    ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
 	}
+	ms.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is abstract
+	ms.remove("fr.inrialpes.exmo.align.ling.JWNLAlignment"); // requires WordNet
 	System.err.println("ms="+ms.size());
 	//System.err.flush();
 	//System.err.close();
@@ -1338,8 +1343,8 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	//onto2Refresh.redraw();
 
 	// JE-RR
-	//onlineButton.setEnabled( true );
-	//offlineButton.setEnabled( false );
+	onlineButton.setEnabled( true );
+	offlineButton.setEnabled( false );
 
 	localAlignBox.redraw();
 	ontoByProj = refreshOntoList( online );
@@ -1370,7 +1375,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 			*/
 			Set<String> strSet = ontoProject.getAvailableOntologyURIs();
 			//System.out.println("size of uris online=" + strSet.size() + "("+ projects[i] +")");
-			String[] uris = strSet.toArray(new String[0]);
+			String[] uris = strSet.toArray( new String[0] );
 			for ( int k=0; k < uris.length; k++ ) {
 			    vec.put( uris[k], projects[i] );		
 			}
