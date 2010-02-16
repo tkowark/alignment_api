@@ -23,7 +23,7 @@
   <target name="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property name="doing" value="running"/>
-    <property name="piversion" value="6"/>
+    <property name="piversion" value="7"/>
     <property name="ntkvers" value="2.3.0"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="euzenat"/>
