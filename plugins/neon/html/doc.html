@@ -1,7 +1,7 @@
-<html><head><title>NeOn Alignment Plugin: User Documentation</title></head>
+<html><head><title>NeOn Alignment Plugin: Step-by-step usage</title></head>
 <body>
 
-<h1 class="mw-headline">NeOn Alignment Plugin: User Documentation</h1>
+<h1 class="mw-headline">NeOn Alignment Plugin: Step-by-step usage</h1>
 
 <p>
 The NeOn Alignment plugin panel is obtained by selecting "Windows" ->
@@ -22,77 +22,6 @@ online. Roughly speaking, the offline mode allows users to reach
 main functionalities of the Alignment Server without connection to
 the server while the online mode offers additionally mechanisms to
 store and reuse alignments. 
-</p>
-
-<h2>Alignment plug-in commands</h2>
-
-<h3>Online</h3>
-<p>
-Switch to the online mode in which the plug-in is connected to an
-Alignment server and can take advantage of its stored alignements and
-available matching methods. Only ontologies accessible on the web can be
-matched in this mode.
-</p>
-<h3>Offline</h3>
-<p>
-Switch to the offline mode in which local ontologies are matched with
-the matching methods available within the NeOn toolkit.
-</p>
-<h3>Refresh</h3>
-<p>
-Update the two ontology choosers (Ontology 1 and Ontology 2) with the
-ontology available in the toolkit.
-</p>
-<h3>Match</h3>
-<p>
-Match the ontologies selected in the ontology choosers with the method
-selected in the method chooser (a new alignment is created and is
-available in the chooser of server alignments or local alignments
-depending of the mode).
-</p>
-<h3>Trim (online)</h3>
-<p>
-Trims the correspondences in the alignment selected in the server
-alignment chooser whose confidence is below some threshold (a new
-alignment is created).
-</p>
-<h3>Import (online)</h3>
-<p>
-The alignment selected in the server alignment chooser is imported as
-an ontology in the NeOn toolkit.
-</p>
-<h3>Store (online)</h3>
-<p>
-Stores the alignment selected in the server alignment chooser on
-the server (it will be kept in the database and will survive any
-server shutdown).
-</p>
-<h3>Import (offline)</h3>
-<p>
-The alignment selected in the local alignment chooser is imported as
-an ontology in the NeOn toolkit.
-</p>
-<h3>Trim (offline)</h3>
-<p>
-Trims the correspondences in the alignment selected in the local
-alignment chooser whose confidence is below some threshold (a new
-alignment is created).
-</p>
-<h3>Upload (online)</h3>
-<p>
-Uploads the alignment selected in the local alignment chooser on
-the server.
-</p>
-<h3>Find alignments for ontologies (online)</h3>
-<p>
-Fills the server alignment chooser with all alignments available on
-the server.
-</p>
-<h3>Find all alignments from server (online)</h3>
-<p>
-Fills the server alignment chooser with all alignments between the two
-ontologies of the ontology choosers (Ontology 1 and Ontology 2)
-available on the server.
 </p>
 
 <h2>Using the plugin in local mode</h2>
@@ -205,77 +134,6 @@ If the connection is successful, we can see the buttons "Refresh", "Match", "Imp
 
 <!--h2>How to use the NeOn Alignment Plugin with Ontomap Plugin</h2-->
 
-<h2>Standard matchers</h2>
-
-<p>
-The Alignment plug-in comes with the built-in matchers of the
-Alignment API not requiring extra installations (like WordNet).
-We give below a simple description of their behaviour.
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the names of
-entities in the two ontologies to match. The measure will depend on
-the ration of the length of the longest common substring of both names
-over the minimum lenght of these names.
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.ClassStructAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the properties
-that classes have in common. These properties are themselves compared
-based on correspondences provided by an initial alignment.
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.NameEqAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the names of
-entities in the two ontologies to match. The measure will be "1." if
-both names are equal (after downcasing), and "0." if they are not.
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the names of
-entities in the two ontologies to match. In this case, the measure
-computes exactly <tt>NameEqAlignment</tt> (this is a parametric
-measures and the parameters are not available in the toolkit).
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the properties
-that classes have in common. These properties are themselves compared
-based on correspondences between their names based on sub-string
-distance (like in <tt>SubsDistNameAlignment</tt>).
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.StructSubsDistAlignment</h3>
-<p>
-Establishes, like <tt>StructSubsDistAlignment</tt>, an alignment based
-on the comparison of the properties that classes have in common,
-except that, in the present case, an optimal matching is computed
-between the properties first.
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.SMAONameAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the names of
-entities in the two ontologies to match. It is somewhat similar to
-the <tt>EditDistNameAlignment</tt> but uses specific normalisation
-strategies based on how computer scientists usually name things (it
-knows about the Camel's notation, use of underscore, etc.).
-</p>
-
-<h3>fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment</h3>
-<p>
-Establishes an alignment based on the comparison of the names of
-entities in the two ontologies to match. The measure is based on the
-edit distance between the names of the entity to compare. It measures
-the cost of transforming one string into another through insertion,
-deletion and replacement of characters.
-</p>
 
 </body>
 </html>

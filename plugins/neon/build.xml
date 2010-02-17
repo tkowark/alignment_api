@@ -21,22 +21,13 @@
 
   <!-- tested -->
   <target name="init">
-    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
-    <property name="doing" value="running"/>
-    <property name="piversion" value="7"/>
+    <property file="../../build.properties" />
+    <property name="version" value="4.0-"/>
+    <property name="piversion" value="8"/>
     <property name="ntkvers" value="2.3.0"/>
-    <property name="date" value="${TODAY}"/>
-    <property name="login" value="euzenat"/>
-    <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
-    <property name="libdir"  value="lib" />
-    <property name="debug" value="off"/>
-    <property name="FTPDir" value="/Web/html/ftpexmo/software/ontoalign"/>
 
-    <property name="classpath"  value="classes"/>
-    
-    <filter token="DATE" value="${date}"/>
-    <filter token="VERS" value="${version}"/>
-    
+    <filter token="VERS" value="${version}/${ntkvers}-${piversion}"/>
+
     <path id="classpath">
       <fileset dir="./lib">
 	<include name="*.jar"/>
@@ -84,7 +75,7 @@
     <copy todir="neonalign/icons" filtering="false">
       <fileset dir="distrib" includes="*.gif"/>
     </copy>
-    <copy todir="neonalign/html">
+    <copy todir="neonalign/html" filtering="true">
       <fileset dir="html">
 	<include name="**/*.html"/>
 	<include name="**/*.png"/>
