@@ -19,6 +19,5 @@ Bundle-ClassPath: .,
  lib/procalign.jar,
  lib/align.jar,
  lib/ontowrap.jar,
- lib/ontosim.jar,
- lib/jwnl.jar
+ lib/ontosim.jar
 Export-Package: fr.inrialpes.exmo.align.plugin.neontk
