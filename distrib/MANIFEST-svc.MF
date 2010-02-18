@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Created-By: Jerome.Euzenat@inrialpes.fr 
-Class-Path: procalign.jar alignwn.jar jade.jar iiop.jar http.jar mysql-connector-java-5.0.3-bin.jar servlet-api.jar jetty.jar jetty-util.jar
+Class-Path: procalign.jar jade.jar iiop.jar http.jar mysql-connector-java-5.0.3-bin.jar servlet-api.jar jetty.jar jetty-util.jar
 Main-Class: fr.inrialpes.exmo.align.service.AlignmentService
