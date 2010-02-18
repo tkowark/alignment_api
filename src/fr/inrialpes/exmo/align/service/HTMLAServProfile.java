@@ -377,8 +377,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"/html/\">Access</a></center>"
 	    + "(C) INRIA, 2006-2010<br />"
-	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"
-	    + "<small>$Id$</small>"
+	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
+	    + "<small>$Revision$ -- $Date$</small>"
 	    + "</center>";
     }
 
