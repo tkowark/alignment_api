@@ -10,8 +10,6 @@
     </fileset>
   </path>
     
-  <taskdef name="testng" classpath="tools/testng/testng.jar" classname="org.testng.TestNGAntTask" />
-
   <!-- tested -->
   <target name="usage" depends="init">
     <echo>ant _target_ _options_
@@ -36,65 +34,33 @@
     </echo>
   </target>
 
-  <!--target name="analyse" depends="jar">
-    // Use Checkstyle
-    <taskdef resource="checkstyletask.properties"
-             classpath="tools/checkstyle/checkstyle-all-5.0.jar"/>
-    // I must have a checks.xml
-    <checkstyle config="docs/sun_checks.xml">
-      <fileset dir="src" includes="**/*.java"/>
-      // let see if we can put a css
-      <formatter type="xml" toFile="test/html/checkstyle.xml"/>
-    </checkstyle>
-    // Use FindBugs
-    <taskdef name="findbugs" classpath="tools/findbugs/findbugs-ant.jar" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-    <findbugs home="test/html/"
-	      output="xml"
-	      outputFile="bcel-fb.xml" >
-      //<auxClasspath path="${basedir}/lib/Regex.jar" />
-      <sourcePath path="src" />
-      <class location="lib/align.jar" />
-    </findbugs>
-    // Use PMD
-    <taskdef name="pmd" classpath="tools/pmd/pmd-ant.jar" classname="net.sourceforge.pmd.ant.PMDTask"/>
-    <pmd shortFilenames="true">
-      <ruleset>rulesets/favorites.xml</ruleset>
-      <ruleset>basic</ruleset>
-      <formatter type="html" toFile="pmd_report.html" linkPrefix="http://pmd.sourceforge.net/xref/"/>
-      <fileset dir="/usr/local/j2sdk1.4.1_01/src/">
-	<include name="java/lang/*.java"/>
-      </fileset>
-    </pmd>
-  </target-->
-
-  <!-- cover: emma seems really difficult
-  <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
-
-  <!-- tested -->
-  <target name="init">
+  <target name="bind">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
+    <property file="build.properties"/>
+    <!-- default values -->
     <property name="doing" value="running"/>
-    <property name="version" value="3.6"/>
+    <property name="version" value="4.0-"/>
     <property name="date" value="${TODAY}"/>
     <property name="login" value="${user.name}"/>
-    <property name="email" value="Jerome.Euzenat@inrialpes.fr"/>
-    <property name="libdir"  value="lib" />
     <property name="debug" value="off"/>
     <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
     <!-- This should now be handled by GForge -->
-    <property name="FTPDir" value="/Web/html/ftpexmo/software/ontoalign"/>
+    <property name="tooldir"  value="tools" />
+    <property name="libdir"  value="lib" />
     <property name="classpath"  value="classes"/>
     
     <filter token="DATE" value="${date}"/>
     <filter token="VERS" value="${version}"/>
-    
+  </target>
+
+  <!-- tested -->
+  <target name="init" depends="bind">
     <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar"/>
 
   </target>
 
   <target name="upgrade">
-    <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim"
-    filtering="false"/>
+    <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim" filtering="false"/>
     <echo message="mappingapi is only updated from its directory"/>
   </target>
 
@@ -123,11 +89,47 @@
 
   <!-- tested -->
   <target name="lint" depends="init">
-    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, finally -->
+    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, cast, finally -->
     <echo message="Setting property..."/>
-    <property name="javacargs" value="-Xlint:all" />
+    <property name="javacargs" value="-Xlint:cast" />
+    <!--property name="javacargs" value="-Xlint:deprecation -Xlint:fallthrough -Xlint:serial -Xlint:finally" /-->
+    <!--property name="javacargs" value="-Xlint:all" /-->
     <antcall target="compileall"/>
   </target>
+
+  <!--target name="analyse" depends="jar">
+    // Use Checkstyle
+    <taskdef resource="checkstyletask.properties"
+             classpath="${tooldir}/checkstyle/checkstyle-all-5.0.jar"/>
+    // I must have a checks.xml
+    <checkstyle config="docs/sun_checks.xml">
+      <fileset dir="src" includes="**/*.java"/>
+      // let see if we can put a css
+      <formatter type="xml" toFile="test/html/checkstyle.xml"/>
+    </checkstyle>
+    // Use FindBugs
+    <taskdef name="findbugs" classpath="${tooldir}/findbugs/findbugs-ant.jar" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <findbugs home="test/html/"
+	      output="xml"
+	      outputFile="bcel-fb.xml" >
+      //<auxClasspath path="${basedir}/lib/Regex.jar" />
+      <sourcePath path="src" />
+      <class location="lib/align.jar" />
+    </findbugs>
+    // Use PMD
+    <taskdef name="pmd" classpath="${tooldir}/pmd/pmd-ant.jar" classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <pmd shortFilenames="true">
+      <ruleset>rulesets/favorites.xml</ruleset>
+      <ruleset>basic</ruleset>
+      <formatter type="html" toFile="pmd_report.html" linkPrefix="http://pmd.sourceforge.net/xref/"/>
+      <fileset dir="/usr/local/j2sdk1.4.1_01/src/">
+	<include name="java/lang/*.java"/>
+      </fileset>
+    </pmd>
+  </target-->
+
+  <!-- cover: emma seems really difficult
+  <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
 
   <!-- tested -->
   <target name="jar" depends="compile">
@@ -203,7 +205,7 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs -->
 	<!-- oyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
-        <attribute name="Class-Path" value="alignsvc.jar oyster2.jar semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jar ontosim.jar"/>
+        <attribute name="Class-Path" value="alignsvc.jar semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jar ontosim.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
 	<attribute name="Implementation-Version" value="${version}"/> 
       </manifest>
@@ -213,6 +215,8 @@
   <!-- tested -->
   <target name="test" depends="init">
     <echo message="Testing..."/>
+    <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
+
     <javac srcdir="test/src" destdir="test/classes" debug="on"
 	   classpath="tools/testng/testng.jar" encoding="iso8859-15">
       <classpath refid="classpath"/>
