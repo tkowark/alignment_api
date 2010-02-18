@@ -50,6 +50,9 @@ import java.lang.UnsatisfiedLinkError;
 import java.lang.ExceptionInInitializerError;
 import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
@@ -71,6 +74,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 
 /**
@@ -187,10 +191,10 @@ public class AServProtocolManager {
 	boolean todiscard = false;
 	Properties params = mess.getParameters();
 	// load the alignment
-	String name = (String)params.getProperty("url");
+	String name = params.getProperty("url");
 	String file = null;
 	if ( name == null || name.equals("") ){
-	    file  = (String)params.getProperty("filename");
+	    file  = params.getProperty("filename");
 	    if ( file != null && !file.equals("") ) name = "file://"+file;
 	}
 	//if ( debug > 0 ) System.err.println("Preparing for "+name);
@@ -205,7 +209,7 @@ public class AServProtocolManager {
 	}
 	// We preserve the pretty tag within the loaded ontology
 	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-	if ( pretty == null ) pretty = (String)params.getProperty("pretty");
+	if ( pretty == null ) pretty = params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
 	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	}
@@ -259,15 +263,15 @@ public class AServProtocolManager {
      */
     private Message retrieveAlignment( Message mess ){
 	Properties params = mess.getParameters();
-	String method = (String)params.getProperty("method");
+	String method = params.getProperty("method");
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
 	Ontology onto1 = null;
 	Ontology onto2 = null;
 	try {
-	    uri1 = new URI((String)params.getProperty("onto1"));
-	    uri2 = new URI((String)params.getProperty("onto2"));
+	    uri1 = new URI(params.getProperty("onto1"));
+	    uri2 = new URI(params.getProperty("onto2"));
 	} catch (Exception e) {
 	    return new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Properties)null);
 	};
@@ -332,7 +336,7 @@ public class AServProtocolManager {
     public Message translate(Message mess){
 	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getProperty("id");
+	String id = params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -341,7 +345,7 @@ public class AServProtocolManager {
 	}
 	// Translate the query
 	try {
-	    String translation = QueryMediator.rewriteSPARQLQuery( (String)params.getProperty("query"), al );
+	    String translation = QueryMediator.rewriteSPARQLQuery( params.getProperty("query"), al );
 	    return new TranslatedMessage(newId(),mess,myId,mess.getSender(),translation,(Properties)null);
 	} catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),e.toString(),(Properties)null);
@@ -353,7 +357,7 @@ public class AServProtocolManager {
     public Message render( Message mess ){
 	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getProperty("id");
+	String id = params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -361,7 +365,7 @@ public class AServProtocolManager {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// Render it
-	String method = (String)params.getProperty("method");
+	String method = params.getProperty("method");
 	AlignmentVisitor renderer = null;
 	// Redirect the output in a String
 	ByteArrayOutputStream result = new ByteArrayOutputStream(); 
@@ -448,7 +452,7 @@ public class AServProtocolManager {
      */
     public Message metadata( Message mess ){
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getProperty("id");
+	String id = mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getMetadata( id );
@@ -477,7 +481,7 @@ public class AServProtocolManager {
 
     public Message trim( Message mess ) {
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getProperty("id");
+	String id = mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -485,9 +489,9 @@ public class AServProtocolManager {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
 	// get the trim parameters
-	String type = (String)mess.getParameters().getProperty("type");
+	String type = mess.getParameters().getProperty("type");
 	if ( type == null ) type = "hard";
-	double threshold = Double.parseDouble((String)mess.getParameters().getProperty("threshold"));
+	double threshold = Double.parseDouble(mess.getParameters().getProperty("threshold"));
 	al = (BasicAlignment)((BasicAlignment)al).clone();
 	try { al.cut( type, threshold );}
 	catch (AlignmentException e) {
@@ -509,7 +513,7 @@ public class AServProtocolManager {
     public Message inverse( Message mess ){
 	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getProperty("id");
+	String id = params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -549,7 +553,7 @@ public class AServProtocolManager {
     public Message eval( Message mess ){
 	Properties params = mess.getParameters();
 	// Retrieve the alignment
-	String id = (String)params.getProperty("id");
+	String id = params.getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -557,7 +561,7 @@ public class AServProtocolManager {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id,(Properties)null);
 	}
 	// Retrieve the reference alignment
-	String rid = (String)params.getProperty("ref");
+	String rid = params.getProperty("ref");
 	Alignment ref = null;
 	try {
 	    ref = alignmentCache.getAlignment( rid );
@@ -565,7 +569,7 @@ public class AServProtocolManager {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+rid,(Properties)null);
 	}
 	// Set the comparison method
-	String classname = (String)params.getProperty("method");
+	String classname = params.getProperty("method");
 	if ( classname == null ) classname = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
 	Evaluator eval = null;
 	try {
@@ -628,7 +632,7 @@ public class AServProtocolManager {
 
     public boolean storedAlignment( Message mess ) {
 	// Retrieve the alignment
-	String id = (String)mess.getParameters().getProperty("id");
+	String id = mess.getParameters().getProperty("id");
 	Alignment al = null;
 	try {
 	    al = alignmentCache.getAlignment( id );
@@ -735,7 +739,7 @@ public class AServProtocolManager {
 		    if ( file.isDirectory() ) {
 			//System.err.println("DIR "+file);
 			String subs[] = file.list();
-			for(int index = 0 ; index < subs.length ; index ++ ){
+			for( int index = 0 ; index < subs.length ; index ++ ){
 			    if ( debug ) System.err.println("    "+subs[index]);
 			    // IF class
 			    if ( subs[index].endsWith(".class") ) {
@@ -743,26 +747,8 @@ public class AServProtocolManager {
 				if (classname.startsWith(File.separator)) 
 				    classname = classname.substring(1);
 				classname = classname.replace(File.separatorChar,'.');
-				try {
-				    // JE: Here there is a bug that is that it is not possible
-				    // to have ALL interfaces with this function!!!
-				    // This is really stupid but that's life
-				    // So it is compulsory that AlignmentProcess be declared 
-				    // as implemented
-				    Class[] cls = Class.forName(classname).getInterfaces();
-				    for ( int i=0; i < cls.length ; i++ ){
-					if ( cls[i] == tosubclass ) {
-					    if (debug ) System.err.println(" -j-> "+classname);
-					    list.add( classname );
-					}
-					if ( debug ) System.err.println("       I> "+cls[i] );
-				    }
-				    // Not one of our classes
-				} catch ( NoClassDefFoundError ncdex ) {
-				} catch (ClassNotFoundException cnfex) {
-				} catch (UnsatisfiedLinkError ule) {
-				} catch (ExceptionInInitializerError eiie) {
-				    // This one has been added for OMWG, this is a bad error
+				if ( implementsInterface( classname, tosubclass, debug ) ) {
+				    list.add( classname );
 				}
 			    }
 			}
@@ -771,50 +757,19 @@ public class AServProtocolManager {
 				file.exists() ) {
 			if ( debug ) System.err.println("JAR "+file);
 			visited.add( file.toString() );
-			try { 
-			    JarFile jar = new JarFile( file );
-			    Enumeration enumeration = jar.entries();
-			    while( enumeration != null && enumeration.hasMoreElements() ){
-				String classname = enumeration.nextElement().toString();
-				if ( debug ) System.err.println("    "+classname);
-				int len = classname.length()-6;
-				if( len > 0 && classname.substring(len).compareTo(".class") == 0) {
-				    classname = classname.substring(0,len);
-				    // Beware, in a Jarfile the separator is always "/"
-				    // and it would not be dependent on the current system anyway.
-				    //classname = classname.replaceAll(File.separator,".");
-				    classname = classname.replaceAll("/",".");
-				    try {
-					if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
-					Class cl = Class.forName(classname);
-					Class[] ints = cl.getInterfaces();
-					for ( int i=0; i < ints.length ; i++ ){
-					    if ( ints[i] == tosubclass ) {
-						if (debug ) System.err.println(" -j-> "+classname);
-						list.add( classname );
-					    }
-					    if ( debug ) System.err.println("       I> "+ints[i] );
-					}
-				    } catch ( NoClassDefFoundError ncdex ) {
-				    } catch ( ClassNotFoundException cnfex ) {
-					if ( debug ) System.err.println("   ******** "+classname);
-				    } catch ( UnsatisfiedLinkError ule ) {
-				    } catch (ExceptionInInitializerError eiie) {
-				    // This one has been added for OMWG, this is a bad error
-				    }
-				}
-			    }
+			JarFile jar = null;
+			try {
+			    jar = new JarFile( file );
+			    exploreJar( list, visited, tosubclass, jar, debug );
 			    // Iterate on needed Jarfiles
 			    // JE(caveat): this deals naively with Jar files,
 			    // in particular it does not deal with section'ed MANISFESTs
-			    // JE2010: Chan did something for that purpose in the 
-			    // AlignView/OfflineAlign part of the NeOn plug-in that works!
 			    Attributes mainAttributes = jar.getManifest().getMainAttributes();
 			    String path = mainAttributes.getValue( Name.CLASS_PATH );
 			    if ( debug ) System.err.println("  >CP> "+path);
 			    if ( path != null && !path.equals("") ) {
 				// JE: Not sure where to find the other Jars:
- 				// in the path or at the local place?
+				// in the path or at the local place?
 				//classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
 				// This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
 				// Is there a way to make it iterable???
@@ -834,6 +789,73 @@ public class AServProtocolManager {
 		classPath = "";
 	    }
 	}
+    }
+    
+    public static void exploreJar( Set<String> list, Set<String> visited, Class tosubclass, JarFile jar, boolean debug ) {
+	Enumeration enumeration = jar.entries();
+	while( enumeration != null && enumeration.hasMoreElements() ){
+	    JarEntry entry = (JarEntry)enumeration.nextElement();
+	    String entryName = entry.toString();
+	    if ( debug ) System.err.println("    "+entryName);
+	    int len = entryName.length()-6;
+	    if( len > 0 && entryName.substring(len).compareTo(".class") == 0) {
+		entryName = entryName.substring(0,len);
+		// Beware, in a Jarfile the separator is always "/"
+		// and it would not be dependent on the current system anyway.
+		//entryName = entryName.replaceAll(File.separator,".");
+		entryName = entryName.replaceAll("/",".");
+		if ( implementsInterface( entryName, tosubclass, debug ) ) {
+			    list.add( entryName );
+		}
+	    } else if( entryName.endsWith(".jar") ) { // a jar in a jar
+		//System.err.println(  "jarEntry is a jarfile="+je.getName() );
+		try {
+		    InputStream jarSt = jar.getInputStream( (ZipEntry)entry );
+		    File f = File.createTempFile( "aservTmpFile", "jar" );
+		    OutputStream out = new FileOutputStream( f );
+		    byte buf[]=new byte[1024];
+		    int len1 ;
+		    while( (len1 = jarSt.read(buf))>0 )
+			out.write(buf,0,len1);
+		    out.close();
+		    jarSt.close();
+		    JarFile inJar = new JarFile( f );
+		    exploreJar( list, visited, tosubclass, inJar, debug );
+		    f.delete();
+		} catch (IOException ioex) {
+		    System.err.println( "Cannot read embedded jar: "+ioex );
+		}
+	    } 
+	}
+    }
+
+    public static boolean implementsInterface( String classname, Class tosubclass, boolean debug ) {
+	// It is possible to suppress here abstract classes by:
+	//java.lang.reflect.Modifier.isAbstract( Class.forName(classname).getModifiers );
+	try {
+	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
+	    // JE: Here there is a bug that is that it is not possible
+	    // to have ALL interfaces with this function!!!
+	    // This is really stupid but that's life
+	    // So it is compulsory that AlignmentProcess be declared 
+	    // as implemented
+	    Class[] cls = Class.forName(classname).getInterfaces();
+	    for ( int i=0; i < cls.length ; i++ ){
+		if ( cls[i] == tosubclass ) {
+		    if ( debug ) System.err.println(" -j-> "+classname);
+		    return true;
+		}
+		if ( debug ) System.err.println("       I> "+cls[i] );
+	    }
+	    // Not one of our classes
+	} catch ( NoClassDefFoundError ncdex ) {
+	} catch (ClassNotFoundException cnfex) {
+	} catch (UnsatisfiedLinkError ule) {
+	    if ( debug ) System.err.println("   ******** "+classname);
+	} catch (ExceptionInInitializerError eiie) {
+	    // This one has been added for OMWG, this is a bad error
+	}
+	return false;
     }
 
     /**
@@ -873,14 +895,14 @@ public class AServProtocolManager {
 
 	public void run() {
 	    Properties params = mess.getParameters();
-	    String method = (String)params.getProperty("method");
+	    String method = params.getProperty("method");
 	    // find and access o, o'
 	    URI uri1 = null;
 	    URI uri2 = null;
 
 	    try {
-		uri1 = new URI((String)params.getProperty("onto1"));
-		uri2 = new URI((String)params.getProperty("onto2"));
+		uri1 = new URI(params.getProperty("onto1"));
+		uri2 = new URI(params.getProperty("onto2"));
 	    } catch (Exception e) {
 		result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/onto",(Properties)null);
 		return;
@@ -892,13 +914,13 @@ public class AServProtocolManager {
 		try {
 		    //if (debug > 0) System.err.println(" Retrieving init");
 		    try {
-			init = alignmentCache.getAlignment( (String)params.getProperty("init") );
+			init = alignmentCache.getAlignment( params.getProperty("init") );
 		} catch (Exception e) {
-			result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getProperty("init"),(Properties)null);
+			result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),params.getProperty("init"),(Properties)null);
 			return;
 		    }
 		} catch (Exception e) {
-		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),(String)params.getProperty("init"),(Properties)null);
+		    result = new UnknownAlignment(newId(),mess,myId,mess.getSender(),params.getProperty("init"),(Properties)null);
 		    return;
 		}
 	    }
@@ -919,16 +941,16 @@ public class AServProtocolManager {
 		    long newTime = System.currentTimeMillis();
 		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
-		    String pretty = (String)params.getProperty( "pretty" );
+		    String pretty = params.getProperty( "pretty" );
 		    if ( pretty != null && !pretty.equals("") )
 			aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 		} catch (AlignmentException e) {
 		    // The unreachability test has already been done
 		    // JE 15/1/2009: commented the unreachability test
 		    if ( reachable( uri1 ) == null ){
-			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto1"),(Properties)null);
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),params.getProperty("onto1"),(Properties)null);
 		    } else if ( reachable( uri2 ) == null ){
-			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),(String)params.getProperty("onto2"),(Properties)null);
+			result = new UnreachableOntology(newId(),mess,myId,mess.getSender(),params.getProperty("onto2"),(Properties)null);
 		    } else {
 			result = new NonConformParameters(newId(),mess,myId,mess.getSender(),"nonconform/params/"+e.getMessage(),(Properties)null);
 		    }
