@@ -22,11 +22,10 @@
   <!-- tested -->
   <target name="init">
     <property file="../../build.properties" />
-    <property name="version" value="4.0-"/>
-    <property name="piversion" value="8"/>
-    <property name="ntkvers" value="2.3.0"/>
+    <property name="piversion" value="9"/>
+    <property name="ntkvers" value="2.3"/>
 
-    <filter token="VERS" value="${version}/${ntkvers}-${piversion}"/>
+    <filter token="VERS" value="${ntkvers}.${piversion}/${version}"/>
 
     <path id="classpath">
       <fileset dir="./lib">
@@ -53,7 +52,7 @@
 
   <!-- tested -->
   <target name="lint" depends="init">
-    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, finally -->
+    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, cast, finally -->
     <echo message="Setting property..."/>
     <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>
@@ -93,9 +92,34 @@
       <!--fileset dir="../../lib/jwnl" includes="jwnl.jar"/-->
     </copy>
     <delete file="neonalign.jar"/>
-    <jar jarfile="fr.inrialpes.exmo.align.plugin.neontk_${ntkvers}-${piversion}.jar"
-    manifest="distrib/MANIFEST.MF">
+    <jar jarfile="fr.inrialpes.exmo.align.plugin.neontk_${ntkvers}.${piversion}.jar"
+	manifest="distrib/MANIFEST.MF">
       <!-- Ant-based manifest does not seems to work with the NeOn toolkit -->
+      <!--manifest>
+	<attribute name="Manifest-Version" value="1.0"/>
+	<attribute name="Bundle-ManifestVersion" value="2"/>
+	<attribute name="Bundle-Name" value="Alignment Plug-in"/>
+	<attribute name="Bundle-SymbolicName" value="fr.inrialpes.exmo.align.plugin.neontk;singleton:=true"/>
+	<attribute name="Bundle-Version" value="${ntkvers}.${piversion}"/>
+	<attribute name="Bundle-Localization" value="plugin"/>
+	<attribute name="Bundle-Activator" value="fr.inrialpes.exmo.align.plugin.neontk.AlignmentPlugin"/>
+	<attribute name="Require-Bundle" value='org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.forms,
+ org.semanticweb.owl,
+ org.neontoolkit.core,
+ org.neontoolkit.io,
+ com.ontoprise.ontostudio.owl.gui;bundle-version="2.3.0";visibility:=reexport,
+ com.ontoprise.ontostudio.owl.model;bundle-version="2.3.0"'/>
+	<attribute name="Eclipse-AutoStart" value="true"/>
+	<attribute name="Bundle-ClassPath" value=".,
+ lib/procalign.jar,
+ lib/align.jar,
+ lib/ontowrap.jar,
+ lib/ontosim.jar"/>
+     </manifest-->
+
       <fileset dir="neonalign" includes="**/*.*"/>
     </jar>
     <antcall target="cleanup"/>
