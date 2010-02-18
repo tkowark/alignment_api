@@ -355,7 +355,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 		if ( d instanceof OWLClass ) supers.add( (OWLClass)d );
 	    }
 	if ( local == OntologyFactory.LOCAL ) {
-	    return (Set<Object>)supers; 
+	    return supers; 
 	} else {
 	    // inherits the superclasses (unless we have to reduce them...)
 	    Set<Object> newsupers = new HashSet<Object>();

@@ -87,7 +87,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
      public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	 // Create the invokation message
 	 if ( params.getProperty("wserver") != null ) {
-	     serviceAddress = (String)params.getProperty("wserver");
+	     serviceAddress = params.getProperty("wserver");
 	 } else {
 	     throw new AlignmentException( "WSAlignment: required parameter : wserver" );
 	 }

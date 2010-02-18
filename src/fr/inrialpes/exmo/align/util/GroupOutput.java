@@ -248,7 +248,7 @@ public class GroupOutput {
 	// Unload the ontologies.
 	OntologyFactory.clear();
 
-	return (double)result/(double)tests.length;
+	return result/(double)tests.length;
     }
 
     public Evaluator eval( String alignName1, String alignName2 ) throws AlignmentException {

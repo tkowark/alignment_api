@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008
+ * Copyright (C) INRIA Rh�ne-Alpes, 2007-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -687,7 +687,7 @@ public class WSInterface {
 	    			result = new String[nl.getLength()];
 	    			
 	    			 for (int i=0; i< nl.getLength(); i++) {
-	    	 		      Node method = (Node) nl.item(i);
+	    	 		      Node method = nl.item(i);
  
 	    	 		      Node firstnode = method.getFirstChild();
 	    	   		      String nm = firstnode.getNodeValue();
@@ -719,7 +719,7 @@ public class WSInterface {
     	 		  NodeList ns = nn.getChildNodes();
     	 		  
     	 		  //tag "alid" is third
-    	 		  Node n3  = (Node) ns.item(3);
+    	 		  Node n3 = ns.item(3);
     	 		  Node nx  = n3.getFirstChild();
     	   		  String nm = nx.getNodeValue();
     	   		   
@@ -740,9 +740,9 @@ public class WSInterface {
 				                  "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
 				                  "<SOAP-ENV:Body>";
 		String messageBody = "";
-		String cmd = (String)params.getParameter( "command" );
+		String cmd = params.getParameter( "command" );
 		if ( cmd.equals("list" ) ) {
-		    String arg = (String)params.getParameter( "arg1" );
+		    String arg = params.getParameter( "arg1" );
 		    if ( arg.equals("methods" ) ){  
 			SOAPAction = "listmethodsRequest";
 		    } else if ( arg.equals("renderers" ) ){
@@ -759,8 +759,8 @@ public class WSInterface {
 		    SOAPAction = "wsdlRequest";
 		} else if ( cmd.equals("find" ) ) {
 		    SOAPAction = "findRequest";
-		    String uri1 = (String)params.getParameter( "arg1" );
-		    String uri2 = (String)params.getParameter( "arg2" );
+		    String uri1 = params.getParameter( "arg1" );
+		    String uri2 = params.getParameter( "arg2" );
 		    if ( uri2 == null ){
 			//usage();
 			System.exit(-1);
@@ -768,18 +768,18 @@ public class WSInterface {
 		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		} else if ( cmd.equals("match" ) ) {
 		    SOAPAction = "matchRequest";
-		    String uri1 = (String)params.getParameter( "arg1" );
-		    String uri2 = (String)params.getParameter( "arg2" );
+		    String uri1 = params.getParameter( "arg1" );
+		    String uri2 = params.getParameter( "arg2" );
 		    if ( uri2 == null ){
 			//usage();
 			System.exit(-1);
 		    }
 		    String method = null;
-		    String arg3 = (String)params.getParameter( "arg3" );
+		    String arg3 = params.getParameter( "arg3" );
 		    if ( arg3 != null ) {
 			method = uri1; uri1 = uri2; uri2 = arg3;
 		    }
-		    arg3 = (String)params.getParameter( "arg4" );
+		    arg3 = params.getParameter( "arg4" );
 		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		    if ( method != null )
 			messageBody += "<method>"+method+"</method>";
@@ -788,14 +788,14 @@ public class WSInterface {
 			messageBody += "<force>"+arg3+"</force>";
 		} else if ( cmd.equals("trim" ) ) {
 		    SOAPAction = "cutRequest";
-		    String id = (String)params.getParameter( "arg1" );
-		    String thres = (String)params.getParameter( "arg2" );
+		    String id = params.getParameter( "arg1" );
+		    String thres = params.getParameter( "arg2" );
 		    if ( thres == null ){
 			//usage();
 			//System.exit(-1);
 		    }
 		    String method = null;
-		    String arg3 = (String)params.getParameter( "arg3" );
+		    String arg3 = params.getParameter( "arg3" );
 		    if ( arg3 != null ) {
 			method = thres; thres = arg3;
 		    }
@@ -804,7 +804,7 @@ public class WSInterface {
 			messageBody += "<method>"+method+"</method>";
 		} else if ( cmd.equals("invert" ) ) {
 		    SOAPAction = "invertRequest";
-		    String uri = (String)params.getParameter( "arg1" );
+		    String uri = params.getParameter( "arg1" );
 		    if ( uri == null ){
 			//usage();
 			//System.exit(-1);
@@ -812,14 +812,14 @@ public class WSInterface {
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("store" ) ) {
 		    SOAPAction = "storeRequest";
-		    String uri = (String)params.getParameter( "arg1" );
+		    String uri = params.getParameter( "arg1" );
 		    if ( uri == null ) {
 			//usage();
 			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("load" ) ) {
-		    String url = (String)params.getParameter( "arg1" );
+		    String url = params.getParameter( "arg1" );
 		    if ( url == null ){
 			SOAPAction = "loadRequest";
 			/* 
@@ -853,8 +853,8 @@ public class WSInterface {
 		    */
 		} else if ( cmd.equals("retrieve" ) ) {
 		    SOAPAction = "retrieveRequest";
-		    String uri = (String)params.getParameter( "arg1" );
-		    String method = (String)params.getParameter( "arg2" );
+		    String uri = params.getParameter( "arg1" );
+		    String method = params.getParameter( "arg2" );
 		    if ( method == null ){
 			//usage();
 			//System.exit(-1);
@@ -862,8 +862,8 @@ public class WSInterface {
 		    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
 		} else if ( cmd.equals("metadata" ) ) {
 		    SOAPAction = "metadata";
-		    String uri = (String)params.getParameter( "arg1" );
-		    String key = (String)params.getParameter( "arg2" );
+		    String uri = params.getParameter( "arg1" );
+		    String key = params.getParameter( "arg2" );
 		    if ( key == null ){
 			//usage();
 			//System.exit(-1);

@@ -118,7 +118,7 @@ public class ObjectCell extends BasicCell {
     public Cell compose(Cell c) throws AlignmentException {
     	if (!object2.equals(c.getObject1()) && relation.compose(c.getRelation())==null )
     		return null;
-    	Cell result = (ObjectCell)new ObjectCell( (String)null, object1, c.getObject2(), relation.compose(c.getRelation()), strength*c.getStrength() );
+    	Cell result = new ObjectCell( (String)null, object1, c.getObject2(), relation.compose(c.getRelation()), strength*c.getStrength() );
     	// TODO : extension...
     	return result;
     }

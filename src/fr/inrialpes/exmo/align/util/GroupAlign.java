@@ -208,7 +208,7 @@ public class GroupAlign {
 	//int i = g.getOptind();
 
 	if (debug == 0 && params.getParameter("debug") != null) {
-	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	    debug = Integer.parseInt(params.getParameter("debug"));
 	}
 	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
 
@@ -224,8 +224,7 @@ public class GroupAlign {
 		else{
 			subdir = (new File(ontoDir)).listFiles();
 		}
-	}
-	catch (Exception e) {
+	} catch ( Exception e ) {
 	    System.err.println("Cannot stat dir "+ e.getMessage());
 	    usage();
 	}

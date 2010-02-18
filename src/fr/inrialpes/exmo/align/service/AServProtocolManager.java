@@ -114,7 +114,7 @@ public class AServProtocolManager {
 	myId = "http://"+prop.getProperty("host")+":"+prop.getProperty("http");
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
-	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic
+	methods.remove("fr.inrialpes.exmo.align.impl.DistanceAlignment"); // this one is generic, but not abstract
 	services = implementations( "fr.inrialpes.exmo.align.service.AlignmentServiceProfile" );
 	evaluators = implementations( "org.semanticweb.owl.align.Evaluator" );
     }
@@ -830,8 +830,6 @@ public class AServProtocolManager {
     }
 
     public static boolean implementsInterface( String classname, Class tosubclass, boolean debug ) {
-	// It is possible to suppress here abstract classes by:
-	//java.lang.reflect.Modifier.isAbstract( Class.forName(classname).getModifiers );
 	try {
 	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
 	    // JE: Here there is a bug that is that it is not possible
@@ -839,13 +837,16 @@ public class AServProtocolManager {
 	    // This is really stupid but that's life
 	    // So it is compulsory that AlignmentProcess be declared 
 	    // as implemented
-	    Class[] cls = Class.forName(classname).getInterfaces();
-	    for ( int i=0; i < cls.length ; i++ ){
-		if ( cls[i] == tosubclass ) {
+	    Class cl = Class.forName(classname);
+	    // It is possible to suppress here abstract classes by:
+	    if ( java.lang.reflect.Modifier.isAbstract( cl.getModifiers() ) ) return false;
+	    Class[] interfaces = cl.getInterfaces();
+	    for ( int i=interfaces.length-1; i >= 0  ; i-- ){
+		if ( interfaces[i] == tosubclass ) {
 		    if ( debug ) System.err.println(" -j-> "+classname);
 		    return true;
 		}
-		if ( debug ) System.err.println("       I> "+cls[i] );
+		if ( debug ) System.err.println("       I> "+interfaces[i] );
 	    }
 	    // Not one of our classes
 	} catch ( NoClassDefFoundError ncdex ) {

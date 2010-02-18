@@ -81,7 +81,7 @@ public class SymMeanEvaluator extends BasicEvaluator {
 	    if ( onto1.isClass( c1.getObject1() ) ) nbClassCell++;
 	    else if ( onto1.isProperty( c1.getObject1() ) ) nbPropCell++;
 	    else nbIndCell++;
-	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for ( Cell c2: s2 ){
 		    if ( c1.getObject2() == c2.getObject2() ) {

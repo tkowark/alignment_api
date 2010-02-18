@@ -237,7 +237,7 @@ public class ExtGroupEval {
 	    // store the result in a record
 	    // return the record.
 	    if ( debug > 1) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+m+".rdf");
+	    Evaluator evaluator = eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -292,7 +292,7 @@ public class ExtGroupEval {
 	try {
 	    // Print result
 	    if ( filename == null ) {
-		writer = (PrintStream)System.out;
+		writer = System.out;
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }
@@ -394,8 +394,8 @@ public class ExtGroupEval {
 	    int k = 0;
 	    for ( String m : listAlgo ) {
 		if ( foundVect[k] != -1 ){
-		    double precision = (double)correctVect[k]/foundVect[k];
-		    double recall = (double)correctVect[k]/expected;
+		    double precision = correctVect[k]/foundVect[k];
+		    double recall = correctVect[k]/expected;
 		    //for ( int i = 0 ; i < fsize; i++){
 			writer.print("<td>");
 			formatter.format("%1.2f", precision);

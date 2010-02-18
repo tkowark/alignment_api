@@ -140,7 +140,7 @@ public class CacheImpl {
     }
 
     public void close() throws SQLException  {
-	Statement st = (Statement)conn.createStatement();
+	Statement st = conn.createStatement();
 	// unregister by the database
 	st.executeUpdate("DELETE FROM server WHERE host='"+host+"' AND port='"+port+"'");
 	st.close();
@@ -168,7 +168,7 @@ public class CacheImpl {
 	
 	if (force) {
 	    // Retrieve the alignment ids
-	    ResultSet rs = (ResultSet) st.executeQuery("SELECT id FROM alignment");
+	    ResultSet rs = st.executeQuery("SELECT id FROM alignment");
 	    while(rs.next()) {
 		id = rs.getString("id");
 		idInfo.add(id);	
@@ -225,7 +225,7 @@ public class CacheImpl {
 	    Statement st = createStatement();
 	    // Get basic ontology metadata
 	    query = "SELECT * FROM alignment WHERE id = '" + id  +"'";
-	    rs = (ResultSet) st.executeQuery(query);
+	    rs = st.executeQuery(query);
 	    while(rs.next()) {
 		// Either uri1 or file1
 		result.setFile1( new URI( rs.getString("file1") ) ); 
@@ -240,7 +240,7 @@ public class CacheImpl {
 
 	    // Get extension metadata
 	    query = "SELECT * FROM extension WHERE id = '" + id + "'";
-	    rs = (ResultSet) st.executeQuery(query);
+	    rs = st.executeQuery(query);
 	    while(rs.next()) {
 		tag = rs.getString("tag");
 		value = rs.getString("val");
@@ -279,7 +279,7 @@ public class CacheImpl {
 
 	// Get cells
 	query = "SELECT * FROM cell WHERE id = '" + id + "'";
-	ResultSet rs = (ResultSet) st.executeQuery(query);
+	ResultSet rs = st.executeQuery(query);
 	while(rs.next()) {
 	    ent1 = new URI(rs.getString("uri1"));
 	    ent2 = new URI(rs.getString("uri2"));
@@ -295,7 +295,7 @@ public class CacheImpl {
 	    String cid = cell.getId();
 	    if ( cid != null && !cid.equals("") ){
 		query = "SELECT * FROM extension WHERE id = '" + cid + "'";
-		ResultSet rse = (ResultSet) st.executeQuery(query);
+		ResultSet rse = st.executeQuery(query);
 		while ( rse.next() ){
 		    cell.setExtension( rse.getString("uri"), 
 				       rse.getString("tag"), 
@@ -730,7 +730,7 @@ public class CacheImpl {
 	Statement st = createStatement();
 	// Check that no one else is connected...
 	if ( force != true ){
-	    ResultSet rs = (ResultSet) st.executeQuery("SELECT COUNT(*) AS rowcount FROM server WHERE edit=1");
+	    ResultSet rs = st.executeQuery("SELECT COUNT(*) AS rowcount FROM server WHERE edit=1");
 	    rs.next();
 	    int count = rs.getInt("rowcount") ;
 	    rs.close() ;
@@ -760,7 +760,7 @@ public class CacheImpl {
     public void updateDatabase() throws SQLException, AlignmentException {
 	Statement st = createStatement();
 	// get the version number
-	ResultSet rs = (ResultSet) st.executeQuery("SELECT version FROM server WHERE port='port'");
+	ResultSet rs = st.executeQuery("SELECT version FROM server WHERE port='port'");
 	rs.next();
 	int version = rs.getInt("version") ;
 	if ( version < VERSION ) {
@@ -770,7 +770,7 @@ public class CacheImpl {
 		    st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
 		    st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
 		    // Modify extensions
-		    ResultSet rse = (ResultSet) st.executeQuery("SELECT * FROM extension");
+		    ResultSet rse = st.executeQuery("SELECT * FROM extension");
 		    Statement st2 = createStatement();
 		    while ( rse.next() ){
 			String tag = rse.getString("tag");

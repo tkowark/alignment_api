@@ -35,7 +35,12 @@ import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import fr.inrialpes.exmo.ontosim.string.StringDistances;
 
-/** This class has been built for ISWC experiments with bibliography.
+/** 
+ * Establishes an alignment based on the comparison of the properties
+ * that classes have in common. These properties are themselves compared
+ * based on correspondences provided by an initial alignment.
+ *
+ * This class has been built for ISWC experiments with bibliography.
  * It implements a non iterative (one step) OLA algorithms based on
  * the name of classes and properties. It could be made iterative by
  *  just adding range/domain on properties...
@@ -132,7 +137,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 		    // check that there is a correspondance
 		    // in list of class2 atts and add their weights
 		    for ( Object prp : properties1 ){
-			Set<Cell> s2 = (Set<Cell>)getAlignCells1( prp );
+			Set<Cell> s2 = getAlignCells1( prp );
 			// Find the property with the higest similarity
 			// that is matched here
 			double currentValue = 0.;

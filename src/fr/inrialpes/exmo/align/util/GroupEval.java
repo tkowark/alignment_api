@@ -234,7 +234,7 @@ public class GroupEval {
 	    // store the result in a record
 	    // return the record.
 	    if ( debug > 2) System.err.println("  Considering result "+i);
-	    Evaluator evaluator = (Evaluator)eval( prefix+reference, prefix+m+".rdf");
+	    Evaluator evaluator = eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
 	}
@@ -417,7 +417,7 @@ which the program does...
 	try {
 	    // Print result
 	    if ( filename == null ) {
-		writer = (PrintStream)System.out;
+		writer = System.out;
 	    } else {
 		writer = new PrintStream(new FileOutputStream( filename ));
 	    }

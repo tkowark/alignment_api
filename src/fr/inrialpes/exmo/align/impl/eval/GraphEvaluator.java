@@ -79,26 +79,26 @@ public abstract class GraphEvaluator extends BasicEvaluator {
 	SortedSet<Cell> cellSet = new TreeSet<Cell>(
 			    new Comparator<Cell>() {
 				public int compare( Cell o1, Cell o2 )
-				    throws ClassCastException{
+				    throws ClassCastException {
 				    try {
-					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+((Cell)o2).getObject1()+" -- "+((Cell)o2).getObject2());
+					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+o2.getObject1()+" -- "+o2.getObject2());
 				    if ( o1 instanceof Cell && o2 instanceof Cell ) {
-					if ( ((Cell)o1).getStrength() > ((Cell)o2).getStrength() ){
+					if ( o1.getStrength() > o2.getStrength() ){
 					    return -1;
-					} else if ( ((Cell)o1).getStrength() < ((Cell)o2).getStrength() ){
+					} else if ( o1.getStrength() < o2.getStrength() ){
 					    return 1;
 					//The comparator must always tell that things are different!
-					} else if ( (((Cell)o1).getObject1AsURI(align1).getFragment() == null)
-						    || (((Cell)o2).getObject1AsURI(align2).getFragment() == null) ) {
+					} else if ( (o1.getObject1AsURI(align1).getFragment() == null)
+						    || (o2.getObject1AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject1AsURI(align1).getFragment().compareTo(((Cell)o2).getObject1AsURI(align2).getFragment()) > 0) {
+					} else if ( o1.getObject1AsURI(align1).getFragment().compareTo(o2.getObject1AsURI(align2).getFragment()) > 0) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject1AsURI(align1).getFragment().compareTo(((Cell)o2).getObject1AsURI(align2).getFragment()) < 0 ) {
+					} else if ( o1.getObject1AsURI(align1).getFragment().compareTo(o2.getObject1AsURI(align2).getFragment()) < 0 ) {
 					    return 1;
-					} else if ( (((Cell)o1).getObject2AsURI(align1).getFragment() == null)
-						    || (((Cell)o2).getObject2AsURI(align2).getFragment() == null) ) {
+					} else if ( (o1.getObject2AsURI(align1).getFragment() == null)
+						    || (o2.getObject2AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( ((Cell)o1).getObject2AsURI(align1).getFragment().compareTo(((Cell)o2).getObject2AsURI(align2).getFragment()) > 0) {
+					} else if ( o1.getObject2AsURI(align1).getFragment().compareTo(o2.getObject2AsURI(align2).getFragment()) > 0) {
 					    return -1;
 					// We assume that they have different names
 					} else { return 1; }

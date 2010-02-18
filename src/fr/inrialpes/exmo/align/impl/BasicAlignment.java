@@ -193,7 +193,7 @@ public class BasicAlignment implements Alignment {
     };
 
     public String getXNamespace( String label ) {
-	return (String)namespaces.getParameter( label );
+	return namespaces.getParameter( label );
     };
 
     public Enumeration<Cell> getElements() {
@@ -254,7 +254,7 @@ public class BasicAlignment implements Alignment {
 	    hash1.put(c.getObject1(),s1);
 	}
 	found = false;
-	Set<Cell> s2 = (Set<Cell>)hash2.get(c.getObject2());
+	Set<Cell> s2 = hash2.get(c.getObject2());
 	if( s2 != null ){
 	    // I must check that there is no one here
 	    for (Iterator i=s2.iterator(); !found && i.hasNext(); ) {
@@ -442,24 +442,24 @@ public class BasicAlignment implements Alignment {
 	    i = java.lang.Math.min( size, new Double(threshold*100).intValue() );
 	} else if ( method.equals("hardgap") || method.equals("propgap") ){
 	    double gap;
-	    double last = ((Cell)buffer.get(0)).getStrength();
+	    double last = buffer.get(0).getStrength();
 	    if ( method.equals("propgap") ) gap = last * threshold;
 	    else gap = threshold;
 	    for( i=1; i < size ; i++ ) {
-		if ( last - ((Cell)buffer.get(i)).getStrength() > gap ) break;
+		if ( last - buffer.get(i).getStrength() > gap ) break;
 		else {
-		    last = ((Cell)buffer.get(i)).getStrength();
+		    last = buffer.get(i).getStrength();
 		    if ( method.equals("propgap") ) gap = last * threshold;
 		}
 	    }
 	} else {
 	    double max;
 	    if ( method.equals("hard") ) max = threshold;
-	    else if ( method.equals("span") ) max = ((Cell)buffer.get(0)).getStrength() - threshold;
-	    else if ( method.equals("prop") ) max = ((Cell)buffer.get(0)).getStrength() * threshold;
+	    else if ( method.equals("span") ) max = buffer.get(0).getStrength() - threshold;
+	    else if ( method.equals("prop") ) max = buffer.get(0).getStrength() * threshold;
 	    else throw new AlignmentException( "Not a cut specification : "+method );
 	    for( i=0; i < size ; i++) {
-		if ( ((Cell)buffer.get(i)).getStrength() < max ) break;
+		if ( buffer.get(i).getStrength() < max ) break;
 	    }
 	}
 	// Introduce the result back in the structure
@@ -467,7 +467,7 @@ public class BasicAlignment implements Alignment {
 	hash1.clear();
 	hash2.clear();
 	for( i=0; i < size; i++ ) {
-	    addCell( (Cell)buffer.get(i) );
+	    addCell( buffer.get(i) );
 	}
     };
 
@@ -524,7 +524,7 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException("Can only diff alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
 	for ( Cell c1 : this ) {
-	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
 		for ( Cell c2 : s2 ){
@@ -554,7 +554,7 @@ public class BasicAlignment implements Alignment {
 	    throw new AlignmentException("Can only meet alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
 	for ( Cell c1 : this ) {
-	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
 		for ( Cell c2 : s2 ){
@@ -585,7 +585,7 @@ public class BasicAlignment implements Alignment {
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
 	result.ingest( align );
 	for ( Cell c1 : this ) {
-	    Set<Cell> s2 = (Set<Cell>)align.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align.getAlignCells1( c1.getObject1() );
 	    boolean found = false;
 	    if ( s2 != null ){
 		for ( Cell c2 : s2 ){

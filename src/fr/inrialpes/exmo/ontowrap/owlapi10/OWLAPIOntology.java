@@ -99,10 +99,10 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Object getEntity( URI uri ) throws AlignmentException {
 	try {
-	    OWLEntity result = ((OWLOntology)onto).getClass( uri );
-	    if ( result == null ) result = ((OWLOntology)onto).getDataProperty( uri );
-	    if ( result == null ) result = ((OWLOntology)onto).getObjectProperty( uri );
-	    if ( result == null ) result = ((OWLOntology)onto).getIndividual( uri );
+	    OWLEntity result = onto.getClass( uri );
+	    if ( result == null ) result = onto.getDataProperty( uri );
+	    if ( result == null ) result = onto.getObjectProperty( uri );
+	    if ( result == null ) result = onto.getIndividual( uri );
 	    return result;
 	} catch (OWLException ex) {
 	    throw new AlignmentException( "Cannot dereference URI : "+uri );
@@ -263,7 +263,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getClasses() {
 	try {
-	    return ((OWLOntology)onto).getClasses(); // [W:unchecked]
+	    return onto.getClasses(); // [W:unchecked]
 	    //return getEntities(OWLClass.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -272,7 +272,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getProperties() {
 	try {
-	    //return ((OWLOntology)onto).getProperties(); // [W:unchecked]
+	    //return onto.getProperties(); // [W:unchecked]
 	    return getEntities(OWLProperty.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -283,7 +283,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	try {
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
-	    return ((OWLOntology)onto).getDataProperties(); // [W:unchecked]
+	    return onto.getDataProperties(); // [W:unchecked]
 	    //return getEntities(OWLDataProperty.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -295,7 +295,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    // [Warning:unchecked] due to OWL API not serving generic types
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
-	    return ((OWLOntology)onto).getObjectProperties(); // [W:unchecked]
+	    return onto.getObjectProperties(); // [W:unchecked]
 	    // This method works better (??)
 	    //return getEntities(OWLObjectProperty.class);
 	} catch (OWLException ex) {
@@ -305,7 +305,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getIndividuals() {
 	try {
-	    return ((OWLOntology)onto).getIndividuals(); // [W:unchecked]
+	    return onto.getIndividuals(); // [W:unchecked]
 	    //return getEntities(OWLIndividual.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -321,7 +321,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public int nbClasses() {
 	if ( nbclasses != -1 ) return nbclasses;
 	try {
-	    nbclasses = ((OWLOntology)onto).getClasses().size();
+	    nbclasses = onto.getClasses().size();
 	    return nbclasses;
 	} catch (OWLException oex) {
 	    return 0;
@@ -337,7 +337,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public int nbObjectProperties() {
 	if ( nbobjectproperties != -1 ) return nbobjectproperties;
 	try {
-	    nbobjectproperties = ((OWLOntology)onto).getObjectProperties().size();
+	    nbobjectproperties = onto.getObjectProperties().size();
 	    return nbobjectproperties;
 	} catch (OWLException oex) {
 	    return 0;
@@ -347,7 +347,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public int nbDataProperties() {
 	if ( nbdataproperties != -1 ) return nbdataproperties;
 	try {
-	    nbdataproperties = ((OWLOntology)onto).getDataProperties().size();
+	    nbdataproperties = onto.getDataProperties().size();
 	    return nbdataproperties;
 	} catch (OWLException oex) {
 	    return 0;
@@ -357,7 +357,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public int nbIndividuals() {
 	if ( nbindividuals != -1 ) return nbindividuals;
 	try {
-	    nbindividuals = ((OWLOntology)onto).getIndividuals().size();
+	    nbindividuals = onto.getIndividuals().size();
 	    return nbindividuals;
 	} catch (OWLException oex) {
 	    return 0;
@@ -366,7 +366,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public void unload() {
 	try {
-	    ((OWLOntology)onto).getOWLConnection().notifyOntologyDeleted( ((OWLOntology)onto) );
+	    onto.getOWLConnection().notifyOntologyDeleted( onto );
 	} catch (OWLException ex) { System.err.println(ex); };
     }
 

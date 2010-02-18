@@ -43,8 +43,7 @@ import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
  * @version $Id$ 
  */
 
-public class DistanceAlignment extends ObjectAlignment implements AlignmentProcess
-{
+public class DistanceAlignment extends ObjectAlignment implements AlignmentProcess {
     Similarity sim;
 
     /** Creation **/

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2009
+ * Copyright (C) INRIA, 2003-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     /* Processing */
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	// Get function from params
-	String f = (String)params.getProperty("stringFunction");
+	String f = params.getProperty("stringFunction");
 	try {
 	    if ( f != null ) methodName = f.trim();
 	    Class sClass = Class.forName("java.lang.String");
@@ -87,7 +87,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	} catch (ClassNotFoundException e) {
 	    e.printStackTrace(); // never happens
 	} catch (NoSuchMethodException e) {
-	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+(String)params.getProperty("stringFunction"), e );
+	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+params.getProperty("stringFunction"), e );
 	}
 
 	// JE2010: Strange: why does it is not equivalent to call

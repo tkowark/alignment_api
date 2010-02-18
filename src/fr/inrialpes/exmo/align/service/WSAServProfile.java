@@ -214,7 +214,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		// However, there is a way to pass SOAP messages with attachments
 		// It would be better to implement this. See:
 		// http://www.oracle.com/technology/sample_code/tech/java/codesnippet/webservices/attachment/index.html
-		message = ((String)param.getProperty("content")).trim();
+		message = param.getProperty("content").trim();
 		// Create the DOM tree for the SOAP message
 		Document domMessage = null;
 		try {
@@ -258,14 +258,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.store( new Message(newId(),(Message)null,myId,serverURL,(String)newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.store( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
 	    }
 	    msg += "    <storeResponse>\n"+answer.SOAPString()+"    </storeResponse>\n";
 	} else if ( method.equals("invertRequest") || method.equals("invert") ) { // URI -> URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverURL, (String)newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverURL, newparameters.getProperty( "id" ), newparameters) );
 	    }
 	    msg += "    <invertResponse>\n"+answer.SOAPString()+"    </invertResponse>\n";
 	} else if ( method.equals("trimRequest") || method.equals("trim") ) { // URI * string * float -> URI
@@ -277,7 +277,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		if ( newparameters.getProperty( "type" ) == null ) {
 		    newparameters.setProperty( "type", "hard" );
 		}
-		answer = manager.trim( new Message(newId(),(Message)null,myId,serverURL,(String)newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.trim( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
 	    }
 	    msg += "    <trimResponse>\n"+answer.SOAPString()+"    </trimResponse>\n";
 	} else if ( method.equals("matchRequest") || method.equals("match") ) { // URL * URL * URI * String * boolean * (newparameters) -> URI
@@ -299,7 +299,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		if ( newparameters.getProperty( "wsmethod" ) == null ) {
 		    newparameters.setProperty( "method", "fr.inrialpes.exmo.align.impl.method.StringDistAlignment" );
 		} else {
-		    newparameters.setProperty( "method", (String)newparameters.getProperty( "wsmethod" ) );
+		    newparameters.setProperty( "method", newparameters.getProperty( "wsmethod" ) );
 	    	} // Match the two ontologies
 		Message result = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
 		if ( result instanceof ErrorMsg ) {

@@ -86,7 +86,7 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	for ( String[] ext : align.getExtensions() ){
 	    String prefix = ext[0];
 	    String name = ext[1];
-	    String tag = (String)nslist.get(prefix);
+	    String tag = nslist.get(prefix);
 	    if ( tag == null ) {
 		tag = "ns"+gen++;
 		nslist.put( prefix, tag );

@@ -195,7 +195,7 @@ public class Procalign {
 	if (debug > 0) {
 	    params.setParameter( "debug", Integer.toString(debug) );
 	} else if ( params.getParameter("debug") != null ) {
-	    debug = Integer.parseInt((String)params.getParameter("debug"));
+	    debug = Integer.parseInt( params.getParameter("debug") );
 	}
 
 	try {

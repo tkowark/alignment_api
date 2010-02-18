@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2008-2009
+ * Copyright (C) INRIA, 2004-2005, 2008-2010
  * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ import java.io.PrintStream;
 import java.io.File;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 
@@ -55,6 +54,8 @@ import org.semanticweb.owl.align.Parameters;
 
 public class BasicParameters extends Properties implements Parameters, Cloneable {
  
+    static final long serialVersionUID = 400L;
+
     /** The list of unlinked out  XML_Port */
     //Hashtable<String,Object> parameters = null;
     
@@ -135,7 +136,7 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 		Element paramElement = (Element)paramList.item(s);
 		String paramName = paramElement.getAttribute("name");
 		NodeList paramContent = paramElement.getChildNodes();
-		String paramValue =((Node)paramContent.item(0)).getNodeValue().trim();
+		String paramValue = paramContent.item(0).getNodeValue().trim();
 		p.setParameter(paramName, paramValue); 
 	    }
 	} catch (SAXParseException err) {

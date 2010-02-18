@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2009
+ * Copyright (C) INRIA, 2004-2009, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -112,7 +112,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
 	    nbexpected++;
-	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();

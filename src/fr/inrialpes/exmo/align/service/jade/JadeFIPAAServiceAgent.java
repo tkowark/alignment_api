@@ -174,7 +174,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 						}else if (ce instanceof METADATA){
 							//TODO
 						}else if (ce instanceof STORE){
-							Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,(String)params.getParameter("id"),params));
+							Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,params.getParameter("id"),params));
 							if(!(answer instanceof ErrorMsg)){
 								ACLMessage JADEanswer=msg.createReply();
 								JADEanswer.setLanguage(codec.getName());
@@ -262,7 +262,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 	BasicParameters toReturn = param;
 	Action action= (Action)ce;
 	for( Iterator<Parameter> iter = action.getAllHasParameter(); iter.hasNext(); ){
-	    Parameter OntoParam = (Parameter)iter.next();
+	    Parameter OntoParam = iter.next();
 	    toReturn.setParameter( OntoParam.getName(), OntoParam.getValue() ); 
 	}
 	return toReturn;
