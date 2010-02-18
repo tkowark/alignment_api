@@ -807,11 +807,14 @@ public class AServProtocolManager {
 		if ( implementsInterface( entryName, tosubclass, debug ) ) {
 			    list.add( entryName );
 		}
-	    } else if( entryName.endsWith(".jar") ) { // a jar in a jar
+	    } else if( entryName.endsWith(".jar") &&
+		       !visited.contains( entryName ) ) { // a jar in a jar
+		if ( debug ) System.err.println("JAR "+entryName);
+		visited.add( entryName );
 		//System.err.println(  "jarEntry is a jarfile="+je.getName() );
 		try {
 		    InputStream jarSt = jar.getInputStream( (ZipEntry)entry );
-		    File f = File.createTempFile( "aservTmpFile", "jar" );
+		    File f = File.createTempFile( "aservTmpFile"+visited.size(), "jar" );
 		    OutputStream out = new FileOutputStream( f );
 		    byte buf[]=new byte[1024];
 		    int len1 ;
