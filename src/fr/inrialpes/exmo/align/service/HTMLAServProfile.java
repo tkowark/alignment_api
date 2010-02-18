@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009.
+ * Copyright (C) INRIA, 2006-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -347,13 +347,13 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
 	    params.setProperty( "restful", "true" );
 	    //The return format is XML by default 
-	    if ( params.getProperty("return") == null || ((String)params.getProperty("return")).equals("XML") ) 
+	    if ( params.getProperty("return") == null || (params.getProperty("return")).equals("XML") ) 
 	    	 params.setProperty( "renderer", "XML" );
 	    else 
 	    	 params.setProperty( "renderer", "HTML" );
 
 	    if ( wsmanager != null ) {
-		if( ((String)params.getProperty("renderer")).equals("HTML") )
+		if( (params.getProperty("renderer")).equals("HTML") )
 		    return htmlAnswer( uri, uri.substring(start), header, params );
 		else {
 		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
@@ -376,8 +376,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"/html/\">Access</a></center>"
-	    + "(C) INRIA, 2006-2009<br />"
+	    + "(C) INRIA, 2006-2010<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a>"
+	    + "<small>$Id$</small>"
 	    + "</center>";
     }
 
@@ -420,7 +421,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmsqlquery") ){
 	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
-	    String answer = manager.query( (String)params.getProperty("query") );
+	    String answer = manager.query( params.getProperty("query") );
 	    msg = "<pre>"+answer+"</pre>";
 	} else if ( perf.equals("about") ){
 	    msg = about();
@@ -505,8 +506,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
-	    String id = (String)params.getProperty("id");
-	    String url = (String)params.getProperty("url");
+	    String id = params.getProperty("id");
+	    String url = params.getProperty("url");
 	    if ( url != null && !url.equals("") ) { // Load the URL
 		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -525,7 +526,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} else if ( perf.equals("prmtrim") ) {
-	    String sel = (String)params.getProperty("id");
+	    String sel = params.getProperty("id");
 	    msg ="<h1>Trim alignments</h1><form action=\"trim\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
@@ -541,8 +542,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
 	} else if ( perf.equals("trim") ) {
-	    String id = (String)params.getProperty("id");
-	    String threshold = (String)params.getProperty("threshold");
+	    String id = params.getProperty("id");
+	    String threshold = params.getProperty("threshold");
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
 		Message answer = manager.trim( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -564,7 +565,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\"/><br /></form>";
 	} else if ( perf.equals("inv") ) {
-	    String id = (String)params.getProperty("id");
+	    String id = params.getProperty("id");
 	    if ( id != null && !id.equals("") ){ // Invert it
 		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
 		if ( answer instanceof ErrorMsg ) {
@@ -579,10 +580,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String RESTOnto2 = "";
 	    String readonlyOnto = "";
 	    //Ontologies from Cupboard may be already provided here.
-	    if ( (String)params.getProperty("restful") != null && 
-		 ((String)params.getProperty("renderer")).equals("HTML") ) {
-		RESTOnto1 = (String)params.getProperty("onto1");
-		RESTOnto2 = (String)params.getProperty("onto2");
+	    if ( params.getProperty("restful") != null && 
+		 (params.getProperty("renderer")).equals("HTML") ) {
+		RESTOnto1 = params.getProperty("onto1");
+		RESTOnto2 = params.getProperty("onto2");
 		//if(RESTOnto1 != null && !RESTOnto1.equals("") && RESTOnto2 != null && !RESTOnto2.equals("")) 
 		readonlyOnto = "readonly=\"readonly\"";
 	    }
@@ -621,7 +622,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
-	    String sel = (String)params.getProperty("id");
+	    String sel = params.getProperty("id");
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
 	    msg += "Alignment id:  <select name=\"id\">";
 	    for( Alignment al: manager.alignments() ){
@@ -661,7 +662,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
 	} else if ( perf.equals("metadata") ) {
-	    if( params.getProperty("renderer") == null || ((String)params.getProperty("renderer")).equals("HTML") )
+	    if( params.getProperty("renderer") == null || (params.getProperty("renderer")).equals("HTML") )
 	    	params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.HTMLMetadataRendererVisitor");
 	    else
 		params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
@@ -712,7 +713,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = testErrorMessages( answer, params );
 	    } else {
 		msg = "<h1>Message translation</h1>";
-		msg += "<h2>Initial message</h2><pre>"+((String)params.getProperty("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
+		msg += "<h2>Initial message</h2><pre>"+(params.getProperty("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
 		msg += "<h2>Translated message</h2><pre>";
 		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 		msg += "</pre>";
@@ -813,8 +814,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private String displayAnswer( Message answer, BasicParameters param ) {
 	String result = null;
-	if( (String)param.getProperty("restful") != null ) {
-	    if( ((String)param.getProperty("return")).equals("HTML") ) {
+	if( param.getProperty("restful") != null ) {
+	    if( param.getProperty("return").equals("HTML") ) {
 	    	result = answer.HTMLRESTString();
 	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
 		     result += "<table><tr>";
