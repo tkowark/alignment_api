@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2009, 2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -196,7 +196,7 @@ public class AlignmentService {
     }
 
     protected Object loadInstance( String className) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-	Class cl = Class.forName(className);
+	Class<?> cl = Class.forName(className);
 	java.lang.reflect.Constructor constructor = cl.getConstructor( (Class[])null );
 	return constructor.newInstance( (Object[])null );
     }

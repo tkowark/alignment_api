@@ -223,13 +223,14 @@ public class AServProtocolManager {
     }
 
     // Implements: align
+    @SuppressWarnings( "unchecked" )
     public Message align( Message mess ){
 	Message result = null;
 	Properties p = mess.getParameters();
 	// These are added to the parameters wich are in the message
 	//for ( String key : commandLineParams ) {
 	// Unfortunately non iterable
-	for ( Enumeration<String> e = (Enumeration<String>)commandLineParams.propertyNames(); e.hasMoreElements();) {
+	for ( Enumeration<String> e = (Enumeration<String>)commandLineParams.propertyNames(); e.hasMoreElements();) { //[W:unchecked]
 	    String key = e.nextElement();
 	    if ( p.getProperty( key ) == null ){
 		p.setProperty( key , commandLineParams.getProperty( key ) );
@@ -574,9 +575,9 @@ public class AServProtocolManager {
 	Evaluator eval = null;
 	try {
 	    Object [] mparams = {(Object)ref, (Object)al};
-	    Class oClass = Class.forName("org.semanticweb.owl.align.Alignment");
+	    Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
 	    Class[] cparams = { oClass, oClass };
-	    Class evaluatorClass =  Class.forName(classname);
+	    Class<?> evaluatorClass =  Class.forName(classname);
 	    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
 	    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
 	} catch (Exception ex) {
@@ -934,7 +935,7 @@ public class AServProtocolManager {
 		Object[] mparams = {};
 		if ( method == null )
 		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-		Class alignmentClass = Class.forName(method);
+		Class<?> alignmentClass = Class.forName(method);
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);

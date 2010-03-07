@@ -149,8 +149,8 @@ public class GenPlot {
 	    }
 	}
 
-	Class evalClass = Class.forName( cl );
-	Class oClass = Class.forName("org.semanticweb.owl.align.Alignment");
+	Class<?> evalClass = Class.forName( cl );
+	Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
 	Class[] cparams = { oClass, oClass };
 	evalConstructor = evalClass.getConstructor( cparams );
 

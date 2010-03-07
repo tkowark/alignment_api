@@ -284,7 +284,7 @@ public class GroupAlign {
 	    // Create alignment object
 	    Object[] mparams = {};
 	    Class[] cparams = {};
-	    Class alignmentClass = Class.forName(alignmentClassName);
+	    Class<?> alignmentClass = Class.forName(alignmentClassName);
 	    java.lang.reflect.Constructor alignmentConstructor =
 		alignmentClass.getConstructor(cparams);
 	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);

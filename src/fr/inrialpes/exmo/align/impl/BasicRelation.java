@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,7 +78,7 @@ public class BasicRelation implements Relation
 	} else {
 	    try {
 		// Create a relation from classname
-		Class relationClass = Class.forName(rel);
+		Class<?> relationClass = Class.forName(rel);
 		Constructor relationConstructor = relationClass.getConstructor((Class[])null);
 		relation = (Relation)relationConstructor.newInstance((Object[])null);
 	    } catch ( Exception ex ) {

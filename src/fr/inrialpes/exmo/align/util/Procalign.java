@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, INRIA Rhône-Alpes
+ * Copyright (C) 2003-2008, 2010 INRIA Rhône-Alpes
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -225,7 +225,7 @@ public class Procalign {
 
 		// Create alignment object
 		Object[] mparams = {};
-		Class alignmentClass = Class.forName(alignmentClassName);
+		Class<?> alignmentClass = Class.forName(alignmentClassName);
 		Class[] cparams = {};
 		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);

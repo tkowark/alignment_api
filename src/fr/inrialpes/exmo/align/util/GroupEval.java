@@ -189,8 +189,8 @@ public class GroupEval {
 	print( iterateDirectories() );
     }
 
-    public Vector<Object> iterateDirectories (){
-	Vector<Object> result = null;
+    public Vector<Vector> iterateDirectories (){
+	Vector<Vector> result = null;
 	File [] subdir = null;
 	try {
 		if (ontoDir == null) {
@@ -204,14 +204,14 @@ public class GroupEval {
 	}
 	int size = subdir.length;
         Arrays.sort(subdir);
-	result = new Vector<Object>(size);
+	result = new Vector<Vector>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
 		if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
 		// eval the alignments in a subdirectory
 		// store the result
-		Object vect = (Object)iterateAlignments( subdir[j] );
+		Vector vect = iterateAlignments( subdir[j] );
 		if ( vect != null ){
 		    result.add(i, vect);
 		    i++;
@@ -277,7 +277,7 @@ public class GroupEval {
     /**
      * This does not only print the results but compute the average as well
      */
-    public void print( Vector result ) {
+    public void print( Vector<Vector> result ) {
 	if ( type.equals("html") ) printHTML( result );
 	else if ( type.equals("tex") ) printLATEX( result );
 	else if ( type.equals("triangle") ) printTRIANGLE( result );
