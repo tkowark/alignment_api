@@ -4,7 +4,7 @@
 * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Copyright (C) 2005 Digital Enterprise Research Insitute (DERI) Galway
  * Sourceforge version 1.2 - 2008 - then NamespaceDefs.java
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,18 +38,17 @@ public enum Namespace {
 	//ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align"),
     ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align", true),
 	ALIGNSVC("http://exmo.inrialpes.fr/align/service","alignsvc",true),
-	// JE2009: is this never used??
-	//OMWG("http://ns.inria.org/edoal/0.9", "omwg", true),
 	EDOAL("http://ns.inria.org/edoal/1.0/", "edoal", true),
 	DUBLIN_CORE("http://purl.org/dc/elements/1.1/", "dc", false),
 	RDF_SCHEMA("http://www.w3.org/2000/01/rdf-schema#", "rdfs", false),
+	SOAP_ENV("http://schemas.xmlsoap.org/soap/envelope/", "soapenv", false),
 	XSD("http://www.w3.org/2001/XMLSchema#", "xsd", false),
-	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false),
-	WSML_CORE("http://www.wsmo.org/wsml/wsml-syntax/wsml-core", "wsml", true),
-	WSML_FLIGHT("http://www.wsmo.org/wsml/wsml-syntax/wsml-flight", "wsml", true),
-	WSML_RULE("http://www.wsmo.org/wsml/wsml-syntax/wsml-rule", "wsml", true),
-	WSML_DL("http://www.wsmo.org/wsml/wsml-syntax/wsml-dl", "wsml", true),
-	WSML_FULL("http://www.wsmo.org/wsml/wsml-syntax/wsml-full", "wsml", true);
+	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false);
+	//WSML_CORE("http://www.wsmo.org/wsml/wsml-syntax/wsml-core", "wsml", true),
+	//WSML_FLIGHT("http://www.wsmo.org/wsml/wsml-syntax/wsml-flight", "wsml", true),
+	//WSML_RULE("http://www.wsmo.org/wsml/wsml-syntax/wsml-rule", "wsml", true),
+	//WSML_DL("http://www.wsmo.org/wsml/wsml-syntax/wsml-dl", "wsml", true),
+	//WSML_FULL("http://www.wsmo.org/wsml/wsml-syntax/wsml-full", "wsml", true);
 
 	public final String uri;
 
@@ -60,7 +59,7 @@ public enum Namespace {
 	 */
 	private final boolean addSharp;
 
-	private String prefix;
+	public final String prefix;
 
 	private static final Map<String, Namespace> register = new HashMap<String, Namespace>();
 
