@@ -37,7 +37,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.rel.*;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -104,7 +106,11 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 
     public URI getURI2() throws AlignmentException {
 	if ( onto2 != null ) {
-	    return onto2.getEntityURI( cell.getObject2() );
+	    try {
+		return onto2.getEntityURI( cell.getObject2() );
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Cannot find entity URI", owex );
+	    }
 	} else {
 	    return cell.getObject2AsURI( alignment );
 	}
@@ -113,7 +119,11 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     public void visit( Cell cell ) throws AlignmentException {
 	this.cell = cell;
 	if ( onto1 != null ) {
-	    writer.print("  <skos:Concept rdf:about=\""+onto1.getEntityURI( cell.getObject1() )+"\">\n");
+	    try {
+		writer.print("  <skos:Concept rdf:about=\""+onto1.getEntityURI( cell.getObject1() )+"\">\n");
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Cannot find entity URI", owex );
+	    }
 	} else {
 	    writer.print("  <skos:Concept rdf:about=\""+cell.getObject1AsURI( alignment )+"\">\n");
 	}

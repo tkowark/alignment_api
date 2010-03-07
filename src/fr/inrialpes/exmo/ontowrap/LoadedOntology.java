@@ -23,13 +23,11 @@ package fr.inrialpes.exmo.ontowrap;
 import java.net.URI;
 import java.util.Set;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 public interface LoadedOntology<O> extends Ontology<O> {
 
-    public Object getEntity( URI u ) throws AlignmentException;
+    public Object getEntity( URI u ) throws OntowrapException;
 
-    public URI getEntityURI( Object o ) throws AlignmentException;
+    public URI getEntityURI( Object o ) throws OntowrapException;
     
     /**
      * returns the default name of an entity if specified.
@@ -39,9 +37,9 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * last fragment (after the last "/" or just before) in this order.
      * @param o the entity
      * @return a label
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public String getEntityName( Object o ) throws AlignmentException;
+    public String getEntityName( Object o ) throws OntowrapException;
 
     /**
      * returns the default name of an entity in a language (attribute xml:lang)
@@ -50,9 +48,9 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * otherwise returns the default name (getEntityName)
      * @param o the entity
      * @return a label
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public String getEntityName( Object o, String lang ) throws AlignmentException;
+    public String getEntityName( Object o, String lang ) throws OntowrapException;
 
     /**
      * returns all the names of an entity in a language if specified.
@@ -60,33 +58,33 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * @param o the entity
      * @param lang the code of the language ("en", "fr", "es", etc.) 
      * @return the default name
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public Set<String> getEntityNames( Object o, String lang ) throws AlignmentException;
+    public Set<String> getEntityNames( Object o, String lang ) throws OntowrapException;
     /**
      * Returns all the names a given entity (e.g., rdfs:labels in OWL/RDFS).
      * @param o the entity
      * @return the set of labels
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public Set<String> getEntityNames( Object o ) throws AlignmentException;
+    public Set<String> getEntityNames( Object o ) throws OntowrapException;
     
     /**
      * Returns the values ofof textual properties (e.g., "rdfs:comment", rdfs:label in RDFS/OWL) for a given entity and for a given natural language (attribute xml:lang).
      * @param o the entity
      * @param lang the code of the language ("en", "fr", "es", etc.) 
      * @return the set of comments
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException;
+    public Set<String> getEntityComments( Object o , String lang ) throws OntowrapException;
     
     /**
      * Returns all the values of textual properties (e.g., "rdfs:comment", rdfs:label in RDFS/OWL) for a given entity
      * @param o the entity
      * @return the set of comments
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public Set<String> getEntityComments( Object o ) throws AlignmentException;
+    public Set<String> getEntityComments( Object o ) throws OntowrapException;
     
     /**
      * Returns all the values of the "owl:AnnotationProperty" property for a given entity. 
@@ -94,9 +92,9 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * but also all other defined annotation properties which are subClass of "owl:AnnotationProperty"
      * @param o the entity
      * @return the set of annotation values
-     * @throws AlignmentException
+     * @throws OntowrapException
      */
-    public Set<String> getEntityAnnotations( Object o ) throws AlignmentException;
+    public Set<String> getEntityAnnotations( Object o ) throws OntowrapException;
 
     public boolean isEntity( Object o );
     public boolean isClass( Object o );
@@ -105,12 +103,12 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public boolean isObjectProperty( Object o );
     public boolean isIndividual( Object o );
 
-    public Set<?> getEntities();
-    public Set<?> getClasses();
-    public Set<?> getProperties();
-    public Set<?> getObjectProperties();
-    public Set<?> getDataProperties();
-    public Set<?> getIndividuals();
+    public Set<? extends Object> getEntities();
+    public Set<? extends Object> getClasses();
+    public Set<? extends Object> getProperties();
+    public Set<? extends Object> getObjectProperties();
+    public Set<? extends Object> getDataProperties();
+    public Set<? extends Object> getIndividuals();
 
     public int nbEntities();
     public int nbClasses();

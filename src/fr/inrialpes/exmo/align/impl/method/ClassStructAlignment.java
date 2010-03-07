@@ -32,6 +32,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.ontosim.string.StringDistances;
 
@@ -108,12 +109,16 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	// Initialize class distances
 	// JE: Here AlignmentException is raised if cl or classlist2.get(j)
 	// cannot be identified as an Entity, maybe this should be traped here
-	for ( i=0; i<nbclass1; i++ ){
-	    Object cl = classlist1.get(i);
-	    for ( j=0; j<nbclass2; j++ ){
-		classmatrix[i][j] = pic1 * StringDistances.subStringDistance(honto1.getEntityName( cl ).toLowerCase(),
-									     honto2.getEntityName( classlist2.get(j) ).toLowerCase());
+	try {
+	    for ( i=0; i<nbclass1; i++ ){
+		Object cl = classlist1.get(i);
+		for ( j=0; j<nbclass2; j++ ){
+		    classmatrix[i][j] = pic1 * StringDistances.subStringDistance(honto1.getEntityName( cl ).toLowerCase(),
+										 honto2.getEntityName( classlist2.get(j) ).toLowerCase());
+		}
 	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
 
 	if (debug > 0) System.err.print("Computing class distances\n");

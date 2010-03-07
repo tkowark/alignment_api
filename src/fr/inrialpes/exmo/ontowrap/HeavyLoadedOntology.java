@@ -22,8 +22,6 @@ package fr.inrialpes.exmo.ontowrap;
 
 import java.util.Set;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * Encapsulate deep access to an ontology through some Ontology API
  *

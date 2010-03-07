@@ -34,6 +34,7 @@ import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 
@@ -81,7 +82,11 @@ public class ObjectCell extends BasicCell {
 	if ( al instanceof BasicAlignment ) {
 	    Object ontology = ((BasicAlignment)al).getOntologyObject1();
 	    if ( ontology instanceof LoadedOntology ) {
-		return ((LoadedOntology)ontology).getEntityURI( object1 );
+		try {
+		    return ((LoadedOntology)ontology).getEntityURI( object1 );
+		} catch ( OntowrapException owex ) {
+		    throw new AlignmentException( "Cannot find entity URI(1)", owex );
+		}
 	    }
 	};
 	if ( object1 instanceof URI ) {
@@ -94,7 +99,11 @@ public class ObjectCell extends BasicCell {
 	if ( al instanceof BasicAlignment ) {
 	    Object ontology = ((BasicAlignment)al).getOntologyObject2();
 	    if ( ontology instanceof LoadedOntology ) {
-		return ((LoadedOntology)ontology).getEntityURI( object2 );
+		try {
+		    return ((LoadedOntology)ontology).getEntityURI( object2 );
+		} catch ( OntowrapException owex ) {
+		    throw new AlignmentException( "Cannot find entity URI(2)", owex );
+		}
 	    }
 	};
         if ( object2 instanceof URI ) {

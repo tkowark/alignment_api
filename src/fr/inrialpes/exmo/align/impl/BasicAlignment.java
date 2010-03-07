@@ -45,6 +45,7 @@ import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Represents a basic ontology alignment, i.e., a fully functionnal alignment
@@ -103,6 +104,7 @@ public class BasicAlignment implements Alignment {
 	init( onto1, onto2 );
     }
 
+    @SuppressWarnings( "unchecked" )
     public void init( Object onto1, Object onto2 ) throws AlignmentException {
 	if ( onto1 instanceof Ontology ) {
 	    this.onto1 = (Ontology<Object>)onto1; // [W:unchecked]

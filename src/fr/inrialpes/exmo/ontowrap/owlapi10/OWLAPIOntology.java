@@ -39,11 +39,10 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import org.semanticweb.owl.io.vocabulary.RDFSVocabularyAdapter;
 import org.semanticweb.owl.model.OWLAnnotationInstance;
@@ -97,7 +96,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     // -----------------------------------------------------------------
     // LoadedOntology interface [//DONE]
 
-    public Object getEntity( URI uri ) throws AlignmentException {
+    public Object getEntity( URI uri ) throws OntowrapException {
 	try {
 	    OWLEntity result = onto.getClass( uri );
 	    if ( result == null ) result = onto.getDataProperty( uri );
@@ -105,19 +104,19 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    if ( result == null ) result = onto.getIndividual( uri );
 	    return result;
 	} catch (OWLException ex) {
-	    throw new AlignmentException( "Cannot dereference URI : "+uri );
+	    throw new OntowrapException( "Cannot dereference URI : "+uri );
 	}
     }
 
-    public URI getEntityURI( Object o ) throws AlignmentException {
+    public URI getEntityURI( Object o ) throws OntowrapException {
 	try {
 	    return ((OWLEntity)o).getURI();
 	} catch (OWLException oex) {
-	    throw new AlignmentException( "Cannot get URI ", oex );
+	    throw new OntowrapException( "Cannot get URI ", oex );
 	}
     }
 
-    public String getEntityName( Object o ) throws AlignmentException {
+    public String getEntityName( Object o ) throws OntowrapException {
 	try {
 	    // Try to get labels first...
 	    URI u = ((OWLEntity)o).getURI();
@@ -128,12 +127,12 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
     };
 
-    public String getEntityName( Object o, String lang ) throws AlignmentException {
+    public String getEntityName( Object o, String lang ) throws OntowrapException {
 	// Should first get the label in the language
 	return getEntityName( o );
     }
 
-    public Set<String> getEntityNames( Object o , String lang ) throws AlignmentException {
+    public Set<String> getEntityNames( Object o , String lang ) throws OntowrapException {
 	try {
 	    OWLEntity e = ((OWLEntity) o);
 	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getLabel());
@@ -141,7 +140,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    return null;
 	}
     }
-    public Set<String> getEntityNames( Object o ) throws AlignmentException {
+    public Set<String> getEntityNames( Object o ) throws OntowrapException {
 	try {
 	    OWLEntity e = ((OWLEntity) o);
 	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getLabel());
@@ -151,7 +150,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     };
 
 
-    public Set<String> getEntityComments( Object o , String lang ) throws AlignmentException {
+    public Set<String> getEntityComments( Object o , String lang ) throws OntowrapException {
 	try {
 	    OWLEntity e = ((OWLEntity) o);
 	    return getAnnotations(e,lang,RDFSVocabularyAdapter.INSTANCE.getComment());
@@ -160,7 +159,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
     };
 
-    public Set<String> getEntityComments( Object o ) throws AlignmentException {
+    public Set<String> getEntityComments( Object o ) throws OntowrapException {
 	try {
 	    OWLEntity e = ((OWLEntity) o);
 	    return getAnnotations(e,null,RDFSVocabularyAdapter.INSTANCE.getComment());
@@ -207,7 +206,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	return annots;*/
     }
 
-    public Set<String> getEntityAnnotations( Object o ) throws AlignmentException {
+    public Set<String> getEntityAnnotations( Object o ) throws OntowrapException {
 	try {
 	    return getAnnotations(((OWLEntity) o),null,null);
 	} catch (OWLException oex) {
@@ -487,7 +486,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	return supers;
     }
     public Set<Object> getRange( Object p, int asserted ){
-	Set resultSet = new HashSet(); 
+	Set<Object> resultSet = new HashSet<Object>(); 
 	try {
 	    for ( Object ent : ((OWLProperty)p).getRanges( getOntology() ) ){
 		// Not correct
@@ -499,8 +498,9 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	} catch (OWLException ex) {};
 	return resultSet;
     }
+
     public Set<Object> getDomain( Object p, int asserted ){
-	Set resultSet = new HashSet(); 
+	Set<Object> resultSet = new HashSet<Object>(); 
 	try {
 	    for ( Object ent : ((OWLProperty)p).getDomains( getOntology() ) ){
 		// Not correct
@@ -512,6 +512,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	} catch (OWLException ex) {};
 	return resultSet;
     }
+
     public Set<Object> getClasses( Object i, int local, int asserted, int named ){
 	Set<Object> supers = null;
 	try {
@@ -529,8 +530,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public Set<Object> getCardinalityRestrictions( Object p ){//JFDK
 	Set<Object> spcl = new HashSet<Object>();
 	try {
-	    Set<Object> sup = ((OWLClass)p).getSuperClasses( getOntology() );
-	    for( Object rest : sup ){
+	    for( Object rest : ((OWLClass)p).getSuperClasses( getOntology() ) ){
 		// This should be filtered
 		if (rest instanceof OWLCardinalityRestriction) spcl.add( rest );
 	    }
@@ -543,7 +543,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
      * Inherits all properties of a class
      */
     private Set<Object> getInheritedProperties( OWLClass cl ) {
-	Set resultSet = new HashSet(); 
+	Set<Object> resultSet = new HashSet<Object>(); 
 	try { getProperties( cl, resultSet ); }
 	catch (OWLException ex) {};
 	return resultSet;

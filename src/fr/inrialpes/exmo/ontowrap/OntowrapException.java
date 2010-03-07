@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010
+ * Copyright (C) INRIA Rhône-Alpes, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,23 +18,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package fr.inrialpes.exmo.ontowrap;
+package fr.inrialpes.exmo.ontowrap; 
 
-import java.net.URI;
+import java.lang.Exception;
 
-//import org.semanticweb.owl.align.Visitable;
+/**
+ * Base class for all Ontowrap Exceptions.
+ *
+ *
+ * @author Jérôme Euzenat
+ * @version $Id: OntowrapException.java 670 2008-03-02 00:06:16Z euzenat $
+ */
 
-public interface Ontology<O> {//extends Visitable {
+public class OntowrapException extends Exception {
 
-    public URI getURI();
-    public URI getFile();
-    public URI getFormURI(); // Can be null
-    public String getFormalism(); // Can be null
-    public O getOntology();
+    private static final long serialVersionUID = 400;
 
-    public void setURI( URI uri );
-    public void setFile( URI file );
-    public void setFormURI( URI u );
-    public void setFormalism( String name );
-    public void setOntology( O o );
+    public OntowrapException( String message )
+    {
+	super( message );
+    }
+    
+    public OntowrapException( String message, Exception e )
+    {
+	super( message, e );
+    }
+    
 }
+

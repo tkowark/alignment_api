@@ -37,6 +37,7 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -176,14 +177,18 @@ public class COWLMappingRendererVisitor implements AlignmentVisitor
     }
 
     public void printObject( Object ob, LoadedOntology onto ) throws AlignmentException {
-	if ( onto.isClass( ob )  ) {
-	    writer.print("         <owl:Class rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
-	} else if ( onto.isDataProperty( ob ) ) { 
-	    writer.print("         <owl:DataProperty rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
-	} else if ( onto.isObjectProperty( ob ) ) { 
-	    writer.print("         <owl:ObjectProperty rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
-	} else if ( onto.isIndividual( ob ) ) {
-	    writer.print("         <owl:Individual rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
+	try {
+	    if ( onto.isClass( ob )  ) {
+		writer.print("         <owl:Class rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
+	    } else if ( onto.isDataProperty( ob ) ) { 
+		writer.print("         <owl:DataProperty rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
+	    } else if ( onto.isObjectProperty( ob ) ) { 
+		writer.print("         <owl:ObjectProperty rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
+	    } else if ( onto.isIndividual( ob ) ) {
+		writer.print("         <owl:Individual rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
     }
 }

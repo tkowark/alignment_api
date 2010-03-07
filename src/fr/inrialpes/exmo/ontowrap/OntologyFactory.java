@@ -25,8 +25,6 @@ import java.util.Hashtable;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 public abstract class OntologyFactory {
 
     public static int ANY = 0;
@@ -65,7 +63,7 @@ public abstract class OntologyFactory {
 	if ( of != null ) return of;
 	try {
 	    // This should also be a static getInstance!
-	    Class ofClass = Class.forName(apiName);
+	    Class<?> ofClass = Class.forName(apiName);
 	    Class[] cparams = {};
 	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor(cparams);
 	    Object[] mparams = {};
@@ -103,18 +101,18 @@ public abstract class OntologyFactory {
      * Encapsulate an ontology already in the environment
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology newOntology( Object onto ) throws AlignmentException;
+    public abstract LoadedOntology newOntology( Object onto ) throws OntowrapException;
 
     /**
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology loadOntology( URI uri ) throws AlignmentException;
+    public abstract LoadedOntology loadOntology( URI uri ) throws OntowrapException;
 
     /**
      * Load an ontology, cache enabled if true, disabled otherwise
      * This will disappear: cache will be dispatched in implementations
-    public LoadedOntology loadOntology( URI uri, OntologyCache<LoadedOntology> ontologies ) throws AlignmentException {
+    public LoadedOntology loadOntology( URI uri, OntologyCache<LoadedOntology> ontologies ) throws OntowrapException {
 	LoadedOntology onto = null;
 	if ( ontologies != null ) {
 	    onto = ontologies.getOntologyFromURI( uri );

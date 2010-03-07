@@ -37,7 +37,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
+
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a SWRL rule set interpreting
@@ -103,7 +105,12 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
     public void visit( EquivRelation rel ) throws AlignmentException {
 	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
 	Object ob1 = cell.getObject1();
-	URI uri1 = onto1.getEntityURI( ob1 );
+	URI uri1;
+	try {
+	    uri1 = onto1.getEntityURI( ob1 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI(1)", owex );
+	}
 	writer.println("  <ruleml:imp>");
 	writer.println("    <ruleml:_body>");
 	if ( onto1.isClass( ob1 ) ){
@@ -125,7 +132,12 @@ public class SWRLRendererVisitor implements AlignmentVisitor {
 	writer.println("    </ruleml:_body>");
 	writer.println("    <ruleml:_head>");
 	Object ob2 = cell.getObject2();
-	URI uri2 = onto2.getEntityURI( ob2 );
+	URI uri2;
+	try {
+	    uri2 = onto2.getEntityURI( ob2 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI(2)", owex );
+	}
 	if ( onto2.isClass( ob2 ) ){
 	    writer.println("      <swrlx:classAtom>");
 	    writer.println("        <owllx:Class owllx:name=\""+uri2+"\"/>");

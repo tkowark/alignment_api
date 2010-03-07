@@ -37,7 +37,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
+
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -88,32 +90,36 @@ public class SEKTMappingRendererVisitor implements AlignmentVisitor {
 	String id = String.format( "s%06d", generator.nextInt(100000) );
 	Object ob1 = cell.getObject1();
 	Object ob2 = cell.getObject2();
-	if ( onto1.isClass( ob1 ) ) {
-	    writer.print("  classMapping( <\"#"+id+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
-	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
-	    writer.print("  )\n");
-	} else if ( onto1.isDataProperty( ob1 ) ) {
-	    writer.print("  relationMapping( <\"#"+id+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
-	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
-	    writer.print("  )\n");
-	} else if ( onto1.isObjectProperty( ob1 ) ) {
-	    writer.print("  attributeMapping( <\"#"+id+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
-	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
-	    writer.print("  )\n");
-	} else if ( onto1.isIndividual( ob1 ) ) {
-	    writer.print("  instanceMapping( <\"#"+id+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
-	    writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
-	    writer.print("  )\n");
+	try {
+	    if ( onto1.isClass( ob1 ) ) {
+		writer.print("  classMapping( <\"#"+id+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+		writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+		writer.print("  )\n");
+	    } else if ( onto1.isDataProperty( ob1 ) ) {
+		writer.print("  relationMapping( <\"#"+id+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+		writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+		writer.print("  )\n");
+	    } else if ( onto1.isObjectProperty( ob1 ) ) {
+		writer.print("  attributeMapping( <\"#"+id+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+		writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+		writer.print("  )\n");
+	    } else if ( onto1.isIndividual( ob1 ) ) {
+		writer.print("  instanceMapping( <\"#"+id+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("    <\""+onto1.getEntityURI( ob1 )+"\">\n");
+		writer.print("    <\""+onto2.getEntityURI( ob2 )+"\">\n");
+		writer.print("  )\n");
+	    }
+	    writer.print("\n");
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
-	writer.print("\n");
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {

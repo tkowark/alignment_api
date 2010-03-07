@@ -32,6 +32,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.align.impl.Similarity;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
@@ -159,7 +160,7 @@ public abstract class MatrixMeasure implements Similarity {
 	    }
 	    indmatrix = new double[nbind1+1][nbind2+1];
 	    //System.err.println(nbclass1+"/"+nbclass2+" - "+nbprop1+"/"+nbprop2+" - "+nbind1+"/"+nbind2);
-	} catch (AlignmentException e) { e.printStackTrace(); };
+	} catch (OntowrapException e) { e.printStackTrace(); };
     }
 
     public void compute( Properties params ){
@@ -229,7 +230,7 @@ public abstract class MatrixMeasure implements Similarity {
 		}
 		System.out.println("\\\\");
 	    }
-	} catch (AlignmentException e) { e.printStackTrace(); };
+	} catch (OntowrapException e) { e.printStackTrace(); };
 	System.out.println("\n\\end{tabular}");
     }
 

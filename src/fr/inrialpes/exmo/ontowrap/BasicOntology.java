@@ -22,9 +22,6 @@ package fr.inrialpes.exmo.ontowrap;
 
 import java.net.URI;
 
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * Store the information regarding ontologies in a specific structure
  */
@@ -38,10 +35,6 @@ public class BasicOntology<O> implements Ontology<O> {
     protected O onto = null;
 
     public BasicOntology() {};
-
-    public void accept( AlignmentVisitor visitor) throws AlignmentException {
-        visitor.visit( this );
-    }
 
     public URI getURI() { return uri; }
     public URI getFile() { return file; }

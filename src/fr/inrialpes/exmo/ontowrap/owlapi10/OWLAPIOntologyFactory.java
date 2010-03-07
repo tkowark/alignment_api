@@ -31,17 +31,16 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
-import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.model.OWLException;
+import org.semanticweb.owl.model.OWLOntology;
+import org.semanticweb.owl.util.OWLConnection;
+import org.semanticweb.owl.util.OWLManager;
 
 import fr.inrialpes.exmo.ontowrap.OntologyCache;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
-
-import org.semanticweb.owl.model.OWLException;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.util.OWLConnection;
-import org.semanticweb.owl.util.OWLManager;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class OWLAPIOntologyFactory extends OntologyFactory {
 
@@ -60,7 +59,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	cache.clear();
     }
 
-    public OWLAPIOntology newOntology( Object ontology ) throws AlignmentException {
+    public OWLAPIOntology newOntology( Object ontology ) throws OntowrapException {
 	if ( ontology instanceof OWLOntology ) {
 	    OWLAPIOntology onto = new OWLAPIOntology();
 	    onto.setFormalism( formalismId );
@@ -70,17 +69,17 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    try {
 		onto.setURI( ((OWLOntology)ontology).getLogicalURI() );
 	    } catch (OWLException e) {
-		// Better put in the AlignmentException of loaded
+		// Better put in the OntowrapException of loaded
 		e.printStackTrace();
 	    }
 	    //cache.recordOntology( uri, onto );
 	    return onto;
 	} else {
-	    throw new AlignmentException( "Argument is not an OWLOntology: "+ontology );
+	    throw new OntowrapException( "Argument is not an OWLOntology: "+ontology );
 	}
     }
 
-    public OWLAPIOntology loadOntology( URI uri ) throws AlignmentException {
+    public OWLAPIOntology loadOntology( URI uri ) throws OntowrapException {
 	OWLAPIOntology onto = null;
 	onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
@@ -105,13 +104,13 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	    try {
 		onto.setURI( ontology.getLogicalURI() );
 	    } catch (OWLException e) {
-		// Better put in the AlignmentException of loaded
+		// Better put in the OntowrapException of loaded
 		e.printStackTrace();
 	    }
 	    cache.recordOntology( uri, onto );
 	    return onto;
 	} catch (OWLException e) {
-	    throw new AlignmentException("Cannot load "+uri, e );
+	    throw new OntowrapException("Cannot load "+uri, e );
 	}
     }
 }

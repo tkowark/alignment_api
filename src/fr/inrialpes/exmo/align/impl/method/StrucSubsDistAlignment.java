@@ -34,6 +34,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.ontosim.string.StringDistances;
 
@@ -130,32 +131,35 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
 	
-	if (debug > 0) System.err.println("Initializing property distances");
+	try{
+	    if (debug > 0) System.err.println("Initializing property distances");
 
-	for ( i=0; i<nbprop1; i++ ){
-	    Object cl1 = proplist1.get(i);
-	    String st1 = honto1.getEntityName( cl1 );
-	    if ( st1 != null) st1 = st1.toLowerCase();
-	    for ( j=0; j<nbprop2; j++ ){
-		Object cl2 = proplist2.get(j);
-		String st2 = honto2.getEntityName( cl2 );
-		if( st2 != null ) st2 = st2.toLowerCase();
-		if ( st1 != null || st2 != null ) {
-		    propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
-		} else {
-		    propmatrix[i][j] = pia1;
+	    for ( i=0; i<nbprop1; i++ ){
+		Object cl1 = proplist1.get(i);
+		String st1 = honto1.getEntityName( cl1 );
+		if ( st1 != null) st1 = st1.toLowerCase();
+		for ( j=0; j<nbprop2; j++ ){
+		    Object cl2 = proplist2.get(j);
+		    String st2 = honto2.getEntityName( cl2 );
+		    if( st2 != null ) st2 = st2.toLowerCase();
+		    if ( st1 != null || st2 != null ) {
+			propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
+		    } else {
+			propmatrix[i][j] = pia1;
+		    }
 		}
 	    }
-	}
 
-	if (debug > 0) System.err.println("Initializing class distances");
-	
-	// Initialize class distances
-	for ( i=0; i<nbclass1; i++ ){
-	    Object cl1 = classlist1.get(i);
-	    for ( j=0; j<nbclass2; j++ ){
-		classmatrix[i][j] = pic1*StringDistances.subStringDistance( honto1.getEntityName( cl1 ).toLowerCase(), honto2.getEntityName( classlist2.get(j) ).toLowerCase());
+	    // Initialize class distances
+	    if (debug > 0) System.err.println("Initializing class distances");
+	    for ( i=0; i<nbclass1; i++ ){
+		Object cl1 = classlist1.get(i);
+		for ( j=0; j<nbclass2; j++ ){
+		    classmatrix[i][j] = pic1*StringDistances.subStringDistance( honto1.getEntityName( cl1 ).toLowerCase(), honto2.getEntityName( classlist2.get(j) ).toLowerCase());
+		}
 	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
 
 	// Iterate until completion

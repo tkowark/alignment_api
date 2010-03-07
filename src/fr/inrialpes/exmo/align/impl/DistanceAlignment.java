@@ -34,6 +34,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
 
@@ -209,6 +210,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		  }
 	      }
 	  }
+      } catch (OntowrapException owex) { owex.printStackTrace(); //}
       } catch (AlignmentException alex) { alex.printStackTrace(); }
       return((Alignment)this);
     }
@@ -294,45 +296,46 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	// For individuals
 	if (  params.getProperty("noinst") == null ){
-	try{
-	    // Create individual lists
-	    Object[] ind1 = new Object[ontology1().nbIndividuals()];
-	    Object[] ind2 = new Object[ontology2().nbIndividuals()];
-	    int nbind1 = 0;
-	    int nbind2 = 0;
-	    for( Object ob : ontology2().getIndividuals() ){
-		// We suppress anonymous individuals... this is not legitimate
-		if ( ontology2().getEntityURI( ob ) != null ) {
-		    ind2[nbind2++] = ob;
+	    try{
+		// Create individual lists
+		Object[] ind1 = new Object[ontology1().nbIndividuals()];
+		Object[] ind2 = new Object[ontology2().nbIndividuals()];
+		int nbind1 = 0;
+		int nbind2 = 0;
+		for( Object ob : ontology2().getIndividuals() ){
+		    // We suppress anonymous individuals... this is not legitimate
+		    if ( ontology2().getEntityURI( ob ) != null ) {
+			ind2[nbind2++] = ob;
+		    }
 		}
-	    }
-	    for( Object ob : ontology1().getIndividuals() ){
-		// We suppress anonymous individuals... this is not legitimate
-		if ( ontology1().getEntityURI( ob ) != null ) {
-		    ind1[nbind1++] = ob;
+		for( Object ob : ontology1().getIndividuals() ){
+		    // We suppress anonymous individuals... this is not legitimate
+		    if ( ontology1().getEntityURI( ob ) != null ) {
+			ind1[nbind1++] = ob;
+		    }
 		}
-	    }
-	    double[][] matrix = new double[nbind1][nbind2];
-	    int i, j;
-	    for( i=0; i < nbind1; i++ ){
-		for( j=0; j < nbind2; j++ ){
-		    matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
+		double[][] matrix = new double[nbind1][nbind2];
+		int i, j;
+		for( i=0; i < nbind1; i++ ){
+		    for( j=0; j < nbind2; j++ ){
+			matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
+		    }
 		}
-	    }
-	    // Pass it to the algorithm
-	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
-	    // Extract the result
-	    for( i=0; i < result.length ; i++ ){
-		// The matrix has been destroyed
-		double val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
-		// JE: here using strict-> is a very good idea.
-		// it means that alignments with 0. similarity
-		// will be excluded from the best match. 
-		if( val > threshold ){
-		    addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		// Pass it to the algorithm
+		int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+		// Extract the result
+		for( i=0; i < result.length ; i++ ){
+		    // The matrix has been destroyed
+		    double val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+		    // JE: here using strict-> is a very good idea.
+		    // it means that alignments with 0. similarity
+		    // will be excluded from the best match. 
+		    if( val > threshold ){
+			addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		    }
 		}
-	    }
-	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	    } catch (AlignmentException alex) { alex.printStackTrace(); //}
+	    } catch (OntowrapException owex) { owex.printStackTrace(); }
 	}
 	return((Alignment)this);
     }
@@ -379,7 +382,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 					    return -1;
 					// Assume they have different names
 					} else { return 1; }
-				    } catch ( AlignmentException e) { 
+				    } catch ( OntowrapException e) { 
 					e.printStackTrace(); return 0;}
 				}
 			    }
@@ -441,6 +444,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 
       } catch (AlignmentException alex) {
 	  alex.printStackTrace();
+      } catch (OntowrapException owex) {
+	  owex.printStackTrace();
       };
       return((Alignment)this);
     }

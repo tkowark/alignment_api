@@ -29,6 +29,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -118,14 +119,19 @@ public class ExtPREvaluator extends BasicEvaluator {
 	    if( s2 != null ){
 		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
 		    Cell c2 = (Cell)it2.next();
-		    URI uri1 = onto2.getEntityURI( c1.getObject2() );
-		    URI uri2 = onto2.getEntityURI( c2.getObject2() );	
-		    // if (c1.getobject2 == c2.getobject2)
-		    if ( uri1.toString().equals(uri2.toString()) ) {
-			symsimilarity += 1.;
-			effsimilarity += 1.;
-			orientsimilarity += 1.;
-			c1 = null; // out of the loop.
+		    try {
+			URI uri1 = onto2.getEntityURI( c1.getObject2() );
+			URI uri2 = onto2.getEntityURI( c2.getObject2() );	
+			// if ( uri1.equals( uri2 ) )
+			if ( uri1.toString().equals(uri2.toString()) ) {
+			    symsimilarity += 1.;
+			    effsimilarity += 1.;
+			    orientsimilarity += 1.;
+			    c1 = null; // out of the loop.
+			}
+		    } catch ( OntowrapException owex ) {
+			// This may be ignored as well
+			throw new AlignmentException( "Cannot find entity URI", owex );
 		    }
 		}
 		// if nothing has been found
@@ -178,6 +184,7 @@ public class ExtPREvaluator extends BasicEvaluator {
 		    if ( val != 0 && val < minval ) minval = val;
 		}
 	    }
+	} catch( OntowrapException aex ) { return 0;
 	} catch( AlignmentException aex ) { return 0; }
 	//return symALPHA; //^minval;
 	return Math.pow( symALPHA, minval );
@@ -239,26 +246,30 @@ public class ExtPREvaluator extends BasicEvaluator {
      * It would require to have a isDirectSubClassOf().
      */
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	URI uri1 = ontology.getEntityURI( class1 );
-	Set<Object> bufferedSuperClasses = null;
-	Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
-	int level = 0;
-
-	while ( !superclasses.isEmpty() ){
-	    bufferedSuperClasses = superclasses;
-	    superclasses = new HashSet<Object>();
-	    level++;
-	    for( Object entity : bufferedSuperClasses ) {
-		if ( ontology.isClass( entity ) ){
-		    URI uri2 = ontology.getEntityURI( entity );
-		    //if ( entity == class2 ) return true;
-		    if ( uri1.toString().equals(uri2.toString()) ) {
-			return level;
-		    } else {
-			superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
+	try {
+	    URI uri1 = ontology.getEntityURI( class1 );
+	    Set<Object> bufferedSuperClasses = null;
+	    Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    int level = 0;
+	    
+	    while ( !superclasses.isEmpty() ){
+		bufferedSuperClasses = superclasses;
+		superclasses = new HashSet<Object>();
+		level++;
+		for( Object entity : bufferedSuperClasses ) {
+		    if ( ontology.isClass( entity ) ){
+			URI uri2 = ontology.getEntityURI( entity );
+			//if ( entity == class2 ) return true;
+			if ( uri1.toString().equals(uri2.toString()) ) {
+			    return level;
+			} else {
+			    superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
+			}
 		    }
 		}
 	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
 	// get the 
 	return 0;

@@ -24,8 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Ontology;
@@ -34,6 +32,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntologyCache;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class JENAOntologyFactory extends OntologyFactory {
 
@@ -49,7 +48,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
     }
 
-    public JENAOntology newOntology( Object ontology ) throws AlignmentException {
+    public JENAOntology newOntology( Object ontology ) throws OntowrapException {
 	if ( ontology instanceof OntModel ) {
 	    JENAOntology onto = new JENAOntology();
 	    onto.setFormalism( formalismId );
@@ -66,17 +65,17 @@ public class JENAOntologyFactory extends OntologyFactory {
 		    onto.setURI(new URI(((OntModel)ontology).getNsPrefixURI("")));
 		}
 	    } catch ( URISyntaxException usex ){
-		// Better put in the AlignmentException of loaded
-		throw new AlignmentException( "URI Error ", usex );
+		// Better put in the OntowrapException of loaded
+		throw new OntowrapException( "URI Error ", usex );
 	    }
 	    cache.recordOntology( onto.getURI(), onto );
 	    return onto;
 	} else {
-	    throw new AlignmentException( "Argument is not an OntModel: "+ontology );
+	    throw new OntowrapException( "Argument is not an OntModel: "+ontology );
 	}
     }
 
-    public JENAOntology loadOntology( URI uri ) throws AlignmentException {
+    public JENAOntology loadOntology( URI uri ) throws OntowrapException {
 	JENAOntology onto = null;
 	onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
@@ -100,7 +99,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    cache.recordOntology( uri, onto );
 	    return onto;
         } catch (Exception e) {
-	    throw new AlignmentException("Cannot load "+uri, e );
+	    throw new OntowrapException("Cannot load "+uri, e );
 	}
     }
 

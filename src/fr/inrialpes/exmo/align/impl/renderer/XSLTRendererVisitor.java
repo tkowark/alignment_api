@@ -37,7 +37,9 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.rel.*;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a XSLT stylesheet transforming 
@@ -132,8 +134,12 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	URI entity1URI, entity2URI;
 	// JE: I think that now these two clauses should be unified (3.4)
 	if ( onto1 != null ){
-	    entity1URI = onto1.getEntityURI( cell.getObject1() );
-	    entity2URI = onto2.getEntityURI( cell.getObject2() );
+	    try {
+		entity1URI = onto1.getEntityURI( cell.getObject1() );
+		entity2URI = onto2.getEntityURI( cell.getObject2() );
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Cannot find entity URI", owex );
+	    }
 	} else {
 	    entity1URI = cell.getObject1AsURI(alignment);
 	    entity2URI = cell.getObject2AsURI(alignment);
@@ -155,8 +161,12 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
     public void visit( EquivRelation rel ) throws AlignmentException {
 	// The code is exactly the same for properties and classes
 	if ( onto1 != null ){
-	    writer.println("  <xsl:template match=\""+namespacify(onto1.getEntityURI( cell.getObject1() ))+"\">");
-	    writer.println("    <xsl:element name=\""+namespacify(onto2.getEntityURI( cell.getObject2() ))+"\">");
+	    try {
+		writer.println("  <xsl:template match=\""+namespacify(onto1.getEntityURI( cell.getObject1() ))+"\">");
+		writer.println("    <xsl:element name=\""+namespacify(onto2.getEntityURI( cell.getObject2() ))+"\">");
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Cannot find entity URI", owex );
+	    }
 	} else {
 	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI(alignment))+"\">");
 	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI(alignment))+"\">");

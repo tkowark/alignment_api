@@ -43,6 +43,7 @@ import org.semanticweb.owl.align.Parameters;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Represents an OWL ontology alignment. An ontology comprises a number of
@@ -140,25 +141,33 @@ public class ObjectAlignment extends BasicAlignment {
 	}
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
-	for ( Cell c : al ) {
-	    Cell newc = alignment.addAlignCell( c.getId(), 
-						o1.getEntity( c.getObject1AsURI(alignment) ),
-						o2.getEntity( c.getObject2AsURI(alignment) ),
-						c.getRelation(), 
-						c.getStrength() );
-	    Collection<String[]> exts = c.getExtensions();
-	    if ( exts != null ) {
-		for ( String[] ext : exts ){
-		    newc.setExtension( ext[0], ext[1], ext[2] );
+	try {
+	    for ( Cell c : al ) {
+		Cell newc = alignment.addAlignCell( c.getId(), 
+						    o1.getEntity( c.getObject1AsURI(alignment) ),
+						    o2.getEntity( c.getObject2AsURI(alignment) ),
+						    c.getRelation(), 
+						    c.getStrength() );
+		Collection<String[]> exts = c.getExtensions();
+		if ( exts != null ) {
+		    for ( String[] ext : exts ){
+			newc.setExtension( ext[0], ext[1], ext[2] );
+		    }
 		}
 	    }
-	};
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot dereference entity", owex );
+	}
 	return alignment;
     }
 
     static LoadedOntology loadOntology( URI ref ) throws AlignmentException {
 	OntologyFactory factory = OntologyFactory.getFactory();
-	return factory.loadOntology( ref );
+	try {
+	    return factory.loadOntology( ref );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot load ontology "+ref, owex );
+	}
     }
 }
 

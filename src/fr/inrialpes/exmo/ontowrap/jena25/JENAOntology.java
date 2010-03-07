@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
@@ -44,17 +42,18 @@ import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
 
     // JE: this is not very Java 1.5...
     // This is because of the version of Jena we use apparently
 
-    public Object getEntity(URI u) throws AlignmentException {
+    public Object getEntity(URI u) throws OntowrapException {
 	return onto.getOntResource(u.toString());
     }
     
-    public void getEntityAnnotations(Object o, Set<String> annots) throws AlignmentException {
+    public void getEntityAnnotations(Object o, Set<String> annots) throws OntowrapException {
 	OntResource or = (OntResource) o;
 	Iterator<?> z = onto.listAnnotationProperties();
 	while (z.hasNext()) {
@@ -70,13 +69,13 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	}
     }
 
-    public Set<String> getEntityAnnotations(Object o) throws AlignmentException {
+    public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	Set<String> annots = new HashSet<String>();
 	getEntityAnnotations(o,annots);
 	return annots;
     }
 
-    public Set<String> getEntityComments(Object o, String lang) throws AlignmentException {
+    public Set<String> getEntityComments(Object o, String lang) throws OntowrapException {
 	Set<String> comments = new HashSet<String>();
 	OntResource or = (OntResource) o;
 	Iterator<?> i = or.listComments(lang);
@@ -87,12 +86,12 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	return comments;
     }
 
-    public Set<String> getEntityComments(Object o) throws AlignmentException {
+    public Set<String> getEntityComments(Object o) throws OntowrapException {
 	return getEntityComments(o,null);
     }
 
 
-    public String getEntityName( Object o ) throws AlignmentException {
+    public String getEntityName( Object o ) throws OntowrapException {
 	try {
 	    // Should try to get labels first... (done in the OWLAPI way)
 	    return getFragmentAsLabel( new URI( ((OntResource) o).getURI() ) );
@@ -101,12 +100,12 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	}
     }
 
-    public String getEntityName( Object o, String lang ) throws AlignmentException {
+    public String getEntityName( Object o, String lang ) throws OntowrapException {
 	// Should first get the label in the language
 	return getEntityName( o );
     }
 
-    public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {
+    public Set<String> getEntityNames(Object o, String lang) throws OntowrapException {
 	Set<String> labels = new HashSet<String>();
 	OntResource or = (OntResource) o;
 	Iterator<?> i = or.listLabels(lang);
@@ -117,16 +116,16 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	return labels;
     }
 
-    public Set<String> getEntityNames(Object o) throws AlignmentException {
+    public Set<String> getEntityNames(Object o) throws OntowrapException {
 	return getEntityNames(o,null);
     }
 
-    public URI getEntityURI(Object o) throws AlignmentException {
+    public URI getEntityURI(Object o) throws OntowrapException {
 	try {
 	    OntResource or = (OntResource) o;
 	    return new URI(or.getURI());
 	} catch (Exception e) {
-	    throw new AlignmentException(o.toString()+" do not have uri", e );
+	    throw new OntowrapException(o.toString()+" do not have uri", e );
 	}
     }
 
