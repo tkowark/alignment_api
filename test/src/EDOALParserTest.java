@@ -67,7 +67,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import fr.inrialpes.exmo.align.impl.edoal.Path;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
