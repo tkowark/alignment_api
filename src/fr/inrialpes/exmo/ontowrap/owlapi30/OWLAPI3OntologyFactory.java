@@ -31,8 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntologyDocumentAlreadyExistsException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.IRI;
 
-import org.semanticweb.owl.align.AlignmentException;
-
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.ontowrap.OntologyCache;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
@@ -58,50 +57,49 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public OWLAPI3Ontology newOntology( Object ontology ) throws AlignmentException {
+    public OWLAPI3Ontology newOntology( Object ontology ) throws OntowrapException {
 	if ( ontology instanceof OWLOntology ) {
 	    OWLAPI3Ontology onto = new OWLAPI3Ontology();
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( (OWLOntology)ontology );
-	    //onto.setURI( ((OWLOntology)ontology).getURI() );
 	    onto.setURI( ((OWLOntology)ontology).getOntologyID().getOntologyIRI().toURI() );
-	    // JE: was commented but doubtful
-	    //cache.recordOntology( onto.getURI(), onto );
+	    cache.recordOntology( onto.getURI(), onto );
 	    cache.recordOntology( ((OWLOntology)ontology).getOntologyID().getOntologyIRI().toURI(), onto );
 	    return onto;
 	} else {
-	    throw new AlignmentException( "Argument is not an OWLOntology: "+ontology );
+	    throw new OntowrapException( "Argument is not an OWLOntology: "+ontology );
 	}
     }
 
     @Override
-    public HeavyLoadedOntology loadOntology( URI uri ) throws AlignmentException {
+    public HeavyLoadedOntology loadOntology( URI uri ) throws OntowrapException {
 	OWLAPI3Ontology onto = null;
-	// JE: Cache does not seem to work and
-	// seems to be useless with API 3.0!
-	//onto = cache.getOntologyFromURI( uri );
-	//if ( onto != null ) return onto;
-	//onto = cache.getOntology( uri );
-	//if ( onto != null ) return onto;
+	// Cache seems to be implemented in API 3.0 anyway
+	// and it seems to not work well with this one
+	onto = cache.getOntologyFromURI( uri );
+	if ( onto != null ) return onto;
+	onto = cache.getOntology( uri );
+	if ( onto != null ) return onto;
 	OWLOntology ontology;
 	try {
-	    //ontology = manager.loadOntologyFromPhysicalURI(uri);
 	    // This below does not seem to work!
 	    //ontology = manager.loadOntologyFromOntologyDocument( IRI.create( uri ) );
 	    ontology = manager.loadOntology( IRI.create( uri ) );
+	} catch ( OWLOntologyDocumentAlreadyExistsException oodaeex ) {
+	    // This is a cache failure
+	    throw new OntowrapException("Already loaded [cache failure] " + uri, oodaeex );
 	} catch ( OWLOntologyCreationException oocex ) {
 	    oocex.printStackTrace();
-	    throw new AlignmentException("Cannot load " + uri, oocex );
+	    throw new OntowrapException("Cannot load " + uri, oocex );
 	}
 	onto = new OWLAPI3Ontology();
 	onto.setFormalism( formalismId );
 	onto.setFormURI( formalismUri );
 	onto.setOntology( ontology );
 	onto.setFile( uri );
-	//onto.setURI( ontology.getURI() );
 	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
-	//cache.recordOntology( uri, onto );
+	cache.recordOntology( uri, onto );
 	return onto;
     }
     
@@ -111,6 +109,7 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 
     @Override
     public void clearCache() {
+	
 	cache.clear();
     }
 
