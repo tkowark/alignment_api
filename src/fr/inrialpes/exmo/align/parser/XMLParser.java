@@ -254,10 +254,10 @@ public class XMLParser extends DefaultHandler {
 	parseLevel++;
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
-	    if (pName.equals("relation")) {
+	    if (pName.equals( SyntaxElement.RULE_RELATION.name )) {
 	    } else if (pName.equals("semantics")) {
-	    } else if (pName.equals("measure")) {
-	    } else if (pName.equals("entity2")) {
+	    } else if (pName.equals( SyntaxElement.MEASURE.name )) {
+	    } else if (pName.equals( SyntaxElement.ENTITY2.name )) {
 		if(debugMode > 2) 
 		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
 		try {
@@ -265,7 +265,7 @@ public class XMLParser extends DefaultHandler {
 		} catch (URISyntaxException e) {
 		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
 		}
-	    } else if (pName.equals("entity1")) {
+	    } else if (pName.equals( SyntaxElement.ENTITY1.name )) {
 		if(debugMode > 2) 
 		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
 		try {
@@ -273,7 +273,7 @@ public class XMLParser extends DefaultHandler {
 		} catch (URISyntaxException e) {
 		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
 		}
-	    } else if (pName.equals("Cell")) {
+	    } else if (pName.equals( SyntaxElement.CELL.name )) {
 		if ( alignment == null )
 		    { throw new SAXException("No alignment provided"); };
 		if ( atts.getValue("rdf:ID") != null ){
@@ -287,25 +287,26 @@ public class XMLParser extends DefaultHandler {
 		extensions = null;
 		cl1 = null;
 		cl2 = null;
-	    } else if (pName.equals("map")) {
+		// JE 2010: test that it works with SE [SEEMS TO WORK]
+	    } else if (pName.equals( SyntaxElement.MAP.name )) {//"map"
 		try {
 		    alignment.init( onto1, onto2 );
 		} catch ( AlignmentException e ) {
 		    throw new SAXException("Catched alignment exception", e );
 		}
-	    } else if (pName.equals("Formalism")) {
+	    } else if (pName.equals( SyntaxElement.FORMALISM.name )) {
 		// JE: Check that this is OK with EDOAL
-		if ( atts.getValue("uri") != null )
+		if ( atts.getValue( SyntaxElement.URI.name ) != null )
 		    try {
 			curronto.setFormURI( new URI(atts.getValue("uri")) );
 		    } catch (Exception e) {
 			throw new SAXException("Malformed URI"+atts.getValue("uri"), e );
 		    };
 		if ( atts.getValue("name") != null )
-		    curronto.setFormalism( atts.getValue("name") );
-	    } else if (pName.equals("formalism")) {
-	    } else if (pName.equals("location")) {
-	    } else if (pName.equals("Ontology")) {
+		    curronto.setFormalism( atts.getValue( SyntaxElement.NAME.name ) );
+	    } else if (pName.equals( SyntaxElement.FORMATT.name )) {
+	    } else if (pName.equals( SyntaxElement.LOCATION.name )) {
+	    } else if (pName.equals( SyntaxElement.ONTOLOGY.name )) {
 		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
 			try {
 			    // JE: Onto
@@ -315,16 +316,16 @@ public class XMLParser extends DefaultHandler {
 			    throw new SAXException("onto2: malformed URI");
 			}
 		}
-	    } else if (pName.equals("onto2")) {
+	    } else if (pName.equals( SyntaxElement.MAPPING_TARGET.name )) {
 		curronto = onto2;
-	    } else if (pName.equals("onto1")) {
+	    } else if (pName.equals( SyntaxElement.MAPPING_SOURCE.name )) {
 		curronto = onto1;
 	    } else if (pName.equals("uri2")) {
 	    } else if (pName.equals("uri1")) {
-	    } else if (pName.equals("type")) {
-	    } else if (pName.equals("level")) {
+	    } else if (pName.equals( SyntaxElement.TYPE.name )) {
+	    } else if (pName.equals( SyntaxElement.LEVEL.name )) {
 	    } else if (pName.equals("xml")) {
-	    } else if (pName.equals("Alignment")) {
+	    } else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
 		alignLevel = parseLevel;
 		parseLevel = 2; // for embeded (RDF is usually 1)
 		if ( alignment == null ) alignment = new URIAlignment();
@@ -336,11 +337,11 @@ public class XMLParser extends DefaultHandler {
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[XMLParser] Unknown element name : "+pName);
 	    };
-	} else if(namespaceURI.equals("http://schemas.xmlsoap.org/soap/envelope/"))  {
+	} else if( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
 	    if ( !pName.equals("Envelope") && !pName.equals("Body") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
-	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
+	} else if(namespaceURI.equals( Namespace.RDF.prefix )) { //"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
 	} else {
@@ -402,15 +403,15 @@ public class XMLParser extends DefaultHandler {
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    try {
-		if (pName.equals("relation")) {
+		if (pName.equals( SyntaxElement.RULE_RELATION.name )) {
 		    relation = content;
-		} else if (pName.equals("measure")) {
+		} else if (pName.equals( SyntaxElement.MEASURE.name )) {
 		    measure = content;
 		} else if (pName.equals("semantics")) {
 		    sem = content;
-		} else if (pName.equals("entity2")) {
-		} else if (pName.equals("entity1")) {
-		} else if (pName.equals("Cell")) {
+		} else if (pName.equals( SyntaxElement.ENTITY2.name )) {
+		} else if (pName.equals( SyntaxElement.ENTITY1.name )) {
+		} else if (pName.equals( SyntaxElement.CELL.name )) {
 		    if(debugMode > 1) {
 			System.err.print(" " + cl1);
 			System.err.print(" " + cl2);
@@ -429,7 +430,7 @@ public class XMLParser extends DefaultHandler {
 		    if ( id != null ) cell.setId( id );
 		    if ( sem != null ) cell.setSemantics( sem );
 		    if ( extensions != null ) ((BasicCell)cell).setExtensions( extensions );
-		} else if (pName.equals("map")) {
+		} else if (pName.equals( SyntaxElement.MAP.name )) {
 		} else if (pName.equals("uri1")) {
 		    if ( onto1.getURI() == null ){//JE: Onto
 			try {
@@ -452,15 +453,15 @@ public class XMLParser extends DefaultHandler {
 			    throw new SAXException("uri2: malformed URI");
 			}
 		    }
-		} else if (pName.equals("Ontology")) {
-		} else if (pName.equals("location")) {
+		} else if (pName.equals( SyntaxElement.ONTOLOGY.name )) {
+		} else if (pName.equals( SyntaxElement.LOCATION.name )) {
 		    try { curronto.setFile( new URI( content ) );
 		    } catch (URISyntaxException e) {
 			throw new SAXException("onto2: malformed URI");
 		    }
-		} else if (pName.equals("Formalism")) {
-		} else if (pName.equals("formalism")) {
-		} else if (pName.equals("onto1") || pName.equals("onto2")) {
+		} else if (pName.equals( SyntaxElement.FORMALISM.name )) {
+		} else if (pName.equals( SyntaxElement.FORMATT.name )) {
+		} else if (pName.equals( SyntaxElement.MAPPING_SOURCE.name ) || pName.equals( SyntaxElement.MAPPING_TARGET.name )) {
 		    if ( curronto.getFile() == null && 
 			 content != null && !content.equals("") ) {
 			try { curronto.setFile( new URI( content ) );
@@ -469,9 +470,9 @@ public class XMLParser extends DefaultHandler {
 			}
 		    };
 		    curronto = null;
-		} else if (pName.equals("type")) {
+		} else if (pName.equals( SyntaxElement.TYPE.name )) {
 		    alignment.setType( content );
-		} else if (pName.equals("level")) {
+		} else if (pName.equals( SyntaxElement.LEVEL.name )) {
 		    if ( content.startsWith("2") ) { // instead of equals("2OMWG")
 			throw new SAXException("Cannot parse Level 2 alignments (so far)");
 		    } else {
@@ -480,7 +481,7 @@ public class XMLParser extends DefaultHandler {
 		} else if (pName.equals("xml")) {
 		    //if ( content.equals("no") )
 		    //	{ throw new SAXException("Non parseable alignment"); }
-		} else if (pName.equals("Alignment")) {
+		} else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
 		    parseLevel = alignLevel; // restore level²<
 		    alignLevel = -1;
 		} else {
@@ -493,11 +494,11 @@ public class XMLParser extends DefaultHandler {
 		    //throw new SAXException("[XMLParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[XMLParser] Exception raised", e); };
-	} else if(namespaceURI.equals("http://schemas.xmlsoap.org/soap/envelope/"))  {
+	} else if(namespaceURI.equals( Namespace.SOAP_ENV.prefix ) ) {//"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
 	    if ( !pName.equals("Envelope") && !pName.equals("Body") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
-	} else if(namespaceURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
+	} else if(namespaceURI.equals( Namespace.RDF.prefix ) ) {//"http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
 	} else {
