@@ -72,7 +72,8 @@ public class Extensions {
 	return table.values();
     }
 
+    @SuppressWarnings( "unchecked" )
     public Object clone() {
-	return new Extensions( (Hashtable<String,String[]>)table.clone() );
+	return new Extensions( (Hashtable<String,String[]>)table.clone() ); //[W:unchecked]
     }    
 }

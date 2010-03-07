@@ -47,6 +47,13 @@ import org.semanticweb.owl.align.Parameters;
   * Standard parameter list structure to be used everywhere.
   * By default and for means of communication, parameter names and values 
   * are Strings (even if their type is Object).
+  *
+  * [JE:2010] A note about unchecked warnings
+  * java.util.Properties is declared as hashtable<Object,Object>
+  * However all its accessors can only put String as key in the hashtable
+  * But propertyNames returns Enumeration and not Enumeration<String>
+  * Using keySet will not change anything, because it will be Set<Object>
+  * Java 6 introduces Set<String> stringPropertyNames() !!
   * 
   * @author Jérôme Euzenat
   * @version $Id$ 
@@ -60,9 +67,10 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
     //Hashtable<String,Object> parameters = null;
     
     public BasicParameters() {}
-  
+
+    @SuppressWarnings( "unchecked" )
     public BasicParameters( Properties prop ) {
-	for ( Enumeration<String> e = (Enumeration<String>)prop.propertyNames(); e.hasMoreElements(); ) {
+	for ( Enumeration<String> e = (Enumeration<String>)prop.propertyNames(); e.hasMoreElements(); ) { //[W:unchecked]
 	    String k = e.nextElement();
 	    setProperty( k, prop.getProperty(k) );
 	}
@@ -84,19 +92,21 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 	return getProperty( name );
     }
     
+    @SuppressWarnings( "unchecked" )
     public Enumeration<String> getNames(){
 	//return parameters.keys();
-	return (Enumeration<String>)propertyNames();
+	return (Enumeration<String>)propertyNames(); //[W:unchecked]
     }
 
     public Collection getValues(){
 	return values();
     }
 
+    @SuppressWarnings( "unchecked" )
     public void write(){
 	System.out.println("<?xml version='1.0' ?>");
 	System.out.println("<Parameters>");
-	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements(); ) {
+	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements(); ) { //[W:unchecked]
 	    String k = e.nextElement();
 	    System.out.println("  <param name='"+k+"'>"+getProperty(k)+"</param>");
 	}
@@ -106,9 +116,10 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
     /**
      * displays the current parameters (debugging)
      */
+    @SuppressWarnings( "unchecked" )
     public void displayParameters( PrintStream stream ){
 	stream.println("Parameters:");
-	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements();) {
+	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements();) { //[W:unchecked]
 	    String k = e.nextElement();
 	    stream.println("  "+k+" = "+getProperty(k));
 	}
