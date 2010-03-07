@@ -1,0 +1,128 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) INRIA, 2009-2010
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
+package fr.inrialpes.exmo.align.impl.edoal;
+
+/**
+ * <p>
+ * Represents a attributeValueRestriction tag for a ClassExpressions.
+ * </p>
+ * <p>
+ * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
+ * </p>
+ * <p>
+ * $Id: PropertyValueRestriction.java,v 1.6 2006/11/27 16:39:08 poettler_ric Exp $
+ * </p>
+ * 
+ * @author Francois Scharffe
+ * @author Adrian Mocan
+ * @author Richard Pöttler
+ * @version $Revision: 1.6 $ $Date$
+ */
+public class PropertyValueRestriction extends PropertyRestriction implements Cloneable {
+
+    Comparator comparator = null;
+    PathExpression path = null;
+    InstanceExpression inst = null;
+    Value value = null;
+
+    /**
+     * Constructs a attributeValueRestriction with the given restriction.
+     * 
+     * @param attribute
+     *            the attribute on which the restriction should be applied
+     * @throws NullPointerException
+     *             if the restriction is null
+     */
+    public PropertyValueRestriction() {
+	super();
+    }
+
+    /**
+     * Constructs a attributeValueRestriction with the given restriction.
+     * 
+     * @param attribute
+     *            the attribute on which the restriction should be applied
+     * @param restriction
+     *            the restriction for the domain
+     * @param target
+     *            the target expression which should be restricted
+     * @throws NullPointerException
+     *             if the restriction is null
+     */
+    public PropertyValueRestriction(final Comparator comp, final PathExpression p) {
+	super();
+	comparator = comp;
+	path = p;
+    }
+
+    public PropertyValueRestriction(final Comparator comp, final Value v) {
+	super();
+	comparator = comp;
+	value = v;
+    }
+
+    public PropertyValueRestriction(final Comparator comp, final InstanceExpression i) {
+	super();
+	comparator = comp;
+	inst = i;
+    }
+
+    public Comparator getComparator(){
+	return comparator;
+    }
+    
+    public void setComparator( Comparator comp ){
+	comparator = comp;
+    }
+    
+    public Value getValue(){
+	return value;
+    }
+    public void setValue( Value v ){
+	value = v;
+	path = null;
+	inst = null;
+    }
+    
+    public InstanceExpression getInstanceValue(){
+	return inst;
+    }
+    public void setInstanceValue( InstanceExpression i ){
+	inst = i;
+	value = null;
+	path = null;
+    }
+
+    public PathExpression getPath(){
+	return path;
+    }
+    public void setPath( PathExpression p ){
+	path = p;
+	value = null;
+	inst = null;
+    }
+    
+    /*
+    public Object clone() {
+	return super.clone();
+    }
+    */
+}
