@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      07/09/2009, version 4+                       #
+#                      07/01/2010, version 4+                       #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
