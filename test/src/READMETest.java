@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -123,7 +123,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	result.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 1706, "Rendered differently" );
+	assertTrue( ( 1729 <= stream.toString().length() ) && ( stream.toString().length() <= 1731 ), "Rendered differently: expected "+1730+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
