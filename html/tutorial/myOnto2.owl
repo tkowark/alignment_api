@@ -2,15 +2,11 @@
 
 
 <!DOCTYPE rdf:RDF [
-    <!ENTITY wot "http://xmlns.com/wot/0.1/" >
     <!ENTITY dcterms "http://purl.org/dc/terms/" >
-    <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
     <!ENTITY dctype "http://purl.org/dc/dcmitype/" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-    <!ENTITY owl11 "http://www.w3.org/2006/12/owl11#" >
     <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-    <!ENTITY owl11xml "http://www.w3.org/2006/12/owl11-xml#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY bibtex "http://purl.org/net/nknouf/ns/bibtex#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
@@ -25,35 +21,23 @@
      xmlns:units="http://visus.mit.edu/fontomri/0.01/units.owl#"
      xmlns:myOnto2="http://alignapi.gforge.inria.fr/tutorial/myOnto2.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:foaf="http://xmlns.com/foaf/0.1/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:bibtex="http://purl.org/net/nknouf/ns/bibtex#"
-     xmlns:owl11="http://www.w3.org/2006/12/owl11#"
      xmlns:dcterms="http://purl.org/dc/terms/"
-     xmlns:owl11xml="http://www.w3.org/2006/12/owl11-xml#"
-     xmlns:wot="http://xmlns.com/wot/0.1/"
      xmlns:dc="http://purl.org/dc/elements/1.1/"
      xmlns:dctype="http://purl.org/dc/dcmitype/"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <owl:Ontology rdf:about="">
         <rdfs:label>bibtex ontology</rdfs:label>
-        <dc:contributor
-            >Antoine Zimmermann &lt;antoine.zimmermann@inrialpes.fr&gt;</dc:contributor>
- 
-        <dc:creator
-            >Nick Knouf &lt;nknouf@mit.edu&gt;</dc:creator>
-        <rdfs:comment
-            >Possible ontology to describe bibTeX entries.</rdfs:comment>
-        <owl:versionInfo>0.01</owl:versionInfo>
-        <dc:description
-            >Transformation of bibTeX into an OWL ontology</dc:description>
-        <dc:title
-            >bibtex.owl: an ontology for bibTeX entries</dc:title>
-        <dc:identifier rdf:datatype="&xsd;anyURI"
-            >http://visus.mit.edu/bibtex/0.01/bibtex.owl</dc:identifier>
+        <dc:contributor>Antoine Zimmermann &lt;antoine.zimmermann@inrialpes.fr&gt;</dc:contributor>
+        <dc:creator>Nick Knouf &lt;nknouf@mit.edu&gt;</dc:creator>
+        <rdfs:comment>Possible ontology to describe bibTeX entries.</rdfs:comment>
+        <owl:versionInfo>2.0</owl:versionInfo>
+        <dc:description>Transformation of bibTeX into an OWL ontology</dc:description>
+        <dc:title>bibtex.owl: an ontology for bibTeX entries</dc:title>
+        <dc:identifier rdf:datatype="&xsd;anyURI">http://visus.mit.edu/bibtex/0.01/bibtex.owl</dc:identifier>
         <dc:date>2004-01-10</dc:date>
-        <dc:subject
-            >fMRI, ontology, fMRI analysis, foo, bar</dc:subject>
+        <dc:subject>fMRI, ontology, fMRI analysis, foo, bar</dc:subject>
     </owl:Ontology>
     
 
