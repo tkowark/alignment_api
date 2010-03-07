@@ -27,7 +27,7 @@ import java.lang.Exception;
  *
  *
  * @author Jérôme Euzenat
- * @version $Id: OntowrapException.java 670 2008-03-02 00:06:16Z euzenat $
+ * @version $Id$
  */
 
 public class OntowrapException extends Exception {

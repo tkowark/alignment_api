@@ -48,7 +48,7 @@ import java.net.URI;
  * is thus the expected one.
  *
  * @author Jerome Euzenat
- * @version $Id: PRecEvaluator.java 968 2009-04-01 13:11:02Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class SemPRecEvaluator //extends BasicEvaluator 

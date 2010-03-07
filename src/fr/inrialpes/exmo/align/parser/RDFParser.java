@@ -109,12 +109,12 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * 
  * </p>
  * <p>
- * $Id: RDFParser.java,v 1.7 2008/01/26 16:24:58 jeuzenat Exp $
+ * $Id$
  * </p>
  * 
  * @author Richard Pöttler
  * @version $Revision: 1.7 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:41:03 +0100 (Sun, 07 Mar 2010) $
  */
 public class RDFParser {
 

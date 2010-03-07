@@ -255,7 +255,7 @@ public class XMLParser extends DefaultHandler {
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    if (pName.equals( SyntaxElement.RULE_RELATION.name )) {
-	    } else if (pName.equals("semantics")) {
+	    } else if (pName.equals( SyntaxElement.SEMANTICS.name )) {
 	    } else if (pName.equals( SyntaxElement.MEASURE.name )) {
 	    } else if (pName.equals( SyntaxElement.ENTITY2.name )) {
 		if(debugMode > 2) 
@@ -320,11 +320,11 @@ public class XMLParser extends DefaultHandler {
 		curronto = onto2;
 	    } else if (pName.equals( SyntaxElement.MAPPING_SOURCE.name )) {
 		curronto = onto1;
-	    } else if (pName.equals("uri2")) {
-	    } else if (pName.equals("uri1")) {
+	    } else if (pName.equals("uri2")) { // Legacy
+	    } else if (pName.equals("uri1")) { // Legacy
 	    } else if (pName.equals( SyntaxElement.TYPE.name )) {
 	    } else if (pName.equals( SyntaxElement.LEVEL.name )) {
-	    } else if (pName.equals("xml")) {
+	    } else if (pName.equals( SyntaxElement.XML.name )) {
 	    } else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
 		alignLevel = parseLevel;
 		parseLevel = 2; // for embeded (RDF is usually 1)
@@ -407,7 +407,7 @@ public class XMLParser extends DefaultHandler {
 		    relation = content;
 		} else if (pName.equals( SyntaxElement.MEASURE.name )) {
 		    measure = content;
-		} else if (pName.equals("semantics")) {
+		} else if (pName.equals( SyntaxElement.SEMANTICS.name )) {
 		    sem = content;
 		} else if (pName.equals( SyntaxElement.ENTITY2.name )) {
 		} else if (pName.equals( SyntaxElement.ENTITY1.name )) {
@@ -431,7 +431,7 @@ public class XMLParser extends DefaultHandler {
 		    if ( sem != null ) cell.setSemantics( sem );
 		    if ( extensions != null ) ((BasicCell)cell).setExtensions( extensions );
 		} else if (pName.equals( SyntaxElement.MAP.name )) {
-		} else if (pName.equals("uri1")) {
+		} else if (pName.equals("uri1")) { // Legacy
 		    if ( onto1.getURI() == null ){//JE: Onto
 			try {
 			    URI u = new URI( content );
@@ -442,7 +442,7 @@ public class XMLParser extends DefaultHandler {
 			    throw new SAXException("uri1: malformed URI");
 			}
 		    }
-		} else if (pName.equals("uri2")) {
+		} else if (pName.equals("uri2")) { // Legacy
 		    if ( onto2.getURI() == null ){//JE: Onto
 			try {
 			    URI u = new URI( content );
@@ -478,9 +478,9 @@ public class XMLParser extends DefaultHandler {
 		    } else {
 			alignment.setLevel( content );
 		    }
-		} else if (pName.equals("xml")) {
+		} else if (pName.equals( SyntaxElement.XML.name )) {
 		    //if ( content.equals("no") )
-		    //	{ throw new SAXException("Non parseable alignment"); }
+		    //	{ throw new SAXException("Cannot parse non XML alignments"); }
 		} else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
 		    parseLevel = alignLevel; // restore level²<
 		    alignLevel = -1;

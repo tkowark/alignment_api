@@ -27,7 +27,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * Represents a type typeCondition tag for PropertyExpressions.
  * </p>
  * <p>
- * $Id: ClassTypeRestriction.java,v 1.5 2006/11/27 16:39:09 poettler_ric Exp $
+ * $Id$
  * </p>
  * <p>
  * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
@@ -36,7 +36,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * @author Francois Scharffe
  * @author Adrian Mocan
  * @author Richard Pöttler
- * @version $Revision: 1.5 $ $Date$
+ * @version $Revision: 1.5 $ $Date: 2010-03-07 21:55:23 +0100 (Sun, 07 Mar 2010) $
  */
 public class ClassTypeRestriction extends ClassRestriction implements Cloneable {
 

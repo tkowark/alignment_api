@@ -37,7 +37,7 @@ import org.semanticweb.owl.align.Visitable;
  * 
  * $Source:
  * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/InstanceExpr.java,v $,
- * @version $Revision: 1.4 $ $Date$
+ * @version $Revision: 1.4 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
 public class InstanceExpression extends Expression {

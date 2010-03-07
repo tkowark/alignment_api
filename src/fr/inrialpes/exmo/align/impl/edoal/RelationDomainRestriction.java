@@ -27,12 +27,12 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * Represents a domainRestriction tag for RelationExpressions.
  * </p>
  * <p>
- * $Id: RelationDomainRestriction.java,v 1.4 2006/11/27 16:39:08 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * @author Richard Pöttler
  * @version $Revision: 1.4 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  * 
  */
 public class RelationDomainRestriction extends RelationRestriction {

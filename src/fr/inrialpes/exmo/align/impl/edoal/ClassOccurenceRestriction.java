@@ -37,7 +37,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * @author Francois Scharffe
  * @author Adrian Mocan
  * @author Richard Pöttler
- * @version $Revision: 1.6 $ $Date$
+ * @version $Revision: 1.6 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class ClassOccurenceRestriction extends ClassRestriction implements Cloneable {
 

@@ -1,5 +1,5 @@
 /*
- * $Id: EDOALCell.java,v 1.2 2008/06/29 16:18:49 jeuzenat Exp $
+ * $Id$
  *
  * Sourceforge version 1.2 - 2008
  * Copyright (C) INRIA, 2007-2009
@@ -61,7 +61,7 @@ import fr.inrialpes.exmo.align.impl.rel.*;
  *  -- no real use of direction.
  *
  * @author Jérôme Euzenat
- * @version $Id: EDOALCell.java,v 1.2 2008/06/29 16:18:49 jeuzenat Exp $ 
+ * @version $Id$ 
  */
 
 public class EDOALCell extends BasicCell {

@@ -1,5 +1,5 @@
 /*
- * $Id: HTMLRendererVisitor.java 918 2009-02-08 14:30:30Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2006-2010
  *
@@ -46,7 +46,7 @@ import fr.inrialpes.exmo.ontowrap.LoadedOntology;
  * - add resource chooser
  *
  * @author Jérôme Euzenat
- * @version $Id: HTMLRendererVisitor.java 918 2009-02-08 14:30:30Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class HTMLMetadataRendererVisitor implements AlignmentVisitor

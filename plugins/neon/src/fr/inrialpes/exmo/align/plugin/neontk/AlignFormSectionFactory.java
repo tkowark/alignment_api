@@ -1,5 +1,5 @@
 /*
- * $Id: View.java 860 2008-10-17 07:43:35Z cleduc $
+ * $Id$
  *
  * Copyright (C) INRIA, 2007-2009
  *

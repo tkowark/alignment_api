@@ -40,13 +40,13 @@ import org.semanticweb.owl.align.Visitable;
  * Created on 23-Mar-2005 Committed by $Author: poettler_ric $
  * </p>
  * <p>
- * $Id: RelationCondition.java,v 1.5 2006/11/27 16:39:08 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * 
  * @author Richard Pöttler
  * @author Francois Scharffe
- * @version $Revision: 1.5 $ $Date$
+ * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public abstract class RelationRestriction extends RelationExpression implements Visitable {
 

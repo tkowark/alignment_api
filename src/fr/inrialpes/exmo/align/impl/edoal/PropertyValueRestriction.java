@@ -28,13 +28,13 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
  * </p>
  * <p>
- * $Id: PropertyValueRestriction.java,v 1.6 2006/11/27 16:39:08 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * @author Francois Scharffe
  * @author Adrian Mocan
  * @author Richard Pöttler
- * @version $Revision: 1.6 $ $Date$
+ * @version $Revision: 1.6 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class PropertyValueRestriction extends PropertyRestriction implements Cloneable {
 

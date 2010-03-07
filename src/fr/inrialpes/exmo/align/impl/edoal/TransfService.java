@@ -48,12 +48,12 @@ import org.semanticweb.owl.align.Visitable;
  * needed for the function to compute the transformaion.
  * </p>
  * <p>
- * $Id: TransfService.java,v 1.2 2006/12/06 12:54:09 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * @author richi
  * @version $Revision: 1.2 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class TransfService implements Cloneable, Visitable {
 	/** resource (uri) to the service */

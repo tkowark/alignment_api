@@ -33,7 +33,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * 
  * @author Richard Pöttler
  * @version $Revision: 1.4 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  * 
  */
 public class RelationCoDomainRestriction extends RelationRestriction {

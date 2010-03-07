@@ -1,5 +1,5 @@
 /*
- * $Id: EDOALAlignment.java,v 1.6 2008/09/15 08:38:54 jeuzenat Exp $
+ * $Id$
  *
  * Sourceforge version 1.6 - 2008 - was OMWGAlignment
  * Copyright (C) INRIA, 2007-2010

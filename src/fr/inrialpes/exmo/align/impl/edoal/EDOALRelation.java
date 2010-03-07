@@ -1,5 +1,5 @@
 /*
- * $Id: EDOALRelation.java,v 1.3 2008/02/28 20:14:10 jeuzenat Exp $
+ * $Id$
  *
  * Sourceforge version 1.3 - 2008
  * Copyright (C) INRIA, 2007-2009
@@ -42,7 +42,7 @@ import org.xml.sax.ContentHandler;
  * but should be rewritten in order to achive a better implementation
  *
  * @author Jérôme Euzenat
- * @version $Id: EDOALRelation.java,v 1.3 2008/02/28 20:14:10 jeuzenat Exp $ 
+ * @version $Id$ 
  */
 
 public class EDOALRelation implements Relation {
@@ -52,7 +52,7 @@ public class EDOALRelation implements Relation {
      * Enumeration to distinuish the direction of the mapping.
      * </p>
      * <p>
-     * $Id: MappingRule.java,v 1.10 2008/01/22 18:24:58 jeuzenat Exp $
+     * $Id$
      * </p>
      * 
      * @author richi

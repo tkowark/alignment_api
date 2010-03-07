@@ -55,7 +55,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
  * 
  * $Source:
  * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/Expression.java,v $,
- * @version $Revision: 1.7 $ $Date$
+ * @version $Revision: 1.7 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
 public abstract class Expression implements Cloneable, Visitable {

@@ -30,12 +30,12 @@ import java.net.URISyntaxException;
  * A simple Id to represent a Property.
  * </p>
  * <p>
- * $Id: PropertyExpr.java,v 1.7 2006/11/30 12:21:41 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * @author richi
  * @version $Revision: 1.7 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class PropertyId extends PropertyExpression implements Id {
     /** Holds the identifier. */

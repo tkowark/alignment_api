@@ -33,7 +33,7 @@ import java.net.URI;
  * Committed by $Author: poettler_ric $
  * 
  * $Source: /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/Id.java,v $, 
- * @version $Revision: 1.3 $ $Date$
+ * @version $Revision: 1.3 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
 public interface Id {

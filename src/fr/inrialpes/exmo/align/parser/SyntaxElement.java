@@ -36,12 +36,12 @@ import org.semanticweb.owl.align.AlignmentException;
  * also the string representations for the different elements defined.
  * </p>
  * <p>
- * $Id: OmwgElement.java,v 1.6 2008/01/26 16:24:58 jeuzenat Exp $
+ * $Id$
  * </p>
  * 
  * @author richi
  * @version $Revision: 1.6 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:40 +0100 (Sun, 07 Mar 2010) $
  */
 
 public enum SyntaxElement {

@@ -27,12 +27,12 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * Id to represent a simple valuestring.
  * </p>
  * <p>
- * $Id: Value.java,v 1.2 2006/10/30 15:24:43 poettler_ric Exp $
+ * $Id$
  * </p>
  * 
  * @author richi
  * @version $Revision: 1.2 $
- * @date $Date$
+ * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class Value { //implements Cloneable, Visitable {
 

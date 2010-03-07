@@ -43,7 +43,7 @@ import org.semanticweb.owl.align.Visitable;
  * 
  * $Source:
  * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/RelationExpr.java,v $,
- * @version $Revision: 1.5 $ $Date$
+ * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
 // JE2010: Should it be abstract with RelationConjunction??
