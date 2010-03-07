@@ -1,0 +1,221 @@
+<html>
+<head>
+<title>Ontowrap: wrapping ontology APIs</title>
+<!--style type="text/css">@import url(style.css);</style-->
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+
+<h1 class="titre">Ontowrap: wrapping ontology APIs</h1>
+
+<p>
+There are many different APIs for ontologies. Even if the Alignment
+API is independent from these APIs, it is often convenient to interact
+with them.
+For that purpose, we have designed the <tt>ontowrap</tt> API which
+provides a minimal interaction with 
+</p>
+
+<p style="background-color: yellow;">
+</p>
+
+<h2>The <tt>ontowrap</tt> architecture</h2>
+
+<p>
+An implementation of <tt>ontowrap</tt> is a OntologyFactory and an
+Ontology class.
+The ontology factory is used for creating a new <tt>Ontology</tt>
+object.
+</p>
+
+<p>
+The new <tt>ontowrap</tt> package defines
+an <tt>OntologyFactory</tt> class that is used for loading
+ontologies under a particular 
+API. Depending on the used factory, the API will be different and the
+kind of ontology will be different. The
+default factory to use is provided to the
+abstract <tt>OntologyFactory</tt> class which is always used for
+loading ontologies.
+</p>
+
+<p>
+There are three interfaces for ontologies:
+<ul>
+<li><tt>Ontology</tt> simply describes an ontology. Its entities are
+  identified by simple URIs and no assumption is made about the fact
+  that the ontology has been loaded. Hence, the interface on the
+  entities is very limited.</li>
+<li><tt>LoadedOntology</tt> describes an ontology that has been loaded
+  in main memory. Thus, an implementation of this class is bound to
+  an ontology API. However, the connection with the API is very
+  limited: it is possible to know the type of entity (class,
+  property, etc.) and its names and comments. This does not put
+  burden on developers when connecting an API and this applies to
+  "lightweight" ontologies such as unstructured thesauri.</li>
+<li><tt>HeavyLoadedOntology</tt> is supposed to offer broad access to
+  the ontology by obtaining the relations between entities
+  (superClasses, properties, etc.).</li>
+</ul>
+</p>
+
+<h2><tt>Ontology</tt></h2>
+
+<p>
+<tt>Ontology</tt> provides a minimal interface to ontologies. It only
+describes the ontology but nothing from its content.
+</p>
+
+<pre>
+    public URI getURI();
+    public URI getFile();
+    public URI getFormURI(); // Can be null
+    public String getFormalism(); // Can be null
+    public O getOntology();
+
+    public void setURI( URI uri );
+    public void setFile( URI file );
+    public void setFormURI( URI u );
+    public void setFormalism( String name );
+    public void setOntology( O o );
+</pre>
+
+<h2><tt>LoadedOntology</tt></h2>
+
+<p>
+<tt>LoadedOntology</tt>
+</p>
+<pre>
+    public boolean isEntity( Object o );
+    public boolean isClass( Object o );
+    public boolean isProperty( Object o );
+    public boolean isDataProperty( Object o );
+    public boolean isObjectProperty( Object o );
+    public boolean isIndividual( Object o );
+
+    public Set<? extends Object> getEntities();
+    public Set<? extends Object> getClasses();
+    public Set<? extends Object> getProperties();
+    public Set<? extends Object> getObjectProperties();
+    public Set<? extends Object> getDataProperties();
+    public Set<? extends Object> getIndividuals();
+
+    public int nbEntities();
+    public int nbClasses();
+    public int nbProperties();
+    public int nbDataProperties();
+    public int nbObjectProperties();
+    public int nbIndividuals();
+
+    public void unload();
+</pre>
+
+<h2><tt>HeavyLoadedOntology</tt></h2>
+
+<pre>
+    /* Capability methods */
+    public boolean getCapabilities( int Direct, int Asserted, int Named );
+
+    /* Class methods */
+    public Set<Object> getSubClasses( Object c, int local, int asserted, int named );
+    public Set<Object> getSuperClasses( Object c, int local, int asserted, int named );
+    public Set<Object> getProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getDataProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getObjectProperties( Object c, int local, int asserted, int named );
+    public Set<Object> getInstances( Object c, int local, int asserted, int named  );
+
+    /* Property methods */
+    public Set<Object> getSubProperties( Object p, int local, int asserted, int named );
+    public Set<Object> getSuperProperties( Object p, int local, int asserted, int named );
+    public Set<Object> getRange( Object p, int asserted );
+    public Set<Object> getDomain( Object p, int asserted );
+
+    /* Individual methods */
+    public Set<Object> getClasses( Object i, int local, int asserted, int named );
+</pre>
+
+<h2><tt>Additional services</tt></h2>
+
+<pre>
+</pre>
+
+<h2>Unified interface</h2>
+
+<p>
+The proposed solution goes in two ways:
+<ul>
+<li>Having only one <tt>getSuperClasses( Class )</tt> primitive but
+  appending to it a number of boolean arguments defining if the
+  results should be restricted
+  to <tt>named</tt>, <tt>asserted</tt>, <tt>local</tt>, etc.</li>
+<li>Having primitives at the factory level expressing the capabilities
+  of the implementation, i.e., if it can deliver <tt>inherited</tt>
+  super classes.</li>
+</ul>
+The idea is that it is possible to invoke the method with particular
+arguments and the API will try to satisfy it as best as
+possible. However, it is possible to check beforehand if the API meets
+the requirements of the application and to raise an exception (or
+change API) if this is not the case.
+</p>
+
+<p>Hence, for instance (dummy):
+<pre>
+if ( !onto.getCapabilities( OntologyFactory.GLOBAL, OntologyFactory.INHERITED, 0 ) ) {
+    throw new AlignementException( onto+" : cannot provide both global and inherited answers");
+} else {
+    Set&lt;Object&gt; sups = onto.getSuperClasses( class, OntologyFactory.GLOBAL,
+                                     OntologyFactory.INHERITED, OntologyFactory.DIRECT );
+}
+</pre>
+These primitives always answer, but the answers are only correct if
+the modalities asked in argument are supported.
+</p>
+<p>
+Of course, similar reasoning must be applied to the other primitives.
+</p>
+
+<h2>Implementations</h2>
+
+<p>
+</p>
+<center>
+<table>
+<tr>
+<td>API</td><td>Version</td><td>Implementation</td><td>Availability</td>
+</th>
+<tr>
+<td><a href="">Jena</a></td><td>2.5</td><td>HeavyLoadedOntology</td><td>Since 3.5</td>
+</tr>
+<tr>
+<td><a href="">OWL API</a></td><td>1.0</td><td>HeavyLoadedOntology</td><td>Since /3.5</td>
+</tr>
+<tr>
+<td><a href="">OWL API</a></td><td>2.0</td><td>HeavyLoadedOntology</td><td>Discontinued (3.4-3.6)</td>
+</tr>
+<tr>
+<td><a href="">OWL API</a></td><td>3.0</td><td>HeavyLoadedOntology</td><td>Since 4.0</td>
+</tr>
+<tr>
+<td><a href="">SKOS API</a></td><td></td><td>LoadedOntology</td><td>In progress (4.x)</td>
+</tr>
+</table>
+</center>
+
+<h2>Miscellaneous</h2>
+
+<p>
+The Alignment API was first designed on top of what was the first
+published OWL API<sup>1</sup> (the Manchester/Karlsruhe OWL API). Since
+it was an API for OWL, I assumed that anybody else would implement it.
+Too bad, we soon had the Jena API<sup>2</sup> and plenty of others<sup>3</sup>. Instead of
+implementing a common API (a common set of interfaces like the OWL
+API), each new player designed its own.
+</p>
+<p>Here are the historical <a href="owlapi.html">howto notes</a> for starting quickly with OWL-API (Outdated notes about the OWL API and its integration in the Alignment API).</p>
+
+<address>$Id$</address>
+</body>
+</html>
