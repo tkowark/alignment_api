@@ -36,8 +36,10 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
-import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.align.impl.rel.*;
+
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -112,10 +114,14 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	Object ob1 = cell.getObject1();
 	Object ob2 = cell.getObject2();
 	URI u1;
-	if ( cell.getRelation() instanceof SubsumedRelation ){
-	    u1 = onto2.getEntityURI( cell.getObject2() );
-	} else {
-	    u1 = onto1.getEntityURI( ob1 );
+	try {
+	    if ( cell.getRelation() instanceof SubsumedRelation ){
+		u1 = onto2.getEntityURI( cell.getObject2() );
+	    } else {
+		u1 = onto1.getEntityURI( ob1 );
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
 	if ( onto1.isClass( ob1 ) ) {
 	    writer.print("  <owl:Class rdf:about=\""+u1+"\">\n");
@@ -138,7 +144,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 
     public void visit( EquivRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	URI u2 = onto2.getEntityURI( ob2 );
+	URI u2;
+	try {
+	    u2 = onto2.getEntityURI( ob2 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
 	if ( onto2.isClass( ob2 ) ) {
 	    writer.print("    <owl:equivalentClass rdf:resource=\""+u2+"\"/>\n");
 	} else if ( onto2.isDataProperty( ob2 ) ) {
@@ -152,7 +163,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 
     public void visit( SubsumeRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	URI u2 = onto2.getEntityURI( ob2 );
+	URI u2;
+	try {
+	    u2 = onto2.getEntityURI( ob2 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
 	if ( onto1.isClass( ob2 ) ) {
 	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u2+"\"/>\n");
 	} else if ( onto1.isDataProperty( ob2 ) ) {
@@ -164,7 +180,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 
     public void visit( SubsumedRelation rel ) throws AlignmentException {
 	Object ob1 = cell.getObject1();
-	URI u1 = onto1.getEntityURI( ob1 );
+	URI u1;
+	try {
+	    u1 = onto1.getEntityURI( ob1 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
 	if ( onto1.isClass( ob1 ) ) {
 	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u1+"\"/>\n");
 	} else if ( onto1.isDataProperty( ob1 ) ) {
@@ -176,7 +197,12 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	URI u2 = onto2.getEntityURI( ob2 );
+	URI u2;
+	try {
+	    u2 = onto2.getEntityURI( ob2 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
 	writer.print("    <owl:disjointWith rdf:resource=\""+u2+"\"/>\n");
     }
 
@@ -200,9 +226,14 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	    }
 	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
 	    else {
-		if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.BasicRelation").isInstance(rel) ){
+		if ( Class.forName("fr.inrialpes.exmo.align.impl.BasicRelation").isInstance(rel) ){
 		    Object ob2 = cell.getObject2();
-		    URI u2 = onto2.getEntityURI( ob2 );
+		    URI u2;
+		    try {
+			u2 = onto2.getEntityURI( ob2 );
+		    } catch ( OntowrapException owex ) {
+			throw new AlignmentException( "Cannot find entity URI", owex );
+		    }
 		    if ( onto2.isIndividual( ob2 ) ) { // ob1 has been checked before
 			// It would be better to check that r is a relation of one of the ontologies by
 			// onto1.isObjectProperty( onto1.getEntity( new URI ( r ) ) )
