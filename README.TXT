@@ -1,6 +1,7 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
 #                      09/01/2010, version 4.0a                       #
+#                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
 Copyright (C) 2003-2010 INRIA.
@@ -107,14 +108,14 @@ README.TXT	this file
 README.AServ	instructions for setting up an Alignment Server
 LICENSE.TXT	the terms under which the software is licensed to you.
 build.xml	the Ant build file for compiling and testing
+build.properties property file for this
 classes/	empty directory for compiling the sources
 distrib/	some files for generating new jarfiles
 dtd/		contains the ontoalign DTDs (and schemas)
 examples/	examples of use of the API and server
 html/		contains some documentation in HTML format
 			 (includes relnotes.html)
-html/tutorial/  web based tutorial
-html/tutorial2/ advanced programming tutorial
+html/tutorial/  tutorial
 javadoc/	javadoc API documentation in HTML (not very useful)
 lib/		contains align.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles
@@ -125,5 +126,6 @@ src/		Java sources of ontoalign
 		fr.inrialpes.exmo.align.util: utility wrapper functions
 		fr.inrialpes.exmo.align.ling: WordNet-based implementation
 		fr.inrialpes.exmo.align.service: Alignment Service
-		fr.inrialpes.exmo.align.onto: Abstract ontology layer
+		fr.inrialpes.exmo.ontowrap: Abstract ontology layer
 test/		Unit tests for testng
+tools/		Compile-time tools (testng, etc.)
