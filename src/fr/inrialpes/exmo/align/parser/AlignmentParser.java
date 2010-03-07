@@ -20,10 +20,6 @@
 
 package fr.inrialpes.exmo.align.parser;
 
-// Imported EDOAL classes
-import org.omwg.mediation.parser.rdf.RDFParser;
-import org.omwg.mediation.parser.rdf.RDFParserException;
-
 //Imported JAVA classes
 import java.io.IOException;
 import java.io.StringReader;
@@ -137,11 +133,12 @@ public class AlignmentParser {
 	    if ( embedded ) parser.setEmbedded( embedded );
 	    alignment = parser.parse( uri );
 	} catch ( Exception e ) {
-	    /*
-	    System.err.println(" TEST TRAPPED FOR ALIGNMENT ");
-	    e.printStackTrace();
+	    if ( debugMode > 0 ) {
+		System.err.println(" TEST TRAPPED FOR ALIGNMENT ");
+		e.printStackTrace();
+	    }
 	    try {
-		if ( !embedded ) { // Not ready yet
+		if ( !embedded ) {
 		    alignment = new RDFParser().parse( new File( uri ) );
 		} else {
 		    throw new AlignmentException( "Cannot parse "+uri, e );
@@ -150,7 +147,6 @@ public class AlignmentParser {
 		// JE: should contain both ex and e
 		throw new AlignmentException( "Cannot parse "+uri, ex );
 	    }
-		*/
 	}
 	return alignment;
     }
