@@ -55,7 +55,7 @@
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="mappingapi/mappingapilite.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar align.jar ontowrap.jar procalign.jar jena/jena.jar jena/iri.jar jena/icu4j_3_4.jar xerces/xercesImpl.jar procalign.jar"/>
 
   </target>
 
@@ -89,9 +89,9 @@
 
   <!-- tested -->
   <target name="lint" depends="init">
-    <!-- values: all, deprecation, unchecked[3], fallthrough, path[5], serial, cast, finally -->
     <echo message="Setting property..."/>
-    <property name="javacargs" value="-Xlint:cast" />
+    <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
+    <property name="javacargs" value="-Xlint:path" />
     <!--property name="javacargs" value="-Xlint:deprecation -Xlint:fallthrough -Xlint:serial -Xlint:finally" /-->
     <!--property name="javacargs" value="-Xlint:all" /-->
     <antcall target="compileall"/>
