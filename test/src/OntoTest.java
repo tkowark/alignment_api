@@ -33,6 +33,8 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
+
 import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntology;
 import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntologyFactory;
 import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology;
@@ -79,7 +81,7 @@ public class OntoTest {
 	assertEquals( factory, OntologyFactory.getFactory() );
     }
 
-    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "onto", "raw" }, dependsOnMethods = {"factoryTest"})
+    @Test(expectedExceptions = OntowrapException.class, groups = { "full", "onto", "raw" }, dependsOnMethods = {"factoryTest"})
     public void concreteFactoryTest() throws Exception {
 	// not really useful
 	factory.newOntology( null );

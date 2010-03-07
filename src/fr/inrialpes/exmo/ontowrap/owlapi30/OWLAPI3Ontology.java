@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Iterator;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationValue;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLLiteral;
@@ -49,6 +49,7 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	HeavyLoadedOntology<OWLOntology> {
@@ -69,7 +70,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	return onto.getSignature();
     }
 
-    public Object getEntity(URI u) throws AlignmentException {
+    public Object getEntity(URI u) throws OntowrapException {
 	// There is better in OWLAPI3: getEntitiesInSignature( IRI )
 	for (OWLEntity e : onto.getSignature()) {
 	    if (e.getIRI().toURI().equals(u))
@@ -78,73 +79,76 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	return null;
     }
 
-    protected Set<String> getEntityAnnotations(Object o, URI type, String lang) {
-	OWLEntity ent = (OWLEntity) o;
-	Set<String> annots = new HashSet<String>();
-	// JE: total mess in OWL API 3
-	/*
-	Set<OWLAnnotation> owlAnnots;
-	if ( type == null )
-	    owlAnnots = ent.getAnnotations(onto);
-	else
-	    owlAnnots = ent.getAnnotations( onto, type );
-	for (OWLAnnotation annot : owlAnnots) {
-	    OWLLiteral c = annot.getAnnotationValueAsLiteral();
-	    if (lang == null || c.asOWLUntypedLiteral().hasLang(lang))
-		annots.add(c.getLiteral());
+    /**
+     * type and lang can be null
+     */
+    protected Set<String> getEntityAnnotations( Object o, URI type, String lang ) {
+	OWLEntity entity = (OWLEntity) o;
+	Set<String> annotations = new HashSet<String>();
+	// JE: This had to be rewritten for OWL API 3. Too bad.
+	for ( OWLAnnotation annot : entity.getAnnotations( onto ) ) {
+	    OWLAnnotationValue c = annot.getValue();
+	    OWLAnnotationProperty p = annot.getProperty();
+	    if ( c instanceof OWLLiteral ) {
+		if ( lang == null || ((OWLLiteral)c).hasLang(lang) ) {
+		    if ( type == null ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getURI()) && p.isLabel() ) ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getURI()) && p.isComment() ) )
+			annotations.add( ((OWLLiteral)c).getLiteral() );
+		}
+	    }
 	}
-	*/
-	return annots;
+	return annotations;
     }
 
-    public Set<String> getEntityAnnotations(Object o) throws AlignmentException {
+    public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	return getEntityAnnotations(o, null, null);
     }
 
     public Set<String> getEntityComments(Object o, String lang)
-	    throws AlignmentException {
+	    throws OntowrapException {
 	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getURI(), lang);
     }
 
-    public Set<String> getEntityComments(Object o) throws AlignmentException {
+    public Set<String> getEntityComments(Object o) throws OntowrapException {
 	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getURI(), null);
     }
 
-    public String getEntityName(Object o) throws AlignmentException {
+    public String getEntityName( Object o ) throws OntowrapException {
 	try {
 	    // Should try to get the label first
 	    return getFragmentAsLabel( ((OWLEntity) o).getIRI().toURI() );
 	} catch (ClassCastException e) {
-	    throw new AlignmentException(o+" is not an entity for "+ onto.getOntologyID().getOntologyIRI().toURI());
+	    throw new OntowrapException(o+" is not an entity for "+ onto.getOntologyID().getOntologyIRI().toURI());
 	}
     }
 
-    public String getEntityName( Object o, String lang ) throws AlignmentException {
-	// Should first get the label in the language
+    public String getEntityName( Object o, String lang ) throws OntowrapException {
+	// Should first get the label in the language (but see below)
 	return getEntityName( o );
     }
 
-    public Set<String> getEntityNames(Object o, String lang) throws AlignmentException {
+    public Set<String> getEntityNames(Object o, String lang) throws OntowrapException {
 	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), lang);
     }
 
-    public Set<String> getEntityNames(Object o) throws AlignmentException {
+    public Set<String> getEntityNames(Object o) throws OntowrapException {
 	Set<String> result = getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), null);
 	if ( result == null ) {
 	    String label = getEntityName( o );
 	    if ( label != null ) {
-		result = new HashSet();
+		result = new HashSet<String>();
 		result.add( label );
 	    }
 	}
 	return result;
     }
 
-    public URI getEntityURI(Object o) throws AlignmentException {
+    public URI getEntityURI(Object o) throws OntowrapException {
 	try {
 	    return ((OWLEntity) o).getIRI().toURI();
 	} catch (ClassCastException e) {
-	    throw new AlignmentException(o + " is not an entity for "
+	    throw new OntowrapException(o + " is not an entity for "
 					 +onto.getOntologyID().getOntologyIRI().toURI());
 					 //		    + onto.getURI());
 	}
@@ -325,7 +329,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	return supers;
     };
     public Set<Object> getRange( Object p, int asserted ){
-	Set resultSet = new HashSet(); 
+	Set<Object> resultSet = new HashSet<Object>(); 
 	for ( Object ent : ((OWLProperty)p).getRanges( getOntology() ) ){
 	    // Not correct
 	    // Could be something else than class
@@ -336,7 +340,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	return resultSet;
     };
     public Set<Object> getDomain( Object p, int asserted ){
-	Set resultSet = new HashSet(); 
+	Set<Object> resultSet = new HashSet<Object>(); 
 	for ( Object ent : ((OWLProperty)p).getDomains( getOntology() ) ){
 	    // Not correct
 	    // Could be something else than class
@@ -371,8 +375,8 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
      * Inherits all properties of a class
      */
     private Set<Object> getInheritedProperties( OWLClass cl ) {
-	Set resultSet = new HashSet(); 
-	try { getProperties( cl, resultSet, new HashSet()); }
+	Set<Object> resultSet = new HashSet<Object>(); 
+	try { getProperties( cl, resultSet, new HashSet<Object>()); }
 	catch (OWLException ex) {};
 	return resultSet;
     }
@@ -413,7 +417,10 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 
     // JD: it is hazardous...
     public void unload() {
-	onto = null;
+	if ( onto != null ) {
+	    onto.getOWLOntologyManager().removeOntology( onto );
+	    onto = null;
+	}
     }
 
 
