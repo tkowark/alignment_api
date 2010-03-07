@@ -40,7 +40,6 @@ package fr.inrialpes.exmo.align.impl.edoal;
  */
 public class ClassTypeRestriction extends ClassRestriction implements Cloneable {
 
-    // BEWARE THIS IS INCORRECTLY IMPLEMENTED AS VALUES INSTEAD OF TYPES
     Datatype type = null;
 
     /**
