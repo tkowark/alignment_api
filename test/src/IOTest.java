@@ -54,8 +54,14 @@ public class IOTest {
     public void loadSOAPErrorTest() throws Exception {
 	aparser = new AlignmentParser( 0 );
 	assertNotNull( aparser );
-	alignment = aparser.parse( "test/input/soap.xml" );
-	// error (we forgot to tell the parser that the alignment is embedded)
+	try { 	// shut-up log4j
+	    com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
+	    alignment = aparser.parse( "test/input/soap.xml" );
+	    // error (we forgot to tell the parser that the alignment is embedded)
+	} catch (Exception ex) {
+	    com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = false;
+	    throw ex;
+	}
     }
 
     @Test(groups = { "full", "io", "raw" }, dependsOnMethods = {"loadSOAPErrorTest"})
