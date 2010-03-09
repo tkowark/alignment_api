@@ -22,8 +22,8 @@
 
 package fr.inrialpes.exmo.align.service.jade;
 
-
 import java.util.Iterator;
+import java.util.Properties;
 
 import jade.content.ContentElement;
 import jade.content.ContentManager;
@@ -69,7 +69,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 	private String serverId;
 	private AServProtocolManager manager;
 	private int localId=0;
-	private BasicParameters initialParameters;
+	private Properties initialParameters;
 
 	//	FIPA ACL stuff
 
@@ -100,7 +100,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 			}**/
 
 		    manager=(AServProtocolManager) args[0];
-		    initialParameters = (BasicParameters) args[1];
+		    initialParameters = (Properties)args[1];
 		}
 
 		myId = "LocalJADEInterface";
@@ -114,7 +114,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 				String perf; // performative
 				String info; //parameters
-				BasicParameters params = initialParameters;
+				Properties params = initialParameters;
 
 				MessageTemplate tpl =MessageTemplate.and(MessageTemplate.and(
 						MessageTemplate.MatchLanguage( codec.getName()),
@@ -174,7 +174,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 						}else if (ce instanceof METADATA){
 							//TODO
 						}else if (ce instanceof STORE){
-							Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,params.getParameter("id"),params));
+							Message answer = manager.store(new Message(newId(), (Message)null,myId,serverId,params.getProperty("id"),params));
 							if(!(answer instanceof ErrorMsg)){
 								ACLMessage JADEanswer=msg.createReply();
 								JADEanswer.setLanguage(codec.getName());
@@ -258,12 +258,12 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 	private int newId(){return localId++;}
 
-    private BasicParameters decodeMessage(ContentElement ce, BasicParameters param){
-	BasicParameters toReturn = param;
+    private Properties decodeMessage(ContentElement ce, Properties param){
+	Properties toReturn = param;
 	Action action= (Action)ce;
 	for( Iterator<Parameter> iter = action.getAllHasParameter(); iter.hasNext(); ){
 	    Parameter OntoParam = iter.next();
-	    toReturn.setParameter( OntoParam.getName(), OntoParam.getValue() ); 
+	    toReturn.setProperty( OntoParam.getName(), OntoParam.getValue() ); 
 	}
 	return toReturn;
     }
