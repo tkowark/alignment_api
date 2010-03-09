@@ -38,7 +38,7 @@ Here is a picture of the various dependencies involved:
 <dl>
 <dt><a href="http://www.urbanophile.com/arenn/hacking/download.html">Gnu
     getopt</a> 1.0.13: getopt.jar
-    [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a>/<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>] (C)</dt>
+    [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a>/<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>]</dt>
 <dd>Gnu library for parsing command line arguments. Required
   everywhere (included by OWL-API).</dd>
 <dt><a href="http://logging.apache.org/log4j">Apache Log4J</a> 1.2.15
@@ -46,12 +46,10 @@ Here is a picture of the various dependencies involved:
     Commons Logging</a> 1.1.1:
   log4j.jar commons-logging.jar
   [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]
- slf4j-api.jar (1.5.6) slf4j-log4j.jar
+ slf4j-api.jar (1.5.6) slf4j-log4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>]
 </dt>
 <dd>Required by OWL-API, jwnl, Jena for the last two ones... if someone
   could clear the mess with loggers in Java, you are welcome!</dd>
-<dt><a href="http://xerces.apache.org">Xerces</a> 2.9.1: xercesImpl.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
-<dd>Certainly not required anymore...</dd-->
 </dl>
 
 <h3>Required for using EDOAL</h3>
@@ -60,19 +58,21 @@ Here is a picture of the various dependencies involved:
 <dt><a href="http://jena.sourceforge.net/">Jena</a> 2.6.2:
   jena.jar icu4j.jar iri.jar arq.jar [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD*</a>]</dt>
 <dd>Provides the RDF parser (which is also used by Pellet).</dd>
+<dt><a href="http://xerces.apache.org">Xerces</a> 2.9.1: xercesImpl.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+<dd>Required by Jena for parsing international characters.</dd-->
 </dl>
 
 <h3>Required for some bundled matching methods</h3>
 
 <dl>
-<dt><a href="">OntoSim</a> ??: ontosim.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
-<dd>The whole ontosim system requires...</dd>
+<dt><a href="">OntoSim</a> 1.0: ontosim.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
+<dd>The whole ontosim system requires more libraries, including JWNL.</dd>
 </dl>
 
 <h3>Required for the WordNet addition (JWNLAlignment)</h3>
 
 <p>
-In addition to OntoSim.
+In addition to OntoSim, JWNLAlignment requires JWNL.
 <dl>
 <dt><a href="http://jwordnet.sourceforge.net/">JWordNet (JWNL)</a>
   1.4rc2: jwnl.jar [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a>]</dt>
@@ -85,7 +85,7 @@ In addition to OntoSim.
 <dl>
 <dt><a href="">IDDL</a> 1.2: iddl.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires Pellet.</dd>
-<dt><a href="">Pellet</a> : pellet.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
+<dt><a href="">Pellet</a> 2.0.0rc7: pellet.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires Jena, Jetty, etc.</dd>
 </dl>
 
@@ -120,14 +120,17 @@ and this will compile again.
 <dt><a href="http://dev.mysql.com/downloads/connector/j/3.0.html">MySQL
        JDBC Connectors</a> 5.1.12: mysql-connector-java-5.0.3-bin.jar
        [<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>]
-       or Postgres JDBC connectors 8.4.701</dt>
+       or <a href="http://jdbc.postgresql.org/">Postgres JDBC
+       connectors</a> 8.4.701 [<a href="http://jdbc.postgresql.org/license.html">BSD</a>]</dt>
 <dd>This also requires MySQL to be installed. Required for alignsvc.</dd>
 <dt><a href="http://jetty.mortbay.org/">Jetty</a> 6.1.2rc5: jetty.jar
-  jetty-util.jar servlet-api.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+  jetty-util.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
 <dd>This also requires MySQL to be installed. Required for HTML and
   web service part.</dd>
-<dt><a href="http://jetty.mortbay.org/">Servlet API</a> 2.5: servlet-api.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">??</a>]</dt>
-<dd>Required and shipped with Jetty.</dd>
+<dt><a href="http://jetty.mortbay.org/">Servlet API</a> 2.5:
+  servlet-api.jar
+  [<a href="https://cds.sun.com/is-bin/INTERSHOP.enfinity/WFS/CDS-CDS_Developer-Site/en_US/-/USD/ViewLicense-Start">Sun Binary Code License</a>]</dt>
+<dd>Required and shipped with Jetty. This is part of Java 2 Enterprise Edition</dd>
 </dl>
 
 <h3>Required for the Agent/JADE plug-in</h3>
