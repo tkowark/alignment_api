@@ -15,7 +15,9 @@
   it as imput for further alignment methods, transform it into axioms
   or transformations or compare different alignments.</p>
 <p>This is a first format that could be extended for accomodating
-  further needs.</p>
+  further needs. The Alignment API offers the <a href="edoal.html">Expressive and
+  Declarative Ontology Alignment Language (EDOAL)</a> for more
+  elaborate uses.</p>
 <p>We describe below its source descriptions, its specifications and
   some implementations.</p>
 
@@ -35,7 +37,7 @@
 
 <p>The namespace used by these formats is <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#</tt>.</p>
 
-<h2>Format descriptions</h2>
+<h2>Format description</h2>
 
 <h3><tt>Alignment</tt> class</h3>
 
@@ -44,11 +46,11 @@
 <dl compact="1">
 <dt>xml</dt><dd>(value: "yes"/"no") indicates if the alignment can be
     read as an XML file compliant with the DTD;</dd>
-<dt>level</dt><dd>(values: "0", "1", "2OWL") the level of alignment</dd>
+<dt>level</dt><dd>(values: "0", "1", "2EDOAL") the level of alignment</dd>
 <dt>type</dt><dd>(values:
     "11"/"1?"/"1+"/"1*"/"?1"/"??"/"?+"/"?*"/"+1"/"+?"/"++"/"+*"/"*1"/"*?"/"?+"/"**") the type of alignment;</dd>
-<dt>onto1</dt><dd>(value: URL) the first ontology to be aligned;</dd>
-<dt>onto2</dt><dd>(value: URL) the second ontology to be aligned;</dd>
+<dt>onto1</dt><dd>(value: Ontology) the first ontology to be aligned;</dd>
+<dt>onto2</dt><dd>(value: Ontology) the second ontology to be aligned;</dd>
 <dt>map</dt><dd>(value: Cell*) the set of correspondance between
     entities of the ontologies.</dd>
 </dl></p>
@@ -69,10 +71,26 @@
 <h3><tt>Relation</tt> class</h3>
 
 <p>This class does not currently exists in the format (it exists in
-  its implementation). Currently, the relation is expressed as a string.</p>
+  its implementation). Currently, the relation is expressed as a
+  string. It can be a Java classname. If this class is available
+  under the Java environment, then the relation will be an instance
+  of this class.</p>
+
+<h2>Extensions</h2>
+
+<p>The format as implemented here supports extensions both on
+  Alignments and on Cells. I.e., if additional string-valued
+  qualified attributes are added to the objects, they will be preserved through
+  the implementation.
+</p>
+<p>
+Moreover, many standard extensions have already been defined and are
+<a href="labels.html">documented</a>.
+</p>
 
 <h2>JAVA implementation</h2>
-<p>The Alignment API implements this format. In particular it provides tools for:
+
+<p>The <a href="index.html">Alignment API</a> implements this format. In particular it provides tools for:
 <ul compact="1">
 <li>Outputing the RDF/XML format from the API;</li>
 <li>Parsing the RDF/XML format into the API;</li>
@@ -85,22 +103,46 @@
 <div class="fragment"><pre>
 $ java -jar lib/procalign file://$CWD/rdf/onto1.owl file://$CWD/rdf/onto2.owl 
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
-&lt;!DOCTYPE rdf:RDF SYSTEM "align.dtd">
-
 &lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
+         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
 &lt;Alignment>
   &lt;xml>yes&lt;/xml>
-  &lt;type>11&lt;/type>
-  &lt;onto1>file://$CWD/rdf/onto1.owl&lt;/onto1>
-  &lt;onto2>file://$CWD/rdf/onto2.owl&lt;/onto2>
+  &lt;level>0&lt;/level>
+  &lt;type>**&lt;/type>
+  &lt;align:method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/align:method>
+  &lt;align:time>7&lt;/align:time>
+  &lt;onto1>
+    &lt;Ontology rdf:about="http://www.example.org/ontology1">
+      &lt;location>file:examples/rdf/onto1.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto1>
+  &lt;onto2>
+    &lt;Ontology rdf:about="http://www.example.org/ontology2">
+      &lt;location>file:examples/rdf/onto2.owl&lt;/location>
+      &lt;formalism>
+        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/formalism>
+    &lt;/Ontology>
+  &lt;/onto2>
+  &lt;map>
+    &lt;Cell>
+      &lt;entity1 rdf:resource='http://www.example.org/ontology1#reviewedarticle'/>
+      &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
+      &lt;relation>=&lt;/relation>
+      &lt;measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>0.4666666666666667&lt;/measure>
+    &lt;/Cell>
+  &lt;/map>
   &lt;map>
     &lt;Cell>
       &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
       &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
-      &lt;measure rdf:datatype='xsd:float'>0.0&lt;/measure>
       &lt;relation>=&lt;/relation>
+      &lt;measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0&lt;/measure>
     &lt;/Cell>
   &lt;/map>
 &lt;/Alignment>
