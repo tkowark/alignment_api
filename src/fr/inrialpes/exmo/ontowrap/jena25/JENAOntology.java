@@ -25,10 +25,12 @@ import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.NoSuchElementException;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.ObjectProperty;
+import com.hp.hpl.jena.ontology.AnnotationProperty;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
@@ -37,6 +39,10 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.util.iterator.Filter;
+import com.hp.hpl.jena.util.iterator.Map1;
 
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
@@ -53,19 +59,19 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	return onto.getOntResource(u.toString());
     }
     
-    public void getEntityAnnotations(Object o, Set<String> annots) throws OntowrapException {
-	OntResource or = (OntResource) o;
-	Iterator<?> z = onto.listAnnotationProperties();
+    public void getEntityAnnotations( Object o, Set<String> annots ) throws OntowrapException {
+	// THIS SHOULD BE STATIC NOW!!
+	Iterator<AnnotationProperty> z = onto.listAnnotationProperties();
 	while (z.hasNext()) {
-	    NodeIterator j = or.listPropertyValues((Property) z.next());
-		while (j.hasNext()) {
-		    RDFNode n = j.nextNode();
-		    if (n.isResource())
-			getEntityAnnotations(n, annots);
-		    else if (n.isLiteral()) {
-			annots.add(((Literal) n.as(Literal.class)).getLexicalForm());
-		    }
+	    NodeIterator j = ((OntResource)o).listPropertyValues((Property)z.next());
+	    while (j.hasNext()) {
+		RDFNode n = j.nextNode();
+		if (n.isResource())
+		    getEntityAnnotations(n, annots);
+		else if (n.isLiteral()) {
+		    annots.add( ((Literal)n.as(Literal.class)).getLexicalForm() );
 		}
+	    }
 	}
     }
 
@@ -77,11 +83,9 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 
     public Set<String> getEntityComments(Object o, String lang) throws OntowrapException {
 	Set<String> comments = new HashSet<String>();
-	OntResource or = (OntResource) o;
-	Iterator<?> i = or.listComments(lang);
-	while (i.hasNext()) {
-	    String comment = ((LiteralImpl) i.next()).getLexicalForm();
-	    comments.add(comment);
+	Iterator<RDFNode> it = ((OntResource)o).listComments(lang);
+	while (it.hasNext()) {
+	    comments.add( ((LiteralImpl)it.next()).getLexicalForm() );
 	}
 	return comments;
     }
@@ -129,15 +133,21 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	}
     }
 
-    protected Set<OntResource> getEntitySet(final Iterator<OntResource> i) {
-	return  new AbstractSet<OntResource>() {
+    /**
+     * This strange structure, as well as the corresponding JENAEntityIt
+     * is there only because Jena may return unammed entities that have to
+     * be filtered out from the sets.
+     *
+     */
+    protected <R extends OntResource> Set<R> getEntitySet(final ExtendedIterator<R> i) {
+	return new AbstractSet<R>() {
 	    private int size=-1;
-	    public Iterator<OntResource> iterator() {
-		return new JENAEntityIt(getURI(),i);
+	    public Iterator<R> iterator() {
+		return new JENAEntityIt( getURI(), i );
 	    }
 	    public int size() {
 		if (size==-1) {
-		    for (OntResource r : this)
+		    for (R r : this)
 			size++;
 		    size++;
 		}
@@ -146,35 +156,49 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 	};
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getClasses() {
-	return getEntitySet(onto.listNamedClasses());
+    public Set<OntClass> getClasses() {
+	return onto.listNamedClasses().toSet();
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getDataProperties() {
+    public Set<DatatypeProperty> getDataProperties() {
 	return getEntitySet(onto.listDatatypeProperties());
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getEntities() {
-	return getEntitySet(onto.listObjectProperties().andThen(onto.listDatatypeProperties()).
-		andThen(onto.listIndividuals()).andThen(onto.listClasses()));
+    static Map1 myMap = new Map1 () { public OntResource map1 ( Object o ) { return (OntResource)o; } };
+
+    public Set<OntResource> getEntities() {
+	//ExtendedIterator<OntResource> a = onto.listObjectProperties();
+	return getEntitySet(onto.listObjectProperties().mapWith( myMap )
+			    .andThen(onto.listDatatypeProperties().mapWith( myMap ))
+			    .andThen(onto.listNamedClasses().mapWith( myMap ))
+			    .andThen(onto.listIndividuals().mapWith( myMap ))
+				     );
+			    //.andThen(((ExtendedIterator<OntResource>)(onto.listDatatypeProperties()))));
+	/*
+	return getEntitySet( onto.listOntProperties().filterKeep( new Filter () {
+		public boolean accept( Object o ) { return (o instanceof DatatypeProperty) ||
+			(o instanceof ObjectProperty) || (o instanceof Individual) || (o instanceof OntClass); }
+	    }) );
+	return getEntitySet(onto.listObjectProperties());
+			    .andThen(onto.listDatatypeProperties())
+			    .andThen(onto.listIndividuals())
+			    .andThen(onto.listClasses()));
+	*/
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getIndividuals() {
+    public Set<Individual> getIndividuals() {
 	return getEntitySet(onto.listIndividuals());
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getObjectProperties() {
+    public Set<ObjectProperty> getObjectProperties() {
 	return getEntitySet(onto.listObjectProperties());
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<?> getProperties() {
-	return getEntitySet(onto.listObjectProperties().andThen(onto.listDatatypeProperties()));
+    public Set<OntProperty> getProperties() {
+	return getEntitySet( onto.listAllOntProperties().filterDrop( new Filter () {
+		public boolean accept( Object o ) { return (o instanceof AnnotationProperty); }
+	    }) );
+	//return getEntitySet(onto.listObjectProperties().andThen(onto.listDatatypeProperties()));
     }
 
     public boolean isClass(Object o) {
@@ -230,4 +254,45 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     }
 
 
+}
+
+class JENAEntityIt<R extends OntResource> implements Iterator<R> {
+
+    private ExtendedIterator<R> it;
+    private R current;
+    private URI ontURI;
+    
+    public JENAEntityIt( URI ontURI, ExtendedIterator<R> entityIt ) {
+	this.ontURI = ontURI;
+	this.it = entityIt;
+    }
+
+    private void setNext() {
+	while (current==null) {
+	    current = it.next();
+	    if (current.getURI()==null) {// || !current.getURI().startsWith(ontURI.toString())) {
+		current=null;
+	    }
+	}
+    }
+    public boolean hasNext() {
+	try {
+	    setNext();
+	    return current!=null;
+	}
+	catch (NoSuchElementException e) {
+	    return false;
+	}
+    }
+
+    public R next() {
+	setNext();
+	R returnR = current;
+	current=null;
+	return returnR;
+    }
+
+    public void remove() {
+	throw new UnsupportedOperationException();
+    }
 }

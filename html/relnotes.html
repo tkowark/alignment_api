@@ -75,15 +75,18 @@ likely to include:
 <!--h2>Version 4.1 (1xxx): xx/09/2009 - Tring</h2-->
 <!--h2>Version 4.0 (1310): xx/03/2010 - Rouquine carm&eacute;lite</h2-->
 
-<!--p><span style="color: red;">BEWARE (major upgrade):</span>
-UPGRADE ALL LIBRARIES
-</p-->
-<p>The Alignment API is now compiled in Java 1.6 (older versions should still be able to run it).</p>
+<p>The Alignment API is now compiled in Java 1.6 (older versions
+  should still be able to run it). All <a href="lib.html">imported
+  libraries</a> have been upgraded to their current versions. Only the
+  upgrade from Jena 2.5 to 2.6 required a minor change (due to
+  parameterised declarations: the API still works with 2.5 but needs
+  2.6 to compile).
+</p>
 <p>
 <ul compact="1">
 <li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
 <li>Separated the Alignment API from <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl/ling)</li>
-<li>Replacement of <tt>Parameters</tt> by Java <tt>Property</tt> (api/impl)</li>
+<li><span style="color: red;">Replacement</span> of <tt>Parameters</tt> by Java <tt>Properties</tt> (api/impl)</li>
 <li>Reintegrated <tt>JWNLAlignment</tt> in implementation (procalign)</li>
 <li>Separated <tt>ontowrap</tt> (previously <tt>onto</tt>) as a distinct library (ontowrap)</li>
 <li>Migrated to <span style="color: green">OWL API 3</span> as the default Ontology implementation (ontowrap)</li>
@@ -113,6 +116,7 @@ UPGRADE ALL LIBRARIES
 <li>Changed the signature of <tt></tt> from <tt>Enumeration</tt>
   to <tt>Collection&lt;Alignment&gt;</tt> (server)</tt>
 <li>Reorganised the lib directory hierarchically (build)</li>
+<li>Corrected missing hashCode() (bug #9680) (impl)</li>
 <li>Corrected a bug when the server is launched without -S
   (server)</li>
 <li>Corrected a bug in <tt>HTMLRendererVisitor</tt> that made the
@@ -129,7 +133,7 @@ UPGRADE ALL LIBRARIES
   "stored" date of alignments (server)</li>
 <li>Corrected a bug in the "find" primitive of service (server)</li>
 <li>Corrected a bug that prevented proper search of <tt>aserv.wsdl</tt> file in all imported jars (server)</li>
-<li>Corrected a bug in tests that did not forced to clean-up the state
+<li>Corrected a bug in tests that did not force to clean-up the state
   after <tt>OntoTest</tt> (test)</li>
 <li>Corrected a (commented) error in the <tt>wine.xml</tt> OMWG
   example (edoal)</li>
