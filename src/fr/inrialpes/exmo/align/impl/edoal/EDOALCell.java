@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.2 - 2008
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -84,6 +84,10 @@ public class EDOALCell extends BasicCell {
 	} else {
 	    return false;
 	}
+    }
+
+    public int hashCode() {
+	return 11 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
     }
 
     // JE// Maybe do it in case Expressions have URI

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2009
+ * Copyright (C) INRIA, 2003-2005, 2007-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -70,6 +70,10 @@ public class BasicCell implements Cell, Comparable<Cell> {
 	} else {
 	    return false;
 	}
+    }
+
+    public int hashCode() {
+	return 17 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
     }
 
     /**

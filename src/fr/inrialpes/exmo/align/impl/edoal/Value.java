@@ -65,7 +65,7 @@ public class Value { //implements Cloneable, Visitable {
     }
 
     public int hashCode() {
-	return value.hashCode();
+	return 5*value.hashCode();
     }
 
     public boolean equals(final Object o) {

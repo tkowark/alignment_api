@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2007-2008
+ * Copyright (C) INRIA, 2007-2008, 2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -74,6 +74,10 @@ public class URICell extends BasicCell {
 	} else {
 	    return false;
 	}
+    }
+
+    public int hashCode() {
+	return 23 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
     }
 
     public URI getObject1AsURI( Alignment al ) throws AlignmentException { 

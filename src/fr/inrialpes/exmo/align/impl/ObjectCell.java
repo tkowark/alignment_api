@@ -67,6 +67,11 @@ public class ObjectCell extends BasicCell {
 	}
     }
 
+    public int hashCode() {
+	return 31 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
+    }
+
+
     /**
      * Used to order the cells in an alignment:
      * -- this > c iff this.getStrength() < c.getStrength() --

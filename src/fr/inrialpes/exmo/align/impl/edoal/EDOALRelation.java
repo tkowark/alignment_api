@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.3 - 2008
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,6 +40,8 @@ import org.xml.sax.ContentHandler;
  * Represents an ontology alignment relation.
  * In fact, for the EDOAL Mapping language, this encodes directions
  * but should be rewritten in order to achive a better implementation
+ *
+ * I feel this is not used anymore
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
@@ -226,6 +228,10 @@ public class EDOALRelation implements Relation {
 	} else {
 	    return false;
 	}
+    }
+
+    public int hashCode() {
+	return 5 + 3*type.hashCode() + 7*direction.hashCode() ;
     }
 
     /** Housekeeping **/

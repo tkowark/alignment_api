@@ -108,6 +108,9 @@ public class BasicRelation implements Relation
 	    return false;
 	}
     }
+    public int hashCode() {
+	return 19+relation.hashCode();
+    }
 
     /** Housekeeping **/
     public void dump( ContentHandler h ){};
