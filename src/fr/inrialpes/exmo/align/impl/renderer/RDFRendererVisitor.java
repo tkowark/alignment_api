@@ -40,7 +40,6 @@ import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.Extensions;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
-import fr.inrialpes.exmo.align.impl.Namespace;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.Ontology; //?
@@ -180,7 +179,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	    writer.print("<?xml version='1.0' encoding='utf-8");
 	    writer.print("' standalone='no'?>"+NL);
 	}
-	writer.print("<rdf:RDF xmlns='"+Namespace.ALIGNMENT.prefix+"'");
+	writer.print("<"+SyntaxElement.RDF.print(DEF)+" xmlns='"+Namespace.ALIGNMENT.prefix+"'");
 	//writer.print(NL+"         xml:base='"+Namespace.ALIGNMENT.uri+"'");
 	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
 	    String k = (String)e.nextElement();
@@ -198,7 +197,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	indentedOutput("<"+SyntaxElement.ALIGNMENT.print(DEF));
 	String idext = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( idext != null ) {
-	    writer.print(" rdf:about=\""+idext+"\"");
+	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+idext+"\"");
 	}
 	writer.print(">"+NL);
 	increaseIndent();
@@ -227,11 +226,11 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	for( Cell c : align ){ c.accept( this ); };
 	decreaseIndent();
 	indentedOutputln("</"+SyntaxElement.ALIGNMENT.print(DEF)+">");
-	writer.print("</rdf:RDF>"+NL);
+	writer.print("</"+SyntaxElement.RDF.print(DEF)+">"+NL);
     }
 
     private void printBasicOntology ( URI u, URI f ) {
-	indentedOutput("<"+SyntaxElement.ONTOLOGY.print(DEF)+" rdf:about=\""+u+"\">"+NL);
+	indentedOutput("<"+SyntaxElement.ONTOLOGY.print(DEF)+" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+u+"\">"+NL);
 	increaseIndent();
 	if ( f != null ) {
 	    indentedOutputln("<"+SyntaxElement.LOCATION.print(DEF)+">"+f+"</"+SyntaxElement.LOCATION.print(DEF)+">");
@@ -245,7 +244,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     public void printOntology( Ontology onto ) {
 	URI u = onto.getURI();
 	URI f = onto.getFile();
-	indentedOutput("<"+SyntaxElement.ONTOLOGY.print(DEF)+" rdf:about=\""+u+"\">"+NL);
+	indentedOutput("<"+SyntaxElement.ONTOLOGY.print(DEF)+" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+u+"\">"+NL);
 	increaseIndent();
 	if ( f != null ) {
 	    indentedOutputln("<"+SyntaxElement.LOCATION.print(DEF)+">"+f+"</"+SyntaxElement.LOCATION.print(DEF)+">");
@@ -276,7 +275,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	    increaseIndent();
 	    indentedOutput("<"+SyntaxElement.CELL.print(DEF));
 	    if ( cell.getId() != null && !cell.getId().equals("") ){
-		writer.print(" rdf:about=\""+cell.getId()+"\"");
+		writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+cell.getId()+"\"");
 	    }
 	    writer.print(">"+NL);
 	    // Would be better to put it more generic
@@ -296,13 +295,13 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 		writer.print(NL);
 		indentedOutputln("</"+SyntaxElement.ENTITY2.print(DEF)+">");
 	    } else {
-		indentedOutputln("<"+SyntaxElement.ENTITY1.print(DEF)+" rdf:resource='"+u1.toString()+"'/>");
-		indentedOutputln("<"+SyntaxElement.ENTITY2.print(DEF)+" rdf:resource='"+u2.toString()+"'/>");
+		indentedOutputln("<"+SyntaxElement.ENTITY1.print(DEF)+" "+SyntaxElement.RDF_RESOURCE.print(DEF)+"='"+u1.toString()+"'/>");
+		indentedOutputln("<"+SyntaxElement.ENTITY2.print(DEF)+" "+SyntaxElement.RDF_RESOURCE.print(DEF)+"='"+u2.toString()+"'/>");
 	    }
 	    indentedOutput("<"+SyntaxElement.RULE_RELATION.print(DEF)+">");
 	    cell.getRelation().accept( this );
 	    writer.print("</"+SyntaxElement.RULE_RELATION.print(DEF)+">"+NL);
-	    indentedOutputln("<"+SyntaxElement.MEASURE.print(DEF)+" rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>"+cell.getStrength()+"</"+SyntaxElement.MEASURE.print(DEF)+">");
+	    indentedOutputln("<"+SyntaxElement.MEASURE.print(DEF)+" "+SyntaxElement.RDF_DATATYPE.print(DEF)+"='"+Namespace.XSD.getUriPrefix()+"float'>"+cell.getStrength()+"</"+SyntaxElement.MEASURE.print(DEF)+">");
 	    if ( cell.getSemantics() != null &&
 		 !cell.getSemantics().equals("") &&
 		 !cell.getSemantics().equals("first-order") )

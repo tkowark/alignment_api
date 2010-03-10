@@ -25,10 +25,11 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Evaluator;
 
+import fr.inrialpes.exmo.align.parser.SyntaxElement;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.Annotations;
-import fr.inrialpes.exmo.align.impl.Namespace;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -148,25 +149,25 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 
     public String HTMLString (){
 	String result = "";
-	result += "  <div  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#' typeof=\"map:output\" href=''>";
+	result += "  <div  xmlns:"+Namespace.ATLMAP.shortCut+"='"+Namespace.ATLMAP.prefix+"' typeof=\""+Namespace.ATLMAP.shortCut+":output\" href=''>";
 	result += "    <dl>";
 	//if ( ) {
-	//    result += "    <dt>algorithm</dt><dd property=\"map:algorithm\">"+align1.get+"</dd>";
+	//    result += "    <dt>algorithm</dt><dd property=\""+Namespace.ATLMAP.shortCut+":algorithm\">"+align1.get+"</dd>";
 	//}
 	try {
-	    result += "    <dt>input1</dt><dd rel=\"map:input1\" href=\""+align1.getOntology1URI()+"\">"+align1.getOntology1URI()+"</dd>";
-	    result += "    <dt>input2</dt><dd rel=\"map:input2\" href=\""+align1.getOntology2URI()+"\">"+align1.getOntology2URI()+"</dd>";
+	    result += "    <dt>input1</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input1\" href=\""+align1.getOntology1URI()+"\">"+align1.getOntology1URI()+"</dd>";
+	    result += "    <dt>input2</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input2\" href=\""+align1.getOntology2URI()+"\">"+align1.getOntology2URI()+"</dd>";
 	} catch (AlignmentException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
-	// result += "    <map:falseNegative>");
-	// result += "    <map:falsePositive>");
-	result += "    <dt>precision</dt><dd property=\"map:precision\">"+precision+"</dd>\n";
-	result += "    <dt>recall</dt><dd property=\"map:recall\">"+recall+"</dd>\n";
-	result += "    <dt>fallout</dt><dd property=\"map:fallout\">"+fallout+"</dd>\n";
-	result += "    <dt>F-measure</dt><dd property=\"map:fMeasure\">"+fmeasure+"</dd>\n";
-	result += "    <dt>O-measure</dt><dd property=\"map:oMeasure\">"+overall+"</dd>\n";
-	if ( time != 0 ) result += "    <dt>time</dt><dd property=\"map:time\">"+time+"</dd>\n";
-    	result += "    <dt>result</dt><dd property=\"map:result\">"+result+"</dd>\n";
+	// result += "    <"+Namespace.ATLMAP.shortCut+":falseNegative>");
+	// result += "    <"+Namespace.ATLMAP.shortCut+":falsePositive>");
+	result += "    <dt>precision</dt><dd property=\""+Namespace.ATLMAP.shortCut+":precision\">"+precision+"</dd>\n";
+	result += "    <dt>recall</dt><dd property=\""+Namespace.ATLMAP.shortCut+":recall\">"+recall+"</dd>\n";
+	result += "    <dt>fallout</dt><dd property=\""+Namespace.ATLMAP.shortCut+":fallout\">"+fallout+"</dd>\n";
+	result += "    <dt>F-measure</dt><dd property=\""+Namespace.ATLMAP.shortCut+":fMeasure\">"+fmeasure+"</dd>\n";
+	result += "    <dt>O-measure</dt><dd property=\""+Namespace.ATLMAP.shortCut+":oMeasure\">"+overall+"</dd>\n";
+	if ( time != 0 ) result += "    <dt>time</dt><dd property=\""+Namespace.ATLMAP.shortCut+":time\">"+time+"</dd>\n";
+    	result += "    <dt>result</dt><dd property=\""+Namespace.ATLMAP.shortCut+":result\">"+result+"</dd>\n";
 	result += "  </dl>\n  </div>\n";
 return result;
     }
@@ -176,32 +177,32 @@ return result;
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
-	writer.println("  <map:output rdf:about=''>");
+	writer.println("<"+SyntaxElement.RDF.print()+" xmlns:"+Namespace.RDF.shortCut+"='"+Namespace.RDF.prefix+"'\n  xmlns:"+Namespace.ATLMAP.shortCut+"='"+Namespace.ATLMAP.prefix+"'>");
+	writer.println("  <"+Namespace.ATLMAP.shortCut+":output "+SyntaxElement.RDF_ABOUT.print()+"=''>");
 	//if ( ) {
-	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
+	//    writer.println("    <"+Namespace.ATLMAP.shortCut+":algorithm "+SyntaxElement.RDF_RESOURCE.print()+"=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
 	try {
-	    writer.println("    <map:input1 rdf:resource=\""+align1.getOntology1URI()+"\"/>");
-	    writer.println("    <map:input2 rdf:resource=\""+align1.getOntology2URI()+"\"/>");
+	    writer.println("    <"+Namespace.ATLMAP.shortCut+":input1 "+SyntaxElement.RDF_RESOURCE.print()+"=\""+align1.getOntology1URI()+"\"/>");
+	    writer.println("    <"+Namespace.ATLMAP.shortCut+":input2 "+SyntaxElement.RDF_RESOURCE.print()+"=\""+align1.getOntology2URI()+"\"/>");
 	} catch (AlignmentException e) { e.printStackTrace(); };
 	// Other missing items (easy to get)
-	// writer.println("    <map:falseNegative>");
-	// writer.println("    <map:falsePositive>");
-	writer.print("    <map:precision>");
+	// writer.println("    <"+Namespace.ATLMAP.shortCut+":falseNegative>");
+	// writer.println("    <"+Namespace.ATLMAP.shortCut+":falsePositive>");
+	writer.print("    <"+Namespace.ATLMAP.shortCut+":precision>");
 	writer.print(precision);
-	writer.print("</map:precision>\n    <map:recall>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":precision>\n    <"+Namespace.ATLMAP.shortCut+":recall>");
 	writer.print(recall);
-	writer.print("</map:recall>\n    <fallout>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":recall>\n    <fallout>");
 	writer.print(fallout);
-	writer.print("</fallout>\n    <map:fMeasure>");
+	writer.print("</fallout>\n    <"+Namespace.ATLMAP.shortCut+":fMeasure>");
 	writer.print(fmeasure);
-	writer.print("</map:fMeasure>\n    <map:oMeasure>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":fMeasure>\n    <"+Namespace.ATLMAP.shortCut+":oMeasure>");
 	writer.print(overall);
-	writer.print("</map:oMeasure>\n");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":oMeasure>\n");
 	if ( time != 0 ) writer.print("    <time>"+time+"</time>\n");
     	writer.print("    <result>"+result);
-	writer.print("</result>\n  </map:output>\n</rdf:RDF>\n");
+	writer.print("</result>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
     public double getPrecision() { return precision; }

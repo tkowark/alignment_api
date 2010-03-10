@@ -41,14 +41,11 @@ public enum Namespace {
 	EDOAL("http://ns.inria.org/edoal/1.0/", "edoal", true),
 	DUBLIN_CORE("http://purl.org/dc/elements/1.1/", "dc", false),
 	RDF_SCHEMA("http://www.w3.org/2000/01/rdf-schema#", "rdfs", false),
-	SOAP_ENV("http://schemas.xmlsoap.org/soap/envelope/", "soapenv", false),
-	XSD("http://www.w3.org/2001/XMLSchema#", "xsd", false),
-	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false);
-	//WSML_CORE("http://www.wsmo.org/wsml/wsml-syntax/wsml-core", "wsml", true),
-	//WSML_FLIGHT("http://www.wsmo.org/wsml/wsml-syntax/wsml-flight", "wsml", true),
-	//WSML_RULE("http://www.wsmo.org/wsml/wsml-syntax/wsml-rule", "wsml", true),
-	//WSML_DL("http://www.wsmo.org/wsml/wsml-syntax/wsml-dl", "wsml", true),
-	//WSML_FULL("http://www.wsmo.org/wsml/wsml-syntax/wsml-full", "wsml", true);
+	SOAP_ENV("http://schemas.xmlsoap.org/soap/envelope/", "SOAP-ENV", false),
+	XSD("http://www.w3.org/2001/XMLSchema", "xsd", true),
+	XSI("http://www.w3.org/1999/XMLSchema-instance", "xsi", false),
+	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false),
+	ATLMAP("http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#", "map", false);
 
 	public final String uri;
 

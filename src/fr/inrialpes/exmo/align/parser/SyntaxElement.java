@@ -48,6 +48,7 @@ public enum SyntaxElement {
 
     // RDF NAMESPACE
     RDF(                Namespace.RDF, "RDF", true), // This is not a resource, nor a property
+	RDF_ID(         Namespace.RDF, "ID"),
 	RDF_ABOUT(      Namespace.RDF, "about"),
 	RDF_DATATYPE(   Namespace.RDF, "datatype"),
 	RDF_PARSETYPE(  Namespace.RDF, "parseType"),

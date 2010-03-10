@@ -391,7 +391,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	if ( restful ) {
 	    return msg;
 	} else {
-	    return "<SOAP-ENV:Envelope\n   xmlns='http://exmo.inrialpes.fr/align/service'\n   xml:base='http://exmo.inrialpes.fr/align/service'\n   xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'\n   xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance'\n   xmlns:xsd='http://www.w3.org/1999/XMLSchema'>\n  <SOAP-ENV:Body>\n"+msg+"  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n";
+	    return "<"+Namespace.SOAP_ENV.shortCut+":Envelope\n" +
+		"   xmlns='"+Namespace.ALIGNSVC.prefix+"'\n" +
+		"   xml:base='"+Namespace.ALIGNSVC.prefix+"'\n" +
+		"   xmlns:"+Namespace.SOAP_ENV.shortCut+"='"+Namespace.SOAP_ENV.prefix+"'\n" +
+		"   xmlns:"+Namespace.XSI.shortCut+"='"+Namespace.XSI.prefix+"'\n" +
+		"   xmlns:"+Namespace.XSD.shortCut+"='"+Namespace.XSD.uri+"'>\n" +
+		"  <"+Namespace.SOAP_ENV.shortCut+":Body>\n"+msg+"  </"+Namespace.SOAP_ENV.shortCut+":Body>\n" +
+		"</"+Namespace.SOAP_ENV.shortCut+":Envelope>\n";
 	}
     }
 

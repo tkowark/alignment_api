@@ -24,6 +24,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
+import fr.inrialpes.exmo.align.parser.SyntaxElement;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
@@ -107,7 +109,7 @@ public class SymMeanEvaluator extends BasicEvaluator {
     }
 
     public void write( PrintWriter writer ) throws java.io.IOException {
-	writer.print("<rdf:RDF>\n  <Evaluation class=\"SymMeanEvaluator\">\n    <class>");
+	writer.print("<"+SyntaxElement.RDF.print()+">\n  <Evaluation class=\"SymMeanEvaluator\">\n    <class>");
  	writer.print(classScore);
 	writer.print("</class>\n    <properties>");
  	writer.print(propScore);
@@ -115,7 +117,7 @@ public class SymMeanEvaluator extends BasicEvaluator {
  	writer.print(indScore);
 	writer.print("</individuals>\n    <result>");
  	writer.print(result);
- 	writer.print("</result>\n  </Evaluation>\n</rdf:RDF>\n");
+ 	writer.print("</result>\n  </Evaluation>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
 }

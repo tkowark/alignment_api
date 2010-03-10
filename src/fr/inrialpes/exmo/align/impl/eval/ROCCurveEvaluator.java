@@ -25,6 +25,9 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
+import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.parser.SyntaxElement;
+
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Iterator;
@@ -123,11 +126,11 @@ public class ROCCurveEvaluator extends GraphEvaluator {
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>");
+	writer.println("<"+SyntaxElement.RDF.print()+" xmlns:"+Namespace.RDF.shortCut+"='"+Namespace.RDF.prefix+"'>");
 	writer.println("  <output rdf:about=''>");
 	writeXMLMap( writer );
 	writer.print("    <AUC>"+auc+"</AUC>\n");
-	writer.print("  </output>\n</rdf:RDF>\n");
+	writer.print("  </output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
     
     public void writePlot(PrintWriter writer) {

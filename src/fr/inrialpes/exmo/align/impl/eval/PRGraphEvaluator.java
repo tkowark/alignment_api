@@ -25,6 +25,9 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
+import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.parser.SyntaxElement;
+
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Iterator;
@@ -160,8 +163,8 @@ public class PRGraphEvaluator extends GraphEvaluator {
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>");
-	writer.println("  <output rdf:about=''>");
+	writer.println("<"+SyntaxElement.RDF.print()+" xmlns:"+Namespace.RDF.shortCut+"='"+Namespace.RDF.prefix+"'>");
+	writer.println("  <output "+SyntaxElement.RDF_ABOUT.print()+"=''>");
 	for( int i=0; i <= STEP; i++ ){
 	    writer.print("    <step>\n      <recall>");
 	    writer.print((double)i/STEP);
@@ -170,7 +173,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	    writer.print("</precision>\n    </step>\n");
 	}
 	writer.print("    <MAP>"+map+"</MAP>\n");
-	writer.print("  </output>\n</rdf:RDF>\n");
+	writer.print("  </output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
     /* Write out the final interpolated recall/precision graph data.

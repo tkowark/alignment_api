@@ -24,6 +24,8 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
+import fr.inrialpes.exmo.align.parser.SyntaxElement;
+import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
@@ -281,26 +283,26 @@ public class ExtPREvaluator extends BasicEvaluator {
      */
     public void write(PrintWriter writer) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
-	writer.println("<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'\n  xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>");
-	writer.println("  <map:output rdf:about=''>");
+	writer.println("<"+SyntaxElement.RDF.print()+" xmlns:"+Namespace.RDF.shortCut+"='"+Namespace.RDF.prefix+"'\n  xmlns:"+Namespace.ATLMAP.shortCut+"='"+Namespace.ATLMAP.prefix+"'>");
+	writer.println("  <"+Namespace.ATLMAP.shortCut+":output "+SyntaxElement.RDF_ABOUT.print()+"=''>");
 	//if ( ) {
-	//    writer.println("    <map:algorithm rdf:resource=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
+	//    writer.println("    <"+Namespace.ATLMAP.shortCut+":algorithm "+SyntaxElement.RDF_RESOURCE.print()+"=\"http://co4.inrialpes.fr/align/algo/"+align1.get+"\">");
 	//}
-	writer.println("    <map:input1 rdf:resource=\""+((ObjectAlignment)align1).getOntologyObject1().getURI()+"\">");
-	writer.println("    <map:input2 rdf:resource=\""+((ObjectAlignment)align1).getOntologyObject2().getURI()+"\">");
-	writer.print("    <map:symmetricprecision>");
+	writer.println("    <"+Namespace.ATLMAP.shortCut+":input1 "+SyntaxElement.RDF_RESOURCE.print()+"=\""+((ObjectAlignment)align1).getOntologyObject1().getURI()+"\">");
+	writer.println("    <"+Namespace.ATLMAP.shortCut+":input2 "+SyntaxElement.RDF_RESOURCE.print()+"=\""+((ObjectAlignment)align1).getOntologyObject2().getURI()+"\">");
+	writer.print("    <"+Namespace.ATLMAP.shortCut+":symmetricprecision>");
 	writer.print(symprec);
-	writer.print("</map:symmetricprecision>\n    <map:symmetricrecall>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":symmetricprecision>\n    <"+Namespace.ATLMAP.shortCut+":symmetricrecall>");
 	writer.print(symrec);
-	writer.print("</map:symmetricrecall>\n    <map:effortbasedprecision>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":symmetricrecall>\n    <"+Namespace.ATLMAP.shortCut+":effortbasedprecision>");
 	writer.print(effprec);
-	writer.print("</map:effortbasedprecision>\n    <map:effortbasedrecall>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":effortbasedprecision>\n    <"+Namespace.ATLMAP.shortCut+":effortbasedrecall>");
 	writer.print(effrec);
-	writer.print("</map:effortbasedrecall>\n    <map:orientedprecision>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":effortbasedrecall>\n    <"+Namespace.ATLMAP.shortCut+":orientedprecision>");
 	writer.print(orientprec);
-	writer.print("</map:orientedprecision>\n    <map:orientedrecall>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":orientedprecision>\n    <"+Namespace.ATLMAP.shortCut+":orientedrecall>");
 	writer.print(orientrec);
-	writer.print("</map:orientedrecall>\n  </map:output>\n</rdf:RDF>\n");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":orientedrecall>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
 }
