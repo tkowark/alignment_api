@@ -67,19 +67,6 @@ public class URICell extends BasicCell {
     //	super( ob1, ob2, rel, m );
     //};
 
-    // the strength must be compared with regard to abstract types
-    public boolean equals( Cell c ) {
-	if ( c instanceof URICell ){
-	    return ( object1.equals(c.getObject1()) && object2.equals(c.getObject2()) && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
-	} else {
-	    return false;
-	}
-    }
-
-    public int hashCode() {
-	return 23 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
-    }
-
     public URI getObject1AsURI( Alignment al ) throws AlignmentException { 
 	return (URI)object1; 
     };

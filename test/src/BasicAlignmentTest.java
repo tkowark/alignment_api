@@ -37,6 +37,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicCell;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.URICell;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Alignment;
@@ -71,7 +72,8 @@ public class BasicAlignmentTest {
 	assertEquals( result.nbCells(), 1, "Alignment should contain 1 cell" );
     }
 
-    private static Cell cell1, cell2, cell3, cell4, cell5;
+    private static Cell cell1, cell2, cell3, cell4, cell5, cell6;
+    private static Cell ucell1, ucell2, ucell3, ucell4, ucell5, ucell6;
 
     /**
      * @throws java.lang.Exception
@@ -81,6 +83,7 @@ public class BasicAlignmentTest {
 	URI cls1 = URI.create( "http://example.org/test#cls1" );
 	URI cls2 = URI.create( "http://example.org/test#cls2" );
 	URI cls3 = URI.create( "http://example.org/test#cls3" );
+	URI cls4 = URI.create( "http://example.org/test#cls3" );
 	Relation rel1 = new BasicRelation( "=" );
 	Relation rel2 = new BasicRelation( "<" );
 	cell1 = new BasicCell( "1", cls1, cls2, rel1, 0);
@@ -88,16 +91,17 @@ public class BasicAlignmentTest {
 	cell3 = new BasicCell( "3", cls1, cls3, rel1, 0);
 	cell4 = new BasicCell( "4", cls1, cls2, rel2, 0);
 	cell5 = new BasicCell( "5", cls1, cls2, rel1, .5);
+	cell6 = new BasicCell( "6", cls1, cls4, rel1, 0);
+	ucell1 = new URICell( "1", cls1, cls2, rel1, 0);
+	ucell2 = new URICell( "2", cls1, cls2, rel1, 0);
+	ucell3 = new URICell( "3", cls1, cls3, rel1, 0);
+	ucell4 = new URICell( "4", cls1, cls2, rel2, 0);
+	ucell5 = new URICell( "5", cls1, cls2, rel1, .5);
+	ucell6 = new URICell( "6", cls1, cls4, rel1, 0);
+	assertTrue( cls3.equals( cls4 ) ); // Check that URIs are correct!
+	assertTrue( cls3.hashCode() == cls4.hashCode() );
     }
     
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass(groups = { "raw", "full" }, alwaysRun = true )
-	public static void tearDownAfterClass() throws Exception {
-	cell1 = cell2 = cell3 = cell4 = cell5 = null;
-    }
-
     @Test(groups = { "full", "raw" })
 	public void testEquals() {
 	assertTrue( cell1.equals( cell1 ) ); // 1 == 1
@@ -107,6 +111,7 @@ public class BasicAlignmentTest {
 	assertTrue( !cell1.equals( cell3 ) ); // 1 != 3
 	assertTrue( !cell1.equals( cell4 ) ); // 1 != 4
 	assertTrue( !cell1.equals( cell5 ) ); // 1 != 5
+	assertTrue( cell6.equals( cell3 ) ); // 6 == 3
     }
 
     @Test(groups = { "full", "raw" })
@@ -118,6 +123,32 @@ public class BasicAlignmentTest {
 	assertTrue( !cell1.equals( (Object) cell3 ) ); // 1 != 3
 	assertTrue( !cell1.equals( (Object) cell4 ) ); // 1 != 4
 	assertTrue( !cell1.equals( (Object) cell5 ) ); // 1 != 5
+	assertTrue( cell6.equals( (Object)cell3 ) ); // 6 == 3
+    }
+	
+    // These have been added because equals is not redefined in URICell anymore
+    @Test(groups = { "full", "raw" })
+	public void testUEquals() {
+	assertTrue( ucell1.equals( ucell1 ) ); // 1 == 1
+	assertTrue( ucell1.equals( ucell2 ) ); // 1 == 2
+	assertTrue( ucell2.equals( ucell1 ) ); // 2 == 1
+	assertTrue( !ucell1.equals( null ) ); // 1 != null
+	assertTrue( !ucell1.equals( ucell3 ) ); // 1 != 3
+	assertTrue( !ucell1.equals( ucell4 ) ); // 1 != 4
+	assertTrue( !ucell1.equals( ucell5 ) ); // 1 != 5
+	assertTrue( cell6.equals( cell3 ) ); // 6 == 3
+    }
+
+    @Test(groups = { "full", "raw" })
+	public void testUEqualsObject() {
+	assertTrue( ucell1.equals( (Object) ucell1 ) ); // 1 == 1
+	assertTrue( ucell1.equals( (Object) ucell2 ) ); // 1 == 2
+	assertTrue( ucell2.equals( (Object) ucell1 ) ); // 2 == 1
+	assertTrue( !ucell1.equals( (Object) null ) ); // 1 != null
+	assertTrue( !ucell1.equals( (Object) ucell3 ) ); // 1 != 3
+	assertTrue( !ucell1.equals( (Object) ucell4 ) ); // 1 != 4
+	assertTrue( !ucell1.equals( (Object) ucell5 ) ); // 1 != 5
+	assertTrue( ucell6.equals( (Object)ucell3 ) ); // 6 == 3
     }
 	
     @Test(groups = { "full", "raw" })
@@ -125,6 +156,15 @@ public class BasicAlignmentTest {
 	assertTrue( cell1.equals( cell2 ) && cell1.hashCode() == cell2.hashCode() );
 	assertTrue( cell1.equals( cell1 ) && cell1.hashCode() == cell1.hashCode() );
 	assertTrue( cell2.equals( cell1 ) && cell2.hashCode() == cell1.hashCode() );
+	assertTrue( cell3.equals( cell6 ) && cell3.hashCode() == cell6.hashCode() );
     }
 	
+    /**
+     * @throws java.lang.Exception
+     */
+    @AfterClass(groups = { "raw", "full" }, alwaysRun = true )
+	public static void tearDownAfterClass() throws Exception {
+	cell1 = cell2 = cell3 = cell4 = cell5 = cell6 = null;
+    }
+
 }

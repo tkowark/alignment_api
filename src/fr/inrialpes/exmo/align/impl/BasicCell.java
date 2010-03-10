@@ -64,12 +64,14 @@ public class BasicCell implements Cell, Comparable<Cell> {
     };
 
     // the strength must be compared with regard to abstract types
-    public boolean equals( Cell c ) {
-	if ( c instanceof BasicCell ){
-	    return ( object1 == c.getObject1() && object2 == c.getObject2() && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
-	} else {
-	    return false;
-	}
+    public boolean equals( Object c ) {
+	if ( c != null && c instanceof Cell ) return equals( (Cell)c );
+	else return false;
+    }
+
+    public boolean equals ( Cell c ) {
+	if ( c == null ) return false;
+	else return ( object1.equals(((BasicCell)c).getObject1()) && object2.equals(((BasicCell)c).getObject2()) && strength == ((BasicCell)c).getStrength() && (relation.equals( ((BasicCell)c).getRelation() )) );
     }
 
     public int hashCode() {

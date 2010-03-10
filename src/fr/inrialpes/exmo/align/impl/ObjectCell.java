@@ -56,21 +56,6 @@ public class ObjectCell extends BasicCell {
 	super( id, ob1, ob2, rel, m );
     };
 
-
-    // the strength must be compared with regard to abstract types
-    public boolean equals( Cell c ) {
-	if ( c instanceof ObjectCell ){
-	    return ( object1 == c.getObject1() && object2 == c.getObject2() && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
-	} else {
-	    return false;
-	}
-    }
-
-    public int hashCode() {
-	return 31 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
-    }
-
-
     /**
      * Used to order the cells in an alignment:
      * -- this > c iff this.getStrength() < c.getStrength() --

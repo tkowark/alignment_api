@@ -78,25 +78,14 @@ public class EDOALCell extends BasicCell {
 	super( id, (Object)ob1, (Object)ob2, rel, m );
     };
 
-    public boolean equals( Cell c ) {
-	if ( c instanceof EDOALCell ){
-	    return ( object1.equals(c.getObject1()) && object2.equals(c.getObject2()) && strength == c.getStrength() && (relation.equals( c.getRelation() )) );
-	} else {
-	    return false;
-	}
-    }
-
-    public int hashCode() {
-	return 11 + 7*object1.hashCode() + 11*object2.hashCode() + relation.hashCode() + (int)(strength*150.);
-    }
-
-    // JE// Maybe do it in case Expressions have URI
     public URI getObject1AsURI( Alignment al ) throws AlignmentException {
-	return null;
+	if ( object1 instanceof Id ) return ((Id)object1).getURI();
+	else return null;
 	//throw new AlignmentException( "Cannot convert to URI "+object1 );
     }
     public URI getObject2AsURI( Alignment al ) throws AlignmentException {
-	return null;
+	if ( object2 instanceof Id ) return ((Id)object2).getURI();
+	else return null;
 	//throw new AlignmentException( "Cannot convert to URI "+object2 );
     }
 
