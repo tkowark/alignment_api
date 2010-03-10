@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,7 +23,6 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
@@ -35,6 +34,7 @@ import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
 import fr.inrialpes.exmo.iddl.conf.Semantics;
 
+import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
@@ -94,8 +94,8 @@ public class SemPRecEvaluator //extends BasicEvaluator
      * 
      * This takes semantivs as a parameter which should be a litteral of fr.inrialpes.exmo.iddl.conf.Semantics
      */
-    public double eval( Parameters params, Object cache ) throws AlignmentException {
-	init( params.getParameter( "semantics" ) );
+    public double eval( Properties params, Object cache ) throws AlignmentException {
+	init( params.getProperty( "semantics" ) );
 	nbfound = align2.nbCells();
 	nbexpected = align1.nbCells();
 

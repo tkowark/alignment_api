@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
@@ -115,8 +115,8 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
-    public static Parameters getParameters() {
-	return (Parameters)null;
+    public static Properties getParameters() {
+	return (Properties)null;
     }
 
     public int nbCells() {
@@ -188,7 +188,7 @@ public class BasicAlignment implements Alignment {
 	return extensions.getExtension( uri, label );
     };
 
-    public Parameters getXNamespaces(){ return namespaces; }
+    public BasicParameters getXNamespaces(){ return namespaces; }
 
     public void setXNamespace( String label, String uri ) {
 	namespaces.setParameter( label, uri );

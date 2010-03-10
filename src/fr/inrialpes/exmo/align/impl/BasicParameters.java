@@ -54,6 +54,10 @@ import org.semanticweb.owl.align.Parameters;
   * But propertyNames returns Enumeration and not Enumeration<String>
   * Using keySet will not change anything, because it will be Set<Object>
   * Java 6 introduces Set<String> stringPropertyNames() !!
+  *
+  * [JE:2010] This class implements Parameters for compatibility purposes.
+  * Parameters is only "morally" deprecated in the Alignment API, but it is
+  * not used anymore.
   * 
   * @author Jérôme Euzenat
   * @version $Id$ 
@@ -63,9 +67,6 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
  
     static final long serialVersionUID = 400L;
 
-    /** The list of unlinked out  XML_Port */
-    //Hashtable<String,Object> parameters = null;
-    
     public BasicParameters() {}
 
     @SuppressWarnings( "unchecked" )
@@ -77,24 +78,19 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
     }
   
     public void setParameter( String name, String value ){
-	//parameters.put(name,value);
 	setProperty( name, value );
     }
 
     public void unsetParameter( String name ){
-	//parameters.remove(name);
 	setProperty( name, (String)null );
     }
 
-    // JE2009: returns a string...
     public String getParameter( String name ){
-	//return parameters.get(name);
 	return getProperty( name );
     }
     
     @SuppressWarnings( "unchecked" )
     public Enumeration<String> getNames(){
-	//return parameters.keys();
 	return (Enumeration<String>)propertyNames(); //[W:unchecked]
     }
 
@@ -125,11 +121,11 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 	}
     }
 
-    public static Parameters read( String filename ){
-	return read(new BasicParameters(), filename);
+    public static BasicParameters read( String filename ){
+	return read( new BasicParameters(), filename );
     }
 
-    public static Parameters read( Parameters p, String filename ){
+    public static BasicParameters read( BasicParameters p, String filename ){
 	try {
 	    // open the stream
 	    DocumentBuilderFactory docBuilderFactory =

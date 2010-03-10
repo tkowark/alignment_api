@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA, 2006-2007, 2009
+ * Copyright (C) INRIA, 2006-2007, 2009-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,8 +28,6 @@ import jade.util.Logger;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
-
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.align.service.AServException;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;

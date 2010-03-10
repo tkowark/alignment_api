@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2008, 2009
+ * Copyright (C) INRIA, 2004, 2008, 2009-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,17 +36,17 @@ import java.util.Enumeration;
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
+ * 
+ * This interface is morally deprecated in version 4.0 to the advantage of java.util.Properties
+ * //@deprecated
  */
 
 public interface Parameters {
  
-    //public void setParameter(String name, Object value);
     public void setParameter(String name, String value);
     public void unsetParameter(String name);
     public String getParameter(String name);
     public Enumeration<String> getNames();
 
     public void write();
-    //public static Parameters read(String filename);
-    //public static Parameters read(Parameters params, String filename);
 }

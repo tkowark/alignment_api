@@ -42,7 +42,6 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 
