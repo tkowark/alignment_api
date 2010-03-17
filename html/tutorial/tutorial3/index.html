@@ -140,6 +140,8 @@ of <tt>URIAlignment</tt> implementing <tt>AlignmentProcess</tt>.
 <div class="fragment">
 package fr.inrialpes.exmo.align.impl; 
 
+import java.util.Properties;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
@@ -252,11 +254,12 @@ you to implement many more methods and other classes.
 <p>
 Maybe it is not enough, or not efficient enough.
 In this case, the best way is to start from one of our class
-implementing alignments:
+implementing <tt>Alignment</tt>:
 <ul>
-<li><tt>BasicAlignment</tt></li>
-<li><tt>URIAlignment</tt></li>
-<li><tt>ObjectAlignment</tt></li>
+<li><tt>fr.inrialpes.exmo.align.impl.BasicAlignment</tt></li>
+<li><tt>fr.inrialpes.exmo.align.impl.URIAlignment</tt></li>
+<li><tt>fr.inrialpes.exmo.align.impl.ObjectAlignment</tt></li>
+<li><tt>fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment</tt></li>
 </ul>
 and extend it so that it implements your matcher.
 This is the example given in the
@@ -358,9 +361,9 @@ The API features a DistanceAlignment abstract class that can be specialised for 
 
 <hr />
 <small>
-<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial3/</p>
-</small>
+<div style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial3/</div>
 <hr />
-<p>$Id$</p>
+<div>$Id$</div>
+</small>
 </body>
 </html>

@@ -61,27 +61,36 @@ $ javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results Skelet
 $ java -cp ../../lib/Procalign.jar:results Skeleton file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 
-<p>Now considering the <abbr>API</abbr> (that can be consulted through
-  its
-  thin <a href="../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a>
-  for instance), can you modify the Skeleton program so that it performs the following:</p>
+<p>Now considering the <abbr>API</abbr> (that can be consulted through its
+ thin <a href="../../../javadoc/org/semanticweb/owl/align/Alignment.html">Javadoc</a>
+ for instance), can you modify the Skeleton program so that it performs the following:</p>
 <ul>
-  <li>Run two different alignment methods (e.g., ngram distance and smoa);</li>
-  <li>Merge the two results;</li>
-  <li>Trim at various thresholds;</li>
-  <li>Evaluate them against the reference alignment and choose the one with the best F-Measure;</li>
-  <li>Displays it as <acronym title="The web ontology language OWL">OWL</acronym> Rules.</li>
+<li>Run two different alignment methods (e.g., ngram distance and smoa);</li>
+<li>Merge the two results;</li>
+<li>Trim at various thresholds;</li>
+<li>Evaluate them against the reference alignment and choose the one with the best F-Measure;</li>
+<li>Displays it as <acronym title="The web ontology language OWL">OWL</acronym> axioms.</li>
 </ul>
 
 <p>Of course, you can do it progressively.</p>
 
 <h2>Call an alignment method</h2>
-	
-<div class="fragment">
-$ javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
-$ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl
-</div>
 
+<p>
+Matching two ontologies is achieved with three steps:
+<ul>
+<li>creating an instance of the class implementing the expected method
+  (implementing the <tt>AlignmentProcess</tt> interface);</li>
+<li>providing the two ontologies to match to this instance (<tt>init</tt>);</li>
+<li>calling the matching method (<tt>align</tt>).</li>
+</ul>
+The matching method takes two arguments: an eventual alignment to
+improve on (which can be null) a set of parameters
+</p>
+
+<p>
+Below, two different methods (<tt>StringDistAlignment</tt> with two
+different <tt>stringFunction</tt> parameters) are instantiated and run:
 <div class="fragment">
   // Run two different alignment methods (e.g., ngram distance and smoa)
   AlignmentProcess a1 = new StringDistAlignment();
@@ -94,9 +103,23 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
   params.setParameter("stringFunction","ngramDistance");
   a2.align( (Alignment)null, params );
 </div>
-
+After this step, the two matching methods have been processed and the
+result is available within the alignment instances (<tt>a1</tt>
+and <tt>a2</tt>).
+</p>
 
 <h2>Manipulate alignments (merge and trim)</h2>
+
+<p>
+Alignments offer methods to manipulate these alignments. In
+particular, it is possible to
+<ul>
+<li>clone alignments,</li>
+<li>invert alignments (change the order of ontologies),</li>
+<li>merge alignments (put all their correspondences together),</li>
+<li>trim them under various threshold and threshold modalities.</li>
+</ul>
+</p>
 	
 <div class="fragment">
   // Merge the two results.
@@ -106,17 +129,51 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
 </div>
 
 <h2>Evaluating alignments</h2>
-	
+
+<p>
+Alignments can also be evaluated. For that purpose, the API provides
+the <tt>Evaluator</tt> interface. Similarly,
+to <tt>AlignmentProcess</tt>, this interface is called by:
+<ul>
+<li>creating an instance of a particular <tt>Evaluator</tt> taking as
+  argument a reference alignment and the alignment to evaluate;</li>
+<li>processing the evaluation (<tt>eval()</tt>) eventually with a parameter.</li>
+</ul>
+</p>
+
+<p>
+Below the provided code first creates a parser for loading the
+reference alignment, then creates an instance
+of <tt>PRecEvaluator</tt> for computing precision and recall between
+the alignment <tt>a1</tt> above with respects to the reference alignment.
 <div class="fragment">
   // Evaluate them against the references
   // and choose the one with the best F-Measure
   AlignmentParser aparser = new AlignmentParser(0);
   Alignment reference = aparser.parse( (new File ( "refalign.rdf" ) ) . toURL() . toString());
-  Evaluator evaluator = new PRecEvaluator( reference, a1 );
 
+  Evaluator evaluator = new PRecEvaluator( reference, a1 );
+  Parameters p = new BasicParameters();
+  evaluator.eval( p );
+</div>
+As previously, results are stored within the <tt>Evaluator</tt> object
+and are accessed through specific accessors.
+</p>
+
+<p>
+As an excercise, one could try to trim the alignment <tt>a1</tt> with
+thresholds of 0., .2, .4, .6, .8, and 1., to evaluate these results
+for precision and recall and to select the one with the best
+F-measure.
+</p>
+<div class="button">
+  <input type="button" onclick="show('qu5')" value="Show result"/>
+  <input type="button" onclick="hide('qu5')" value="Hide result"/>
+</div>
+<div class="explain" id="qu5">
+<pre>
   double best = 0.;
   Alignment result = null;
-  Parameters p = new BasicParameters();
   for ( int i = 0; i <= 10 ; i += 2 ){
     a1.cut( ((double)i)/10 );
     evaluator = new PRecEvaluator( reference, a1 );
@@ -127,22 +184,45 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
        best = ((PRecEvaluator)evaluator).getFmeasure();
     }
   }
+</pre>
 </div>
 
 <h2>Displaying an alignment</h2>
-	
-<div class="fragment">
+
+<p>
+Finally, alignments can be displayed through a variety of formats
+through the <tt>AlignmentVisitor</tt> abstraction. Alignment are
+displayed by:
+<ul>
+<li>creating a <tt>PrintWriter</tt> in which the visitor will print,</li>
+<li>creating the <tt>AlignmentVisitor</tt> on this writer, and</li>
+<li>rendering the alignment (through the <tt>render()</tt> metthod).</li>
+</ul>
+</p>
+<p>
+
+<p>
+For instance, it is possible to print on the standard output the
+alignment selected at the previous exercise as a set of OWL axioms.
+</p>
+<div class="button">
+  <input type="button" onclick="show('qu6')" value="Show result"/>
+  <input type="button" onclick="hide('qu6')" value="Hide result"/>
+</div>
+<div class="explain" id="qu6">
+<pre>
   // Displays it as OWL Rules
   PrintWriter writer = new PrintWriter (
 		        new BufferedWriter(
 	                 new OutputStreamWriter( System.out, "UTF-8" )), true);
   AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
-  a1.render(renderer);
+  result.render(renderer);
   writer.flush();
   writer.close();
+</pre>
 </div>
 
-<h2>Putting them together</h2>
+<h2>Putting these together</h2>
 	
 <p>Do you want to see a possible solution?</p>
 <div class="button">
@@ -194,6 +274,15 @@ $ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$
   writer.flush();
   writer.close();
 </pre></div>
+
+<p>
+This can be compiled and used through:
+</p>
+<div class="fragment">
+$ javac -classpath ../../lib/align.jar:../../lib/procalign.jar -d results MyApp.java
+$ java -cp ../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl
+</div>
+
 <p>The execution provides an insight about the best threshold:
 <pre>
 Threshold 0.0 : 0.4693877551020408 over 148 cells
@@ -221,9 +310,9 @@ Threshold 1.0 : 0.5151515151515151 over 18 cells
 	
 <hr />
 <small>
-<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial3/embed.html</p>
-</small>
+<div style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial3/embed.html</div>
 <hr />
-<p>$Id$</p>
+<div>$Id$</div>
+</small>
 </body>
 </html>
