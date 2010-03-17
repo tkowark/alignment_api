@@ -78,8 +78,8 @@
 	  <edoal:Class>
 	    <edoal:and rdf:parseType="Collection">
 	      <edoal:Class rdf:about="&vin;Vin"/>
-	      <edoal:PropertyValueRestriction> 
-		<edoal:onProperty>
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
 		  <edoal:Relation>
 		    <edoal:compose rdf:parseType="Collection">
 		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
@@ -90,7 +90,7 @@
 		<edoal:comparator rdf:resource="&xsd;equals"/>
   		<!--edoal:value>loc:Aquitaine</edoal:value-->
   		<edoal:value><edoal:Instance rdf:about="&vin;Aquitaine"/></edoal:value>
-	      </edoal:PropertyValueRestriction>	  
+	      </edoal:AttributeValueRestriction>	  
 	    </edoal:and>
 	  </edoal:Class>
         </entity2>
