@@ -31,6 +31,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -70,7 +71,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	assertNotNull( aparser1 );
 	alignment = aparser1.parse( "file:examples/omwg/wine.xml" );
 	assertNotNull( alignment );
-	//assertTrue( alignment instanceof EDOALAlignment );
+	assertTrue( alignment instanceof EDOALAlignment );
 	FileOutputStream stream = new FileOutputStream("test/output/wine2.xml");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(

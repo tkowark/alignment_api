@@ -33,6 +33,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.w3c.dom.Document;
@@ -83,10 +84,14 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationId;
 
 public class EDOALParserTest {
 
-    private static DocumentBuilder BUILDER;
+    //private static DocumentBuilder BUILDER;
+    private AlignmentParser aparser1 = null;
 
     @Test(groups = { "full", "omwg", "raw" })
     public void setUp() throws Exception {
+	aparser1 = new AlignmentParser( 0 );
+	assertNotNull( aparser1 );
+	/*
 	final DocumentBuilderFactory FAC = DocumentBuilderFactory.newInstance();
 	FAC.setValidating(false);
 	FAC.setNamespaceAware(false);
@@ -97,12 +102,50 @@ public class EDOALParserTest {
 	    e.printStackTrace();
 	}
 	BUILDER = doc;
+	*/
     }
 
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods={ "setUp" })
+    public void roundTripTest() throws Exception {
+	// Load the full test
+	aparser1.initAlignment( null );
+	Alignment alignment = aparser1.parse( "file:examples/omwg/total.xml" );
+	assertNotNull( alignment );
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new RDFRendererVisitor( writer );
+	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	String str1 = stream.toString();
+	// Read it again
+	aparser1 = new AlignmentParser( 0 );
+	aparser1.initAlignment( null );
+	// Currently parseString does not seems to work for EDOAL
+	//System.err.println( str1 );
+	alignment = aparser1.parseString( str1 );
+	// Print it in another string
+	stream = new ByteArrayOutputStream(); 
+	writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	renderer = new RDFRendererVisitor( writer );
+	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	String str2 = stream.toString();
+	assertEquals( str1.length(), str2.length() );
+	// They should be the same... (no because of invertion...)
+	// But have the same length
+	assertEquals( str1, str2 );
+    }
+
+    /*
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
     public void testParsePath() {
-	// Does not work becaue it is supposed to work with RDF models...
-	/*
 	Utility uparser = new Utility();
 	assertEquals( uparser.parsePath( "<Property rdf:about='http://my.beauty.url'/>" ),
 		      
@@ -127,8 +170,8 @@ public class EDOALParserTest {
 	} catch (NoSuchMethodException e) {
 	    e.printStackTrace();
 	}
-	*/
     }
+    */
 
     /*
     @Test(groups = { "full", "omwg" }, dependsOnMethods = {"setUp"})

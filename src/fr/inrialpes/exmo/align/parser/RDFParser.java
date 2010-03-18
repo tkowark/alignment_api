@@ -41,6 +41,7 @@ import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.ClassConstruction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassTypeRestriction;
+import fr.inrialpes.exmo.align.impl.edoal.ClassDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassValueRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassOccurenceRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PathExpression;
@@ -79,11 +80,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedList;
 
-// JE2010: to be suppressed
-// How do I shut up the logger?
-
 import java.util.logging.Logger;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 
 // Yes we are relying on Jena for parsing RDF
@@ -103,9 +100,8 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * <p>
- * Parser for the omwg xml mapping syntax. The document reader is Jena, input can be any document 
- * which can be read by Jena. The input document format shall be consistent with format document -- 
- * Expressive alignment language and implementation.  You can also see the example input document--example.rdf
+ * Parser for the EDOAL syntax. The reader is Jena, input is an EDOALAlignment
+ * The input document format shall be consistent with format document 
  * 
  * </p>
  * <p>
@@ -124,7 +120,7 @@ public class RDFParser {
 
     private int debug = 0;
 
-    private boolean isPattern = false; //2010: why is parseAlignment static????
+    private boolean isPattern = false;
 
     /** 
      * Creates an RDF Parser.
@@ -170,21 +166,21 @@ public class RDFParser {
      * @throws AlignmentException if there is any exception, throw AlignmentException that include describe infomation
      * and a caused exception.
      */
-    public EDOALAlignment parse( final Model align ) throws AlignmentException {
+    public EDOALAlignment parse( final Model rdfmodel ) throws AlignmentException {
 	// Initialize the syntax description
 	initSyntax();
 	// Shut up logging handling
 	com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
 	// Get the statement including alignment resource as rdf:type
-	StmtIterator stmtIt = align.listStatements(null, RDF.type,(Resource)SyntaxElement.getResource("Alignment"));
+	StmtIterator stmtIt = rdfmodel.listStatements(null, RDF.type,(Resource)SyntaxElement.getResource("Alignment"));
 	// Take the first one if it exists
-	if ( !stmtIt.hasNext() ) throw new AlignmentException("There is no alignment in the RDF docuemnt");
+	if ( !stmtIt.hasNext() ) throw new AlignmentException("There is no alignment in the RDF document");
 	Statement alignDoc = stmtIt.nextStatement();
 	// Step from this statement
-	final EDOALAlignment doc = parseAlignment( alignDoc.getSubject() );
+	final EDOALAlignment al = parseAlignment( alignDoc.getSubject() );
 	// Clean up memory
-	align.close(); // JE: I am not sure that I will not have trouble with initSyntax
-	return doc;
+	rdfmodel.close(); // JE: I am not sure that I will not have trouble with initSyntax
+	return al;
     }
 
     // Below is the plumbing:
@@ -203,7 +199,8 @@ public class RDFParser {
 	if (is == null) throw new AlignmentException("The reader must not be null");
 	Model align = ModelFactory.createDefaultModel();
 	align.read( is, null );
-	// debug align.write(System.out);
+	// Apparently this does not really works
+	//align.write(System.out);
 	return parse( align );
     }
     
@@ -406,6 +403,7 @@ public class RDFParser {
 	if ( rdfType.equals( SyntaxElement.CLASS_EXPR.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    result = parseClass( node );
 	} else if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ||
@@ -473,21 +471,21 @@ public class RDFParser {
 	} else {
 	    if ( !rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) &&
 		 !rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) &&
+		 !rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) &&
 		 !rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 		throw new AlignmentException( "Bad class restriction type : "+rdfType );
 	    }
 	    PathExpression pe;
 	    Comparator comp;
-	    // Find onProperty
+	    // Find onAttribute
 	    Statement stmt = node.getProperty( (Property)SyntaxElement.ONPROPERTY.resource );
-	    if ( stmt == null ) throw new AlignmentException( "Required edoal:onProperty property" );
+	    if ( stmt == null ) throw new AlignmentException( "Required edoal:onAttribute property" );
 	    //JE2010MUSTCHECK
 	    pe = parsePathExpression( stmt.getResource() );
 	    if ( rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ) {
 		// JEZ010: check that pe is a Property / Relation
 		// ==> different treatment
 		// Datatype could also be defined as objets...? (like rdf:resource="")
-		// Or classes? OF COURSE????
 		stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:datatype property" );
 		RDFNode nn = stmt.getObject();
@@ -496,6 +494,15 @@ public class RDFParser {
 		} else {
 		    throw new AlignmentException( "Bad edoal:datatype value" );
 		}
+	    } else if ( rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ) {
+		stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
+		if ( stmt == null ) throw new AlignmentException( "Required edoal:class property" );
+		RDFNode nn = stmt.getObject();
+		if ( nn.isResource() ) {
+		    return new ClassDomainRestriction( pe,  parseClass( (Resource)nn ) );
+		} else {
+		    throw new AlignmentException( "Incorrect class expression "+nn );
+		} 
 	    } else {
 		// Find comparator
 		// JE2010: This is not good as comparator management...
