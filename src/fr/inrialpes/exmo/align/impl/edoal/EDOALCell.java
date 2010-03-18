@@ -41,6 +41,8 @@ import fr.inrialpes.exmo.align.impl.BasicCell;
 
 import fr.inrialpes.exmo.align.impl.rel.*;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * This implements a particular of ontology correspondence when it
  * is a correspondence from the EDOAL Mapping Language.
@@ -77,6 +79,10 @@ public class EDOALCell extends BasicCell {
     public EDOALCell( String id, Expression ob1, Expression ob2, EDOALRelation rel, double m ) throws AlignmentException {
 	super( id, (Object)ob1, (Object)ob2, rel, m );
     };
+
+    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	visitor.visit(this);
+    }
 
     public URI getObject1AsURI( Alignment al ) throws AlignmentException {
 	if ( object1 instanceof Id ) return ((Id)object1).getURI();

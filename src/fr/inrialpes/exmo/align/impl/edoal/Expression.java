@@ -31,6 +31,8 @@ import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * <p>
  * This class serves as the base for the four different expression types. These
@@ -67,6 +69,10 @@ public abstract class Expression implements Cloneable, Visitable {
     protected Expression() {}
 
     public void accept(AlignmentVisitor visitor) throws AlignmentException {
+	visitor.visit(this);
+    }
+
+    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
 

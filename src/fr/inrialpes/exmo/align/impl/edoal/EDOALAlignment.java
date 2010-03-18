@@ -39,6 +39,8 @@ import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.Extensions;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * <p>This class is an encapsulation of BasicAlignement so that
  * it creates the structures required by the MappingDocument within
@@ -55,7 +57,7 @@ public class EDOALAlignment extends BasicAlignment {
     protected EDOALAlignment init = null;
 
     /*
-     * The list of variables in declared in this alignment
+     * The list of variables declared in this alignment
      * //EDOALPattern
      */
     protected Hashtable<String,Variable> variables;
@@ -64,6 +66,10 @@ public class EDOALAlignment extends BasicAlignment {
 	setLevel("2EDOAL");
 	setXNamespace( Namespace.EDOAL.shortCut, Namespace.EDOAL.prefix );
 	variables = new Hashtable<String,Variable>();
+    }
+
+    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	visitor.visit(this);
     }
 
     public void init( Object onto1, Object onto2 ) throws AlignmentException {

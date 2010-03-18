@@ -36,6 +36,8 @@ import java.util.Map;
 
 import org.xml.sax.ContentHandler;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * Represents an ontology alignment relation.
  * In fact, for the EDOAL Mapping language, this encodes directions
@@ -119,6 +121,11 @@ public class EDOALRelation implements Relation {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
+
+    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	visitor.visit(this);
+    }
+
     /**
      * It is intended that the value of the relation is =, < or >.
      * But this can be any string in other applications.
