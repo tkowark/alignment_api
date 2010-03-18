@@ -151,7 +151,7 @@ public class OntoTest {
 	assertTrue( !onto.isProperty( o ) );
 	assertEquals( onto.getEntityNames( o ).size(), 1 );
 	assertEquals( onto.getEntityComments( o ).size(), 0 );
-	assertEquals( onto.getEntityAnnotations( o ).size(), 1 );
+	//assertEquals( onto.getEntityAnnotations( o ).size(), 1 );
 	// Test property 
 	u2 = new URI("http://ebiquity.umbc.edu/v2.1/ontology/publication.owl#author");
 	o = onto.getEntity( u2 );
@@ -178,12 +178,21 @@ public class OntoTest {
 	// Special tests
 	assertTrue( onto.getCapabilities( OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ) );
 	// Here insert what is supposed to be done with Jena...
-	assertEquals( onto.nbEntities(), 44 );
+	//for (Object o : onto.getEntities()) System.out.println(o);
+	assertEquals( onto.nbEntities(), 44 ); //44 is with owl:Thing
 	assertEquals( onto.nbClasses(), 15 );
 	assertEquals( onto.nbProperties(), 29 );
 	assertEquals( onto.nbDataProperties(), 25 );
 	assertEquals( onto.nbObjectProperties(), 4 );
 	assertEquals( onto.nbIndividuals(), 0 );
+	// verfify that the nb methods return the same number that element in get methods
+	assertEquals( onto.nbEntities(), onto.getEntities().size() );
+	assertEquals( onto.nbClasses(), onto.getClasses().size() );
+	assertEquals( onto.nbProperties(), onto.getProperties().size() );
+	assertEquals( onto.nbDataProperties(), onto.getDataProperties().size() );
+	assertEquals( onto.nbObjectProperties(), onto.getObjectProperties().size() );
+	assertEquals( onto.nbIndividuals(), onto.getIndividuals().size() );	
+	
 	// Various void tests
 	onto.getEntities();
 	onto.getClasses();
