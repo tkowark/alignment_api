@@ -78,13 +78,16 @@ likely to include:
 <p>The Alignment API is now compiled in Java 1.6 (older versions
   should still be able to run it). All <a href="lib.html">imported
   libraries</a> have been upgraded to their current versions. Only the
-  upgrade from Jena 2.5 to 2.6 required a minor change (due to
+  upgrade from <span style="color: green">Jena 2.5 to 2.6</span> required a minor change (due to
   parameterised declarations: the API still works with 2.5 but needs
   2.6 to compile).
 </p>
+<p>This is still a major release, so see the <a href="up3to4.html">(small) instructions</a> if
+  you need to upgrade your codebase.
+</p>
 <p>
 <ul compact="1">
-<li>Integration and reengineering of OMWG alignments as the new EDOAL language (edoal)</li>
+<li>Integration and reengineering of OMWG alignments as the new <a href="edoal.html">EDOAL language</a> (edoal)</li>
 <li>Separated the Alignment API from <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl/ling)</li>
 <li><span style="color: red;">Replacement</span> of <tt>Parameters</tt> by Java <tt>Properties</tt> (api/impl)</li>
 <li>Reintegrated <tt>JWNLAlignment</tt> in implementation (procalign)</li>
@@ -94,7 +97,8 @@ likely to include:
 <li>Added cache management to <tt>JENAOntology</tt> (ontowrap)</li>
 <li>Addition of advanced tutorial and <a href="tutorial">reengineered tutorials</a> (doc)</li>
 <li>Implemented semantic precision and recall (impl)</li>
-<li>Implemented ROC curve computing (eval)</li>
+<li>Implemented ROC curve computing and reimplemented the plotting
+  structure. Now they are based on harmonic means instead of average. (eval)</li>
 <li>Fully implemented <tt>find</tt> to interface (server)</li>
 <li>Completely modified the web service interface so that SOAP and
   REST are fully aligned. This is
@@ -116,9 +120,10 @@ likely to include:
 <li>Changed the signature of <tt></tt> from <tt>Enumeration</tt>
   to <tt>Collection&lt;Alignment&gt;</tt> (server)</tt>
 <li>Reorganised the lib directory hierarchically (build)</li>
-<li>Corrected missing hashCode() (bug #9680) (impl)</li>
+<li>Corrected missing <tt>hashCode()</tt> (bug #9680) (impl)</li>
 <li>Corrected a bug when the server is launched without -S
   (server)</li>
+<li>Fixed error message in server (#8502: org.apache.xml.resolver.readers.CatalogReader: deprecated) by upgrading resolver.jar (server)</li>
 <li>Corrected a bug in <tt>HTMLRendererVisitor</tt> that made the
   display of alignments, especially stored, to break (server)</li>
 <li>Corrected the README.TXT of examples/wservice (serv)</li>
