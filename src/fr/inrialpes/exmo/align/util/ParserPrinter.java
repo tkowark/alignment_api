@@ -227,8 +227,13 @@ public class ParserPrinter {
 	    try {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		result = ObjectAlignment.toObjectAlignment( (URIAlignment)result );
-		result.render( renderer );
+		try {
+		    result = ObjectAlignment.toObjectAlignment( (URIAlignment)result );
+		    result.render( renderer );
+		} catch ( Exception aex2 ) {
+		    // Throw the initial one
+		    throw aex;
+		}
 	    }
 	    writer.flush();
 	    writer.close();
