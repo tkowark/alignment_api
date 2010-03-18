@@ -118,11 +118,28 @@ import com.hp.hpl.jena.vocabulary.RDF;
  */
 public class RDFParser {
 
-    static Logger logger = Logger.getLogger(RDFParser.class.toString());
+    private static Logger logger = Logger.getLogger(RDFParser.class.toString());
 
-    static Model rDFModel;
+    private static Model rDFModel;
 
-    static private boolean debug = false;
+    private int debug = 0;
+
+    private boolean isPattern = false; //2010: why is parseAlignment static????
+
+    /** 
+     * Creates an RDF Parser.
+     */
+    public RDFParser() {
+	this(0);
+    }
+
+    /** 
+     * Creates an RDF Parser.
+     * @param debugMode The value of the debug mode
+     */
+    public RDFParser( int debugMode ) {
+	debug = debugMode;
+    }
 
     /**
      * Initialisation of the structures
@@ -153,83 +170,55 @@ public class RDFParser {
      * @throws AlignmentException if there is any exception, throw AlignmentException that include describe infomation
      * and a caused exception.
      */
-    public static EDOALAlignment parse( final Model align ) throws AlignmentException {
+    public EDOALAlignment parse( final Model align ) throws AlignmentException {
 	// Initialize the syntax description
 	initSyntax();
-	// Shut up logging handling (should put a 
+	// Shut up logging handling
 	com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
-	//get the statement including alignment resource as rdf:type
+	// Get the statement including alignment resource as rdf:type
 	StmtIterator stmtIt = align.listStatements(null, RDF.type,(Resource)SyntaxElement.getResource("Alignment"));
-	// take the first one if it exists
-	Statement alignDoc;
-	if (stmtIt.hasNext()) {
-	    alignDoc = stmtIt.nextStatement();
-	} else {
-	    throw new AlignmentException("There is no alignment in the RDF docuemnt");
-	}
-
+	// Take the first one if it exists
+	if ( !stmtIt.hasNext() ) throw new AlignmentException("There is no alignment in the RDF docuemnt");
+	Statement alignDoc = stmtIt.nextStatement();
 	// Step from this statement
 	final EDOALAlignment doc = parseAlignment( alignDoc.getSubject() );
-	// JE 2010: Clean up the RDF stuff
+	// Clean up memory
+	align.close(); // JE: I am not sure that I will not have trouble with initSyntax
 	return doc;
-//
-//		 getting and adding the xml namespaces
-//		 final NamedNodeMap attrs = root.getAttributes();
-//		 for (int iCounter = 0; iCounter < attrs.getLength(); iCounter++) {
-//		 final Node tempNode = attrs.item(iCounter);
-//		 if (tempNode.getNodeName().equals("xmlns")) {
-//		 doc.addNamespace(new Namespace(Namespace.DEFAULT_NS_PREFIX,
-//		 new URI(tempNode.getNodeValue())));
-//		 } else if (tempNode.getNodeName().startsWith("xmlns")) {
-//		 doc.addNamespace(new Namespace(tempNode.getNodeName()
-//		 .substring(6), new URI(tempNode.getNodeValue())));
-//		 }
-//		 }
     }
 
     // Below is the plumbing:
     // Load the RDF under an RDFModel
     // Call the above parse: RDFModel -> EDOALAlignment
 
-    public static EDOALAlignment parse( final File file )
-			throws AlignmentException {
-	Model align = ModelFactory.createDefaultModel();
+    public EDOALAlignment parse( final File file ) throws AlignmentException {
 	try {
-	    align.read(new FileInputStream(file), null);
+	    return parse( new FileInputStream( file ) );
 	} catch ( FileNotFoundException fnfe ) {
-	    throw new AlignmentException("RDFParser: There isn't such file: "
-					 + file.getName(), fnfe);
+	    throw new AlignmentException("RDFParser: There isn't such file: "+ file.getName(), fnfe);
 	}
-	return parse(align);
     }
 
-    public static EDOALAlignment parse(final Reader is)
-	throws AlignmentException {
-	if (is == null) {
-	    throw new AlignmentException("The inputstream must not be null");
-	}
+    public EDOALAlignment parse( final Reader is ) throws AlignmentException {
+	if (is == null) throw new AlignmentException("The reader must not be null");
 	Model align = ModelFactory.createDefaultModel();
-	align.read(is, null);
+	align.read( is, null );
 	// debug align.write(System.out);
-	return parse(align);
+	return parse( align );
     }
     
-    public static EDOALAlignment parse(final InputStream is)
-	throws AlignmentException {
-	if (is == null) {
-	    throw new AlignmentException("The inputstream must not be null");
-	}
+    public EDOALAlignment parse( final InputStream is ) throws AlignmentException {
+	if (is == null) throw new AlignmentException("The inputstream must not be null");
 	Model align = ModelFactory.createDefaultModel();
-	align.read(is, null);
+	align.read( is, null );
 	//debug	align.write(System.out);
-	return parse(align);
+	return parse( align );
     }
 
-    public static EDOALAlignment parse(final String file)
-	throws AlignmentException {
+    public EDOALAlignment parse( final String uri ) throws AlignmentException {
 	Model align = ModelFactory.createDefaultModel();
-	align.read(file);
-	return parse(align);
+	align.read( uri );
+	return parse( align );
     }
 
     // Below is the real work
@@ -241,11 +230,8 @@ public class RDFParser {
      * @return the parsed mapping document
      * @throws AlignmentException
      */
-    static EDOALAlignment parseAlignment( final Resource node ) throws AlignmentException {
-	if (node == null) {
-	    throw new NullPointerException("Alignment must not be null");
-	}
-
+    public EDOALAlignment parseAlignment( final Resource node ) throws AlignmentException {
+	if (node == null) throw new NullPointerException("Alignment must not be null");
 	try {
 	    Ontology source = null;
 	    Ontology target = null;
@@ -273,7 +259,12 @@ public class RDFParser {
 	    if ( stmtIt.hasNext() ) {
 		final String level = stmtIt.nextStatement().getString();
 		if ((level != null) && (!level.equals(""))) {
-		    doc.setLevel( level );
+		    if ( level.startsWith("2EDOAL") ) {
+			doc.setLevel( level );
+			if ( level.equals("2EDOALPattern") ) isPattern = true;
+		    } else {
+			throw new AlignmentException( "Cannot parse alignment of level "+level );
+		    }
 		}			    
 	    } else {
 		throw new AlignmentException( "Missing level " );
@@ -292,7 +283,7 @@ public class RDFParser {
 	    stmtIt = node.listProperties((Property)SyntaxElement.MAP.resource );
 	    while (stmtIt.hasNext()) {
 		Statement stmt = stmtIt.nextStatement();
-		if ( debug ) System.err.println( "  ---------------> "+stmt );
+		if ( debug > 0 ) System.err.println( "  ---------------> "+stmt );
 		//doc.addRule(parseCell(stmt.getResource()));
 		try { doc.addAlignCell( parseCell( stmt.getResource() ) ); }
 		catch ( AlignmentException ae ) {
@@ -332,7 +323,7 @@ public class RDFParser {
      * @throws NullPointerException
      *             if the node is null
      */
-    static Ontology parseOntology(final Resource node) throws AlignmentException {
+    protected Ontology parseOntology(final Resource node) throws AlignmentException {
 	if (node == null) {
 	    throw new AlignmentException("The ontology node must not be null");
 	}
@@ -363,7 +354,7 @@ public class RDFParser {
      * @return the parsed rule
      * @exception AlignmentException
      */
-    public static EDOALCell parseCell( final Resource node ) throws AlignmentException {
+    protected EDOALCell parseCell( final Resource node ) throws AlignmentException {
 	if (node == null) {
 	    throw new NullPointerException("The node must not be null");
 	}
@@ -382,7 +373,7 @@ public class RDFParser {
 	    final float m = node.getProperty((Property)SyntaxElement.MEASURE.resource).getFloat();
 	    
 	    // get the id
-	    final URI id = getNodeId( node );
+	    final String id = node.getURI();
 	    
 	    //parsing the entity1 and entity2 
 	    Resource entity1 = node.getProperty((Property)SyntaxElement.ENTITY1.resource).getResource();
@@ -396,12 +387,12 @@ public class RDFParser {
 	    
 	    Expression s = parseExpression( entity1 );
 	    Expression t = parseExpression( entity2 );
-	    if ( debug ) {
+	    if ( debug > 0 ) {
 		System.err.println(" s : "+s);	    
 		System.err.println(" t : "+t);
 	    }
 
-	    return new EDOALCell( id.toString(), s, t, type, m );
+	    return new EDOALCell( id, s, t, type, m );
 	} catch (Exception e) {  //wrap other type exception
 	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct:" + node.getLocalName() + " "+e.getMessage());
 	    throw new AlignmentException("Cannot parse correspondence " + node.getLocalName(), e);
@@ -409,31 +400,36 @@ public class RDFParser {
     }
 
     // Here given the type of expression, this can be grand dispatch
-    public static Expression parseExpression( final Resource node ) throws AlignmentException {
+    protected Expression parseExpression( final Resource node ) throws AlignmentException {
+	Expression result;
 	Resource rdfType = node.getProperty( RDF.type ).getResource();
 	if ( rdfType.equals( SyntaxElement.CLASS_EXPR.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ||
 	     rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
-	    return parseClass( node );
+	    result = parseClass( node );
 	} else if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ||
 		    rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ||
 		    rdfType.equals( SyntaxElement.TYPE_COND.resource ) ||
 		    rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
-	    return parseProperty( node );
+	    result = parseProperty( node );
 	} else if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ||
 		    rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) || // JE 2010: no chance
 		    rdfType.equals( SyntaxElement.CODOMAIN_RESTRICTION.resource ) ) {
-	    return parseRelation( node );
+	    result = parseRelation( node );
 	} else if ( rdfType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
-	    return parseInstance( node );
+	    result = parseInstance( node );
 	} else {
 	    throw new AlignmentException("There is no parser for entity "+rdfType.getLocalName());
 	}
+	//2010 test for variable? if yes store it!
+	if ( isPattern ) {
+	}
+	return result;
     }
     
-    public static ClassExpression parseClass( final Resource node ) throws AlignmentException {
-	if ( debug ) {
+    protected ClassExpression parseClass( final Resource node ) throws AlignmentException {
+	if ( debug > 1 ) {
 	    StmtIterator it = node.listProperties();
 	    while ( it.hasNext() ) System.err.println( "   > "+it.next() );
 	}
@@ -488,6 +484,8 @@ public class RDFParser {
 	    //JE2010MUSTCHECK
 	    pe = parsePathExpression( stmt.getResource() );
 	    if ( rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ) {
+		// JEZ010: check that pe is a Property / Relation
+		// ==> different treatment
 		// Datatype could also be defined as objets...? (like rdf:resource="")
 		// Or classes? OF COURSE????
 		stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
@@ -532,8 +530,10 @@ public class RDFParser {
 			// get the type
 			Resource nnType = ((Resource)nn).getProperty(RDF.type).getResource();
 			if ( nnType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
+			    // JE2010: Check that pe is a Relation
 			    return new ClassValueRestriction( pe, comp, parseInstance( (Resource)nn ) );
 			} else {
+			    // JE2010: Check that pe is a Property
 			    return new ClassValueRestriction( pe, comp, parsePathExpression( (Resource)nn ) );
 			} // This one will raise the error
 		    } else {
@@ -546,7 +546,7 @@ public class RDFParser {
     }
 
     // JE2010: Here is the problem again with DOMAIN (for instance)
-    static PathExpression parsePathExpression( final Resource node ) throws AlignmentException {
+    protected PathExpression parsePathExpression( final Resource node ) throws AlignmentException {
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ||
 	     rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ||
@@ -563,7 +563,7 @@ public class RDFParser {
 
     // rdf:parseType="Collection" is supposed to preserve the order ()
     // Jena indeed always preserves the order so this can be used
-    static PropertyExpression parseProperty( final Resource node ) throws AlignmentException {
+    protected PropertyExpression parseProperty( final Resource node ) throws AlignmentException {
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	Statement stmt = null;
 	if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ) {
@@ -671,7 +671,7 @@ public class RDFParser {
 	}
     }
 
-    static RelationExpression parseRelation( final Resource node ) throws AlignmentException {
+    protected RelationExpression parseRelation( final Resource node ) throws AlignmentException {
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	Statement stmt = null;
 	if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ) {
@@ -749,7 +749,7 @@ public class RDFParser {
 	}
     }
 
-    static InstanceExpression parseInstance( final Resource node ) throws AlignmentException {
+    protected InstanceExpression parseInstance( final Resource node ) throws AlignmentException {
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	if ( rdfType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
 	    URI id = getNodeId( node );
@@ -760,11 +760,11 @@ public class RDFParser {
 	}
     }
 
-    static Value parseValue( final Resource node ) throws AlignmentException {
+    protected Value parseValue( final Resource node ) throws AlignmentException {
 	return null;
     }
 
-    static URI getNodeId( final Resource node ) throws AlignmentException {
+    protected URI getNodeId( final Resource node ) throws AlignmentException {
 	final String idS = node.getURI();
 	if ((idS != null) && (idS.length() > 0)) {
 	    try {
@@ -790,7 +790,7 @@ public class RDFParser {
      * @throws NullPointerException
      *             if the node or the element is null
      */
-    static void parseAnnotation(final Statement stmt, EDOALAlignment al ) throws AlignmentException {
+    protected void parseAnnotation(final Statement stmt, EDOALAlignment al ) throws AlignmentException {
 	try {
 	    final String anno = stmt.getString();
 	    if ((anno != null) && (anno.length() > 0)) {

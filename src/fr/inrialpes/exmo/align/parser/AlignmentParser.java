@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.parser;
 //Imported JAVA classes
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.Reader;
 import java.io.InputStream;
 import java.io.File;
 import java.net.URI;
@@ -34,14 +35,12 @@ import java.util.Hashtable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 
 /**
@@ -126,48 +125,83 @@ public class AlignmentParser {
      * parsed.
      * @param uri URI of the document to parse
      */
-    public Alignment parse( String uri ) throws AlignmentException {
-	this.uri = uri;
+    private Alignment callParser( Object o ) throws AlignmentException {
 	try { 
 	    XMLParser parser = new XMLParser( debugMode );
 	    if ( embedded ) parser.setEmbedded( embedded );
-	    alignment = parser.parse( uri );
+	    //alignment = parser.parse( o );
+	    alignment = callParser( parser, o );
 	} catch ( Exception e ) {
 	    if ( debugMode > 0 ) {
-		System.err.println(" TEST TRAPPED FOR ALIGNMENT ");
+		System.err.println("XMLParser failed to parse alignment (INFO)");
 		e.printStackTrace();
 	    }
 	    try {
 		if ( !embedded ) {
-		    alignment = new RDFParser().parse( new File( uri ) );
+		    RDFParser rparser = new RDFParser( debugMode );
+		    alignment = callParser( rparser, o );
 		} else {
-		    throw new AlignmentException( "Cannot parse "+uri, e );
+		    throw new AlignmentException( "Cannot parse "+o, e );
 		}
 	    } catch ( Exception ex ) {
 		// JE: should contain both ex and e
-		throw new AlignmentException( "Cannot parse "+uri, ex );
+		throw new AlignmentException( "Cannot parse "+o, ex );
 	    }
 	}
 	return alignment;
     }
 
+    /**
+     * This dispatch is ridiculous, but that's life
+     */
+    private Alignment callParser( XMLParser p, Object o ) throws AlignmentException {
+	if ( o instanceof String ) return p.parse((String)o);
+	if ( o instanceof Reader ) return p.parse((Reader)o);
+	if ( o instanceof InputStream ) return p.parse((InputStream)o);
+	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
+    }
+
+    private Alignment callParser( RDFParser p, Object o ) throws AlignmentException {
+	if ( o instanceof String ) return p.parse((String)o);
+	if ( o instanceof Reader ) return p.parse((Reader)o);
+	if ( o instanceof InputStream ) return p.parse((InputStream)o);
+	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
+    }
+
     /** 
-     * Parses a string instead of a URI
+     * Parses the content of a string
      * @param s String the string to parse
      */
-    //JE2009: this must change: parse( StringReader ) should be OK
-    // But I have no parser anyway...
     public Alignment parseString( String s ) throws AlignmentException {
-	//parser.parse( new InputSource( new StringReader( s ) ), this );
+	parse( new StringReader( s ) );
 	return alignment;
     }
 
     /** 
-     * Parses a string instead of a URI
-     * @param s String the string to parse
+     * Parses a the content of a reader
+     * @param r the reader to parse
+     */
+    public Alignment parse( Reader r ) throws AlignmentException {
+	callParser( r );
+	return alignment;
+    }
+
+    /** 
+     * Parses a URI expressed as a String
+     * @param uri the URI
+     */
+    public Alignment parse( String uri ) throws AlignmentException {
+	this.uri = uri; // should be obsoloted
+	callParser( uri );
+	return alignment;
+    }
+
+    /** 
+     * Parses an inputStream
+     * @param s the Stream to parse
      */
     public Alignment parse( InputStream s ) throws AlignmentException {
-	//parser.parse( s, this );
+	callParser( s );
 	return alignment;
     }
 

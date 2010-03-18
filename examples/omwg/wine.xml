@@ -86,7 +86,7 @@
 		      <edoal:Relation rdf:about="&proton;locatedIn"/>
 		    </edoal:compose>
 		  </edoal:Relation>
-		</edoal:onProperty>
+		</edoal:onAttribute>
 		<edoal:comparator rdf:resource="&xsd;equals"/>
   		<!--edoal:value>loc:Aquitaine</edoal:value-->
   		<edoal:value><edoal:Instance rdf:about="&vin;Aquitaine"/></edoal:value>

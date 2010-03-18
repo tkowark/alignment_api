@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 //Imported JAVA classes
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.Reader;
 import java.io.InputStream;
 import java.io.File;
 import java.net.URI;
@@ -45,7 +46,6 @@ import java.util.Hashtable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Parameters;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
@@ -53,7 +53,6 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicCell;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.Extensions;
@@ -172,7 +171,6 @@ public class XMLParser extends DefaultHandler {
 
     /** 
      * Creates an XML Parser.
-     * @param debugMode The value of the debug mode
      */
     public XMLParser() throws ParserConfigurationException, SAXException {
 	this(0);
@@ -204,8 +202,29 @@ public class XMLParser extends DefaultHandler {
      * parsed.
      * @param uri URI of the document to parse
      */
-    public Alignment parse( String uri ) throws SAXException, IOException {
-	parser.parse( uri, this );
+    public Alignment parse( String uri ) throws AlignmentException {
+	try {
+	    parser.parse( uri, this );
+	} catch ( SAXException sex ) {
+	    throw new AlignmentException( "Parsing error", sex );
+	} catch ( IOException ioex ) {
+	    throw new AlignmentException( "I/O error", ioex );
+	}
+	return alignment;
+    }
+
+    /** 
+     * Parses a reader, used for reading from a string
+     * @param s String the string to parse
+     */
+    public Alignment parse( Reader r ) throws AlignmentException {
+	try {
+	    parser.parse( new InputSource( r ), this );
+	} catch ( SAXException sex ) {
+	    throw new AlignmentException( "Parsing error", sex );
+	} catch ( IOException ioex ) {
+	    throw new AlignmentException( "I/O error", ioex );
+	}
 	return alignment;
     }
 
@@ -213,17 +232,14 @@ public class XMLParser extends DefaultHandler {
      * Parses a string instead of a URI
      * @param s String the string to parse
      */
-    /*    public Alignment parseString( String s ) throws SAXException, IOException {
-	parser.parse( new InputSource( new StringReader( s ) ), this );
-	return alignment;
-    }
-*/
-    /** 
-     * Parses a string instead of a URI
-     * @param s String the string to parse
-     */
-    public Alignment parse( InputStream s ) throws SAXException, IOException {
-	parser.parse( s, this );
+    public Alignment parse( InputStream s ) throws AlignmentException {
+	try {
+	    parser.parse( s, this );
+	} catch ( SAXException sex ) {
+	    throw new AlignmentException( "Parsing error", sex );
+	} catch ( IOException ioex ) {
+	    throw new AlignmentException( "I/O error", ioex );
+	}
 	return alignment;
     }
 
@@ -259,27 +275,27 @@ public class XMLParser extends DefaultHandler {
 	    } else if (pName.equals( SyntaxElement.MEASURE.name )) {
 	    } else if (pName.equals( SyntaxElement.ENTITY2.name )) {
 		if(debugMode > 2) 
-		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
+		    System.err.println(" resource = " + atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		try {
-		    cl2 = new URI( atts.getValue("rdf:resource") );
+		    cl2 = new URI( atts.getValue(SyntaxElement.RDF_RESOURCE.print()) );
 		} catch (URISyntaxException e) {
-		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
+		    throw new SAXException("Malformed URI: "+atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		}
 	    } else if (pName.equals( SyntaxElement.ENTITY1.name )) {
 		if(debugMode > 2) 
-		    System.err.println(" resource = " + atts.getValue("rdf:resource"));
+		    System.err.println(" resource = " + atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		try {
-		    cl1 = new URI( atts.getValue("rdf:resource") );
+		    cl1 = new URI( atts.getValue( SyntaxElement.RDF_RESOURCE.print() ) );
 		} catch (URISyntaxException e) {
-		    throw new SAXException("Malformed URI: "+atts.getValue("rdf:resource"));
+		    throw new SAXException("Malformed URI: "+atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		}
 	    } else if (pName.equals( SyntaxElement.CELL.name )) {
 		if ( alignment == null )
 		    { throw new SAXException("No alignment provided"); };
-		if ( atts.getValue("rdf:ID") != null ){
-		    id = atts.getValue("rdf:ID");
-		} else if ( atts.getValue("rdf:about") != null ){
-		    id = atts.getValue("rdf:about");
+		if ( atts.getValue( SyntaxElement.RDF_ID.print() ) != null ){
+		    id = atts.getValue( SyntaxElement.RDF_ID.print() );
+		} else if ( atts.getValue( SyntaxElement.RDF_ABOUT.print() ) != null ){
+		    id = atts.getValue( SyntaxElement.RDF_ABOUT.print() );
 		}
 		sem = null;
 		measure = null;
@@ -307,11 +323,12 @@ public class XMLParser extends DefaultHandler {
 	    } else if (pName.equals( SyntaxElement.FORMATT.name )) {
 	    } else if (pName.equals( SyntaxElement.LOCATION.name )) {
 	    } else if (pName.equals( SyntaxElement.ONTOLOGY.name )) {
-		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
+		String about = atts.getValue( SyntaxElement.RDF_ABOUT.print() );
+		if ( about != null && !about.equals("") ) {
 			try {
 			    // JE: Onto
 			    //curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
-			    curronto.setURI( new URI( atts.getValue("rdf:about") ) );
+			    curronto.setURI( new URI( about ) );
 			} catch (URISyntaxException e) {
 			    throw new SAXException("onto2: malformed URI");
 			}
@@ -331,8 +348,9 @@ public class XMLParser extends DefaultHandler {
 		if ( alignment == null ) alignment = new URIAlignment();
 		onto1 = ((URIAlignment)alignment).getOntologyObject1();
 		onto2 = ((URIAlignment)alignment).getOntologyObject2();
-		if ( atts.getValue("rdf:about") != null && !atts.getValue("rdf:about").equals("") ) {
-		    alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, atts.getValue("rdf:about") );
+		String about = atts.getValue( SyntaxElement.RDF_ABOUT.print() );
+		if ( about != null && !about.equals("") ) {
+		    alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, about );
 		};
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[XMLParser] Unknown element name : "+pName);
@@ -473,7 +491,7 @@ public class XMLParser extends DefaultHandler {
 		} else if (pName.equals( SyntaxElement.TYPE.name )) {
 		    alignment.setType( content );
 		} else if (pName.equals( SyntaxElement.LEVEL.name )) {
-		    if ( content.startsWith("2") ) { // instead of equals("2OMWG")
+		    if ( content.startsWith("2") ) { // Maybe !startsWith("0") would be better
 			throw new SAXException("Cannot parse Level 2 alignments (so far)");
 		    } else {
 			alignment.setLevel( content );
