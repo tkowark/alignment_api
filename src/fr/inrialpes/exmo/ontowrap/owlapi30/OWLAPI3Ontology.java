@@ -21,10 +21,15 @@
 package fr.inrialpes.exmo.ontowrap.owlapi30;
 
 import java.net.URI;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Iterator;
 
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
@@ -34,13 +39,13 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.model.OWLRestriction;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLNaryBooleanClassExpression;
-import org.semanticweb.owlapi.model.OWLCardinalityRestriction;
 //import org.semanticweb.owlapi.model.OWLDataAllValuesFrom;
 //import org.semanticweb.owlapi.model.OWLObjectAllValuesFrom;
 import org.semanticweb.owlapi.model.OWLException;
@@ -50,33 +55,54 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
+import fr.inrialpes.exmo.ontowrap.util.FilteredSet;
 
 public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	HeavyLoadedOntology<OWLOntology> {
-
+    
+    private static class BuilInFilter<T extends OWLEntity> extends FilteredSet<T> {
+	public BuilInFilter(Set<T> s) {
+	    super(s);
+	}
+	protected boolean isFiltered(OWLEntity obj) {
+		return obj.isBuiltIn()&&!obj.isTopEntity();
+	}
+    }
+    
     public OWLAPI3Ontology() {
     }
 
     public Set<? extends Object> getClasses() {
 	//return onto.getReferencedClasses();
-	return onto.getClassesInSignature();
+	//return onto.getClassesInSignature();
+	return new BuilInFilter<OWLClass>(onto.getClassesInSignature());
     }
 
     public Set<? extends Object> getDataProperties() {
-	return onto.getDataPropertiesInSignature();
+	return new BuilInFilter<OWLDataProperty>(onto.getDataPropertiesInSignature());
+	//return onto.getDataPropertiesInSignature();
     }
 
     public Set<? extends Object> getEntities() {
-	return onto.getSignature();
+	//return onto.getSignature();
+	return new BuilInFilter<OWLEntity>(onto.getSignature()) {
+	    protected final boolean isFiltered(OWLEntity obj) {
+		return super.isFiltered(obj) || obj instanceof OWLAnnotationProperty || obj instanceof OWLDatatype;
+	    }  
+	};
     }
 
     public Object getEntity(URI u) throws OntowrapException {
 	// There is better in OWLAPI3: getEntitiesInSignature( IRI )
-	for (OWLEntity e : onto.getSignature()) {
+	try {
+	    return onto.getEntitiesInSignature(IRI.create(u)).iterator().next();
+	}
+	catch (NoSuchElementException e) {return null;}
+	/*for (OWLEntity e : onto.getSignature()) {
 	    if (e.getIRI().toURI().equals(u))
 		return e;
 	}
-	return null;
+	return null;*/
     }
 
     /**
@@ -148,28 +174,36 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	try {
 	    return ((OWLEntity) o).getIRI().toURI();
 	} catch (ClassCastException e) {
-	    throw new OntowrapException(o + " is not an entity for "
+	    throw new OntowrapException(o + "(of class "+o.getClass()+") is not an entity for "
 					 +onto.getOntologyID().getOntologyIRI().toURI());
 					 //		    + onto.getURI());
 	}
     }
 
     public Set<? extends Object> getIndividuals() {
-	return onto.getIndividualsInSignature();
+	//return onto.getIndividualsInSignature();
+	return new BuilInFilter<OWLNamedIndividual>(onto.getIndividualsInSignature());
     }
 
     public Set<? extends Object> getObjectProperties() {
 	//System.err.println ( "ONTO: "+onto );
-	return onto.getObjectPropertiesInSignature();
+	//return onto.getObjectPropertiesInSignature();
+	return new BuilInFilter<OWLObjectProperty>(onto.getObjectPropertiesInSignature());
     }
 
     public Set<? extends Object> getProperties() {
-	Set<OWLDataProperty> dtProp = onto.getDataPropertiesInSignature();
+	return new BuilInFilter<OWLEntity>(onto.getSignature()) {
+	    protected final boolean isFiltered(OWLEntity obj) {
+		return super.isFiltered(obj) || !(obj instanceof OWLObjectProperty || obj instanceof OWLDataProperty);
+	    }  
+	};
+	
+	/*Set<OWLDataProperty> dtProp = onto.getDataPropertiesInSignature();
 	Set<OWLObjectProperty> oProp = onto.getObjectPropertiesInSignature();
 	Set<Object> prop = new HashSet<Object>(dtProp.size() + oProp.size());
 	prop.addAll(dtProp);
 	prop.addAll(oProp);
-	return prop;
+	return prop;*/
     }
 
     public boolean isClass(Object o) {
@@ -197,31 +231,37 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
     }
 
     public int nbClasses() {
-	return onto.getClassesInSignature().size();
+	//return onto.getClassesInSignature().size();
+	return getClasses().size();
     }
 
     public int nbDataProperties() {
-	return onto.getDataPropertiesInSignature().size();
+	//return onto.getDataPropertiesInSignature().size();
+	return getDataProperties().size();
     }
 
     public int nbIndividuals() {
-	return onto.getIndividualsInSignature().size();
+	//return onto.getIndividualsInSignature().size();
+	return getIndividuals().size();
     }
 
     public int nbObjectProperties() {
-	return onto.getObjectPropertiesInSignature().size();
+	//return onto.getObjectPropertiesInSignature().size();
+	return getObjectProperties().size();
     }
 
     public int nbProperties() {
-	return onto.getDataPropertiesInSignature().size()
-		+ onto.getObjectPropertiesInSignature().size();
+	//return onto.getDataPropertiesInSignature().size()
+	//	+ onto.getObjectPropertiesInSignature().size();
+	return getProperties().size();
     }
 
     int nbentities = -1;
 
     public int nbEntities() {
 	if ( nbentities != -1 ) return nbentities;
-	nbentities = nbClasses()+nbProperties()+nbIndividuals();
+	//nbentities = nbClasses()+nbProperties()+nbIndividuals();
+	nbentities = getEntities().size();
 	return nbentities;
     }
 
@@ -422,6 +462,5 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 	    onto = null;
 	}
     }
-
 
 }
