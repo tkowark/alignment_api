@@ -61,7 +61,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples/rdf/newsample.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter file:examples/rdf/newsample.rdf
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf
 
