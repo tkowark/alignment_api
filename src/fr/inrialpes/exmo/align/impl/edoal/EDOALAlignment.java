@@ -24,6 +24,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Set;
 import java.net.URI;
 
@@ -47,11 +48,22 @@ import fr.inrialpes.exmo.align.impl.Extensions;
  */
 public class EDOALAlignment extends BasicAlignment {
 
+    /*
+     * An eventual initial alignment
+     *
+     */
     protected EDOALAlignment init = null;
+
+    /*
+     * The list of variables in declared in this alignment
+     * //EDOALPattern
+     */
+    protected Hashtable<String,Variable> variables;
 
     public EDOALAlignment() {
 	setLevel("2EDOAL");
 	setXNamespace( Namespace.EDOAL.shortCut, Namespace.EDOAL.prefix );
+	variables = new Hashtable<String,Variable>();
     }
 
     public void init( Object onto1, Object onto2 ) throws AlignmentException {

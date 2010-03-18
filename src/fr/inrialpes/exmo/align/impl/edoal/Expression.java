@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2007
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -60,10 +60,17 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 public abstract class Expression implements Cloneable, Visitable {
 
+    // should not be reasonable to have several variables
+    // This would cost too much
+    protected Variable variable;
+
     protected Expression() {}
 
     public void accept(AlignmentVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
+
+    public Variable getVariable() { return variable; }
+    public void setVariable( Variable v ) { variable = v; }
 
 }
