@@ -65,6 +65,7 @@ import fr.inrialpes.exmo.align.impl.edoal.TransfService;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
+import fr.inrialpes.exmo.align.impl.edoal.Variable;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 
@@ -122,6 +123,8 @@ public class RDFParser {
 
     private boolean isPattern = false;
 
+    private EDOALAlignment alignment;
+
     /** 
      * Creates an RDF Parser.
      */
@@ -177,10 +180,10 @@ public class RDFParser {
 	if ( !stmtIt.hasNext() ) throw new AlignmentException("There is no alignment in the RDF document");
 	Statement alignDoc = stmtIt.nextStatement();
 	// Step from this statement
-	final EDOALAlignment al = parseAlignment( alignDoc.getSubject() );
+	alignment = parseAlignment( alignDoc.getSubject() );
 	// Clean up memory
 	rdfmodel.close(); // JE: I am not sure that I will not have trouble with initSyntax
-	return al;
+	return alignment;
     }
 
     // Below is the plumbing:
@@ -236,9 +239,9 @@ public class RDFParser {
 	    // getting the id of the document
 	    final URI id = getNodeId( node );
 	    
-	    final EDOALAlignment doc = new EDOALAlignment();
+	    alignment = new EDOALAlignment();
 	    if ( id != null )
-		doc.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, id.toString() );
+		alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, id.toString() );
 	    
 	    StmtIterator stmtIt = node.listProperties((Property)SyntaxElement.MAPPING_SOURCE.resource );
 	    if ( stmtIt.hasNext() ) {
@@ -257,7 +260,7 @@ public class RDFParser {
 		final String level = stmtIt.nextStatement().getString();
 		if ((level != null) && (!level.equals(""))) {
 		    if ( level.startsWith("2EDOAL") ) {
-			doc.setLevel( level );
+			alignment.setLevel( level );
 			if ( level.equals("2EDOALPattern") ) isPattern = true;
 		    } else {
 			throw new AlignmentException( "Cannot parse alignment of level "+level );
@@ -271,7 +274,7 @@ public class RDFParser {
 		final String arity = stmtIt.nextStatement().getString();
 		if ((arity != null) && (!arity.equals(""))) {
 		    // JE2009: Certainly some control checking should be useful
-		    doc.setType( arity );
+		    alignment.setType( arity );
 		}
 	    } else {
 		throw new AlignmentException( "Missing type " );
@@ -281,8 +284,8 @@ public class RDFParser {
 	    while (stmtIt.hasNext()) {
 		Statement stmt = stmtIt.nextStatement();
 		if ( debug > 0 ) System.err.println( "  ---------------> "+stmt );
-		//doc.addRule(parseCell(stmt.getResource()));
-		try { doc.addAlignCell( parseCell( stmt.getResource() ) ); }
+		//alignment.addRule(parseCell(stmt.getResource()));
+		try { alignment.addAlignCell( parseCell( stmt.getResource() ) ); }
 		catch ( AlignmentException ae ) {
 		    System.err.println( "Error "+ae );
 		    ae.printStackTrace();
@@ -292,15 +295,15 @@ public class RDFParser {
 
 	    // Remaining resources...
 	    //else if ( !pred.equals( SyntaxElement.getResource("rdftype") ) ) { // Unknown is annotation
-	    //	parseAnnotation( stmt, doc );
+	    //	parseAnnotation( stmt, alignment );
 	    //}
 
 	    if ( source != null && target != null ) {
-		doc.init( source, target );
+		alignment.init( source, target );
 	    } else {
 		throw new IllegalArgumentException("Missing ontology description");
 	    }
-	    return doc;
+	    return alignment;
 	    
 	} catch (AlignmentException e) {
 	    throw e;
@@ -422,6 +425,12 @@ public class RDFParser {
 	}
 	//2010 test for variable? if yes store it!
 	if ( isPattern ) {
+	    StmtIterator stmtIt = node.listProperties((Property)SyntaxElement.VAR.resource );
+	    if ( stmtIt.hasNext() ) {
+		final String varname = stmtIt.nextStatement().getString();
+		final Variable var = alignment.recordVariable( varname, result );
+		result.setVariable( var );
+	    }
 	}
 	return result;
     }

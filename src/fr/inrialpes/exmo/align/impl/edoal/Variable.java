@@ -50,6 +50,8 @@ public class Variable {
     
     public String name() { return name; }
 
+    public void addOccurence( Expression expr ) { occurences.add( expr ); }
+
     /**
      * Returns the Id.
      * 

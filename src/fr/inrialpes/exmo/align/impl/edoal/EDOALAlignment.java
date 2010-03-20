@@ -91,6 +91,20 @@ public class EDOALAlignment extends BasicAlignment {
     }
 
     /*
+     * Dealing with variables
+     */
+
+    public Variable recordVariable( String name, Expression expr ) {
+	Variable var = variables.get( name );
+	if ( var == null ) {
+	    var = new Variable( name );
+	    variables.put( name, var );
+	}
+	var.addOccurence( expr );
+	return var;
+    }
+
+    /*
      * Dealing with correspondences
      */
 
