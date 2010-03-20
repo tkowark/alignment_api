@@ -1,1 +1,3 @@
-2.9.1
+xercesImpl 2.9.1
+resolver 1.2
+
