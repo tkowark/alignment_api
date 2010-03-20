@@ -356,11 +356,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		if( (params.getProperty("renderer")).equals("HTML") )
 		    return htmlAnswer( uri, uri.substring(start), header, params );
 		else {
-		    return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		    return new Response( HTTP_OK, MIME_XML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
 		}
 	    } else {
 		//Message err = new ErrorMsg(int surr, Message rep, String from, String to, String cont, params );
-		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
+		if( (params.getProperty("renderer")).equals("HTML") ) {
+		    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
+		} else {
+		    return new Response( HTTP_OK, MIME_XML, "<SystemErrorMsg>No service launched</SystemErrorMsg>" );
+		}
 	    }
 	    // This already seems RESTful
 	} else if ( oper.equals( "alid" ) ){
