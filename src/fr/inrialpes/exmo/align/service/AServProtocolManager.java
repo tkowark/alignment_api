@@ -835,7 +835,7 @@ public class AServProtocolManager {
 
     public static boolean implementsInterface( String classname, Class tosubclass, boolean debug ) {
 	try {
-	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
+	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug" );
 	    // JE: Here there is a bug that is that it is not possible
 	    // to have ALL interfaces with this function!!!
 	    // This is really stupid but that's life
@@ -857,8 +857,6 @@ public class AServProtocolManager {
 	} catch (ClassNotFoundException cnfex) {
 	} catch (UnsatisfiedLinkError ule) {
 	    if ( debug ) System.err.println("   ******** "+classname);
-	} catch (ExceptionInInitializerError eiie) {
-	    // This one has been added for OMWG, this is a bad error
 	}
 	return false;
     }
