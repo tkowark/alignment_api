@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006-2008, INRIA Rhône-Alpes
+ * Copyright (C) INRIA, 2006-2008, 2010
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -28,7 +28,6 @@
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -57,7 +56,7 @@ public class Skeleton {
     public static void main( String[] args ) {
 	URI onto1 = null;
 	URI onto2 = null;
-	Parameters params = new BasicParameters();
+	Properties params = new BasicParameters();
 
 	try {
 	    // Loading ontologies

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2009, 2010
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -28,7 +28,6 @@
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.Evaluator;
 
 // Alignment API implementation classes
@@ -61,7 +60,7 @@ public class MyApp {
     public static void main( String[] args ) {
 	URI onto1 = null;
 	URI onto2 = null;
-	Parameters params = new BasicParameters();
+	Properties params = new BasicParameters();
 
 	try {
 	    // Loading ontologies
@@ -75,13 +74,13 @@ public class MyApp {
 
 	    // Run two different alignment methods (e.g., ngram distance and smoa)
 	    AlignmentProcess a1 = new StringDistAlignment();
-	    params.setParameter("stringFunction","smoaDistance");
+	    params.setProperty("stringFunction","smoaDistance");
 	    a1.init ( onto1, onto2 );
 	    a1.align( (Alignment)null, params );
 	    AlignmentProcess a2 = new StringDistAlignment();
 	    a2.init ( onto1, onto2 );
 	    params = new BasicParameters();
-	    params.setParameter("stringFunction","ngramDistance");
+	    params.setProperty("stringFunction","ngramDistance");
 	    a2.align( (Alignment)null, params );
 
 	    // Merge the two results.
@@ -98,7 +97,7 @@ public class MyApp {
 
 	    double best = 0.;
 	    Alignment result = null;
-	    Parameters p = new BasicParameters();
+	    Properties p = new BasicParameters();
 	    for ( int i = 0; i <= 10 ; i += 2 ){
 		a1.cut( ((double)i)/10 );
 		// JE: I do not understand why I must create a new one!
