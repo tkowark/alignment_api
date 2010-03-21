@@ -397,7 +397,7 @@ public class BasicAlignment implements Alignment {
 
     /***************************************************************************
      * The cut function suppresses from an alignment all the cell over a
-     * particulat threshold
+     * particular threshold
      **************************************************************************/
     public void cut2(double threshold) throws AlignmentException {
 	for ( Cell c : this ) {
