@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.io.Reader;
 import java.io.InputStream;
 import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.lang.Integer;
@@ -155,14 +156,16 @@ public class AlignmentParser {
      * This dispatch is ridiculous, but that's life
      */
     private Alignment callParser( XMLParser p, Object o ) throws AlignmentException {
-	if ( o instanceof String ) return p.parse((String)o);
+	if ( o instanceof URI ) return p.parse( ((URI)o).toString() );
+	if ( o instanceof String ) return p.parse( new ByteArrayInputStream( ((String)o).getBytes() ) );
 	if ( o instanceof Reader ) return p.parse((Reader)o);
 	if ( o instanceof InputStream ) return p.parse((InputStream)o);
 	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
     }
 
     private Alignment callParser( RDFParser p, Object o ) throws AlignmentException {
-	if ( o instanceof String ) return p.parse((String)o);
+	if ( o instanceof URI ) return p.parse( ((URI)o).toString() );
+	if ( o instanceof String ) return p.parse( new ByteArrayInputStream( ((String)o).getBytes() ) );
 	if ( o instanceof Reader ) return p.parse((Reader)o);
 	if ( o instanceof InputStream ) return p.parse((InputStream)o);
 	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
@@ -173,7 +176,9 @@ public class AlignmentParser {
      * @param s String the string to parse
      */
     public Alignment parseString( String s ) throws AlignmentException {
-	parse( new StringReader( s ) );
+	// JE: The problem here is that InputStream are consumed by parsers
+	// So they must be opened again! Like Readers...
+	callParser( s );
 	return alignment;
     }
 
@@ -192,7 +197,11 @@ public class AlignmentParser {
      */
     public Alignment parse( String uri ) throws AlignmentException {
 	this.uri = uri; // should be obsoloted
-	callParser( uri );
+	try {
+	    callParser( new URI( uri ) );
+	} catch (URISyntaxException urisex) {
+	    throw new AlignmentException( "Invalid URI : "+uri, urisex );
+	}
 	return alignment;
     }
 

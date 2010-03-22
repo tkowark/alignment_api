@@ -202,8 +202,6 @@ public class RDFParser {
 	if (is == null) throw new AlignmentException("The reader must not be null");
 	Model align = ModelFactory.createDefaultModel();
 	align.read( is, null );
-	// Apparently this does not really works
-	//align.write(System.out);
 	return parse( align );
     }
     
@@ -211,7 +209,6 @@ public class RDFParser {
 	if (is == null) throw new AlignmentException("The inputstream must not be null");
 	Model align = ModelFactory.createDefaultModel();
 	align.read( is, null );
-	//debug	align.write(System.out);
 	return parse( align );
     }
 
