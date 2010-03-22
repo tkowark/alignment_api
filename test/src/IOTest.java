@@ -40,6 +40,9 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
@@ -69,6 +72,51 @@ public class IOTest {
 	aparser.initAlignment( null );
 	aparser.setEmbedded( true );
 	alignment = aparser.parse( "test/input/soap.xml" );
+	assertNotNull( alignment );
+	assertTrue( alignment instanceof URIAlignment );
+	assertEquals( alignment.getOntology2URI().toString(), "http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl" );
+	assertEquals( alignment.nbCells(), 57 );
+    }
+
+    private static String readFileAsString(String filePath) throws java.io.IOException {
+	byte[] buffer = new byte[(int) new File(filePath).length()];
+	BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
+	f.read(buffer);
+	return new String(buffer);
+    }
+
+    /**
+     * The same tests as above (and elsewhere) using parseString instead of parse
+     */
+    @Test(groups = { "full", "io", "raw" }, expectedExceptions = AlignmentException.class)
+    public void loadSOAPStringErrorTest() throws Exception {
+	aparser = new AlignmentParser( 0 );
+	assertNotNull( aparser );
+	try { 	// shut-up log4j
+	    com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
+	    alignment = aparser.parseString( readFileAsString( "test/input/soap.xml" ) );
+	    // error (we forgot to tell the parser that the alignment is embedded)
+	} catch (Exception ex) {
+	    com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = false;
+	    throw ex;
+	}
+    }
+
+    @Test(groups = { "full", "io", "raw" }, dependsOnMethods = {"loadSOAPStringErrorTest"})
+    public void loadStringTest() throws Exception {
+	aparser.initAlignment( null );
+	// a regular alignment, out of a SOAP message
+	alignment = aparser.parseString( readFileAsString( "examples/rdf/newsample.rdf" ) );
+	assertNotNull( alignment );
+	assertTrue( alignment instanceof URIAlignment );
+	assertEquals( alignment.nbCells(), 2 );
+    }
+
+    @Test(groups = { "full", "io", "raw" }, dependsOnMethods = {"loadSOAPStringErrorTest"})
+    public void loadSOAPStringTest() throws Exception {
+	aparser.initAlignment( null );
+	aparser.setEmbedded( true );
+	alignment = aparser.parseString( readFileAsString( "test/input/soap.xml" ) );
 	assertNotNull( alignment );
 	assertTrue( alignment instanceof URIAlignment );
 	assertEquals( alignment.getOntology2URI().toString(), "http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl" );
