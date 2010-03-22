@@ -55,7 +55,7 @@
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar align.jar ontowrap.jar procalign.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar procalign.jar"/>
+    <property name="jarclasspath" value="owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar align.jar ontowrap.jar procalign.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar procalign.jar"/>
 
   </target>
 
