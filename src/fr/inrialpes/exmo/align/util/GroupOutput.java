@@ -47,7 +47,6 @@ import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -169,11 +168,9 @@ public class GroupOutput {
 	    }
 	}
 
-	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
 	listAlgo = new Vector<String>();
-	StringTokenizer st = new StringTokenizer(fileNames,",");
-	while (st.hasMoreTokens()) {
-	    listAlgo.add(st.nextToken());
+	for ( String s : fileNames.split(",") ) {
+	    listAlgo.add( s );	    
 	}
 
 	params = new BasicParameters();

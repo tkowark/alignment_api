@@ -39,7 +39,6 @@ import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 
-import java.util.StringTokenizer;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Hashtable;
@@ -862,9 +861,7 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
     private void decodeParams( String params, Properties p ) throws InterruptedException {
 	if ( params == null ) return;
 	
-	StringTokenizer st = new StringTokenizer( params, "&" );
-	while ( st.hasMoreTokens())	{
-	    String next = st.nextToken();
+	for ( String next : params.split("&") ) {
 	    int sep = next.indexOf( '=' );
 	    if ( sep >= 0 ){
 		try {
