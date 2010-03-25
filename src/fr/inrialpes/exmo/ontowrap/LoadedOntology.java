@@ -31,10 +31,13 @@ public interface LoadedOntology<O> extends Ontology<O> {
     
     /**
      * returns the default name of an entity if specified.
-     * otherwise, returns one of its names (e.g., "rdfs:label" property values)
+     * otherwise, returns one of its names (e.g., "rdfs:label" property values).
+     * Which name is returned is unspecified.
      * In case no such official name is given to the entity it is possible to 
      * use the entity URI to return its fragment identifier (after the '#') or 
      * last fragment (after the last "/" or just before) in this order.
+     * Because of its low definiteness, it is not advised to use this primitive
+     * and it is better to use other ones (getNames, getComments, getAnnotations).
      * @param o the entity
      * @return a label
      * @throws OntowrapException
@@ -44,8 +47,11 @@ public interface LoadedOntology<O> extends Ontology<O> {
     /**
      * returns the default name of an entity in a language (attribute xml:lang)
      * if specified.
+     * Which name is returned is unspecified.
      * otherwise, returns one of its names (e.g., "rdfs:label" property values)
      * otherwise returns the default name (getEntityName)
+     * Because of its low definiteness, it is not advised to use this primitive
+     * and it is better to use other ones (getNames, getComments, getAnnotations).
      * @param o the entity
      * @return a label
      * @throws OntowrapException
@@ -95,6 +101,17 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * @throws OntowrapException
      */
     public Set<String> getEntityAnnotations( Object o ) throws OntowrapException;
+
+    /**
+     * Returns all the values of the "owl:AnnotationProperty" property for a given entity expressed in the required language. 
+     * These annotations are those predefined in owl (owl:versionInfo, rdfs:label, rdfs:comment, rdfs:seeAlso and rdfs:isDefinedBy)
+     * but also all other defined annotation properties which are subClass of "owl:AnnotationProperty"
+     * @param o the entity
+     * @param lang the code of the language ("en", "fr", "es", etc.) 
+     * @return the set of annotation values
+     * @throws OntowrapException
+     */
+    public Set<String> getEntityAnnotations( Object o, String lang ) throws OntowrapException;
 
     public boolean isEntity( Object o );
     public boolean isClass( Object o );
