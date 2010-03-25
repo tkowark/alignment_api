@@ -420,9 +420,8 @@ public class RDFParser {
 	} else {
 	    throw new AlignmentException("There is no parser for entity "+rdfType.getLocalName());
 	}
-	//2010 test for variable? if yes store it!
 	if ( isPattern ) {
-	    StmtIterator stmtIt = node.listProperties((Property)SyntaxElement.VAR.resource );
+	    StmtIterator stmtIt = node.listProperties( (Property)SyntaxElement.VAR.resource );
 	    if ( stmtIt.hasNext() ) {
 		final String varname = stmtIt.nextStatement().getString();
 		final Variable var = alignment.recordVariable( varname, result );
@@ -459,7 +458,11 @@ public class RDFParser {
 		    op = SyntaxElement.NOT.getOperator();
 		    stmt = node.getProperty( (Property)SyntaxElement.NOT.resource );
 		} else {
-		    throw new AlignmentException( "Class statement must containt one constructor or Id : "+node );
+		    if ( isPattern ) { // not necessarily with a variable (real patterns)
+			return new ClassId();
+		    } else {
+			throw new AlignmentException( "Class statement must containt one constructor or Id : "+node );
+		    }
 		}
 		//JE2010MUSTCHECK
 		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
@@ -599,7 +602,11 @@ public class RDFParser {
 		    op = SyntaxElement.NOT.getOperator();
 		    stmt = node.getProperty( (Property)SyntaxElement.NOT.resource );
 		} else {
-		    throw new AlignmentException( "Property statement must containt one constructor or Id : "+node );
+		    if ( isPattern ) { // not necessarily with a variable (real patterns)
+			return new PropertyId();
+		    } else {
+			throw new AlignmentException( "Property statement must containt one constructor or Id : "+node );
+		    }
 		}
 		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
 		if ( op == SyntaxElement.NOT.getOperator() ) {
@@ -720,7 +727,11 @@ public class RDFParser {
 		    op = SyntaxElement.TRANSITIVE.getOperator();
 		    stmt = node.getProperty( (Property)SyntaxElement.TRANSITIVE.resource );
 		} else {
-		    throw new AlignmentException( "Relation statement must containt one constructor or Id : "+node );
+		    if ( isPattern ) { // not necessarily with a variable (real patterns)
+			return new RelationId();
+		    } else {
+			throw new AlignmentException( "Relation statement must containt one constructor or Id : "+node );
+		    }
 		}
 		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
 		if ( op == SyntaxElement.NOT.getOperator() ||
@@ -768,6 +779,8 @@ public class RDFParser {
 	    URI id = getNodeId( node );
 	    if ( id != null ) return new InstanceId( id );
 	    else throw new AlignmentException("Cannot parse anonymous individual");
+	} else if ( isPattern ) { // not necessarily with a variable (real patterns)
+	    return new InstanceId();
 	} else {
 	    throw new AlignmentException("There is no pasrser for entity "+rdfType.getLocalName());
 	}

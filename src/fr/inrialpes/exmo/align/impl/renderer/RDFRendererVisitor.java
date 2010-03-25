@@ -361,8 +361,10 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     // DONE+TESTED
     public void visit( final ClassId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.CLASS_EXPR.print(DEF));
-	writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
-	writer.print("=\""+e.getURI()+"\"");
+	if ( e.getURI() != null ) {
+	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
+	    writer.print("=\""+e.getURI()+"\"");
+	}
 	if ( isPattern ) renderVariables( e );
 	writer.print("/>");
     }
@@ -512,8 +514,10 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     // DONE
     public void visit(final PropertyId e) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_EXPR.print(DEF));
-	writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
-	writer.print("=\""+e.getURI()+"\"");
+	if ( e.getURI() != null ){
+	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
+	    writer.print("=\""+e.getURI()+"\"");
+	}
 	if ( isPattern ) renderVariables( e );
 	writer.print("/>");
     }
@@ -621,8 +625,10 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     // DONE
     public void visit( final RelationId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_EXPR.print(DEF));
-	writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
-	writer.print("=\""+e.getURI()+"\"");
+	if ( e.getURI() != null ) {
+	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
+	    writer.print("=\""+e.getURI()+"\"");
+	}
 	if ( isPattern ) renderVariables( e );
 	writer.print("/>");
     }
@@ -704,8 +710,10 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     // DONE+TESTED
     public void visit( final InstanceId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.INSTANCE_EXPR.print(DEF));
-	writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
-	writer.print("=\""+e.getURI()+"\"");
+	if ( e.getURI() != null ) {
+	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF));
+	    writer.print("=\""+e.getURI()+"\"");
+	}
 	if ( isPattern ) renderVariables( e );
 	writer.print("/>");
     }

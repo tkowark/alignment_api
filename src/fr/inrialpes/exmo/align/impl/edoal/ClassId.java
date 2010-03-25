@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,6 +43,11 @@ public class ClassId extends ClassExpression implements Id {
     private String id;
     
     URI uri;
+
+    /**
+     * Creates an anonymous class pattern
+     */
+    public ClassId() {}
 
     public ClassId(final String id) throws AlignmentException {
 	if (id == null) {

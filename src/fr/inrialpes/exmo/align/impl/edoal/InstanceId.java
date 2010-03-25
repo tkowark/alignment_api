@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.4 - 2006 -- then InstanceExpr
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,6 +43,11 @@ public class InstanceId extends InstanceExpression implements Id {
     public void setURI( URI u ){
 	uri = u;
     }
+
+    /**
+     * Creates an anonymous instance pattern
+     */
+    public InstanceId() {}
 
     /**
      * Constructs a InstanceId.

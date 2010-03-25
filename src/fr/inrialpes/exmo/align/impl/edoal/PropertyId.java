@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2006 -- then AttributeExpr.java
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,11 @@ public class PropertyId extends PropertyExpression implements Id {
     private String id;
 	
     URI uri;
+
+    /**
+     * Creates an anonymous property pattern
+     */
+    public PropertyId() {}
 
     public PropertyId( final URI u ) {
 	if ( u == null ) {
