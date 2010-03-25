@@ -28,6 +28,7 @@ import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.eval.GraphEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
+import fr.inrialpes.exmo.align.impl.eval.Pair;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
@@ -43,7 +44,8 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
+import java.lang.reflect.Constructor;
+import java.lang.InstantiationException;
 
 import org.xml.sax.SAXException;
 
@@ -52,7 +54,8 @@ import gnu.getopt.Getopt;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** A basic class for synthesizing the alignment results of an algorithm by a
+/**
+ * A basic class for synthesizing the alignment results of an algorithm by a
  * precision recall graph.
  *
  * These graphs are however computed on averaging the precision recall/graphs
@@ -70,6 +73,8 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
  *  -d debug --debug=level
  *  -l list of compared algorithms
  *  -t output --type=output: xml/tex/html/ascii
+ *  -e classname --evaluator=classname
+ *  -g classname --grapher=classname
  * </pre>
  *
  * The input is taken in the current directory in a set of subdirectories (one per
@@ -92,11 +97,16 @@ public class GenPlot {
     int STEP = 10;
     Properties params = null;
     Vector<String> listAlgo;
+    Vector<GraphEvaluator> listEvaluators;
     String fileNames = "";
     String outFile = null;
-    java.lang.reflect.Constructor evalConstructor = null;
+    Constructor evalConstructor = null;
+    Constructor graphConstructor = null;
+    String ylabel = "precision";
+    String xlabel = "recall";
     String type = "tsv";
     int debug = 0;
+    int size = 0; // the set of algo to compare
     PrintWriter output = null;
 
     public static void main(String[] args) {
@@ -105,19 +115,23 @@ public class GenPlot {
     }
 
     public void run(String[] args) throws Exception {
-	LongOpt[] longopts = new LongOpt[8];
+	LongOpt[] longopts = new LongOpt[10];
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[3] = new LongOpt("type", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[5] = new LongOpt("evaluator", LongOpt.REQUIRED_ARGUMENT, null, 'e');
-	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
+	longopts[6] = new LongOpt("grapher", LongOpt.REQUIRED_ARGUMENT, null, 'g');
+	longopts[7] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
+	longopts[8] = new LongOpt("step", LongOpt.REQUIRED_ARGUMENT, null, 's');
 
-	Getopt g = new Getopt("", args, "ho:d::l:e:t:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::l:e:g:s:t:", longopts);
+	int step = 10;
 	int c;
 	String arg;
-	String cl = "fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator";
+	String evalCN = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
+	String graphCN = "fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator";
 
 	while ((c = g.getopt()) != -1) {
 	    switch (c) {
@@ -129,8 +143,16 @@ public class GenPlot {
 		outFile = g.getOptarg();
 		break;
 	    case 'e' :
-		/* Name of the class to compute */
-		cl = g.getOptarg();
+		/* Name of the evaluator to use */
+		evalCN = g.getOptarg();
+		break;
+	    case 'g' :
+		/* Name of the graph display to use */
+		graphCN = g.getOptarg();
+		if ( graphCN.equals("fr.inrialpes.exmo.align.impl.eval.ROCCurveEvaluator") ) {
+		    xlabel = "noise";
+		    ylabel = "recall";
+		}
 		break;
 	    case 't' :
 		/* Type of output (tex/tsv(/html/xml/ascii)) */
@@ -138,6 +160,10 @@ public class GenPlot {
 		break;
 	    case 'l' :
 		/* List of filename */
+		fileNames = g.getOptarg();
+		break;
+	    case 's' :
+		/* Step */
 		fileNames = g.getOptarg();
 		break;
 	    case 'd' :
@@ -149,22 +175,44 @@ public class GenPlot {
 	    }
 	}
 
-	Class<?> evalClass = Class.forName( cl );
-	Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
-	Class[] cparams = { oClass, oClass };
-	evalConstructor = evalClass.getConstructor( cparams );
+	Class<?> graphClass = Class.forName(graphCN);
+	Class[] cparams = {};
+	graphConstructor = graphClass.getConstructor( cparams );
 
-	// JE: StringTokenizer is obsoleted in Java 1.4 in favor of split: to change
+	//Class<?> evalClass = Class.forName(evalCN);
+	//evalConstructor = evalClass.getConstructor( cparams );
+
 	listAlgo = new Vector<String>();
-	StringTokenizer st = new StringTokenizer(fileNames,",");
-	while (st.hasMoreTokens()) {
-	    listAlgo.add(st.nextToken());
+	for ( String s : fileNames.split(",") ) {
+	    size++;
+	    listAlgo.add( s );	    
 	}
 
 	params = new Properties();
 	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
-	params.setProperty("step", Integer.toString( STEP ) );
+	// Collect correspondences from alignments in all directories
+	// . -> Vector<EvalCell>
+	listEvaluators = iterateDirectories();
+
+	//
+	int max = 0;
+	for( GraphEvaluator e : listEvaluators ) {
+	    int n = e.nbCells();
+	    if ( n > max ) max = n;
+	}
+	params.setProperty( "scale", Integer.toString( max ) );
+
+	// Vector<EvalCell> -> Vector<Pair>
+	// Convert the set of alignments into the list of required point pairs
+	// We must convert the 
+	Vector<Vector<Pair>> toplot = new Vector<Vector<Pair>>();
+	for( int i = 0; i < size ; i++ ) {
+	    // Convert it with the adequate GraphPlotter
+	    // Scale the point pairs to the current display (local)
+	    toplot.add( i, listEvaluators.get(i).eval( params ) );
+	    //scaleResults( STEP, 
+	}
 
 	// Set output file
 	OutputStream stream;
@@ -177,11 +225,13 @@ public class GenPlot {
 		   new BufferedWriter(
 		     new OutputStreamWriter( stream, "UTF-8" )), true);
 
-	// type
+	//System.err.println ( toplot.get(0));
+	// Display the required type of output
+	// Vector<Pair> -> .
 	if ( type.equals("tsv") ){
-	    printTSV( iterateDirectories() );
+	    printTSV( toplot );
 	} else if ( type.equals("tex") ) {
-	    printPGFTex( iterateDirectories() );
+	    printPGFTex( toplot );
 	} else System.err.println("Flag -t "+type+" : not implemented yet");
     }
 
@@ -191,7 +241,20 @@ public class GenPlot {
      * The points are computed by aggregating the values
      *  (and in the end computing the average)
      */
-    public double[][] iterateDirectories (){
+    public Vector<GraphEvaluator> iterateDirectories() {
+	Vector<GraphEvaluator> evaluators = new Vector<GraphEvaluator>( size );
+	Object[] mparams = {};
+	try {
+	    for( int i = 0; i < size; i++ ) {
+		GraphEvaluator ev = (GraphEvaluator)graphConstructor.newInstance(mparams);
+		ev.setStep( STEP );
+		evaluators.add( i, ev );
+	    }
+	} catch (Exception ex) { //InstantiationException, IllegalAccessException
+	    ex.printStackTrace();
+	    System.exit(-1);
+	}
+
 	File [] subdir = null;
 	try {
 	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
@@ -200,100 +263,95 @@ public class GenPlot {
 	    usage();
 	}
 
-	// Initialize the vector of results
-	double[][] result = new double[listAlgo.size()][STEP+1];
-	for( int i=0; i < listAlgo.size(); i++){
-	    for( int j=0; j <= STEP; j++){
-		result[i][j] = 0.0;
-	    }
-	}
-	
-	int size = 0;
 	// Evaluate the results in each directory
 	for ( int k = subdir.length-1 ; k >= 0; k-- ) {
 	    if( subdir[k].isDirectory() ) {
 		// eval the alignments in a subdirectory
-		iterateAlignments( subdir[k], result );
-		size++;
+		iterateAlignments( subdir[k], evaluators );//, result );
 	    }
 	}
-
-	// Compute the average by dividing each value by the number of tests
-	// (not a very good method anyway)
-	for( int i=0; i < listAlgo.size(); i++){
-	    for( int j=0; j <= STEP; j++){
-		result[i][j] = result[i][j] / size;
-	    }
-	}
-	
-	return result;
+	return evaluators;
     }
 
-    public void iterateAlignments ( File dir, double[][] result ) {
+    public void iterateAlignments ( File dir, Vector<GraphEvaluator> evaluators ) {
+	if ( debug > 0 ) System.err.println("Directory : "+dir);
 	String prefix = dir.toURI().toString()+"/";
-	int i = 0;
 
-	if( debug > 0 ) System.err.println("Directory : "+dir);
+	int nextdebug;
+	if ( debug < 2 ) nextdebug = 0;
+	else nextdebug = debug - 2;
+	AlignmentParser aparser = new AlignmentParser( nextdebug );
+	Alignment refalign = null;
+
+	try { // Load the reference alignment...
+	    refalign = aparser.parse( prefix+"refalign.rdf" );
+	    if ( debug > 1 ) System.err.println(" Reference alignment parsed");
+	} catch ( Exception aex ) {
+	    if ( debug > 1 ) {
+		aex.printStackTrace();
+	    } else {
+		System.err.println("GenPlot cannot parse refalign : "+aex);
+	    };
+	    return;
+	}
+
 	// for all alignments there,
-	for ( String algo : listAlgo ) {
-	    // call eval
+	for( int i = 0; i < size; i++ ) {
+	    String algo = listAlgo.get(i);
+	    Alignment al = null;
 	    if ( debug > 0 ) System.err.println("  Considering result "+algo+" ("+i+")");
-	    // JE2010GRAPH
-	    PRGraphEvaluator evaluator = eval( prefix+"refalign.rdf", prefix+algo+".rdf");
-	    // store the result
-	    // This cannot be done for ROC curves
-	    // JE2010GRAPH
-	    if ( evaluator != null ){
-		for( int j = 0; j <= STEP ; j++ ){
-		    result[i][j] += evaluator.getPrecision(j);
-		}
+	    try {
+		aparser.initAlignment( null );
+		al = aparser.parse( prefix+algo+".rdf" );
+		if ( debug > 1 ) System.err.println(" Alignment "+algo+" parsed");
+	    } catch (Exception ex) { 
+		if ( debug > 1 ) {
+		    ex.printStackTrace();
+		} else {
+		    System.err.println("GenPlot: "+ex);
+		};
 	    }
-	    i++;
+	    // even if empty, declare refalign
+	    evaluators.get(i).ingest( al, refalign );
 	}
 	// Unload the ontologies.
 	OntologyFactory.clear();
     }
-
-    public PRGraphEvaluator eval( String alignName1, String alignName2 ) {
-	PRGraphEvaluator eval = null;
-	try {
-	    int nextdebug;
-	    if ( debug < 2 ) nextdebug = 0;
-	    else nextdebug = debug - 2;
-	    // Load alignments
-	    AlignmentParser aparser = new AlignmentParser( nextdebug );
-	    Alignment align1 = aparser.parse( alignName1 );
-	    if ( debug > 1 ) System.err.println(" Alignment structure1 parsed");
-	    aparser.initAlignment( null );
-	    Alignment align2 = aparser.parse( alignName2 );
-	    if ( debug > 1 ) System.err.println(" Alignment structure2 parsed");
-	    // Create evaluator object
-	    // JE2010GRAPH
-	    Object[] mparams = { align1, align2 };
-	    eval = (PRGraphEvaluator)evalConstructor.newInstance( mparams );
-	    //eval = new PRGraphEvaluator( align1, align2 );
-	    // Compare
-	    params.setProperty( "debug", Integer.toString( nextdebug ) );
-	    eval.eval( params ) ;
-	    // Unload the ontologies.
-	    //loaded.clear();
-	} catch (Exception ex) { 
-	    if ( debug > 1 ) {
-		ex.printStackTrace();
-	    } else {
-		System.err.println("GenPlot: "+ex);
-		System.err.println(alignName1+ " - "+alignName2 );
-	    };
-	};
-	return eval;
+    
+    // should be OK for changing granularity
+    // This is not really scalling...
+    // This is unused
+    public Vector<Pair> scaleResults( int STEP, Vector<Pair> input ) {
+	int j = 0;
+	Vector<Pair> output = new Vector<Pair>(); // Set the size!
+	Pair last = null;
+	double next = 0.;//is it a double??
+	for ( Pair npair : input ) {
+	    if ( npair.getX() == next ) {
+		output.add( npair );
+		next += STEP;
+	    } else if ( npair.getX() >= next ) { // interpolate
+		double val;
+		if ( last.getY() >= npair.getY() ) {
+		    val = npair.getY() + ( ( last.getY() - npair.getY() ) / ( last.getX()-npair.getX() ) );
+		} else {
+		    val = last.getY() + ( (npair.getY() - last.getY() ) / ( last.getX()-npair.getX() ) );
+		}
+		//System.err.println( "Scaling: "+next+" / "+val );
+		output.add( new Pair( next, val )  );
+		next += STEP;
+	    }
+	    last = npair;
+	}
+	output.add( last );
+	return( output );
     }
-
 
     /**
      * This does average plus plot
      *
      */
-    public void printPGFTex( double[][] result ){
+    public void printPGFTex( Vector<Vector<Pair>> result ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
 	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta", "yellow" }	;
@@ -311,26 +369,27 @@ public class GenPlot {
 	output.println("% Draw grid");
 	output.println("\\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
 	output.println("\\draw[->] (-0.2,0) -- (10.2,0);");
-	// JE2010GRAPH
-	output.println("\\draw (5,-0.3) node {$recall$}; ");
+	output.println("\\draw (5,-0.3) node {$"+xlabel+"$}; ");
 	output.println("\\draw (0,-0.3) node {0.}; ");
 	output.println("\\draw (10,-0.3) node {1.}; ");
 	output.println("\\draw[->] (0,-0.2) -- (0,10.2);");
 	output.println("\\draw (-0.3,0) node {0.}; ");
-	// JE2010GRAPH
-	output.println("\\draw (-0.3,5) node[rotate=90] {$precision$}; ");
+	output.println("\\draw (-0.3,5) node[rotate=90] {$"+ylabel+"$}; ");
 	output.println("\\draw (-0.3,10) node {1.}; ");
 	output.println("% Plots");
 	for ( String m : listAlgo ) {
-	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] file {"+m+".table};");
+	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+"] file {"+m+".table};");
+	    //,smooth
 	    i++;
 	}
 	// And a legend
 	output.println("% Legend");
 	i = 0;
 	for ( String m : listAlgo ) {
-	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+",smooth] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
+	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+"] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
+	    //,smooth
 	    output.println("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
+	    output.printf("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-1.2)+") node {%1.2f};\n", listEvaluators.get(i).getGlobalResult() );
 	    i++;
 	}
 	output.println("\\end{tikzpicture}");
@@ -338,7 +397,8 @@ public class GenPlot {
 	output.println("\\end{document}");
 
 	i = 0;
-	for ( String algo : listAlgo ) {
+	for( Vector<Pair> table : result ) {
+	    String algo = listAlgo.get(i);
 	    // Open one file
 	    PrintWriter writer;
 	    try {
@@ -358,10 +418,9 @@ public class GenPlot {
 		writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
 		writer.println("%% \\end{tikzpicture}");
 		writer.println();
-		// JE2010GRAPH: it outputs the plot by itself !!!!
-		for( int j = 0; j <= STEP; j++ ){
-		    writer.print((double)j*10/STEP);
-		    writer.println(" "+result[i][j]*10);
+		for( Pair p : table ) {
+		    if ( debug > 1 ) System.err.println( " >> "+p.getX()+" - "+p.getY() );
+		    writer.println( p.getX()*10+" "+ p.getY()*10 );
 		}
 		writer.close();
 	    } catch (Exception ex) { ex.printStackTrace(); }
@@ -370,28 +429,31 @@ public class GenPlot {
 	}
     }
 
-    public void printTSV( double[][] result ) {
+    // 2010: THIS IS ONLY FOR TSV ET CA NE MARCHE PAS A
+    // IT IS SUPPOSED TO PROVIDE
+    // List of algo
+    // List of STEP + points
+    public void printTSV( Vector<Vector<Pair>> points ) {
 	// Print first line
 	for ( String m : listAlgo ) {
 	    output.print("\t"+m );
 	}
-	output.println();
-
 	// Print others
-	for( int j = 0; j <= STEP; j++ ){
-	    output.print((double)j/STEP);
-	    for( int i = 0; i < listAlgo.size(); i++ ){
-		output.print("\t"+result[i][j]);
-	    }
-	    output.println();
+	for ( int i= 0; i < 100 ; i += STEP ) {
+	    for( int j = 0; j < size; j++ ){
+		Pair precrec = points.get(j).get(i);
+		output.println( precrec.getX()+" "+precrec.getY() );
 	}
+	}
+	output.println();
     }
 
     public void usage() {
 	System.out.println("usage: GenPlot [options]");
 	System.out.println("options are:");
 	System.out.println("\t--type=tsv|tex|(html|xml) -t tsv|tex|(html|xml)\tSpecifies the output format");
-	System.out.println("\t--evaluator=class -e class\tSpecifies the class of GraphEvaluator to be used");
+	System.out.println("\t--graph=class -g class\tSpecifies the class of Evaluator to be used");
+	System.out.println("\t--evaluator=class -e class\tSpecifies the class of GraphEvaluator (plotter) to be used");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");

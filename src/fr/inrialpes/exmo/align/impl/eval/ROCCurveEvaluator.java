@@ -41,7 +41,6 @@ import java.net.URI;
 
 /**
  * Compute ROCCurves
- * The first alignment is thus the expected one
  *
  * @author Jerome Euzenat
  * @version $Id$ 
@@ -80,45 +79,82 @@ public class ROCCurveEvaluator extends GraphEvaluator {
 
     private double auc = 0.0;
 
-    public ROCCurveEvaluator( Alignment align1, Alignment align2 ) {
-	super(align1, align2);
+    public ROCCurveEvaluator() {
+	super();
     }
 
     /**
-     * Compute ROCCurve
+     * Compute ROCCurve points
+     * From an ordered vector of cells with their correctness status
      */
-    public double eval( Properties params ) throws AlignmentException {
-	return eval( params, (Object)null );
-    }
-    public double eval( Properties params, Object cache ) throws AlignmentException {
+    public Vector<Pair> eval( Properties param ) {
 	// Local variables
 	int nbfound = 0;
 	int area = 0;
 	int x = 0;
 	int y = 0;
 	
-	int scale = align2.nbCells();
+	//int scale = align2.nbCells();
+	int scale = 0;
+	if ( param != null && param.getProperty( "scale" ) != null ) {
+	    scale = Integer.parseInt( param.getProperty( "scale" ) );
+	}
 
 	points = new Vector<Pair>();
 
-	// Create a sorted structure in which putting the cells
-	// TreeSet could be replaced by something else
-	SortedSet<Cell> cellSet = orderAlignment();
-
 	// Collect the points in the curve
-	points.add( new Pair( 0., 0. ) ); // [Origin]
-	for( Cell c2 : cellSet ) {
+	Pair last = new Pair( 0., 0. ); // [Origin]
+	for( EvalCell c : cellSet ) {
 	    nbfound++;
-	    if ( correctCell( c2, align2, align1 ) > 0. ) {
+	    if ( c.correct() ) {
 		y++; 
+		if ( last.getX() != x ) { 
+		    points.add( last );
+		    last = new Pair( x, y-1 );
+		}
 	    } else {
 		x++;  area += y;
+		if ( last.getY() != y ) {
+		    points.add( last );
+		    last = new Pair( x-1, y );
+		}
 	    }
-	    points.add( new Pair( x, y ) );
 	}
-	auc = (double)area / (double)nbfound;
+	points.add( last );
+	points.add( new Pair( x, y ) );
 
-	return auc;
+	/*
+	 * This is not ideal because the measure is given curve by curve
+	 * only as far as the curves continues. Adding the Max between all curves
+	 * would be better
+	 */
+	if ( nbfound != 0 ) { // or x != 0
+	    //auc = (double)area / (double)(nbexpected * x );
+	    auc = (double)(area + y*y ) / (double)(nbexpected * nbfound );
+	    if ( scale != 0 ){
+		auc = (double)(area + y*(scale-x) ) / (double)(nbexpected * scale );
+	    }
+	} else {
+	    auc = 0.00;
+	}
+
+	// Scale
+	for ( Pair p : points ){
+	    if ( scale != 0 ){
+		p.setX( (double)(p.getX()) / scale );
+	    } else if ( x != 0 ) p.setX( (double)(p.getX()) / x );
+	    p.setY( (double)(p.getY()) / nbexpected );
+	}
+	//points.add( new Pair( 1., y/nbexpected ) );
+
+	return points;
+    }
+
+    /**
+     * For the moment
+     */
+    public Vector<Pair> eval() {
+	return eval( (Properties)null );
     }
 
     /**
@@ -134,9 +170,18 @@ public class ROCCurveEvaluator extends GraphEvaluator {
     }
     
     public void writePlot(PrintWriter writer) {
-	writeFullPlot( writer );
+	for( Pair p : points ){
+            writer.println( p.getX()/10 + "\t" + p.getY() );
+	}
     }
     
+    public double getPlotResult( int i ){
+	return 0.0;
+    }
+
+    public double getGlobalResult(){
+	return auc;
+    }
     public double getAUC(){
 	return auc;
     }

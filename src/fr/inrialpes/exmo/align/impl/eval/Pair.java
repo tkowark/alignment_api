@@ -30,4 +30,6 @@ public class Pair {
     }
     public double getX(){ return x; }
     public double getY(){ return y; }
+    public void setX( double d ){ x = d; }
+    public void setY( double d ){ y = d; }
 }

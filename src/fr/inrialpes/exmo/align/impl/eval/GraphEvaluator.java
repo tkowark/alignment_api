@@ -32,9 +32,9 @@ import java.util.Properties;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Set;
+import java.util.Vector;
 import java.util.SortedSet;
 import java.util.Comparator;
-import java.util.Vector;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -43,104 +43,139 @@ import java.net.URI;
  * instead of values (or sets of values)
  * Pair: only used for recording sets of points in a curve
  *
+ * GraphEvaluator is used (generically) in the following way:
+ * - create a GraphEvaluator (new GraphEvaluator)
+ * - fill it with the set of results that you want to evaluate
+ *   (.ingest( Alignment, Alignment) and this repetively
+ * - Finally create plot (.eval() )
+ *
+ * This abstract class provides the ingest method but not eval which has to be 
+ * implemented in subclasses. ingest can be rewritten as well.
+ *
  * @author Jerome Euzenat
  * @version $Id$ 
  */
 
-public abstract class GraphEvaluator extends BasicEvaluator {
+public abstract class GraphEvaluator {
 
-    public Vector<Pair> points = null;
+    /**
+     * The resolution of the provided result: by STEP steps
+     */
+    protected int STEP = 10;
+
+    protected int nbexpected = 0;
+    protected SortedSet<EvalCell> cellSet = null;
+    public Vector<Pair> points;
+
+    /**
+     * Returns the points to display in a graph
+     */
+    public abstract Vector<Pair> eval() throws AlignmentException;
+    /**
+     * Returns the points to display in a graph
+     */
+    public abstract Vector<Pair> eval( Properties params ) throws AlignmentException;
+    /**
+     * Retuns a simple global evaluation measure if any
+     */
+    public abstract double getGlobalResult();
+
+    public void setStep( int i ) { 
+	if ( 0 < i && i <= 100 ) STEP = i;
+    }
+    public int getStep() { return STEP; }
 
     /** Creation:
      * A priori, evaluators can deal with any kind of alignments.
      * However, it will not work if these are not of the same type.
      **/
-    public GraphEvaluator( Alignment align1, Alignment align2 ) {
-	super(align1, align2);
-	if ( align1.getClass() != align2.getClass() ) {
-	    // This should throw an exception...
-	}
-	points = new Vector<Pair>();
+    public GraphEvaluator() {
+	initCellSet();
     }
 
-    /**
-     * Compute precision and recall graphs.
-     * The algorithm is as follows:
-     * 1) Order the pairs of the found alignment.
-     * 2) For 
-     */
-    public double eval( Properties params ) throws AlignmentException {
-	return eval( params, (Object)null );
-    }
-
-    public SortedSet<Cell> orderAlignment() {
+    protected void initCellSet () {
 	// Create a sorted structure in which putting the cells
 	// TreeSet could be replaced by something else
-	SortedSet<Cell> cellSet = new TreeSet<Cell>(
-			    new Comparator<Cell>() {
-				public int compare( Cell o1, Cell o2 )
+	cellSet = new TreeSet<EvalCell>(
+			    new Comparator<EvalCell>() {
+				public int compare( EvalCell o1, EvalCell o2 )
 				    throws ClassCastException {
-				    try {
+				    //try {
 					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+o2.getObject1()+" -- "+o2.getObject2());
-				    if ( o1 instanceof Cell && o2 instanceof Cell ) {
-					if ( o1.getStrength() > o2.getStrength() ){
+				    if ( o1.cell instanceof Cell && o2.cell instanceof Cell ) {
+					if ( o1.cell.getStrength() > o2.cell.getStrength() ){
 					    return -1;
-					} else if ( o1.getStrength() < o2.getStrength() ){
+					} else if ( o1.cell.getStrength() < o2.cell.getStrength() ){
 					    return 1;
 					//The comparator must always tell that things are different!
-					} else if ( (o1.getObject1AsURI(align1).getFragment() == null)
-						    || (o2.getObject1AsURI(align2).getFragment() == null) ) {
+					} else if ( o1.correct ) {
 					    return -1;
-					} else if ( o1.getObject1AsURI(align1).getFragment().compareTo(o2.getObject1AsURI(align2).getFragment()) > 0) {
+					} 
+					/*else if ( (o1.cell.getObject1AsURI(align1).getFragment() == null)
+						    || (o2.cell.getObject1AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( o1.getObject1AsURI(align1).getFragment().compareTo(o2.getObject1AsURI(align2).getFragment()) < 0 ) {
+					} else if ( o1.cell.getObject1AsURI(align1).getFragment().compareTo(o2.cell.getObject1AsURI(align2).getFragment()) > 0) {
+					    return -1;
+					} else if ( o1.cell.getObject1AsURI(align1).getFragment().compareTo(o2.cell.getObject1AsURI(align2).getFragment()) < 0 ) {
 					    return 1;
-					} else if ( (o1.getObject2AsURI(align1).getFragment() == null)
-						    || (o2.getObject2AsURI(align2).getFragment() == null) ) {
+					} else if ( (o1.cell.getObject2AsURI(align1).getFragment() == null)
+						    || (o2.cell.getObject2AsURI(align2).getFragment() == null) ) {
 					    return -1;
-					} else if ( o1.getObject2AsURI(align1).getFragment().compareTo(o2.getObject2AsURI(align2).getFragment()) > 0) {
+					} else if ( o1.cell.getObject2AsURI(align1).getFragment().compareTo(o2.cell.getObject2AsURI(align2).getFragment()) > 0) {
 					    return -1;
 					// We assume that they have different names
-					} else { return 1; }
+					} */ else { return 1; }
 				    } else { throw new ClassCastException(); }
-				    } catch ( AlignmentException e) { e.printStackTrace(); return 0;}
+				    //} catch ( AlignmentException e) { e.printStackTrace(); return 0;}
 				}
 			    }
 			    );
-
-	// Set the found cells in the sorted structure
-	for ( Cell c : align2 ) {
-	    cellSet.add( c );
-	}
-
-	return cellSet;
     }
 
     /*
-     * This checks if a particular cell is in the reference alignment or not.
-     * This could be changed for other kind of correctness (e.g., Semantics).
+     * Tells if the cell is found in the reference alignment
+     * (without relation consideration)
      */
-    public double correctCell( Cell c2, Alignment align2, Alignment refalign ) throws AlignmentException {
-	Set s1 = (Set)refalign.getAlignCells1( c2.getObject1() );
-	if( s1 != null ) { // for all cells matching our first entity
-	    for( Iterator it1 = s1.iterator(); it1.hasNext(); ){
-		Cell c1 = (Cell)it1.next();
-		URI uri1 = c1.getObject2AsURI(refalign);
-		URI uri2 = c2.getObject2AsURI(align2);	
-		if (uri1.toString().equals(uri2.toString())) { //This cell matches a correct one
-		    return 1.;
+    public void ingest( Alignment al, Alignment ref ){
+	nbexpected += ref.nbCells();
+	// Set the found cells in the sorted structure
+	if ( al == null ) return;
+	for ( Cell c : al ) {
+	    cellSet.add( new EvalCell( c, isCorrect( c, ref ) ) );
+	}
+    }
+
+    public int nbCells() {
+	if ( cellSet == null ) return 0;
+	else return cellSet.size();
+    }
+
+    /*
+     * Tells if the cell is found in the reference alignment
+     * (without relation consideration)
+     */
+    public boolean isCorrect( Cell c, Alignment ref ) {
+	try {
+	    Set<Cell> s2 = ref.getAlignCells1( c.getObject1() );
+	    if( s2 == null ) return false;
+	    URI uri1 = c.getObject2AsURI();
+	    for( Cell c2 : s2 ){
+		URI uri2 = c2.getObject2AsURI();	
+		if (uri1.toString().equals(uri2.toString())) {
+		    return true;
 		}
 	    }
+	} catch ( AlignmentException aex ) {
+	    aex.printStackTrace(); 
 	}
-	return 0.;
+	return false;
     }
 
     /**
-     * This output the result
+     * This output the resulting plot in XML
      */
-    public void writeXMLMap(PrintWriter writer) throws java.io.IOException {
-	for( int j = 0; j < points.size(); j++ ){
-	    Pair precrec = points.get(j);
+    public void writeXMLMap( PrintWriter writer) throws java.io.IOException {
+	for( Pair precrec: points ) {
 	    writer.print("    <step>\n      <x>");
 	    writer.print( precrec.getX() );
 	    writer.print("</x>\n      <y>");
@@ -149,44 +184,27 @@ public abstract class GraphEvaluator extends BasicEvaluator {
 	}
     }
 
-    /**
-     * This output the result
-     */
-    public void writeFullPlot(PrintWriter writer) {
-	for( int j = 0; j < points.size(); j++ ){
-	    Pair precrec = points.get(j);
-	    writer.println( precrec.getX()+" "+precrec.getY() );
-	}
-    }
-    
     /* Write out the final interpolated recall/precision graph data.
      * One line for each recall/precision point in the form: 'R-value P-value'.
      * This is the format needed for GNUPLOT.
-    public void writePlot( PrintWriter writer ) throws java.io.IOException {
-        for(int i = 0; i < STEP+1; i++){
-            writer.println( (double)i/10 + "\t" + precisions[i]);
-	}
-    }
      */
-
     public void writePlot( PrintWriter writer ) {
-	// Print header
-	int size = points.size();
-	writer.println("#Curve 0, "+size+" points");
-	writer.println("#x y type");
-	writer.println("%% Plot generated by GraphEvaluator of alignapi");
-	writer.println("%% Include in PGF tex by:\n");
-	writer.println("%% \\begin{tikzpicture}[cap=round]");
-	writer.println("%% \\draw[step="+size+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+size+","+size+");");
-	writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$recall$}; ");
-	writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$precision$}; ");
-	//writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
-	writer.println("%% \\end{tikzpicture}");
-	writer.println();
-	for( int j = 0; j < size; j++ ){
-	    Pair precrec = points.get(j);
-	    writer.println( precrec.getX()+" "+precrec.getY() );
+	for( Pair p : points ){
+            writer.println( p.getX()/10 + "\t" + p.getY() );
 	}
     }
 
+}
+
+class EvalCell {
+    Cell cell = null;
+    boolean correct = false;
+
+    public EvalCell( Cell c, boolean b ){
+	cell = c;
+	correct = b;
+    }
+
+    public boolean correct() { return correct; }
+    public Cell cell() { return cell; }
 }
