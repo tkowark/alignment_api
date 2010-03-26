@@ -43,7 +43,7 @@ import org.semanticweb.owl.align.Visitable;
  * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
-public abstract class PathExpression extends Expression implements Cloneable, Visitable {
+public abstract class PathExpression extends Expression implements Cloneable, Visitable, ValueExpression {
 
     public PathExpression() {
 	super();

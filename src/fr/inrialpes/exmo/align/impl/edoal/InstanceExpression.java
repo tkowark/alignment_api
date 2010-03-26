@@ -40,7 +40,7 @@ import org.semanticweb.owl.align.Visitable;
  * @version $Revision: 1.4 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
-public class InstanceExpression extends Expression {
+public class InstanceExpression extends Expression implements ValueExpression {
 
     /**
      * Creates a simple InstaneExpression with the given Id.

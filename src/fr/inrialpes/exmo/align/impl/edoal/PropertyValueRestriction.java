@@ -39,9 +39,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
 public class PropertyValueRestriction extends PropertyRestriction implements Cloneable {
 
     Comparator comparator = null;
-    PathExpression path = null;
-    InstanceExpression inst = null;
-    Value value = null;
+    ValueExpression value = null;
 
     /**
      * Constructs a attributeValueRestriction with the given restriction.
@@ -67,22 +65,10 @@ public class PropertyValueRestriction extends PropertyRestriction implements Clo
      * @throws NullPointerException
      *             if the restriction is null
      */
-    public PropertyValueRestriction(final Comparator comp, final PathExpression p) {
-	super();
-	comparator = comp;
-	path = p;
-    }
-
-    public PropertyValueRestriction(final Comparator comp, final Value v) {
+    public PropertyValueRestriction(final Comparator comp, final ValueExpression v) {
 	super();
 	comparator = comp;
 	value = v;
-    }
-
-    public PropertyValueRestriction(final Comparator comp, final InstanceExpression i) {
-	super();
-	comparator = comp;
-	inst = i;
     }
 
     public Comparator getComparator(){
@@ -93,31 +79,11 @@ public class PropertyValueRestriction extends PropertyRestriction implements Clo
 	comparator = comp;
     }
     
-    public Value getValue(){
+    public ValueExpression getValue(){
 	return value;
     }
-    public void setValue( Value v ){
+    public void setValue( ValueExpression v ){
 	value = v;
-	path = null;
-	inst = null;
-    }
-    
-    public InstanceExpression getInstanceValue(){
-	return inst;
-    }
-    public void setInstanceValue( InstanceExpression i ){
-	inst = i;
-	value = null;
-	path = null;
-    }
-
-    public PathExpression getPath(){
-	return path;
-    }
-    public void setPath( PathExpression p ){
-	path = p;
-	value = null;
-	inst = null;
     }
     
     /*

@@ -62,7 +62,9 @@ import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
 import fr.inrialpes.exmo.align.impl.edoal.TransfService;
+import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
+import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.Variable;
@@ -514,19 +516,11 @@ public class RDFParser {
 		} 
 	    } else {
 		// Find comparator
-		// JE2010: This is not good as comparator management...
 		stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 		URI id = getNodeId( stmt.getResource() );
 		if ( id != null ) comp = new Comparator( id );
-		else throw new AlignmentException("Cannot parse anonymous individual");
-		/*
-		  try {
-		  comp = new Comparator ( new URI( stmt.getResource().getURI() ) );
-		  } catch ( URISyntaxException usex ) {
-		  throw new AlignmentException( "Bad URI for comparator: "+stmt.getResource().getURI(), usex );
-		  }
-		*/
+		else throw new AlignmentException("edoal:comparator requires an URI");
 		if ( rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 		    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
@@ -539,6 +533,9 @@ public class RDFParser {
 		} else if ( rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 		    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
+		    ValueExpression v = parseValue( stmt.getObject() );
+		    return new ClassValueRestriction( pe, comp, v );
+		    /* TO SUPPRESS
 		    RDFNode nn = stmt.getObject();
 		    if ( nn.isLiteral() ) {
 			return new ClassValueRestriction( pe, comp, new Value( ((Literal)nn).getString() ) );
@@ -554,7 +551,7 @@ public class RDFParser {
 			} // This one will raise the error
 		    } else {
 			throw new AlignmentException( "Bad edoal:value value" );
-		    }
+			}*/
 		}
 	    }
 	}
@@ -660,17 +657,13 @@ public class RDFParser {
 	    stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 	    URI id = getNodeId( stmt.getResource() );
-	    if ( id == null ) throw new AlignmentException("Bad comparator");
+	    if ( id == null ) throw new AlignmentException("edoal:comparator requires and URI");
 	    Comparator comp = new Comparator( id );
-	    /*
-	      try {
-	      comp = new Comparator ( new URI( stmt.getResource().getURI() ) );
-	      } catch ( URISyntaxException usex ) {
-	      throw new AlignmentException( "Bad URI for comparator: "+stmt.getResource().getURI(), usex );
-	      }
-	    */
 	    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
+	    ValueExpression v = parseValue( stmt.getObject() );
+	    return new PropertyValueRestriction( comp, v );
+	    /*
 	    RDFNode nn = stmt.getObject();
 	    if ( nn.isLiteral() ) {
 		return new PropertyValueRestriction( comp, new Value( ((Literal)nn).getString() ) );
@@ -685,7 +678,7 @@ public class RDFParser {
 		} 
 	    } else {
 		throw new AlignmentException( "Bad edoal:value value" );
-	    }
+		}*/
 	} else {
 	    throw new AlignmentException("There is no pasrser for entity "+rdfType.getLocalName());
 	}
@@ -786,8 +779,57 @@ public class RDFParser {
 	}
     }
 
-    protected Value parseValue( final Resource node ) throws AlignmentException {
-	return null;
+    protected ValueExpression parseValue( final RDFNode node ) throws AlignmentException {
+	if ( node.isLiteral() ) { // should not appear anymore
+	    return new Value( ((Literal)node).getString() );
+	} else if ( node.isResource() ) {
+	    Resource nodeType = ((Resource)node).getProperty(RDF.type).getResource();
+	    if ( nodeType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
+		return parseInstance( (Resource)node );
+	    } else if ( nodeType.equals( SyntaxElement.LITERAL.resource ) ) {
+		if ( ((Resource)node).hasProperty( (Property)SyntaxElement.STRING.resource ) ) {
+		    if ( ((Resource)node).hasProperty( (Property)SyntaxElement.TYPE.resource ) ) {
+			try {
+			    return new Value( ((Resource)node).getProperty( (Property)SyntaxElement.STRING.resource ).getLiteral().getString(), new URI( ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() ) );
+			} catch (URISyntaxException urisex) {
+			    throw new AlignmentException( "Incorect URI for edoal:type : "+ ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() );
+			}
+		    } else {
+			return new Value( ((Resource)node).getProperty( (Property)SyntaxElement.STRING.resource ).getLiteral().getString() );
+		    }
+		} else {
+		    throw new AlignmentException( "edoal:Literal requires a edoal:value" );
+		}
+	    } else if ( nodeType.equals( SyntaxElement.APPLY.resource ) ) {
+		// Get the operation
+		URI op;
+		if ( ((Resource)node).hasProperty( (Property)SyntaxElement.OPERATOR.resource ) ) {
+		    String operation = ((Resource)node).getProperty( (Property)SyntaxElement.OPERATOR.resource ).getLiteral().getString();
+		    try {
+			op = new URI( operation ); 
+		    } catch (URISyntaxException e) {
+			throw new AlignmentException( "edoal:Apply incorrect operation URI : "+operation );
+		    }
+		} else {
+		    throw new AlignmentException( "edoal:Apply requires an operation" );
+		}
+		// Get all arguments
+		List<ValueExpression> valexpr = new LinkedList<ValueExpression>();
+		if ( ((Resource)node).hasProperty( (Property)SyntaxElement.ARGUMENTS.resource ) ) {
+		    Statement stmt = ((Resource)node).getProperty( (Property)SyntaxElement.ARGUMENTS.resource );
+		    Resource coll = stmt.getResource(); //JE2010MUSTCHECK
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
+			valexpr.add( parseValue( coll.getProperty( RDF.first ).getResource() ) );
+			coll = coll.getProperty( RDF.rest ).getResource();
+		    }
+		}
+		return new Apply( op, valexpr );
+	    } else { // JE2010: Check that pe is a Path
+		return parsePathExpression( (Resource)node );
+	    }
+	} else {
+	    throw new AlignmentException( "Bad edoal:value value" );
+	}
     }
 
     protected URI getNodeId( final Resource node ) throws AlignmentException {

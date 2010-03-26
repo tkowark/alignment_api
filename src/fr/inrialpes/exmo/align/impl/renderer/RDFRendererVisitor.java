@@ -75,7 +75,9 @@ import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
 import fr.inrialpes.exmo.align.impl.edoal.TransfService;
+import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
+import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 
@@ -418,23 +420,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print("=\""+((ClassValueRestriction)c).getComparator().getURI());
 	writer.print("\"/>"+NL);
 	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">");
-	if ( c.getValue() != null ) {
-	    visit( c.getValue() );
-	} else if ( c.getInstanceValue() != null ) {
-	    increaseIndent();
-	    writer.print(NL);
-	    visit( c.getInstanceValue() );
-	    writer.print(NL);
-	    decreaseIndent();
-	    indentedOutputln();
-	} else {
-	    increaseIndent();
-	    writer.print(NL);
-	    visit( c.getPathValue() );
-	    writer.print(NL);
-	    decreaseIndent();
-	    indentedOutputln();
-	}
+	visit( c.getValue() );
 	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF)+">");
@@ -575,13 +561,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print("=\""+c.getComparator().getURI());
 	writer.print("\"/>");
 	writer.print("<"+SyntaxElement.VALUE.print(DEF)+">");
-	if ( c.getValue() != null ) {
-	    visit( c.getValue() );
-	} else if ( c.getInstanceValue() != null ) {
-	    visit( c.getInstanceValue() );
-	} else {
-	    visit( c.getPath() );
-	}
+	visit( c.getValue() );
 	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.VALUE_COND.print(DEF)+">");
@@ -719,10 +699,39 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     }
     
     // DONE+TESTED
+    public void visit( final ValueExpression e ) throws AlignmentException {
+	if ( e instanceof InstanceExpression ) visit( (InstanceExpression)e );
+	else if ( e instanceof PathExpression )  visit( (PathExpression)e );
+	else if ( e instanceof Apply )  visit( (Apply)e );
+	else if ( e instanceof Value )  visit( (Value)e );
+	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+    }
+
     public void visit( final Value e ) throws AlignmentException {
-	writer.print(e.plainText());
+	indentedOutput("<"+SyntaxElement.LITERAL.print(DEF)+" "+SyntaxElement.STRING.print(DEF)+"=\"");
+	writer.print(e.getValue());
+	if ( e.getType() != null ) {
+	    writer.print(" "+SyntaxElement.TYPE.print(DEF)+"=\""+e.getType()+"\"");
+	}
+	writer.print("\"/>");
     }
 	
+    public void visit( final Apply e ) throws AlignmentException {
+	indentedOutput("<"+SyntaxElement.APPLY.print(DEF)+" "+SyntaxElement.OPERATOR.print(DEF)+"=\""+e.getOperation()+"\">"+NL);
+	increaseIndent();
+	indentedOutput("<"+SyntaxElement.ARGUMENTS.print(DEF)+" "+SyntaxElement.RDF_PARSETYPE.print(DEF)+"=\"Collection\">"+NL);
+	increaseIndent();
+	for ( final ValueExpression ve : e.getArguments() ) {
+	    writer.print(linePrefix);
+	    visit( ve );
+	    writer.print(NL);
+	}
+	decreaseIndent();
+	indentedOutput("</"+SyntaxElement.ARGUMENTS.print(DEF)+">"+NL);
+	decreaseIndent();
+	writer.print("</"+SyntaxElement.APPLY.print(DEF)+">");
+    }
+
     // DONE
     public void visit( final Datatype e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.DATATYPE.print(DEF)+">");

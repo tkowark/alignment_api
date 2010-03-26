@@ -73,6 +73,8 @@ import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
 import fr.inrialpes.exmo.align.impl.edoal.TransfService;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
+import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
+import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 
@@ -169,13 +171,7 @@ public class TypeCheckingVisitor {
 
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
 	visit( c.getRestrictionPath() );
-	if ( c.getValue() != null ) {
-	    visit( c.getValue() );
-	} else if ( c.getInstanceValue() != null ) {
-	    visit( c.getInstanceValue() );
-	} else {
-	    visit( c.getPathValue() );
-	}
+	visit( c.getValue() );
     }
 
     public void visit( final ClassTypeRestriction c ) throws AlignmentException {
@@ -220,13 +216,7 @@ public class TypeCheckingVisitor {
 	
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
 	c.getComparator().getURI();
-	if ( c.getValue() != null ) {
-	    visit( c.getValue() );
-	} else if ( c.getInstanceValue() != null ) {
-	    visit( c.getInstanceValue() );
-	} else {
-	    visit( c.getPath() );
-	}
+	visit( c.getValue() );
     }
 
     public void visit(final PropertyDomainRestriction c) throws AlignmentException {
@@ -277,6 +267,12 @@ public class TypeCheckingVisitor {
     }
     
     public void visit( final Value e ) throws AlignmentException {
+    }
+	
+    public void visit( final ValueExpression e ) throws AlignmentException {
+    }
+	
+    public void visit( final Apply e ) throws AlignmentException {
     }
 	
     public void visit( final Datatype e ) throws AlignmentException {

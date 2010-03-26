@@ -4,7 +4,7 @@
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Copyright (C) 2005 Digital Enterprise Research Insitute (DERI) Galway
  * Sourceforge version 1.6 - 2008 - then OmwgElement
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -90,7 +90,7 @@ public enum SyntaxElement {
     // EDOAL NAMESPACE
 	AND(            Namespace.EDOAL, "and", Constructor.AND),
 	APPLY(          Namespace.EDOAL, "Apply", true),
-	//ARGUMENTS(      Namespace.EDOAL, "arguments"),
+	ARGUMENTS(      Namespace.EDOAL, "arguments"),
 	ATTR_TRANSF(    Namespace.EDOAL, "transf"),
 	CLASS_EXPR(     Namespace.EDOAL, "Class", true),//ALIGNMENT
 	CODOMAIN_RESTRICTION(Namespace.EDOAL, "CodomainRestriction", true),
@@ -98,17 +98,15 @@ public enum SyntaxElement {
 	COMPOSE(        Namespace.EDOAL, "compose", Constructor.COMP),
 	DATATYPE(       Namespace.EDOAL, "datatype"),
 	DOMAIN_RESTRICTION(Namespace.EDOAL, "DomainRestriction", true),
-	//FIRST(          Namespace.EDOAL, "first"),
 	//ID(             Namespace.EDOAL, "Id", true), // Useless
 	INSTANCE_EXPR(  Namespace.EDOAL, "Instance", true),
 	INVERSE(        Namespace.EDOAL, "inverse", Constructor.INVERSE),
-	//NEXT(           Namespace.EDOAL, "next"),
+	LITERAL(        Namespace.EDOAL, "Literal", true),
 	NOT(            Namespace.EDOAL, "not", Constructor.NOT),
 	ONPROPERTY(     Namespace.EDOAL, "onAttribute"),
+	OPERATOR(       Namespace.EDOAL, "operator"),
 	OR(             Namespace.EDOAL, "or", Constructor.OR),
 	//PARAMETERS(     Namespace.EDOAL, "parameters"),
-	//PATH(           Namespace.EDOAL, "Path", true),
-	//PROPERTIES(     Namespace.EDOAL, "properties"),
 	PROPERTY(       Namespace.EDOAL, "Property", true),
 	PROPERTY_EXPR(  Namespace.EDOAL, "Property"), // ??
 	PROPERTY_OCCURENCE_COND(Namespace.EDOAL, "AttributeOccurenceRestriction", true),
@@ -117,8 +115,8 @@ public enum SyntaxElement {
 	PROPERTY_VALUE_COND(Namespace.EDOAL, "AttributeValueRestriction", true),
 	REFLEXIVE(      Namespace.EDOAL, "reflexive", Constructor.REFLEXIVE),
 	RELATION_EXPR(  Namespace.EDOAL, "Relation", true),
-	    //RESTRICTION(Namespace.EDOAL, "Restriction"),
 	//SERVICE(        Namespace.EDOAL, "service"),
+	STRING(          Namespace.EDOAL, "string"),
 	SYMMETRIC(      Namespace.EDOAL, "symmetric", Constructor.SYMMETRIC),
 	TOCLASS(        Namespace.EDOAL, "class"),
 	TRANSF(         Namespace.EDOAL, "transf"),

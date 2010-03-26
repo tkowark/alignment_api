@@ -39,9 +39,7 @@ package fr.inrialpes.exmo.align.impl.edoal;
 public class ClassValueRestriction extends ClassRestriction implements Cloneable {
 
     Comparator comparator = null;
-    PathExpression pathValue = null;
-    Value value = null;
-    InstanceExpression inst = null;
+    ValueExpression value = null;
 
     /**
      * Constructs a valueCondition with the given restriction.
@@ -53,21 +51,9 @@ public class ClassValueRestriction extends ClassRestriction implements Cloneable
      * @throws NullPointerException
      *             if the restriction is null
      */
-    public ClassValueRestriction(final PathExpression p, final Comparator comp, final PathExpression p2) {
-	super(p);
-	pathValue = p2;
-	comparator = comp;
-    }
-
-    public ClassValueRestriction(final PathExpression p, final Comparator comp, final Value v) {
+    public ClassValueRestriction(final PathExpression p, final Comparator comp, final ValueExpression v) {
 	super(p);
 	value = v;
-	comparator = comp;
-    }
-
-    public ClassValueRestriction(final PathExpression p, final Comparator comp, final InstanceExpression i) {
-	super(p);
-	inst = i;
 	comparator = comp;
     }
 
@@ -79,33 +65,12 @@ public class ClassValueRestriction extends ClassRestriction implements Cloneable
 	comparator = comp;
     }
 
-    public PathExpression getPathValue() {
-	return pathValue;
-    }
-
-    public InstanceExpression getInstanceValue() {
-	return inst;
-    }
-
-    public Value getValue() {
+    public ValueExpression getValue() {
 	return value;
     }
 
-    public void setValue( PathExpression p ) {
-	pathValue = p;
-	value = null;
-	inst = null;
-    }
-
-    public void setValue( InstanceExpression i ) {
-	inst = i;
-	pathValue = null;
-	value = null;
-    }
-
-    public void setValue( Value v ) {
+    public void setValue( ValueExpression v ) {
 	value = v;
-	pathValue = null;
-	inst = null;
     }
+
 }

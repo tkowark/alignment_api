@@ -48,16 +48,16 @@
       </Ontology>
     </onto2>
     <!-- Class basis -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_class_basis">
 	<entity1><edoal:Class rdf:about="&wine;VintageYear"/></entity1>
         <entity2><edoal:Class rdf:about="&vin;Millesime"/></entity2>
         <measure rdf:datatype="&xsd;float">1.0</measure>
         <relation>Equivalence</relation>
       </Cell>
-    </map-->
+    </map>
     <!-- class const: and or not -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_class_const">
 	<entity1>
 	  <edoal:Class>
@@ -119,9 +119,9 @@
 	<measure rdf:datatype='&xsd;float'>1.</measure>
 	<relation>SubsumedBy</relation>
       </Cell>
-    </map-->
+    </map>
     <!-- class rest: att-type... -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_class_rest">
 	<entity1>
 	  <edoal:Class>
@@ -199,43 +199,143 @@
 	<measure rdf:datatype='&xsd;float'>1.</measure>
 	<relation>SubsumedBy</relation>
       </Cell>
-    </map-->
+    </map>
+    <!-- a bit more test on values -->
+    <map>
+      <Cell rdf:about="MappingRule_class_values">
+	<entity1>
+	  <edoal:Class>
+	    <edoal:or rdf:parseType="Collection">
+	      <edoal:Class rdf:about="&wine;Vin"/>
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Relation>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&wine;hasTerroir"/>
+		      <edoal:Relation rdf:about="&proton;locatedIn"/>
+		    </edoal:compose>
+		  </edoal:Relation>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:value><edoal:Instance rdf:about="&wine;Bordelais"/></edoal:value>
+	      </edoal:AttributeValueRestriction>	  
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Property>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&wine;hasTerroir"/>
+		      <edoal:Property rdf:about="&proton;dptnb"/>
+		    </edoal:compose>
+		  </edoal:Property>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:value><edoal:Literal edoal:string="33"/></edoal:value>
+	      </edoal:AttributeValueRestriction>	  
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Relation>
+		    <edoal:or rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&wine;hasTerroir"/>
+		      <edoal:Relation rdf:about="&proton;locatedIn"/>
+		    </edoal:or>
+		  </edoal:Relation>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:value><edoal:Relation rdf:about="&wine;location"/></edoal:value>
+	      </edoal:AttributeValueRestriction>	  
+	      <edoal:Class rdf:about="&wine;Bordeaux7"/>
+	    </edoal:or>
+	  </edoal:Class>
+	</entity1>
+	<entity2> 
+	  <edoal:Class>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:Class rdf:about="&vin;Vin"/>
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Property>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
+		      <edoal:Property rdf:about="&proton;dptnb"/>
+		    </edoal:compose>
+		  </edoal:Property>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:value><edoal:Property rdf:about="&vin;matrid"/></edoal:value>
+	      </edoal:AttributeValueRestriction>	  
+	      <edoal:AttributeValueRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Relation>
+		    <edoal:and rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
+		      <edoal:Relation rdf:about="&proton;locatedIn"/>
+		    </edoal:and>
+		  </edoal:Relation>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:value>
+		  <edoal:Apply edoal:operator="http://example.org/mydummyoperation/">
+		    <edoal:arguments rdf:parseType="Collection">
+		      <edoal:Literal edoal:string="43"/>
+		      <edoal:Property rdf:about="&vin;matrid"/>
+		      <edoal:Apply edoal:operator="http://example.org/mydummyoperation2/">
+			<edoal:arguments rdf:parseType="Collection">
+			  <edoal:Literal edoal:string="22"/>
+			  <edoal:Property rdf:about="&vin;matrid"/>
+			  <edoal:Apply edoal:operator="http://example.org/mydummyoperation3/">
+			    <edoal:arguments rdf:parseType="Collection"/>
+			  </edoal:Apply>
+			</edoal:arguments>
+		      </edoal:Apply>
+		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
+		      <edoal:Instance rdf:about="&wine;Bordelais"/>
+		    </edoal:arguments>
+		  </edoal:Apply>
+		</edoal:value>
+	      </edoal:AttributeValueRestriction>	  
+	    </edoal:and>
+	  </edoal:Class>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- class const and rest -->
     <!-- rel basis -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_rel_basis">
 	<entity1><edoal:Relation rdf:about="&wine;locatedIn"/></entity1>
         <entity2><edoal:Relation rdf:about="&vin;hasTerroir"/></entity2>
         <measure rdf:datatype="&xsd;float">1.0</measure>
         <relation>SubsumedBy</relation>
       </Cell>
-    </map-->
+    </map>
     <!-- rel const: and or not compose inverse trans refl sym -->
     <!-- rel rest: att-type... -->
     <!-- rel const and rest -->
     <!-- prop basis -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_prop_basis">
         <entity1><edoal:Property rdf:about="&wine;yearValue"/></entity1>
         <entity2><edoal:Property rdf:about="&vin;anneeMillesime"/></entity2>
         <measure rdf:datatype="&xsd;float">1.0</measure>
         <relation>Equivalence</relation>
       </Cell>
-    </map-->
+    </map>
     <!-- prop const: and or not compose -->
     <!-- prop rest: att-type... -->
     <!-- prop const and rest -->
     <!-- instance -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_inst_basis">
 	<entity1><edoal:Instance rdf:about="&wine;ChateauMargaux1995"/></entity1>
         <entity2><edoal:Instance rdf:about="&vin;MoutonRotschild1889"/></entity2>
         <measure rdf:datatype="&xsd;float">1.0</measure>
         <relation>SubsumedBy</relation>
       </Cell>
-    </map-->
+    </map>
     <!-- Miscelaneous -->
-    <!--map>
+    <map>
       <Cell rdf:about="MappingRule_3">
 	<entity1>
 	  <edoal:Class>
@@ -272,8 +372,8 @@
 	<measure rdf:datatype='&xsd;float'>1.</measure>
 	<relation>SubsumedBy</relation>
       </Cell>
-    </map-->
-    <!--map>
+    </map>
+    <map>
       <Cell rdf:about="MappingRule_4">
 	<entity1>
  	  <edoal:Class>
@@ -294,6 +394,6 @@
         <measure rdf:datatype='&xsd;float'>1.</measure>
         <relation>SubsumedBy</relation>
       </Cell>
-   </map-->
+   </map>
   </Alignment>
  </rdf:RDF>

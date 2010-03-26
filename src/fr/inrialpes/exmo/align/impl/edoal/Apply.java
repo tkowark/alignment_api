@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
- * Sourceforge version 1.2 - 2006
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +20,9 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
+import java.util.List;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.AlignmentException;
@@ -42,40 +42,31 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * @version $Revision: 1.2 $
  * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
-public class Value implements ValueExpression { //implements Cloneable, Visitable {
+public class Apply implements ValueExpression {
 
-    /** Holds the value */
-    private String value;
+    /** Holds the operation to apply */
+    private URI operation;
 
-    /** The eventual type of the value */
-    private URI type;
+    private List<ValueExpression> arguments;
 
     /**
      * Constructs an object with the given value.
      * 
-     * @param value
-     *            the value for this object.
+     * @param op
+     *            the URI of the operation to apply.
+     * @param args
+     *            its list of argumenst
      * @throws NullPointerException
      *             if the value is {@code null}
      * @throws IllegalArgumentException
      *             if the value isn't longer than 0
      */
-    public Value( final String value ) {
-	if (value == null) {
-	    throw new NullPointerException("The value should not be null");
+    public Apply( final URI op, final List<ValueExpression> args ) {
+	if ( op == null) {
+	    throw new NullPointerException("The operation must not be null");
 	}
-	this.value = value;
-    }
-
-    public Value( final String value, final URI type ) {
-	if (value == null) {
-	    throw new NullPointerException("The value should not be null");
-	}
-	if (type == null) {
-	    throw new NullPointerException("The type is null");
-	}
-	this.value = value;
-	this.type = type;
+	operation = op;
+	arguments = args;
     }
 
     public void accept(AlignmentVisitor visitor) throws AlignmentException {
@@ -86,27 +77,24 @@ public class Value implements ValueExpression { //implements Cloneable, Visitabl
 	visitor.visit(this);
     }
 
-    public String getValue() {
-	return value;
+    public URI getOperation() {
+	return operation;
     }
 
-    public URI getType() {
-	return type;
+    public List<ValueExpression> getArguments() {
+	return arguments;
     }
 
     public int hashCode() {
-	return 5*value.hashCode();
+	return 5*operation.hashCode() + 13*arguments.hashCode();
     }
 
-    public boolean equals(final Object o) {
-	if ( o == this ) {
-	    return true;
-	}
-	if (!(o instanceof Value)) {
-	    return false;
-	}
-	Value s = (Value) o;
-	return value.equals(s.value);
+    public boolean equals( final Object o ) {
+	if ( o == this ) return true;
+	if ( !(o instanceof Apply) ) return false;
+	Apply a = (Apply)o;
+	return ( operation.equals(a.getOperation()) && 
+		 arguments.equals(a.getArguments()) );
     }
     /*
     public Object clone() {
@@ -123,7 +111,7 @@ public class Value implements ValueExpression { //implements Cloneable, Visitabl
      * An example return string could be: {@code 15}
      * </p>
      */
-    public String toString() {
-	return value;
-    }
+    //public String toString() {
+    //	return value;
+    //}
 }
