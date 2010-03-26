@@ -202,7 +202,7 @@ Does bot work anymore because not visitable
 	assertEquals( render( toExport ), "<edoal:AttributeValueRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
 	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#greater-than\"/>"
-	    + "<edoal:value>18</edoal:value>"
+	    + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 			  + "</edoal:AttributeValueRestriction>" );
 	toExport = new ClassTypeRestriction( new PropertyId(new URI("http://my.sister#age")), new Datatype("integer-under-100"));
 	assertEquals( render( toExport ), "<edoal:PropertyTypeRestriction>"
@@ -275,7 +275,7 @@ Does bot work anymore because not visitable
 	    + "<edoal:Property rdf:about=\"http://vinum#age\"/>"
 	    + "</edoal:onAttribute>"
 	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#greater-than\"/>"
-	    + "<edoal:value>20</edoal:value>"
+	    + "<edoal:value><edoal:Literal edoal:string=\"20\"/></edoal:value>"
 	    + "</edoal:AttributeValueRestriction>"
 	    + "</edoal:or>"+ "</edoal:Class>" );
     }
@@ -289,7 +289,7 @@ Does bot work anymore because not visitable
 	assertEquals( render( new PropertyValueRestriction( Comparator.EQUAL, new Value("18"))),
 		      "<edoal:ValueRestriction>"
 		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
-		      + "<edoal:value>18</edoal:value>"
+		      + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 		      + "</edoal:ValueRestriction>" );
 	assertEquals( render( new PropertyTypeRestriction(new Datatype("int"))),
 		      "<edoal:TypeRestriction><edoal:datatype>int</edoal:datatype></edoal:TypeRestriction>" );
@@ -333,7 +333,7 @@ Does bot work anymore because not visitable
 		      + "</edoal:or></edoal:Property>"
 		      + "<edoal:ValueRestriction>"
 		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
-		      + "<edoal:value>5</edoal:value></edoal:ValueRestriction>"
+		      + "<edoal:value><edoal:Literal edoal:string=\"5\"/></edoal:value></edoal:ValueRestriction>"
 		      + "</edoal:and></edoal:Property>");
 	toExport = new PropertyConstruction( Constructor.NOT, Collections.singleton((PathExpression)new PropertyId(new URI("http://mein/super/property"))));
 	// JE2009-ERROR-HERE
@@ -612,7 +612,7 @@ Does bot work anymore because not visitable
 	    + "<edoal:attributeValueCondition>" + "<edoal:Restriction>"
 	    + "<edoal:onProperty><edoal:Property rdf:about=\"a0\"/></edoal:onProperty>"
 	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
-	    + "<edoal:value>val0</edoal:value>" + "</edoal:Restriction>"
+	    + "<edoal:value><edoal:Literal edoal:string=\"val0\"/></edoal:value>" + "</edoal:Restriction>"
 	    + "</edoal:attributeValueCondition>" + "</edoal:Class>";
 	
 	ClassId c1 = new ClassId("c1");
