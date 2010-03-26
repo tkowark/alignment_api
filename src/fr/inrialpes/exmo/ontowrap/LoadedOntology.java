@@ -23,6 +23,11 @@ package fr.inrialpes.exmo.ontowrap;
 import java.net.URI;
 import java.util.Set;
 
+import org.semanticweb.owl.model.OWLEntity;
+import org.semanticweb.owl.model.OWLException;
+
+import fr.inrialpes.exmo.ontowrap.util.FilteredSet;
+
 public interface LoadedOntology<O> extends Ontology<O> {
 
     public Object getEntity( URI u ) throws OntowrapException;
@@ -120,6 +125,10 @@ public interface LoadedOntology<O> extends Ontology<O> {
     public boolean isObjectProperty( Object o );
     public boolean isIndividual( Object o );
 
+    /**
+     * Returns all named entities having URI beginning with the ontology URI
+     * @return the set of entities
+     */
     public Set<? extends Object> getEntities();
     public Set<? extends Object> getClasses();
     public Set<? extends Object> getProperties();

@@ -21,18 +21,17 @@
 package fr.inrialpes.exmo.ontowrap.owlapi30;
 
 import java.net.URI;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.Iterator;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLLiteral;
@@ -40,6 +39,7 @@ import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLProperty;
@@ -55,19 +55,9 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
-import fr.inrialpes.exmo.ontowrap.util.FilteredSet;
+import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
-public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
-	HeavyLoadedOntology<OWLOntology> {
-    
-    private static class BuilInFilter<T extends OWLEntity> extends FilteredSet<T> {
-	public BuilInFilter(Set<T> s) {
-	    super(s);
-	}
-	protected boolean isFiltered(OWLEntity obj) {
-		return obj.isBuiltIn()&&!obj.isTopEntity();
-	}
-    }
+public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements HeavyLoadedOntology<OWLOntology> {
     
     public OWLAPI3Ontology() {
     }
@@ -75,17 +65,17 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
     public Set<? extends Object> getClasses() {
 	//return onto.getReferencedClasses();
 	//return onto.getClassesInSignature();
-	return new BuilInFilter<OWLClass>(onto.getClassesInSignature());
+	return new EntityFilter<OWLClass>(onto.getClassesInSignature(),this);
     }
 
     public Set<? extends Object> getDataProperties() {
-	return new BuilInFilter<OWLDataProperty>(onto.getDataPropertiesInSignature());
+	return new EntityFilter<OWLDataProperty>(onto.getDataPropertiesInSignature(),this);
 	//return onto.getDataPropertiesInSignature();
     }
 
     public Set<? extends Object> getEntities() {
 	//return onto.getSignature();
-	return new BuilInFilter<OWLEntity>(onto.getSignature()) {
+	return new EntityFilter<OWLEntity>(onto.getSignature(),this) {
 	    protected final boolean isFiltered(OWLEntity obj) {
 		return super.isFiltered(obj) || obj instanceof OWLAnnotationProperty || obj instanceof OWLDatatype;
 	    }  
@@ -109,7 +99,27 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
      * type and lang can be null
      */
     protected Set<String> getEntityAnnotations( Object o, URI type, String lang ) {
+	// We cannot retreive encapsulated annotations with this API
+	/*OWLEntity entity = (OWLEntity) o;
+	HashSet<String> annotations = new HashSet<String>();
+	for (OWLAnnotationAssertionAxiom annot :entity.getAnnotationAssertionAxioms(onto)) {
+	    OWLAnnotationValue c = annot.getValue();
+	    if ( c instanceof OWLLiteral ) {
+		if ( lang == null || ((OWLLiteral)c).hasLang(lang) ) {
+		    annotations.add( ((OWLLiteral)c).getLiteral() );
+		}
+	    }
+	    else if (c instanceof IRI) {
+		//System.out.println(c.getClass()+ " : "+c);
+		IRI i = (IRI) c;
+		 OWLAnnotationProperty 	ann = OWLManager.getOWLDataFactory().getOWLAnnotationProperty(i);
+		 System.out.println(ann);
+	    }
+	}
+	return annotations;
+	*/
 	OWLEntity entity = (OWLEntity) o;
+
 	Set<String> annotations = new HashSet<String>();
 	// JE: This had to be rewritten for OWL API 3. Too bad.
 	for ( OWLAnnotation annot : entity.getAnnotations( onto ) ) {
@@ -129,6 +139,10 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 
     public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	return getEntityAnnotations(o, null, null);
+    }
+    
+    public Set<String> getEntityAnnotations( Object o, String lang ) throws OntowrapException {
+	return getEntityAnnotations(o, null, lang);
     }
 
     public Set<String> getEntityComments(Object o, String lang)
@@ -182,17 +196,17 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements
 
     public Set<? extends Object> getIndividuals() {
 	//return onto.getIndividualsInSignature();
-	return new BuilInFilter<OWLNamedIndividual>(onto.getIndividualsInSignature());
+	return new EntityFilter<OWLNamedIndividual>(onto.getIndividualsInSignature(),this);
     }
 
     public Set<? extends Object> getObjectProperties() {
 	//System.err.println ( "ONTO: "+onto );
 	//return onto.getObjectPropertiesInSignature();
-	return new BuilInFilter<OWLObjectProperty>(onto.getObjectPropertiesInSignature());
+	return new EntityFilter<OWLObjectProperty>(onto.getObjectPropertiesInSignature(),this);
     }
 
     public Set<? extends Object> getProperties() {
-	return new BuilInFilter<OWLEntity>(onto.getSignature()) {
+	return new EntityFilter<OWLEntity>(onto.getSignature(),this) {
 	    protected final boolean isFiltered(OWLEntity obj) {
 		return super.isFiltered(obj) || !(obj instanceof OWLObjectProperty || obj instanceof OWLDataProperty);
 	    }  
