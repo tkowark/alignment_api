@@ -417,7 +417,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	indentedOutputln("</"+SyntaxElement.ONPROPERTY.print(DEF)+">");
 	indentedOutput("<"+SyntaxElement.COMPARATOR.print(DEF));
 	writer.print(" "+SyntaxElement.RDF_RESOURCE.print(DEF));
-	writer.print("=\""+((ClassValueRestriction)c).getComparator().getURI());
+	writer.print("=\""+c.getComparator().getURI());
 	writer.print("\"/>"+NL);
 	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">");
 	visit( c.getValue() );
@@ -729,7 +729,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ARGUMENTS.print(DEF)+">"+NL);
 	decreaseIndent();
-	writer.print("</"+SyntaxElement.APPLY.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.APPLY.print(DEF)+">");
     }
 
     // DONE
