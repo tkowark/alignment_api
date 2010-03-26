@@ -80,7 +80,7 @@ public class RendererTest {
 	assertEquals( alignment.nbCells(), 0 );
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 44 );
+	assertEquals( alignment.nbCells(), 42); //44 ); // 44 with owl:Thing and others
 	// Suppress the time label 
     }
 
@@ -95,7 +95,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 14285 ), "Rendered differently: expected "+14285+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 13704/*14285*/ ), "Rendered differently: expected "+13704/*14285*/+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
     }
@@ -110,7 +110,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 7479 ), "Rendered differently: expected "+7479+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 7188/*7479*/ ), "Rendered differently: expected "+7188/*7479*/+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
 	stream = new ByteArrayOutputStream();
@@ -122,7 +122,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 7424 ), "Rendered differently: expected "+7424+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 7133/*7424*/ ), "Rendered differently: expected "+7133/*7424*/+" but was "+stream.toString().length() );
 	params.setProperty( "pre2008", "1");
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
@@ -133,7 +133,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 7297 ), "Rendered differently: expected "+7297+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 7012/*7297*/ ), "Rendered differently: expected "+7012/*7297*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -146,7 +146,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 7667 ), "Rendered differently: expected "+7667+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 7382/*7667*/ ), "Rendered differently: expected "+7382/*7667*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -160,7 +160,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 6552 ), "Rendered differently: expected "+6552+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6297/*6552*/ ), "Rendered differently: expected "+6297/*6552*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -173,7 +173,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 21700 ), "Rendered differently: expected "+21700+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 20887/*21700*/ ), "Rendered differently: expected "+20887/*21700*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -186,7 +186,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 8204 ), "Rendered differently: expected "+8204+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 7808/*8204*/ ), "Rendered differently: expected "+7808/*8204*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -199,7 +199,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 15395 ), "Rendered differently: expected "+15395+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 14784 /*15395*/ ), "Rendered differently: expected "+14784/*15395*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -213,7 +213,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 18394 ), "Rendered differently: expected "+18394+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 17719/*18394*/ ), "Rendered differently: expected "+17719/*18394*/+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })

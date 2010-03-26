@@ -100,17 +100,17 @@ public class AlgTest {
 	alignment1.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment1.align( (Alignment)null, new Properties() );
 	align1 = alignment1;
-	assertEquals( align1.nbCells(), 37 );
+	assertEquals( align1.nbCells(), 35/*37*/ );
 	assertEquals( align2.nbCells(), 10 );
 	Alignment al = align1.inverse();
 	assertEquals( al.getOntology1(), align1.getOntology2() );
-	assertEquals( al.nbCells(), 37 );
+	assertEquals( al.nbCells(), 35/*37*/ );
 	al = (Alignment)((BasicAlignment)align1).clone();
 	assertEquals( al.getOntology1(), align1.getOntology1() );
-	assertEquals( al.nbCells(), 37 );
+	assertEquals( al.nbCells(), 35/*37*/ );
 	al = align1.diff( align2 );
 	assertEquals( al.getOntology1(), align1.getOntology1() );
-	assertEquals( al.nbCells(), 36 ); // short diff
+	assertEquals( al.nbCells(), 34/*36*/ ); // short diff
 	al = align2.diff( align1 );
 	assertEquals( al.getOntology1(), align1.getOntology1() );
 	assertEquals( al.nbCells(), 9 );
@@ -119,7 +119,7 @@ public class AlgTest {
 	assertEquals( al.nbCells(), 1 );
 	al = align1.join( align2 );
 	assertEquals( al.getOntology1(), align1.getOntology1() );
-	assertEquals( al.nbCells(), 46 );
+	assertEquals( al.nbCells(), 44/*46*/ );
 	}
 
     @Test(expectedExceptions = AlignmentException.class, groups = { "full", "impl", "raw" }, dependsOnMethods = {"fullTest"})
@@ -141,6 +141,6 @@ public class AlgTest {
 	new NameAndPropertyAlignment().init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	assertEquals( al.getOntology1(), alignment1.getOntology1() );
 	assertEquals( al.getOntology2(), align2.getOntology2() );
-	assertEquals( al.nbCells(), 4 );
+	assertEquals( al.nbCells(), 5/*4*/ );
     }
 }

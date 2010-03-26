@@ -179,8 +179,8 @@ public class OntoTest {
 	assertTrue( onto.getCapabilities( OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ) );
 	// Here insert what is supposed to be done with Jena...
 	//for (Object o : onto.getEntities()) System.out.println(o);
-	assertEquals( onto.nbEntities(), 44 ); //44 is with owl:Thing
-	assertEquals( onto.nbClasses(), 15 );
+	assertEquals( onto.nbEntities(), 42/*44*/ ); //44 is with owl:Thing
+	assertEquals( onto.nbClasses(), 13/*15*/ );
 	assertEquals( onto.nbProperties(), 29 );
 	assertEquals( onto.nbDataProperties(), 25 );
 	assertEquals( onto.nbObjectProperties(), 4 );

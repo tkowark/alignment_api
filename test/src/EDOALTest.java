@@ -130,7 +130,7 @@ diff wine2.xml wine3.xml
 	assertEquals( "".equals( wine2 ), false );
 	// Provisory results, EDOAL is not well pretty printed
 	// AND THE RESULT GIVES DIFFERENT VALUES !!!
-	assertEquals( wine2.length(), 4343 );
+	assertEquals( wine2.length(), 4709/*4343*/ );
 	// This does not work because (at least) the order of correspondences is never the same...
 	//assertEquals( wine2, stream.toString() );
     }

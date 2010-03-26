@@ -160,7 +160,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	assertEquals( alignment.nbCells(), 0 );
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 44 );
+	assertEquals( alignment.nbCells(), 42/*44*/ );
 	FileOutputStream stream = new FileOutputStream("test/output/bibref.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
@@ -191,7 +191,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	assertEquals( al.nbCells(), 32 );
 	al = (Alignment)al2.clone();
 	al.cut( "best", 0.55 );
-	assertEquals( al.nbCells(), 44 );
+	assertEquals( al.nbCells(), 42/*44*/ );
 	al = (Alignment)al2.clone();
 	al.cut( "span", 0.55 );
 	assertEquals( al.nbCells(), 33 );
@@ -203,15 +203,15 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	assertEquals( al.nbCells(), 32 );
 	al = (Alignment)al2.clone();
 	al.cut( "perc", 0.55 );
-	assertEquals( al.nbCells(), 24 );
+	assertEquals( al.nbCells(), 23/*24*/ );
 	al = (Alignment)al2.clone();
 	al.cut( "hardgap", 0.5 );
-	assertEquals( al.nbCells(), 44 );
+	assertEquals( al.nbCells(), 42/*44*/ );
 	al.cut( "hardgap", 0.05 );
 	assertEquals( al.nbCells(), 10 );
 	al = (Alignment)al2.clone();
 	al.cut( "propgap", 0.55 );
-	assertEquals( al.nbCells(), 44 );
+	assertEquals( al.nbCells(), 42/*44*/ );
 	al.cut( "propgap", 0.1 );
 	assertEquals( al.nbCells(), 10 );
 
@@ -248,11 +248,11 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	assertEquals( eval.getPrecision(), 0.7272727272727273 );
+	assertEquals( eval.getPrecision(), 0.7619047619047619);//7272727272727273 );
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getFallout(), 0.2727272727272727 );
-	assertEquals( eval.getFmeasure(), 0.8421052631578948 );
-	assertEquals( eval.getOverall(), 0.625 );
+	assertEquals( eval.getFallout(), 0.23809523809523808);//2727272727272727 );
+	assertEquals( eval.getFmeasure(), 0.8648648648648648);//8421052631578948 );
+	assertEquals( eval.getOverall(), 0.6875);//625 );
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 

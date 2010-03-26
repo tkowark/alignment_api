@@ -80,7 +80,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	assertEquals( alignment.nbCells(), 0 );
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
-	assertEquals( alignment.nbCells(), 44 );
+	assertEquals( alignment.nbCells(), 42/*44*/ );
 	FileOutputStream stream = new FileOutputStream("test/output/bibref.rdf");
 	PrintWriter writer = new PrintWriter (
 			  new BufferedWriter(
