@@ -722,7 +722,7 @@ public class AServProtocolManager {
      * Utilities: Finding the implementation of an interface
      *********************************************************************/
 
-    public static void implementations( Class tosubclass, Set<String> list , boolean debug ){
+    public static void implementations( Class tosubclass, Set<String> list, boolean debug ){
 	Set<String> visited = new HashSet<String>();
 	String classPath = System.getProperty("java.class.path",".");
 	// Hack: this is not necessary
