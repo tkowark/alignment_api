@@ -156,6 +156,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * Extract the alignment of a ?* type
      * Complexity: O(n^2)
      */
+    @SuppressWarnings("unchecked") //ConcatenatedIterator
     public Alignment extractqs( double threshold, Properties params) {
       double max = 0.;
       boolean found = false;
@@ -220,6 +221,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * 
      * exact algorithm using the Hungarian method
      */
+    @SuppressWarnings("unchecked") //ConcatenatedIterator
     public Alignment extractqq( double threshold, Properties params) {
 	try {
 	    // A STRAIGHTFORWARD IMPLEMENTATION
@@ -354,6 +356,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * overall similarity 1.1, while the optimum is the second solution
      * with overall of 1.8.
      */
+    @SuppressWarnings("unchecked") //ConcatenatedIterator
     public Alignment extractqqgreedy( double threshold, Properties params) {
 	double val = 0;
 	//TreeSet could be replaced by something else
