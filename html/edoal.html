@@ -168,9 +168,8 @@ A class can be defined using its URI or a restriction. Restrictions are defined 
 
 <u>comp</u> ::= &lt;comparator rdf:resource=" <u>uri</u> "/>
 
-// String does not work here
-<u>value</u> ::= <u>string</u> | <u>instepr</u> | <u>attrexpr</u> 
-        | &lt;Apply operation=" <u>uri</u> "> <u>value</u>* &lt;/Apply>
+<u>value</u> ::= &lt;Literal value=" <u>string</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
+        | &lt;Apply operator=" <u>uri</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 </pre></div>
 
 
