@@ -163,6 +163,7 @@ public abstract class MatrixMeasure implements Similarity {
 	} catch (OntowrapException e) { e.printStackTrace(); };
     }
 
+    @SuppressWarnings("unchecked") //ConcatenatedIterator
     public void compute( Properties params ){
 	try {
 	    // Compute distances on classes
