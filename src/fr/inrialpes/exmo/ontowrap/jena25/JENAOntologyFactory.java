@@ -59,7 +59,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    // If no URI can be extracted from ontology, then we use the physical URI
 	    try {
 		try {
-		    onto.setURI(new URI(((Ontology)((OntModel)ontology).listOntologies().next()).getURI()));
+		    onto.setURI(new URI(((OntModel)ontology).listOntologies().next().getURI()));
 		} catch (NoSuchElementException nse) {
 		    // JE: not verysafe
 		    onto.setURI(new URI(((OntModel)ontology).getNsPrefixURI("")));
@@ -89,7 +89,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    // to be checked : why several ontologies in a model ???
 	    // If no URI can be extracted from ontology, then we use the physical URI
 	    try {
-		onto.setURI(new URI(((Ontology)m.listOntologies().next()).getURI()));
+		onto.setURI(new URI(m.listOntologies().next().getURI()));
 	    } catch (NoSuchElementException nse) {
 		onto.setURI(new URI(m.getNsPrefixURI("")));
 		//onto.setFile(uri);
