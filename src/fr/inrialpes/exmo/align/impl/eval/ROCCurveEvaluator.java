@@ -141,9 +141,9 @@ public class ROCCurveEvaluator extends GraphEvaluator {
 	// Scale
 	for ( Pair p : points ){
 	    if ( scale != 0 ){
-		p.setX( (double)(p.getX()) / scale );
-	    } else if ( x != 0 ) p.setX( (double)(p.getX()) / x );
-	    p.setY( (double)(p.getY()) / nbexpected );
+		p.setX( p.getX() / scale );
+	    } else if ( x != 0 ) p.setX( p.getX() / x );
+	    p.setY( p.getY() / nbexpected );
 	}
 	//points.add( new Pair( 1., y/nbexpected ) );
 
