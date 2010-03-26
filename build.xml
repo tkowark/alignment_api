@@ -91,9 +91,8 @@
   <target name="lint" depends="init">
     <echo message="Setting property..."/>
     <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
-    <property name="javacargs" value="-Xlint:path" />
-    <!--property name="javacargs" value="-Xlint:deprecation -Xlint:fallthrough -Xlint:serial -Xlint:finally" /-->
-    <!--property name="javacargs" value="-Xlint:all" /-->
+    <!--property name="javacargs" value="-Xlint:cast" /-->
+    <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>
   </target>
 
@@ -386,8 +385,8 @@
   <target name="clean">
     <echo message="Cleaning..."/>
     <antcall target="cleantest"/>
-    <!-- This instruction does not seem to work -->
-    <delete dir="plugins/neon/neonalign" />
+    <ant dir="plugins/neon" target="clean" />
+    <ant dir="plugins/webcontent" target="clean" />
     <delete>
       <fileset dir="classes" includes="**/*.class"/>
       <fileset dir="examples" includes="**/*.class"/>

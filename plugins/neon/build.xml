@@ -122,10 +122,10 @@
 
       <fileset dir="neonalign" includes="**/*.*"/>
     </jar>
-    <antcall target="cleanup"/>
+    <antcall target="clean"/>
   </target>
 
-  <target name="cleanup">
+  <target name="clean">
     <echo message="Cleaning..."/>
     <!-- this does not seems to work -->
     <delete dir="neonalign"/>

@@ -81,5 +81,9 @@
       <fileset dir="webc" includes="**/*.*"/>  
     </jar>
   </target>
+
+  <target name="clean" depends="init">
+    <delete dir="webc" />
+  </target>
  
 </project>
