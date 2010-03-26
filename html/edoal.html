@@ -141,9 +141,9 @@ not</i>.<ul>
 A class can be defined using its URI or a restriction. Restrictions are defined by giving an <i>attribute</i> (relation or property), a <i>comparator</i> defining the relation to a <i>value</i>.</p>
 
 <div class="fragment"><pre>
-<u>classexpr</u> ::= &lt;Class rdf:about=" <u>uri</u> "/>
+<u>classexpr</u> ::= &lt;Class rdf:about=" <u>URI</u> "/>
             | &lt;Class> <u>classconst</u> &lt;/Class>
-            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> <u>int</u> &lt;/AttributeOccurenceRestriction>
+            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> <u>INTEGER</u> &lt;/AttributeOccurenceRestriction>
             | &lt;AttributeDomainConstraint> <u>onatt</u> (<u>classexpr</u>|<u>type</u>) &lt;/AttributeDomainConstraint>
             | &lt;AttributeValueRestriction> <u>onatt</u> <u>comp</u> (<u>instexpr</u>|<u>val</u>) &lt;/AttributeValueRestriction>
 
@@ -166,10 +166,10 @@ A class can be defined using its URI or a restriction. Restrictions are defined 
 
 <u>datatype</u> ::= &lt;type> <u>value</u> &lt;/type> 
 
-<u>comp</u> ::= &lt;comparator rdf:resource=" <u>uri</u> "/>
+<u>comp</u> ::= &lt;comparator rdf:resource=" <u>URI</u> "/>
 
-<u>value</u> ::= &lt;Literal value=" <u>string</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
-        | &lt;Apply operator=" <u>uri</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
+<u>value</u> ::= &lt;Literal value=" <u>STRING</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
+        | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 </pre></div>
 
 
@@ -203,7 +203,7 @@ not</i> and <i>compose</i>.
 Property values can be transformed by applying a <i>Transformation</i> function. </p>
 
 <div class="fragment"><pre>
-<u>propexpr</u> ::= &lt;Property rdf:about=" <u>uri</u> "/> 
+<u>propexpr</u> ::= &lt;Property rdf:about=" <u>URI</u> "/> 
            | &lt;Property> <u>propconst</u>+ &lt;/Property> 
            | &lt;PropertyDomainRestriction> &lt;class> <u>classexpr</u> &lt;/class> &lt;/PropertyDomainRestrict 
            | &lt;PropertyTypeRestriction> <u>datatype</u> &lt;/PropertyTypeRestriction> 
@@ -218,30 +218,6 @@ Property values can be transformed by applying a <i>Transformation</i> function.
 </pre></div>
 
 <!--div class="fragment"><pre>
-propexpr ::= &lt;Property {rdf:about="uri"}? >
-              propconst*             
-             &lt;/Property>
-             | transformation
-
-propconst ::= &lt;and>
-               propexpr
-               | property-restriction
-              &lt;/and> 
-              &lt;or>
-               propexpr
-               | property-restriction
-              &lt;/or> 
-              &lt;not>propexpr&lt;/not>
-            | &lt;first>relexpr&lt;/first>
-            | &lt;next>propexpr&lt;/next>
-
-property-restriction ::= &lt;Restriction>
-                          &lt;comparator rdf:about={xsd-comparator} />
-                          &lt;value>value&lt;/value>
-                         &lt;/Restriction>
-                       | &lt;Restriction>&lt;domainRestriction>classexpr&lt;/domainRestriction>&lt;/Restriction>
-                       | &lt;Restriction>&lt;typeRestriction>value&lt;/typeRestriction>&lt;/Restriction>
-
 transformation ::= &lt;Transformation>
                     xpath-transformation
                    &lt;/Transformation>
@@ -261,7 +237,7 @@ transformation ::= &lt;Transformation>
 not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetric</i>. Like properties they can also be composed in a path of relations using <i>first</i> and <i>next</i>. Relations <i>domain</i> and <i>range</i> can be restricted.</p>
 
 <div class="fragment"><pre>
-<u>relexpr</u> ::= &lt;Relation rdf:about=" <u>uri</u> "/> 
+<u>relexpr</u> ::= &lt;Relation rdf:about=" <u>URI</u> "/> 
          | &lt;Relation> <u>relconst</u>+ &lt;/Relation> 
          | &lt;RelationDomainRestriction> &lt;class> <u>classexpr</u> &lt;/class> &lt;/RelationDomainRestriction
          | &lt;RelationCoDomainRestriction> &lt;class> <u>classexpr</u> &lt;/class> &lt;/RelationCoDomainRestriction 
@@ -276,35 +252,11 @@ not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetr
            | &lt;reflexive> <u>relexpr</u> &lt;/reflexive>
 </pre></div>
 
-<!--div class="fragment"><pre>
-relexpr ::= &lt;Relation {rdf:about="uri"}? >
-             relconst *
-            &lt;/Relation>
-relconst ::= &lt;and>
-              relexpr
-              | relation-restriction
-             &lt;/and>
-           | &lt;or>
-             relexpr
-             | relation-restriction
-             &lt;/or>
-           | &lt;not>relexpr&lt;/not>
-           | &lt;inverse>relexpr&lt;/inverse>
-           | &lt;symmetric>relexpr&lt;/symmetric>
-           | &lt;transitive>relexpr&lt;/transitive>
-           | &lt;reflexive>relexpr&lt;/reflexive>
-           | &lt;first>relexpr&lt;/first>
-           | &lt;next>relexpr&lt;/next>
-
-relation-restriction ::= &lt;Restriction>&lt;domainRestriction>classexpr&lt;/domainRestriction>&lt;/Restriction>
-                         | &lt;Restriction>&lt;rangeRestriction>classexpr&lt;/rangeRestriction>&lt;/Restriction>
-</pre></div-->
-
 <h4 id="ssec:instances">Instances</h4>
 <p>Instances are always single entities refering to an individual
   through its URI.</p>
 <div class="fragment"><pre>
-<u>instance</u> ::= &lt;Instance rdf:about=" <u>uri</u> "/>
+<u>instance</u> ::= &lt;Instance rdf:about=" <u>URI</u> "/>
 </pre></div>
 
 <h2 id="sec:examples">Examples</h2>
