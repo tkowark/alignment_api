@@ -218,7 +218,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    return null;
 	}
     }
-    
 
     public boolean isEntity( Object o ){
 	return ( o instanceof OWLEntity );
@@ -243,7 +242,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     // We should solve this issue, is it better to go this way or tu use the OWL API?
     // JD: allows to retrieve some specific entities by giving their class
     // This is not part of the interface...
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // OWL API 1 untyped
     protected Set<?> getEntities(Class<? extends OWLEntity> c) throws OWLException{
         OWLEntityCollector ec = new OWLEntityCollector();
     	onto.accept(ec);
@@ -270,7 +269,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getClasses() {
 	try {
-	    //return onto.getClasses(); // [W:unchecked]
 	    return getEntities(OWLClass.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -279,7 +277,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getProperties() {
 	try {
-	    //return onto.getProperties(); // [W:unchecked]
 	    return getEntities(OWLProperty.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -290,7 +287,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	try {
 	    // This first method returns also Properties not defined in the Onto
 	    // i.e. properties having an namespace different from the ontology uri
-	    //return onto.getDataProperties(); // [W:unchecked]
 	    return getEntities(OWLDataProperty.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -299,11 +295,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getObjectProperties() {
 	try {
-	    // [Warning:unchecked] due to OWL API not serving generic types
-	    // This first method returns also Properties not defined in the Onto
-	    // i.e. properties having an namespace different from the ontology uri
-	    //return onto.getObjectProperties(); // [W:unchecked]
-	    // This method works better (??)
 	    return getEntities(OWLObjectProperty.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -312,7 +303,6 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public Set<?> getIndividuals() {
 	try {
-	    //return onto.getIndividuals(); // [W:unchecked]
 	    return getEntities(OWLIndividual.class);
 	} catch (OWLException ex) {
 	    return null;
@@ -321,7 +311,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 
     public int nbEntities() {
 	if ( nbentities != -1 ) return nbentities;
-	nbentities = getEntities().size();//nbClasses()+nbProperties()+nbIndividuals();
+	nbentities = getEntities().size();
 	return nbentities;
     }
 
@@ -508,6 +498,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	return resultSet;
     }
 
+    @SuppressWarnings("unchecked") // OWL API 1 untyped
     public Set<Object> getClasses( Object i, int local, int asserted, int named ){
 	Set<Object> supers = null;
 	try {
@@ -521,8 +512,10 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	}
     }
 
-    // JE: note this may be wrong if p is a property
-    public Set<Object> getCardinalityRestrictions( Object p ){//JFDK
+    /**
+     * returns emptyset in case of error (e.g., if p is a property)
+     */
+    public Set<Object> getCardinalityRestrictions( Object p ){
 	Set<Object> spcl = new HashSet<Object>();
 	try {
 	    for( Object rest : ((OWLClass)p).getSuperClasses( getOntology() ) ){
@@ -534,7 +527,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	return spcl;
     }
 
-    /*
+    /**
      * Inherits all properties of a class
      */
     private Set<Object> getInheritedProperties( OWLClass cl ) {
