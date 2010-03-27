@@ -7,7 +7,7 @@
 </head>
 <body bgcolor="#ffffff">
 
-<h1 class="titre">Alignment API: Libraries shipped with the package (release 3.1)</h1>
+<h1 class="titre">Alignment API: Libraries shipped with the package (release 4.0)</h1>
 
 <p>The Alignment API uses a number of external libraries. These libraries
 are shipped (in the lib directory) with the Alignment API. Each
@@ -65,8 +65,8 @@ Here is a picture of the various dependencies involved:
 <h3>Required for some bundled matching methods</h3>
 
 <dl>
-<dt><a href="">OntoSim</a> 1.0: ontosim.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
-<dd>The whole ontosim system requires more libraries, including JWNL.</dd>
+<dt><a href="">OntoSim</a> 1.1: ontosim.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
+<dd>The whole ontosim system requires more libraries, including JWNL. But in our simplest behaviour, these libraries are not needed.</dd>
 </dl>
 
 <h3>Required for the WordNet addition (JWNLAlignment)</h3>
@@ -83,9 +83,9 @@ In addition to OntoSim, JWNLAlignment requires JWNL.
 <h3>Required for reasoning with alignments</h3>
 
 <dl>
-<dt><a href="">IDDL</a> 1.2: iddl.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
+<dt><a href="">IDDL</a> 1.3-20100325: iddl.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires Pellet.</dd>
-<dt><a href="">Pellet</a> 2.0.0rc7: pellet.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
+<dt><a href="">Pellet</a> 2.0.2: aterm-java-1.6.jar pellet-core.jar pellet-jena.jar pellet-owlapiv3.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires Jena, Jetty, etc.</dd>
 </dl>
 
