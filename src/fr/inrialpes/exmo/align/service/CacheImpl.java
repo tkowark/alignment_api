@@ -73,12 +73,12 @@ public class CacheImpl {
     final int VERSION = 400; // Version of the API to be stored in the database
     /* 300: initial database format
        301: added alignment id as primary key
-       302: changed cached/stored/ouri tag forms
-       310: changed extension table with added URIs and method -> val 
-       340: changed size of relation in cell table (5 -> 25)
-       400: changed size of relation in cell table (5 -> 255 because of URIs)
-            changed all URI size to 255
-	    changed level size to 25
+       302: ALTERd cached/stored/ouri tag forms
+       310: ALTERd extension table with added URIs and method -> val 
+       340: ALTERd size of relation in cell table (5 -> 25)
+       400: ALTERd size of relation in cell table (5 -> 255 because of URIs)
+            ALTERd all URI size to 255
+	    ALTERd level size to 25
             added cell_id as keys?
      */
 
@@ -756,6 +756,26 @@ public class CacheImpl {
 	pst.executeUpdate();
 	pst.close();
     }
+    
+    /*
+     * A dummy method, since it exists just ALTER TABLE ... DROP and ALTER TABLE ... ADD in SQL Language.
+     * each dbms has its own language for manipulating table columns....
+     */
+    public void renameColumn(Statement st, String tableName, String oldName, String newName, String newType) throws SQLException { 
+	st.executeUpdate("ALTER TABLE "+tableName+" ADD "+newName+" "+newType);
+	st.executeUpdate("UPDATE "+tableName+" SET "+newName+"="+oldName);
+	st.executeUpdate("ALTER TABLE "+tableName+" DROP "+oldName);  
+    }
+    
+    /*
+    * Another dummy method, since it exists just ALTER TABLE ... DROP and ALTER TABLE ... ADD in SQL Language.
+    * each dbms has its own language for manipulating table columns....     
+    */
+    public void changeColumnType(Statement st, String tableName, String columnName, String newType) throws SQLException { 
+	String tempName = columnName+"temp";
+	renameColumn(st,tableName,columnName,tempName,newType);
+	renameColumn(st,tableName,tempName,columnName,newType);
+    }
 
     public void updateDatabase() throws SQLException, AlignmentException {
 	Statement st = createStatement();
@@ -766,8 +786,11 @@ public class CacheImpl {
 	if ( version < VERSION ) {
 	    if ( version >= 302 ) {
 		if ( version < 310 ) {
-		    // Change database
-		    st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
+		    // ALTER database
+		    renameColumn(st,"extension","method","val","VARCHAR(500)");
+		    // case mysql
+		    //st.executeUpdate("ALTER TABLE extension CHANGE method val VARCHAR(500)");
+		   
 		    st.executeUpdate("ALTER TABLE extension ADD uri VARCHAR(200);");
 		    // Modify extensions
 		    ResultSet rse = st.executeQuery("SELECT * FROM extension");
@@ -799,19 +822,36 @@ public class CacheImpl {
 		}
 		// Nothing to do with 340: subsumed by 400
 		if ( version < 400 ) {
-		    // Change database
-		    st.executeUpdate("ALTER TABLE cell CHANGE relation relation VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE cell CHANGE uri1 uri1 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE cell CHANGE uri2 uri2 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE level level VARCHAR(25)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE uri1 uri1 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE uri2 uri2 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE file1 file1 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE file2 file2 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology1 ontology1 VARCHAR(255)");
-		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology2 ontology2 VARCHAR(255)");
+		 // ALTER database 
+		 /*
+			    st.executeUpdate("ALTER TABLE cell CHANGE relation relation VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE cell CHANGE uri1 uri1 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE cell CHANGE uri2 uri2 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE level level VARCHAR(25)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE uri1 uri1 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE uri2 uri2 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE file1 file1 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE file2 file2 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology1 ontology1 VARCHAR(255)");
+        		    st.executeUpdate("ALTER TABLE alignment CHANGE owlontology2 ontology2 VARCHAR(255)");
+		*/
+		    changeColumnType(st,"cell","relation", "VARCHAR(255)");
+		    changeColumnType(st,"cell","uri1", "VARCHAR(255)");
+		    changeColumnType(st,"cell","uri2", "VARCHAR(255)");
+		    
+		    changeColumnType(st,"alignment","level", "VARCHAR(255)");
+		    changeColumnType(st,"alignment","uri1", "VARCHAR(255)");
+		    changeColumnType(st,"alignment","uri2", "VARCHAR(255)");
+		    changeColumnType(st,"alignment","file1", "VARCHAR(255)");
+		    changeColumnType(st,"alignment","file2", "VARCHAR(255)");
+		    
+		    renameColumn(st,"alignment","owlontology1","ontology1", "VARCHAR(255)");
+		    renameColumn(st,"alignment","owlontology2","ontology2", "VARCHAR(255)");
+		    
+		    
+		    
 		}
-		// Change version
+		// ALTER version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"' WHERE port='port'");
 	    } else {
 		throw new AlignmentException("Database must be upgraded ("+version+" -> "+VERSION+")");
