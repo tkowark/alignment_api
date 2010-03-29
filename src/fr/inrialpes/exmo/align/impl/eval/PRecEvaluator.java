@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2009, 2010
+ * Copyright (C) INRIA, 2004-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,6 +72,8 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
      * Initiate Evaluator for precision and recall
      * @param align1 : the reference alignment
      * @param align2 : the alignment to evaluate
+     * The two parameters are transformed into URIAlignment before being processed
+     * Hence, if one of them is modified after initialisation, this will not be taken into account.
      **/
     public PRecEvaluator(Alignment align1, Alignment align2) throws AlignmentException {
 	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
@@ -105,9 +107,6 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      */
     public double eval( Properties params ) throws AlignmentException {
-	return eval( params, (Object)null );
-    }
-    public double eval( Properties params, Object cache ) throws AlignmentException {
 	init();
 	nbfound = align2.nbCells();
 
@@ -116,13 +115,12 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	    nbexpected++;
 	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
-		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
-		    Cell c2 = (Cell)it2.next();
+		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
 		    // if (c1.getobject2 == c2.getobject2)
-		    if (uri1.toString().equals(uri2.toString())) {
+		    if ( uri1.toString().equals(uri2.toString()) ) {
 			nbcorrect++;
-			c1 = null; // out of the loop.
+			break;
 		    }
 		}
 	    }
@@ -135,6 +133,9 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	precision = (double) nbcorrect / (double) nbfound;
 	recall = (double) nbcorrect / (double) nbexpected;
 	return computeDerived();
+    }
+    public double eval( Properties params, Object cache ) throws AlignmentException {
+	return eval( params );
     }
 
     protected double computeDerived() {
