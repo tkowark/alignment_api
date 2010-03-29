@@ -132,13 +132,13 @@ $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mi
   in <abbr title="HyperText Markup Language">HTML</abbr> by using the
   adequate renderer:
 <div class="fragment">
-$ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results/equals.html
+$ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results/equal.html
 </div>
-and opening the <a href="results/equals.html">results/equals.html</a>
+and opening the <a href="results/equal.html">results/equal.html</a>
 in a browser.
 </p>
 
-<p>See the output in <a href="results/equal.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/equals.html"><abbr>HTML</abbr></a>.</p>
+<p>See the output in <a href="results/equal.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/equal.html"><abbr>HTML</abbr></a>.</p>
 <p>The result is expressed in the Alignment format. This format, in <abbr>RDF</abbr>/<abbr>XML</abbr>, is made of a header containing "metadata" about the alignment:
 </p>
 <div class="owl"><pre>
@@ -357,18 +357,18 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i 
 	<input type="button" onclick="hide('qu6')" value="Hide result"/>
 </div>
 <div class="explain" id="qu6"><pre>
+&lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
 &lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
   &lt;map:output rdf:about=''>
     &lt;map:input1 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl"/>
     &lt;map:input2 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl"/>
-    &lt;map:precision>0.6233766233766234&lt;/map:precision>
+    &lt;map:precision>0.6486486486486487&lt;/map:precision>
     &lt;map:recall>1.0&lt;/map:recall>
-    &lt;fallout>0.37662337662337664&lt;/fallout>
-    &lt;map:fMeasure>0.768&lt;/map:fMeasure>
-    &lt;map:oMeasure>0.39583333333333326&lt;/map:oMeasure>
-    &lt;time>47&lt;/time>
-    &lt;result>1.6041666666666667&lt;/result>
+    &lt;fallout>0.35135135135135137&lt;/fallout>
+    &lt;map:fMeasure>0.7868852459016393&lt;/map:fMeasure>
+    &lt;map:oMeasure>0.4583333333333335&lt;/map:oMeasure>
+    &lt;result>1.5416666666666665&lt;/result>
   &lt;/map:output>
 &lt;/rdf:RDF>
 </pre></div>
@@ -423,18 +423,18 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r 
 <td>1.00</td>
 <td>0.35</td>
 <td>0.52</td>
-<td>0.53</td>
-<td>0.96</td>
-<td>0.69</td>
-<td>0.67</td>
-<td>0.96</td>
+<td>0.57</td>
+<td>0.98</td>
+<td>0.72</td>
+<td>0.72</td>
+<td>0.98</td>
+<td>0.83</td>
+<td>0.55</td>
+<td>1.00</td>
+<td>0.71</td>
+<td>0.65</td>
+<td>1.00</td>
 <td>0.79</td>
-<td>0.51</td>
-<td>1.00</td>
-<td>0.68</td>
-<td>0.62</td>
-<td>1.00</td>
-<td>0.77</td>
 </tr>
 <tr bgcolor="yellow"><td>H-mean</td><td>1.00</td>
 <td>1.00</td>
@@ -442,18 +442,18 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r 
 <td>1.00</td>
 <td>0.35</td>
 <td>0.52</td>
-<td>0.53</td>
-<td>0.96</td>
-<td>0.69</td>
-<td>0.67</td>
-<td>0.96</td>
+<td>0.57</td>
+<td>0.98</td>
+<td>0.72</td>
+<td>0.72</td>
+<td>0.98</td>
+<td>0.83</td>
+<td>0.55</td>
+<td>1.00</td>
+<td>0.71</td>
+<td>0.65</td>
+<td>1.00</td>
 <td>0.79</td>
-<td>0.51</td>
-<td>1.00</td>
-<td>0.68</td>
-<td>0.62</td>
-<td>1.00</td>
-<td>0.77</td>
 </tr>
 </tbody></table>
 </center>
@@ -475,8 +475,9 @@ $ java -jar ../../../lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publica
 <hr />
 <small>
 <p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial1/</p>
-</small>
 <hr />
-<p>$Id$</p>
+<div>$Id$</div>
+</small>
 </body>
 </html>
+
