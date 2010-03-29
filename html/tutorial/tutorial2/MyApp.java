@@ -57,11 +57,12 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLDescription;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 
 // Pellet
-import org.mindswap.pellet.owlapi.Reasoner;
+import com.clarkparsia.pellet.owlapiv3.PelletReasoner;
+//import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 // IDDL
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
