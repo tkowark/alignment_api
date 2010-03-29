@@ -784,7 +784,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmresults") ) {
 	} else if ( perf.equals("getresults") ) {
 	} else if ( perf.equals("") ) {
-	    msg = "<h1>Alignment Server commands</h1>";
+	    msg = "<h1>Alignment server commands</h1>";
 	    msg += "<form action=\"../html/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
 	    msg += "<form action=\"prmload\"><button title=\"Upload an existing alignment in this server\" type=\"submit\">Load alignments</button></form>";
 	    msg += "<form action=\"prmfind\"><button title=\"Find existing alignements between two ontologies\" type=\"submit\">Find alignment</button></form>";
