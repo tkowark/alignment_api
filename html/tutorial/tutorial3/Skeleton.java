@@ -44,6 +44,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.File;
 import java.net.URI;
+import java.util.Properties;
 
 /**
  * The Skeleton of code for embeding the alignment API
