@@ -193,7 +193,8 @@ public class AlignmentParser {
 
     /** 
      * Parses a URI expressed as a String
-     * @param uri the URI
+     * @param uri the URI as a String
+     * This is only here for compatibility purposes
      */
     public Alignment parse( String uri ) throws AlignmentException {
 	this.uri = uri; // should be obsoloted
@@ -202,6 +203,16 @@ public class AlignmentParser {
 	} catch (URISyntaxException urisex) {
 	    throw new AlignmentException( "Invalid URI : "+uri, urisex );
 	}
+	return alignment;
+    }
+
+    /** 
+     * Parses a URI
+     * @param uri the URI
+     */
+    public Alignment parse( URI uri ) throws AlignmentException {
+	this.uri = uri.toString();
+	callParser( uri );
 	return alignment;
     }
 
