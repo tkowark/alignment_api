@@ -286,6 +286,7 @@ public class Procalign {
     }
 
     public void usage() {
+	System.err.print("\n"+Procalign.class.getPackage().getImplementationTitle()+" "+Procalign.class.getPackage().getImplementationVersion());
 	System.err.println("usage: Procalign [options] URI1 URI2");
 	System.err.println("options are:");
 	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
@@ -298,7 +299,5 @@ public class Procalign {
 	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
-	System.err.print("\n"+Procalign.class.getPackage().getImplementationTitle()+" "+Procalign.class.getPackage().getImplementationVersion());
-	System.err.println(" ($Id$)\n");
     }
 }
