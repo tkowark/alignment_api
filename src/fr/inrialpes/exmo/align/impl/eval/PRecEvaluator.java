@@ -87,6 +87,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	nbexpected = 0;
 	nbfound = 0;
 	nbcorrect = 0;
+	result = 1.;
     }
 
     /**
