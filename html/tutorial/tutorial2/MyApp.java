@@ -29,7 +29,6 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -52,15 +51,17 @@ import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 
-// Pellet and OWL API
+// OWL API
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLDescription;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+
+// Pellet
 import org.mindswap.pellet.owlapi.Reasoner;
-import org.semanticweb.owl.model.OWLOntologyManager;
-import org.semanticweb.owl.model.OWLOntology;
-import org.semanticweb.owl.model.OWLOntologyCreationException;
-import org.semanticweb.owl.model.OWLClass;
-import org.semanticweb.owl.model.OWLAxiom;
-import org.semanticweb.owl.model.OWLDescription;
-import org.semanticweb.owl.apibinding.OWLManager;
 
 // IDDL
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
@@ -89,6 +90,7 @@ import javax.xml.xpath.XPathConstants;
 
 // Java standard classes
 import java.util.Set;
+import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
@@ -135,7 +137,7 @@ public class MyApp {
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 	String tempOntoFileName = "/tmp/myresult.owl";
-	Parameters params = new BasicParameters();
+	Properties params = new BasicParameters();
 	try {
 	    uri1 = new URI( u1 );
 	    uri2 = new URI( u2 );
@@ -204,8 +206,8 @@ public class MyApp {
 	    AlignmentProcess ap = new StringDistAlignment();
 	    try {
 		ap.init( uri1, uri2 );
-		params.setParameter("stringFunction","smoaDistance");
-		params.setParameter("noinst","1");
+		params.setProperty("stringFunction","smoaDistance");
+		params.setProperty("noinst","1");
 		ap.align( (Alignment)null, params );
 		al = ap;
 		// Supplementary:
