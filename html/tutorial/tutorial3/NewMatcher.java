@@ -81,13 +81,17 @@ public class NewMatcher extends ObjectAlignment implements AlignmentProcess{
     * *Very* simple matcher, based on equality of names (in the example, only classes and properties)
     */
     public double match(Object o1, Object o2) throws AlignmentException {
-	String s1 = ontology1().getEntityName(o1);
-	String s2 = ontology2().getEntityName(o2);
-	if (s1 == null || s2 == null) return 0.;
-	if (s1.toLowerCase().equals(s2.toLowerCase())) { 
-	    return 1.0;
-	} else { 
-	    return 0.;
+	try {
+	    String s1 = ontology1().getEntityName(o1);
+	    String s2 = ontology2().getEntityName(o2);
+	    if (s1 == null || s2 == null) return 0.;
+	    if (s1.toLowerCase().equals(s2.toLowerCase())) { 
+		return 1.0;
+	    } else { 
+		return 0.;
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Error getting entity name", owex );
 	}
     }
 }
