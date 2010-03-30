@@ -42,10 +42,9 @@ loading ontologies.
 <p>
 There are three interfaces for ontologies:
 <dl>
-<dt><tt>Ontology</tt></dt><dd>simply describes an ontology. Its entities are
-  identified by simple URIs and no assumption is made about the fact
-  that the ontology has been loaded. Hence, the interface on the
-  entities is very limited.</dd>
+<dt><tt>Ontology</tt></dt><dd>simply describes an ontology. 
+  No assumption is made about the fact that the ontology has been
+  loaded. Its entities may be identified by simple URIs.</dd>
 <dt><tt>LoadedOntology</tt></dt><dd>describes an ontology that has been loaded
   in main memory. Thus, an implementation of this class is bound to
   an ontology API. However, the connection with the API is very
@@ -87,21 +86,21 @@ describes the ontology but nothing from its content.
 public void setURI( URI uri );</tt>
 </dt>
 <dd>
-Provides the URI identifying the ontology.
+Provide the URI identifying the ontology.
 </dd>
 <dt>
 <tt>public URI getFile();<br />
 public void setFile( URI file );</tt>
 </dt>
 <dd>
-Provides the URL from where the ontology can be loaded.
+Provide the URL from where the ontology can be loaded.
 </dd>
 <dt>
 <tt>public URI getFormURI();
 public void setFormURI( URI u );</tt>
 </dt>
 <dd>
-Provides the URI identifying the knowledge representation formalism
+Provide the URI identifying the knowledge representation formalism
 (may be null).
 </dd>
 <dt>
@@ -109,7 +108,7 @@ Provides the URI identifying the knowledge representation formalism
 public void setFormalism( String name );</tt>
 </dt>
 <dd>
-Provides a String indicating the knowledge representation formalism
+Provide a String indicating the knowledge representation formalism
 ("OWL", "SKOS", etc.; may be null).
 </dd>
 <dt>
@@ -128,7 +127,8 @@ Provides the ontology object itself when it has been loaded.
 the ontologies. This interface is made of two main parts:
 <ul>
 <li>One part dealing with the various types of objects in the
-  ontology (classes, properties, instances, etc.)</li>
+  ontology (classes, properties, instances, etc.). It only deals with
+  locally defined and named entities.</li>
 <li>One part dealing with their names and the annotations they are
   assigned.</li>
 </ul>
@@ -144,7 +144,7 @@ the ontologies. This interface is made of two main parts:
     public int nbIndividuals();<br />
 </tt></dt>
 <dd>
-Provides the number of corresponding entities defined in the ontology.
+Provide the number of corresponding entities defined in the ontology.
 </dd>
 <dt><tt>
     public Set&lt;? extends Object> getEntities();<br />
@@ -155,7 +155,7 @@ Provides the number of corresponding entities defined in the ontology.
     public Set&lt;? extends Object> getIndividuals();<br />
 </tt></dt>
 <dd>
-Provides the sets of corresponding entities defined in the ontology.
+Provide the sets of corresponding entities defined in the ontology.
 </dd>
 <dt><tt>
     public boolean isEntity( Object o );<br />
@@ -166,7 +166,7 @@ Provides the sets of corresponding entities defined in the ontology.
     public boolean isIndividual( Object o );<br />
 </tt></dt>
 <dd>
-Tells if a particular object is of the correponding type in the ontology.
+Tell if a particular object is of the corresponding type in the ontology.
 </dd>
 <dt><tt>
     public String getEntityName( Object o, String lang ) throws OntowrapException;<br />
@@ -319,10 +319,10 @@ Here are the available implementations:
 <td>API</td><td>Version</td><td>Implementation</td><td>Availability</td><td>classname</td>
 </th>
 <tr>
-<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.5</td><td>HeavyLoadedOntology</td><td>Since 3.5</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
+<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.5</td><td>LoadedOntology</td><td>Since 3.5</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.6</td><td>HeavyLoadedOntology</td><td>Since 4.0</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
+<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.6</td><td>LoadedOntology</td><td>Since 4.0</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
 </tr>
 <tr>
 <td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>1.0</td><td>HeavyLoadedOntology</td><td>Since /3.5</td><td><tt>ow.owlapi10.OWLAPIOntologyFactory</tt></td>
