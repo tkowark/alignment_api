@@ -1,7 +1,7 @@
 /*
- * $Id: Skeleton.java 1106 2010-01-20 11:00 euzenat $
+ * $Id$
  *
- * Copyright (C) 2006-2010, INRIA Rhône-Alpes
+ * Copyright (C) 2006-2010, INRIA
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -27,13 +27,13 @@
 // Alignment API classes
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
-import org.semanticweb.owl.align.Parameters;
 import org.semanticweb.owl.align.AlignmentException;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 
 import java.net.URI;
+import java.util.Properties;
 
 /**
  * The Skeleton of code for extending the alignment API
@@ -42,63 +42,52 @@ import java.net.URI;
 public class NewMatcher extends ObjectAlignment implements AlignmentProcess{
 
 
-       public NewMatcher() {
-       }
+    public NewMatcher() {
+    }
 
-       /* The only method to implement is align.
-          All the resources for reading the ontologies and rendering the alignment are from ObjectAlignment and its superclasses:
+    /**
+     * The only method to implement is align.
+     * All the resources for reading the ontologies and rendering the alignment are from ObjectAlignment and its superclasses:
+     * - ontology1() and ontology2() returns objects LoadedOntology
+     * - addAlignCell adds a new mapping in the alignment object  
+     */
+    public void align( Alignment alignment, Properties param ) throws AlignmentException {
+	try {
+	    // Match classes
+	    for ( Object cl2: ontology2().getClasses() ){
+		for ( Object cl1: ontology1().getClasses() ){
+		    // add mapping into alignment object 
+		    addAlignCell(cl1,cl2,"=",match(cl1,cl2));    
+		}
+	    }
+	    // Match dataProperties
+	    for ( Object p2: ontology2().getDataProperties() ){
+		for ( Object p1: ontology1().getDataProperties() ){
+		    // add mapping into alignment object 
+		    addAlignCell(p1,p2,"=",match(p1,p2));    
+		}
+	    }
+	    // Match objectProperties
+	    for ( Object p2: ontology2().getObjectProperties() ){
+		for ( Object p1: ontology1().getObjectProperties() ){
+		    // add mapping into alignment object 
+		    addAlignCell(p1,p2,"=",match(p1,p2));    
+		}
+	    }
+	} catch (Exception e) { e.printStackTrace(); }
+    }
 
-          - ontology1() and ontology2() returns objects LoadedOntology
-          - addAlignCell adds a new mapping in the alignment object  
-      
-       */
-
-       public void align( Alignment alignment, Parameters param ) throws AlignmentException {
-              
-              try {
-	           // Match classes
-	           for ( Object cl2: ontology2().getClasses() ){
-		         for ( Object cl1: ontology1().getClasses() ){
-                             // add mapping into alignment object 
-                             addAlignCell(cl1,cl2,"=",match(cl1,cl2));    
-		         }
-                   }
- 
-                   // Match dataProperties
-	           for ( Object p2: ontology2().getDataProperties() ){
-		         for ( Object p1: ontology1().getDataProperties() ){
-                              // add mapping into alignment object 
-                              addAlignCell(p1,p2,"=",match(p1,p2));    
-		         }
-                   }
-
-                   // Match objectProperties
-	           for ( Object p2: ontology2().getObjectProperties() ){
-		         for ( Object p1: ontology1().getObjectProperties() ){
-                              // add mapping into alignment object 
-                              addAlignCell(p1,p2,"=",match(p1,p2));    
-		         }
-                   }
-                   
-
- 
-	      } catch (Exception e) { e.printStackTrace(); }
-       }
-
-       /*
-            *Very* simple matcher, based on equality of names (in the example, only classes and properties)
-       */
-       public double match(Object o1, Object o2) throws AlignmentException {
-          
-              String s1 = ontology1().getEntityName(o1);
-              String s2 = ontology2().getEntityName(o2);
-              if (s1 == null || s2 == null) return 0.;
-              if (s1.toLowerCase().equals(s2.toLowerCase())) { 
-                  return 1.0;
-              } else { 
-                return 0.;
-              }
-        }
-
-    
+    /*
+    * *Very* simple matcher, based on equality of names (in the example, only classes and properties)
+    */
+    public double match(Object o1, Object o2) throws AlignmentException {
+	String s1 = ontology1().getEntityName(o1);
+	String s2 = ontology2().getEntityName(o2);
+	if (s1 == null || s2 == null) return 0.;
+	if (s1.toLowerCase().equals(s2.toLowerCase())) { 
+	    return 1.0;
+	} else { 
+	    return 0.;
+	}
+    }
 }
