@@ -32,6 +32,8 @@ import org.semanticweb.owl.align.AlignmentException;
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
+
 import java.net.URI;
 import java.util.Properties;
 
