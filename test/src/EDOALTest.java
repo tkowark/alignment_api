@@ -100,11 +100,9 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	writer.close();
     }
 
+    /* diff wine2.xml wine3.xml */
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"roundTripTest"})
     public void diffTest() throws Exception {
-	/*
-diff wine2.xml wine3.xml
-	*/
 	aparser1.initAlignment( null );
 	Alignment oldal = aparser1.parse( "file:test/output/wine2.xml" );
 	aparser1.initAlignment( null );
@@ -128,9 +126,10 @@ diff wine2.xml wine3.xml
 	writer.flush();
 	writer.close();
 	assertEquals( "".equals( wine2 ), false );
-	// Provisory results, EDOAL is not well pretty printed
-	// AND THE RESULT GIVES DIFFERENT VALUES !!!
-	assertEquals( wine2.length(), 4709/*4343*/ );
+	// This tests the round triping
+	assertEquals( wine2.length(), stream.toString().length() );
+	// This provides an absolute value
+	assertEquals( wine2.length(), 4691 );
 	// This does not work because (at least) the order of correspondences is never the same...
 	//assertEquals( wine2, stream.toString() );
     }
