@@ -98,7 +98,7 @@ to substitute it for <tt>MyMatcher</tt>.
 <p>
 <tt>MyMatcher</tt> can be compiled by:
 <div class="fragment">
-$ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar MyMatcher.java
+$ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar -d results MyMatcher.java
 </div>
 </p>
 
@@ -227,11 +227,11 @@ played with your new class.
 <p>
 <tt>MyAlignment</tt> can be compiled by:
 <div class="fragment">
-$ javac -classpath .:../../../lib/align.jar:../../../lib/procalign.jar MyAlignment.java
+$ javac -classpath .:../../../lib/align.jar:../../../lib/procalign.jar -d results MyAlignment.java
 </div>
 and can be used in:
 <div class="fragment">
-$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar fr.inrialpes.exmo.align.util.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
+$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar:results fr.inrialpes.exmo.align.util.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 </p>
 <p> 
