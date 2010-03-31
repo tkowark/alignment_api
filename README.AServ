@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      07/01/2010, version 4+                       #
+#                      31/03/2010, version 4.0                        #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
@@ -76,7 +76,7 @@ java -cp lib/kaon2.jar org.semanticweb.kaon2.server.ServerMain -registry -rmi -o
 
 7) launch the server
 
-java -jar lib/alignsvc.jar -O -d 4
+java -jar lib/alignsvc.jar -O -d4
 
 
 RUNNING THE ALIGNMENT SERVER

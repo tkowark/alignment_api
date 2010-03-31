@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      09/01/2010, version 4.0a                       #
+#                      31/03/2010, version 4.0                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
@@ -82,7 +82,7 @@ Using with JWNL (Wordnet)
 - jwnl.jar commons-logging.jar must be in lib.
 (file_properties.xml need not anymore to be in current directory)
 
-$ setenv WNDIR ../WordNet-2.0/dict
+$ setenv WNDIR ../WordNet-3.0/dict
 
 $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o examples/rdf/JWNL.rdf
 
@@ -109,7 +109,7 @@ README.AServ	instructions for setting up an Alignment Server
 LICENSE.TXT	the terms under which the software is licensed to you.
 build.xml	the Ant build file for compiling and testing
 build.properties property file for this
-classes/	empty directory for compiling the sources
+classes/	directory for compiling the sources
 distrib/	some files for generating new jarfiles
 dtd/		contains the ontoalign DTDs (and schemas)
 examples/	examples of use of the API and server
