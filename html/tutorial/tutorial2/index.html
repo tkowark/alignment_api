@@ -3,7 +3,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Manipulating alignments in Java programs</title>
+<title>Exploiting alignments and reasoning</title>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <link rel="stylesheet" type="text/css" href="../../base.css" />
 <link rel="stylesheet" type="text/css" href="../../style.css" />
@@ -32,7 +32,7 @@ div.logic {
 </head>
 <body style="background-color: #FFFFFF;">
 
-<h1>Manipulating alignments in Java programs: advanced tutorial on the Alignment <abbr title="Application Programming Interface">API</abbr> and server</h1>
+<h1>Exploiting alignments and reasoning: advanced tutorial on the Alignment <abbr title="Application Programming Interface">API</abbr> and server</h1>
 
 <p>
 <dl>
@@ -61,9 +61,10 @@ This time, the tutorial is based on Java programming and using various
 related APIs.
 </p>
 <p>
-A more <a href="../tutorial1/index.html">simple tutorial</a> as well as
-  a small <a href="../tutorial1/server.html">server tutorial</a> are also available.</p>
-<p  style="border-top: 2px solid #AAAAAA;"><small>This tutorial has been designed for the Alignment API version 4.0.</small></p>
+Other tutorials are <a href="../index.html">available</a>.</p>
+<p  style="border-top: 2px solid #AAAAAA;"><small>This tutorial has
+    been designed for the Alignment API version 4.0. It is currently
+    incomplete due to the upgrade of Pellet to version 2.0.2 and IDDL.</small></p>
 	
 <h2>Preparation</h2>
 	
@@ -92,19 +93,23 @@ ontology. This is not a difficult task, the goal here is only to show
 how this could be achieved.
 </p>
 	
-<p>For that purpose, you have to develop a program in Java. This
-  programme can be compiled by:
+<p>For that purpose, you have to develop a program in Java. 
+We first define the CLASSPATH because a lot of external software is required
 <div class="fragment">
-$ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet.jar MyApp.java
+$ setenv CLASSPATH ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet-core.jar:../../../lib/pellet/pellet-owlapiv3.jar:../../../lib/pellet/pellet-rules.jar:../../../lib/pellet/pellet-datatypes.jar:../../../lib/pellet/aterm-java-1.6.jar:../../../lib/pellet/pellet-query.jar:../../../lib/ontosim/ontosim.jar:../../../lib/pellet/pellet-el.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/xsdlib/relaxngDatatype.jar:../../../lib/xsdlib/xsdlib.jar:results
 </div>
-and run by:
-<div class="fragment">
-$ java -classpath .:../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet.jar:../../../lib/ontosim/ontosim.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/pellet/relaxngDatatype.jar:../../../lib/pellet/xsdlib.jar MyApp
-</div>
-The long list of jar is boring, but at least it is explicit and you
+The list of jars is long, but at least it is explicit and you
 should be safe with this one.
-<p>
+This programme can be compiled by:
+<div class="fragment">
+$ javac -d results MyApp.java
+</div>
 </p>
+<p>This
+  programme can be run by:
+<div class="fragment">
+$ java MyApp
+</div></p>
 You can start with the empty template <a href="Skeleton.java">Skeleton.java</a>.
 </p>
 
@@ -225,7 +230,7 @@ This can be done with the alignment API support.
 
 <div class="button">
   <input type="button" onclick="show('qu5')" value="Show solution 1"/>
-  <input type="button" onclick="show('qu6')" value="Show solution 2"/>
+  <!--input type="button" onclick="show('qu6')" value="Show solution 2"/-->
   <input type="button" onclick="hide('qu5');hide('qu6');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu5">
@@ -267,8 +272,8 @@ ontologies instead of the merged one.
 </p>
 <div class="button">
   <input type="button" onclick="show('qu7')" value="Show solution 1"/>
-  <input type="button" onclick="show('qu8')" value="Show solution 2"/>
-  <input type="button" onclick="show('qu9')" value="Show solution 3"/>
+  <!--input type="button" onclick="show('qu8')" value="Show solution 2"/>
+  <input type="button" onclick="show('qu9')" value="Show solution 3"/-->
   <input type="button" onclick="hide('qu7');hide('qu8');hide('qu9');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu7">
@@ -393,10 +398,10 @@ IDDL: Estudiante <= Person is not entailed
 IDDL: Estudiante <= Student is entailed
 </pre>
 	
-<h2>Full solution</h2>
+<!--h2>Full solution</h2>
 	
 <p>Do you want to see a possible solution?</p>
-<p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
+<p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p-->
 
 <hr />
 <small>

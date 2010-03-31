@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -52,17 +52,19 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 
 // OWL API
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 // Pellet
 import com.clarkparsia.pellet.owlapiv3.PelletReasoner;
-//import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 // IDDL
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
@@ -191,12 +193,8 @@ public class MyApp {
 		AlignmentParser aparser = new AlignmentParser(0);
 		Alignment alu = aparser.parseString( xmlString );
 		al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
-	    } catch (ParserConfigurationException pce) { 
-		pce.printStackTrace();
 	    } catch (SAXException saxe) { 
 		saxe.printStackTrace(); 
-	    } catch (IOException ioe) { 
-		ioe.printStackTrace();
 	    } catch (AlignmentException ae) { 
 		ae.printStackTrace();
 	    }
@@ -299,22 +297,25 @@ public class MyApp {
 
 	// Variant 1: reasoning with merged ontologies
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-	Reasoner reasoner = new Reasoner( manager );
+	//Pellet
+	OWLReasoner reasoner = null;
 
-	//Does not seem to work
 	//System.setErr( new PrintStream( new NullStream() ) );
 	// Load the ontology 
 	try {
-	    OWLOntology ontology = manager.loadOntology( URI.create( "file://"+tempOntoFileName ) );
-	    reasoner.loadOntology( ontology );
-	} catch (OWLOntologyCreationException ooce) { ooce.printStackTrace(); }
+	    OWLOntology ontology = manager.loadOntology( IRI.create( "file://"+tempOntoFileName ) );
+	    reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
+	    reasoner.prepareReasoner();
+	} catch (OWLOntologyCreationException ooce) { 
+	    ooce.printStackTrace(); 
+	}
 
 	// get the instances of a class
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Student" ) );   
-	Set instances  = reasoner.getIndividuals( estud, false );
-	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Student" ) );   
+	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
+	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getIRI());
 
 	testPelletSubClass( manager, reasoner, estud, person );
 	testPelletSubClass( manager, reasoner, estud, student );
@@ -334,8 +335,8 @@ public class MyApp {
 	}
     }
 
-    public void testPelletSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
-	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassAxiom( d1, d2 );
+    public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
+	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
 	boolean isit = reasoner.isEntailed( axiom );
 	if ( isit ) {
 	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
@@ -344,7 +345,7 @@ public class MyApp {
 	}
     }
 
-    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLDescription d1, OWLDescription d2 ) {
+    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLClassExpression d1, OWLClassExpression d2 ) {
 	Alignment al2 = new ObjectAlignment();
 	try {
 	    al2.init( onto1, onto2 );
