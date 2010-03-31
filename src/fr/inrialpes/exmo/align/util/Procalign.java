@@ -286,8 +286,8 @@ public class Procalign {
     }
 
     public void usage() {
-	System.err.print("\n"+Procalign.class.getPackage().getImplementationTitle()+" "+Procalign.class.getPackage().getImplementationVersion());
-	System.err.println("usage: Procalign [options] URI1 URI2");
+	System.err.println(Procalign.class.getPackage().getImplementationTitle()+" "+Procalign.class.getPackage().getImplementationVersion());
+	System.err.println("\nusage: Procalign [options] URI1 URI2");
 	System.err.println("options are:");
 	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
 	System.err.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
