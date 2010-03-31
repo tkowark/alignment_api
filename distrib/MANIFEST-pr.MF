@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: Jerome.Euzenat@inrialpes.fr 
-Class-Path: mappingapilite.jar icu4j_3_4.jar iri.jar xercesImpl.jar jena.jar api.jar impl.jar io.jar rdfparser.jar getopt.jar commons-logging.jar log4j.jar rdfapi.jar ontosim.jar align.jar ontowrap.jar procalign.jar
-Main-Class: fr.inrialpes.exmo.align.util.Procalign
