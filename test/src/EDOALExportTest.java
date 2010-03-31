@@ -205,11 +205,11 @@ Does bot work anymore because not visitable
 	    + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 			  + "</edoal:AttributeValueRestriction>" );
 	toExport = new ClassTypeRestriction( new PropertyId(new URI("http://my.sister#age")), new Datatype("integer-under-100"));
-	assertEquals( render( toExport ), "<edoal:PropertyTypeRestriction>"
+	assertEquals( render( toExport ), "<edoal:AttributeTypeRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
 	    //+ "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
 	    + "<edoal:datatype>integer-under-100</edoal:datatype>"
-		+ "</edoal:PropertyTypeRestriction>" );
+		+ "</edoal:AttributeTypeRestriction>" );
 	toExport = new ClassOccurenceRestriction( new PropertyId(new URI("http://my.sister#age")), Comparator.GREATER, 18);
 	assertEquals( render( toExport ), "<edoal:AttributeOccurenceRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
@@ -283,16 +283,16 @@ Does bot work anymore because not visitable
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
     public void testExportPropertyCond() throws Exception {
 	assertEquals( render( new PropertyDomainRestriction(new ClassId("http://meine/tolle/restriction")) ),
-		      "<edoal:DomainRestriction><edoal:class>"
+		      "<edoal:PropertyDomainRestriction><edoal:class>"
 		      + "<edoal:Class rdf:about=\"http://meine/tolle/restriction\"/>"
-		      + "</edoal:class></edoal:DomainRestriction>" );
+		      + "</edoal:class></edoal:PropertyDomainRestriction>" );
 	assertEquals( render( new PropertyValueRestriction( Comparator.EQUAL, new Value("18"))),
-		      "<edoal:ValueRestriction>"
+		      "<edoal:PropertyValueRestriction>"
 		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
 		      + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
-		      + "</edoal:ValueRestriction>" );
+		      + "</edoal:PropertyValueRestriction>" );
 	assertEquals( render( new PropertyTypeRestriction(new Datatype("int"))),
-		      "<edoal:TypeRestriction><edoal:datatype>int</edoal:datatype></edoal:TypeRestriction>" );
+		      "<edoal:PropertyTypeRestriction><edoal:datatype>int</edoal:datatype></edoal:PropertyTypeRestriction>" );
     }
     
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
@@ -331,9 +331,9 @@ Does bot work anymore because not visitable
 		      + "<edoal:Property rdf:about=\"http://mein/super/property0\"/>"
 		      + "<edoal:Property rdf:about=\"http://mein/super/property1\"/>"
 		      + "</edoal:or></edoal:Property>"
-		      + "<edoal:ValueRestriction>"
+		      + "<edoal:PropertyValueRestriction>"
 		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
-		      + "<edoal:value><edoal:Literal edoal:string=\"5\"/></edoal:value></edoal:ValueRestriction>"
+		      + "<edoal:value><edoal:Literal edoal:string=\"5\"/></edoal:value></edoal:PropertyValueRestriction>"
 		      + "</edoal:and></edoal:Property>");
 	toExport = new PropertyConstruction( Constructor.NOT, Collections.singleton((PathExpression)new PropertyId(new URI("http://mein/super/property"))));
 	// JE2009-ERROR-HERE
@@ -352,13 +352,13 @@ Does bot work anymore because not visitable
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
     public void testExportRelationCondCond() throws Exception {
 	RelationRestriction toExport = new RelationDomainRestriction(new ClassId("http://my/super/class"));
-	assertEquals( render( toExport), "<edoal:DomainRestriction><edoal:class>"
+	assertEquals( render( toExport), "<edoal:RelationDomainRestriction><edoal:class>"
 		      + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
-		      + "</edoal:class></edoal:DomainRestriction>");
+		      + "</edoal:class></edoal:RelationDomainRestriction>");
     toExport = new RelationCoDomainRestriction(new ClassId("http://my/super/class"));
-	assertEquals( render( toExport), "<edoal:CodomainRestriction><edoal:class>"
+	assertEquals( render( toExport), "<edoal:RelationCoDomainRestriction><edoal:class>"
 	    + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
-		      + "</edoal:class></edoal:CodomainRestriction>");
+		      + "</edoal:class></edoal:RelationCoDomainRestriction>");
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
@@ -395,9 +395,9 @@ Does bot work anymore because not visitable
 	    + "<edoal:and rdf:parseType=\"Collection\">"
 	    + "<edoal:Relation rdf:about=\"http://my/super/relation0\"/>"
 	    + "<edoal:Relation rdf:about=\"http://my/super/relation1\"/>"
-	    + "<edoal:DomainRestriction><edoal:class>"
+	    + "<edoal:RelationDomainRestriction><edoal:class>"
 	    + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
-	    + "</edoal:class></edoal:DomainRestriction>" 
+	    + "</edoal:class></edoal:RelationDomainRestriction>" 
 	    + "</edoal:and>" + "</edoal:Relation>");
 	toExport = new RelationConstruction( Constructor.OR, expressions );
 	assertEquals( render( toExport ), 
@@ -405,9 +405,9 @@ Does bot work anymore because not visitable
 	    + "<edoal:or rdf:parseType=\"Collection\">"
 	    + "<edoal:Relation rdf:about=\"http://my/super/relation0\"/>"
 	    + "<edoal:Relation rdf:about=\"http://my/super/relation1\"/>"
-	    + "<edoal:DomainRestriction><edoal:class>"
+	    + "<edoal:RelationDomainRestriction><edoal:class>"
 	    + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
-	    + "</edoal:class></edoal:DomainRestriction>" 
+	    + "</edoal:class></edoal:RelationDomainRestriction>" 
 		      + "</edoal:or>" + "</edoal:Relation>");
 
 	final Set<PathExpression> expressions2 = new LinkedHashSet<PathExpression>();
@@ -421,9 +421,9 @@ Does bot work anymore because not visitable
 	    + "<edoal:Relation><edoal:not>"
 	    + "<edoal:Relation rdf:about=\"http://my/super/relation\"/>"
 	    + "</edoal:not></edoal:Relation>" 
-	    + "<edoal:CodomainRestriction><edoal:class>"
+	    + "<edoal:RelationCoDomainRestriction><edoal:class>"
 	    + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
-	    + "</edoal:class></edoal:CodomainRestriction>" 
+	    + "</edoal:class></edoal:RelationCoDomainRestriction>" 
 	    + "</edoal:and>" + "</edoal:Relation>");
 	toExport = new RelationConstruction( Constructor.INVERSE, Collections.singleton((PathExpression)new RelationId("http://my/super/relation")));
 	assertEquals( render( toExport ), 

@@ -93,11 +93,10 @@ public enum SyntaxElement {
 	ARGUMENTS(      Namespace.EDOAL, "arguments"),
 	ATTR_TRANSF(    Namespace.EDOAL, "transf"),
 	CLASS_EXPR(     Namespace.EDOAL, "Class", true),//ALIGNMENT
-	CODOMAIN_RESTRICTION(Namespace.EDOAL, "CodomainRestriction", true),
 	COMPARATOR(     Namespace.EDOAL, "comparator"),
 	COMPOSE(        Namespace.EDOAL, "compose", Constructor.COMP),
 	DATATYPE(       Namespace.EDOAL, "datatype"),
-	DOMAIN_RESTRICTION(Namespace.EDOAL, "DomainRestriction", true),
+	DOMAIN_RESTRICTION(Namespace.EDOAL, "AttributeDomainRestriction", true),
 	//ID(             Namespace.EDOAL, "Id", true), // Useless
 	INSTANCE_EXPR(  Namespace.EDOAL, "Instance", true),
 	INVERSE(        Namespace.EDOAL, "inverse", Constructor.INVERSE),
@@ -107,12 +106,14 @@ public enum SyntaxElement {
 	OPERATOR(       Namespace.EDOAL, "operator"),
 	OR(             Namespace.EDOAL, "or", Constructor.OR),
 	//PARAMETERS(     Namespace.EDOAL, "parameters"),
-	PROPERTY(       Namespace.EDOAL, "Property", true),
-	PROPERTY_EXPR(  Namespace.EDOAL, "Property"), // ??
-	PROPERTY_OCCURENCE_COND(Namespace.EDOAL, "AttributeOccurenceRestriction", true),
+	//PROPERTY(       Namespace.EDOAL, "Property", true), // ??
+	PROPERTY_EXPR(  Namespace.EDOAL, "Property"),
+	OCCURENCE_COND(Namespace.EDOAL, "AttributeOccurenceRestriction", true),
 	PROPERTY_TYPE_COND(Namespace.EDOAL, "PropertyTypeRestriction", true),
+	PROPERTY_DOMAIN_COND(Namespace.EDOAL, "PropertyDomainRestriction", true),
+	PROPERTY_VALUE_COND(     Namespace.EDOAL, "PropertyValueRestriction", true),
 	RELATION_DOMAIN_COND(Namespace.EDOAL, "RelationDomainRestriction", true),
-	PROPERTY_VALUE_COND(Namespace.EDOAL, "AttributeValueRestriction", true),
+	RELATION_CODOMAIN_COND(Namespace.EDOAL, "RelationCoDomainRestriction", true),
 	REFLEXIVE(      Namespace.EDOAL, "reflexive", Constructor.REFLEXIVE),
 	RELATION_EXPR(  Namespace.EDOAL, "Relation", true),
 	//SERVICE(        Namespace.EDOAL, "service"),
@@ -121,10 +122,10 @@ public enum SyntaxElement {
 	TOCLASS(        Namespace.EDOAL, "class"),
 	TRANSF(         Namespace.EDOAL, "transf"),
 	TRANSITIVE(     Namespace.EDOAL, "transitive", Constructor.TRANSITIVE),
-	TYPE_COND(      Namespace.EDOAL, "TypeRestriction", true),
+	TYPE_COND(Namespace.EDOAL, "AttributeTypeRestriction", true), // undocumented
 	VALUE(          Namespace.EDOAL, "value"),
 	VAR(            Namespace.EDOAL, "var"),
-	VALUE_COND(     Namespace.EDOAL, "ValueRestriction", true),
+	VALUE_COND(Namespace.EDOAL, "AttributeValueRestriction", true),
 	    ;
 
     /** Operator to determine how to combine the expressions */

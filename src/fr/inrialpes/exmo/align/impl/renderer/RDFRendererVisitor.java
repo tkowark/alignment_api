@@ -405,7 +405,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 
     // DONE+TESTED
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -423,12 +423,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	visit( c.getValue() );
 	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.VALUE_COND.print(DEF)+">");
     }
 
     // DONE+TESTED
     public void visit( final ClassTypeRestriction c ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.TYPE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -441,12 +441,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	visit( c.getType() );
 	decreaseIndent();
 	writer.print(NL);
-	indentedOutput("</"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.TYPE_COND.print(DEF)+">");
     }
 
     // DONE+TESTED
     public void visit( final ClassDomainRestriction c ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -463,12 +463,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF)+">");
     }
 
     // DONE+TESTED
     public void visit( final ClassOccurenceRestriction c ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.PROPERTY_OCCURENCE_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.OCCURENCE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -486,7 +486,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print(c.getOccurence());
 	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.PROPERTY_OCCURENCE_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.OCCURENCE_COND.print(DEF)+">");
     }
     
     // DONE
@@ -552,7 +552,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	
     // DONE
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.VALUE_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -564,12 +564,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	visit( c.getValue() );
 	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.VALUE_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF)+">");
     }
 
     // DONE
     public void visit(final PropertyDomainRestriction c) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF));
+	indentedOutput("<"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -580,18 +580,18 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF)+">"+NL);
+	indentedOutput("</"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF)+">"+NL);
     }
 
     // DONE
     public void visit(final PropertyTypeRestriction c) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.TYPE_COND.print(DEF));
+	indentedOutput("<"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
 	visit( c.getType() );
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.TYPE_COND.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF)+">");
     }
     
     // DONE
@@ -651,7 +651,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	
     // DONE
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.CODOMAIN_RESTRICTION.print(DEF));
+	indentedOutput("<"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -662,12 +662,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	writer.print("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.CODOMAIN_RESTRICTION.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF)+">");
     }
 
     // DONE
     public void visit(final RelationDomainRestriction c) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF));
+	indentedOutput("<"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
@@ -678,7 +678,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	writer.print("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF)+">");
+	indentedOutput("</"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF)+">");
     }
     
     // DONE

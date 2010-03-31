@@ -97,20 +97,20 @@
 		<edoal:or rdf:parseType="Collection">
 		  <edoal:Class>
 		    <edoal:not>
-		      <edoal:Class rdf:about="&wine;Bordeaux5"/>
+		      <edoal:Class rdf:about="&vin;Bordeaux5"/>
 		    </edoal:not>
 		  </edoal:Class>
-		  <edoal:Class rdf:about="&wine;Bordeaux6"/>
+		  <edoal:Class rdf:about="&vin;Bordeaux6"/>
 		</edoal:or>
 	      </edoal:Class>
 	      <edoal:Class>
 		<edoal:and rdf:parseType="Collection">
 		  <edoal:Class>
 		    <edoal:not>
-		      <edoal:Class rdf:about="&wine;Bordeaux7"/>
+		      <edoal:Class rdf:about="&vin;Bordeaux7"/>
 		    </edoal:not>
 		  </edoal:Class>
-		  <edoal:Class rdf:about="&wine;Bordeaux7"/>
+		  <edoal:Class rdf:about="&vin;Bordeaux7"/>
 		</edoal:and>
 	      </edoal:Class>
 	    </edoal:and>
@@ -127,7 +127,7 @@
 	  <edoal:Class>
 	    <edoal:or rdf:parseType="Collection">
 	      <edoal:Class rdf:about="&wine;Vin"/>
-	      <edoal:RelationDomainRestriction> 
+	      <edoal:AttributeDomainRestriction> 
 		<edoal:onAttribute>
 		  <edoal:Relation>
 		    <edoal:compose rdf:parseType="Collection">
@@ -137,8 +137,8 @@
 		  </edoal:Relation>
 		</edoal:onAttribute>
   		<edoal:class><edoal:Class rdf:about="&wine;FrenchRegion"/></edoal:class>
-	      </edoal:RelationDomainRestriction>	  
-	      <edoal:PropertyTypeRestriction> 
+	      </edoal:AttributeDomainRestriction>	  
+	      <edoal:AttributeTypeRestriction> 
 		<edoal:onAttribute>
 		  <edoal:Property>
 		    <edoal:compose rdf:parseType="Collection">
@@ -148,7 +148,7 @@
 		  </edoal:Property>
 		</edoal:onAttribute>
   		<edoal:datatype>An-integer-as-datatype</edoal:datatype>
-	      </edoal:PropertyTypeRestriction>	  
+	      </edoal:AttributeTypeRestriction>	  
 	      <edoal:AttributeOccurenceRestriction> 
 		<edoal:onAttribute>
 		  <edoal:Relation>
@@ -288,7 +288,7 @@
 			</edoal:arguments>
 		      </edoal:Apply>
 		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
-		      <edoal:Instance rdf:about="&wine;Bordelais"/>
+		      <edoal:Instance rdf:about="&vin;Bordelais"/>
 		    </edoal:arguments>
 		  </edoal:Apply>
 		</edoal:value>
@@ -311,7 +311,142 @@
       </Cell>
     </map>
     <!-- rel const: and or not compose inverse trans refl sym -->
+    <map>
+      <Cell rdf:about="MappingRule_rel_const">
+	<entity1>
+	  <edoal:Relation>
+	    <edoal:not>
+	      <edoal:Relation>
+		<edoal:and rdf:parseType="Collection">
+		  <edoal:Relation>
+		    <edoal:or rdf:parseType="Collection">
+		      <edoal:Relation>
+			<edoal:and rdf:parseType="Collection">
+			  <edoal:Relation rdf:about="&wine;loc1"/>
+			  <edoal:Relation rdf:about="&wine;loc2"/>
+			</edoal:and>
+		      </edoal:Relation>
+		      <edoal:Relation>
+			<edoal:not>
+			  <edoal:Relation rdf:about="&wine;loc3"/>
+			</edoal:not>
+		      </edoal:Relation>
+		      <edoal:Relation>
+			<edoal:transitive>
+			  <edoal:Relation>
+			    <edoal:compose rdf:parseType="Collection">
+			      <edoal:Relation rdf:about="&wine;loc3"/>
+			      <edoal:Relation rdf:about="&wine;loc5"/>
+			    </edoal:compose>
+			  </edoal:Relation>
+			</edoal:transitive>
+		      </edoal:Relation>
+		      <edoal:Relation>
+			<edoal:reflexive>
+			  <edoal:Relation rdf:about="&wine;loc6"/>
+			</edoal:reflexive>
+		      </edoal:Relation>
+		      <edoal:Relation>
+			<edoal:symmetric>
+			  <edoal:Relation rdf:about="&wine;loc7"/>
+			</edoal:symmetric>
+		      </edoal:Relation>
+		    </edoal:or>
+		  </edoal:Relation>
+		  <edoal:Relation>
+		    <edoal:not>
+		      <edoal:Relation>
+			<edoal:inverse>
+			  <edoal:Relation rdf:about="&wine;loc4"/>
+			</edoal:inverse>
+		      </edoal:Relation>
+		    </edoal:not>
+		  </edoal:Relation>
+		</edoal:and>
+	      </edoal:Relation>
+	    </edoal:not>
+	  </edoal:Relation>
+	</entity1>
+	<entity2> 
+	  <edoal:Relation>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:Relation rdf:about="&vin;place3"/>
+	      <edoal:Relation>
+		<edoal:or rdf:parseType="Collection">
+		  <edoal:Relation>
+		    <edoal:not>
+		      <edoal:Relation rdf:about="&vin;place5"/>
+		    </edoal:not>
+		  </edoal:Relation>
+		  <edoal:Relation rdf:about="&vin;place6"/>
+		</edoal:or>
+	      </edoal:Relation>
+	      <edoal:Relation>
+		<edoal:and rdf:parseType="Collection">
+		  <edoal:Relation>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation>
+			<edoal:symmetric>
+			  <edoal:Relation rdf:about="&vin;place1"/>
+			</edoal:symmetric>
+		      </edoal:Relation>
+		      <edoal:Relation rdf:about="&vin;place2"/>
+		    </edoal:compose>
+		  </edoal:Relation>
+		  <edoal:Relation rdf:about="&vin;place7"/>
+		</edoal:and>
+	      </edoal:Relation>
+	    </edoal:and>
+	  </edoal:Relation>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- rel rest: att-type... -->
+    <map>
+      <Cell rdf:about="MappingRule_rel_rest">
+	<entity1>
+	  <edoal:Relation>
+	    <edoal:or rdf:parseType="Collection">
+	      <edoal:RelationDomainRestriction> 
+  		<edoal:class><edoal:Class rdf:about="&wine;Bordeaux1"/></edoal:class>
+	      </edoal:RelationDomainRestriction>	  
+	      <edoal:RelationCoDomainRestriction> 
+  		<edoal:class><edoal:Class rdf:about="&wine;Bordeaux2"/></edoal:class>
+	      </edoal:RelationCoDomainRestriction>
+	    </edoal:or>
+	  </edoal:Relation>
+	</entity1>
+	<entity2> 
+	  <edoal:Relation>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:RelationDomainRestriction> 
+  		<edoal:class>
+		  <edoal:Class>
+		    <edoal:and rdf:parseType="Collection">
+		      <edoal:Class rdf:about="&vin;Bordeaux5"/>
+		      <edoal:Class rdf:about="&vin;Bordeaux6"/>
+		    </edoal:and>
+		  </edoal:Class>
+                </edoal:class>
+	      </edoal:RelationDomainRestriction>	  
+	      <edoal:RelationCoDomainRestriction> 
+  		<edoal:class>
+		  <edoal:Class>
+		    <edoal:not>
+		      <edoal:Class rdf:about="&vin;Bordeaux7"/>
+		    </edoal:not>
+		  </edoal:Class>
+                </edoal:class>
+	      </edoal:RelationCoDomainRestriction>	  
+	    </edoal:and>
+	  </edoal:Relation>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- rel const and rest -->
     <!-- prop basis -->
     <map>
@@ -323,7 +458,129 @@
       </Cell>
     </map>
     <!-- prop const: and or not compose -->
+    <map>
+      <Cell rdf:about="MappingRule_prop_const">
+	<entity1>
+	  <edoal:Property>
+	    <edoal:not>
+	      <edoal:Property>
+		<edoal:and rdf:parseType="Collection">
+		  <edoal:Property>
+		    <edoal:or rdf:parseType="Collection">
+		      <edoal:Property>
+			<edoal:and rdf:parseType="Collection">
+			  <edoal:Property rdf:about="&wine;number1"/>
+			  <edoal:Property rdf:about="&wine;number2"/>
+			</edoal:and>
+		      </edoal:Property>
+		      <edoal:Property>
+			<edoal:not>
+			  <edoal:Property rdf:about="&wine;number3"/>
+			</edoal:not>
+		      </edoal:Property>
+		      <edoal:Property>
+			<edoal:not>
+			  <edoal:Property>
+			    <edoal:compose rdf:parseType="Collection">
+			      <edoal:Relation rdf:about="&wine;loc3"/>
+			      <edoal:Relation rdf:about="&wine;loc5"/>
+			      <edoal:Property rdf:about="&wine;number5"/>
+			    </edoal:compose>
+			  </edoal:Property>
+			</edoal:not>
+		      </edoal:Property>
+		    </edoal:or>
+		  </edoal:Property>
+		  <edoal:Property>
+		    <edoal:not>
+		      <edoal:Property rdf:about="&wine;number4"/>
+		    </edoal:not>
+		  </edoal:Property>
+		</edoal:and>
+	      </edoal:Property>
+	    </edoal:not>
+	  </edoal:Property>
+	</entity1>
+	<entity2> 
+	  <edoal:Property>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:Property rdf:about="&vin;dpt3"/>
+	      <edoal:Property>
+		<edoal:or rdf:parseType="Collection">
+		  <edoal:Property>
+		    <edoal:not>
+		      <edoal:Property rdf:about="&vin;dpt5"/>
+		    </edoal:not>
+		  </edoal:Property>
+		  <edoal:Property rdf:about="&vin;dpt6"/>
+		</edoal:or>
+	      </edoal:Property>
+	      <edoal:Property>
+		<edoal:and rdf:parseType="Collection">
+		  <edoal:Property>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation>
+			<edoal:symmetric>
+			  <edoal:Relation rdf:about="&vin;place1"/>
+			</edoal:symmetric>
+		      </edoal:Relation>
+		      <edoal:Relation rdf:about="&vin;place2"/>
+		      <edoal:Property rdf:about="&vin;dpt2"/>
+		    </edoal:compose>
+		  </edoal:Property>
+		  <edoal:Property rdf:about="&vin;dpt7"/>
+		</edoal:and>
+	      </edoal:Property>
+	    </edoal:and>
+	  </edoal:Property>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- prop rest: att-type... -->
+    <map>
+      <Cell rdf:about="MappingRule_prop_rest">
+	<entity1>
+	  <edoal:Property>
+	    <edoal:or rdf:parseType="Collection">
+	      <edoal:PropertyDomainRestriction> 
+  		<edoal:class><edoal:Class rdf:about="&wine;Bordeaux1"/></edoal:class>
+	      </edoal:PropertyDomainRestriction>	  
+	      <!--edoal:PropertyTypeRestriction> 
+  		<edoal:type><edoal:Datatype rdf:about="&wine;Bordeaux2"/></edoal:type>
+	      </edoal:PropertyTypeRestriction-->
+	      <edoal:PropertyValueRestriction> 
+		<edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
+  		<edoal:value><edoal:Literal edoal:string="Bordeaux"/></edoal:value>
+	      </edoal:PropertyValueRestriction>
+	    </edoal:or>
+	  </edoal:Property>
+	</entity1>
+	<entity2> 
+	  <edoal:Property>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:PropertyDomainRestriction> 
+  		<edoal:class>
+		  <edoal:Class>
+		    <edoal:and rdf:parseType="Collection">
+		      <edoal:Class rdf:about="&vin;Bordeaux5"/>
+		      <edoal:Class rdf:about="&vin;Bordeaux6"/>
+		    </edoal:and>
+		  </edoal:Class>
+                </edoal:class>
+	      </edoal:PropertyDomainRestriction>	  
+	      <!--edoal:PropertyValueRestriction> 
+		  <edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
+  		<edoal:value><edoal:Apply edoal:operator="http://example.org/gensym"/></edoal:value>
+	      </edoal:PropertyValueRestriction-->
+	    </edoal:and>
+	  </edoal:Property>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- prop const and rest -->
     <!-- instance -->
     <map>
@@ -387,7 +644,7 @@
 	<entity2>
           <edoal:Class>
             <edoal:not>
-              <edoal:Class rdf:about="&wine;WineFlavor"/>
+              <edoal:Class rdf:about="&vin;WineFlavor"/>
 	    </edoal:not>
 	  </edoal:Class>
 	</entity2>

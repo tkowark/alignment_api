@@ -46,8 +46,6 @@ import org.semanticweb.owl.align.Visitable;
  * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
-// JE2010: Should it be abstract with RelationConjunction??
-
 public class RelationConstruction extends RelationExpression {
 
     /** Holds all expressions. */
@@ -96,7 +94,7 @@ public class RelationConstruction extends RelationExpression {
 	return components;
     }
 
-    public void addComponents( RelationExpression exp ) {
+    public void addComponents( PathExpression exp ) {
 	components.add( exp );
     }
 

@@ -272,7 +272,6 @@ public class RDFParser {
 	    if ( stmtIt.hasNext() ) {
 		final String arity = stmtIt.nextStatement().getString();
 		if ((arity != null) && (!arity.equals(""))) {
-		    // JE2009: Certainly some control checking should be useful
 		    alignment.setType( arity );
 		}
 	    } else {
@@ -283,16 +282,15 @@ public class RDFParser {
 	    while (stmtIt.hasNext()) {
 		Statement stmt = stmtIt.nextStatement();
 		if ( debug > 0 ) System.err.println( "  ---------------> "+stmt );
-		//alignment.addRule(parseCell(stmt.getResource()));
 		try { alignment.addAlignCell( parseCell( stmt.getResource() ) ); }
 		catch ( AlignmentException ae ) {
 		    System.err.println( "Error "+ae );
 		    ae.printStackTrace();
 		}
-		// rdf:type must be forgotten
 	    }
 
 	    // Remaining resources...
+	    // rdf:type must be forgotten
 	    //else if ( !pred.equals( SyntaxElement.getResource("rdftype") ) ) { // Unknown is annotation
 	    //	parseAnnotation( stmt, alignment );
 	    //}
@@ -358,7 +356,7 @@ public class RDFParser {
 	    throw new NullPointerException("The node must not be null");
 	}
 	try {
-	    // JE2009: Should be better to use AlignmentAPI relation recognition
+	    // Should be better to use Alignment API relation recognition
 	    // determine the relation, the relation shall be Literal
 	    final String relation = node.getProperty((Property)SyntaxElement.RULE_RELATION.resource).getString();
 	    //Get the relation
@@ -403,19 +401,19 @@ public class RDFParser {
 	Expression result;
 	Resource rdfType = node.getProperty( RDF.type ).getResource();
 	if ( rdfType.equals( SyntaxElement.CLASS_EXPR.resource ) ||
-	     rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) ||
-	     rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ||
-	     rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ||
-	     rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
+	     rdfType.equals( SyntaxElement.OCCURENCE_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ||
+	     rdfType.equals( SyntaxElement.TYPE_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
 	    result = parseClass( node );
 	} else if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ||
-		    rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ||
-		    rdfType.equals( SyntaxElement.TYPE_COND.resource ) ||
-		    rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
+		    rdfType.equals( SyntaxElement.PROPERTY_DOMAIN_COND.resource ) ||
+		    rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ||
+		    rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    result = parseProperty( node );
 	} else if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ||
-		    rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) || // JE 2010: no chance
-		    rdfType.equals( SyntaxElement.CODOMAIN_RESTRICTION.resource ) ) {
+		    rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) || // JE 2010: no chance
+		    rdfType.equals( SyntaxElement.RELATION_CODOMAIN_COND.resource ) ) {
 	    result = parseRelation( node );
 	} else if ( rdfType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
 	    result = parseInstance( node );
@@ -466,24 +464,22 @@ public class RDFParser {
 			throw new AlignmentException( "Class statement must containt one constructor or Id : "+node );
 		    }
 		}
-		//JE2010MUSTCHECK
-		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
+		Resource coll = stmt.getResource(); // MUSTCHECK
 		if ( op == SyntaxElement.NOT.getOperator() ) {
 		    clexpr.add( parseClass( coll ) );
 		} else { // Jena encode these collections as first/rest statements
-		    // THIS IS HORRIBLE BUT I DID NOT FOUND BETTER!
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
 			clexpr.add( parseClass( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource();
+			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
 		    }
 		}
 		return new ClassConstruction( op, clexpr );
 	    }
 	} else {
-	    if ( !rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) &&
-		 !rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) &&
-		 !rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) &&
-		 !rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
+	    if ( !rdfType.equals( SyntaxElement.OCCURENCE_COND.resource ) &&
+		 !rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) &&
+		 !rdfType.equals( SyntaxElement.TYPE_COND.resource ) &&
+		 !rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
 		throw new AlignmentException( "Bad class restriction type : "+rdfType );
 	    }
 	    PathExpression pe;
@@ -491,10 +487,9 @@ public class RDFParser {
 	    // Find onAttribute
 	    Statement stmt = node.getProperty( (Property)SyntaxElement.ONPROPERTY.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:onAttribute property" );
-	    //JE2010MUSTCHECK
-	    pe = parsePathExpression( stmt.getResource() );
-	    if ( rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ) {
-		// JEZ010: check that pe is a Property / Relation
+	    pe = parsePathExpression( stmt.getResource() ); // MUSTCHECK
+	    if ( rdfType.equals( SyntaxElement.TYPE_COND.resource ) ) {
+		// Check that pe is a Property / Relation
 		// ==> different treatment
 		// Datatype could also be defined as objets...? (like rdf:resource="")
 		stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
@@ -505,7 +500,7 @@ public class RDFParser {
 		} else {
 		    throw new AlignmentException( "Bad edoal:datatype value" );
 		}
-	    } else if ( rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ) {
+	    } else if ( rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ) {
 		stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:class property" );
 		RDFNode nn = stmt.getObject();
@@ -521,7 +516,7 @@ public class RDFParser {
 		URI id = getNodeId( stmt.getResource() );
 		if ( id != null ) comp = new Comparator( id );
 		else throw new AlignmentException("edoal:comparator requires an URI");
-		if ( rdfType.equals( SyntaxElement.PROPERTY_OCCURENCE_COND.resource ) ) {
+		if ( rdfType.equals( SyntaxElement.OCCURENCE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 		    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
 		    RDFNode nn = stmt.getObject();
@@ -530,28 +525,11 @@ public class RDFParser {
 		    } else {
 			throw new AlignmentException( "Bad occurence specification : "+nn );
 		    }
-		} else if ( rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
+		} else if ( rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 		    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
 		    ValueExpression v = parseValue( stmt.getObject() );
 		    return new ClassValueRestriction( pe, comp, v );
-		    /* TO SUPPRESS
-		    RDFNode nn = stmt.getObject();
-		    if ( nn.isLiteral() ) {
-			return new ClassValueRestriction( pe, comp, new Value( ((Literal)nn).getString() ) );
-		    } else if ( nn.isResource() ) {
-			// get the type
-			Resource nnType = ((Resource)nn).getProperty(RDF.type).getResource();
-			if ( nnType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
-			    // JE2010: Check that pe is a Relation
-			    return new ClassValueRestriction( pe, comp, parseInstance( (Resource)nn ) );
-			} else {
-			    // JE2010: Check that pe is a Property
-			    return new ClassValueRestriction( pe, comp, parsePathExpression( (Resource)nn ) );
-			} // This one will raise the error
-		    } else {
-			throw new AlignmentException( "Bad edoal:value value" );
-			}*/
 		}
 	    }
 	}
@@ -562,13 +540,13 @@ public class RDFParser {
     protected PathExpression parsePathExpression( final Resource node ) throws AlignmentException {
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	if ( rdfType.equals( SyntaxElement.PROPERTY_EXPR.resource ) ||
-	     rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ||
-	     rdfType.equals( SyntaxElement.TYPE_COND.resource ) ||
-	     rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
+	     rdfType.equals( SyntaxElement.PROPERTY_DOMAIN_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    return parseProperty( node );
 	} else if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ||
-	     rdfType.equals( SyntaxElement.CODOMAIN_RESTRICTION.resource ) ||
-	     rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
+	     rdfType.equals( SyntaxElement.RELATION_CODOMAIN_COND.resource ) ||
+	     rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ) {
 	    return parseRelation( node );
 	} else throw new AlignmentException( "Cannot parse path expression ("+rdfType+"): "+node );
 	
@@ -605,15 +583,13 @@ public class RDFParser {
 			throw new AlignmentException( "Property statement must containt one constructor or Id : "+node );
 		    }
 		}
-		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
+		Resource coll = stmt.getResource(); // MUSTCHECK
 		if ( op == SyntaxElement.NOT.getOperator() ) {
 		    clexpr.add( parseProperty( coll ) );
 		} else if ( op == SyntaxElement.COMPOSE.getOperator() ) {
-		    // THIS IS HORRIBLE BUT I DID NOT FOUND BETTER!
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
-			// In this present case, I have to parse a series of Relations
-			// followed by a Property
-			Resource newcoll = coll.getProperty( RDF.rest ).getResource(); //JE2010MUSTCHECK
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
+			// In this present case, it is a series of Relations followed by a Property
+			Resource newcoll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
 			if ( !RDF.nil.getURI().equals( newcoll.getURI() ) ) {
 			    clexpr.add( parseRelation( coll.getProperty( RDF.first ).getResource() ) );
 			} else {
@@ -622,16 +598,14 @@ public class RDFParser {
 			coll = newcoll;
 		    }
 		} else { // This is a first/rest statements
-		    // THIS IS HORRIBLE BUT I DID NOT FOUND BETTER!
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
-			//JE2010MUSTCHECK
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
 			clexpr.add( parseProperty( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource();
+			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
 		    }
 		}
 		return new PropertyConstruction( op, clexpr );
 	    }
-	} else if ( rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ) {
+	} else if ( rdfType.equals( SyntaxElement.PROPERTY_DOMAIN_COND.resource ) ) {
 	    stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:toClass property" );
 	    RDFNode nn = stmt.getObject();
@@ -640,7 +614,7 @@ public class RDFParser {
 	    } else {
 		throw new AlignmentException( "Incorrect class expression "+nn );
 	    } 
-	} else if ( rdfType.equals( SyntaxElement.TYPE_COND.resource ) ) {
+	} else if ( rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ) {
 	    // Datatype could also be defined as objets...? (like rdf:resource="")
 	    // Or classes? OF COURSE????
 	    stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
@@ -651,9 +625,8 @@ public class RDFParser {
 	    } else {
 		throw new AlignmentException( "Bad edoal:datatype value" );
 	    }
-	} else if ( rdfType.equals( SyntaxElement.VALUE_COND.resource ) ) {
+	} else if ( rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    // Find comparator
-	    // JE2010: This is not good as comparator management...
 	    stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 	    URI id = getNodeId( stmt.getResource() );
@@ -663,22 +636,6 @@ public class RDFParser {
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
 	    ValueExpression v = parseValue( stmt.getObject() );
 	    return new PropertyValueRestriction( comp, v );
-	    /*
-	    RDFNode nn = stmt.getObject();
-	    if ( nn.isLiteral() ) {
-		return new PropertyValueRestriction( comp, new Value( ((Literal)nn).getString() ) );
-	    } else if ( nn.isResource() ) {
-		// get the type
-		Resource nnType = ((Resource)nn).getProperty(RDF.type).getResource();
-		if ( nnType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
-		    return new PropertyValueRestriction( comp, parseInstance( (Resource)nn ) );
-		} else {
-		    //return new ClassValueRestriction( pe, comp, parsePathExpression( (Resource)nn ) );
-		    throw new AlignmentException( "Connot restrict value to "+nnType );
-		} 
-	    } else {
-		throw new AlignmentException( "Bad edoal:value value" );
-		}*/
 	} else {
 	    throw new AlignmentException("There is no pasrser for entity "+rdfType.getLocalName());
 	}
@@ -693,7 +650,7 @@ public class RDFParser {
 		return new RelationId( id );
 	    } else {
 		Constructor op = null;
-		// JE2010: does not compile with RelationExpression !!
+		// Remains a PathExpression (that this is a relation is checked by typing)
 		List<PathExpression> clexpr = new LinkedList<PathExpression>();
 		if ( node.hasProperty( (Property)SyntaxElement.AND.resource ) ) {
 		    op = SyntaxElement.AND.getOperator();
@@ -726,7 +683,7 @@ public class RDFParser {
 			throw new AlignmentException( "Relation statement must containt one constructor or Id : "+node );
 		    }
 		}
-		Resource coll = stmt.getResource(); //JE2010MUSTCHECK
+		Resource coll = stmt.getResource(); // MUSTCHECK
 		if ( op == SyntaxElement.NOT.getOperator() ||
 		     op == SyntaxElement.INVERSE.getOperator() || 
 		     op == SyntaxElement.REFLEXIVE.getOperator() || 
@@ -734,16 +691,14 @@ public class RDFParser {
 		     op == SyntaxElement.TRANSITIVE.getOperator() ) {
 		    clexpr.add( parseRelation( coll ) );
 		} else { // This is a first/rest statements
-		    // THIS IS HORRIBLE BUT I DID NOT FOUND BETTER!
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
-			//JE2010MUSTCHECK
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
 			clexpr.add( parseRelation( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource();
+			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
 		    }
 		}
 		return new RelationConstruction( op, clexpr );
 	    }
-	} else if ( rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ) {
+	} else if ( rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) ) {
 	    stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:toClass property" );
 	    RDFNode nn = stmt.getObject();
@@ -752,7 +707,7 @@ public class RDFParser {
 	    } else {
 		throw new AlignmentException( "Incorrect class expression "+nn );
 	    } 
-	} else if ( rdfType.equals( SyntaxElement.CODOMAIN_RESTRICTION.resource ) ) {
+	} else if ( rdfType.equals( SyntaxElement.RELATION_CODOMAIN_COND.resource ) ) {
 	    stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:toClass property" );
 	    RDFNode nn = stmt.getObject();
@@ -817,14 +772,14 @@ public class RDFParser {
 		List<ValueExpression> valexpr = new LinkedList<ValueExpression>();
 		if ( ((Resource)node).hasProperty( (Property)SyntaxElement.ARGUMENTS.resource ) ) {
 		    Statement stmt = ((Resource)node).getProperty( (Property)SyntaxElement.ARGUMENTS.resource );
-		    Resource coll = stmt.getResource(); //JE2010MUSTCHECK
+		    Resource coll = stmt.getResource(); // MUSTCHECK
 		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
 			valexpr.add( parseValue( coll.getProperty( RDF.first ).getResource() ) );
 			coll = coll.getProperty( RDF.rest ).getResource();
 		    }
 		}
 		return new Apply( op, valexpr );
-	    } else { // JE2010: Check that pe is a Path
+	    } else { // Check that pe is a Path??
 		return parsePathExpression( (Resource)node );
 	    }
 	} else {
@@ -870,11 +825,11 @@ public class RDFParser {
 		    name = prefix.substring( pos+1 );
 		    prefix = prefix.substring( 0, pos+1 );
 		} else { prefix += "#"; }
-		// JE: this will not work for stuff like dc:creator which has no fragment!
+		// This will not work for stuff like dc:creator which has no fragment!
 		al.setExtension( prefix, name, anno );
 	    }
 	} catch (Exception e1) {
-	    // JE2009: Would be better to silently ignore annotations
+	    // It would be better to silently ignore annotations
 	    // Or report them in a bunch
 	    throw new AlignmentException("The annotation is not correct", e1);
 	}
