@@ -22,9 +22,7 @@ package fr.inrialpes.exmo.ontowrap;
 
 import java.net.URI;
 
-//import org.semanticweb.owl.align.Visitable;
-
-public interface Ontology<O> {//extends Visitable {
+public interface Ontology<O> {
 
     public URI getURI();
     public URI getFile();
