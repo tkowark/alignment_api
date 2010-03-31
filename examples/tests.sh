@@ -1,13 +1,19 @@
 #!/bin/csh
 # This is a serie of tests made for the presentation of the API.
 # All these tests can be automatically run
+# This file is obsolete and is superseeded by our tests (Version 3.6)
+
+echo "This file is obsolete and is superseeded by our tests"
 
 # Context
 echo "Cleaning up."
 setenv CWD `pwd`
+setenv WNDIR ../../WordNet-3.0/dict
 
 # Clean up
-/bin/rm aligns/*.owl
+/bin/rm -rf aligns/
+
+mkdir aligns
 /bin/cp ../dtd/align.dtd aligns/align.dtd
 /bin/cp ../file_properties.xml .
 
@@ -34,7 +40,7 @@ java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl
 
 java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment -o aligns/StrucSubsDist7.owl -t .7
 
-java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignmentTest -o aligns/JWNL.owl
+#java -jar ../lib/procalign.jar -Dwndict=$WNDIR file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.ling.JWNLAlignment -o aligns/JWNL.owl
 
 # Evaluate their performances
 echo "Comparing..."
