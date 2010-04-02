@@ -70,7 +70,7 @@ Other tutorials are <a href="../index.html">available</a>.</p>
 	
 <p>Just:
 <div class="fragment">
-$ cd tutorial2
+$ cd tutorial4
 </div>
 </p>
 	
@@ -144,8 +144,6 @@ and, if none is found, computes one.
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
@@ -292,7 +290,7 @@ ontologies instead of the merged one.
 	String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
 		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#> " +
+		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> " +
 		"SELECT ?fn ?ln ?t " +
 		"WHERE {" +
                 "      ?student rdf:type aa:Person . " +
@@ -325,9 +323,9 @@ ontologies instead of the merged one.
 </pre>
 <p>Get the instances of "Estudiantes":</p>
 <pre>
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Student" ) );   
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 	Set instances  = reasoner.getIndividuals( estud, false );
 	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
 </pre>
@@ -387,7 +385,7 @@ ontologies instead of the merged one.
 
 The results for these execution are (for Pellet):
 <pre>
-Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante
+Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante
 Pellet(Merged): Estudiante is not necessarily subclass of Person
 Pellet(Merged): Estudiante is subclass of Student
 </pre>
@@ -405,7 +403,7 @@ IDDL: Estudiante <= Student is entailed
 
 <hr />
 <small>
-<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial2/</p>
+<p style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial4/</p>
 </small>
 <hr />
 <p>$Id$</p>
