@@ -120,8 +120,8 @@ public class MyApp {
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial2/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial2/ontology2.owl";
+	//String u1 = "http://alignapi.gforge.inria.fr/tutorial4/ontology1.owl";
+	//String u2 = "http://alignapi.gforge.inria.fr/tutorial4/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";

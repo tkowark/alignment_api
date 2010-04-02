@@ -134,8 +134,8 @@ public class MyApp {
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl";
+	//String u1 = "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl";
+	//String u2 = "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
@@ -252,7 +252,7 @@ public class MyApp {
 	QueryExecution qe = null;
 	try {
 	        in = new FileInputStream( merged );
-		//in = new URL("http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl").openStream();
+		//in = new URL("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl").openStream();
 		//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
 		Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
 	    model.read(in,"file:///tmp/myresult.owl"); 
@@ -263,7 +263,7 @@ public class MyApp {
 	    String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
 		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#> " +
+		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> " +
 		"SELECT ?fn ?ln ?t ?s " +
 		//"SELECT ?fn ?ln " +
 		"WHERE {" +
@@ -311,9 +311,9 @@ public class MyApp {
 	}
 
 	// get the instances of a class
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial2/ontology2.owl#Student" ) );   
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
 	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getIRI());
 
