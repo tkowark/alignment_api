@@ -10,7 +10,7 @@
 #cd html/tutorial
 cd ..
 setenv CWD `pwd`
-cd tutorial3
+cd tutorial2
 setenv WNDIR ../../../../WordNet-2.0/dict
 
 /bin/rm results/*
