@@ -39,7 +39,7 @@
     <rdfs:label xml:lang="en">Estudiante</rdfs:label>
   </owl:Class>
 
-<Estudiante>
+<Estudiante rdf:about="#Fitzgerald">
   <lastname>Fitzgerald</lastname>
   <firstname>Ella</firstname>
   <gender>Female</gender>
@@ -51,7 +51,7 @@
   <supervisor>Prof. Giancarlo Cetriolo</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Blackey">
   <lastname>Blackey</lastname>
   <firstname>Art</firstname>
   <gender>Male</gender>
@@ -64,7 +64,7 @@
   <supervisor>Pierluiggi Pomodoro</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Coleman">
   <lastname>Coleman</lastname>
   <firstname>Ornette</firstname>
   <gender>Male</gender>
@@ -76,7 +76,7 @@
   <supervisor>Carla Cipolla</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Davis">
   <lastname>Davis</lastname>
   <firstname>Miles</firstname>
   <gender>Male</gender>
@@ -88,7 +88,7 @@
   <supervisor>Univ.-Prof. Dr. Paolo Carciofo</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Coltrane">
   <lastname>Coltrane</lastname>
   <firstname>John</firstname>
   <gender>Male</gender>
@@ -98,7 +98,7 @@
   <topic>Semantic web applications, ontology management systems</topic>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Holliday">
   <lastname>Holliday</lastname>
   <firstname>Billie</firstname>
   <gender>Female</gender>
@@ -111,7 +111,7 @@
   <supervisor>Mr. Laurenzo Girafiore</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Monk">
   <lastname>Monk</lastname>
   <firstname>Thelonious</firstname>
   <gender>Male</gender>
@@ -123,7 +123,7 @@
   <supervisor>Stefano Zucchini</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#McRae">
   <lastname>McRae</lastname>
   <firstname>Carmen</firstname>
   <gender>Female</gender>
@@ -134,7 +134,7 @@
   <supervisor>Mario Staggioni</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Bley">
   <lastname>Bley</lastname>
   <firstname>Carla</firstname>
   <gender>Female</gender>
@@ -145,7 +145,7 @@
   <supervisor>Christina Melocoton</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Simone">
   <lastname>Simone</lastname>
   <firstname>Nina</firstname>
   <gender>Female</gender>
@@ -157,7 +157,7 @@
   <supervisor>Domenica Melanzana</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Joplin">
   <lastname>Joplin</lastname>
   <firstname>Janis</firstname>
   <gender>Female</gender>
@@ -170,7 +170,7 @@
   <supervisor>Fiorenta Pescadore</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Powell">
   <lastname>Powell</lastname>
   <firstname>Bud</firstname>
   <gender>Male</gender>
@@ -183,7 +183,7 @@
   <supervisor>Giovanni Dolomitti</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#DeWilde">
   <lastname>De Wilde</lastname>
   <firstname>Laurent</firstname>
   <gender>Male</gender>
@@ -195,7 +195,7 @@
   <supervisor>Simona Riccota</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Calloway">
   <lastname>Calloway</lastname>
   <firstname>Cab</firstname>
   <gender>Male</gender>
@@ -204,7 +204,7 @@
   <country>GB</country>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Goodman">
   <lastname>Goodman</lastname>
   <firstname>Benny</firstname>
   <gender>Male</gender>
@@ -216,7 +216,7 @@
   <supervisor>Prof. Dr. Riccardo Peperoni</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Parker">
   <lastname>Parker</lastname>
   <firstname>Charlie</firstname>
   <gender>Male</gender>
@@ -228,7 +228,7 @@
   <supervisor>Cecilia Parmiggiano</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Peterson">
   <lastname>Peterson</lastname>
   <firstname>Oscar</firstname>
   <gender>Male</gender>
@@ -240,7 +240,7 @@
   <supervisor>Dott. Antolio Bresaola</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Getz">
   <lastname>Getz</lastname>
   <firstname>Stan</firstname>
   <gender>Male</gender>
@@ -252,7 +252,7 @@
   <supervisor>Prof. Pierpaolo Polenta</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Zorn">
   <lastname>Zorn</lastname>
   <firstname>John</firstname>
   <gender>Male</gender>
@@ -264,7 +264,7 @@
   <supervisor>Prof. Pierpaolo Polenta</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Tyner">
   <lastname>Tyner</lastname>
   <firstname>McCoy</firstname>
   <gender>Male</gender>
@@ -276,7 +276,7 @@
   <supervisor>Dr Nanni Girasole</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Hawkins">
   <lastname>Hawkins</lastname>
   <firstname>Coleman</firstname>
   <gender>Male</gender>
@@ -288,7 +288,7 @@
   <supervisor>Pepe Frutti di Mare</supervisor>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Franklin">
   <lastname>Franklin</lastname>
   <firstname>Aretha</firstname>
   <gender>Female</gender>
@@ -297,7 +297,7 @@
   <country>ES</country>
 </Estudiante>
 
-<Estudiante>
+<Estudiante rdf:about="#Baker">
   <lastname>Baker</lastname>
   <firstname>Chet</firstname>
   <gender>Male</gender>

@@ -43,7 +43,7 @@
     <rdfs:label xml:lang="en">Student</rdfs:label>
   </owl:Class>
 
-<Student>
+<Student rdf:about="#dkral">
   <name>Krall</name>
   <first-name>Diana</first-name>
   <gender>Female</gender>
@@ -56,7 +56,7 @@
   <phd-advisor>C. Fragola</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#dgord">
   <name>Gordon</name>
   <first-name>Dexter</first-name>
   <gender>Male</gender>
@@ -68,7 +68,7 @@
   <phd-advisor>C. Pannacotta</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#drein">
   <name>Reinhardt</name>
   <first-name>Django</first-name>
   <gender>Male</gender>
@@ -81,7 +81,7 @@
   <phd-advisor>Prof. Chr. Melocoton</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#cmill">
   <name>Miller</name>
   <first-name>Glenn</first-name>
   <gender>Male</gender>
@@ -93,7 +93,7 @@
   <phd-advisor>Professor G. Limone</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#jmcle">
   <name>McLean</name>
   <first-name>Jackie</first-name>
   <gender>Male</gender>
@@ -105,7 +105,7 @@
   <phd-advisor>S. Zucchini</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#nmerc">
   <name>Merchant</name>
   <first-name>Natalie</first-name>
   <gender>Female</gender>
@@ -115,7 +115,7 @@
   <topics-of-interest>Social Semantic Web</topics-of-interest>
 </Student>
 
-<Student>
+<Student rdf:about="#lhamp">
   <name>Hampton</name>
   <first-name>Lionel</first-name>
   <gender>Male</gender>
@@ -127,7 +127,7 @@
   <phd-advisor>O. Mascarponne</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#rjone">
   <name>Jones</name>
   <first-name>Rickie Lee</first-name>
   <gender>Female</gender>
@@ -140,7 +140,7 @@
   <phd-advisor>A. Lambretta</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#sroll">
   <name>Rollins</name>
   <first-name>Sonny</first-name>
   <gender>Male</gender>
@@ -152,7 +152,7 @@
   <phd-advisor>M. Pecorino</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#kburr">
   <name>Burrell</name>
   <first-name>Kenny</first-name>
   <gender>Male</gender>
@@ -164,7 +164,7 @@
   <phd-advisor>S. Proscuitto</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#dbrub">
   <name>Brubeck</name>
   <first-name>Dave</first-name>
   <gender>Male</gender>
@@ -177,7 +177,7 @@
   <phd-advisor>P. Tiramissu</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#delli">
   <name>Ellington</name>
   <first-name>Duke</first-name>
   <gender>Male</gender>
@@ -189,7 +189,7 @@
   <phd-advisor>Prof. G. Cetriolo</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#mjack">
   <name>Jackson</name>
   <first-name>Milt</first-name>
   <gender>Male</gender>
@@ -198,7 +198,7 @@
   <country-of-study>IT</country-of-study>
 </Student>
 
-<Student>
+<Student rdf:about="#plee">
   <name>Lee</name>
   <first-name>Peggy</first-name>
   <gender>Female</gender>
@@ -210,7 +210,7 @@
   <phd-advisor>a.Univ.Prof.DI.Dr. Z. Melone</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#agilb">
   <name>Gilberto</name>
   <first-name>Astrud</first-name>
   <gender>Female</gender>
@@ -222,7 +222,7 @@
   <phd-advisor>Pr. Dr. M. Coppa</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#erigb">
   <name>Rigby</name>
   <first-name>Eleonore</first-name>
   <gender>Female</gender>
@@ -231,7 +231,7 @@
   <country-of-study>MX</country-of-study>
 </Student>
 
-<Student>
+<Student rdf:about="#cblac">
   <name>Black</name>
   <first-name>Cilla</first-name>
   <gender>Female</gender>
@@ -242,7 +242,7 @@
   <phd-advisor>Prof. G. Limone</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#ashep">
   <name>Shepp</name>
   <first-name>Archie</first-name>
   <gender>Male</gender>
@@ -252,7 +252,7 @@
   <topics-of-interest>Personal Information Management</topics-of-interest>
 </Student>
 
-<Student>
+<Student rdf:about="#atatu">
   <name>Tatum</name>
   <first-name>Art</first-name>
   <gender>Male</gender>
@@ -264,7 +264,7 @@
   <phd-advisor>B. Tiramisu</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#ccore">
   <name>Corea</name>
   <first-name>Chick</first-name>
   <gender>Male</gender>
@@ -276,7 +276,7 @@
   <phd-advisor>Prof. Dr. A. Belladonna</phd-advisor>
 </Student>
 
-<Student>
+<Student rdf:about="#rbrya">
   <name>Bryant</name>
   <first-name>Ray</first-name>
   <institution>Handshuh University</institution>
@@ -284,7 +284,7 @@
   <country-of-study>BE</country-of-study>
 </Student>
 
-<Student>
+<Student rdf:about="#jzawi">
   <name>Zawinul</name>
   <first-name>Joe</first-name>
   <institution>Institute for Social Coworkers</institution>
@@ -292,7 +292,7 @@
   <country-of-study>ES</country-of-study>
 </Student>
 
-<Student>
+<Student rdf:about="#bsinc">
   <name>Sinclair</name>
   <first-name>Betty</first-name>
   <institution>Institute for Social Coworkers</institution>
@@ -300,7 +300,7 @@
   <country-of-study>ES</country-of-study>
 </Student>
 
-<Student>
+<Student rdf:about="#jaldde">
   <name>Aldderley</name>
   <first-name>Julian</first-name>
   <institution>Politecnico di Madalena</institution>

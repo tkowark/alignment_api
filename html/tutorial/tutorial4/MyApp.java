@@ -134,12 +134,10 @@ public class MyApp {
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-	String tempOntoFileName = "/tmp/myresult.owl";
+	String tempOntoFileName = "results/myresult.owl";
 	Properties params = new BasicParameters();
 	try {
 	    uri1 = new URI( u1 );
@@ -255,7 +253,7 @@ public class MyApp {
 		//in = new URL("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl").openStream();
 		//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
 		Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-	    model.read(in,"file:///tmp/myresult.owl"); 
+	    model.read(in,"file:results/myresult.owl"); 
 	    in.close();
 	
 	    // Create a new query
@@ -303,7 +301,7 @@ public class MyApp {
 	//System.setErr( new PrintStream( new NullStream() ) );
 	// Load the ontology 
 	try {
-	    OWLOntology ontology = manager.loadOntology( IRI.create( "file://"+tempOntoFileName ) );
+	    OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
 	    reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
 	    reasoner.prepareReasoner();
 	} catch (OWLOntologyCreationException ooce) { 
@@ -315,7 +313,7 @@ public class MyApp {
 	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getIRI());
+	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
 
 	testPelletSubClass( manager, reasoner, estud, person );
 	testPelletSubClass( manager, reasoner, estud, student );
@@ -335,13 +333,17 @@ public class MyApp {
 	}
     }
 
+    private String clname( OWLClassExpression cl ) {
+	return cl.asOWLClass().getIRI().getFragment();
+    }
+
     public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
 	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
 	boolean isit = reasoner.isEntailed( axiom );
 	if ( isit ) {
-	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
+	    System.out.println( "Pellet(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
 	} else {
-	    System.out.println( "Pellet(Merged): "+d1+" is not necessarily subclass of "+d2 );
+	    System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
 	}
     }
 
@@ -353,9 +355,9 @@ public class MyApp {
 	    al2.addAlignCell( d1, d2, "&lt;", 1. );
 	} catch (AlignmentException ae) { ae.printStackTrace(); }
 	if ( dreasoner.isEntailed( al2 ) ) {
-	    System.out.println( "IDDL: "+d1+" <= "+d2+" is entailed" );
+	    System.out.println( "IDDL: "+clname(d1)+" <= "+clname(d2)+" is entailed" );
 	} else {
-	    System.out.println( "IDDL: "+d1+" <= "+d2+" is not entailed" );
+	    System.out.println( "IDDL: "+clname(d1)+" <= "+clname(d2)+" is not entailed" );
 	}
     }
 
