@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -29,7 +29,6 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Parameters;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicParameters;
@@ -38,6 +37,7 @@ import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
+import fr.inrialpes.exmo.align.util.NullStream;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 // Jena
@@ -51,7 +51,20 @@ import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 
+// OWL API
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+
 // Pellet
+import com.clarkparsia.pellet.owlapiv3.PelletReasoner;
 
 // IDDL
 import fr.inrialpes.exmo.iddl.IDDLReasoner;
@@ -79,6 +92,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathConstants;
 
 // Java standard classes
+import java.util.Set;
+import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
@@ -87,6 +102,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
@@ -105,33 +121,33 @@ import java.net.URISyntaxException;
  * Reconcile two ontologies in various ways
  */
 
-public class MyApp {
+public class Skeleton {
 
     String RESTServ = "http://aserv.inrialpes.fr/rest/";
 
     public static void main( String[] args ) {
-	new MyApp().run( args );
+	new Skeleton().run( args );
     }
 
     public void run( String[] args ) {
-
 	// Setting variables
-	String myId = "JETest";
+	String myId = "Test";
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
-	//String u1 = "http://alignapi.gforge.inria.fr/tutorial4/ontology1.owl";
-	//String u2 = "http://alignapi.gforge.inria.fr/tutorial4/ontology2.owl";
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-	Parameters params = new BasicParameters();
+	String tempOntoFileName = "results/myresult.owl";
+	Properties params = new BasicParameters();
 	try {
 	    uri1 = new URI( u1 );
 	    uri2 = new URI( u2 );
-	} catch (URISyntaxException use) { use.printStackTrace(); exit(); }
+	} catch (URISyntaxException use) { use.printStackTrace(); System.exit(-1); }
 
 	try {
+
+	    System.out.println( "You are ready to play" );
 
 	    // ***** First exercise: matching *****
 	    // (Sol1) Try to find an alignment between two ontologies from the server
@@ -169,7 +185,9 @@ public class MyApp {
 
 	    // (Sol2) Use Pellet to answer queries (at the ontology level)
 
-	} catch (Exception e) { e.printStackTrace(); exit();  }
+	    // (Sol3) reasoning with distributed semantics (IDDL)
+
+	} catch (Exception e) { e.printStackTrace(); System.exit(-1); }
     }
 
     public String getFromURLString( String u, boolean print ){
@@ -195,7 +213,7 @@ public class MyApp {
     public NodeList extractFromResult( String found, String path, boolean print ){
 	Document document = null;
 	NodeList nodes = null;
-	try { // Parse the returned string as XML
+	try { // Parse the returned stringAS XML
 	    DocumentBuilder parser =
 		DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	    document = parser.parse(new ByteArrayInputStream( found.getBytes() ));
@@ -206,6 +224,7 @@ public class MyApp {
 	try { // Apply the Xpath expression
 	    XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
+	    //XPathExpression expr = xpath.compile("//book[author='Neal Stephenson']/title/text()");
 	    XPathExpression expr = xpath.compile( path );
 	    Object result = expr.evaluate( document, XPathConstants.NODESET );
 	    nodes = (NodeList)result;
@@ -218,3 +237,4 @@ public class MyApp {
 	return nodes;
     }
 }
+

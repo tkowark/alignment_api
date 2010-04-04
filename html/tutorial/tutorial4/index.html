@@ -102,15 +102,14 @@ The list of jars is long, but at least it is explicit and you
 should be safe with this one.
 This programme can be compiled by:
 <div class="fragment">
-$ javac -d results MyApp.java
+$ javac -d results Skeleton.java
 </div>
 </p>
-<p>This
-  programme can be run by:
+<p>This programme can be run by:
 <div class="fragment">
-$ java MyApp
-</div></p>
-You can start with the empty template <a href="Skeleton.java">Skeleton.java</a>.
+$ java Skeleton
+</div>
+It provides no output for the moment.
 </p>
 
 <h2>Matching ontologies</h2>
@@ -135,68 +134,68 @@ and, if none is found, computes one.
   <input type="button" onclick="show('qu1')" value="Show solution 1"/>
   <input type="button" onclick="show('qu2')" value="Show solution 2"/>
   <input type="button" onclick="show('qu3')" value="Show solution 3"/>
-  <input type="button" onclick="hide('qu1');hide('qu2');hide('qu3');" value="Hide solutions"/>
+  <input type="button" onclick="hide('qu0');hide('qu1');hide('qu2');hide('qu3');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu0">
 <p>After introducing the main variables:</p>
 <pre>
-	String myId = "JETest";
-	Alignment al = null;
-	URI uri1 = null;
-	URI uri2 = null;
-	String u1 = "file:ontology1.owl";
-	String u2 = "file:ontology2.owl";
-	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-	String tempOntoFileName = "/tmp/myresult.owl";
-	Parameters params = new BasicParameters();
-	try {
-	    uri1 = new URI( u1 );
-	    uri2 = new URI( u2 );
-	} catch (URISyntaxException use) { use.printStackTrace(); }
+String myId = "Test";
+Alignment al = null;
+URI uri1 = null;
+URI uri2 = null;
+String u1 = "file:ontology1.owl";
+String u2 = "file:ontology2.owl";
+String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
+String tempOntoFileName = "results/myresult.owl";
+Properties params = new BasicParameters();
+try {
+  uri1 = new URI( u1 );
+  uri2 = new URI( u2 );
+} catch (URISyntaxException use) { use.printStackTrace(); }
 </pre>
 </div>
 <div class="explain" id="qu1">
 <p>The programme will invoke the alignment server:</p>
 <pre>
-	// (Sol1) Try to find an alignment between two ontologies from the server
-	// ask for it
-	String found = getFromURLString( RESTServ+"find?onto1="+u1+"&onto2="+u2, false );
+// (Sol1) Try to find an alignment between two ontologies from the server
+// ask for it
+String found = getFromURLString( RESTServ+"find?onto1="+u1+"&onto2="+u2, false );
 </pre>
 <p>Retrieve the alignment itself:</p>
 <pre>
-	// retrieve it
-	// If there exists alignments, ask for the first one
-	NodeList alset = extractFromResult( found, "//findResponse/alignmentList/alid[1]/text()", false );
+// retrieve it
+// If there exists alignments, ask for the first one
+NodeList alset = extractFromResult( found, "//findResponse/alignmentList/alid[1]/text()", false );
 </pre>
 <p>And parse it:</p>
 <pre>
-	// parse it as an alignment
-	// (better passing to the SAXHandler)
-	AlignmentParser aparser = new AlignmentParser(0);
-	Alignment alu = aparser.parseString( xmlString );
-	al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
+// parse it as an alignment
+AlignmentParser aparser = new AlignmentParser(0);
+Alignment alu = aparser.parseString( xmlString );
+al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
 </pre>
 </div>
-<div class="explain" id="qu2"><p>Just create an instance of
-    AlignmentProcess and call it:</p>
+<div class="explain" id="qu2">
+<p>Just create an instance of AlignmentProcess and call it:</p>
 <pre>
-	// (Sol2) Match the ontologies with a local algorithm
-	if ( al == null ){ // Unfortunatelly no alignment was available
-	    AlignmentProcess ap = new StringDistAlignment();
-	    ap.init( uri1, uri2 );
-	    params.setParameter("stringFunction","smoaDistance");
-	    ap.align( (Alignment)null, params );
-	    al = ap;
-	}
+// (Sol2) Match the ontologies with a local algorithm
+if ( al == null ){ // Unfortunatelly no alignment was available
+  AlignmentProcess ap = new StringDistAlignment();
+  ap.init( uri1, uri2 );
+  params.setProperty("stringFunction","smoaDistance");
+  params.setProperty("noinst","1");
+  ap.align( (Alignment)null, params );
+  al = ap;
+}
 </pre>
 </div>
 <div class="explain" id="qu3"><p>Match on the server:</p>
 <pre>
-	// (Sol3) Match the ontologies on the server
-	if ( alset.getLength() == 0 ) {
-	    // call for matching
-	    String match = getFromURLString( RESTServ+"match?onto1="+u1+"&onto2="+u2+"&method="+method+"&pretty="+myId+"&action=Match&force=true", true );
-	}
+// (Sol3) Match the ontologies on the server
+if ( alset.getLength() == 0 ) {
+  // call for matching
+  String match = getFromURLString( RESTServ+"match?onto1="+u1+"&onto2="+u2+"&method="+method+"&pretty="+myId+"&action=Match", true );
+}
 </pre>
 <p>The remainder is the same as in the first solution.</p>
 </div>
@@ -234,15 +233,16 @@ This can be done with the alignment API support.
 <div class="explain" id="qu5">
 <p>In fact everything is done in one step:</p>
 <pre>
-	// (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
-	File merged = new File( tempOntoFileName );
-	PrintWriter writer = new PrintWriter ( new FileWriter( merged, false ), true );
-	AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
-	al.render(renderer);
-	writer.flush();
-	writer.close();
+// (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
+PrintWriter writer = null;
+File merged = new File( tempOntoFileName );
+writer = new PrintWriter ( new FileWriter( merged, false ), true );
+AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
+al.render(renderer);
+writer.flush();
+writer.close();
 </pre>
-<p>You can look at the result in myresult.owl</p>
+<p>You can look at the result in <a href="results/myresult.owl">results/myresult.owl</a>.</p>
 </div>
 <div class="explain" id="qu6"><p>Not ready yet</p>
 <pre>
@@ -264,8 +264,16 @@ This can be done in three ways:
 <p>
 In case you go for SPARQL please, take care of the inference regime
 and observe what are the differences in this case. You can of course
-run various queries and start by runing them in one of the initial
+run various queries and start by running them in one of the initial
 ontologies instead of the merged one.
+</p>
+<p>
+For using Pellet, it will be necessary
+to <a href="http://clarkparsia.com/pellet/download">download
+Pellet</a>  and add in
+the classpath the corresponding pellet-rules.jar,
+pellet-datatypes.jar, pellet-query.jar and pellet-el.jar jar-files
+which are not shipped with the Alignment API.
 </p>
 </p>
 <div class="button">
@@ -277,74 +285,78 @@ ontologies instead of the merged one.
 <div class="explain" id="qu7">
 <p>Prepare the system:</p>
 <pre>
-	// (Sol1) Use SPARQL to answer queries (at the data level)
-	InputStream in = new FileInputStream( merged );
-	//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
-	Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-	model.read(in,"file:///tmp/myresult.owl"); 
-	in.close();
+// (Sol1) Use SPARQL to answer queries (at the data level)
+InputStream in = new FileInputStream( merged );
+Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
+model.read( in, "file:"+tempOntoFileName );
+in.close();
 </pre>	
 <p>Query (please play by changing the query)</p>
 <pre>
-        // Create a new query
-	String queryString = 
+// Create a new query
+String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
 		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> " +
-		"SELECT ?fn ?ln ?t " +
+		"SELECT ?fn ?ln ?t ?s " +
 		"WHERE {" +
-                "      ?student rdf:type aa:Person . " +
+                "      ?student rdf:type aa:Estudiante . " +
 		"      ?student aa:firstname  ?fn. " +
 		"      ?student aa:lastname  ?ln. " +
-		"      ?student aa:topic ?t . " +
+		"OPTIONAL   {   ?student aa:affiliation ?t . } " +
+		"OPTIONAL   {   ?student aa:supervisor ?s . } " +
 		"      }";
+
+Query query = QueryFactory.create(queryString);
+
 </pre>	
 <p>Evaluation:</p>
 <pre>
-	Query query = QueryFactory.create(queryString);
+// Execute the query and obtain results
+QueryExecution qe = QueryExecutionFactory.create(query, model);
+ResultSet results = qe.execSelect();
 
-	// Execute the query and obtain results
-	QueryExecution qe = QueryExecutionFactory.create(query, model);
-	ResultSet results = qe.execSelect();
-	
-	// Output query results	
-	ResultSetFormatter.out(System.out, results, query);
+// Output query results	
+ResultSetFormatter.out(System.out, results, query);
 </pre>
 </div>
 <div class="explain" id="qu8">
 <p>Create Reasoner instance and load the merged ontologies:</p>
 <pre>
-	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-	Reasoner reasoner = new Reasoner( manager );
-	try {
-	    OWLOntology ontology = manager.loadOntology( URI.create( "file://"+tempOntoFileName ) );
-	    reasoner.loadOntology( ontology );
-	} catch (OWLOntologyCreationException ooce) { ooce.printStackTrace(); }
+OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+// Load the ontology 
+OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
+OWLReasoner reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
+reasoner.prepareReasoner();
 </pre>
 <p>Get the instances of "Estudiantes":</p>
 <pre>
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( URI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
-	Set instances  = reasoner.getIndividuals( estud, false );
-	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+estud.getURI());
+// get the instances of a class
+OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
+OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
+OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
+Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
+System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
 </pre>
 <p>Some subsumption tests:</p>
 <pre>
-	testPelletSubClass( manager, reasoner, estud, person );
-	testPelletSubClass( manager, reasoner, estud, student );
+testPelletSubClass( manager, reasoner, estud, person );
+testPelletSubClass( manager, reasoner, estud, student );
 </pre>
 <p>Such that:</p>
 <pre>
-    public void testPelletSubClass( OWLOntologyManager manager, Reasoner reasoner, OWLDescription d1, OWLDescription d2 ) {
-	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassAxiom( d1, d2 );
-	boolean isit = reasoner.isEntailed( axiom );
-	if ( isit ) {
-	    System.out.println( "Pellet(Merged): "+d1+" is subclass of "+d2 );
-	} else {
-	    System.out.println( "Pellet(Merged): "+d1+" is not necessarily subclass of "+d2 );
-	}
-    }
+private String clname( OWLClassExpression cl ) {
+  return cl.asOWLClass().getIRI().getFragment();
+}
+
+public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
+  OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
+  if ( reasoner.isEntailed( axiom ) ) {
+    System.out.println( "Pellet(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
+  } else {
+    System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
+  }
+}
 </pre>
 </div>
 <div class="explain" id="qu9">
@@ -382,8 +394,17 @@ ontologies instead of the merged one.
     }
 </pre>
 </div>
-
-The results for these execution are (for Pellet):
+The results for these execution are, for SPARQL:
+<pre>
+---------------------------------------------------------------------------------------
+| fn      | ln      | t                            | s                                |
+=======================================================================================
+| "Miles" | "Davis" | "JOHANNISBEER RESEARCH"      | "Univ.-Prof. Dr. Paolo Carciofo" |
+| "Chet"  | "Baker" | "University Pie XXIII"       |                                  |
+| "McCoy" | "Tyner" | "University of Soupaloignon" | "Dr Nanni Girasole"              |
+...
+</pre>
+for Pellet:
 <pre>
 Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante
 Pellet(Merged): Estudiante is not necessarily subclass of Person

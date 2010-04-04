@@ -130,7 +130,7 @@ public class MyApp {
     }
 
     public void run( String[] args ) {
-	String myId = "JETest";
+	String myId = "Test";
 	Alignment al = null;
 	URI uri1 = null;
 	URI uri2 = null;
@@ -166,7 +166,7 @@ public class MyApp {
 	    found = getFromURLString( RESTServ+"retrieve?method=fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor&id="+alid, false );
 	    alset = extractFromResult( found, "//retrieveResponse/result/*[1]",true );
 
-	    // This code is heavy as hell
+	    // This code is heavy
 	    String xmlString = null;
 	    try {
 		// Set up the output transformer
@@ -186,7 +186,6 @@ public class MyApp {
 	    }
 
 	    // parse it as an alignment
-	    // (better passing to the SAXHandler)
 	    try {
 		AlignmentParser aparser = new AlignmentParser(0);
 		Alignment alu = aparser.parseString( xmlString );
@@ -243,17 +242,16 @@ public class MyApp {
 
 	// (Sol2) import the data from one ontology into the other
 
-	// ***** Third exercise: querying/reasoning *****
+	// ***** Third exercise: querying and reasoning *****
 
 	// (Sol1) Use SPARQL to answer queries (at the data level)
 	InputStream in = null;
 	QueryExecution qe = null;
 	try {
-	        in = new FileInputStream( merged );
-		//in = new URL("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl").openStream();
-		//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
-		Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-	    model.read(in,"file:results/myresult.owl"); 
+	    in = new FileInputStream( merged );
+	    //OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
+	    Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
+	    model.read( in, "file:"+tempOntoFileName );
 	    in.close();
 	
 	    // Create a new query
@@ -289,16 +287,10 @@ public class MyApp {
 	    if ( qe != null ) qe.close();
 	}
 
-	// Alternative: Use Pellet to answer queries
-
-	// ***** Fourth exercise: reasoning *****
-
-	// Variant 1: reasoning with merged ontologies
+	// (Sol2) Use Pellet to answer queries (at the ontology level)
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-	//Pellet
 	OWLReasoner reasoner = null;
 
-	//System.setErr( new PrintStream( new NullStream() ) );
 	// Load the ontology 
 	try {
 	    OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
@@ -318,7 +310,7 @@ public class MyApp {
 	testPelletSubClass( manager, reasoner, estud, person );
 	testPelletSubClass( manager, reasoner, estud, student );
 
-	// Variant 2: reasoning with distributed semantics (IDDL)
+	// (Sol3) reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
 	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
 	dreasoner.addOntology( uri1 );
@@ -339,8 +331,7 @@ public class MyApp {
 
     public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
 	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
-	boolean isit = reasoner.isEntailed( axiom );
-	if ( isit ) {
+	if ( reasoner.isEntailed( axiom ) ) {
 	    System.out.println( "Pellet(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
 	} else {
 	    System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
