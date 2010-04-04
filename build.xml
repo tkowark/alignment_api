@@ -36,7 +36,7 @@
 
   <target name="bind">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
-    <property file="build.properties"/>
+    <property file="../build.properties"/>
     <!-- default values -->
     <property name="doing" value="running"/>
     <property name="version" value="4.0"/>
