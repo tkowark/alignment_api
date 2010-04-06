@@ -414,6 +414,13 @@ public class AlignmentService {
 	    debug = Integer.parseInt( params.getProperty( "debug" ) );
 	}
 
+	// We add (for debugging purposes) the command lines as arguments
+	String argline = "";
+	for ( int i = args.length - 1; i >= 0; i-- ) {
+	    argline = args[i]+" "+argline;
+	}
+	params.setProperty( "argline", argline );
+
 	return params;
     }
 
