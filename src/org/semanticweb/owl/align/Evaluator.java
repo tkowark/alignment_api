@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2007-2009
+ * Copyright (C) INRIA, 2004, 2007-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,5 +58,11 @@ public interface Evaluator {
      * ontologies.
      */
     public void write( PrintWriter writer ) throws java.io.IOException ;
+
+    /**
+     * Returns the results as a property list not further described but
+     * suitable for display.
+     */
+    public Properties getResults();
 }
 

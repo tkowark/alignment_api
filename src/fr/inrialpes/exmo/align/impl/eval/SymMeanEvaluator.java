@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
+import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -52,7 +53,7 @@ import java.io.PrintWriter;
  * @version $Id$ 
  */
 
-public class SymMeanEvaluator extends BasicEvaluator {
+public class SymMeanEvaluator extends BasicEvaluator implements Evaluator {
     private double classScore = 0.;
     private double propScore = 0.;
     private double indScore = 0.;
@@ -118,6 +119,15 @@ public class SymMeanEvaluator extends BasicEvaluator {
 	writer.print("</individuals>\n    <result>");
  	writer.print(result);
  	writer.print("</result>\n  </Evaluation>\n</"+SyntaxElement.RDF.print()+">\n");
+    }
+
+    public Properties getResults() {
+	Properties results = new Properties();
+	results.setProperty( "class score", Double.toString( classScore ) );
+	results.setProperty( "property score", Double.toString( propScore ) );
+	results.setProperty( "individual score", Double.toString( indScore ) );
+	results.setProperty( "global symmetric difference", Double.toString( result ) );
+	return results;
     }
 
 }

@@ -207,6 +207,20 @@ return result;
 	writer.print("</result>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
+    public Properties getResults() {
+	Properties results = new Properties();
+	results.setProperty( "precision", Double.toString( precision ) );
+	results.setProperty( "recall", Double.toString( recall ) );
+	results.setProperty( "overall", Double.toString( overall ) );
+	results.setProperty( "fallout", Double.toString( fallout ) );
+	results.setProperty( "fmeasure", Double.toString( fmeasure ) );
+	results.setProperty( "nbexpected", Integer.toString( nbexpected ) );
+	results.setProperty( "nbfound", Integer.toString( nbfound ) );
+	results.setProperty( "true positive", Integer.toString( nbcorrect ) );
+	if ( time != 0 ) results.setProperty( "time", Long.toString( time ) );
+	return results;
+    }
+
     public double getPrecision() { return precision; }
     public double getRecall() {	return recall; }
     public double getOverall() { return overall; }

@@ -51,9 +51,7 @@ import java.net.URI;
  * @version $Id$ 
  */
 
-public class SemPRecEvaluator //extends BasicEvaluator 
-				      //implements Evaluator {
-    extends PRecEvaluator {
+public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
     private int nbfoundentailed = 0; // nb of returned cells entailed by the reference alignment
     private int nbexpectedentailed = 0; // nb of reference cells entailed by returned alignment
@@ -138,5 +136,14 @@ public class SemPRecEvaluator //extends BasicEvaluator
 
     public int getFoundEntailed() { return nbfoundentailed; }
     public int getExpectedEntailed() { return nbexpectedentailed; }
+
+    public Properties getResults() {
+	Properties results = super.getResults();
+	results.setProperty( "nbexpectedentailed", Integer.toString( nbexpectedentailed ) );
+	results.setProperty( "nbfoundentailed", Integer.toString( nbfoundentailed ) );
+	return results;
+    }
+
+
 }
 

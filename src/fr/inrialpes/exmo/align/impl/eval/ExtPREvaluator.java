@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl.eval;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
+import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -51,7 +52,7 @@ import java.net.URI;
  * @version $Id$ 
  */
 
-public class ExtPREvaluator extends BasicEvaluator {
+public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 
     private HeavyLoadedOntology<Object> onto1;
     private HeavyLoadedOntology<Object> onto2;
@@ -305,5 +306,20 @@ public class ExtPREvaluator extends BasicEvaluator {
 	writer.print("</"+Namespace.ATLMAP.shortCut+":orientedrecall>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
+    public Properties getResults() {
+	Properties results = new Properties();
+	results.setProperty( "symmetric precision", Double.toString( symprec ) );
+	results.setProperty( "symmetric recall", Double.toString( symrec ) );
+	results.setProperty( "symmetric similarity", Double.toString( symsimilarity ) );
+	results.setProperty( "effort-based precision", Double.toString( effprec ) );
+	results.setProperty( "effort-based recall", Double.toString( effrec ) );
+	results.setProperty( "effort-based similarity", Double.toString( effsimilarity ) );
+	results.setProperty( "oriented precision", Double.toString( orientprec ) );
+	results.setProperty( "oriented recall", Double.toString( orientrec ) );
+	results.setProperty( "oriented similarity", Double.toString( orientsimilarity ) );
+	results.setProperty( "nbexpected", Integer.toString( nbexpected ) );
+	results.setProperty( "nbfound", Integer.toString( nbfound ) );
+	return results;
+    }
 }
 
