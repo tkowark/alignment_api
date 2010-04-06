@@ -421,6 +421,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg = "Error: the server does not have Web service capabilities (use -W switch)";
 	    }
+	} else if ( perf.equals("argline") ){
+	    msg = "<h1>Command line arguments</h1>\n<pre>\n"+manager.argline()+"\n<pre>\n";
 	} else if ( perf.equals("prmsqlquery") ){
 	    msg = "<h1>SQL query</h1><form action=\"sqlquery\">Query:<br /><textarea name=\"query\" rows=\"20\" cols=\"80\">SELECT \nFROM \nWHERE </textarea> (sql)<br /><small>An SQL SELECT query</small><br /><input type=\"submit\" value=\"Query\"/></form>";
 	} else if ( perf.equals("sqlquery") ){
@@ -776,6 +778,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg = "<h1>Evaluation results</h1>";
 		msg += displayAnswer( answer, params );
+		// This should be nice here to provide the oportunity to diff them
+		// This needs to pass arguments... and to get them on the other side.
 	    }
 	} else if ( perf.equals("saveeval") ) {
 	} else if ( perf.equals("prmgrpeval") ) {
@@ -783,6 +787,36 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("savegrpeval") ) {
 	} else if ( perf.equals("prmresults") ) {
 	} else if ( perf.equals("getresults") ) {
+	} else if ( perf.equals("prmdiff") ) {
+	    msg ="<h1>Compare alignments</h1><form action=\"diff\">";
+	    msg += "First alignment: ";
+	    msg += "<select name=\"id1\">";
+	    for( Alignment al: manager.alignments() ){
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		msg += "<option value=\""+id+"\">"+pid+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg +="Second alignment: ";
+	    msg += "<select name=\"id2\">";
+	    for( Alignment al: manager.alignments() ){
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		msg += "<option value=\""+id+"\">"+pid+"</option>";
+	    }
+	    msg += "</select><br />";
+	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Compare\"/>\n";
+	    msg += "</form>\n";
+	} else if ( perf.equals("diff") ) {
+	    Message answer = manager.diff( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer, params );
+	    } else {
+		msg = "<h1>Comparison results</h1>";
+		msg += displayAnswer( answer, params );
+	    }
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server commands</h1>";
 	    msg += "<form action=\"../html/listalignments\"><button title=\"List of all the alignments stored in the server\" type=\"submit\">Available alignments</button></form>";
@@ -793,6 +827,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prminv\"><button title=\"Swap the two ontologies of an alignment\" type=\"submit\">Invert alignment</button></form>";
 	    msg += "<form action=\"prmstore\"><button title=\"Persistently store an alignent in this server\" type=\"submit\" >Store alignment</button></form>";
 	    msg += "<form action=\"prmretrieve\"><button title=\"Render an alignment in a particular format\" type=\"submit\">Render alignment</button></form>";
+	    msg += "<form action=\"prmeval\"><button title=\"Evaluation of an alignment\" type=\"submit\">Evaluate alignment</button></form>";
 	    msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
 	} else {
 	    msg = "Cannot understand command "+perf;

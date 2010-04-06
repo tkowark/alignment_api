@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,15 +32,20 @@ public class EvalResult extends Success {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){
-	// This can only rely on a HTML output of the Evaluator
-	return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getContent()+"</a>";
+	String results = "Alignment method: "+getContent()+"\n<ul>\n";
+	for ( String key : getParameters().stringPropertyNames() ) {
+	    results += "<li>"+key+" : "+getParameters().getProperty( key )+"</li>\n";
+	}
+	results += "</ul>\n";
+	return results;
     }
     public String RESTString(){
-	// This can only rely on a XML output of the Evaluator
-	// We have one through the write( PrintWriter ) method
-	// This should go to content
-	//return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<alid>" + content + "</alid>";	
-	return "<alid>"+content+"</alid>";	
+	String results = "<EvaluationResults>";
+	for ( String key : getParameters().stringPropertyNames() ) {
+	    results += "<"+key+">"+getParameters().getProperty( key )+"</"+key+">";
+	}
+	results += "</EvaluationResults>";
+	return results;	
     }
 
 }

@@ -28,6 +28,7 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.util.DiffAlign;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
@@ -179,6 +180,10 @@ public class AServProtocolManager {
 
     public String serverURL(){
 	return myId;
+    }
+
+    public String argline(){
+	return commandLineParams.getProperty( "argline" );
     }
 
    /*********************************************************************
@@ -585,6 +590,36 @@ public class AServProtocolManager {
 	}
 	// Compare it
 	try { eval.eval(params); }
+	catch (AlignmentException e) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
+	}
+	// Could also be EvaluationId if we develop a more elaborate evaluation description
+	return new EvalResult(newId(),mess,myId,mess.getSender(),classname,eval.getResults());
+    }
+
+    public Message diff( Message mess ){
+	Properties params = mess.getParameters();
+	// Retrieve the alignment
+	String id1 = params.getProperty("id1");
+	Alignment al1 = null;
+	try {
+	    al1 = alignmentCache.getAlignment( id1 );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id1,(Properties)null);
+	}
+	// Retrieve the reference alignment
+	String id2 = params.getProperty("id2");
+	Alignment al2 = null;
+	try {
+	    al2 = alignmentCache.getAlignment( id2 );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id2,(Properties)null);
+	}
+	// Set the comparison method
+	// Should be rewritted with diff -- no choice
+	DiffAlign eval = new DiffAlign( al1, al2 );
+	// Compare it
+	try { eval.eval( params ); }
 	catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
