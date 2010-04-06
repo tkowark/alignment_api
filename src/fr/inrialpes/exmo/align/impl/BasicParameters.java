@@ -98,6 +98,12 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 	return values();
     }
 
+    /**
+     * This is legacy code.
+     * java.lang.Properties offers p.storeToXML( System.out, "" )
+     * and p.loadFromXML( new FileInputStream( filename ) )
+     * which are natural implementers for this.
+     */
     @SuppressWarnings( "unchecked" )
     public void write(){
 	System.out.println("<?xml version='1.0' ?>");
