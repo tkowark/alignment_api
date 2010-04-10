@@ -11,7 +11,7 @@
   </path>
     
   <!-- tested -->
-  <target name="usage" depends="init">
+  <target name="usage" depends="versionnumber">
     <echo>ant _target_ _options_
 
       usage: this message
@@ -30,33 +30,44 @@
       svnbranch: copy the version under svn
       clean: clean-up before release
 
-	-Dversion=${version}
+	-Dversion=${version}.${svn.revision}
     </echo>
   </target>
 
   <target name="bind">
-    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
     <property file="../build.properties"/>
-    <!-- default values -->
-    <property name="doing" value="running"/>
-    <property name="version" value="4.0"/>
-    <property name="date" value="${TODAY}"/>
-    <property name="login" value="${user.name}"/>
-    <property name="debug" value="off"/>
-    <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
     <!-- This should now be handled by GForge -->
     <property name="tooldir"  value="tools" />
     <property name="libdir"  value="lib" />
     <property name="classpath"  value="classes"/>
-    
-    <filter token="DATE" value="${date}"/>
-    <filter token="VERS" value="${version}"/>
+    <property name="tempdir"  value="/tmp"/>
   </target>
 
   <!-- tested -->
   <target name="init" depends="bind">
     <property name="jarclasspath" value="owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar align.jar ontowrap.jar procalign.jar"/>
 
+  </target>
+
+  <target name="versionnumber" depends="init">
+    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
+    <property name="version.major" value="4"/>
+    <property name="version.minor" value="0"/>
+    <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
+    <condition property="svn.revision" value="${svn.rev}" else="nosvn">
+      <isset property="svn.rev"/>
+    </condition>
+    <property name="version" value="${version.major}.${version.minor}"/>
+    <property name="date" value="${TODAY}"/>
+    <tstamp>
+      <format property="curyear" pattern="yyyy" locale="fr"/>
+    </tstamp>
+    <property name="login" value="${user.name}"/>
+    <property name="debug" value="off"/>
+    <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
+    
+    <filter token="DATE" value="${date}"/>
+    <filter token="VERS" value="${version}"/>
   </target>
 
   <target name="upgrade">
@@ -139,7 +150,14 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
 	<attribute name="Specification-Title" value="Alignment API"/>
-	<attribute name="Specification-Version" value="${version}"/>
+	<attribute name="Specification-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Name" value="Alignment API"/>
+	<attribute name="Bundle-SymbolicName" value="alignapi"/>
+	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Date" value="${TODAY}"/>
+	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Export-package" value="org.semanticweb.owl.align"/>
       </manifest>
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
@@ -149,7 +167,14 @@
       <manifest>
 	<attribute name="Built-Date" value="${TODAY}"/>
 	<attribute name="Specification-Title" value="Ontology wrapper"/>
-	<attribute name="Specification-Version" value="${version}"/>
+	<attribute name="Specification-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Name" value="OntoWrap"/>
+	<attribute name="Bundle-SymbolicName" value="ontowrap"/>
+	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Date" value="${TODAY}"/>
+	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Export-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/ontowrap/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
@@ -161,7 +186,15 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
         <attribute name="Class-Path" value="${jarclasspath}"/>
 	<attribute name="Implementation-Title" value="Alignment API implementation"/>
-	<attribute name="Implementation-Version" value="${version}"/> 
+	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
+	<attribute name="Bundle-Name" value="Alignment API implementation"/>
+	<attribute name="Bundle-SymbolicName" value="procalign"/>
+	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Date" value="${TODAY}"/>
+	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util"/>
+	<attribute name="Import-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
@@ -177,7 +210,14 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
         <attribute name="Class-Path" value="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
-	<attribute name="Implementation-Version" value="${version}"/> 
+	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
+	<attribute name="Bundle-Name" value="Alignment server"/>
+	<attribute name="Bundle-SymbolicName" value="alignsvc"/>
+	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Date" value="${TODAY}"/>
+ 	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Export-package" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
@@ -206,7 +246,7 @@
 	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jaroyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
         <attribute name="Class-Path" value="alignsvc.jar ontosim.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
-	<attribute name="Implementation-Version" value="${version}"/> 
+	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
       </manifest>
     </jar>
   </target>
@@ -257,8 +297,8 @@
       Use="true" Splitindex="true" private="true"
       Windowtitle="Alignment API and Server"
       doctitle="Alignment API and Server ${version}" 
-      header="Alignment API and Server ${version}"
-      bottom="(C) INRIA &amp; friends, 2003-2010"
+      header="Alignment API and Server ${version}.${version.update}"
+      bottom="(C) INRIA &amp; friends, 2003-${curryear}"
       >
      <classpath refid="classpath"/>
      <packageset dir="src" defaultexcludes="yes">
@@ -276,10 +316,12 @@
   </target>
 
   <!-- tested -->
-  <target name="release" depends="init">
-    <echo message="Releasing version ${version}" />
+  <target name="release" depends="versionnumber">
+    <echo message="Releasing version ${version} (${svn.revision})" />
+    <!--echo message="Are you sure that everything is OK (update/ci/compile/lint)?"/-->
     <copy file="distrib/LICENSE.TXT" tofile="LICENSE.TXT" filtering="true"/>
     <antcall target="zip"/>
+    <copy file="${tempdir}/align-${version}.zip" tofile="${FTPDir}/align-${version}.zip" />
     <!-- This should now go to GForge -->
     <!--copy file="${FTPDir}/align-${version}.zip" tofile="${WebDir}/align.zip" /-->
     <echo message="Please upload the released file to Gforge" />
@@ -290,7 +332,6 @@
   <!-- tested -->
   <target name="zip" depends="init">
     <echo message="Ziping..."/>
-    <!--echo message="Are you sure that everything is OK (update/ci/compile)?"/-->
     <antcall target="clean"/>
     <!-- Unfortunately commit is not functional -->
     <!--antcall target="commit"/-->
@@ -300,10 +341,10 @@
     <antcall target="cleantest"/>
     <antcall target="javadoc"/>
     <ant dir="plugins/neon" target="jar">
-      <property name="version" value="${version}"/>
+      <property name="version" value="${version}.${svn.revision}"/>
     </ant>
     <!-- may be useful to change directory -->
-    <zip zipfile="${FTPDir}/align-${version}.zip">
+    <zip zipfile="${tempdir}/align-${version}.zip">
       <fileset dir=".">
 	<include name="**/*"/>
 	<exclude name="**/.svn"/>
