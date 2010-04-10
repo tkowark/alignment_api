@@ -335,7 +335,7 @@ reasoner.prepareReasoner();
 OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
 OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
-Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
+Set&lt;OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
 System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
 </pre>
 <p>Some subsumption tests:</p>
