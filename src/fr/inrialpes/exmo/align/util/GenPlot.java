@@ -95,7 +95,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 public class GenPlot {
 
     int STEP = 10;
-    Properties params = null;
+    Properties params = new Properties();
     Vector<String> listAlgo;
     Vector<GraphEvaluator> listEvaluators;
     String fileNames = "";
@@ -125,8 +125,9 @@ public class GenPlot {
 	longopts[6] = new LongOpt("grapher", LongOpt.REQUIRED_ARGUMENT, null, 'g');
 	longopts[7] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[8] = new LongOpt("step", LongOpt.REQUIRED_ARGUMENT, null, 's');
+	longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 
-	Getopt g = new Getopt("", args, "ho:d::l:e:g:s:t:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::l:D:e:g:s:t:", longopts);
 	int step = 10;
 	int c;
 	String arg;
@@ -172,6 +173,19 @@ public class GenPlot {
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
 		break;
+	    case 'D' :
+		/* Parameter definition */
+		arg = g.getOptarg();
+		int index = arg.indexOf('=');
+		if ( index != -1 ) {
+		    params.setProperty( arg.substring( 0, index), 
+					 arg.substring(index+1));
+		} else {
+		    System.err.println("Bad parameter syntax: "+g);
+		    usage();
+		    System.exit(0);
+		}
+		break;
 	    }
 	}
 
@@ -188,7 +202,6 @@ public class GenPlot {
 	    listAlgo.add( s );	    
 	}
 
-	params = new Properties();
 	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	// Collect correspondences from alignments in all directories

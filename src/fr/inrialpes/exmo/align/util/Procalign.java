@@ -178,13 +178,12 @@ public class Procalign {
 		arg = g.getOptarg();
 		int index = arg.indexOf('=');
 		if ( index != -1 ) {
-		    params.setParameter( arg.substring( 0, index), 
+		    params.setProperty( arg.substring( 0, index), 
 					 arg.substring(index+1));
 		} else {
 		    System.err.println("Bad parameter syntax: "+g);
 		    usage();
 		    System.exit(0);
-		    
 		}
 		break;
 	    }
@@ -193,9 +192,9 @@ public class Procalign {
 	int i = g.getOptind();
 
 	if (debug > 0) {
-	    params.setParameter( "debug", Integer.toString(debug) );
-	} else if ( params.getParameter("debug") != null ) {
-	    debug = Integer.parseInt( params.getParameter("debug") );
+	    params.setProperty( "debug", Integer.toString(debug) );
+	} else if ( params.getProperty("debug") != null ) {
+	    debug = Integer.parseInt( params.getProperty("debug") );
 	}
 
 	try {
