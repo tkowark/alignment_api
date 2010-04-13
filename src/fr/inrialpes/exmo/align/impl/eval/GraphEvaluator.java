@@ -67,6 +67,9 @@ public abstract class GraphEvaluator {
     protected SortedSet<EvalCell> cellSet = null;
     public Vector<Pair> points;
 
+    // By default result is invalid
+    public boolean invalid = true;
+
     /**
      * Returns the points to display in a graph
      */
@@ -141,9 +144,12 @@ public abstract class GraphEvaluator {
 	// Set the found cells in the sorted structure
 	if ( al == null ) return;
 	for ( Cell c : al ) {
+	    if ( invalid && c.getStrength() != 1. && c.getStrength() != 0. ) invalid = false;
 	    cellSet.add( new EvalCell( c, isCorrect( c, ref ) ) );
 	}
     }
+
+    public boolean isValid() { return !invalid; }
 
     public int nbCells() {
 	if ( cellSet == null ) return 0;

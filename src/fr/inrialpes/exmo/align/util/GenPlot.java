@@ -27,7 +27,6 @@ package fr.inrialpes.exmo.align.util;
 import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.eval.GraphEvaluator;
-import fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.Pair;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
@@ -367,7 +366,7 @@ public class GenPlot {
     public void printPGFTex( Vector<Vector<Pair>> result ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
-	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta", "yellow" }	;
+	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta" }	;
 	output.println("\\documentclass[11pt]{book}");
 	output.println();
 	output.println("\\usepackage{pgf}");
@@ -390,8 +389,11 @@ public class GenPlot {
 	output.println("\\draw (-0.3,5) node[rotate=90] {$"+ylabel+"$}; ");
 	output.println("\\draw (-0.3,10) node {1.}; ");
 	output.println("% Plots");
+	i = 0;
 	for ( String m : listAlgo ) {
-	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+"] file {"+m+".table};");
+	    output.print("\\draw["+colortable[i%6] );
+	    if ( !listEvaluators.get(i).isValid() ) output.print(",dotted");
+	    output.println("] plot[mark="+marktable[i%19]+"] file {"+m+".table};");
 	    //,smooth
 	    i++;
 	}
@@ -399,10 +401,12 @@ public class GenPlot {
 	output.println("% Legend");
 	i = 0;
 	for ( String m : listAlgo ) {
-	    output.println("\\draw["+colortable[i%7]+"] plot[mark="+marktable[i%19]+"] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
+	    output.print("\\draw["+colortable[i%6] );
+	    if ( !listEvaluators.get(i).isValid() ) output.print(",dotted");
+	    output.println("] plot[mark="+marktable[i%19]+"] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
 	    //,smooth
-	    output.println("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
-	    output.printf("\\draw["+colortable[i%7]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-1.2)+") node {%1.2f};\n", listEvaluators.get(i).getGlobalResult() );
+	    output.println("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
+	    output.printf("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-1.2)+") node {%1.2f};\n", listEvaluators.get(i).getGlobalResult() );
 	    i++;
 	}
 	output.println("\\end{tikzpicture}");
@@ -442,7 +446,7 @@ public class GenPlot {
 	}
     }
 
-    // 2010: THIS IS ONLY FOR TSV ET CA NE MARCHE PAS A
+    // 2010: THIS IS ONLY FOR TSV AND THIS DOES NOT WORK
     // IT IS SUPPOSED TO PROVIDE
     // List of algo
     // List of STEP + points

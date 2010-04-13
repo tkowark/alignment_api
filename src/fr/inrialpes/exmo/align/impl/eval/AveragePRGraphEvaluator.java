@@ -129,6 +129,7 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
 	initCellSet();
 	if ( align2 == null ) return; //no increase of precisions
 	for ( Cell c : align2 ) {
+    	    if ( invalid && c.getStrength() != 1. && c.getStrength() != 0. ) invalid = false;
 	    cellSet.add( new EvalCell( c, isCorrect( c, align1 ) ) );
 	}
 
