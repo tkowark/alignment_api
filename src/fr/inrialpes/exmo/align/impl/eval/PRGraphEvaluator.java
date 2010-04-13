@@ -114,7 +114,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	int nbcorrect = 0;
 	int nbfound = 0;
 	int increment = (STEP*nbexpected)/100; // 2010 should be computed with the total expected (in negrapheval)
-	System.err.println(" INCREMENT SET "+increment );
+	//System.err.println(" INCREMENT SET "+increment );
 	int next = 0;
 	points.add( new Pair( 0., 1. ) ); // [R=0%]
 	next += increment;
@@ -157,7 +157,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	int nbfound = 0;
 	int increment = (STEP*nbexpected)/100; // 2010 should be computed with the total expected (in negrapheval)
 	Vector<Pair> inflexion = new Vector<Pair>();
-	System.err.println(" INCREMENT SET "+increment );
+	//System.err.println(" INCREMENT SET "+increment );
 	int next = 0;
 	// Collect the points that change recall
 	// (the other provide lower precision from the same recall and are not considered)
