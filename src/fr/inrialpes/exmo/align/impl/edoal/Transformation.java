@@ -32,7 +32,7 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * The transformation is specified usually through function and can go one way or bith ways 
  *
  * @author Jérôme Euzenat
- * @version $Id: EDOALCell.java 1338 2010-03-18 21:33:00Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class Transformation implements Visitable {
