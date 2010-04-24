@@ -71,7 +71,7 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
-import fr.inrialpes.exmo.align.impl.edoal.TransfService;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
@@ -137,6 +137,9 @@ public class TypeCheckingVisitor {
 
     public void visit( EDOALRelation rel ) {
     };
+
+    public void visit( final Transformation trsf ) throws AlignmentException {
+    }
 
     public void visit( final PathExpression p ) throws AlignmentException {
 	if ( p instanceof RelationExpression ) visit( (RelationExpression)p );

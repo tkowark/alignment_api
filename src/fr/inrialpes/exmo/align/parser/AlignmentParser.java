@@ -121,10 +121,11 @@ public class AlignmentParser {
     }
 
     /** 
-     * Parses the document corresponding to the URI given in parameter
+     * Parses the document given in parameter
      * If the current process has links (import or include) to others documents then they are 
      * parsed.
-     * @param uri URI of the document to parse
+     * @param o
+     *     A URI, InputStream, String or Reader
      */
     private Alignment callParser( Object o ) throws AlignmentException {
 	try { 
@@ -176,7 +177,7 @@ public class AlignmentParser {
      * @param s String the string to parse
      */
     public Alignment parseString( String s ) throws AlignmentException {
-	// JE: The problem here is that InputStream are consumed by parsers
+	// The problem here is that InputStream are consumed by parsers
 	// So they must be opened again! Like Readers...
 	callParser( s );
 	return alignment;

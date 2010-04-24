@@ -599,7 +599,7 @@
 	    <edoal:and rdf:parseType="Collection">
 	      <edoal:Class rdf:about="&wine;Bordeaux17"/>
 	      <edoal:Class>
-		<edoal:or parseType="Collection">
+		<edoal:or rdf:parseType="Collection">
 		  <edoal:Class rdf:about="&wine;Bordeaux18"/>
 		  <edoal:Class rdf:about="&wine;Bordeaux18"/>
 		</edoal:or>
@@ -651,6 +651,41 @@
         <measure rdf:datatype='&xsd;float'>1.</measure>
         <relation>SubsumedBy</relation>
       </Cell>
-   </map>
+    </map>
+    <map>
+      <Cell rdf:about="TransformationTest">
+	<entity1>
+	  <edoal:Property rdf:about="foaf:name"/>
+	</entity1>
+	<entity2>
+	  <edoal:Relation rdf:about="vcard:name"/>
+	</entity2>
+        <measure rdf:datatype='&xsd;float'>1.</measure>
+        <relation>SubsumedBy</relation>
+	<edoal:transformation>
+	  <edoal:Transformation edoal:type="o-">
+	    <edoal:entity1>
+	      <!--edoal:Property rdf:about="foaf:name"/-->
+	      <!-- BELOW DOES NOT WORK -->
+	      <edoal:Property><edoal:compose rdf:parseType="Collection"/></edoal:Property>
+	      <!--edoal:Property><edoal:self/></edoal:Property-->
+	    </edoal:entity1>
+	    <edoal:entity2>
+	      <!-- APPLY DOES NOT WORK -->
+	      <edoal:Apply edoal:operator="concat">
+		<edoal:arguments rdf:parseType="Collection">
+		  <edoal:Property rdf:about="vcard:firstname"/>
+		  <edoal:Literal edoal:string=" "/>
+		  <!-- or even compute middle initial from middlename -->
+		  <edoal:Property rdf:about="vcard:middleinitial"/>
+		  <edoal:Literal edoal:string=". "/>
+		  <edoal:Property rdf:about="vcard:lastname"/>
+		</edoal:arguments>
+	      </edoal:Apply>
+	    </edoal:entity2>
+	  </edoal:Transformation>
+	</edoal:transformation>
+      </Cell>
+    </map>
   </Alignment>
- </rdf:RDF>
+</rdf:RDF>

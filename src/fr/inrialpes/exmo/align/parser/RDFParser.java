@@ -61,7 +61,7 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
-import fr.inrialpes.exmo.align.impl.edoal.TransfService;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
@@ -113,7 +113,6 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * 
  * @author Richard Pöttler
  * @version $Revision: 1.7 $
- * @date $Date: 2010-03-07 20:41:03 +0100 (Sun, 07 Mar 2010) $
  */
 public class RDFParser {
 
@@ -166,7 +165,7 @@ public class RDFParser {
 
     /**
      * Parse the input model. The model shall include one statement that include (?,RDF.type,Alignment)
-     * @param align
+     * @param rdfmodel the rdfmodel containing the RDF representation of the parsed alignment
      * @return the result EDOALAlignment
      * @throws AlignmentException if there is any exception, throw AlignmentException that include describe infomation
      * and a caused exception.
@@ -365,17 +364,13 @@ public class RDFParser {
 		throw new IllegalArgumentException("Couln't parse the string \"" + relation
 						   +"\" to a valid rule type");
 	    }
-	    
 	    // parse the measure, the node shall be Literal and it's a number
 	    final float m = node.getProperty((Property)SyntaxElement.MEASURE.resource).getFloat();
-	    
 	    // get the id
 	    final String id = node.getURI();
-	    
 	    //parsing the entity1 and entity2 
 	    Resource entity1 = node.getProperty((Property)SyntaxElement.ENTITY1.resource).getResource();
 	    Resource entity2 = node.getProperty((Property)SyntaxElement.ENTITY2.resource).getResource();
-
 	    // JE2010:
 	    // Here it would be better to check if the entity has a type.
 	    // If both have none, then we get a old-style correspondence for free
@@ -389,10 +384,44 @@ public class RDFParser {
 		System.err.println(" t : "+t);
 	    }
 
-	    return new EDOALCell( id, s, t, type, m );
+	    EDOALCell cell = new EDOALCell( id, s, t, type, m );
+	    // Parse the possible transformations
+	    StmtIterator stmtIt = node.listProperties((Property)SyntaxElement.TRANSFORMATION.resource );
+	    while ( stmtIt.hasNext() ) {
+		Statement stmt = stmtIt.nextStatement();
+		try { cell.addTransformation( parseTransformation( stmt.getResource() ) ); }
+		catch ( AlignmentException ae ) {
+		    System.err.println( "Error "+ae );
+		    ae.printStackTrace();
+		}
+	    }
+	    return cell;
 	} catch (Exception e) {  //wrap other type exception
 	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct:" + node.getLocalName() + " "+e.getMessage());
 	    throw new AlignmentException("Cannot parse correspondence " + node.getLocalName(), e);
+	}
+    }
+
+    protected Transformation parseTransformation( final Resource node ) throws AlignmentException {
+	if (node == null) throw new NullPointerException("The node must not be null");
+	try {
+	    // parsing type
+	    Statement stmt = node.getProperty( (Property)SyntaxElement.TRDIR.resource );
+	    if ( stmt == null ) throw new AlignmentException( "Required edoal:type property in Transformation" );
+	    String type = stmt.getLiteral().toString();
+	    // parsing entity1 and entity2 
+	    Resource entity1 = node.getProperty((Property)SyntaxElement.TRENT1.resource).getResource();
+	    Resource entity2 = node.getProperty((Property)SyntaxElement.TRENT2.resource).getResource();
+	    ValueExpression s = parseValue( entity1 );
+	    ValueExpression t = parseValue( entity2 );
+	    if ( debug > 0 ) {
+		System.err.println(" (Transf)s : "+s);	    
+		System.err.println(" (Transf)t : "+t);
+	    }
+	    return new Transformation( type, s, t );
+	} catch (Exception e) {  //wrap other type exception
+	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct:" + node.getLocalName() + " "+e.getMessage());
+	    throw new AlignmentException("Cannot parse transformation " + node, e);
 	}
     }
 
@@ -465,6 +494,8 @@ public class RDFParser {
 		    }
 		}
 		Resource coll = stmt.getResource(); // MUSTCHECK
+		// JE: I guess that this may be NULL and thus be kept OK
+		// for <and />, <or /> and <compose />
 		if ( op == SyntaxElement.NOT.getOperator() ) {
 		    clexpr.add( parseClass( coll ) );
 		} else { // Jena encode these collections as first/rest statements
@@ -584,6 +615,8 @@ public class RDFParser {
 		    }
 		}
 		Resource coll = stmt.getResource(); // MUSTCHECK
+		// JE: I guess that this may be NULL and thus be kept OK
+		// for <and />, <or /> and <compose />
 		if ( op == SyntaxElement.NOT.getOperator() ) {
 		    clexpr.add( parseProperty( coll ) );
 		} else if ( op == SyntaxElement.COMPOSE.getOperator() ) {
@@ -684,6 +717,8 @@ public class RDFParser {
 		    }
 		}
 		Resource coll = stmt.getResource(); // MUSTCHECK
+		// JE: I guess that this may be NULL and thus be kept OK
+		// for <and />, <or /> and <compose />
 		if ( op == SyntaxElement.NOT.getOperator() ||
 		     op == SyntaxElement.INVERSE.getOperator() || 
 		     op == SyntaxElement.REFLEXIVE.getOperator() || 
@@ -803,17 +838,14 @@ public class RDFParser {
     /**
      * Parses a given annotaion in the the given node.
      * 
-     * @param node
-     *            which is the parent of the annotation node
-     * @param e
-     *            the tag which contains the annotation.
-     * @return the parsed annotation, with the id set to the element and the
-     *         value set to the text of the parsed node, or null, if nothing
-     *         could be found
+     * @param stmt
+     *            the annotation statement
+     * @param al
+     *            the alignment in which the annotation is
      * @throws NullPointerException
      *             if the node or the element is null
      */
-    protected void parseAnnotation(final Statement stmt, EDOALAlignment al ) throws AlignmentException {
+    protected void parseAnnotation( final Statement stmt, EDOALAlignment al ) throws AlignmentException {
 	try {
 	    final String anno = stmt.getString();
 	    if ((anno != null) && (anno.length() > 0)) {

@@ -215,7 +215,7 @@ public class XMLParser extends DefaultHandler {
 
     /** 
      * Parses a reader, used for reading from a string
-     * @param s String the string to parse
+     * @param r the reader from which to parse
      */
     public Alignment parse( Reader r ) throws AlignmentException {
 	try {
@@ -311,11 +311,10 @@ public class XMLParser extends DefaultHandler {
 		    throw new SAXException("Catched alignment exception", e );
 		}
 	    } else if (pName.equals( SyntaxElement.FORMALISM.name )) {
-		// JE: Check that this is OK with EDOAL
 		if ( atts.getValue( SyntaxElement.URI.name ) != null )
 		    try {
 			curronto.setFormURI( new URI(atts.getValue("uri")) );
-		    } catch (Exception e) {
+		    } catch ( URISyntaxException e ) {
 			throw new SAXException("Malformed URI"+atts.getValue("uri"), e );
 		    };
 		if ( atts.getValue("name") != null )
@@ -325,13 +324,13 @@ public class XMLParser extends DefaultHandler {
 	    } else if (pName.equals( SyntaxElement.ONTOLOGY.name )) {
 		String about = atts.getValue( SyntaxElement.RDF_ABOUT.print() );
 		if ( about != null && !about.equals("") ) {
-			try {
-			    // JE: Onto
-			    //curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
-			    curronto.setURI( new URI( about ) );
-			} catch (URISyntaxException e) {
-			    throw new SAXException("onto2: malformed URI");
-			}
+		    try {
+			// JE: Onto
+			//curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
+			curronto.setURI( new URI( about ) );
+		    } catch (URISyntaxException e) {
+			throw new SAXException("onto2: malformed URI");
+		    }
 		}
 	    } else if (pName.equals( SyntaxElement.MAPPING_TARGET.name )) {
 		curronto = onto2;
@@ -355,13 +354,15 @@ public class XMLParser extends DefaultHandler {
 	    } else {
 		if ( debugMode > 0 ) System.err.println("[XMLParser] Unknown element name : "+pName);
 	    };
-	} else if( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
+	} else if ( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
 	    if ( !pName.equals("Envelope") && !pName.equals("Body") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
-	} else if(namespaceURI.equals( Namespace.RDF.prefix )) { //"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	} else if (namespaceURI.equals( Namespace.RDF.prefix )) { //"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
+	} else if (namespaceURI.equals( Namespace.EDOAL.prefix )) { 
+	    throw new SAXException("[XMLParser] EDOAL alignment must have type EDOAL: "+pName);
 	} else {
 	    if ( alignLevel != -1 && parseLevel != 3 && parseLevel != 5 && !embedded ) throw new SAXException("[XMLParser("+parseLevel+")] Unknown namespace : "+namespaceURI);
 	}
@@ -519,6 +520,8 @@ public class XMLParser extends DefaultHandler {
 	} else if(namespaceURI.equals( Namespace.RDF.prefix ) ) {//"http://www.w3.org/1999/02/22-rdf-syntax-ns#"))  {
 	    if ( !pName.equals("RDF") ) {
 		throw new SAXException("[XMLParser] unknown element name: "+pName); };
+	} else if (namespaceURI.equals( Namespace.EDOAL.prefix )) { 
+	    throw new SAXException("[XMLParser] EDOAL alignment must have type EDOAL: "+pName);
 	} else {
 	    if ( parseLevel == 3 && alignLevel != -1 ){
 		alignment.setExtension( namespaceURI, pName, content );

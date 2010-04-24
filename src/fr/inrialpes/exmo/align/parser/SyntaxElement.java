@@ -41,7 +41,6 @@ import org.semanticweb.owl.align.AlignmentException;
  * 
  * @author richi
  * @version $Revision: 1.6 $
- * @date $Date: 2010-03-07 20:40:40 +0100 (Sun, 07 Mar 2010) $
  */
 
 public enum SyntaxElement {
@@ -120,7 +119,11 @@ public enum SyntaxElement {
 	STRING(          Namespace.EDOAL, "string"),
 	SYMMETRIC(      Namespace.EDOAL, "symmetric", Constructor.SYMMETRIC),
 	TOCLASS(        Namespace.EDOAL, "class"),
-	TRANSF(         Namespace.EDOAL, "transf"),
+	TRENT1(         Namespace.EDOAL, "entity1"),
+	TRENT2(         Namespace.EDOAL, "entity2"),
+	TRANSF(         Namespace.EDOAL, "Transformation", true),
+	TRDIR(          Namespace.EDOAL, "type"),
+	TRANSFORMATION( Namespace.EDOAL, "transformation"),
 	TRANSITIVE(     Namespace.EDOAL, "transitive", Constructor.TRANSITIVE),
 	TYPE_COND(Namespace.EDOAL, "AttributeTypeRestriction", true), // undocumented
 	VALUE(          Namespace.EDOAL, "value"),
