@@ -45,12 +45,14 @@ public class ClassOccurenceRestriction extends ClassRestriction implements Clone
     int occurence = 1;
 
     /**
-     * Constructs a attributeOccurenceRestriction with the given restriction.
+     * Constructs a ClassOccurenceRestriction with the given restriction.
      * 
-     * @param attribute
-     *            the attribute on which the restriction should be applied
-     * @param restriction
-     *            the restriction for the domain
+     * @param p
+     *            the constrained PathExpression
+     * @param c
+     *            the restriction Comparator
+     * @param n
+     *            the number of occurence compared
      * @throws NullPointerException
      *             if the restriction is null
      */

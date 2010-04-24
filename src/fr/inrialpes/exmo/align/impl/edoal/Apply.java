@@ -32,16 +32,18 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
 /**
  * <p>
- * Id to represent a simple valuestring.
+ * Apply is the application of a function to arguments.
+ * </p>
+ * <p>
+ * In the specification a {@code op} is a local transformaion
+ * function/service. The {@code args} specifies the parameters needed for the
+ * function to compute the transformaion.
  * </p>
  * <p>
  * $Id$
  * </p>
- * 
- * @author richi
- * @version $Revision: 1.2 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
+
 public class Apply implements ValueExpression {
 
     /** Holds the operation to apply */
@@ -58,8 +60,6 @@ public class Apply implements ValueExpression {
      *            its list of argumenst
      * @throws NullPointerException
      *             if the value is {@code null}
-     * @throws IllegalArgumentException
-     *             if the value isn't longer than 0
      */
     public Apply( final URI op, final List<ValueExpression> args ) {
 	if ( op == null) {

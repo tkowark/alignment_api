@@ -37,10 +37,10 @@ public class Variable {
     private Set<Expression> occurences;
 
     /**
-     * Constructs a InstanceId.
+     * Constructs a Variable
      * 
-     * @param id
-     *            the id of the class
+     * @param name
+     *            the name of the variable
      */
     public Variable( final String name ) {
 	if ( name == null ) throw new NullPointerException("The name must not be null");

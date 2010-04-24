@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2006 -- then AttributeExpr.java
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,28 +40,12 @@ import org.semanticweb.owl.align.Visitable;
  * @author Francois Scharffe, Adrian Mocan
  * @author richi
  * @version $Revision: 1.7 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
 public abstract class PropertyExpression extends PathExpression implements Cloneable, Visitable {
 
-    /** The transformation service */
-    private TransfService transf;
-
     /**
-     * Creates a simple PropertyExpression with the given ExpressionDefinition,
-     * conditions and transf.
-     * 
-     * @param id
-     *            the ExpressionDefinition
-     * @param conditions
-     *            the conditions for the expression
-     * @param transf
-     *            the transformation service
-     * @throws IllegalArgumentException
-     *             if there are other ids than PropertyId
-     * @throws NullPointerException
-     *             if the id is {@code null}
+     * Creates a simple PropertyExpression
      */
     public PropertyExpression() {
 	super();

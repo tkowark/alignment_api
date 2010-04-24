@@ -42,10 +42,8 @@ public class PropertyValueRestriction extends PropertyRestriction implements Clo
     ValueExpression value = null;
 
     /**
-     * Constructs a attributeValueRestriction with the given restriction.
+     * Constructs a simple PropertyValueRestriction
      * 
-     * @param attribute
-     *            the attribute on which the restriction should be applied
      * @throws NullPointerException
      *             if the restriction is null
      */
@@ -54,18 +52,16 @@ public class PropertyValueRestriction extends PropertyRestriction implements Clo
     }
 
     /**
-     * Constructs a attributeValueRestriction with the given restriction.
+     * Constructs a PropertyValueRestriction with the given restriction.
      * 
-     * @param attribute
-     *            the attribute on which the restriction should be applied
-     * @param restriction
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param comp
+     *            the comparator between the restricted property and the restricting value
+     * @param v
+     *            the target restricting value
      * @throws NullPointerException
      *             if the restriction is null
      */
-    public PropertyValueRestriction(final Comparator comp, final ValueExpression v) {
+    public PropertyValueRestriction( final Comparator comp, final ValueExpression v ) {
 	super();
 	comparator = comp;
 	value = v;

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Visitable;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
 /**
  * <p>
@@ -52,6 +53,10 @@ public abstract class PathExpression extends Expression implements Cloneable, Vi
     public void accept(AlignmentVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
+    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	visitor.visit(this);
+    }
+
     /*
     public Object clone() {
 	return super.clone();

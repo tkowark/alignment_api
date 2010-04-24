@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.6 - 2006 -- then AttributeTypeCondition.java
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,16 +40,11 @@ package fr.inrialpes.exmo.align.impl.edoal;
  */
 public class PropertyTypeRestriction extends PropertyRestriction implements Cloneable {
 
-    // BEWARE THIS IS INCORRECTLY IMPLEMENTED AS VALUES INSTEAD OF TYPES
     Datatype type = null;
 
     /**
-     * Constructs a attributeTypeRestriction with the given restriction.
+     * Constructs a simple PropertyTypeRestriction
      * 
-     * @param attribute
-     *            the attribute on which the restriction should be applied
-     * @param restriction
-     *            the restriction for the domain
      * @throws NullPointerException
      *             if the restriction is null
      */
@@ -58,18 +53,14 @@ public class PropertyTypeRestriction extends PropertyRestriction implements Clon
     }
 
     /**
-     * Constructs a attributeTypeRestriction with the given restriction.
+     * Constructs a PropertyTypeRestriction with the given restriction.
      * 
-     * @param attribute
-     *            the attribute on which the restriction should be applied
-     * @param restriction
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param t
+     *            the restricting target datatype
      * @throws NullPointerException
      *             if the restriction is null
      */
-    public PropertyTypeRestriction(final Datatype t) {
+    public PropertyTypeRestriction( final Datatype t ) {
 	super();
 	type = t;
     }

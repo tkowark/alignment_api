@@ -35,7 +35,6 @@ import java.net.URISyntaxException;
  * 
  * @author richi
  * @version $Revision: 1.7 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class PropertyId extends PropertyExpression implements Id {
     /** Holds the identifier. */

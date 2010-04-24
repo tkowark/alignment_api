@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.4 - 2006
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,11 +44,6 @@ public class InstanceExpression extends Expression implements ValueExpression {
 
     /**
      * Creates a simple InstaneExpression with the given Id.
-     * 
-     * @param id
-     *            the Id of this expression
-     * @throws IllegalArgumentException
-     *             if the id isn't a InstanceId
      */
     public InstanceExpression() {
 	super();

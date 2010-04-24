@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.4 - 2006 -- then DomainAttributeCondition.java
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,7 +32,6 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * 
  * @author Richard Pöttler
  * @version $Revision: 1.4 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  * 
  */
 public class PropertyDomainRestriction extends PropertyRestriction {
@@ -41,8 +40,6 @@ public class PropertyDomainRestriction extends PropertyRestriction {
     /**
      * Constructs a domainRestiction with the given restriction.
      * 
-     * @param restriction
-     *            the restriction for the domain
      * @throws NullPointerException
      *             if the restriction is null
      */
@@ -53,14 +50,12 @@ public class PropertyDomainRestriction extends PropertyRestriction {
     /**
      * Constructs a domainRestiction with the given restriction.
      * 
-     * @param res
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param dom
+     *            the restricting class expression
      * @throws NullPointerException
      *             if the restriction is null
      */
-    public PropertyDomainRestriction(final ClassExpression dom) {
+    public PropertyDomainRestriction( final ClassExpression dom ) {
 	super();
 	domain = dom;
     }

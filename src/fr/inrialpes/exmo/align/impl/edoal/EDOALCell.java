@@ -25,6 +25,8 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Set;
+import java.util.HashSet;
 import java.lang.ClassNotFoundException;
 import java.lang.Float;
 import java.lang.Double;
@@ -68,8 +70,9 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
 public class EDOALCell extends BasicCell {
 
-    // JE2009: This has been added for 
     private URI id; // This is the id
+
+    private Set<Transformation> transformations;
 
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
@@ -95,9 +98,27 @@ public class EDOALCell extends BasicCell {
 	//throw new AlignmentException( "Cannot convert to URI "+object2 );
     }
 
+    public void addTransformation( Transformation trs ){
+	if ( transformations == null ) {
+	    transformations = new HashSet<Transformation>();
+	}
+	transformations.add( trs );
+    }
+
+    /**
+     * May be null
+     */
+    public Set<Transformation> transformations() {
+	return transformations;
+    }
+
     public Cell inverse() throws AlignmentException {
-	return (Cell)new EDOALCell( (String)null, (Expression)object2, (Expression)object1, (EDOALRelation)relation.inverse(), strength );
+	EDOALCell invcell = new EDOALCell( (String)null, (Expression)object2, (Expression)object1, (EDOALRelation)relation.inverse(), strength );
+	for ( Transformation trsf : transformations ) {
+	    invcell.addTransformation( trsf.inverse() );
+	}
 	// The same should be done for the measure
+	return invcell;
     }
 
 }

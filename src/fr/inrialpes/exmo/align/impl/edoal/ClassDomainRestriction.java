@@ -29,10 +29,10 @@ public class ClassDomainRestriction extends ClassRestriction implements Cloneabl
     /**
      * Constructs a typeCondition with the given restriction.
      * 
-     * @param res
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param p
+     *            the PathExpression to which the restriction applies
+     * @param cl
+     *            the ClassExpression restricting the domain
      * @throws NullPointerException
      *             if the restriction is null
      */

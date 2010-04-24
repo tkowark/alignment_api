@@ -50,10 +50,12 @@ public class InstanceId extends InstanceExpression implements Id {
     public InstanceId() {}
 
     /**
-     * Constructs a InstanceId.
+     * Constructs an InstanceId.
      * 
-     * @param id
-     *            the id of the class
+     * @param u
+     *            an URI of this instance
+     * @throws NullPointerException
+     *             u is null
      */
     public InstanceId( final URI u ) {
 	if ( u == null ) {

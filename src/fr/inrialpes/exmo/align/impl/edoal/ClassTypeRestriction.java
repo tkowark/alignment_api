@@ -43,12 +43,12 @@ public class ClassTypeRestriction extends ClassRestriction implements Cloneable 
     Datatype type = null;
 
     /**
-     * Constructs a typeCondition with the given restriction.
+     * Constructs a ClassTypeRestriction with the given restriction.
      * 
-     * @param res
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param p
+     *            the restricted PathExpression
+     * @param t
+     *            the Datatype to which this path is restricted
      * @throws NullPointerException
      *             if the restriction is null
      */

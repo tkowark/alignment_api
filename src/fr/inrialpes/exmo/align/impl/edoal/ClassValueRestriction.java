@@ -42,12 +42,14 @@ public class ClassValueRestriction extends ClassRestriction implements Cloneable
     ValueExpression value = null;
 
     /**
-     * Constructs a valueCondition with the given restriction.
+     * Constructs a ClassValueRestriction with the given restriction.
      * 
-     * @param res
-     *            the restriction for the domain
-     * @param target
-     *            the target expression which should be restricted
+     * @param p
+     *            the restricted PathExpression
+     * @param comp
+     *            the Comparator defining the restriction
+     * @param v
+     *            the ValueExpression to which it is restricted
      * @throws NullPointerException
      *             if the restriction is null
      */

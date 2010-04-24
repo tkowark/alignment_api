@@ -40,7 +40,6 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * 
  * @author richi
  * @version $Revision: 1.2 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 public class Value implements ValueExpression { //implements Cloneable, Visitable {
 
