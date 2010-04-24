@@ -74,12 +74,13 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
-import fr.inrialpes.exmo.align.impl.edoal.TransfService;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 
 /**
  * Renders an alignment in its RDF format
@@ -140,7 +141,6 @@ public class RDFRendererVisitor implements AlignmentVisitor {
     // It is a real mess already...
     public void visit( Visitable o ) throws AlignmentException {
 	if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
-	else if ( o instanceof TransfService ) visit( (TransfService)o );
 	else if ( o instanceof RelationRestriction ) visit( (RelationRestriction)o );
 	else if ( o instanceof PropertyRestriction ) visit( (PropertyRestriction)o );
 	else if ( o instanceof ClassRestriction ) visit( (ClassRestriction)o );
@@ -149,6 +149,8 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
 	else if ( o instanceof RelationExpression ) visit( (RelationExpression)o );
 	else if ( o instanceof Expression ) visit( (Expression)o );
+	else if ( o instanceof ValueExpression ) visit( (ValueExpression)o );
+	else if ( o instanceof Transformation ) visit( (Transformation)o );
 	else if ( o instanceof Cell ) visit( (Cell)o );
 	else if ( o instanceof Relation ) visit( (Relation)o );
 	else if ( o instanceof Alignment ) visit( (Alignment)o );
@@ -280,8 +282,6 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 		writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+cell.getId()+"\"");
 	    }
 	    writer.print(">"+NL);
-	    // Would be better to put it more generic
-	    // But this should be it! (at least for this one)
 	    increaseIndent();
 	    if ( alignment.getLevel().startsWith("2EDOAL") ) {
 		indentedOutputln("<"+SyntaxElement.ENTITY1.print(DEF)+">");
@@ -296,6 +296,19 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 		decreaseIndent();
 		writer.print(NL);
 		indentedOutputln("</"+SyntaxElement.ENTITY2.print(DEF)+">");
+		if ( cell instanceof EDOALCell ) { // Here put the transf
+		    Set<Transformation> transfs = ((EDOALCell)cell).transformations();
+		    if ( transfs != null ) {
+			for ( Transformation transf : transfs ){
+			    indentedOutputln("<"+SyntaxElement.TRANSFORMATION.print(DEF)+">");
+			    increaseIndent();
+			    transf.accept( this );
+			    decreaseIndent();
+			    writer.print(NL);
+			    indentedOutputln("</"+SyntaxElement.TRANSFORMATION.print(DEF)+">");
+			}
+		    }
+		}
 	    } else {
 		indentedOutputln("<"+SyntaxElement.ENTITY1.print(DEF)+" "+SyntaxElement.RDF_RESOURCE.print(DEF)+"='"+u1.toString()+"'/>");
 		indentedOutputln("<"+SyntaxElement.ENTITY2.print(DEF)+" "+SyntaxElement.RDF_RESOURCE.print(DEF)+"='"+u2.toString()+"'/>");
@@ -419,9 +432,12 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print(" "+SyntaxElement.RDF_RESOURCE.print(DEF));
 	writer.print("=\""+c.getComparator().getURI());
 	writer.print("\"/>"+NL);
-	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">");
+	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">"+NL);
+	increaseIndent();
 	visit( c.getValue() );
-	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
+	writer.print(NL);
+	decreaseIndent();
+	indentedOutput("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.VALUE_COND.print(DEF)+">");
     }
@@ -529,15 +545,11 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	} else {
 	    for (final PathExpression pe : e.getComponents()) {
 		visit( pe );
+		writer.print(NL);
 	    }
 	}
 	decreaseIndent();
 	indentedOutput("</"+sop+">"+NL);
-	// export transf
-	//if (e.getTransf() != null) {
-	//    visit( e.getTransf() );
-	//}
-	// closing the tag
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.PROPERTY_EXPR.print(DEF)+">");
     }
@@ -556,13 +568,16 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
-	writer.print("<"+SyntaxElement.COMPARATOR.print(DEF));
+	indentedOutput("<"+SyntaxElement.COMPARATOR.print(DEF));
 	writer.print(" "+SyntaxElement.RDF_RESOURCE.print(DEF));
 	writer.print("=\""+c.getComparator().getURI());
-	writer.print("\"/>");
-	writer.print("<"+SyntaxElement.VALUE.print(DEF)+">");
+	writer.print("\"/>"+NL);
+	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">"+NL);
+	increaseIndent();
 	visit( c.getValue() );
-	writer.print("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
+	writer.print(NL);
+	decreaseIndent();
+	indentedOutput("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF)+">");
     }
@@ -580,7 +595,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF)+">"+NL);
+	indentedOutput("</"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF)+">");
     }
 
     // DONE
@@ -634,6 +649,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	} else { // NOT... or else: enumerate them
 	    for (final PathExpression re : e.getComponents()) {
 		visit( re );
+		writer.print(NL);
 	    }
 	}
 	decreaseIndent();
@@ -660,7 +676,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	visit( c.getCoDomain() );
 	writer.print(NL);
 	decreaseIndent();
-	writer.print("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
+	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF)+">");
     }
@@ -676,7 +692,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	visit( c.getDomain() );
 	writer.print(NL);
 	decreaseIndent();
-	writer.print("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
+	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF)+">");
     }
@@ -730,6 +746,25 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	indentedOutput("</"+SyntaxElement.ARGUMENTS.print(DEF)+">"+NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.APPLY.print(DEF)+">");
+    }
+
+    public void visit( final Transformation transf ) throws AlignmentException {
+	indentedOutput("<"+SyntaxElement.TRANSF.print(DEF)+" "+SyntaxElement.TRDIR.print(DEF)+"=\""+transf.getType()+"\">"+NL);
+	increaseIndent();
+	indentedOutputln("<"+SyntaxElement.TRENT1.print(DEF)+">");
+	increaseIndent();
+	((ValueExpression)(transf.getObject1())).accept( this );
+	decreaseIndent();
+	writer.print(NL);
+	indentedOutputln("</"+SyntaxElement.TRENT1.print(DEF)+">");
+	indentedOutputln("<"+SyntaxElement.TRENT2.print(DEF)+">");
+	increaseIndent();
+	((ValueExpression)(transf.getObject2())).accept( this );
+	decreaseIndent();
+	writer.print(NL);
+	indentedOutputln("</"+SyntaxElement.TRENT2.print(DEF)+">");
+	decreaseIndent();
+	indentedOutput("</"+SyntaxElement.TRANSF.print(DEF)+">");
     }
 
     // DONE
