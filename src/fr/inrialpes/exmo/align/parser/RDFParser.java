@@ -493,15 +493,22 @@ public class RDFParser {
 			throw new AlignmentException( "Class statement must containt one constructor or Id : "+node );
 		    }
 		}
-		Resource coll = stmt.getResource(); // MUSTCHECK
-		// JE: I guess that this may be NULL and thus be kept OK
-		// for <and />, <or /> and <compose />
+		// Jena encode these collections as first/rest statements
+		Object o = stmt.getObject();
+		Resource coll = null; // Errors if null tackled below
+		if ( o instanceof Resource) coll = (Resource)o;
+		if ( o instanceof Literal && !o.toString().equals("") )
+		    throw new AlignmentException( "Invalid content of constructor : "+o );
 		if ( op == SyntaxElement.NOT.getOperator() ) {
+		    if ( coll == null )
+		    	throw new AlignmentException( "NOT constructor cannot be empty : "+node );
 		    clexpr.add( parseClass( coll ) );
-		} else { // Jena encode these collections as first/rest statements
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
-			clexpr.add( parseClass( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+		} else {
+		    if ( coll != null ) {
+			 while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
+			     clexpr.add( parseClass( coll.getProperty( RDF.first ).getResource() ) );
+			     coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+			 }
 		    }
 		}
 		return new ClassConstruction( op, clexpr );
@@ -614,13 +621,20 @@ public class RDFParser {
 			throw new AlignmentException( "Property statement must containt one constructor or Id : "+node );
 		    }
 		}
-		Resource coll = stmt.getResource(); // MUSTCHECK
-		// JE: I guess that this may be NULL and thus be kept OK
-		// for <and />, <or /> and <compose />
+		// Jena encode these collections as first/rest statements
+		Object o = stmt.getObject();
+		Resource coll = null; // Errors if null tackled below
+		if ( o instanceof Resource) coll = (Resource)o;
+		if ( o instanceof Literal && !o.toString().equals("") )
+		    throw new AlignmentException( "Invalid content of constructor : "+o );
 		if ( op == SyntaxElement.NOT.getOperator() ) {
+		    if ( coll == null )
+		    	throw new AlignmentException( "NOT constructor cannot be empty : "+node );
 		    clexpr.add( parseProperty( coll ) );
 		} else if ( op == SyntaxElement.COMPOSE.getOperator() ) {
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
+		    if ( coll == null )
+		    	throw new AlignmentException( "COMPOSE constructor for properties cannot be empty : "+node );
+		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
 			// In this present case, it is a series of Relations followed by a Property
 			Resource newcoll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
 			if ( !RDF.nil.getURI().equals( newcoll.getURI() ) ) {
@@ -631,9 +645,11 @@ public class RDFParser {
 			coll = newcoll;
 		    }
 		} else { // This is a first/rest statements
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
-			clexpr.add( parseProperty( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+		    if ( coll != null ) {
+			while ( !RDF.nil.getURI().equals( coll.getURI() ) ) {
+			    clexpr.add( parseProperty( coll.getProperty( RDF.first ).getResource() ) );
+			    coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+			}
 		    }
 		}
 		return new PropertyConstruction( op, clexpr );
@@ -716,19 +732,26 @@ public class RDFParser {
 			throw new AlignmentException( "Relation statement must containt one constructor or Id : "+node );
 		    }
 		}
-		Resource coll = stmt.getResource(); // MUSTCHECK
-		// JE: I guess that this may be NULL and thus be kept OK
-		// for <and />, <or /> and <compose />
+		// Jena encode these collections as first/rest statements
+		Object o = stmt.getObject();
+		Resource coll = null; // Errors if null tackled below
+		if ( o instanceof Resource) coll = (Resource)o;
+		if ( o instanceof Literal && !o.toString().equals("") )
+		    throw new AlignmentException( "Invalid content of constructor : "+o );
 		if ( op == SyntaxElement.NOT.getOperator() ||
 		     op == SyntaxElement.INVERSE.getOperator() || 
 		     op == SyntaxElement.REFLEXIVE.getOperator() || 
 		     op == SyntaxElement.SYMMETRIC.getOperator() || 
 		     op == SyntaxElement.TRANSITIVE.getOperator() ) {
+		    if ( coll == null )
+		    	throw new AlignmentException( op+" constructor cannot be empty : "+node );
 		    clexpr.add( parseRelation( coll ) );
 		} else { // This is a first/rest statements
-		    while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { // THIS IS HORRIBLE
-			clexpr.add( parseRelation( coll.getProperty( RDF.first ).getResource() ) );
-			coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+		    if ( coll != null ) {
+			while ( !RDF.nil.getURI().equals( coll.getURI() ) ) { 
+			    clexpr.add( parseRelation( coll.getProperty( RDF.first ).getResource() ) );
+			    coll = coll.getProperty( RDF.rest ).getResource(); // MUSTCHECK
+			}
 		    }
 		}
 		return new RelationConstruction( op, clexpr );

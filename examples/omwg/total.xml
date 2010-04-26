@@ -665,13 +665,9 @@
 	<edoal:transformation>
 	  <edoal:Transformation edoal:type="o-">
 	    <edoal:entity1>
-	      <!--edoal:Property rdf:about="foaf:name"/-->
-	      <!-- BELOW DOES NOT WORK -->
 	      <edoal:Property><edoal:compose rdf:parseType="Collection"/></edoal:Property>
-	      <!--edoal:Property><edoal:self/></edoal:Property-->
 	    </edoal:entity1>
 	    <edoal:entity2>
-	      <!-- APPLY DOES NOT WORK -->
 	      <edoal:Apply edoal:operator="concat">
 		<edoal:arguments rdf:parseType="Collection">
 		  <edoal:Property rdf:about="vcard:firstname"/>
@@ -682,6 +678,32 @@
 		  <edoal:Property rdf:about="vcard:lastname"/>
 		</edoal:arguments>
 	      </edoal:Apply>
+	    </edoal:entity2>
+	  </edoal:Transformation>
+	</edoal:transformation>
+      </Cell>
+    </map>
+    <map>
+      <Cell rdf:about="ExtremeTransformationTest">
+	<entity1>
+	  <edoal:Class>
+	    <edoal:or />
+	  </edoal:Class>
+	</entity1>
+	<entity2>
+	  <edoal:Class>
+	    <edoal:and />
+	  </edoal:Class>
+	</entity2>
+        <measure rdf:datatype='&xsd;float'>1.</measure>
+        <relation>SubsumedBy</relation>
+	<edoal:transformation>
+	  <edoal:Transformation edoal:type="o-">
+	    <edoal:entity1>
+	      <edoal:Relation><edoal:compose /></edoal:Relation>
+	    </edoal:entity1>
+	    <edoal:entity2>
+	      <edoal:Relation><edoal:compose /></edoal:Relation>
 	    </edoal:entity2>
 	  </edoal:Transformation>
 	</edoal:transformation>
