@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" lang="en">
+<head>
+  <title>Accessing a matcher through a Web Service</title>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" type="text/css" href="../../base.css" />
+  <link rel="stylesheet" type="text/css" href="../../style.css" />
+  <script type="text/javascript">
+<!--
+function show(id) {
+var element = document.getElementById(id);
+element.style.display = "block";
+}
+function hide(id) {
+var element = document.getElementById(id);
+element.style.display = "none";
+}
+-->
+  </script>
+  <style type="text/css">
+<!--
+div.logic {
+padding-left: 5px;
+padding-right: 5px;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+-->
+  </style>
+</head>
+
+<body style="background-color: #FFFFFF;">
+<h1>Accessing a matcher through a Web Service</h1>
+<dl>
+  <dt>Author:</dt>
+    <dd><a href="http://exmo.inrialpes.fr/people/trojahn/">Cassia Trojahn dos
+      Santos</a> &amp; <a href="http://exmo.inrialpes.fr/people/euzenat/">Jérôme Euzenat</a> INRIA &amp; LIG </dd>
+</dl>
+
+<p style="border-top: 2px solid #AAAAAA; padding-top: 15px;">This tutorial
+explains, step-by-step, how to make available a matcher implementation through
+a web service, by extending a simple web service interface. </p>
+
+<p style="padding-top: 15px;border-top: 2px solid #AAAAAA;"></p>
+
+<h2>The minimal web service interface</h2>
+
+<p>There are many different methods for computing alignments. However, they
+always need at least two ontologies as input and provide an alignment as output. So, a minimal interface for providing an alignment should contain: </p>
+
+<div class="fragment">
+String align(URI onto1,URI onto2)
+</div>
+
+<p>This method takes as parameters the URIs of the two ontologies to be aligned and returns a String representing the alignment.
+In order to make available such an interface as an operation within a web service, we define a minimal web service interface, as presented below.</p>
+
+<p>Different ways for creating web services can be used. Here we propose to follow the 
+<a href="http://java.sun.com/javaee/5/docs/tutorial/doc/bnayl.html">Java API for XML Web Services (JAX-WS)</a>.
+Following this approach, a service endpoint is a Java interface or class that specifies the methods that a client can invoke on the service.  
+The development of JAX-WS web services is based on a set of annotations. The <tt>@WebService</tt> annotation defines the class as a web service endpoint while <tt>@WebMethod</tt> defines the operations of this web service. We can determine the encoding style for messages send to and from the Web Service, through the annotation <tt>@SOAPBinding</tt>.</p>
+</p>
+
+<p>Our minimal web service interface is defined as follow (<a href="AlignmentWS.java">AlignmentWS.java</a>):<p>
+
+<div class="fragment">
+package eu.sealsproject.omt.ws.matcher;
+
+import java.net.URI;
+
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
+
+@WebService
+@SOAPBinding(style = Style.RPC)
+public interface AlignmentWS {
+       
+	   @WebMethod 
+	   public String align(URI source, URI target);
+}
+</div>
+
+<p>This interface defines a service endpoint, <tt>AlignmentWS</tt> and its operation, <tt>align</tt>, 
+which takes as parameters the URIs of the two ontologies to be aligned and returns a String representing the alignment.
+</p>
+
+<p></p>
+
+<h2>Extending the minimal interface</h2>
+
+<p>Extending the web service interface requires the definition of the corresponding interface by adding the <tt>endpointInterface</tt> element to the 
+<tt>@WebService</tt> annotation in the implementation class (<a href="AlignmentWSImpl.java">AlignmentWSImpl.java</a>):
+
+
+<div class="fragment">
+package eu.sealsproject.omt.ws.matcher;
+
+import javax.jws.WebService;
+
+@WebService(endpointInterface="eu.sealsproject.omt.ws.matcher.AlignmentWS")
+public class AlignmentWSImpl implements AlignmentWS {
+
+	   public String align(URI source, URI target) {
+		  		   
+		   //  your implementation
+		   return alignment;
+	}
+}
+</div>
+
+<p>The method <tt>align</tt> must implement a way to access the matcher implementation. </p>
+
+<p></p>
+
+<h2>Publishing the web service</h2>
+
+<p>In order to be available for external access, the web service must be published at an endpoint, at which point it starts accepting incoming requests.
+This can be done through the method <tt>publish</tt> of the class <tt>Endpoint</tt> (<a href="AlignmentWSPublisher.java">AlignmentWSPublisher.java</a>):
+
+<div class="fragment">
+package eu.sealsproject.omt.ws;
+
+import javax.xml.ws.Endpoint;
+import eu.sealsproject.omt.ws.matcher.AlignmentWS;
+import eu.sealsproject.omt.ws.matcher.AlignmentWSImpl;
+
+public class AlignmentWSPublisher {
+	
+	   public static void main(String args[]) {
+	  
+		   /* Publish matcher service web service */
+		   AlignmentWS serverMatcher = new AlignmentWSImpl();
+		   Endpoint endpointMatcher = Endpoint.publish("http://134.155.86.66:8080/matcherWS", serverMatcher);
+		   System.out.println("Matcher service published ... ");
+	   }
+	   
+}
+</div>
+
+<p> The endpoint has to be started on a public available machine (a machine that is accessible from the internet). In the example above we specified the IP 134.155.86.66 as part of the address, because it is the IP of the machine that we used for testing the example. If you make your matcher available as a webservice based on this example, you have to additionally take into account the following:</p>
+
+<ul>
+  <li> Run the webservice on a machine that is accessible from the internet.
+  <li> Replace the IP of the example by the IP (or hostname) of your machine.
+  <li> Specificy a port that is not blocked by a firewall of your machine or by your network/provider.
+</ul>
+
+<p> Moreover, you should use as endpoint: <tt>"IP"</tt>+<tt>"/matcherWS"</tt>, as <tt>http://134.155.86.66:8080/matcherWS</tt>. </p>
+
+<p>Following the example above, the description of the service can be then accessed at http://134.155.86.66:8080/matcherWS?wsdl. </p>
+<p></p>
+
+ </body>
+</html>
