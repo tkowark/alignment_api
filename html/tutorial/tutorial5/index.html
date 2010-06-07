@@ -149,9 +149,21 @@ public class AlignmentWSPublisher {
   <li> Specificy a port that is not blocked by a firewall of your machine or by your network/provider.
 </ul>
 
-<p> Moreover, you should use as endpoint: <tt>"IP"</tt>+<tt>"/matcherWS"</tt>, as <tt>http://134.155.86.66:8080/matcherWS</tt>. </p>
+<p> The qualified name of the service consists
+of the namespace &quot;http://matcher.ws.omt.sealsproject.eu/&quot; (because the webservice is
 
-<p>Following the example above, the description of the service can be then accessed at http://134.155.86.66:8080/matcherWS?wsdl. </p>
+part of package eu.sealsproject.omt.ws.matcher) and a local name that stands for the service
+
+wrapping your matcher, which is in our example AlignmentWSImplService (= classname + "Service").
+
+If your matcher is for example called &quot;XMatch&quot; we recommend to name the implementing class &quot;eu.sealsproject.omt.ws.matcher.XMatch&quot; resulting in the local name &quot;XMatchService&quot; for the webservice.</p>
+
+<p>To use the seals infrastructure you have to <b>use the seals namespace</b> like in the
+
+presented example, and you <b>have to know the local name of your service</b> in order to
+
+specify it for running an evaluation.</p>
+
 
 
 <hr />
