@@ -28,7 +28,7 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
-import fr.inrialpes.exmo.align.util.DiffAlign;
+//import fr.inrialpes.exmo.align.util.DiffAlign;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
@@ -617,6 +617,7 @@ public class AServProtocolManager {
 	}
 	// Set the comparison method
 	// Should be rewritted with diff -- no choice
+	/*
 	DiffAlign eval = new DiffAlign( al1, al2 );
 	// Compare it
 	try { eval.eval( params ); }
@@ -630,6 +631,8 @@ public class AServProtocolManager {
 	} catch (IOException ioex) {}; // never occurs
 	// Should not be alignment evaluation results...
 	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Properties)null);
+	*/
+	return ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implented",(Properties)null);
     }
 
     /**
