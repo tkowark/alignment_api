@@ -632,7 +632,7 @@ public class AServProtocolManager {
 	// Should not be alignment evaluation results...
 	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Properties)null);
 	*/
-	return ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implented",(Properties)null);
+	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implented",(Properties)null);
     }
 
     /**
