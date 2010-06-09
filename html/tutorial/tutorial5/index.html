@@ -114,7 +114,79 @@ public class AlignmentWSImpl implements AlignmentWS {
 
 <p>The method <tt>align</tt> must implement a way to access the matcher implementation. </p>
 
-<p></p>
+<p>The easiest way to do this is to implement the <a href="http://alignapi.gforge.inria.fr/">Alignment API</a> (see details in <a href="http://alignapi.gforge.inria.fr/tutorial/tutorial3/">how to extend the Alignment API with a new matcher</a>). Basically, you need to implement the <tt>AlignmentProcess</tt> interface (method <tt>align</tt>) and extend the <tt>URIAlignment</tt> class (<a href="MyAlignment.java">MyAlignment.java</a>):
+</p>
+
+<div class="fragment">
+package eu.sealsproject.omt.ws.matcher;
+
+import java.net.URI;
+import java.util.Properties;
+
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.AlignmentProcess;
+
+import fr.inrialpes.exmo.align.impl.URIAlignment;
+
+public class MyAlignment extends URIAlignment implements AlignmentProcess {
+	
+       public void align( Alignment alignment, Properties params ) throws AlignmentException {
+
+    	   //  matcher code
+    } 
+    	
+}
+</div>
+
+<p>Then, it is simple to expose <tt>MyAlignment</tt> as a web service (<a href="MyAlignmentWS.java">MyAlignmentWS.java</a>):</p>
+
+<div class="fragment">
+package eu.sealsproject.omt.ws.matcher;
+
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.Properties;
+
+import javax.jws.WebService;
+
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.AlignmentProcess;
+import org.semanticweb.owl.align.AlignmentVisitor;
+
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+
+@WebService(endpointInterface="eu.sealsproject.omt.ws.matcher.AlignmentWS")
+public class MyAlignmentWS extends MyAlignment implements AlignmentWS {
+
+	@Override
+	public String align(URI source, URI target) {
+		   try {
+			   init(source,target);
+			   align((Alignment)null, new Properties());
+			   SBWriter sbWriter = null;
+			   try {
+					sbWriter = new SBWriter(new BufferedWriter(new OutputStreamWriter( System.out, "UTF-8" )), true);
+					AlignmentVisitor renderer = new RDFRendererVisitor(sbWriter);
+					render(renderer);
+		                        String alignment = sbWriter.toString();
+					return alignment;
+				}
+			   catch(Exception e) { }
+			   
+		   } catch (AlignmentException e) {
+			    e.printStackTrace();
+		   }
+		   return null;
+	}
+
+}
+</div>
+
+<p> Nothing more is needed. </p>
 
 <h2>Publishing the web service</h2>
 
