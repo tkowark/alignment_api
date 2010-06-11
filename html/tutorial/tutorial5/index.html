@@ -225,17 +225,12 @@ public class AlignmentWSPublisher {
   <li> Specify a port that is not blocked by a firewall of your machine or by your network/provider.
 </ul>
 
-<p> The qualified name of the service consists
-of the namespace &quot;http://example.ws.matcher/&quot; (because the webservice is part of package example.ws.matcher) and a local name that stands for the service
-wrapping your matcher, which is in our example MyAlignmentWSService (= classname + "Service").
-The service can be accessed at via the URL http://134.155.86.66:8080/matcherWS and its WSDL - describing its methods - can be found at http://134.155.86.66:8080/matcherWS?wsdl.
-</p>
+<p> The service can be accessed at via the URL http://134.155.86.66:8080/matcherWS and its WSDL - describing its methods - can be found at http://134.155.86.66:8080/matcherWS?wsdl. </p>
 
-<p>To use the seals infrastructure you have to know the <b>namespace of your matching service</b>, you have to know the <b>local name of your service</b>, and finally you have to know the <b>URL of the servic endpoint</b> in order to specify it for running an evaluation.</p>
+<p>To use the seals infrastructure you have to know the <b>namespace of your matching service</b> (e.g. &quot;example.ws.matcher&quot;), you have to know the <b>class implementing your service</b> (e.g. &quot;AlignmentWSImpl&quot; or &quot;MyAlignmentWS&quot;), and finally you have to know the <b>URL of the service endpoint</b> in order to specify it for running an evaluation
+(e.g. &quot;http://134.155.86.66:8080/matcherWS?wsdl&quot;).</p>
 
-
-
-<hr />
+<hr/>
 <small>
 <div style="text-align: center;">http://alignapi.gforge.inria.fr/tutorial/tutorial5/</div>
 <hr />
