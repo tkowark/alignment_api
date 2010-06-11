@@ -1,4 +1,4 @@
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;

@@ -1,4 +1,4 @@
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
 
 import java.net.URI;
 import java.util.Properties;

@@ -97,7 +97,7 @@ which takes as parameters the URIs of the two ontologies to be aligned and retur
 
 
 <div class="fragment">
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
 
 import javax.jws.WebService;
 
@@ -118,7 +118,7 @@ The easiest way to do this is to implement the <a href="http://alignapi.gforge.i
 </p>
 
 <div class="fragment">
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
 
 import java.net.URI;
 import java.util.Properties;
@@ -142,7 +142,7 @@ public class MyAlignment extends URIAlignment implements AlignmentProcess {
 <p>Then, it is simple to expose <tt>MyAlignment</tt> as a web service (<a href="MyAlignmentWS.java">MyAlignmentWS.java</a>):</p>
 
 <div class="fragment">
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -198,7 +198,7 @@ In the second case, the publisher can use the method <tt>publish</tt>
   to publish its address to the <tt>Endpoint</tt> (<a href="AlignmentWSPublisher.java">AlignmentWSPublisher.java</a>):
 
 <div class="fragment">
-package eu.sealsproject.omt.ws;
+package x.y.z;
 
 import javax.xml.ws.Endpoint;
 import eu.sealsproject.omt.ws.matcher.AlignmentWS;
@@ -226,19 +226,14 @@ public class AlignmentWSPublisher {
 </ul>
 
 <p> The qualified name of the service consists
-of the namespace &quot;http://matcher.ws.omt.sealsproject.eu/&quot; (because the webservice is
+of the namespace &quot;http://z.y.x/&quot; (because the webservice is
 
-part of package eu.sealsproject.omt.ws.matcher) and a local name that stands for the service
+part of package x.y.z) and a local name that stands for the service
+wrapping your matcher, which is in our example MyAlignmentWSService (= classname + "Service").
+The service can be accessed at via the URL http://134.155.86.66:8080/matcherWS and its WSDL - describing its methods - can be found at http://134.155.86.66:8080/matcherWS?wsdl.
+</p>
 
-wrapping your matcher, which is in our example AlignmentWSImplService (= classname + "Service").
-
-If your matcher is for example called &quot;XMatch&quot; we recommend to name the implementing class &quot;eu.sealsproject.omt.ws.matcher.XMatch&quot; resulting in the local name &quot;XMatchService&quot; for the webservice.</p>
-
-<p>To use the seals infrastructure you have to <b>use the seals namespace</b> like in the
-
-presented example, and you <b>have to know the local name of your service</b> in order to
-
-specify it for running an evaluation.</p>
+<p>To use the seals infrastructure you have to know the <b>namespace of your matching service</b>, you have to know the <b>local name of your service</b>, and finally you have to know the <b>URL of the servic endpoint</b> in order to specify it for running an evaluation.</p>
 
 
 

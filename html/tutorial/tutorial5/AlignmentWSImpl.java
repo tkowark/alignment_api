@@ -1,4 +1,6 @@
-package eu.sealsproject.omt.ws.matcher;
+package x.y.z;
+
+import eu.sealsproject.omt.ws.matcher.AlignmentWS;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -12,8 +14,6 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-
-
 
 @WebService(endpointInterface="eu.sealsproject.omt.ws.matcher.AlignmentWS")
 public class AlignmentWSImpl implements AlignmentWS {
