@@ -1,4 +1,4 @@
-package x.y.z;
+package example.ws.matcher;
 
 import java.net.URI;
 import java.util.Properties;

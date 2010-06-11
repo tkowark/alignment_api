@@ -1,4 +1,4 @@
-package x.y.z;
+package example.ws.matcher;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -10,10 +10,11 @@ import javax.jws.WebService;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+
+import eu.sealsproject.omt.ws.matcher.AlignmentWS;
 
 @WebService(endpointInterface="eu.sealsproject.omt.ws.matcher.AlignmentWS")
 public class MyAlignmentWS extends MyAlignment implements AlignmentWS {

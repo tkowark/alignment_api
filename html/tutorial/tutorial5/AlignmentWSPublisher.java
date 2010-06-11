@@ -1,4 +1,4 @@
-package x.y.z;
+package example.ws.matcher;
 
 import javax.xml.ws.Endpoint;
 import eu.sealsproject.omt.ws.matcher.AlignmentWS;
