@@ -55,7 +55,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
     };
 
-    public void clearCache() {
+    public void clearCache() throws OntowrapException {
 	cache.clear();
     }
 
