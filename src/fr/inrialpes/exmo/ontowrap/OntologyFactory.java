@@ -43,7 +43,8 @@ public abstract class OntologyFactory {
 
     protected static Hashtable<String,OntologyFactory> instances = null;
 
-    private static String API_NAME="fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory";
+    private static String API_NAME="fr.inrialpes.exmo.ontowrap.skosapi.SKOSOntologyFactory";
+    //private static String API_NAME="fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory";
 
     public static String getDefaultFactory(){
 	return API_NAME;
@@ -83,7 +84,7 @@ public abstract class OntologyFactory {
 	return of;
     }
 
-    public static void clear() {
+    public static void clear() throws OntowrapException {
 	if ( instances != null ) {
 	    for ( OntologyFactory of : instances.values() ){
 		of.clearCache();
@@ -95,7 +96,7 @@ public abstract class OntologyFactory {
      * All Ontologies must implement clearCache()
      * which unload their ontologies if any cache is enabled.
      */
-    public abstract void clearCache();
+    public abstract void clearCache() throws OntowrapException;
 
     /**
      * Encapsulate an ontology already in the environment

@@ -58,7 +58,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 		    // Unnamed entity = max distance
 		    if ( s1 == null || s2 == null ) return 1.;
 		    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
-		    if ( debug > 4 ) 
+		    //if ( debug > 4 ) 
 			System.err.println( "OB:"+s1+" ++ "+s2+" ==> "+dissimilarity.invoke( null, params ));
 		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 		}

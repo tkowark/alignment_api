@@ -30,6 +30,7 @@ import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import java.lang.Math;
 import java.util.Enumeration;
@@ -80,33 +81,37 @@ public class SymMeanEvaluator extends BasicEvaluator implements Evaluator {
 	LoadedOntology onto1 = (LoadedOntology)((ObjectAlignment)align1).getOntologyObject1();
 	LoadedOntology onto2 = (LoadedOntology)((ObjectAlignment)align2).getOntologyObject1();
 	
-	for ( Cell c1 : align1 ){
-	    if ( onto1.isClass( c1.getObject1() ) ) nbClassCell++;
-	    else if ( onto1.isProperty( c1.getObject1() ) ) nbPropCell++;
-	    else nbIndCell++;
-	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
-	    if( s2 != null ){
-		for ( Cell c2: s2 ){
-		    if ( c1.getObject2() == c2.getObject2() ) {
-			if ( onto2.isClass( c1.getObject2() ) ) {
-			    classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			} else if ( onto2.isProperty( c1.getObject2() ) ) {
-			    propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
-			} else {
-			    indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}}}
+	try {
+	    for ( Cell c1 : align1 ){
+		if ( onto1.isClass( c1.getObject1() ) ) nbClassCell++;
+		else if ( onto1.isProperty( c1.getObject1() ) ) nbPropCell++;
+		else nbIndCell++;
+		Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
+		if( s2 != null ){
+		    for ( Cell c2: s2 ){
+			if ( c1.getObject2() == c2.getObject2() ) {
+			    if ( onto2.isClass( c1.getObject2() ) ) {
+				classScore = classScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+			    } else if ( onto2.isProperty( c1.getObject2() ) ) {
+				propScore = propScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());
+			    } else {
+				indScore = indScore + 1 - Math.abs(c2.getStrength() - c1.getStrength());}}}}}
+	    
+	    for( Cell c2: align2 ) {
+		if ( onto1.isClass( c2.getObject1() ) ) nbClassCell++ ;
+		else if ( onto1.isProperty( c2.getObject1() ) ) nbPropCell++;
+		else nbIndCell++;
+	    }
 		
-	for( Cell c2: align2 ) {
-	    if ( onto1.isClass( c2.getObject1() ) ) nbClassCell++ ;
-	    else if ( onto1.isProperty( c2.getObject1() ) ) nbPropCell++;
-	    else nbIndCell++;
+	    // Beware, this must come first
+	    result = 2*(classScore+propScore+indScore) / (nbClassCell+nbPropCell+nbIndCell);
+	    classScore = 2*classScore / nbClassCell;
+	    propScore = 2*propScore / nbPropCell;
+	    indScore = 2*indScore / nbIndCell;
+	    return(result);
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot access class hierarchy", owex );
 	}
-		
-	// Beware, this must come first
-	result = 2*(classScore+propScore+indScore) / (nbClassCell+nbPropCell+nbIndCell);
-	classScore = 2*classScore / nbClassCell;
-	propScore = 2*propScore / nbPropCell;
-	indScore = 2*indScore / nbIndCell;
-	return(result);
     }
 
     public void write( PrintWriter writer ) throws java.io.IOException {

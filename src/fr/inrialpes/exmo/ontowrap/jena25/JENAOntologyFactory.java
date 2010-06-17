@@ -104,7 +104,7 @@ public class JENAOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public void clearCache() {
+    public void clearCache() throws OntowrapException {
 	cache.clear();
     };
 

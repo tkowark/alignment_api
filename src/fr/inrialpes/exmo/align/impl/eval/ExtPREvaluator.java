@@ -212,19 +212,23 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     }
 
     protected int relativePosition( Object o1, Object o2, HeavyLoadedOntology<Object> onto )  throws AlignmentException {
-	if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
-	    isSuperClass( o2, o1, onto ); // This is the level
-	} else if ( onto.isProperty( o1 ) && onto.isProperty( o2 ) ){
-	    if ( isSuperProperty( o2, o1, onto ) ) { return -1; }
-	    else if ( isSuperProperty( o1, o2, onto ) ) { return 1; }
-	    else { return 0; }
-	} else if ( onto.isIndividual( o1 ) && onto.isIndividual( o2 ) ){
+	try {
+	    if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
+		isSuperClass( o2, o1, onto ); // This is the level
+	    } else if ( onto.isProperty( o1 ) && onto.isProperty( o2 ) ){
+		if ( isSuperProperty( o2, o1, onto ) ) { return -1; }
+		else if ( isSuperProperty( o1, o2, onto ) ) { return 1; }
+		else { return 0; }
+	    } else if ( onto.isIndividual( o1 ) && onto.isIndividual( o2 ) ){
+		return 0;
+		//if () { return -1; }
+		//else if () { return 1; }
+		//else return 0;
+	    }
 	    return 0;
-	    //if () { return -1; }
-	    //else if () { return 1; }
-	    //else return 0;
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot access class hierarchy", owex );
 	}
-	return 0;
     }
 
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {

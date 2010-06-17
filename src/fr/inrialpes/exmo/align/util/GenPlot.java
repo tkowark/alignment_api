@@ -30,6 +30,7 @@ import fr.inrialpes.exmo.align.impl.eval.GraphEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.Pair;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -327,7 +328,11 @@ public class GenPlot {
 	    evaluators.get(i).ingest( al, refalign );
 	}
 	// Unload the ontologies.
-	OntologyFactory.clear();
+	try {
+	    OntologyFactory.clear();
+	} catch ( OntowrapException owex ) { // only report
+	    owex.printStackTrace();
+	}
     }
     
     // should be OK for changing granularity

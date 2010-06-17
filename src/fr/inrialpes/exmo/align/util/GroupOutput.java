@@ -35,6 +35,7 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -243,7 +244,11 @@ public class GroupOutput {
 	    } catch (AlignmentException aex ) { aex.printStackTrace(); }
 	}
 	// Unload the ontologies.
-	OntologyFactory.clear();
+	try {
+	    OntologyFactory.clear();
+	} catch ( OntowrapException owex ) { // only report
+	    owex.printStackTrace();
+	}
 
 	return result/(double)tests.length;
     }

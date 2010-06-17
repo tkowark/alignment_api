@@ -118,30 +118,30 @@ public interface LoadedOntology<O> extends Ontology<O> {
      */
     public Set<String> getEntityAnnotations( Object o, String lang ) throws OntowrapException;
 
-    public boolean isEntity( Object o );
-    public boolean isClass( Object o );
-    public boolean isProperty( Object o );
-    public boolean isDataProperty( Object o );
-    public boolean isObjectProperty( Object o );
-    public boolean isIndividual( Object o );
+    public boolean isEntity( Object o ) throws OntowrapException;
+    public boolean isClass( Object o ) throws OntowrapException;
+    public boolean isProperty( Object o ) throws OntowrapException;
+    public boolean isDataProperty( Object o ) throws OntowrapException;
+    public boolean isObjectProperty( Object o ) throws OntowrapException;
+    public boolean isIndividual( Object o ) throws OntowrapException;
 
     /**
      * Returns all named entities having URI beginning with the ontology URI
      * @return the set of entities
      */
-    public Set<? extends Object> getEntities();
-    public Set<? extends Object> getClasses();
-    public Set<? extends Object> getProperties();
-    public Set<? extends Object> getObjectProperties();
-    public Set<? extends Object> getDataProperties();
-    public Set<? extends Object> getIndividuals();
+    public Set<? extends Object> getEntities() throws OntowrapException;
+    public Set<? extends Object> getClasses() throws OntowrapException;
+    public Set<? extends Object> getProperties() throws OntowrapException;
+    public Set<? extends Object> getObjectProperties() throws OntowrapException;
+    public Set<? extends Object> getDataProperties() throws OntowrapException;
+    public Set<? extends Object> getIndividuals() throws OntowrapException;
 
-    public int nbEntities();
-    public int nbClasses();
-    public int nbProperties();
-    public int nbDataProperties();
-    public int nbObjectProperties();
-    public int nbIndividuals();
+    public int nbEntities() throws OntowrapException;
+    public int nbClasses() throws OntowrapException;
+    public int nbProperties() throws OntowrapException;
+    public int nbDataProperties() throws OntowrapException;
+    public int nbObjectProperties() throws OntowrapException;
+    public int nbIndividuals() throws OntowrapException;
 
-    public void unload();
+    public void unload() throws OntowrapException;
 }

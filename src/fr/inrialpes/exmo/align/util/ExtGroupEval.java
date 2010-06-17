@@ -38,6 +38,7 @@ import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -239,7 +240,11 @@ public class ExtGroupEval {
 	    result.add( i, evaluator );
 	}
 	// Unload the ontologies.
-	OntologyFactory.clear();
+	try {
+	    OntologyFactory.clear();
+	} catch ( OntowrapException owex ) { // only report
+	    owex.printStackTrace();
+	}
 
 	if ( ok == true ) return result;
 	else return null;

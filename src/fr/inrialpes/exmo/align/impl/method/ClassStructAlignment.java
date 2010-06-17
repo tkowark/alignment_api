@@ -94,13 +94,17 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	if ( init != null ) ingest( init );
 
 	// Create class lists
-	for ( Object cl : honto2.getClasses() ){
-	    nbclass2++;
-	    classlist2.add( cl );
-	}
-	for ( Object cl : honto1.getClasses() ){
-	    nbclass1++;
-	    classlist1.add( cl );
+	try {
+	    for ( Object cl : honto2.getClasses() ){
+		nbclass2++;
+		classlist2.add( cl );
+	    }
+	    for ( Object cl : honto1.getClasses() ){
+		nbclass1++;
+		classlist1.add( cl );
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot access class hierarchy", owex );
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
 	

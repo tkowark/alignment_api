@@ -94,18 +94,23 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	writer.print("    <owl:imports rdf:resource=\""+align.getOntology2URI().toString()+"\"/>\n");
 	writer.print("  </owl:Ontology>\n\n");
 	
-	for( Cell c : align ){
-	    Object ob1 = c.getObject1();
-	    Object ob2 = c.getObject2();
+	try {
+	    for( Cell c : align ){
+		Object ob1 = c.getObject1();
+		Object ob2 = c.getObject2();
+		
+		if ( heterogeneous ||
+		     ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
+		     ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
+		     ( onto1.isObjectProperty( ob1 ) && onto2.isObjectProperty( ob2 ) ) ||
+		     ( onto1.isIndividual( ob1 ) && onto2.isIndividual( ob2 ) ) )
+		    c.accept( this );
+		
+	    } //end for
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Error accessing ontology", owex );
+	}
 
-	    if ( heterogeneous ||
-		 ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
-		 ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
-	  	 ( onto1.isObjectProperty( ob1 ) && onto2.isObjectProperty( ob2 ) ) ||
-                 ( onto1.isIndividual( ob1 ) && onto2.isIndividual( ob2 ) ) )
-		c.accept( this );
-                      			 
-	} //end for
 	writer.print("</rdf:RDF>\n");
     }
 
@@ -120,25 +125,25 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	    } else {
 		u1 = onto1.getEntityURI( ob1 );
 	    }
+	    if ( onto1.isClass( ob1 ) ) {
+		writer.print("  <owl:Class rdf:about=\""+u1+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("  </owl:Class>\n");
+	    } else if ( onto1.isDataProperty( ob1 ) ) {
+		writer.print("  <owl:DatatypeProperty rdf:about=\""+u1+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("  </owl:DatatypeProperty>\n");
+	    } else if ( onto1.isObjectProperty( ob1 ) ) {
+		writer.print("  <owl:ObjectProperty rdf:about=\""+u1+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("  </owl:ObjectProperty>\n");
+	    } else if ( onto1.isIndividual( ob1 ) ) {
+		writer.print("  <owl:Thing rdf:about=\""+u1+"\">\n");
+		cell.getRelation().accept( this );
+		writer.print("  </owl:Thing>\n");
+	    }
 	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot find entity URI", owex );
-	}
-	if ( onto1.isClass( ob1 ) ) {
-	    writer.print("  <owl:Class rdf:about=\""+u1+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("  </owl:Class>\n");
-	} else if ( onto1.isDataProperty( ob1 ) ) {
-	    writer.print("  <owl:DatatypeProperty rdf:about=\""+u1+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("  </owl:DatatypeProperty>\n");
-	} else if ( onto1.isObjectProperty( ob1 ) ) {
-	    writer.print("  <owl:ObjectProperty rdf:about=\""+u1+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("  </owl:ObjectProperty>\n");
-	} else if ( onto1.isIndividual( ob1 ) ) {
-	    writer.print("  <owl:Thing rdf:about=\""+u1+"\">\n");
-	    cell.getRelation().accept( this );
-	    writer.print("  </owl:Thing>\n");
+	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
     }
 
@@ -147,17 +152,17 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	URI u2;
 	try {
 	    u2 = onto2.getEntityURI( ob2 );
+	    if ( onto2.isClass( ob2 ) ) {
+		writer.print("    <owl:equivalentClass rdf:resource=\""+u2+"\"/>\n");
+	    } else if ( onto2.isDataProperty( ob2 ) ) {
+		writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
+	    } else if ( onto2.isObjectProperty( ob2 ) ) {
+		writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
+	    } else if ( onto2.isIndividual( ob2 ) ) {
+		writer.print("    <owl:sameAs rdf:resource=\""+u2+"\"/>\n");
+	    }
 	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot find entity URI", owex );
-	}
-	if ( onto2.isClass( ob2 ) ) {
-	    writer.print("    <owl:equivalentClass rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto2.isDataProperty( ob2 ) ) {
-	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto2.isObjectProperty( ob2 ) ) {
-	    writer.print("    <owl:equivalentProperty rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto2.isIndividual( ob2 ) ) {
-	    writer.print("    <owl:sameAs rdf:resource=\""+u2+"\"/>\n");
+	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
     }
 
@@ -166,15 +171,15 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	URI u2;
 	try {
 	    u2 = onto2.getEntityURI( ob2 );
+	    if ( onto1.isClass( ob2 ) ) {
+		writer.print("    <rdfs:subClassOf rdf:resource=\""+u2+"\"/>\n");
+	    } else if ( onto1.isDataProperty( ob2 ) ) {
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
+	    } else if ( onto1.isObjectProperty( ob2 ) ) {
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
+	    }
 	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot find entity URI", owex );
-	}
-	if ( onto1.isClass( ob2 ) ) {
-	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto1.isDataProperty( ob2 ) ) {
-	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
-	} else if ( onto1.isObjectProperty( ob2 ) ) {
-	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u2+"\"/>\n");
+	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
     }
 
@@ -183,15 +188,15 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 	URI u1;
 	try {
 	    u1 = onto1.getEntityURI( ob1 );
+	    if ( onto1.isClass( ob1 ) ) {
+		writer.print("    <rdfs:subClassOf rdf:resource=\""+u1+"\"/>\n");
+	    } else if ( onto1.isDataProperty( ob1 ) ) {
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
+	    } else if ( onto1.isObjectProperty( ob1 ) ) {
+		writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
+	    }
 	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot find entity URI", owex );
-	}
-	if ( onto1.isClass( ob1 ) ) {
-	    writer.print("    <rdfs:subClassOf rdf:resource=\""+u1+"\"/>\n");
-	} else if ( onto1.isDataProperty( ob1 ) ) {
-	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
-	} else if ( onto1.isObjectProperty( ob1 ) ) {
-	    writer.print("    <rdfs:subPropertyOf rdf:resource=\""+u1+"\"/>\n");
+	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
     }
 
@@ -231,15 +236,15 @@ public class OWLAxiomsRendererVisitor implements AlignmentVisitor {
 		    URI u2;
 		    try {
 			u2 = onto2.getEntityURI( ob2 );
+			if ( onto2.isIndividual( ob2 ) ) { // ob1 has been checked before
+			    // It would be better to check that r is a relation of one of the ontologies by
+			    // onto1.isObjectProperty( onto1.getEntity( new URI ( r ) ) )
+			    String r = ((BasicRelation)rel).getRelation();
+			    if ( r!=null && !r.equals("") )
+				writer.print("    <"+r+" rdf:resource=\""+u2+"\"/>\n");
+			}
 		    } catch ( OntowrapException owex ) {
-			throw new AlignmentException( "Cannot find entity URI", owex );
-		    }
-		    if ( onto2.isIndividual( ob2 ) ) { // ob1 has been checked before
-			// It would be better to check that r is a relation of one of the ontologies by
-			// onto1.isObjectProperty( onto1.getEntity( new URI ( r ) ) )
-			String r = ((BasicRelation)rel).getRelation();
-			if ( r!=null && !r.equals("") )
-			    writer.print("    <"+r+" rdf:resource=\""+u2+"\"/>\n");
+			throw new AlignmentException( "Error accessing ontology", owex );
 		    }
 		}
 	    }

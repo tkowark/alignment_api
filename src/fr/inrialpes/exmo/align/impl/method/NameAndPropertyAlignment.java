@@ -99,6 +99,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	if ( params.getProperty("debug") != null )
 	    debug = Integer.parseInt( params.getProperty("debug") );
 
+	try {
 	    // Create property lists and matrix
 	    for ( Object prop : honto1.getObjectProperties() ){
 		nbprop1++;
@@ -128,96 +129,95 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		classlist2.add( cl );
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
-
-	    try {
-		if (debug > 0) System.err.println("Initializing property distances");
-		for ( i=0; i<nbprop1; i++ ){
-		    Object cl1 = proplist1.get(i);
-		    String st1 = honto1.getEntityName( cl1 );
-		    if ( st1 != null) st1 = st1.toLowerCase();
-		    for ( j=0; j<nbprop2; j++ ){
-			Object cl2 = proplist2.get(j);
-			String st2 = honto2.getEntityName( cl2 );
-			if( st2 != null ) st2 = st2.toLowerCase();
-			if ( st1 != null || st2 != null ) {
-			    propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
-			} else {
-			    propmatrix[i][j] = 1.;
-			}
+	    
+	    if (debug > 0) System.err.println("Initializing property distances");
+	    for ( i=0; i<nbprop1; i++ ){
+		Object cl1 = proplist1.get(i);
+		String st1 = honto1.getEntityName( cl1 );
+		if ( st1 != null) st1 = st1.toLowerCase();
+		for ( j=0; j<nbprop2; j++ ){
+		    Object cl2 = proplist2.get(j);
+		    String st2 = honto2.getEntityName( cl2 );
+		    if( st2 != null ) st2 = st2.toLowerCase();
+		    if ( st1 != null || st2 != null ) {
+			propmatrix[i][j] = pia1 * StringDistances.subStringDistance( st1, st2 );
+		    } else {
+			propmatrix[i][j] = 1.;
 		    }
 		}
+	    }
+	    
+	    // Initialize class distances
+	    if (debug > 0) System.err.println("Initializing class distances");
+	    for ( i=0; i<nbclass1; i++ ){
+		Object cl1 = classlist1.get(i);
+		for ( j=0; j<nbclass2; j++ ){
+		    classmatrix[i][j] = pic1*StringDistances.subStringDistance( honto1.getEntityName( cl1 ).toLowerCase(), honto2.getEntityName( classlist2.get(j) ).toLowerCase());
+		}
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
 
-		// Initialize class distances
-		if (debug > 0) System.err.println("Initializing class distances");
-		for ( i=0; i<nbclass1; i++ ){
-		    Object cl1 = classlist1.get(i);
+	// Iterate until completion
+	double factor = 1.0;
+	while ( factor > epsillon ){
+	    // Compute property distances
+	    // -- FirstExp: nothing to be done: one pass
+	    // Here create the best matches for property distance already
+	    // -- FirstExp: goes directly in the alignment structure
+	    //    since it will never be refined anymore...
+	    if (debug > 0) System.err.print("Storing property alignment\n");
+	    for ( i=0; i<nbprop1; i++ ){
+		boolean found = false;
+		int best = 0;
+		double max = threshold;
+		for ( j=0; j<nbprop2; j++ ){
+		    if ( propmatrix[i][j] < max) {
+			found = true;
+			best = j;
+			max = propmatrix[i][j];
+		    }
+		}
+		if ( found && max < 0.5) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
+	    }
+	    if (debug > 0) System.err.print("Computing class distances\n");
+	    // Compute classes distances
+	    // -- for all of its attribute, find the best match if possible... easy
+	    // -- simply replace in the matrix the value by the value plus the 
+	    // classmatrix[i][j] =
+	    // pic1 * classmatrix[i][j]
+	    // + pic2 * 2 *
+	    //  (sigma (att in c[i]) getAllignCell... )
+	    //  / nbatts of c[i] + nbatts of c[j]
+	    
+	    for ( i=0; i<nbclass1; i++ ){
+		Set<Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+		
+		int nba1 = properties1.size();
+		if ( nba1 > 0 ) { // if not, keep old values...
+		    //Set correspondences = new HashSet();
 		    for ( j=0; j<nbclass2; j++ ){
-			classmatrix[i][j] = pic1*StringDistances.subStringDistance( honto1.getEntityName( cl1 ).toLowerCase(), honto2.getEntityName( classlist2.get(j) ).toLowerCase());
-		    }
-		}
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Cannot find entity URI", owex );
-	    }
-
-	    // Iterate until completion
-	    double factor = 1.0;
-	    while ( factor > epsillon ){
-		// Compute property distances
-		// -- FirstExp: nothing to be done: one pass
-		// Here create the best matches for property distance already
-		// -- FirstExp: goes directly in the alignment structure
-		//    since it will never be refined anymore...
-		if (debug > 0) System.err.print("Storing property alignment\n");
-		for ( i=0; i<nbprop1; i++ ){
-		    boolean found = false;
-		    int best = 0;
-		    double max = threshold;
-		    for ( j=0; j<nbprop2; j++ ){
-			if ( propmatrix[i][j] < max) {
-			    found = true;
-			    best = j;
-			    max = propmatrix[i][j];
-			}
-		    }
-		    if ( found && max < 0.5) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
-		}
-		if (debug > 0) System.err.print("Computing class distances\n");
-		// Compute classes distances
-		// -- for all of its attribute, find the best match if possible... easy
-		// -- simply replace in the matrix the value by the value plus the 
-		// classmatrix[i][j] =
-		// pic1 * classmatrix[i][j]
-		// + pic2 * 2 *
-		//  (sigma (att in c[i]) getAllignCell... )
-		//  / nbatts of c[i] + nbatts of c[j]
-
-		for ( i=0; i<nbclass1; i++ ){
-		    Set<Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-		    
-		    int nba1 = properties1.size();
-		    if ( nba1 > 0 ) { // if not, keep old values...
-			//Set correspondences = new HashSet();
-			for ( j=0; j<nbclass2; j++ ){
-			    Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-			    //int nba2 = properties1.size();
-			    //double attsum = 0.;
-			    // check that there is a correspondance
-			    // in list of class2 atts and add their weights 
+			Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+			//int nba2 = properties1.size();
+			//double attsum = 0.;
+			// check that there is a correspondance
+			// in list of class2 atts and add their weights 
 			
-			    // Make a local alignment with the properties.
-			    double moy_align_loc = alignLocal(properties1,properties2);
-
-			    if (moy_align_loc > 0.7){
-				classmatrix[i][j] = (classmatrix[i][j] + 2* moy_align_loc)/3;
-			    }
+			// Make a local alignment with the properties.
+			double moy_align_loc = alignLocal(properties1,properties2);
+			
+			if (moy_align_loc > 0.7){
+			    classmatrix[i][j] = (classmatrix[i][j] + 2* moy_align_loc)/3;
 			}
 		    }
 		}
-
-		// Assess factor
-		// -- FirstExp: nothing to be done: one pass
-		factor = 0.;
 	    }
+	    
+	    // Assess factor
+	    // -- FirstExp: nothing to be done: one pass
+	    factor = 0.;
+	}
 	// This mechanism should be parametric!
 	// Select the best match
 	// There can be many algorithm for these:

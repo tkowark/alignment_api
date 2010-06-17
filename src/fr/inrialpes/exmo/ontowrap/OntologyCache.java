@@ -64,7 +64,7 @@ public class OntologyCache <O extends LoadedOntology> {
 	return ontologyUris.get( uri );
     }
 
-    public void unloadOntology( URI uri, O ontology ){
+    public void unloadOntology( URI uri, O ontology ) throws OntowrapException {
 	O o = ontologyUris.get(uri);
 	o.unload();
 	ontologyUris.remove( uri );
@@ -85,7 +85,7 @@ public class OntologyCache <O extends LoadedOntology> {
 	}
     };
 
-    public void clear(){
+    public void clear() throws OntowrapException {
 	for ( LoadedOntology o : ontologies.values() ){
 	    o.unload();
 	}

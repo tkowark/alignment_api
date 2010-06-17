@@ -260,6 +260,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		}
 	    }
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For properties
 	try{
 	    int nbprop1 = ontology1().nbProperties();
@@ -296,6 +297,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		}
 	    }
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For individuals
 	if (  params.getProperty("noinst") == null ){
 	    try{

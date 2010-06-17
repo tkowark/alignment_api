@@ -101,39 +101,39 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	if ( params.getProperty("debug") != null )
 	    debug = Integer.parseInt( params.getProperty("debug") );
 
-	// Create property lists and matrix
-	for ( Object prop : honto1.getObjectProperties() ){
-	    nbprop1++;
-	    proplist1.add( prop );
-	}
-	for ( Object prop : honto1.getDataProperties() ){
-	    nbprop1++;
-	    proplist1.add( prop );
-	}
-	for ( Object prop : honto2.getObjectProperties() ){
-	    nbprop2++;
-	    proplist2.add( prop );
-	}
-	for ( Object prop : honto2.getDataProperties() ){
-	    nbprop2++;
-	    proplist2.add( prop );
-	}
-	propmatrix = new double[nbprop1+1][nbprop2+1];
-	
-	// Create class lists
-	for ( Object cl : honto1.getClasses() ){
-	    nbclass1++;
-	    classlist1.add( cl );
-	}
-	for ( Object cl : honto2.getClasses() ){
-	    nbclass2++;
-	    classlist2.add( cl );
-	}
-	classmatrix = new double[nbclass1+1][nbclass2+1];
-	
-	try{
+	try {
+	    // Create property lists and matrix
+	    for ( Object prop : honto1.getObjectProperties() ){
+		nbprop1++;
+		proplist1.add( prop );
+	    }
+	    for ( Object prop : honto1.getDataProperties() ){
+		nbprop1++;
+		proplist1.add( prop );
+	    }
+	    for ( Object prop : honto2.getObjectProperties() ){
+		nbprop2++;
+		proplist2.add( prop );
+	    }
+	    for ( Object prop : honto2.getDataProperties() ){
+		nbprop2++;
+		proplist2.add( prop );
+	    }
+	    propmatrix = new double[nbprop1+1][nbprop2+1];
+	    
+	    // Create class lists
+	    for ( Object cl : honto1.getClasses() ){
+		nbclass1++;
+		classlist1.add( cl );
+	    }
+	    for ( Object cl : honto2.getClasses() ){
+		nbclass2++;
+		classlist2.add( cl );
+	    }
+	    classmatrix = new double[nbclass1+1][nbclass2+1];
+	    
 	    if (debug > 0) System.err.println("Initializing property distances");
-
+	    
 	    for ( i=0; i<nbprop1; i++ ){
 		Object cl1 = proplist1.get(i);
 		String st1 = honto1.getEntityName( cl1 );
@@ -149,7 +149,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 		    }
 		}
 	    }
-
+	    
 	    // Initialize class distances
 	    if (debug > 0) System.err.println("Initializing class distances");
 	    for ( i=0; i<nbclass1; i++ ){
@@ -159,7 +159,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 		}
 	    }
 	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot find entity URI", owex );
+	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
 
 	// Iterate until completion
