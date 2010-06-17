@@ -38,12 +38,13 @@ public class SKOSOntologyFactory extends OntologyFactory {
 
     private static URI formalismUri = null;
     private static String formalismId = "SKOS1.0";
-    private static OntologyCache<SKOSOntology> cache = null;
+    private static OntologyCache<SKOSThesaurus> cache = null;
 
     private SKOSManager manager;
     private SKOSDataFactory factory;
 
     public SKOSOntologyFactory() throws OntowrapException {
+	cache = new OntologyCache<SKOSThesaurus>();
 	try { 
 	    formalismUri = new URI("http://www.w3.org/2004/02/skos/core#");
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
@@ -56,10 +57,10 @@ public class SKOSOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSOntology newOntology( Object ontology ) throws OntowrapException {
+    public SKOSThesaurus newOntology( Object ontology ) throws OntowrapException {
 	if ( ontology instanceof SKOSDataset ) {
-	    SKOSOntology onto = null;
-	    onto = new SKOSOntology();
+	    SKOSThesaurus onto = null;
+	    onto = new SKOSThesaurus();
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( (SKOSDataset)ontology );
@@ -75,8 +76,9 @@ public class SKOSOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSOntology loadOntology( URI uri ) throws OntowrapException {
-	SKOSOntology onto = null;
+    public SKOSThesaurus loadOntology( URI uri ) throws OntowrapException {
+	//System.err.println(" Loading "+uri );
+	SKOSThesaurus onto = null;
 	onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
 	onto = cache.getOntology( uri );
@@ -87,7 +89,7 @@ public class SKOSOntologyFactory extends OntologyFactory {
 	} catch (SKOSCreationException sce) {
 	    throw new OntowrapException( "Cannot load ontology: "+uri, sce);
 	}
-	onto = new SKOSOntology();
+	onto = new SKOSThesaurus();
 	onto.setFormalism( formalismId );
 	onto.setFormURI( formalismUri );
 	onto.setOntology( dataset );
@@ -95,12 +97,13 @@ public class SKOSOntologyFactory extends OntologyFactory {
 	onto.setFile( uri );
 	// This is the URI of the corresponding OWL API Ontology
 	onto.setURI( dataset.getURI() );
-	cache.recordOntology( uri, onto );
+	//cache.recordOntology( uri, onto );
+	
 	return onto;
     }
 
     @Override
-    public void clearCache() {
+    public void clearCache() throws OntowrapException {
 	cache.clear();
     }
 

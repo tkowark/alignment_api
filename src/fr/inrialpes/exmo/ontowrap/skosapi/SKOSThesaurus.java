@@ -36,14 +36,17 @@ import org.semanticweb.skos.SKOSUntypedLiteral;
 import org.semanticweb.skos.SKOSDataProperty;
 
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
-import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
-public class SKOSOntology extends BasicOntology<SKOSDataset> implements LoadedOntology<SKOSDataset>{
+public class SKOSThesaurus extends BasicOntology<SKOSDataset> implements HeavyLoadedOntology<SKOSDataset>{
 
     SKOSDataFactory factory;
 
-    public SKOSOntology () {
+    private static HashSet NullSet = new HashSet();
+
+    public SKOSThesaurus () {
+	NullSet = new HashSet();
     }
 
     public void setFactory( SKOSDataFactory df ){
@@ -82,7 +85,7 @@ lang = untypedLiteral.getLang();
 
     public void getDataValues( SKOSConcept o, SKOSDataProperty p, Set<String> result ){
 	for ( SKOSLiteral lit : onto.getSKOSDataRelationByProperty( o, p ) ){
-                result.add( lit.toString() );
+                result.add( lit.getLiteral() );
 	}
     }
 		  
@@ -91,8 +94,8 @@ lang = untypedLiteral.getLang();
 	    if ( !lit.isTyped() ) {
 		SKOSUntypedLiteral l = lit.getAsSKOSUntypedLiteral();
 		if ( l.hasLang() && l.getLang().equals( lang ) )
-		    result.add( lit.toString() );
-	    }
+		    result.add( lit.getLiteral() );
+	    } // JE: what if typed?
 	}
     }
 		  
@@ -255,7 +258,8 @@ lang = untypedLiteral.getLang();
 
     //@SuppressWarnings("unchecked")
     public Set<?> getDataProperties() {
-	return null; // null or new HashSet()
+	return NullSet;
+	//	return null; // null or new HashSet()
     }
 
     //@SuppressWarnings("unchecked")
@@ -265,17 +269,17 @@ lang = untypedLiteral.getLang();
 
     //@SuppressWarnings("unchecked")
     public Set<?> getIndividuals() {
-	return null;
+	return NullSet;
     }
 
     //@SuppressWarnings("unchecked")
     public Set<?> getObjectProperties() {
-	return null;
+	return NullSet;
     }
 
     //@SuppressWarnings("unchecked")
     public Set<?> getProperties() {
-	return null;
+	return NullSet;
     }
 
     public boolean isClass(Object o) {
@@ -335,5 +339,53 @@ lang = untypedLiteral.getLang();
 	o.getSKOSNarrowerConcepts( onto )
 	o.getSKOSNarrowerTransitiveConcepts( onto )
      **/
+    /* Capability methods */
+    //    TODO
+    public boolean getCapabilities( int Direct, int Asserted, int Named ) {
+	return false;
+    }
+
+    /* Class methods */
+    public Set<Object> getSubClasses( Object c, int local, int asserted, int named ) {
+    //    TODO
+	return NullSet;
+    }
+    public Set<Object> getSuperClasses( Object c, int local, int asserted, int named ){
+    //    TODO
+	return NullSet;
+    }
+    public Set<Object> getProperties( Object c, int local, int asserted, int named ){
+	return NullSet;
+    }
+    public Set<Object> getDataProperties( Object c, int local, int asserted, int named ){
+	return NullSet;
+    }
+    public Set<Object> getObjectProperties( Object c, int local, int asserted, int named ){
+	return NullSet;
+    }
+    public Set<Object> getInstances( Object c, int local, int asserted, int named  ){
+	return NullSet;
+    }
+
+    /* Property methods */
+    public Set<Object> getSubProperties( Object p, int local, int asserted, int named ){
+	return NullSet;
+    }
+    public Set<Object> getSuperProperties( Object p, int local, int asserted, int named ){
+	return NullSet;
+    }
+    public Set<Object> getRange( Object p, int asserted ){
+	return NullSet;
+    }
+    public Set<Object> getDomain( Object p, int asserted ){
+	return NullSet;
+    }
+
+    /* Individual methods */
+    public Set<Object> getClasses( Object i, int local, int asserted, int named ){
+	return NullSet;
+	//return onto.getSKOSConcepts();
+    }
+
 
 }
