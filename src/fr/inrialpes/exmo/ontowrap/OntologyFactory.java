@@ -27,19 +27,19 @@ import java.lang.reflect.InvocationTargetException;
 
 public abstract class OntologyFactory {
 
-    public static int ANY = 0;
-    public static int DIRECT = 1;
-    public static int INDIRECT = 2;
-    public static int ASSERTED = 3;
-    public static int UNASSERTED = 4;
-    public static int INHERITED = 5;
-    public static int FULL = 6;
-    public static int NAMED = 7;
-    public static int LOCAL = 8;
-    public static int GLOBAL = 9;
-    public static int UNNAMED = 10;
-    public static int MENTIONNED = 11;
-    public static int ALL = 12;
+    public static final int ANY = 0;
+    public static final int DIRECT = 1;
+    public static final int INDIRECT = 2;
+    public static final int ASSERTED = 3;
+    public static final int UNASSERTED = 4;
+    public static final int INHERITED = 5;
+    public static final int FULL = 6;
+    public static final int NAMED = 7;
+    public static final int LOCAL = 8;
+    public static final int GLOBAL = 9;
+    public static final int UNNAMED = 10;
+    public static final int MENTIONNED = 11;
+    public static final int ALL = 12;
 
     protected static Hashtable<String,OntologyFactory> instances = null;
 

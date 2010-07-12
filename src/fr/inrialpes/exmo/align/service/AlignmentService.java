@@ -59,7 +59,7 @@ import java.lang.reflect.InvocationTargetException;
 $Id$
 </pre>
 
- * @author Jérôme Euzenat
+ * @author Jï¿½rï¿½me Euzenat
  */
 public class AlignmentService {
 

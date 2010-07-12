@@ -51,7 +51,7 @@ import fr.inrialpes.exmo.ontosim.string.StringDistances;
  *  - pia3 [ignored=0]: weigth for property domain
  *  - pia4 [ignored=0]: weigth for property range
  *
- * @author Jérôme Euzenat
+ * @author Jï¿½rï¿½me Euzenat
  * @version $Id$ 
  */
 
@@ -195,12 +195,12 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 	    //  (sigma (att in c[i]) getAllignCell... )
 	    //  / nbatts of c[i] + nbatts of c[j]
 	    for ( i=0; i<nbclass1; i++ ){
-		Set<Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+		Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 		int nba1 = properties1.size();
 		if ( nba1 > 0 ) { // if not, keep old values...
 		    //Set correspondences = new HashSet();
 		    for ( j=0; j<nbclass2; j++ ){
-			Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+			Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 			int nba2 = properties2.size();
 			double attsum = 0.;
 			// check that there is a correspondance

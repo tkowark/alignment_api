@@ -35,20 +35,20 @@ public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
     public boolean getCapabilities( int Direct, int Asserted, int Named );
 
     /* Class methods */
-    public Set<Object> getSubClasses( Object c, int local, int asserted, int named );
-    public Set<Object> getSuperClasses( Object c, int local, int asserted, int named );
-    public Set<Object> getProperties( Object c, int local, int asserted, int named );
-    public Set<Object> getDataProperties( Object c, int local, int asserted, int named );
-    public Set<Object> getObjectProperties( Object c, int local, int asserted, int named );
-    public Set<Object> getInstances( Object c, int local, int asserted, int named  );
+    public <E >Set<E> getSubClasses( E c, int local, int asserted, int named );
+    public Set<? extends Object> getSuperClasses( Object c, int local, int asserted, int named );
+    public Set<? extends Object> getProperties( Object c, int local, int asserted, int named );
+    public Set<? extends Object> getDataProperties( Object c, int local, int asserted, int named );
+    public Set<? extends Object> getObjectProperties( Object c, int local, int asserted, int named );
+    public Set<? extends Object> getInstances( Object c, int local, int asserted, int named  );
 
     /* Property methods */
-    public Set<Object> getSubProperties( Object p, int local, int asserted, int named );
-    public Set<Object> getSuperProperties( Object p, int local, int asserted, int named );
-    public Set<Object> getRange( Object p, int asserted );
-    public Set<Object> getDomain( Object p, int asserted );
+    public Set<? extends Object> getSubProperties( Object p, int local, int asserted, int named );
+    public Set<? extends Object> getSuperProperties( Object p, int local, int asserted, int named );
+    public Set<? extends Object> getRange( Object p, int asserted );
+    public Set<? extends Object> getDomain( Object p, int asserted );
 
     /* Individual methods */
-    public Set<Object> getClasses( Object i, int local, int asserted, int named );
+    public Set<? extends Object> getClasses( Object i, int local, int asserted, int named );
 
 }

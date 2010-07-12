@@ -50,7 +50,7 @@ import fr.inrialpes.exmo.ontosim.string.StringDistances;
  *  - pia3 [ignored=0]: weigth for property domain
  *  - pia4 [ignored=0]: weigth for property range
  *
- * @author Jérôme Euzenat / Jerome Pierson
+ * @author Jï¿½rï¿½me Euzenat / Jerome Pierson
  * @version $Id$ 
  */
 
@@ -192,13 +192,13 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    //  / nbatts of c[i] + nbatts of c[j]
 	    
 	    for ( i=0; i<nbclass1; i++ ){
-		Set<Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+		Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 		
 		int nba1 = properties1.size();
 		if ( nba1 > 0 ) { // if not, keep old values...
 		    //Set correspondences = new HashSet();
 		    for ( j=0; j<nbclass2; j++ ){
-			Set<Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+			Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
 			//int nba2 = properties1.size();
 			//double attsum = 0.;
 			// check that there is a correspondance
@@ -246,7 +246,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
      * Make a local alignement
      * @return an average of all the property alignement 
      */
-    private double alignLocal( Set<Object> prop1, Set<Object> prop2) {
+    private double alignLocal( Set<? extends Object> prop1, Set<? extends Object> prop2) {
  	int nbprop1 = prop1.size();
 	int nbprop2 = prop2.size();
 	double max = 0.0;

@@ -252,11 +252,12 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      *
      * It would require to have a isDirectSubClassOf().
      */
+    @SuppressWarnings("unchecked")
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    URI uri1 = ontology.getEntityURI( class1 );
-	    Set<Object> bufferedSuperClasses = null;
-	    Set<Object> superclasses = ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    Set<?> bufferedSuperClasses = null;
+	    Set<Object> superclasses = (Set<Object>) ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    
 	    while ( !superclasses.isEmpty() ){
@@ -270,7 +271,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 			if ( uri1.toString().equals(uri2.toString()) ) {
 			    return level;
 			} else {
-			    superclasses.addAll( ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
+			    superclasses.addAll(ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
 			}
 		    }
 		}
