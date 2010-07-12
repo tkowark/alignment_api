@@ -34,6 +34,9 @@ import org.semanticweb.skos.SKOSConcept;
 import org.semanticweb.skos.SKOSLiteral;
 import org.semanticweb.skos.SKOSUntypedLiteral;
 import org.semanticweb.skos.SKOSDataProperty;
+import org.semanticweb.skos.SKOSObjectRelationAssertion;
+import org.semanticweb.skos.properties .SKOSNarrowerProperty;
+import org.semanticweb.skos.properties .SKOSBroaderProperty;
 
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
@@ -58,6 +61,13 @@ public class SKOSThesaurus extends BasicOntology<SKOSDataset> implements HeavyLo
      * can be interpreted in many ways. Hence a SKOS terminology is an OWL Full
      * ontology (the S is for Simple).
      *
+     * Translation from SKOS to OWL (by Antoine Isaac):
+     * skos:Concept --> owl:Class
+     * skos:broader --> rdfs:subClassOf
+     * skos:prefLabel, skos:altLabel, skos:hiddenLabel --> rdfs:label
+     * skos:notes, skos:definition, skos:scopeNote --> rdfs:comments
+     * skos:related --> rdfs:seeAlso [ignored]
+     *
      * OK So what is in the SKOS Data model, since this is the only one that we
      * will take into account...
      * [SPEC: ]: 12/07/2009
@@ -66,6 +76,8 @@ public class SKOSThesaurus extends BasicOntology<SKOSDataset> implements HeavyLo
      * Annotation properties: skos:hiddenLabel, skos:prefLabel, skos:altLabel
      * skos:note, skos:changeNote, skos:definition, skos:editorialNote, skos:example, skos:historyNote and skos:scopeNote
      * Other object relations: skos:mappingRelation, skos:closeMatch, skos:exactMatch, skos:broadMatch, skos:narrowMatch and skos:relatedMatch
+     *
+     *
     **/
 
     /**
@@ -101,7 +113,6 @@ lang = untypedLiteral.getLang();
 		  
     /**
        We should document:
-
        name < names 
        annotations
        comments(lang) < comments
@@ -122,6 +133,7 @@ lang = untypedLiteral.getLang();
 	else return getFragmentAsLabel( getEntityURI( o ) );
     }
 
+    // NEARLY DONE
     /**
      * returns one of the prefLabel property values for a given SKOS concept in a given language.
      * @param o the entity
@@ -137,9 +149,8 @@ lang = untypedLiteral.getLang();
 	else return getEntityName( o );
     }
 
-    // DONE
     /**
-     * Returns the values of the prefLabel and altLabel properties in a given language.
+     * Returns the values of the prefLabel, hiddenLabel and altLabel properties in a given language.
      * @param o the entity
      * @param lang the code of the language ("en", "fr", "es", etc.) 
      * @return the set of labels
@@ -154,12 +165,11 @@ lang = untypedLiteral.getLang();
     }
 
     /**
-     * Returns the values of the prefLabel and altLabel properties.
+     * Returns the values of the prefLabel, hiddenLabel and altLabel properties.
      * @param o the concept
      * @return the set of labels
      * @throws OntowrapException
      */
-    // DONE
     public Set<String> getEntityNames(Object o) throws OntowrapException {
 	Set<String> result = new HashSet<String>();
 	getDataValues( (SKOSConcept)o, factory.getSKOSPrefLabelProperty(), result );
@@ -201,7 +211,6 @@ lang = untypedLiteral.getLang();
 	return getEntityComments(o,null);
     }
 
-    // DONE
     /**
      * Returns all the values of the "owl:AnnotationProperty" property for a given entity. 
      * These annotations are those predefined in owl (owl:versionInfo, rdfs:label, rdfs:comment, rdfs:seeAlso and rdfs:isDefinedBy)
@@ -227,7 +236,6 @@ lang = untypedLiteral.getLang();
 	return annots;
     }
 
-    // DONE
     /**
      * There is no languages on annotations in SKOS API
      * Hence we return all of them
@@ -236,7 +244,6 @@ lang = untypedLiteral.getLang();
 	return getEntityAnnotations( o );
     }
 
-    // DONE
     public Object getEntity( URI u ) throws OntowrapException {
 	return factory.getSKOSConcept( u );
     }
@@ -249,35 +256,26 @@ lang = untypedLiteral.getLang();
 	}
     }
 
-    /* all done here */
-
-    //@SuppressWarnings("unchecked")
     public Set<?> getClasses() {
 	return onto.getSKOSConcepts();
     }
 
-    //@SuppressWarnings("unchecked")
     public Set<?> getDataProperties() {
 	return NullSet;
-	//	return null; // null or new HashSet()
     }
 
-    //@SuppressWarnings("unchecked")
     public Set<?> getEntities() {
 	return getClasses();
     }
 
-    //@SuppressWarnings("unchecked")
     public Set<?> getIndividuals() {
 	return NullSet;
     }
 
-    //@SuppressWarnings("unchecked")
     public Set<?> getObjectProperties() {
 	return NullSet;
     }
 
-    //@SuppressWarnings("unchecked")
     public Set<?> getProperties() {
 	return NullSet;
     }
@@ -334,10 +332,6 @@ lang = untypedLiteral.getLang();
     }
 
     /** THESE ARE HEAVY LOADED PRIMITIVES
-	o.getSKOSBroaderConcepts( onto )
-	o.getSKOSBroaderTransitiveConcepts( onto )
-	o.getSKOSNarrowerConcepts( onto )
-	o.getSKOSNarrowerTransitiveConcepts( onto )
      **/
     /* Capability methods */
     //    TODO
@@ -346,13 +340,27 @@ lang = untypedLiteral.getLang();
     }
 
     /* Class methods */
+    // TOIMPROVE: This is really terrible (JE)
     public Set<Object> getSubClasses( Object c, int local, int asserted, int named ) {
-    //    TODO
-	return NullSet;
+	//c.getSKOSNarrowerTransitiveConcepts( onto )
+	//return ((SKOSConcept)c).getSKOSNarrowerConcepts( onto );
+	Set<Object> result = new HashSet<Object>();
+	for ( SKOSObjectRelationAssertion trp : ((SKOSConcept)c).getObjectRelationAssertions( onto ) ) {
+	    if ( trp.getSKOSProperty() instanceof SKOSNarrowerProperty 
+		 && trp.getSKOSObject() instanceof SKOSConcept ) result.add( trp.getSKOSObject() );
+	}
+	return result;
     }
+    // TOIMPROVE
     public Set<Object> getSuperClasses( Object c, int local, int asserted, int named ){
-    //    TODO
-	return NullSet;
+	//o.getSKOSBroaderTransitiveConcepts( onto )
+	//return ((SKOSConcept)c).getSKOSBroaderConcepts( onto );
+	Set<Object> result = new HashSet<Object>();
+	for ( SKOSObjectRelationAssertion trp : ((SKOSConcept)c).getObjectRelationAssertions( onto ) ) {
+	    if ( trp.getSKOSProperty() instanceof SKOSBroaderProperty 
+		 && trp.getSKOSObject() instanceof SKOSConcept ) result.add( trp.getSKOSObject() );
+	}
+	return result;
     }
     public Set<Object> getProperties( Object c, int local, int asserted, int named ){
 	return NullSet;
@@ -384,7 +392,6 @@ lang = untypedLiteral.getLang();
     /* Individual methods */
     public Set<Object> getClasses( Object i, int local, int asserted, int named ){
 	return NullSet;
-	//return onto.getSKOSConcepts();
     }
 
 
