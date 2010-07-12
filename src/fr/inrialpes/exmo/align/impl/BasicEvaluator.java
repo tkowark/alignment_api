@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2007
+ * Copyright (C) INRIA, 2004, 2007-2008, 2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
 
 import java.io.PrintWriter;
@@ -30,9 +31,6 @@ import java.io.PrintWriter;
  * This function implements a simple weighted symetric difference.
  * There are many different things to compute in such a function...
  * Add classification per type of objects (Ind, Class, Prop...)
- *
- * @author Jerome Euzenat
- * @version $Id$ 
  */
 
 public abstract class BasicEvaluator implements Evaluator {
@@ -41,7 +39,10 @@ public abstract class BasicEvaluator implements Evaluator {
     protected Alignment align2;
 
     /** Creation **/
-    public BasicEvaluator( Alignment align1, Alignment align2 ){
+    public BasicEvaluator( Alignment align1, Alignment align2 ) throws AlignmentException {
+	if ( !align1.getOntology1URI().equals( align2.getOntology1URI() )
+	     || !align1.getOntology2URI().equals( align2.getOntology2URI() ) )
+	    throw new AlignmentException( "The alignments must align the same ontologies\n" );
 	this.align1 = align1;
 	this.align2 = align2;
     }

@@ -77,7 +77,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     private double orientsimilarity = 0;
 
     /** Creation **/
-    public ExtPREvaluator(Alignment align1, Alignment align2) {
+    public ExtPREvaluator(Alignment align1, Alignment align2) throws AlignmentException {
 	super(align1, align2);
     }
 
