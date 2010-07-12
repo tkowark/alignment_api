@@ -162,11 +162,16 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 
 
     private String writeCellsHTML(Set<Cell> set, String what) { 
-            Iterator<Cell> i = set.iterator();
-            String result = "              <dt> " + what + "</dt>\n";
-            while (i.hasNext()) {
-                   Cell c = i.next();
-                   result +=  "                        <dd>" + c.getObject1AsURI() + " " + c.getRelation().getRelation() + " " +  c.getObject2AsURI() + "</dd>\n"; 
+            String result = ""; 
+            try {
+            	Iterator<Cell> i = set.iterator();
+            	result += "              <dt> " + what + "</dt>\n";
+            	while (i.hasNext()) {
+                	   Cell c = i.next();
+	              	   result +=  "                        <dd>" + c.getObject1AsURI() + " " + c.getRelation().getRelation() + " " +  c.getObject2AsURI() + "</dd>\n"; 
+                }
+            } catch (AlignmentException e) {
+                      e.printStackTrace(); 
             }
             return result;  
     }
