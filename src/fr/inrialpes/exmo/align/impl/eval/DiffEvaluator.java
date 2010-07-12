@@ -76,8 +76,71 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
     }
 
     public void diff(){
-	// Cassia: Here you can put your code
+	  
+            // True and false positives
+	    try {
+                   boolean has = false;
+                   // Alignment
+		   for ( Cell c1 : this.align2 ) {
+		              URI uri1_1 = c1.getObject1AsURI();
+		   	      URI uri1_2 = c1.getObject2AsURI();
+                              String rel1 = c1.getRelation().getRelation().toString();
+                              has = false; 
+                              // Reference alignment
+		   	      for( Cell c2 : this.align1) {
+		   	        	URI uri2_1 = c2.getObject1AsURI();
+		   	        	URI uri2_2 = c2.getObject2AsURI();
+                                        String rel2 = c2.getRelation().getRelation().toString();
+		   		        if ( (uri1_1.toString().equals(uri2_1.toString())) && 
+		   		             (uri1_2.toString().equals(uri2_2.toString())) && 
+                                             (rel1.equals(rel2))
+                                           ) {
+		   		             this.truepositive.add(c1);
+                                             has = true;
+                                             break;
+		   		        }
+		   	     }
+                             if (!has) {
+			          this.falsepositive.add(c1);  
+			     }
+		   }
+	    } catch (Exception e) {
+		     e.printStackTrace(); 
+            }
+   
+    	    // False negative
+ 	    try {
+	           // Reference alignment
+                   for ( Cell c1 : this.align1 ) {
+	   	              URI uri1_1 = c1.getObject1AsURI();
+	   	              URI uri1_2 = c1.getObject2AsURI();
+                              String rel1 = c1.getRelation().getRelation().toString();
+	   	              has = false;
+                              // Alignment
+	   	              for( Cell c2 : this.align2) {
+	   	        	        URI uri2_1 = c2.getObject1AsURI();
+	   	        	        URI uri2_2 = c2.getObject2AsURI();
+                                        String rel2 = c2.getRelation().getRelation().toString();
+	   		                if ( (uri1_1.toString().equals(uri2_1.toString())) && 
+	   		        	     (uri1_2.toString().equals(uri2_2.toString())) &&
+                                             (rel1.equals(rel2))    
+                                            ) {
+	   		        	       has = true;
+	   		        	       break;
+	   		                }
+	   		     }
+	   	             if (!has) {
+	   	        	 this.falsenegative.add(c1); 
+	   	             }
+	   	   }
+	       } catch (Exception e) {
+	    	       e.printStackTrace(); 
+	       }
     }
+
+
+
+
 
     public double eval( Properties params ) throws AlignmentException {
 	init();
@@ -89,13 +152,27 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
     }
 
     public String HTMLString (){
-	// Cassia: here you can put your display as a string and return it
 	String result = "";
 	result += "  <div  xmlns:"+Namespace.ATLMAP.shortCut+"='"+Namespace.ATLMAP.prefix+"' typeof=\""+Namespace.ATLMAP.shortCut+":output\" href=''>";
-	result += "    <dl>";
-	result += "  </dl>\n  </div>\n";
-return result;
+        result += "     <dl>";
+        result += writeCellsHTML(this.truepositive,  "Correct correspondences");
+        result += writeCellsHTML(this.falsepositive, "Incorrect correspondences");
+        result += writeCellsHTML(this.falsenegative, "Missing correspondences");
+        result += "     </dl>\n  </div>\n";
+        return result;
     }
+
+
+    private String writeCellsHTML(Set<Cell> set, String what) { 
+            Iterator<Cell> i = set.iterator();
+            String result = "              <dt> " + what + "</dt>\n";
+            while (i.hasNext()) {
+                   Cell c = i.next();
+                   result +=  "                        <dd>" + c.getObject1AsURI() + " " + c.getRelation().getRelation() + " " +  c.getObject2AsURI() + "</dd>\n"; 
+            }
+            return result;  
+    }
+
 
     public void write(PrintWriter writer) throws java.io.IOException {
 	// Cassia: here you can put your display as XML But this is not compulsory
