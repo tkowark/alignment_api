@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.ontowrap.jena25;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -34,10 +35,8 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
-import com.hp.hpl.jena.ontology.impl.AnnotationPropertyImpl;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -48,11 +47,13 @@ import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
+import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
-public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntology<OntModel>{
+public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoadedOntology<OntModel>{
 
     // JE: this is not very Java 1.5...
     // This is because of the version of Jena we use apparently
@@ -197,6 +198,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
     protected final static Map1<OntProperty,OntResource> mapProperty = new Map1<OntProperty,OntResource> () { public OntResource map1 ( OntProperty o ) { return o; } };
     protected final static Map1<OntClass,OntResource> mapClass = new Map1<OntClass,OntResource> () { public OntResource map1 ( OntClass o ) { return o; } };
     protected final static Map1<Individual,OntResource> mapInd = new Map1<Individual,OntResource> () { public OntResource map1 ( Individual o ) { return o; } };
+    protected final static Map1<OntClass,Object> mapClassToObj = new Map1<OntClass,Object> () { public Object map1 ( OntClass o ) { return o; } };
     
     
     public Set<OntResource> getEntities() {
@@ -272,6 +274,69 @@ public class JENAOntology extends BasicOntology<OntModel> implements LoadedOntol
 
     public void unload() {
 
+    }
+
+    // TODO : check the capabilities for new version of Jena
+    public boolean getCapabilities(int Direct, int Asserted, int Named) {
+	return true;
+    }
+
+    public Set<OntClass> getClasses(Object i, int local, int asserted, int named) {
+	return ((Individual) i).listOntClasses(asserted==OntologyFactory.DIRECT).toSet();
+    }
+
+    public Set<OntProperty> getDataProperties(Object c, int local, int asserted, int named) {
+	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this) {
+	    protected boolean isFiltered(OntProperty obj) {
+		return super.isFiltered(obj) && !obj.isDatatypeProperty();
+	    }
+	    
+	};
+    }
+
+    public Set<? extends OntResource> getDomain(Object p, int asserted) {
+	return ((OntProperty) p).listDomain().toSet();
+    }
+
+    public Set<?> getInstances(Object c, int local, int asserted, int named) {
+	if (c instanceof OntClass) {
+	    return ((OntClass) c).listInstances(asserted==OntologyFactory.DIRECT).toSet();
+	}
+	return null;
+	
+    }
+
+    public Set<OntProperty> getObjectProperties(Object c, int local, int asserted, int named) {
+	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this) {
+	    protected boolean isFiltered(OntProperty obj) {
+		return super.isFiltered(obj) && !((OntProperty) obj).isObjectProperty();
+	    }  
+	};
+    }
+    public Set<OntProperty> getProperties(Object c, int local, int asserted, int named) {
+	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this);
+    }
+
+    public Set<? extends OntResource> getRange(Object p, int asserted) {
+	return ((OntProperty) p).listRange().toSet();
+    }
+
+    public  Set<? extends Object> getSubClasses(Object c, int local, int asserted, int named) {
+	return ((OntClass) c).listSubClasses(asserted==OntologyFactory.DIRECT).toSet();
+    }
+
+
+    public Set<? extends OntProperty> getSubProperties(Object p, int local, int asserted, int named) {
+	return ((OntProperty) p).listSubProperties(asserted==OntologyFactory.DIRECT).toSet();
+    }
+
+  
+    public Set<OntClass> getSuperClasses(Object c, int local, int asserted, int named) {
+	return ((OntClass) c).listSuperClasses(asserted==OntologyFactory.DIRECT).toSet();
+    }
+
+    public Set<? extends OntProperty> getSuperProperties(Object p, int local, int asserted, int named) {
+	return ((OntProperty) p).listSuperProperties(asserted==OntologyFactory.DIRECT).toSet();
     }
 
 
