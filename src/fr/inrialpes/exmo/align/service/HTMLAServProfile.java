@@ -195,12 +195,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			// if no FilterConfig
 			// e.g., it uses /tmp and keeps the files
 			filter.doFilter( request, dummyResponse, new Chain() );
-			// Extract parameters from response
-			if ( request.getAttribute("pretty") != null )
-			    params.setProperty( "pretty", request.getAttribute("pretty").toString() );
+			// Apparently a bug from Jetty prevents from retrieving this
+			if ( request.getParameter("pretty") != null )
+			    params.setProperty( "pretty", request.getParameter("pretty").toString() );
 			if ( request.getAttribute("content") != null )
 			    params.setProperty( "filename", request.getAttribute("content").toString() );
-			//System.err.println( " >>>> Read: "+params.getProperty( "pretty" ) );
 			filter.destroy();
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
 			// Most likely Web service request (REST through POST)
