@@ -1,5 +1,5 @@
 /*
- * $Id: DiffEvaluator.java 1425 2010-04-06 20:25:39Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2010
  *
@@ -46,7 +46,7 @@ import java.net.URI;
  * is thus the expected one.
  *
  * @author Jerome Euzenat
- * @version $Id: PRecEvaluator.java 1425 2010-04-06 20:25:39Z euzenat $ 
+ * @version $Id$ 
  */
 
 public class DiffEvaluator extends BasicEvaluator implements Evaluator {
