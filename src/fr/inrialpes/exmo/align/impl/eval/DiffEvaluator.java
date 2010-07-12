@@ -110,6 +110,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
    
     	    // False negative
  	    try {
+                   boolean has;
 	           // Reference alignment
                    for ( Cell c1 : this.align1 ) {
 	   	              URI uri1_1 = c1.getObject1AsURI();
@@ -138,15 +139,12 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 	       }
     }
 
-
-
-
-
-    public double eval( Properties params ) throws AlignmentException {
+   public double eval( Properties params ) throws AlignmentException {
 	init();
 	diff();
 	return 1.0;
     }
+
     public double eval( Properties params, Object cache ) throws AlignmentException {
 	return eval( params );
     }
