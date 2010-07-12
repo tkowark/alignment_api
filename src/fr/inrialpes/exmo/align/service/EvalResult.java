@@ -32,11 +32,16 @@ public class EvalResult extends Success {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){
-	String results = "Alignment method: "+getContent()+"\n<ul>\n";
-	for ( String key : getParameters().stringPropertyNames() ) {
-	    results += "<li>"+key+" : "+getParameters().getProperty( key )+"</li>\n";
+	String results = "";
+	if ( getParameters() == null ) {
+	    results += getContent();
+	} else {
+	    results += "Alignment method: "+getContent()+"\n<ul>\n";
+	    for ( String key : getParameters().stringPropertyNames() ) {
+		results += "<li>"+key+" : "+getParameters().getProperty( key )+"</li>\n";
+	    }
+	    results += "</ul>\n";
 	}
-	results += "</ul>\n";
 	return results;
     }
     public String RESTString(){

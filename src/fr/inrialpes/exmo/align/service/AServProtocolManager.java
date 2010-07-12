@@ -29,6 +29,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 //import fr.inrialpes.exmo.align.util.DiffAlign;
+import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
@@ -615,24 +616,14 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),"unknown/Alignment/"+id2,(Properties)null);
 	}
-	// Set the comparison method
-	// Should be rewritted with diff -- no choice
-	/*
-	DiffAlign eval = new DiffAlign( al1, al2 );
-	// Compare it
-	try { eval.eval( params ); }
-	catch (AlignmentException e) {
+	try { 
+	    DiffEvaluator diff = new DiffEvaluator( al1, al2 );
+	    diff.eval( params ); 
+	    // This will only work with HTML
+	    return new EvalResult(newId(),mess,myId,mess.getSender(),diff.HTMLString(),(Properties)null);
+	} catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
 	}
-	// Return it, not easy
-	StringWriter sw = new StringWriter();
-	try {
-	    eval.write( new PrintWriter( sw ) );
-	} catch (IOException ioex) {}; // never occurs
-	// Should not be alignment evaluation results...
-	return new EvaluationId(newId(),mess,myId,mess.getSender(),sw.toString(),(Properties)null);
-	*/
-	return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Not yet implented",(Properties)null);
     }
 
     /**

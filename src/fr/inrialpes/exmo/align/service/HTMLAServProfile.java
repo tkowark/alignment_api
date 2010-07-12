@@ -196,8 +196,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			// e.g., it uses /tmp and keeps the files
 			filter.doFilter( request, dummyResponse, new Chain() );
 			// Extract parameters from response
+			if ( request.getAttribute("pretty") != null )
+			    params.setProperty( "pretty", request.getAttribute("pretty").toString() );
 			if ( request.getAttribute("content") != null )
 			    params.setProperty( "filename", request.getAttribute("content").toString() );
+			//System.err.println( " >>>> Read: "+params.getProperty( "pretty" ) );
 			filter.destroy();
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
 			// Most likely Web service request (REST through POST)
@@ -778,8 +781,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    } else {
 		msg = "<h1>Evaluation results</h1>";
 		msg += displayAnswer( answer, params );
-		// This should be nice here to provide the oportunity to diff them
-		// This needs to pass arguments... and to get them on the other side.
 	    }
 	} else if ( perf.equals("saveeval") ) {
 	} else if ( perf.equals("prmgrpeval") ) {
@@ -828,6 +829,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmstore\"><button title=\"Persistently store an alignent in this server\" type=\"submit\" >Store alignment</button></form>";
 	    msg += "<form action=\"prmretrieve\"><button title=\"Render an alignment in a particular format\" type=\"submit\">Render alignment</button></form>";
 	    msg += "<form action=\"prmeval\"><button title=\"Evaluation of an alignment\" type=\"submit\">Evaluate alignment</button></form>";
+	    msg += "<form action=\"prmdiff\"><button title=\"Compare two alignments\" type=\"submit\">Compare alignment</button></form>";
 	    msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
 	} else {
 	    msg = "Cannot understand command "+perf;
