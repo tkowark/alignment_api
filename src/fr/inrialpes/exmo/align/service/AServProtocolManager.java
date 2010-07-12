@@ -274,8 +274,6 @@ public class AServProtocolManager {
 	// find and access o, o'
 	URI uri1 = null;
 	URI uri2 = null;
-	Ontology onto1 = null;
-	Ontology onto2 = null;
 	try {
 	    uri1 = new URI(params.getProperty("onto1"));
 	    uri2 = new URI(params.getProperty("onto2"));
@@ -285,7 +283,8 @@ public class AServProtocolManager {
 	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getProperty("force") == null ) {
 	    for ( Alignment al: alignments ){
-		if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ).equals(method) ) {
+		String meth2 = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD );
+		if ( meth2 != null && meth2.equals(method) ) {
 		    return new AlignmentId(newId(),mess,myId,mess.getSender(),
 					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ),(Properties)null,
 					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) );
