@@ -32,23 +32,23 @@ import java.util.Set;
 public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
 
     /* Capability methods */
-    public boolean getCapabilities( int Direct, int Asserted, int Named );
+    public boolean getCapabilities( int Direct, int Asserted, int Named ) throws OntowrapException;
 
     /* Class methods */
     public <E >Set<E> getSubClasses( E c, int local, int asserted, int named );
-    public Set<? extends Object> getSuperClasses( Object c, int local, int asserted, int named );
-    public Set<? extends Object> getProperties( Object c, int local, int asserted, int named );
-    public Set<? extends Object> getDataProperties( Object c, int local, int asserted, int named );
-    public Set<? extends Object> getObjectProperties( Object c, int local, int asserted, int named );
-    public Set<? extends Object> getInstances( Object c, int local, int asserted, int named  );
+    public Set<? extends Object> getSuperClasses( Object c, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getProperties( Object c, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getDataProperties( Object c, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getObjectProperties( Object c, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getInstances( Object c, int local, int asserted, int named  ) throws OntowrapException;
 
     /* Property methods */
-    public Set<? extends Object> getSubProperties( Object p, int local, int asserted, int named );
-    public Set<? extends Object> getSuperProperties( Object p, int local, int asserted, int named );
-    public Set<? extends Object> getRange( Object p, int asserted );
-    public Set<? extends Object> getDomain( Object p, int asserted );
+    public Set<? extends Object> getSubProperties( Object p, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getSuperProperties( Object p, int local, int asserted, int named ) throws OntowrapException;
+    public Set<? extends Object> getRange( Object p, int asserted ) throws OntowrapException;
+    public Set<? extends Object> getDomain( Object p, int asserted ) throws OntowrapException;
 
     /* Individual methods */
-    public Set<? extends Object> getClasses( Object i, int local, int asserted, int named );
+    public Set<? extends Object> getClasses( Object i, int local, int asserted, int named ) throws OntowrapException;
 
 }

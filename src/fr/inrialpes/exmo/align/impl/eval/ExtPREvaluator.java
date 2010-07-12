@@ -232,7 +232,11 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     }
 
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	return ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
+	try {
+	    return ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot interpret isSuperProperty", owex );
+	}
     }
 
 

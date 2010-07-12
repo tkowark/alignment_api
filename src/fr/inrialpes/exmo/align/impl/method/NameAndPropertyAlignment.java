@@ -190,29 +190,33 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    // + pic2 * 2 *
 	    //  (sigma (att in c[i]) getAllignCell... )
 	    //  / nbatts of c[i] + nbatts of c[j]
-	    
-	    for ( i=0; i<nbclass1; i++ ){
-		Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-		
-		int nba1 = properties1.size();
-		if ( nba1 > 0 ) { // if not, keep old values...
-		    //Set correspondences = new HashSet();
-		    for ( j=0; j<nbclass2; j++ ){
-			Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-			//int nba2 = properties1.size();
-			//double attsum = 0.;
-			// check that there is a correspondance
-			// in list of class2 atts and add their weights 
-			
-			// Make a local alignment with the properties.
-			double moy_align_loc = alignLocal(properties1,properties2);
-			
-			if (moy_align_loc > 0.7){
-			    classmatrix[i][j] = (classmatrix[i][j] + 2* moy_align_loc)/3;
+	    try {
+		for ( i=0; i<nbclass1; i++ ){
+		    Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+		    
+		    int nba1 = properties1.size();
+		    if ( nba1 > 0 ) { // if not, keep old values...
+			//Set correspondences = new HashSet();
+			for ( j=0; j<nbclass2; j++ ){
+			    Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+			    //int nba2 = properties1.size();
+			    //double attsum = 0.;
+			    // check that there is a correspondance
+			    // in list of class2 atts and add their weights 
+			    
+			    // Make a local alignment with the properties.
+			    double moy_align_loc = alignLocal(properties1,properties2);
+			    
+			    if (moy_align_loc > 0.7){
+				classmatrix[i][j] = (classmatrix[i][j] + 2* moy_align_loc)/3;
+			    }
 			}
 		    }
 		}
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Cannot navigate properties", owex );
 	    }
+
 	    
 	    // Assess factor
 	    // -- FirstExp: nothing to be done: one pass

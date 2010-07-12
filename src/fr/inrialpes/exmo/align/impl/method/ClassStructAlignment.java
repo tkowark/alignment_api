@@ -134,38 +134,43 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	// + pic2 * 2 *
 	//  (sigma (att in c[i]) getAllignCell... )
 	//  / nbatts of c[i] + nbatts of c[j]
-	for ( i=0; i<nbclass1; i++ ){
-	    Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-	    int nba1 = properties1.size();
-	    if ( nba1 > 0 ) { // if not, keep old values...
-		//Set correspondences = new HashSet();
-		for ( j=0; j<nbclass2; j++ ){
-		    Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
-		    int nba2 = properties2.size();
-		    double attsum = 0.;
-		    // check that there is a correspondance
-		    // in list of class2 atts and add their weights
-		    for ( Object prp : properties1 ){
-			Set<Cell> s2 = getAlignCells1( prp );
-			// Find the property with the higest similarity
-			// that is matched here
-			double currentValue = 0.;
-			if ( s2 != null ) {
-			    for( Cell c2 : s2 ){
-				if ( properties2.contains( c2.getObject2() ) ) {
-				    double val = c2.getStrength();
-				    if ( val > currentValue )
-					currentValue = val;
+	try {
+	    for ( i=0; i<nbclass1; i++ ){
+		Set<? extends Object> properties1 = honto1.getProperties( classlist1.get(i), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+		int nba1 = properties1.size();
+		if ( nba1 > 0 ) { // if not, keep old values...
+		    //Set correspondences = new HashSet();
+		    for ( j=0; j<nbclass2; j++ ){
+			Set<? extends Object> properties2 = honto2.getProperties( classlist2.get(j), OntologyFactory.ANY, OntologyFactory.ANY, OntologyFactory.ANY );
+			int nba2 = properties2.size();
+			double attsum = 0.;
+			// check that there is a correspondance
+			// in list of class2 atts and add their weights
+			for ( Object prp : properties1 ){
+			    Set<Cell> s2 = getAlignCells1( prp );
+			    // Find the property with the higest similarity
+			    // that is matched here
+			    double currentValue = 0.;
+			    if ( s2 != null ) {
+				for( Cell c2 : s2 ){
+				    if ( properties2.contains( c2.getObject2() ) ) {
+					double val = c2.getStrength();
+					if ( val > currentValue )
+					    currentValue = val;
+				    }
 				}
 			    }
+			    attsum = attsum + 1 - currentValue;
 			}
-			attsum = attsum + 1 - currentValue;
+			classmatrix[i][j] = classmatrix[i][j]
+			    + pic2 * (2 * attsum / (nba1 + nba2));
 		    }
-		    classmatrix[i][j] = classmatrix[i][j]
-			+ pic2 * (2 * attsum / (nba1 + nba2));
 		}
 	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot navigate properties", owex );
 	}
+
     }
 
 }
