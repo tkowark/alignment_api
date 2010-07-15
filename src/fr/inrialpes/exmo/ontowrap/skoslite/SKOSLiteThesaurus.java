@@ -1,6 +1,5 @@
-package fr.inrialpes.exmo.ontowrap.skosapi;
+package fr.inrialpes.exmo.ontowrap.skoslite;
 
-import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,7 +21,9 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
-public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
+public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
+    
+    protected final static String SKOS_ONTO = SKOSLiteThesaurus.class.getClassLoader().getResource("fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf").toString();
 
     protected final static String SKOS_NS="http://www.w3.org/2004/02/skos/core#";
     protected final static String SKOS_CONCEPT=SKOS_NS+"Concept";
@@ -32,19 +33,13 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
     protected final static String SKOS_BROADERTRANSITIVE=SKOS_NS+"broaderTransitive";
     protected final static String SKOS_NARROWERTRANSITIVE=SKOS_NS+"narrowerTransitive";
     
+    protected InfModel ontoInf;
+    protected Model onto;
     
+    protected URI file;
     
-   
-    protected final InfModel ontoInf;
-    protected final Model onto;
-    
-    
-    public JenaSKOSThesaurus(URI file) {
-	onto=ModelFactory.createDefaultModel();
-	onto.read(file.toString());
-	onto.read((new File("/Users/jerome/Recherche/tae/skos.rdf")).toURI().toString());
-	this.ontoInf=ModelFactory.createRDFSModel(onto);
-	
+    public SKOSLiteThesaurus(URI file) {
+	setFile(file);
     }
 
     @Override
@@ -53,41 +48,75 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	return true;
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getClasses(Object i, int local, int asserted, int named) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getDataProperties(Object c, int local, int asserted, int named) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getDomain(Object p, int asserted) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getInstances(Object c, int local, int asserted, int named) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getObjectProperties(Object c, int local, int asserted, int named) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getProperties(Object c, int local, int asserted, int named) throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns empty set
+     */
     public Set<? extends Object> getRange(Object p, int asserted) throws OntowrapException {
 	return Collections.emptySet();
     }
+    
+    /**
+     * returns empty set
+     */
+    public Set<? extends Object> getSubProperties(Object p, int local, int asserted, int named) throws OntowrapException {
+	return Collections.emptySet();
+    }
+    
+   
+    /**
+     * returns empty set
+     */
+    public Set<? extends Object> getSuperProperties(Object p, int local, int asserted, int named) throws OntowrapException {
+	return Collections.emptySet();
+    }
 
+
+    /**
+     * returns all sub concepts of given object c.
+     * 
+     */
     @SuppressWarnings("unchecked")
     public <E> Set<E> getSubClasses(E c, int local, int asserted, int named) {
 	HashSet<E> sub = new HashSet<E>(); 
@@ -95,48 +124,34 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	StmtIterator it =ontoInf.listStatements(null,ontoInf.getProperty(SKOS_BROADERTRANSITIVE),(Resource) c);
 	while (it.hasNext()) {
 	    Statement st = it.next();
-	    //System.out.println("\t"+st.getSubject());
 	    sub.add((E)st.getSubject());
 	}
-	//System.out.println("\tSUITTE");
 	it =ontoInf.listStatements((Resource) c,ontoInf.getProperty(SKOS_NARROWERTRANSITIVE),(RDFNode)null);
 	while (it.hasNext()) {
 	    Statement st = it.next();
-	    //System.out.println("\t"+st.getObject());
 	    sub.add((E)st.getObject());
 	}
 	return sub;
     }
 
-    @Override
-    public Set<? extends Object> getSubProperties(Object p, int local, int asserted, int named) throws OntowrapException {
-	return Collections.emptySet();
-    }
-
+   
     @Override
     public Set<? extends Object> getSuperClasses(Object c, int local, int asserted, int named) throws OntowrapException {
 	HashSet<Object> sub = new HashSet<Object>(); 
-	//System.out.println(c);
 	StmtIterator it =ontoInf.listStatements(null,ontoInf.getProperty(SKOS_NARROWERTRANSITIVE),(Resource) c);
 	while (it.hasNext()) {
 	    Statement st = it.next();
-	    //System.out.println("\t"+st.getSubject());
 	    sub.add(st.getSubject());
 	}
-	//System.out.println("\tSUITTE");
 	it =ontoInf.listStatements((Resource) c,ontoInf.getProperty(SKOS_BROADERTRANSITIVE),(RDFNode)null);
 	while (it.hasNext()) {
 	    Statement st = it.next();
-	    //System.out.println("\t"+st.getObject());
 	    sub.add(st.getObject());
 	}
 	return sub;
     }
 
-    @Override
-    public Set<? extends Object> getSuperProperties(Object p, int local, int asserted, int named) throws OntowrapException {
-	return Collections.emptySet();
-    }
+   
 
     
     public Set<? extends Object> getClasses() throws OntowrapException {
@@ -198,12 +213,18 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	return getEntityComments(o,null);
     }
 
-    @Override
+    /**
+     * returns one of the skos:prefLabel
+     * In skos there at most one prefLabel for a given language
+     */
     public String getEntityName(Object o) throws OntowrapException {
 	return getEntityName(o,null);
     }
 
-    @Override
+    /**
+     * returns the skos:prefLabel for the given language.
+     * In skos there at most one prefLabel for a given language
+     */
     public String getEntityName(Object o, String lang) throws OntowrapException {
 	try {
 	    return getEntityAnnotations(o,lang,new String[]{SKOS_PREFLABEL}).iterator().next();
@@ -213,17 +234,24 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	}
     }
 
-    @Override
+    /**
+     * returns all the labels, i.e. rdf:label subproperties for a given language
+     * In skos, the properties skos:prefLabel, skos:altLabel and skos:hiddenLabel are subproperties of rdf:label
+     */
     public Set<String> getEntityNames(Object o, String lang) throws OntowrapException {
 	return getEntityAnnotations(o,lang,new String[]{RDFS.label.toString()});
     }
 
-    @Override
+    /**
+     * returns all the labels, i.e. rdf:label subproperties
+     * In skos, the properties skos:prefLabel, skos:altLabel and skos:hiddenLabel are subproperties of rdf:label
+     */
     public Set<String> getEntityNames(Object o) throws OntowrapException {
 	return getEntityNames(o,null);
     }
 
-    @Override
+   
+    
     public URI getEntityURI(Object o) throws OntowrapException {
 	try {
 	    return URI.create(((Resource) o).getURI());
@@ -233,117 +261,142 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	}
     }
 
-    @Override
+    /**
+     * No individuals for skos. returns empty set
+     */
     public Set<? extends Object> getIndividuals() throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * No object property for skos. returns empty set
+     */
     public Set<? extends Object> getObjectProperties() throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * No property for skos. returns empty set
+     */
     public Set<? extends Object> getProperties() throws OntowrapException {
 	return Collections.emptySet();
     }
 
-    @Override
+    /**
+     * returns true if the given object is an instance of skos:Concept
+     */
     public boolean isClass(Object o) throws OntowrapException {
 	return ontoInf.contains((Resource) o, RDF.type, ontoInf.getResource(SKOS_CONCEPT));
     }
 
-    @Override
+    
+    /**
+     * returns false
+     */
     public boolean isDataProperty(Object o) throws OntowrapException {
 	// TODO Auto-generated method stub
 	return false;
     }
 
-    @Override
+    /**
+     * returns false
+     */
     public boolean isEntity(Object o) throws OntowrapException {
 	// TODO Auto-generated method stub
 	return false;
     }
 
-    @Override
+    /**
+     * returns false
+     */
     public boolean isIndividual(Object o) throws OntowrapException {
 	// TODO Auto-generated method stub
 	return false;
     }
 
-    @Override
+    /**
+     * returns false
+     */
     public boolean isObjectProperty(Object o) throws OntowrapException {
 	// TODO Auto-generated method stub
 	return false;
     }
 
-    @Override
+    /**
+     * returns false
+     */
     public boolean isProperty(Object o) throws OntowrapException {
 	// TODO Auto-generated method stub
 	return false;
     }
 
-    @Override
+    /**
+     * returns the number of skos:Concept in the thesaurus
+     */
     public int nbClasses() throws OntowrapException {
 	return this.getClasses().size();
     }
 
-    @Override
+    /**
+     * returns 0
+     */
     public int nbDataProperties() throws OntowrapException {
 	// TODO Auto-generated method stub
 	return 0;
     }
 
-    @Override
+    /**
+     * returns the same number than nbClasses()
+     */
     public int nbEntities() throws OntowrapException {
 	return this.getClasses().size();
     }
 
-    @Override
+    /**
+     * returns 0
+     */
     public int nbIndividuals() throws OntowrapException {
 	// TODO Auto-generated method stub
 	return 0;
     }
 
-    @Override
+    /**
+     * returns 0
+     */
     public int nbObjectProperties() throws OntowrapException {
 	// TODO Auto-generated method stub
 	return 0;
     }
 
-    @Override
+    /**
+     * returns 0
+     */
     public int nbProperties() throws OntowrapException {
 	// TODO Auto-generated method stub
 	return 0;
     }
 
-    @Override
     public void unload() throws OntowrapException {
-	// TODO Auto-generated method stub
-	
+	ontoInf=null;
+	onto=null;
     }
 
-    @Override
     public URI getFile() {
-	// TODO Auto-generated method stub
-	return null;
+	return file;
     }
 
-    @Override
     public URI getFormURI() {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    @Override
     public String getFormalism() {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    @Override
     public Model getOntology() {
-	return ontoInf;
+	return onto;
     }
 
     @Override
@@ -352,33 +405,31 @@ public class JenaSKOSThesaurus implements HeavyLoadedOntology<Model> {
 	return null;
     }
 
-    @Override
     public void setFile(URI file) {
-	// TODO Auto-generated method stub
+	this.file=file;
+	onto=ModelFactory.createDefaultModel();
+	onto.read(file.toString());
+	onto.read(SKOS_ONTO);
+	this.ontoInf=ModelFactory.createRDFSModel(onto);
 	
     }
 
-    @Override
     public void setFormURI(URI u) {
-	// TODO Auto-generated method stub
 	
     }
 
-    @Override
     public void setFormalism(String name) {
-	// TODO Auto-generated method stub
 	
     }
 
-    @Override
     public void setOntology(Model o) {
-	// TODO Auto-generated method stub
+	onto=o;
+	onto.read(SKOS_ONTO);
+	this.ontoInf=ModelFactory.createRDFSModel(onto);
 	
     }
 
-    @Override
     public void setURI(URI uri) {
-	// TODO Auto-generated method stub
 	
     }
     
