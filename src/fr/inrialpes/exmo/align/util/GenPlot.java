@@ -20,7 +20,9 @@
  * USA.
  */
 
-/* This program evaluates the results of several ontology aligners in a row.
+/*
+ * This program evaluates the results of several ontology aligners and plot
+ * these results
 */
 package fr.inrialpes.exmo.align.util;
 
@@ -55,8 +57,7 @@ import gnu.getopt.Getopt;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /**
- * A basic class for synthesizing the alignment results of an algorithm by a
- * precision recall graph.
+ * A basic class for ploting the results of an evaluation.
  *
  * These graphs are however computed on averaging the precision recall/graphs
  * on test directories instead of recording the actual precision recall graphs
@@ -243,6 +244,8 @@ public class GenPlot {
 	// Vector<Pair> -> .
 	if ( type.equals("tsv") ){
 	    printTSV( toplot );
+	} else if ( type.equals("html") ) {
+	    printHTMLGGraph( toplot );
 	} else if ( type.equals("tex") ) {
 	    printPGFTex( toplot );
 	} else System.err.println("Flag -t "+type+" : not implemented yet");
@@ -435,8 +438,8 @@ public class GenPlot {
 		writer.println("%% Include in PGF tex by:\n");
 		writer.println("%% \\begin{tikzpicture}[cap=round]");
 		writer.println("%% \\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
-		writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$recall$}; ");
-		writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$precision$}; ");
+		writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$"+xlabel+"$}; ");
+		writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$"+ylabel+"$}; ");
 		writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
 		writer.println("%% \\end{tikzpicture}");
 		writer.println();
@@ -449,6 +452,60 @@ public class GenPlot {
 	    // UnsupportedEncodingException + FileNotFoundException
 	    i++;
 	}
+    }
+
+    /**
+     * This does average plus generate the call for Google Chart API
+     *
+     */
+    public void printHTMLGGraph( Vector<Vector<Pair>> result ){
+	output.print("<img src=\"http://chart.apis.google.com/chart?");
+	output.print("chs=600x500&cht=lxy&chg=10,10&chof=png");
+	output.print("&chxt=x,x,y,y&chxr=0,0.0,1.0,0.1|2,0.0,1.0,0.1&chxl=1:|"+xlabel+"|3:|"+ylabel+"&chma=b&chxp=1,50|3,50&chxs=0N*sz1*|2N*sz1*");
+	output.print("&chd=t:"); // data
+	boolean firstalg = true;
+	for( Vector<Pair> table : result ) {
+	    if ( !firstalg ) output.print("|");
+	    firstalg = false;
+	    boolean firstpoint = true;
+	    String Yval = "|";
+	    for( Pair p : table ) {
+		if ( !firstpoint ) {
+		    output.print(",");
+		    Yval += ",";
+		}
+		firstpoint = false;
+		Yval += String.format("%1.2f", p.getY()*10);
+		if ( debug > 1 ) System.err.println( " >> "+p.getX()+" - "+p.getY() );
+		output.printf( "%1.2f", p.getX()*10 );
+	    }
+	    output.print( Yval );
+	}
+	output.print("&chdl="); // labels
+	int i = 0;
+	//String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
+	//String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta" };
+	String colortable[] = { "000000", "ffff00", "ff00ff", "00ffff", "ff0000", "00ff00", "0000ff", "888888", "8888ff", "88ff88", "ff8888", "8800ff", "88ff00", "008800", "ff8800", "0088ff", "000088","ff0088","00ff88", "888800", "880088", "008888", "880000", "008800", "000088", "88ffff", "ff88ff", "ffff88" };
+	String style = "";
+	String color = "";
+	for ( String m : listAlgo ) {
+	    if ( i > 0 ) {
+		output.print( "|" );
+		color += ",";
+		style += "|";
+	    }
+	    output.print( m );
+	    color += colortable[i%28];
+	    if ( !listEvaluators.get(i).isValid() ) {
+		style += "2";
+	    } else {
+		style += "2,6,3";
+	    }
+	    i++;
+	}
+	output.print("&chco="+color); // colors
+	output.print("&chls="+style); // linestyle
+	output.println("&chds=0,10\"/>");
     }
 
     // 2010: THIS IS ONLY FOR TSV AND THIS DOES NOT WORK
@@ -473,7 +530,7 @@ public class GenPlot {
     public void usage() {
 	System.out.println("usage: GenPlot [options]");
 	System.out.println("options are:");
-	System.out.println("\t--type=tsv|tex|(html|xml) -t tsv|tex|(html|xml)\tSpecifies the output format");
+	System.out.println("\t--type=tsv|tex|html(|xml) -t tsv|tex|html(|xml)\tSpecifies the output format");
 	System.out.println("\t--graph=class -g class\tSpecifies the class of Evaluator to be used");
 	System.out.println("\t--evaluator=class -e class\tSpecifies the class of GraphEvaluator (plotter) to be used");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
