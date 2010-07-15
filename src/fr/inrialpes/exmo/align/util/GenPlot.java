@@ -497,9 +497,9 @@ public class GenPlot {
 	    output.print( m );
 	    color += colortable[i%28];
 	    if ( !listEvaluators.get(i).isValid() ) {
-		style += "2";
-	    } else {
 		style += "2,6,3";
+	    } else {
+		style += "2";
 	    }
 	    i++;
 	}
