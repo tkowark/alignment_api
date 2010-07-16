@@ -41,6 +41,10 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     public SKOSLiteThesaurus(URI file) {
 	setFile(file);
     }
+    
+    public SKOSLiteThesaurus(Model onto) {
+	this.setOntology(onto);
+    }
 
     @Override
     public boolean getCapabilities(int Direct, int Asserted, int Named) throws OntowrapException {
