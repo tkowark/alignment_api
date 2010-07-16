@@ -39,8 +39,7 @@ public class SKOSLiteOntologyFactory extends OntologyFactory {
 	onto.setFormalism( formalismId );
 	onto.setFormURI( formalismUri );
 	
-	// TODO find the URI of a skos thesaurus
-	//onto.setURI( dataset.getURI() );
+	onto.setURI( uri );
 	//cache.recordOntology( uri, onto );
 	
 	return onto;

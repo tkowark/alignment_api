@@ -36,7 +36,10 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     protected InfModel ontoInf;
     protected Model onto;
     
+    protected String formalism;
+    protected URI formUri;
     protected URI file;
+    protected URI uri;
     
     public SKOSLiteThesaurus(URI file) {
 	setFile(file);
@@ -390,13 +393,11 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     }
 
     public URI getFormURI() {
-	// TODO Auto-generated method stub
-	return null;
+	return formUri;
     }
 
     public String getFormalism() {
-	// TODO Auto-generated method stub
-	return null;
+	return formalism;
     }
 
     public Model getOntology() {
@@ -405,8 +406,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 
     @Override
     public URI getURI() {
-	// TODO Auto-generated method stub
-	return null;
+	return uri;
     }
 
     public void setFile(URI file) {
@@ -419,11 +419,11 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     }
 
     public void setFormURI(URI u) {
-	
+	formUri=u;
     }
 
     public void setFormalism(String name) {
-	
+	formalism=name;
     }
 
     public void setOntology(Model o) {
@@ -434,7 +434,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     }
 
     public void setURI(URI uri) {
-	
+	this.uri=uri;
     }
     
    
