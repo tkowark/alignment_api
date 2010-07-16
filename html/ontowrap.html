@@ -316,26 +316,29 @@ Here are the available implementations:
 <center>
 <table border="0">
 <tr>
-<td>API</td><td>Version</td><td>Implementation</td><td>Availability</td><td>classname</td>
+<td>API</td><td>Version</td><td>Implementation</td><td>Requires</td><td>Availability</td><td>classname</td>
 </th>
 <tr>
-<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.5</td><td>LoadedOntology</td><td>Since 3.5</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
+<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.5</td><td>LoadedOntology</td><td></td><td>3.5</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.6</td><td>LoadedOntology</td><td>Since
-    4.0</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
+<td><a href="http://jena.sourceforge.net/">Jena</a></td><td>2.6</td><td>LoadedOntology</td><td></td><td>4.0</td><td><tt>ow.jena25.JENAOntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>1.0</td><td>HeavyLoadedOntology</td><td>Since /3.5</td><td><tt>ow.owlapi10.OWLAPIOntologyFactory</tt></td>
+<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>1.0</td><td>HeavyLoadedOntology</td><td></td><td>3.5</td><td><tt>ow.owlapi10.OWLAPIOntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>2.0</td><td>HeavyLoadedOntology</td><td>Discontinued (3.4-3.6)</td><td><tt>ow.owlapi20.OWLAPIOntologyFactory</tt></td>
+<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>2.0</td><td>HeavyLoadedOntology</td><td></td><td>Discontinued (3.4-3.6)</td><td><tt>ow.owlapi20.OWLAPIOntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>3.0</td><td>HeavyLoadedOntology</td><td>Since 4.0</td><td><tt>ow.owlapi30.OWLAPI3OntologyFactory</tt></td>
+<td><a href="http://owlapi.sourceforge.net/">OWL API</a></td><td>3.0</td><td>HeavyLoadedOntology</td><td></td><td>4.0</td><td><tt>ow.owlapi30.OWLAPI3OntologyFactory</tt></td>
 </tr>
 <tr>
-<td><a href="http://skosapi.sourceforge.net/">SKOS API</a></td><td></td><td>HeavyLoadedOntology</td><td>4.1</td><td><tt>ow.skosapi.SKOSOntologyFactory</tt></td>
+<td><a href="http://skosapi.sourceforge.net/">SKOS
+    API</a></td><td></td><td>HeavyLoadedOntology</td><td>OWL API 2</td><td>4.1</td><td><tt>ow.skosapi.SKOSOntologyFactory</tt></td>
+</tr>
+<tr>
+<td>SKOSLite</td><td></td><td>HeavyLoadedOntology</td><td>Jena</td><td>4.1</td><td><tt>ow.skoslite.SKOSLiteOntologyFactory</tt></td>
 </tr>
 </table>
 </center>
