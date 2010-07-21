@@ -503,6 +503,7 @@ public class GenPlot {
 	    }
 	    i++;
 	}
+	//output.print("&chdlp=b"); // legend position (but ugly)
 	output.print("&chco="+color); // colors
 	output.print("&chls="+style); // linestyle
 	output.println("&chds=0,10\"/>");
