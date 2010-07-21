@@ -44,6 +44,9 @@ import java.net.URI;
  * This function implements Precision/Recall/Fallout. The first alignment
  * is thus the expected one.
  *
+ * NOTE: This measure does not take relations nor confidences into account
+ * For relation, this will wait for algebra based relations
+ *
  * @author Jerome Euzenat
  * @version $Id$ 
  */
