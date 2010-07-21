@@ -151,9 +151,9 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 	String result = "";
 	result += "  <div  xmlns:"+Namespace.ATLMAP.shortCut+"='"+Namespace.ATLMAP.prefix+"' typeof=\""+Namespace.ATLMAP.shortCut+":output\" href=''>";
         result += "     <dl>";
-        result += writeCellsHTML( truepositive,  "Correct correspondences");
-        result += writeCellsHTML( falsepositive, "Incorrect correspondences");
-        result += writeCellsHTML( falsenegative, "Missing correspondences");
+        result += writeCellsHTML( truepositive,  "<span style=\"color: green\">Correct correspondences</span>");
+        result += writeCellsHTML( falsepositive, "<span style=\"color: red\">Incorrect correspondences</span>");
+        result += writeCellsHTML( falsenegative, "<span style=\"color: orange\">Missing correspondences</span>");
         result += "     </dl>\n  </div>\n";
         return result;
     }
