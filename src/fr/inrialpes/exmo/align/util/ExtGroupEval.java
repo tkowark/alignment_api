@@ -67,7 +67,7 @@ import gnu.getopt.Getopt;
     where the options are:
     <pre>
     -o filename --output=filename
-    -f format = seo (symetric/effort-based/oriented) --format=seo
+    -f format = sepr (symetric/effort-based/precision-oriented/recall-oriented) --format=sepr
     -d debug --debug=level
     -r filename --reference=filename
     -s algo/measure
@@ -287,7 +287,10 @@ public class ExtGroupEval {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
-	double correctVect[]; // correct so far
+	double symVect[]; // symmetric similarity
+	double effVect[]; // effort-based similarity
+	double precOrVect[]; // precision-oriented similarity
+	double recOrVect[]; // recall-oriented similarity
 	PrintStream writer = null;
 
 	fsize = format.length();
@@ -305,34 +308,42 @@ public class ExtGroupEval {
 	    writer.println("<colgroup align='center' />");
 	    // for each algo <td spancol='2'>name</td>
 	    for ( String m : listAlgo ) {
-		writer.println("<colgroup align='center' span='"+fsize+"' />");
+		writer.println("<colgroup align='center' span='"+2*fsize+"' />");
 	    }
 	    // For each file do a
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
 	    for ( String m : listAlgo ) {
-		writer.println("<th colspan='"+(fsize+1)+"'>"+m+"</th>");
+		writer.println("<th colspan='"+((2*fsize)+1)+"'>"+m+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
 	    for ( String m : listAlgo ) {
 		for ( int i = 0; i < fsize; i++){
 		    if ( format.charAt(i) == 's' ) {
-			writer.println("<td colspan='2'>Symmetric</td>");
+			writer.println("<td colspan='2'><center>Symmetric</center></td>");
 		    } else if ( format.charAt(i) == 'e' ) {
-			writer.println("<td colspan='2'>Effort</td>");
-		    } else if ( format.charAt(i) == 'o' ) {
-			writer.println("<td colspan='2'>Oriente</td>");
+			writer.println("<td colspan='2'><center>Effort</center></td>");
+		    } else if ( format.charAt(i) == 'p' ) {
+			writer.println("<td colspan='2'><center>Prec. orient.</center></td>");
+		    } else if ( format.charAt(i) == 'r' ) {
+			writer.println("<td colspan='2'><center>Rec. orient.</center></td>");
 		    }
 		}
 		//writer.println("<td>Prec.</td><td>Rec.</td>");
 	    }
 	    writer.println("</tr></tbody><tbody>");
 	    foundVect = new int[ listAlgo.size() ];
-	    correctVect = new double[ listAlgo.size() ];
+	    symVect = new double[ listAlgo.size() ];
+	    effVect = new double[ listAlgo.size() ];
+	    precOrVect = new double[ listAlgo.size() ];
+	    recOrVect = new double[ listAlgo.size() ];
 	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
 		foundVect[k] = 0;
-		correctVect[k] = 0.;
+		symVect[k] = 0.;
+		effVect[k] = 0.;
+		precOrVect[k] = 0.;
+		recOrVect[k] = 0.;
 	    }
 	    // </tr>
 	    // For each directory <tr>
@@ -359,7 +370,6 @@ public class ExtGroupEval {
 			    nexpected = eval.getExpected();
 			    expected += nexpected;
 			}
-			// JE: Until the end of "//" for NEWSET
 			// If foundVect is -1 then results are invalid
 			if ( foundVect[k] != -1 ) foundVect[k] += eval.getFound();
 			for ( int i = 0 ; i < fsize; i++){
@@ -368,26 +378,27 @@ public class ExtGroupEval {
 				formatter.format("%1.2f", eval.getSymPrecision());
 				System.out.print("</td><td>");
 				formatter.format("%1.2f", eval.getSymRecall());
-				// JE: Until the end of "//" for NEWSET
-				correctVect[k] += eval.getFound() * eval.getSymPrecision();
+				symVect[k] += eval.getSymSimilarity();
 			    } else if ( format.charAt(i) == 'e' ) {
 				formatter.format("%1.2f", eval.getEffPrecision());
 				System.out.print("</td><td>");
 				formatter.format("%1.2f", eval.getEffRecall());
-				// JE: Until the end of "//" for NEWSET
-				correctVect[k] += eval.getFound() * eval.getEffPrecision();
-			    } else if ( format.charAt(i) == 'o' ) {
-				formatter.format("%1.2f", eval.getOrientPrecision());
+				effVect[k] += eval.getEffSimilarity();
+			    } else if ( format.charAt(i) == 'p' ) {
+				formatter.format("%1.2f", eval.getPrecisionOrientedPrecision());
 				System.out.print("</td><td>");
-				formatter.format("%1.2f", eval.getOrientRecall());
-				// JE: Until the end of "//" for NEWSET
-				correctVect[k] += eval.getFound() * eval.getOrientPrecision();
+				formatter.format("%1.2f", eval.getPrecisionOrientedRecall());
+				precOrVect[k] += eval.getPrecisionOrientedSimilarity();
+			    } else if ( format.charAt(i) == 'r' ) {
+				formatter.format("%1.2f", eval.getRecallOrientedPrecision());
+				System.out.print("</td><td>");
+				formatter.format("%1.2f", eval.getRecallOrientedRecall());
+				recOrVect[k] += eval.getRecallOrientedSimilarity();
 			    }
 			    writer.println("</td>");
 			}
 		    } else {
 			writer.println("<td>n/a</td><td>n/a</td>");
-			//foundVect[k] = -1;
 		    }
 		}
 		writer.println("</tr>");
@@ -396,14 +407,27 @@ public class ExtGroupEval {
 	    int k = 0;
 	    for ( String m : listAlgo ) {
 		if ( foundVect[k] != -1 ){
-		    double precision = correctVect[k]/foundVect[k];
-		    double recall = correctVect[k]/expected;
-		    //for ( int i = 0 ; i < fsize; i++){
+		    for ( int i = 0 ; i < fsize; i++){
 			writer.print("<td>");
-			formatter.format("%1.2f", precision);
-			System.out.print("</td><td>");
-			formatter.format("%1.2f", recall);
+			if ( format.charAt(i) == 's' ) {
+			    formatter.format("%1.2f", symVect[k]/foundVect[k]);
+			    System.out.print("</td><td>");
+			    formatter.format("%1.2f", symVect[k]/expected);
+			} else if ( format.charAt(i) == 'e' ) {
+			    formatter.format("%1.2f", effVect[k]/foundVect[k]);
+			    System.out.print("</td><td>");
+			    formatter.format("%1.2f", effVect[k]/expected);
+			} else if ( format.charAt(i) == 'p' ) {
+			    formatter.format("%1.2f", precOrVect[k]/foundVect[k]);
+			    System.out.print("</td><td>");
+			    formatter.format("%1.2f", precOrVect[k]/expected);
+			} else if ( format.charAt(i) == 'r' ) {
+			    formatter.format("%1.2f", recOrVect[k]/foundVect[k]);
+			    System.out.print("</td><td>");
+			    formatter.format("%1.2f", recOrVect[k]/expected);
+			}
 			writer.println("</td>");
+		    }
 		} else {
 		    writer.println("<td colspan='2'><center>Error</center></td>");
 		}
@@ -422,7 +446,7 @@ public class ExtGroupEval {
     public void usage() {
 	System.out.println("usage: ExtGroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=seo -r seo\tSpecifies the extended measure used (symetric/effort-based/oriented)");
+	System.out.println("\t--format=sepr -r sepr\tSpecifies the extended measures used (symetric/effort-based/precision-oriented/recall-oriented)");
 	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
 	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");

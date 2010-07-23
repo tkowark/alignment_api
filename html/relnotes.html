@@ -39,15 +39,14 @@ The development of 4 versions continue.
 <p><ul compact="1">
 <li>Implement full OWL rendering of EDOAL (impl)</li>
 <li>Adding type checking to EDOAL parser (parser)</li>
-<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Implement database store for EDOAL (server)</li>
 <li>Integrate some basic reasoning.</li>
 <li>Complete tutorial4 with distributed reasoning.</li>
 <li>Genericize evaluators in <tt>GraphEvaluator</tt> and <tt>GenPlot</tt> (eval)</li>
 <li>Implementation of a provenance metadata tag (server/impl)</li>
-<li>Providing a <tt>DiffAlign( al1, al2 )</tt> evaluator (impl) and interface (util)</li>
 <li>Replace <tt>DistanceAlignment</tt> with a version more in line
   with OntoSim (impl)</tt>
+<!--li>Implemented transformations in EDOAL (edoal)</li-->
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
 <li>Implement correspondence selection (server)</li>
@@ -62,20 +61,25 @@ The development of 4 versions continue.
 <h2>Current SVN trunk version</h2>
 
 <!--h2>Version 4.2 (1xxx): xx/09/2009 - Zimt</h2-->
-<!--h2>Version 4.1 (1xxx): xx/09/2009 - Tring</h2-->
+<!--h2>Version 4.1 (15xx): xx/08/2010 - Tring</h2-->
 
 <p><ul compact="1">
+<li>Integration of skoslite (home made SKOS API) (ontowrap)</li>
 <li>Integration of SKOS API (ontowrap)</li>
 <li>Extended ontowrap so that all methods can raise exceptions (ontowrap)</li>
+<li>Implement fully relaxed precision and recall (impl)</li>
 <li>Added a <tt>getResult()</tt> method to <tt>Evaluator</tt> (api)</li>
+<li>Added a <tt>DiffAlign( al1, al2 )</tt> evaluator (impl) and interface (server)</li>
 <li>Implemented online evaluation (server)</li>
-<!--li>Implemented transformations in EDOAL (edoal)</li-->
+<li>Added the possibility to drop a number of correspondences in <tt>ONetworkWeakener</tt> (util)</li>
+<li>Added a google chart api display of plots <tt>GenPlot -t html</tt> (util)</li>
 <li><tt>edoal:or</tt>, <tt>edoal:and</tt> and <tt>edoal:compose</tt>
   can be empty (edoal)</li>
 <li>Upgraded to <span style="color: green">Pellet 2.1</span> (lib)</li>
 <li>Added <a href="tutorial/tutorial4/index.html">tutorial 4</a> Pellet action (tutorial)</li>
 <li>Added <a href="tutorial/tutorial5/index.html">tutorial 5</a> about exposing matchers as web services (tutorial)</li>
 <li>Fixed path errors in tutorials (tutorial)</li>
+<li>Corrected an error in matching when a alignment existed without method extension (server)</li>
 <li>Improved RDF Rendering layout (impl)</li>
 </ul></p>
 

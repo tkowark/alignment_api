@@ -44,9 +44,32 @@ import java.io.PrintWriter;
 import java.net.URI;
 
 /**
- * Implement extended precision and recall between alignments.
+ * Implements extended precision and recall between alignments.
  * These are the measures corresponding to [Ehrig&Euzenat2005].
  * The implementation is based on that of PRecEvaluator.
+ *
+ * This currently (4.1) implements all three mesures with the following 
+ * changes:
+ * - relations are not taken into account
+ *   (see when there is an algebra of relation with degree of overlap)
+ * - functions are parameterised by symALPHA, editALPHA, editBETA, oriented
+ * - the distance in the three is measured by param/(d+param) or param^d
+ * In the first case (for param=.5): 1, .5, .25, .16, .125
+ * In the second case: 1, .5, .25, .125
+ * - it is possible to avoid using confidences (see below)
+ *
+ * Dealing with confidence the way this was suggested in [Ehrig&Euzenat2005]
+ * may not be a good idea as it seems. Indeed, typically incorrect correspondences
+ * are those with low confidence. Hence, when they are close to the target, the fact
+ * that the correspondence has a low confidence will penalise heavily the bonus
+ * provided by relaxed measures... hence we have introduced a switch for 
+ * avoiding the confidence computation.
+ * 
+ * This evaluator is far less tolerant than the classical PRecEvaluator
+ * because it has to load the ontologies
+ * 
+ * This class is expensive because it computes all similarities together
+ * It may be wiser to have different evaluators.
  *
  * @author Jerome Euzenat
  * @version $Id$ 
@@ -58,28 +81,36 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     private HeavyLoadedOntology<Object> onto2;
 
     private double symALPHA = .5;
-    //private double editALPHA = .4;
-    //private double editBETA = .6;
-    //private double oriented = .5;
+    private double editALPHA = .4;
+    private double editBETA = .6;
+    private double oriented = .5;
 
     private double symprec = 1.;
     private double symrec = 1.;
     private double effprec = 1.;
     private double effrec = 1.;
-    private double orientprec = 1.;
-    private double orientrec = 1.;
+    private double precorientprec = 1.;
+    private double precorientrec = 1.;
+    private double recorientprec = 1.;
+    private double recorientrec = 1.;
 
     private int nbexpected = 0;
     private int nbfound = 0;
 
     private double symsimilarity = 0;
     private double effsimilarity = 0;
-    private double orientsimilarity = 0;
+    private double orientPrecsimilarity = 0;
+    private double orientRecsimilarity = 0;
+
+    private boolean withConfidence = true;
 
     /** Creation **/
     public ExtPREvaluator(Alignment align1, Alignment align2) throws AlignmentException {
 	super(align1, align2);
     }
+
+    public void setConfidence( boolean b ) { withConfidence = b; }
+    public boolean getConfidence() { return withConfidence; }
 
     public double getSymPrecision() { return symprec; }
     public double getSymRecall() { return symrec; }
@@ -89,9 +120,12 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     public double getEffRecall() { return effrec; }
     public double getEffSimilarity() { return effsimilarity; }
 
-    public double getOrientPrecision() { return orientprec; }
-    public double getOrientRecall() { return orientrec; }
-    public double getOrientSimilarity() { return orientsimilarity; }
+    public double getPrecisionOrientedPrecision() { return precorientprec; }
+    public double getPrecisionOrientedRecall() { return precorientrec; }
+    public double getRecallOrientedPrecision() { return recorientprec; }
+    public double getRecallOrientedRecall() { return recorientrec; }
+    public double getPrecisionOrientedSimilarity() { return orientPrecsimilarity; }
+    public double getRecallOrientedSimilarity() { return orientRecsimilarity; }
 
     public int getExpected() { return nbexpected; }
     public int getFound() { return nbfound; }
@@ -105,6 +139,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	return eval( params, (Object)null );
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
+	if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
 	// Better to transform them instead...
 	if ( !( align1 instanceof ObjectAlignment ) || !( align2 instanceof ObjectAlignment ) )
 	    throw new AlignmentException( "ExtPREvaluation: requires ObjectAlignments" );
@@ -118,99 +153,228 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	nbfound = align2.nbCells();
 
 	for ( Cell c1 : align1 ){
-	    Set s2 = (Set)align2.getAlignCells1( c1.getObject1() );
-	    if( s2 != null ){
-		for( Iterator it2 = s2.iterator(); it2.hasNext() && c1 != null; ){
-		    Cell c2 = (Cell)it2.next();
-		    try {
-			URI uri1 = onto2.getEntityURI( c1.getObject2() );
+	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
+	    try {
+		URI uri1 = onto2.getEntityURI( c1.getObject2() );
+		if( s2 != null ){
+		    for( Cell c2 : s2 ){
 			URI uri2 = onto2.getEntityURI( c2.getObject2() );	
-			// if ( uri1.equals( uri2 ) )
-			if ( uri1.toString().equals(uri2.toString()) ) {
+			if ( uri1.equals( uri2 ) ) {
 			    symsimilarity += 1.;
 			    effsimilarity += 1.;
-			    orientsimilarity += 1.;
+			    orientPrecsimilarity += 1.;
+			    orientRecsimilarity += 1.;
 			    c1 = null; // out of the loop.
+			    break;
 			}
-		    } catch ( OntowrapException owex ) {
-			// This may be ignored as well
-			throw new AlignmentException( "Cannot find entity URI", owex );
+		    }
+		    // if nothing has been found
+		    // JE: Full implementation would require computing a matrix
+		    // of distances between both set of correspondences and
+		    // running the Hungarian method...
+		    if ( c1 != null ) {
+			// Add guards
+			symsimilarity += computeSymSimilarity(c1,align2);
+			effsimilarity += computeEffSimilarity(c1,align2);
+			orientPrecsimilarity += computePrecisionOrientedSimilarity(c1,align2);
+			orientRecsimilarity += computeRecallOrientedSimilarity(c1,align2);
 		    }
 		}
-		// if nothing has been found
-		// JE: Full implementation would require computing a matrix
-		// of distances between both set of correspondences and
-		// running the Hungarian method...
-		Enumeration e2 = align2.getElements();
-		if ( c1 != null ) {
-		    // Add guards
-		    symsimilarity += computeSymSimilarity(c1,e2);
-		    effsimilarity += computeEffSimilarity(c1,e2);
-		    orientsimilarity += computeOrientSimilarity(c1,e2);
-		}
+	    } catch ( OntowrapException owex ) {
+		// This may be ignored as well
+		throw new AlignmentException( "Cannot find entity URI", owex );
 	    }
 	}
 
-	// What is the definition if:
-	// nbfound is 0 (p, r are 0)
-	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
-	// precision+recall is 0 [= nbcorrect is 0]
-	// precision is 0 [= nbcorrect is 0]
 	if ( nbfound != 0 ) symprec = symsimilarity / (double) nbfound;
 	if ( nbexpected != 0 ) symrec = symsimilarity / (double) nbexpected;
-	effsimilarity = symsimilarity;
 	if ( nbfound != 0 ) effprec = effsimilarity / (double) nbfound;
 	if ( nbexpected != 0 ) effrec = effsimilarity / (double) nbexpected;
-	orientsimilarity = symsimilarity;
-	if ( nbfound != 0 ) orientprec = orientsimilarity / (double) nbfound;
-	if ( nbexpected != 0 ) orientrec = orientsimilarity / (double) nbexpected;
+	if ( nbfound != 0 ) precorientprec = orientPrecsimilarity / (double) nbfound;
+	if ( nbexpected != 0 ) precorientrec = orientPrecsimilarity / (double) nbexpected;
+	if ( nbfound != 0 ) recorientprec = orientRecsimilarity / (double) nbfound;
+	if ( nbexpected != 0 ) recorientrec = orientRecsimilarity / (double) nbexpected;
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
 	return (result);
     }
 
     /**
+     * Symmetric relaxed precision and recal similarity
      * This computes similarity depending on structural measures:
-     * the similarity is symALPHA^minval, symALPHA being lower than 1.
-     * minval is the length of the subclass chain.
+     * the similarity is symALPHA^(val1+val2), symALPHA being lower than 1.
+     * valx is the length of the subclass chain.
+     * Table 1 (& 2) of [Ehrig2005]
      */
-    protected double computeSymSimilarity( Cell c1, Enumeration s2 ){
-	int minval = 0;
-	int val = 0;
+    protected double computeSymSimilarity( Cell c1, Alignment s2 ){
+	double sim = 0; // the similarity between the pair of elements
 	try {
-	    for( ; s2.hasMoreElements(); ){
-		Cell c2 = (Cell)s2.nextElement();
-		if ( onto1.getEntityURI( c1.getObject1() ).toString().equals(onto1.getEntityURI(c2.getObject1()).toString()) ){
-		    val = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
-		    if ( val != 0 && val < minval ) minval = val;
-		} else if ( onto2.getEntityURI(c1.getObject2()).toString().equals(onto2.getEntityURI(c2.getObject2()).toString()) ){
-		    val = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
-		    if ( val != 0 && val < minval ) minval = val;
+	    for ( Cell c2 : align2 ) {
+		int val1 = 0; // the similatity between the o1 objects
+		int val2 = 0; // the similarity between the o2 objects
+		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
+		    val1 = 0;
+		} else {
+		    val1 = Math.abs( relativePosition( c1.getObject2(), c2.getObject2(), onto2 ) );
+		    if ( val1 == 0 ) continue;
+		}
+		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
+		    val2 = 0;
+		} else {
+		    val2 = Math.abs( relativePosition( c1.getObject1(), c2.getObject1(), onto1 ) );
+		    if ( val2 == 0 ) continue;
+		}
+		double val = Math.pow( symALPHA, val1 + val2 );
+		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
+		System.err.println( "               => "+symALPHA+"^"+val1+"+"+val2+" * "+(1. - Math.abs( c1.getStrength() - c2.getStrength() ))+"  =  "+val );
+		// Here the measure should also take into account relations
+		if ( val > sim ) sim = val;
+	    }
+	} catch( OntowrapException aex ) { return 0;
+	} catch( AlignmentException aex ) { return 0; }
+	return sim;
+    }
+
+    /**
+     * Effort-based relaxed precision and recal similarity
+     * Note: it will be better if the parameters were replaced by the actual sibling (choice)
+     * Table 3 of [Ehrig2005]
+     */
+    protected double computeEffSimilarity( Cell c1, Alignment s2 ){
+	double sim = 0; // the similarity between the pair of elements
+	try {
+	    for ( Cell c2 : align2 ) {
+		int val1 = 0; // the similatity between the o1 objects
+		int val2 = 0; // the similarity between the o2 objects
+		double val = 0.; // the current agregated value
+		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
+		    val = 1.;
+		} else {
+		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    if ( val1 == 0 ) {
+			continue;
+		    } if ( val1 > 0 ) {
+			val = Math.pow( editBETA, val1 ); // Beta is more valued
+		    } else {
+			val = Math.pow( editALPHA, -val1 );
+		    }
+		}
+		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
+		    // val remains val
+		} else {
+		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    if ( val2 == 0 ) {
+			continue;
+		    } if ( val2 > 0 ) {
+			val *= Math.pow( editBETA, val2 );
+		    } else {
+			val *= Math.pow( editALPHA, -val2 );
+		    }
+		}
+		if ( c1.getStrength() != 0. && c2.getStrength() != 0. ) { // Definition 9
+		    // Here the measure should also take into account relations
+		    // Easy: if they are different, then val = val/2;
+		    if ( val > sim ) sim = val;
 		}
 	    }
 	} catch( OntowrapException aex ) { return 0;
 	} catch( AlignmentException aex ) { return 0; }
-	//return symALPHA; //^minval;
-	return Math.pow( symALPHA, minval );
+	return sim;
     }
 
     /**
-     * This computes similarity depending on structural measures:
-     * the similarity is symALPHA^minval, symALPHA being lower than 1.
-     * minval is the length of the subclass chain.
+     * Oriented relaxed precision and recal similarity
+     * Table 4 (& 5) of [Ehrig2005]
      */
-    protected double computeEffSimilarity( Cell c1, Enumeration s2 ){
-	return 0.;
+    protected double computePrecisionOrientedSimilarity( Cell c1, Alignment s2 ){
+	double sim = 0; // the similarity between the pair of elements
+	try {
+	    for ( Cell c2 : align2 ) {
+		int val1 = 0; // the similatity between the o1 objects
+		int val2 = 0; // the similarity between the o2 objects
+		double val = 0.; // the current agregated value
+		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
+		    val = 1.;
+		} else {
+		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    if ( val1 == 0 ) {
+			continue;
+		    } if ( val1 > 0 ) {
+			val = Math.pow( oriented, val1 );
+		    } else {
+			val = 1.;
+		    }
+		}
+		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
+		    // val remains val
+		} else {
+		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    if ( val2 == 0 ) {
+			continue;
+		    } if ( val2 > 0 ) { // This is the inverse from o1 because queries flow from o1 to o2
+			val *= 1.;
+		    } else {
+			val *= Math.pow( oriented, -val2 );
+		    }
+		}
+		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
+		// Here the measure should also take into account relations
+		if ( val > sim ) sim = val;
+	    }
+	} catch( OntowrapException aex ) { return 0;
+	} catch( AlignmentException aex ) { return 0; }
+	return sim;
     }
 
     /**
-     * This computes similarity depending on structural measures:
-     * the similarity is symALPHA^minval, symALPHA being lower than 1.
-     * minval is the length of the subclass chain.
+     * Oriented relaxed precision and recal similarity
+     * Table 6 (& 7) of [Ehrig2005]
      */
-    protected double computeOrientSimilarity( Cell c1, Enumeration s2 ){
-	return 0.;
+    protected double computeRecallOrientedSimilarity( Cell c1, Alignment s2 ){
+	double sim = 0; // the similarity between the pair of elements
+	try {
+	    for ( Cell c2 : align2 ) {
+		int val1 = 0; // the similatity between the o1 objects
+		int val2 = 0; // the similarity between the o2 objects
+		double val = 0.; // the current agregated value
+		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
+		    val = 1.;
+		} else {
+		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    if ( val1 == 0 ) {
+			continue;
+		    } if ( val1 > 0 ) {
+			val = 1.;
+		    } else {
+			val = Math.pow( oriented, -val1 );
+		    }
+		}
+		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
+		    // val remains val
+		} else {
+		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    if ( val2 == 0 ) {
+			continue;
+		    } if ( val2 > 0 ) { // This is the inverse from o1 because queries flow from o1 to o2
+			val *= Math.pow( oriented, val2 );
+		    } else {
+			val *= 1.;
+		    }
+		}
+		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
+		// Here the measure should also take into account relations
+		if ( val > sim ) sim = val;
+	    }
+	} catch( OntowrapException aex ) { return 0;
+	} catch( AlignmentException aex ) { return 0; }
+	return sim;
     }
 
+    /**
+     * Returns the relative position of two entities:
+     * 0: unrelated
+     * n: o1 is a n-step sub-entity of o2
+     * -n: o2 is a n-step sub-entity of o1
+     */
     protected int relativePosition( Object o1, Object o2, HeavyLoadedOntology<Object> onto )  throws AlignmentException {
 	try {
 	    if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
@@ -221,9 +385,6 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		else { return 0; }
 	    } else if ( onto.isIndividual( o1 ) && onto.isIndividual( o2 ) ){
 		return 0;
-		//if () { return -1; }
-		//else if () { return 1; }
-		//else return 0;
 	    }
 	    return 0;
 	} catch ( OntowrapException owex ) {
@@ -231,6 +392,9 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	}
     }
 
+    /**
+     * JE2010: THIS SHOULD BE REWRITTEN AS THE SUBCLASS STUFF
+     */
     public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    return ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
@@ -243,7 +407,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     public int superClassPosition( Object class1, Object class2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
 	int result = - isSuperClass( class2, class1, onto );
 	if ( result == 0 )
-	    result = isSuperClass( class1, class2, onto );
+	    return isSuperClass( class1, class2, onto );
 	return result;
     }
 
@@ -251,18 +415,17 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      * This is a strange method which returns an integer representing how
      * directly a class is superclass of another or not.  
      *
-     * This would require coputing the transitive reduction of the superClass
+     * This would require computing the transitive reduction of the superClass
      * relation which is currently returned bu HeavyLoadedOntology.
-     *
-     * It would require to have a isDirectSubClassOf().
      */
     @SuppressWarnings("unchecked")
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    URI uri1 = ontology.getEntityURI( class1 );
 	    Set<?> bufferedSuperClasses = null;
-	    Set<Object> superclasses = (Set<Object>) ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    Set<Object> superclasses = (Set<Object>)ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
+	    int foundlevel = 0;
 	    
 	    while ( !superclasses.isEmpty() ){
 		bufferedSuperClasses = superclasses;
@@ -271,20 +434,18 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		for( Object entity : bufferedSuperClasses ) {
 		    if ( ontology.isClass( entity ) ){
 			URI uri2 = ontology.getEntityURI( entity );
-			//if ( entity == class2 ) return true;
-			if ( uri1.toString().equals(uri2.toString()) ) {
-			    return level;
+			if ( uri1.equals( uri2 ) ) {
+			    if ( level < foundlevel ) foundlevel = level;
 			} else {
 			    superclasses.addAll(ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
 			}
 		    }
 		}
 	    }
+	    return foundlevel;
 	} catch ( OntowrapException owex ) {
 	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
-	// get the 
-	return 0;
     }
 
 
@@ -308,11 +469,15 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	writer.print(effprec);
 	writer.print("</"+Namespace.ATLMAP.shortCut+":effortbasedprecision>\n    <"+Namespace.ATLMAP.shortCut+":effortbasedrecall>");
 	writer.print(effrec);
-	writer.print("</"+Namespace.ATLMAP.shortCut+":effortbasedrecall>\n    <"+Namespace.ATLMAP.shortCut+":orientedprecision>");
-	writer.print(orientprec);
-	writer.print("</"+Namespace.ATLMAP.shortCut+":orientedprecision>\n    <"+Namespace.ATLMAP.shortCut+":orientedrecall>");
-	writer.print(orientrec);
-	writer.print("</"+Namespace.ATLMAP.shortCut+":orientedrecall>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":effortbasedrecall>\n    <"+Namespace.ATLMAP.shortCut+":precisionorientedprecision>");
+	writer.print(precorientprec);
+	writer.print("</"+Namespace.ATLMAP.shortCut+":precisionorientedprecision>\n    <"+Namespace.ATLMAP.shortCut+":precisionorientedrecall>");
+	writer.print(precorientrec);
+	writer.print("</"+Namespace.ATLMAP.shortCut+":precisionorientedrecall>\n    <"+Namespace.ATLMAP.shortCut+":recallorientedprecision>");
+	writer.print(recorientprec);
+	writer.print("</"+Namespace.ATLMAP.shortCut+":recallorientedprecision>\n    <"+Namespace.ATLMAP.shortCut+":recallorientedrecall>");
+	writer.print(recorientrec);
+	writer.print("</"+Namespace.ATLMAP.shortCut+":recallorientedrecall>\n  </"+Namespace.ATLMAP.shortCut+":output>\n</"+SyntaxElement.RDF.print()+">\n");
     }
 
     public Properties getResults() {
@@ -323,9 +488,12 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	results.setProperty( "effort-based precision", Double.toString( effprec ) );
 	results.setProperty( "effort-based recall", Double.toString( effrec ) );
 	results.setProperty( "effort-based similarity", Double.toString( effsimilarity ) );
-	results.setProperty( "oriented precision", Double.toString( orientprec ) );
-	results.setProperty( "oriented recall", Double.toString( orientrec ) );
-	results.setProperty( "oriented similarity", Double.toString( orientsimilarity ) );
+	results.setProperty( "precision-oriented precision", Double.toString( precorientprec ) );
+	results.setProperty( "precision-oriented recall", Double.toString( precorientrec ) );
+	results.setProperty( "recall-oriented precision", Double.toString( recorientprec ) );
+	results.setProperty( "recall-oriented recall", Double.toString( recorientrec ) );
+	results.setProperty( "oriented precision similarity", Double.toString( orientPrecsimilarity ) );
+	results.setProperty( "oriented recall similarity", Double.toString( orientRecsimilarity ) );
 	results.setProperty( "nbexpected", Integer.toString( nbexpected ) );
 	results.setProperty( "nbfound", Integer.toString( nbfound ) );
 	return results;
