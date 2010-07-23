@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -102,9 +102,16 @@ public class OntologyNetworkWeakener {
      * Returns a brand new BasicOntologyNetwork (with the initial alignments)
      */
     public static OntologyNetwork dropAlignments( OntologyNetwork on, double n ) throws AlignmentException {
-	System.err.println( " >>>> "+n );
+	//System.err.println( " >>>> "+n );
 	if ( n < 0. || n > 1. )
 	    throw new AlignmentException( "Argument must be between 0 and 1.: "+n );
+	return dropAlignments( on, (int)(n*on.getAlignments().size()) );
+    }
+
+    public static OntologyNetwork dropAlignments( OntologyNetwork on, int n ) throws AlignmentException {
+	//System.err.println( " >>>> "+n );
+	if ( n < 0 || n > on.getAlignments().size() )
+	    throw new AlignmentException( "Argument must be a positive integer: "+n );
 	OntologyNetwork newon = new BasicOntologyNetwork();
 	for ( URI ontouri : on.getOntologies() ){
 	    newon.addOntology( ontouri );
@@ -121,4 +128,6 @@ public class OntologyNetworkWeakener {
 	}
 	return newon;
     }
+
+
 }
