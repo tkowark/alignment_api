@@ -325,8 +325,6 @@ public class XMLParser extends DefaultHandler {
 		String about = atts.getValue( SyntaxElement.RDF_ABOUT.print() );
 		if ( about != null && !about.equals("") ) {
 		    try {
-			// JE: Onto
-			//curronto.setOntology( new URI( atts.getValue("rdf:about") ) );
 			curronto.setURI( new URI( about ) );
 		    } catch (URISyntaxException e) {
 			throw new SAXException("onto2: malformed URI");
@@ -451,41 +449,38 @@ public class XMLParser extends DefaultHandler {
 		    if ( extensions != null ) ((BasicCell)cell).setExtensions( extensions );
 		} else if (pName.equals( SyntaxElement.MAP.name )) {
 		} else if (pName.equals("uri1")) { // Legacy
-		    if ( onto1.getURI() == null ){//JE: Onto
-			try {
-			    URI u = new URI( content );
-			    // JE: Onto
-			    //onto1.setOntology( u );
-			    onto1.setURI( u );
-			} catch (URISyntaxException e) {
-			    throw new SAXException("uri1: malformed URI");
-			}
+		    try {
+			URI u = new URI( content );
+			onto1.setURI( u );
+			if ( onto1.getFile() == null ) onto1.setFile( u );
+		    } catch (URISyntaxException e) {
+			throw new SAXException("uri1: malformed URI : "+content);
 		    }
 		} else if (pName.equals("uri2")) { // Legacy
-		    if ( onto2.getURI() == null ){//JE: Onto
-			try {
-			    URI u = new URI( content );
-			    // JE: Onto
-			    //onto2.setOntology( u );
-			    onto2.setURI( u );
-			} catch (URISyntaxException e) {
-			    throw new SAXException("uri2: malformed URI");
-			}
+		    try {
+			URI u = new URI( content );
+			onto2.setURI( u );
+			if ( onto2.getFile() == null ) onto2.setFile( u );
+		    } catch (URISyntaxException e) {
+			throw new SAXException("uri1: malformed URI : "+content);
 		    }
 		} else if (pName.equals( SyntaxElement.ONTOLOGY.name )) {
 		} else if (pName.equals( SyntaxElement.LOCATION.name )) {
 		    try { curronto.setFile( new URI( content ) );
 		    } catch (URISyntaxException e) {
-			throw new SAXException("onto2: malformed URI");
+			throw new SAXException("Malformed URI : "+content );
 		    }
 		} else if (pName.equals( SyntaxElement.FORMALISM.name )) {
 		} else if (pName.equals( SyntaxElement.FORMATT.name )) {
 		} else if (pName.equals( SyntaxElement.MAPPING_SOURCE.name ) || pName.equals( SyntaxElement.MAPPING_TARGET.name )) {
 		    if ( curronto.getFile() == null && 
 			 content != null && !content.equals("") ) {
-			try { curronto.setFile( new URI( content ) );
+			try {
+			    URI u = new URI( content );
+			    curronto.setFile( u );
+			    if ( curronto.getURI() == null ) curronto.setURI( u );
 			} catch (URISyntaxException e) {
-			    throw new SAXException(pName+": malformed URI");
+			    throw new SAXException(pName+": malformed URI : "+content );
 			}
 		    };
 		    curronto = null;
