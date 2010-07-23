@@ -53,9 +53,9 @@ import java.net.URI;
 
 public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 
-    protected double precision = 0.;
+    protected double precision = 1.;
 
-    protected double recall = 0.;
+    protected double recall = 1.;
 
     protected double fallout = 0.;
 
@@ -120,8 +120,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	    if( s2 != null ){
 		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
-		    // if (c1.getobject2 == c2.getobject2)
-		    if ( uri1.toString().equals(uri2.toString()) ) {
+		    if ( uri1.equals( uri2 ) ) {
 			nbcorrect++;
 			break;
 		    }
@@ -129,12 +128,12 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	    }
 	}
 	// What is the definition if:
-	// nbfound is 0 (p, r are 0)
-	// nbexpected is 0 [=> nbcorrect is 0] (r=NaN, p=0[if nbfound>0, NaN otherwise])
+	// nbfound is 0 (p is 1., r is 0)
+	// nbexpected is 0 [=> nbcorrect is 0] (r=1, p=0)
 	// precision+recall is 0 [= nbcorrect is 0]
 	// precision is 0 [= nbcorrect is 0]
-	precision = (double) nbcorrect / (double) nbfound;
-	recall = (double) nbcorrect / (double) nbexpected;
+	if ( nbfound != 0 ) precision = (double) nbcorrect / (double) nbfound;
+	if ( nbexpected != 0 ) recall = (double) nbcorrect / (double) nbexpected;
 	return computeDerived();
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
