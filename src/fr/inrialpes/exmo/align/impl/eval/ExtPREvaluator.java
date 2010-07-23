@@ -225,7 +225,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		}
 		double val = Math.pow( symALPHA, val1 + val2 );
 		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
-		System.err.println( "               => "+symALPHA+"^"+val1+"+"+val2+" * "+(1. - Math.abs( c1.getStrength() - c2.getStrength() ))+"  =  "+val );
+		//System.err.println( "               => "+symALPHA+"^"+val1+"+"+val2+" * "+(1. - Math.abs( c1.getStrength() - c2.getStrength() ))+"  =  "+val );
 		// Here the measure should also take into account relations
 		if ( val > sim ) sim = val;
 	    }
