@@ -28,6 +28,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyDocumentAlreadyExistsException;
+import org.semanticweb.owlapi.model.OWLOntologyAlreadyExistsException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.IRI;
 
@@ -75,20 +76,32 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     @Override
     public HeavyLoadedOntology loadOntology( URI uri ) throws OntowrapException {
 	OWLAPI3Ontology onto = null;
+	//System.err.println( " Loading ontology "+uri );
 	// Cache seems to be implemented in API 3.0 anyway
 	// and it seems to not work well with this one
 	onto = cache.getOntologyFromURI( uri );
+	//System.err.println( "   cache1: "+onto );
 	if ( onto != null ) return onto;
 	onto = cache.getOntology( uri );
+	//System.err.println( "   cache2: "+onto );
 	if ( onto != null ) return onto;
-	OWLOntology ontology;
+	// OWLAPI's own cache
+	IRI ontoIRI = IRI.create( uri );
+	OWLOntology ontology = manager.getOntology( ontoIRI );
+	//System.err.println( "   cache3: "+ontology );
+
 	try {
 	    // This below does not seem to work!
 	    //ontology = manager.loadOntologyFromOntologyDocument( IRI.create( uri ) );
-	    ontology = manager.loadOntology( IRI.create( uri ) );
-	} catch ( OWLOntologyDocumentAlreadyExistsException oodaeex ) {
+	    if ( ontology == null ) ontology = manager.loadOntology( ontoIRI );
+	    //System.err.println( "   loaded: "+ontology );
+	    // I must retrieve it from cache and return it!
+	} catch ( OWLOntologyDocumentAlreadyExistsException oodaeex ) { // should never happen
 	    // This is a cache failure
-	    throw new OntowrapException("Already loaded [cache failure] " + uri, oodaeex );
+	    throw new OntowrapException("Already loaded [doc cache failure] " + uri, oodaeex );
+	} catch ( OWLOntologyAlreadyExistsException ooaeex ) {
+	    // This is a cache failure
+	    throw new OntowrapException("Already loaded [owl cache failure] " + uri, ooaeex );
 	} catch ( OWLOntologyCreationException oocex ) {
 	    oocex.printStackTrace();
 	    throw new OntowrapException("Cannot load " + uri, oocex );
@@ -100,6 +113,7 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	onto.setFile( uri );
 	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
 	cache.recordOntology( uri, onto );
+	//System.err.println( "   after-cache: "+cache.getOntology( uri ) );
 	return onto;
     }
     
