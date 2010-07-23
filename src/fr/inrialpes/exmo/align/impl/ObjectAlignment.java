@@ -132,7 +132,15 @@ public class ObjectAlignment extends BasicAlignment {
 
     static public ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException, SAXException {
 	ObjectAlignment alignment = new ObjectAlignment();
-	alignment.init( al.getFile1(), al.getFile2() );
+	try {
+	    alignment.init( al.getFile1(), al.getFile2() );
+	} catch ( AlignmentException aex ) {
+	    try { // Really a friendly fallback
+		alignment.init( al.getOntology1URI(), al.getOntology2URI() );
+	    } catch ( AlignmentException xx ) {
+		throw aex;
+	    }
+	}
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
 	for ( String[] ext : al.getExtensions() ) {
