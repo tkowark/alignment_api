@@ -40,9 +40,19 @@ public abstract class BasicEvaluator implements Evaluator {
 
     /** Creation **/
     public BasicEvaluator( Alignment align1, Alignment align2 ) throws AlignmentException {
+	/*
+	 * JE: This is obviously a killer test.
+	 * Most of the matcher do not fill this correctly
+	 * This should be made smoother
 	if ( !align1.getOntology1URI().equals( align2.getOntology1URI() )
-	     || !align1.getOntology2URI().equals( align2.getOntology2URI() ) )
+	     || !align1.getOntology2URI().equals( align2.getOntology2URI() ) ) {
+	System.err.println( " r1: "+align1.getOntology1URI() +" -- "+align1.getFile1() );
+	System.err.println( " r2: "+align1.getOntology2URI() +" -- "+align1.getFile2() );
+	System.err.println( " u1: "+align2.getOntology1URI() +" -- "+align2.getFile1() );
+	System.err.println( " u2: "+align2.getOntology2URI() +" -- "+align2.getFile2() );
 	    throw new AlignmentException( "The alignments must align the same ontologies\n" );
+	}
+	*/
 	this.align1 = align1;
 	this.align2 = align2;
     }
