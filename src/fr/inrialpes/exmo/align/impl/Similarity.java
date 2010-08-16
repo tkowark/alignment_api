@@ -37,29 +37,41 @@ public interface Similarity
 {
     // These parameters contains usually:
     // ontology1 and ontology2
-    // It would be better if they where explicit...
-    // Apparently the initialize also compute the similarity
+    /**
+     * Is it a similarity or a distance?
+     */
+    public boolean getSimilarity();
 
     // JE: OntoRewr: This should not be in init
+    /**
+     * Initialize the similarity value with various useful structures
+     */
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2 );
     public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align );
+
+    /**
+     * actually computes the similarity and store it in the adequate structures
+     */
     public void compute( Properties p );
+
+    /**
+     * Accessors to the stored similarity values
+     */
     public double getClassSimilarity( Object c1, Object c2 );
     public double getPropertySimilarity( Object p1, Object p2);
     public double getIndividualSimilarity( Object i1, Object i2 );
 
+    /**
+     * Printers of the obtained similarity values
+     */
     public void printClassSimilarityMatrix( String type );
     public void printPropertySimilarityMatrix( String type );
     public void printIndividualSimilarityMatrix( String type );
 
-    // New implementation
-    // JE: this is better as a new implementation.
-    // however, currently the implementation does not follow it:
-    // the abstract matrix class provides the get- accessors and the 
-    // concrete classes implement measure as their computation function.
-    // This is not clean. What should be done is:
-    // JE: OntoRewr: to be suppressed
-    public double measure( Object c1, Object c2 ) throws Exception;
+    // JE2010: These are used by the generic MatrixMeasure implementation
+    // in which it is sufficient to implement them to solve everything
+    // However, for more flexibility, it possible to just skip these
+    // and implement the measure within compute(p) (see InstanceBasedMatrixMeasure).
     public double classMeasure( Object c1, Object c2 ) throws Exception;
     public double propertyMeasure( Object p1, Object p2) throws Exception;
     public double individualMeasure( Object i1, Object i2 ) throws Exception;

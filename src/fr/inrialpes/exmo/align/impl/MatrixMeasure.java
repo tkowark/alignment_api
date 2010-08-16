@@ -48,6 +48,8 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 
 public abstract class MatrixMeasure implements Similarity {
 
+    public boolean similarity = true;
+
     //Momentaneously public
     public LoadedOntology onto1 = null;
     public LoadedOntology onto2 = null;
@@ -84,26 +86,31 @@ public abstract class MatrixMeasure implements Similarity {
 	    } else {
 		throw new AlignmentException(""); 
 	    };
-	    // Beware, I consider that confidence is similarity
 	    for ( Cell c : oalign ){
 		Object o1 = c.getObject1();
 		if ( onto1.isClass( o1 ) ) {
 		    Integer i1 = classlist1.get( o1 );
 		    Integer i2 = classlist2.get( c.getObject2() );
 		    if ( i1 != null && i2 != null ) {
-			clmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			if ( similarity )
+			    clmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			else clmatrix[i1.intValue()][i2.intValue()] = 1.-c.getStrength();
 		    }
 		} else if ( onto1.isProperty( o1 ) ) {
 		    Integer i1 = proplist1.get( o1 );
 		    Integer i2 = proplist2.get( c.getObject2() );
 		    if ( i1 != null && i2 != null ) {
-			prmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			if ( similarity )
+			    prmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			else prmatrix[i1.intValue()][i2.intValue()] = 1.-c.getStrength();
 		    }
 		} else {
 		    Integer i1 = indlist1.get( o1 );
 		    Integer i2 = indlist2.get( c.getObject2() );
 		    if ( i1 != null && i2 != null ) {
-			indmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			if ( similarity )
+			    indmatrix[i1.intValue()][i2.intValue()] = c.getStrength();
+			else indmatrix[i1.intValue()][i2.intValue()] = 1.-c.getStrength();
 		    }
 		}
 	    }
@@ -238,6 +245,9 @@ public abstract class MatrixMeasure implements Similarity {
 	System.out.println("\n\\end{tabular}");
     }
 
+    public boolean getSimilarity() {
+	return similarity;
+    }
     public void printClassSimilarityMatrix( String type ){
 	printMatrix( nbclass1, classlist1, classlist2, clmatrix ); 
     }

@@ -77,6 +77,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
     }
 
     /** Processing **/
+    // Could better use similarity
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
@@ -182,7 +183,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 			max = propmatrix[i][j];
 		    }
 		}
-		if ( found ) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
+		if ( found ) { addAlignCell( proplist1.get(i), proplist2.get(best), "=", 1.-max ); }
 	    }
 	    
 	    if (debug > 0) System.err.print("Computing class distances\n");
@@ -254,7 +255,7 @@ public class StrucSubsDistAlignment extends DistanceAlignment implements Alignme
 		    max = classmatrix[i][j];
 		}
 	    }
-	    if ( found ) { addAlignDistanceCell( classlist1.get(i), classlist2.get(best), "=", max ); }
+	    if ( found ) { addAlignCell( classlist1.get(i), classlist2.get(best), "=", 1.-max ); }
 	}
     }
 }

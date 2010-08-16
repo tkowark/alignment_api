@@ -76,6 +76,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
     }
 
     /** Processing **/
+    // Could better use similarity
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();
@@ -179,7 +180,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 			max = propmatrix[i][j];
 		    }
 		}
-		if ( found && max < 0.5) { addAlignDistanceCell( proplist1.get(i), proplist2.get(best), "=", max ); }
+		if ( found && max < 0.5) { addAlignCell( proplist1.get(i), proplist2.get(best), "=", 1.-max ); }
 	    }
 	    if (debug > 0) System.err.print("Computing class distances\n");
 	    // Compute classes distances
@@ -242,7 +243,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		    max = classmatrix[i][j];
 		}
 	    }
-	    if ( found && max < 0.5) { addAlignDistanceCell( classlist1.get(i), classlist2.get(best), "=", max ); }
+	    if ( found && max < 0.5) { addAlignCell( classlist1.get(i), classlist2.get(best), "=", 1.-max ); }
 	}
     }
     

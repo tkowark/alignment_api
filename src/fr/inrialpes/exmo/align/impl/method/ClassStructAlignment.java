@@ -78,6 +78,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
     }
 
     /** Processing **/
+    // Could better use similarity
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
 	honto1 = (HeavyLoadedOntology<Object>)getOntologyObject1();

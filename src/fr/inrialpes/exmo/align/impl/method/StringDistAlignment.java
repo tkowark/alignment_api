@@ -49,29 +49,34 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     Method dissimilarity = null;
     String methodName = "equalDistance";
 
+    protected class StringDistMatrixMeasure extends MatrixMeasure {
+	public StringDistMatrixMeasure() {
+	    similarity = false; // This is a distance matrix
+	}
+	public double measure( Object o1, Object o2 ) throws Exception {
+	    String s1 = ontology1().getEntityName( o1 );
+	    String s2 = ontology2().getEntityName( o2 );
+	    // Unnamed entity = max distance
+	    if ( s1 == null || s2 == null ) return 1.;
+	    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
+	    if ( debug > 4 ) 
+		System.err.println( "OB:"+s1+" ++ "+s2+" ==> "+dissimilarity.invoke( null, params ));
+	    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
+	}
+	public double classMeasure( Object cl1, Object cl2 ) throws Exception {
+	    return measure( cl1, cl2 );
+	}
+	public double propertyMeasure( Object pr1, Object pr2 ) throws Exception{
+	    return measure( pr1, pr2 );
+	}
+	public double individualMeasure( Object id1, Object id2 ) throws Exception{
+	    return measure( id1, id2 );
+	}
+    }
+
     /** Creation **/
     public StringDistAlignment() {
-	setSimilarity( new MatrixMeasure() {
-		public double measure( Object o1, Object o2 ) throws Exception {
-		    String s1 = ontology1().getEntityName( o1 );
-		    String s2 = ontology2().getEntityName( o2 );
-		    // Unnamed entity = max distance
-		    if ( s1 == null || s2 == null ) return 1.;
-		    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
-		    if ( debug > 4 ) 
-			System.err.println( "OB:"+s1+" ++ "+s2+" ==> "+dissimilarity.invoke( null, params ));
-		    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
-		}
-		public double classMeasure( Object cl1, Object cl2 ) throws Exception {
-		    return measure( cl1, cl2 );
-		}
-		public double propertyMeasure( Object pr1, Object pr2 ) throws Exception{
-		    return measure( pr1, pr2 );
-		}
-		public double individualMeasure( Object id1, Object id2 ) throws Exception{
-		    return measure( id1, id2 );
-		}
-	    } );
+	setSimilarity( new StringDistMatrixMeasure() );
 	setType("**");
     }
 
@@ -90,7 +95,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+params.getProperty("stringFunction"), e );
 	}
 
-	// JE2010: Strange: why does it is not equivalent to call
+	// JE2010: Strange: why is it not equivalent to call
 	// super.align( alignment, params )
 	// Load initial alignment
 	loadInit( alignment );
@@ -102,6 +107,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	getSimilarity().compute( params );
 
 	// Print matrix if asked
+	params.setProperty( "algName", getClass()+"/"+methodName );
 	if ( params.getProperty("printMatrix") != null ) printDistanceMatrix( params );
 
 	// Extract alignment

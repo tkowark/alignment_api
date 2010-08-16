@@ -39,35 +39,25 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
 
 /**
+ * The mother class for distance or similarity-based alignments.
+ * It is abstract because it does not provide an implemented similarity measure
+ * Otherwise everything is fine.
+ *
+ * This class should work with similarity and distances, as soon as, the used
+ * similarity structure is defined as such.
  *
  * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
-public class DistanceAlignment extends ObjectAlignment implements AlignmentProcess {
+public abstract class DistanceAlignment extends ObjectAlignment implements AlignmentProcess {
     Similarity sim;
 
     /** Creation **/
-    public DistanceAlignment() {}
-
-    // JE: OntoRewr (LoadedOntology -> one step above)
-    //public DistanceAlignment( LoadedOntology onto1, LoadedOntology onto2 ){
-	// Init must now be triggered explicitely
-	//    	init( onto1, onto2 );
-    //};
+    public DistanceAlignment() {};
 
     public void setSimilarity( Similarity s ) { sim = s; }
     public Similarity getSimilarity() { return sim; }
-
-    public void addAlignDistanceCell( Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
-	addAlignCell( ob1, ob2, relation, 1.-measure );
-    }
-    public double getAlignedDistance1( Object ob ) throws AlignmentException {
-	return (1. - getAlignedStrength1(ob));
-    };
-    public double getAlignedDistance2( Object ob ) throws AlignmentException {
-	return (1. - getAlignedStrength2(ob));
-    };
 
     /**
      * Process matching
@@ -94,22 +84,26 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
      * Prints the distance matrix
      */
     public void printDistanceMatrix( Properties params ){
+	String algName = params.getProperty("algName");
+	String metric = "distance";
+	if ( sim.getSimilarity() ) metric = "similarity";
+	if ( algName == null ) algName = getClass().toString();
 	System.out.println("\\documentclass{article}\n");
 	System.out.println("\\usepackage{graphics}\n");
 	System.out.println("\\begin{document}\n");
 	System.out.println("\\begin{table}");
 	sim.printClassSimilarityMatrix("tex");
-	System.out.println("\\caption{Class distance with measure "+params.getProperty("stringFunction")+"}");
+	System.out.println("\\caption{Class "+metric+" with measure "+algName+".}" );
 	System.out.println("\\end{table}");
 	System.out.println();
 	System.out.println("\\begin{table}");
 	sim.printPropertySimilarityMatrix("tex");
-	System.out.println("\\caption{Property distance with measure "+params.getProperty("stringFunction")+"}");
+	System.out.println("\\caption{Property "+metric+" with measure "+algName+".}" );
 	System.out.println("\\end{table}");
 	System.out.println();
 	System.out.println("\\begin{table}");
 	sim.printIndividualSimilarityMatrix("tex");
-	System.out.println("\\caption{Individual distance with measure "+params.getProperty("stringFunction")+"}");
+	System.out.println("\\caption{Individual "+metric+" with measure "+algName+".}" );
 	System.out.println("\\end{table}");
 	System.out.println("\n\\end{document}");
     }
@@ -160,7 +154,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
     public Alignment extractqs( double threshold, Properties params) {
       double max = 0.;
       boolean found = false;
-      double val = 0;
+      double val = 0.;
 
       try {
 	  // Extract for properties
@@ -168,13 +162,14 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
 				   ontology1().getDataProperties().iterator());
 	  for( Object prop1 : pit1 ){
-	      found = false; max = threshold; val = 0;
+	      found = false; max = threshold; val = 0.;
 	      Object prop2 = null;
 	      ConcatenatedIterator pit2 = new 
 		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
 				       ontology2().getDataProperties().iterator());
 	      for ( Object current : pit2 ){
-		  val = 1 - sim.getPropertySimilarity(prop1,current);
+		  if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1,current);
+		  else val =  1 - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
@@ -186,7 +181,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	      found = false; max = threshold; val = 0;
 	      Object class2 = null;
 	      for ( Object current : ontology2().getClasses() ) {
-		  val = 1 - sim.getClassSimilarity(class1,current);
+		  if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1,current);
+		  else val = 1 - sim.getClassSimilarity(class1,current);
 		  if (val > max) {
 		      found = true; max = val; class2 = current;
 		  }
@@ -201,7 +197,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		      Object ind2 = null;
 		      for ( Object current : ontology2().getIndividuals() ) {
 			  if ( ontology2().getEntityURI( current ) != null ) {
-			      val = 1 - sim.getIndividualSimilarity( ind1, current );
+			      if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ind1, current );
+			      else val = 1 - sim.getIndividualSimilarity( ind1, current );
 			      if (val > max) {
 				  found = true; max = val; ind2 = current;
 			      }
@@ -241,17 +238,23 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	    for ( Object ob : ontology2().getClasses() ) {
 		class2[j++] = ob;
 	    }
+	    double ival = sim.getClassSimilarity(class1[0],class2[0]);
 	    for( i = 0; i < nbclasses1; i++ ){
 		for( j = 0; j < nbclasses2; j++ ){
-		    matrix[i][j] = 1 - sim.getClassSimilarity(class1[i],class2[j]);
+		    if ( ival != -1. && ival != sim.getClassSimilarity(class1[i],class2[j] ) ) ival = -1.;
+		    if ( sim.getSimilarity() ) matrix[i][j] = sim.getClassSimilarity(class1[i],class2[j]);
+		    else matrix[i][j] = 1 - sim.getClassSimilarity(class1[i],class2[j]);
 		}
 	    }
 	    // Pass it to the algorithm
+	if ( ival == -1. ) {
 	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
 	    // Extract the result
 	    for( i=0; i < result.length ; i++ ){
 		// The matrix has been destroyed
-		double val = 1 - sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
+		double val;
+		if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
+		else val = 1 - sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
 		// JE: here using strict-> is a very good idea.
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
@@ -259,6 +262,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		    addCell( new ObjectCell( (String)null, class1[result[i][0]], class2[result[i][1]], BasicRelation.createRelation("="), val ) );
 		}
 	    }
+	}
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For properties
@@ -278,17 +282,24 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
 				     ontology2().getDataProperties().iterator());
 	    for ( Object ob: pit2 ) prop2[j++] = ob;
+	    double ival = sim.getPropertySimilarity(prop1[0],prop2[0]);
 	    for( i = 0; i < nbprop1; i++ ){
 		for( j = 0; j < nbprop2; j++ ){
+		    if ( ival != -1. && ival != sim.getPropertySimilarity(prop1[i],prop2[j] ) ) ival = -1.;
+		    if ( sim.getSimilarity() ) matrix[i][j] = sim.getPropertySimilarity(prop1[i],prop2[j]);
+		    else 
 		    matrix[i][j] = 1 - sim.getPropertySimilarity(prop1[i],prop2[j]);
 		}
 	    }
 	    // Pass it to the algorithm
+	if ( ival == -1. ) {
 	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
 	    // Extract the result
 	    for( i=0; i < result.length ; i++ ){
 		// The matrix has been destroyed
-		double val = 1 - sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
+		double val;
+		if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
+		else val = 1 - sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
 		// JE: here using strict-> is a very good idea.
 		// it means that alignments with 0. similarity
 		// will be excluded from the best match. 
@@ -296,6 +307,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		    addCell( new ObjectCell( (String)null, prop1[result[i][0]], prop2[result[i][1]], BasicRelation.createRelation("="), val ) );
 		}
 	    }
+	}
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For individuals
@@ -320,17 +332,24 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		}
 		double[][] matrix = new double[nbind1][nbind2];
 		int i, j;
+	    double ival = sim.getIndividualSimilarity(ind1[0],ind2[0]);
 		for( i=0; i < nbind1; i++ ){
 		    for( j=0; j < nbind2; j++ ){
+			if ( ival != -1. && ival != sim.getIndividualSimilarity(ind1[i],ind2[j] ) ) ival = -1.;
+			if ( sim.getSimilarity() ) matrix[i][j] = sim.getIndividualSimilarity(ind1[i],ind2[j]);
+			else 
 			matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
 		    }
 		}
 		// Pass it to the algorithm
+	if ( ival == -1. ) {
 		int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
 		// Extract the result
 		for( i=0; i < result.length ; i++ ){
 		    // The matrix has been destroyed
-		    double val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+		    double val;
+		    if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+		    else val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
 		    // JE: here using strict-> is a very good idea.
 		    // it means that alignments with 0. similarity
 		    // will be excluded from the best match. 
@@ -338,6 +357,7 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 			addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
 		    }
 		}
+	}
 	    } catch (AlignmentException alex) { alex.printStackTrace(); //}
 	    } catch (OntowrapException owex) { owex.printStackTrace(); }
 	}
@@ -399,7 +419,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 	  // for classes
 	  for ( Object ent1: ontology1().getClasses() ) {
 	      for ( Object ent2: ontology2().getClasses() ) {
-		  val = 1 - sim.getClassSimilarity( ent1, ent2 );
+		  if ( sim.getSimilarity() ) val = sim.getClassSimilarity( ent1, ent2 );
+		  else val = 1 - sim.getClassSimilarity( ent1, ent2 );
 		  if ( val > threshold ){
 		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 		  }
@@ -414,7 +435,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
 					ontology2().getDataProperties().iterator());
 	      for ( Object ent2: pit2 ) {
-		  val = 1 - sim.getPropertySimilarity( ent1, ent2 );
+		  if ( sim.getSimilarity() ) val = sim.getPropertySimilarity( ent1, ent2 );
+		  else val = 1 - sim.getPropertySimilarity( ent1, ent2 );
 		  if ( val > threshold ){
 		      cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 		  }
@@ -427,7 +449,8 @@ public class DistanceAlignment extends ObjectAlignment implements AlignmentProce
 
 		      for( Object ent2: ontology2().getIndividuals() ) {
 			  if ( ontology2().getEntityURI( ent2 ) != null ) {
-			      val = 1 - sim.getIndividualSimilarity( ent1, ent2 );
+			      if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ent1, ent2 );
+			      else val = 1 - sim.getIndividualSimilarity( ent1, ent2 );
 			      if ( val > threshold ){
 				  cellSet.add( new ObjectCell( (String)null, ent1, ent2, BasicRelation.createRelation("="), val ) );
 			      }
