@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,11 +40,18 @@ import java.net.URI;
 public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess {
     final static String WNVERS = "3.0";
 
+    final static int BASICSYNDIST = 0;
+    final static int COSYNSIM = 1;
+    final static int BASICSYNSIM = 2;
+    final static int WUPALMER = 3;
+    final static int GLOSSOV = 4;
+
     protected class WordNetMatrixMeasure extends MatrixMeasure {
 	protected JWNLDistances Dist = null;
 	protected int method = 0;
 
 	public WordNetMatrixMeasure() {
+	    similarity = false;
 	    Dist = new JWNLDistances();
 	}
 	public void init() throws AlignmentException {
@@ -65,12 +72,16 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	    String s2 = ontology2().getEntityName( o2 );
 	    if ( s1 == null || s2 == null ) return 1.;
 	    switch ( method ) {
-	    case 0:
+	    case BASICSYNDIST:
 		return Dist.basicSynonymDistance( s1, s2 );
-	    case 1:
+	    case COSYNSIM:
 		return 1. - Dist.cosynonymySimilarity( s1, s2 );
-	    case 2:
+	    case BASICSYNSIM:
 		return 1. - Dist.basicSynonymySimilarity( s1, s2 );
+	    case WUPALMER:
+		return 1. - Dist.wuPalmerSimilarity( s1, s2 );
+	    case GLOSSOV:
+		return 1. - Dist.basicGlossOverlap( s1, s2 );
 	    default:
 		return Dist.basicSynonymDistance( s1, s2 );
 	    }
@@ -95,19 +106,22 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 
     /** Processing **/
     public void align( Alignment alignment, Properties prop ) throws AlignmentException {
-	int method = 0;
+	int method = BASICSYNDIST;
 	loadInit( alignment );
 	WordNetMatrixMeasure sim = (WordNetMatrixMeasure)getSimilarity();
 	String wnvers = prop.getProperty("wnvers");
 	if ( wnvers == null ) wnvers = WNVERS;
 	String function = prop.getProperty("wnfunction");
 	if ( function != null ) {
-	    if ( function.equals("cosynonymySimilarity") ) method = 1;
-	    else if ( function.equals("basicSynonymySimilarity") ) method = 2;
+	    if ( function.equals("cosynonymySimilarity") ) method = COSYNSIM;
+	    else if ( function.equals("basicSynonymySimilarity") ) method = BASICSYNSIM;
+	    else if ( function.equals("wuPalmerSimilarity") ) method = WUPALMER;
+	    else if ( function.equals("glossOverlapSimilarity") ) method = GLOSSOV;
 	}
 	sim.init( prop.getProperty("wndict"), wnvers, method );
 	sim.initialize( ontology1(), ontology2(), alignment );
 	sim.compute( prop );
+	prop.setProperty( "algName", getClass()+"/"+function );
 	if ( prop.getProperty("printMatrix") != null ) printDistanceMatrix( prop );
 	extract( type, prop );
     }
