@@ -348,12 +348,22 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
     };
     // Pretty inefficient but nothing seems to be stored
     public Set<Object> getInstances( Object cl, int local, int asserted, int named  ){
-	Set<Object> sbcl = new HashSet<Object>();
+	Set<Object> inst = new HashSet<Object>();
+	Set<Object> sbcl = null;
+	if ( asserted != OntologyFactory.ASSERTED ) sbcl = getSubClasses( cl, local, 0, named );
 	for( Object i : getIndividuals() ) {
 	    //if ( getClasses( (OWLIndividual)i, local, asserted, named ).contains( cl ) ) sbcl.add( i );
-	    if ( ((OWLIndividual)i).getTypes( getOntology() ).contains( cl ) ) sbcl.add( i );
+	    if ( ((OWLIndividual)i).getTypes( getOntology() ).contains( cl ) ) inst.add( i );
+	    if ( asserted != OntologyFactory.ASSERTED ) {
+		for ( Object cl2 : sbcl ){
+		    if ( ((OWLIndividual)i).getTypes( getOntology() ).contains( cl2 ) ) {
+			inst.add( i );
+			break;
+		    }
+		}
+	    }
 	}
-	return sbcl;
+	return inst;
     };
 
     /* Property methods */
