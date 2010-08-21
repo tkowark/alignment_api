@@ -103,8 +103,8 @@ public class GenPlot {
     String outFile = null;
     Constructor evalConstructor = null;
     Constructor graphConstructor = null;
-    String ylabel = "precision";
-    String xlabel = "recall";
+    String xlabel;
+    String ylabel;
     String type = "tsv";
     int debug = 0;
     int size = 0; // the set of algo to compare
@@ -151,10 +151,6 @@ public class GenPlot {
 	    case 'g' :
 		/* Name of the graph display to use */
 		graphCN = g.getOptarg();
-		if ( graphCN.equals("fr.inrialpes.exmo.align.impl.eval.ROCCurveEvaluator") ) {
-		    xlabel = "noise";
-		    ylabel = "recall";
-		}
 		break;
 	    case 't' :
 		/* Type of output (tex/tsv(/html/xml/ascii)) */
@@ -209,13 +205,16 @@ public class GenPlot {
 	// . -> Vector<EvalCell>
 	listEvaluators = iterateDirectories();
 
-	//
+	// Find the largest value
 	int max = 0;
 	for( GraphEvaluator e : listEvaluators ) {
 	    int n = e.nbCells();
 	    if ( n > max ) max = n;
 	}
 	params.setProperty( "scale", Integer.toString( max ) );
+
+	xlabel = listEvaluators.get(0).xlabel();
+	ylabel = listEvaluators.get(0).ylabel();
 
 	// Vector<EvalCell> -> Vector<Pair>
 	// Convert the set of alignments into the list of required point pairs

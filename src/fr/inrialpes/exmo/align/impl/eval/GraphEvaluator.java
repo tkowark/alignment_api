@@ -93,18 +93,21 @@ public abstract class GraphEvaluator {
      * However, it will not work if these are not of the same type.
      **/
     public GraphEvaluator() {
-	initCellSet();
+	initCellSet( true );
     }
 
-    protected void initCellSet () {
+    public GraphEvaluator( boolean ascending ) {
+	initCellSet( ascending );
+    }
+
+    protected void initCellSet ( boolean ascending ) {
 	// Create a sorted structure in which putting the cells
 	// TreeSet could be replaced by something else
-	cellSet = new TreeSet<EvalCell>(
+	if ( ascending ) {
+	    cellSet = new TreeSet<EvalCell>(
 			    new Comparator<EvalCell>() {
 				public int compare( EvalCell o1, EvalCell o2 )
 				    throws ClassCastException {
-				    //try {
-					//System.err.println(((Cell)o1).getObject1()+" -- "+((Cell)o1).getObject2()+" // "+o2.getObject1()+" -- "+o2.getObject2());
 				    if ( o1.cell instanceof Cell && o2.cell instanceof Cell ) {
 					if ( o1.cell.getStrength() > o2.cell.getStrength() ){
 					    return -1;
@@ -114,25 +117,31 @@ public abstract class GraphEvaluator {
 					} else if ( o1.correct ) {
 					    return -1;
 					} 
-					/*else if ( (o1.cell.getObject1AsURI(align1).getFragment() == null)
-						    || (o2.cell.getObject1AsURI(align2).getFragment() == null) ) {
-					    return -1;
-					} else if ( o1.cell.getObject1AsURI(align1).getFragment().compareTo(o2.cell.getObject1AsURI(align2).getFragment()) > 0) {
-					    return -1;
-					} else if ( o1.cell.getObject1AsURI(align1).getFragment().compareTo(o2.cell.getObject1AsURI(align2).getFragment()) < 0 ) {
-					    return 1;
-					} else if ( (o1.cell.getObject2AsURI(align1).getFragment() == null)
-						    || (o2.cell.getObject2AsURI(align2).getFragment() == null) ) {
-					    return -1;
-					} else if ( o1.cell.getObject2AsURI(align1).getFragment().compareTo(o2.cell.getObject2AsURI(align2).getFragment()) > 0) {
-					    return -1;
-					// We assume that they have different names
-					} */ else { return 1; }
+					else { return 1; }
 				    } else { throw new ClassCastException(); }
-				    //} catch ( AlignmentException e) { e.printStackTrace(); return 0;}
 				}
 			    }
 			    );
+	} else {
+	    cellSet = new TreeSet<EvalCell>(
+			    new Comparator<EvalCell>() {
+				public int compare( EvalCell o1, EvalCell o2 )
+				    throws ClassCastException {
+				    if ( o1.cell instanceof Cell && o2.cell instanceof Cell ) {
+					if ( o1.cell.getStrength() < o2.cell.getStrength() ){
+					    return -1;
+					} else if ( o1.cell.getStrength() > o2.cell.getStrength() ){
+					    return 1;
+					//The comparator must always tell that things are different!
+					} else if ( o1.correct ) {
+					    return -1;
+					} 
+					else { return 1; }
+				    } else { throw new ClassCastException(); }
+				}
+			    }
+			    );
+	}
     }
 
     /*
@@ -199,6 +208,9 @@ public abstract class GraphEvaluator {
             writer.println( p.getX()/10 + "\t" + p.getY() );
 	}
     }
+
+    public abstract String xlabel();
+    public abstract String ylabel();
 
 }
 

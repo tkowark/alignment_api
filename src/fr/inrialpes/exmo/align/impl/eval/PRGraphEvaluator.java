@@ -45,13 +45,6 @@ import java.net.URI;
  * @author Jerome Euzenat
  * @version $Id$ 
  * 
- * The computation is remotely inspired from the sample programme of
- * Raymond J. Mooney
- * available under GPL from http://www.cs.utexas.edu/users/mooney/ir-course/
- * 
- * Mooney also provides the averaging of these graphs over several queries:
- * unfortunatelly, the resulting graph is not anymore a Precision/Recall graph
- *
  * This works perfectly correctly. I mention below the point which are
  * mentionned as design points in a forecoming Exmotto entry:
  * [R=0%] What should be P when R is 0% (obviously 100%)
@@ -108,7 +101,6 @@ public class PRGraphEvaluator extends GraphEvaluator {
      * From an ordered vector of cells with their correctness status
      */
     public Vector<Pair> evalOpenEnded() {
-	double[] precisions = new double[STEP+1];
 	// Determine what the increment is
 	// Get the increment
 	int nbcorrect = 0;
@@ -124,7 +116,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 		nbcorrect++;
 		double precision = (double)nbcorrect / (double)nbfound;
 		sumprecisions += precision; // For MAP
-		if ( nbcorrect == next ) { // increrement achieved
+		if ( nbcorrect == next ) { // increment achieved
 		    //record value
 		    double recall = (double)nbcorrect / (double)nbexpected;
 		    // Here the recall could be computed more directly
@@ -219,79 +211,6 @@ public class PRGraphEvaluator extends GraphEvaluator {
     }
 
     /**
-     * Compute precision and recall graphs.
-    public double eval( Properties params ) throws AlignmentException {
-	return eval( params, (Object)null );
-    }
-    public double eval( Properties params, Object cache ) throws AlignmentException {
-	// Local variables
-	int nbexpected = align1.nbCells();
-	int nbfound = 0;
-	int nbcorrect = 0;
-	double sumprecisions = 0.; // For MAP
-
-	// unchecked
-	if( params.getProperty("step") != null ){
-	    STEP = Integer.parseInt( params.getProperty("step") );
-	}
-	points = new double[ STEP+1 ];
-
-	// Create a sorted structure in which putting the cells
-	// TreeSet could be replaced by something else
-	SortedSet<Cell> cellSet = orderAlignment();
-
-	// Collect the points that change recall
-	// (the other provide lower precision from the same recall and are not considered)
-	points.add( new Pair( 0., 1. ) ); // [R=0%]
-	for( Cell c2 : cellSet ){
-	    nbfound++;
-	    if ( correctCell( c2, align2, align1 ) > 0. ) {
-		nbcorrect++;
-		double recall = (double)nbcorrect / (double)nbexpected;
-		double precision = (double)nbcorrect / (double)nbfound;
-		sumprecisions += precision; // For MAP
-		// Create a new pair to put in the list
-		// It records real precision and recall at that point
-		points.add( new Pair( recall, precision ) );
-		c2 = null; // out of the loop.
-	    }
-	}
-
-	// Now if we want to have a regular curve we must penalize those system
-	// that do not reach 100% recall.
-	// for that purpose, and for each other bound we add a point with the worse
-	// precision which is the required recall level divided with the maximum
-	// cardinality possible (i.e., the multiplication of the ontology sizes).
-	// JE[R=100%]: that's a fine idea! Unfortunately SIZEOFO1 and SIZEOFO2 are undefined values
-	//points.add( new Pair( 1., (double)nbexpected/(double)(SIZEOFO1*SIZEOFA2) ) );
-	points.add( new Pair( 1.0, 0. ) ); // useless because 
-	
-	// [Interp.] Interpolate curve points at each n-recall level
-	// This is inspired form Ray Mooney's program
-	// It works backward in the vector,
-	//  (in the same spirit as before, the maximum value so far -best- is retained)
-	int j = points.size()-1; // index in recall-ordered vector of points
-	int i = STEP; // index of the current recall interval
-	double level = (double)i/STEP; // max level of that interval
-	double best = 0.; // best value found for that interval
-	while( j >= 0 ){
-	    Pair precrec = points.get(j);
-	    while ( precrec.getX() < level ){
-		points[i] = best;
-		i--;
-		level = (double)i/STEP;
-	    };
-	    if ( precrec.getY() > best ) best = precrec.getY();
-	    j--;
-	}
-	points[0] = best; // It should be 1. that's why it is now added in points. [R=0%]
-	
-	map = sumprecisions / nbexpected; // For MAP
-	return map;
-    }
-     */
-
-    /**
      * This output the result
      */
     public void write(PrintWriter writer) throws java.io.IOException {
@@ -309,5 +228,8 @@ public class PRGraphEvaluator extends GraphEvaluator {
     public double getGlobalResult(){
 	return map;
     }
+
+    public String xlabel() { return "recall"; }
+    public String ylabel() { return "precision"; };
 }
 

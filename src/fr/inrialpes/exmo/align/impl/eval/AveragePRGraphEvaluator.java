@@ -39,6 +39,8 @@ import java.net.URI;
 /**
  * Compute the precision recall graph on 11 points
  * The first alignment is thus the expected one.
+ * This is for legacy reason the first implementation of this function.
+ * It does not follow the new standard GraphEvaluator protocol.
  *
  * @author Jerome Euzenat
  * @version $Id: AveragePRGraphEvaluator.java 1196 2010-01-10 19:58:52Z euzenat $ 
@@ -126,7 +128,7 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
 	Vector<Pair> inflexion = new Vector<Pair>();
 
 	// Create a sorted structure in which putting the cells
-	initCellSet();
+	initCellSet( true );
 	if ( align2 == null ) return; //no increase of precisions
 	for ( Cell c : align2 ) {
     	    if ( invalid && c.getStrength() != 1. && c.getStrength() != 0. ) invalid = false;
@@ -228,5 +230,8 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
     public double getGlobalResult(){
 	return map;
     }
+
+    public String xlabel() { return "recall"; }
+    public String ylabel() { return "precision"; };
 }
 

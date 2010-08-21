@@ -185,5 +185,7 @@ public class ROCCurveEvaluator extends GraphEvaluator {
     public double getAUC(){
 	return auc;
     }
+    public String xlabel() { return "noise"; }
+    public String ylabel() { return "recall"; };
 }
 
