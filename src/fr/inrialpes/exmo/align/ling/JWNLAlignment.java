@@ -120,7 +120,10 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	}
 	sim.init( prop.getProperty("wndict"), wnvers, method );
 	sim.initialize( ontology1(), ontology2(), alignment );
+	// Prepare the cache
+	sim.Dist.initPreCache();
 	sim.compute( prop );
+	sim.Dist.cleanPreCache();
 	prop.setProperty( "algName", getClass()+"/"+function );
 	if ( prop.getProperty("printMatrix") != null ) printDistanceMatrix( prop );
 	extract( type, prop );
