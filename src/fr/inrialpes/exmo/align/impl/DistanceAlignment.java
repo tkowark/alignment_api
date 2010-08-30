@@ -238,6 +238,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	    for ( Object ob : ontology2().getClasses() ) {
 		class2[j++] = ob;
 	    }
+	    // ival indicates if all cells have the same value, or different (-1)
 	    double ival = sim.getClassSimilarity(class1[0],class2[0]);
 	    for( i = 0; i < nbclasses1; i++ ){
 		for( j = 0; j < nbclasses2; j++ ){
@@ -247,22 +248,22 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		}
 	    }
 	    // Pass it to the algorithm
-	if ( ival == -1. ) {
-	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
-	    // Extract the result
-	    for( i=0; i < result.length ; i++ ){
-		// The matrix has been destroyed
-		double val;
-		if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
-		else val = 1 - sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
-		// JE: here using strict-> is a very good idea.
-		// it means that alignments with 0. similarity
-		// will be excluded from the best match. 
-		if( val > threshold ){
-		    addCell( new ObjectCell( (String)null, class1[result[i][0]], class2[result[i][1]], BasicRelation.createRelation("="), val ) );
+	    if ( ival == -1. ) { // if values are the same, return an empty alignment
+		int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+		// Extract the result
+		for( i=0; i < result.length ; i++ ){
+		    // The matrix has been destroyed
+		    double val;
+		    if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
+		    else val = 1 - sim.getClassSimilarity(class1[result[i][0]],class2[result[i][1]]);
+		    // JE: here using strict-> is a very good idea.
+		    // it means that correspondences with 0. similarity
+		    // will be excluded from the best match. 
+		    if( val > threshold ){
+			addCell( new ObjectCell( (String)null, class1[result[i][0]], class2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		    }
 		}
 	    }
-	}
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For properties
