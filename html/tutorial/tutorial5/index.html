@@ -34,9 +34,12 @@ margin-bottom: 10px;
 <body style="background-color: #FFFFFF;">
 <h1>Exposing a matcher as a web service</h1>
 <dl>
-  <dt>Author:</dt>
+  <dt>Authors:</dt>
     <dd><a href="http://exmo.inrialpes.fr/people/trojahn/">C&aacute;ssia Trojahn dos
       Santos</a> &amp; <a href="http://exmo.inrialpes.fr/people/euzenat/">Jérôme Euzenat</a>, INRIA &amp; LIG </dd>
+    <dd>with contributions from <a href="http://ki.informatik.uni-mannheim.de/
+">Christian Meilicke</a>, University of Mannheim</dd>
+
 </dl>
 
 <p style="border-top: 2px solid #AAAAAA; padding-top: 15px;">This tutorial
@@ -231,6 +234,15 @@ public class AlignmentWSPublisher {
 <p> The service can be accessed at via the URL http://134.155.86.66:8080/matcherWS and its WSDL - describing its methods - can be found at http://134.155.86.66:8080/matcherWS?wsdl. </p>
 
 <p>To use the seals infrastructure you have to specify the class including its package specification (e.g. example.ws.matcher.AlignmentWSImpl or example.ws.matcher.MyAlignmentWS) and you have to specify the URL of the service endpoint (e.g. http://134.155.86.66:8080/matcherWS or http://134.155.86.66:8080/matcherWS?wsdl). </p>
+
+<p><b>Additional Note:</b> If you exactly follow these instructions to publish 
+your wrapped matcher as a webservice, this will automatically generate a 
+WSDL file that contains all required information. However, you can use 
+also use another framework (e.g. axis) for publishing the webservice, 
+but than you have to ensure to use the namespace 
+&quot;http://matcher.ws.omt.sealsproject.eu/&quot; in the appropriate 
+way. Take a look at <a href="example.wsdl">this file</a> as an example.</p>
+
 
 <hr/>
 <small>
