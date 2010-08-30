@@ -140,8 +140,8 @@ A class can be defined using its URI or a restriction. Restrictions are defined 
 <u>classexpr</u> ::= &lt;Class rdf:about=" <u>URI</u> "/>
             | &lt;Class> <u>classconst</u> &lt;/Class>
             | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> <u>INTEGER</u> &lt;/AttributeOccurenceRestriction>
-            | &lt;AttributeDomainConstraint> <u>onatt</u> (<u>classexpr</u>|<u>type</u>) &lt;/AttributeDomainConstraint>
-            | &lt;AttributeValueRestriction> <u>onatt</u> <u>comp</u> (<u>instexpr</u>|<u>val</u>) &lt;/AttributeValueRestriction>
+            | &lt;AttributeDomainRestriction> <u>onatt</u> (&lt;class><u>classexpr</u>&lt;/class>|<u>datatype</u>) &lt;/AttributeDomainRestriction>
+            | &lt;AttributeValueRestriction> <u>onatt</u> <u>comp</u> (&lt;value><u>instexpr</u>&lt;/value>|<u>val</u>) &lt;/AttributeValueRestriction>
 
 <u>classconst</u> ::= &lt;and rdf:parseType="Collection"> <u>classexpr</u>+&lt;/and>
              | &lt;or rdf:parseType="Collection"> <u>classexpr</u>+ &lt;/or>
