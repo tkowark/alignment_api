@@ -45,11 +45,11 @@
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi20/owlapi-bin.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi20/owlapi-bin.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar align.jar ontowrap.jar procalign.jar"/>
   </target>
 
   <target name="versionnumber" depends="init">
-    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="TODAY"/></tstamp>
+    <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
     <property name="version.minor" value="0"/>
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
@@ -57,7 +57,6 @@
       <isset property="svn.rev"/>
     </condition>
     <property name="version" value="${version.major}.${version.minor}"/>
-    <property name="date" value="${TODAY}"/>
     <tstamp>
       <format property="curyear" pattern="yyyy" locale="fr"/>
     </tstamp>
@@ -147,15 +146,15 @@
     <delete file="lib/align.jar"/>
     <jar jarfile="lib/align.jar">
       <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Built-Date" value="${date}"/>
 	<attribute name="Specification-Title" value="Alignment API"/>
 	<attribute name="Specification-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Name" value="Alignment API"/>
 	<attribute name="Bundle-SymbolicName" value="alignapi"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
-	<attribute name="Bundle-Date" value="${TODAY}"/>
-	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Bundle-Date" value="${date}"/>
+	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="org.semanticweb.owl.align"/>
       </manifest>
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
@@ -164,15 +163,15 @@
     <delete file="lib/ontowrap.jar"/>
     <jar jarfile="lib/ontowrap.jar">
       <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Built-Date" value="${date}"/>
 	<attribute name="Specification-Title" value="Ontology wrapper"/>
 	<attribute name="Specification-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Name" value="OntoWrap"/>
 	<attribute name="Bundle-SymbolicName" value="ontowrap"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
-	<attribute name="Bundle-Date" value="${TODAY}"/>
-	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Bundle-Date" value="${date}"/>
+	<attribute name="Bundle-License" value="GNU Lesser Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/ontowrap/**/*.class"/>
@@ -182,7 +181,7 @@
     <delete file="lib/procalign.jar"/>
     <jar jarfile="lib/procalign.jar">
       <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Built-Date" value="${date}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
         <attribute name="Class-Path" value="${jarclasspath}"/>
 	<attribute name="Implementation-Title" value="Alignment API implementation"/>
@@ -191,8 +190,8 @@
 	<attribute name="Bundle-SymbolicName" value="procalign"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
-	<attribute name="Bundle-Date" value="${TODAY}"/>
-	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Bundle-Date" value="${date}"/>
+	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util"/>
 	<attribute name="Import-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"/>
       </manifest>
@@ -206,7 +205,7 @@
     <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
     <jar jarfile="lib/alignsvc.jar">
       <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Built-Date" value="${date}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
         <attribute name="Class-Path" value="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
@@ -215,8 +214,8 @@
 	<attribute name="Bundle-SymbolicName" value="alignsvc"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
 	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
-	<attribute name="Bundle-Date" value="${TODAY}"/>
- 	<attribute name="Bundle-License" value="Lesser GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Bundle-Date" value="${date}"/>
+ 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
@@ -240,7 +239,7 @@
     <echo message="Setting property..."/>
     <jar jarfile="lib/aserv.jar">
       <manifest>
-	<attribute name="Built-Date" value="${TODAY}"/>
+	<attribute name="Built-Date" value="${date}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs, add here -->
 	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jaroyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
@@ -321,10 +320,11 @@
     <!--echo message="Are you sure that everything is OK (update/ci/compile/lint)?"/-->
     <copy file="distrib/LICENSE.TXT" tofile="LICENSE.TXT" filtering="true"/>
     <antcall target="zip"/>
-    <copy file="${tempdir}/align-${version}.zip" tofile="${FTPDir}/align-${version}.zip" />
+    <!--copy file="${tempdir}/align-${version}.zip" tofile="${FTPDir}/align-${version}.zip" /-->
     <!-- This should now go to GForge -->
     <!--copy file="${FTPDir}/align-${version}.zip" tofile="${WebDir}/align.zip" /-->
     <echo message="Please upload the released file to Gforge" />
+    <echo message="mv ${tempdir}/align-${version}.zip ${FTPDir}/" />
     <echo message="svn copy svn+ssh://euzenat@scm.gforge.inria.fr/svn/alignapi/trunk svn+ssh://euzenat@scm.gforge.inria.fr/svn/alignapi/tags/version-${version} -m 'release ${version}'"/>
     <delete file="LICENSE.TXT"/>
   </target>
