@@ -16,12 +16,20 @@ import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 
 import eu.sealsproject.omt.ws.matcher.AlignmentWS;
 
+
+import org.semanticweb.owl.align.Cell;
+
 @WebService(endpointInterface="eu.sealsproject.omt.ws.matcher.AlignmentWS")
 public class MyAlignmentWS extends MyAlignment implements AlignmentWS {
 
 	@Override
 	public String align(URI source, URI target) {
 		   try {
+
+                           for (Object c: this.getArrayElements().toArray()) {
+                                       this.remCell((Cell)c);
+                           } 
+
 			   init(source,target);
 			   align((Alignment)null, new Properties());
 			   SBWriter sbWriter = null;
