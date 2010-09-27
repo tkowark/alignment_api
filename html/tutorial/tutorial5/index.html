@@ -168,6 +168,12 @@ public class MyAlignmentWS extends MyAlignment implements AlignmentWS {
 	@Override
 	public String align(URI source, URI target) {
 		   try {
+
+                           for (Object c: this.getArrayElements().toArray()) {
+                                       this.remCell((Cell)c);
+                           } 
+
+
 			   init(source,target);
 			   align((Alignment)null, new Properties());
 			   SBWriter sbWriter = null;
@@ -189,10 +195,13 @@ public class MyAlignmentWS extends MyAlignment implements AlignmentWS {
 }
 </div>
 
+<p><font color="red"> Note that we have added a loop for removing the cells in the URIAlignment object (lines before the method <tt>init(source,target))</tt>. 
+This is due the fact that the method <tt>align</tt> will be called several times 
+in a web service cycle life (for each test). If we do not remove the cells computed in a previous call, the previous cells will be included in the current result. </font></p>
+
 <p> Nothing more is needed. </p>
 
 <p> You can download <a href="SBWriter.java">SBWriter.java</a>.</p>
-
 
 <h2>Publishing the web service</h2>
 
