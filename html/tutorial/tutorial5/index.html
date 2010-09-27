@@ -117,7 +117,8 @@ public class AlignmentWSImpl implements AlignmentWS {
 
 <p>
 The method <tt>align</tt> must implement the matching process.
-The easiest way to do this is to implement the <a href="http://alignapi.gforge.inria.fr/">Alignment API</a> (see details in <a href="http://alignapi.gforge.inria.fr/tutorial/tutorial3/">how to extend the Alignment API with a new matcher</a>). Basically, you need to implement the <tt>AlignmentProcess</tt> interface (method <tt>align</tt>) and extend the <tt>URIAlignment</tt> class (<a href="../tutorial3/MyAlignment.java">MyAlignment.java</a>):
+The easiest way to do this is to implement the <a href="http://alignapi.gforge.inria.fr/">Alignment API</a> (see details in <a href="http://alignapi.gforge.inria.fr/tutorial/tutorial3/">how to extend the Alignment API with a new matcher</a>). Basically, you need to implement the <tt>AlignmentProcess</tt> interface (method <tt>align</tt>) and extend the <tt>URIAlignment</tt> class (<a href="MyAlignment.java">MyAlignment.java</a>):
+
 </p>
 
 <div class="fragment">
@@ -141,6 +142,9 @@ public class MyAlignment extends URIAlignment implements AlignmentProcess {
     	
 }
 </div>
+
+<p>The complete example, following <a href="http://alignapi.gforge.inria.fr/tutorial/tutorial3/">how to extend the Alignment API with a new matcher</a> can be found at <a href="../tutorial3/MyAlignment.java">MyAlignment.java</a>.</p>
+
 
 <p>Then, it is simple to expose <tt>MyAlignment</tt> as a web service (<a href="MyAlignmentWS.java">MyAlignmentWS.java</a>):</p>
 
