@@ -25,17 +25,29 @@ package fr.inrialpes.exmo.align.impl.edoal;
 public class ClassDomainRestriction extends ClassRestriction implements Cloneable {
 
     ClassExpression domain = null;
+    boolean universal = true;
 
     /**
      * Constructs a typeCondition with the given restriction.
      * 
      * @param p
      *            the PathExpression to which the restriction applies
+     * @param pred
+     * wether the constraint is universal (true) or existential (false)
      * @param cl
      *            the ClassExpression restricting the domain
      * @throws NullPointerException
      *             if the restriction is null
      */
+    public ClassDomainRestriction(final PathExpression p,
+				  final boolean pred,
+				  final ClassExpression cl) {
+	super(p);
+	// Check that this is a property
+	universal = pred;
+	domain = cl;
+    }
+
     public ClassDomainRestriction(final PathExpression p,
 				final ClassExpression cl) {
 	super(p);
@@ -49,6 +61,10 @@ public class ClassDomainRestriction extends ClassRestriction implements Cloneabl
 
     public void setDomain( ClassExpression cl ) {
 	domain = cl;
+    }
+
+    public boolean isUniversal() {
+	return universal;
     }
 
 }

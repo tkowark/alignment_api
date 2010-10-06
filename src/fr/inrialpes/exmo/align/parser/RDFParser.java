@@ -539,15 +539,16 @@ public class RDFParser {
 		    throw new AlignmentException( "Bad edoal:datatype value" );
 		}
 	    } else if ( rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ) {
-		stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource );
-		if ( stmt == null ) throw new AlignmentException( "Required edoal:class property" );
-		RDFNode nn = stmt.getObject();
-		if ( nn.isResource() ) {
-		    return new ClassDomainRestriction( pe,  parseClass( (Resource)nn ) );
-		} else {
-		    throw new AlignmentException( "Incorrect class expression "+nn );
-		} 
-	    } else {
+		if ( (stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource ) ) != null || (stmt = node.getProperty( (Property)SyntaxElement.ALL.resource ) ) != null ) {
+		    RDFNode nn = stmt.getObject();
+		    if ( !nn.isResource() ) throw new AlignmentException( "Incorrect class expression "+nn );
+		    return new ClassDomainRestriction( pe, true, parseClass( (Resource)nn ) );
+		} else if ( (stmt = node.getProperty( (Property)SyntaxElement.EXISTS.resource ) ) != null ) {
+		    RDFNode nn = stmt.getObject();
+		    if ( !nn.isResource() ) throw new AlignmentException( "Incorrect class expression "+nn );
+		    return new ClassDomainRestriction( pe, false, parseClass( (Resource)nn ) );
+		} else throw new AlignmentException( "Required edoal:class property" );
+	    } else { // It is a Value or Occurence restruction
 		// Find comparator
 		stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );

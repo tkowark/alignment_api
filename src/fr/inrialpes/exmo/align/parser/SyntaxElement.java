@@ -119,6 +119,8 @@ public enum SyntaxElement {
 	STRING(          Namespace.EDOAL, "string"),
 	SYMMETRIC(      Namespace.EDOAL, "symmetric", Constructor.SYMMETRIC),
 	TOCLASS(        Namespace.EDOAL, "class"),
+	ALL(            Namespace.EDOAL, "all"),
+	EXISTS(         Namespace.EDOAL, "exists"),
 	TRENT1(         Namespace.EDOAL, "entity1"),
 	TRENT2(         Namespace.EDOAL, "entity2"),
 	TRANSF(         Namespace.EDOAL, "Transformation", true),

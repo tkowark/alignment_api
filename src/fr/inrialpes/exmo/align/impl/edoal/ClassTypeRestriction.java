@@ -41,17 +41,31 @@ package fr.inrialpes.exmo.align.impl.edoal;
 public class ClassTypeRestriction extends ClassRestriction implements Cloneable {
 
     Datatype type = null;
+    boolean universal = true;
 
     /**
      * Constructs a ClassTypeRestriction with the given restriction.
      * 
      * @param p
      *            the restricted PathExpression
+     * @param pred
+     * wether the constraint is universal (true) or existential (false)
      * @param t
      *            the Datatype to which this path is restricted
      * @throws NullPointerException
      *             if the restriction is null
+     * NOTE: Currently the predicate is not visible in the syntax which only
+     * authorises type (so universal)
      */
+    public ClassTypeRestriction(final PathExpression p,
+				  final boolean pred,
+				final Datatype t) {
+	super(p);
+	// Check that this is a property
+	universal = pred;
+	type = t;
+    }
+
     public ClassTypeRestriction(final PathExpression p,
 				final Datatype t) {
 	super(p);
@@ -67,4 +81,7 @@ public class ClassTypeRestriction extends ClassRestriction implements Cloneable 
 	type = t;
     }
 
+    public boolean isUniversal() {
+	return universal;
+    }
 }

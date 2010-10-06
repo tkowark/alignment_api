@@ -89,9 +89,8 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
  * @version $Id$
  */
 
-public class RDFRendererVisitor implements AlignmentVisitor {
+public class RDFRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor {
 
-    PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
@@ -99,28 +98,11 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 
     private static Namespace DEF = Namespace.ALIGNMENT;
     
-    private String INDENT = "  ";
-
-    private String NL = "";
-
-    /** String for the pretty linebreak. **/
-    private String linePrefix = "";
-
-    private int prefixCount = 0;
-
     private boolean isPattern = false;
 	
     public RDFRendererVisitor( PrintWriter writer ){
-	NL = System.getProperty("line.separator");
-	this.writer = writer;
-    }
-
-    public void setIndentString( String ind ) {
-	INDENT = ind;
-    }
-
-    public void setNewLineString( String nl) { 
-	NL = nl;
+	super( writer );
+	//NL = System.getProperty("line.separator");
     }
 
     public void init( Properties p ) {
@@ -454,7 +436,7 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
-	visit( c.getType() );
+	visit( c.getType() ); // Directly -> to be changed for rendering all/exists
 	decreaseIndent();
 	writer.print(NL);
 	indentedOutput("</"+SyntaxElement.TYPE_COND.print(DEF)+">");
@@ -472,12 +454,20 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
-	indentedOutput("<"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
+	if ( c.isUniversal() ) {
+	    indentedOutput("<"+SyntaxElement.ALL.print(DEF)+">"+NL);
+	} else {
+	    indentedOutput("<"+SyntaxElement.EXISTS.print(DEF)+">"+NL);
+	}
 	increaseIndent();
 	visit( c.getDomain() );
 	writer.print(NL);
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
+	if ( c.isUniversal() ) {
+	    indentedOutput("</"+SyntaxElement.ALL.print(DEF)+">"+NL);
+	} else {
+	    indentedOutput("</"+SyntaxElement.EXISTS.print(DEF)+">"+NL);
+	}
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF)+">");
     }
@@ -774,51 +764,4 @@ public class RDFRendererVisitor implements AlignmentVisitor {
 	writer.print("</"+SyntaxElement.DATATYPE.print(DEF)+">");
     }
 	
-    // ===================================================================
-    // pretty printing management
-    // JE: I THINK THAT THIS IS CONVENIENT BUT INDUCES A SERIOUS LAG IN
-    // PERFORMANCES (BOTH VERSIONS v1 and v2)
-    // LET SEE IF THERE IS NO WAY TO DO THIS DIRECTLY IN THE WRITER  !!!
-
-    /**
-     * Increases the lineprefix by one INDENT
-     */
-    private void increaseIndent() {
-	prefixCount++;
-    }
-    
-    /**
-     * Decreases the lineprefix by one INDENT
-     */
-    private void decreaseIndent() {
-	if (prefixCount > 0) {
-	    prefixCount--;
-	}
-    }
-    
-    // JE: I would like to see benchmarks showing that this is more efficient
-    // than adding them to buffer directly each time
-    private void calcPrefix() {
-	StringBuilder buffer = new StringBuilder();
-	buffer.append(NL);
-	for (int i = 0; i < prefixCount; i++) {
-	    buffer.append(INDENT);
-	}
-	linePrefix = buffer.toString();
-    }
-
-    private void indentedOutputln( String s ){
-	for (int i = 0; i < prefixCount; i++) writer.print(INDENT);
-	writer.print(s+NL);
-    }
-    private void indentedOutput( String s ){
-	for (int i = 0; i < prefixCount; i++) writer.print(INDENT);
-	writer.print(s);
-    }
-    private void indentedOutputln(){
-	for (int i = 0; i < prefixCount; i++) writer.print(INDENT);
-    }
-    private void indentedOutput(){
-	for (int i = 0; i < prefixCount; i++) writer.print(INDENT);
-    }
 }

@@ -200,6 +200,50 @@
 	<relation>SubsumedBy</relation>
       </Cell>
     </map>
+    <!-- test the quantifiers -->
+    <map>
+      <Cell rdf:about="MappingRule_class_quant">
+	<entity1>
+	  <edoal:Class>
+	    <edoal:or rdf:parseType="Collection">
+	      <edoal:Class rdf:about="&wine;Vin"/>
+	      <edoal:AttributeDomainRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Relation>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&wine;hasTerroir"/>
+		      <edoal:Relation rdf:about="&proton;locatedIn"/>
+		    </edoal:compose>
+		  </edoal:Relation>
+		</edoal:onAttribute>
+  		<edoal:all><edoal:Class rdf:about="&wine;FrenchRegion"/></edoal:all>
+	      </edoal:AttributeDomainRestriction>	  
+	    </edoal:or>
+	  </edoal:Class>
+	</entity1>
+	<entity2> 
+	  <edoal:Class>
+	    <edoal:and rdf:parseType="Collection">
+	      <edoal:Class rdf:about="&vin;Vin"/>
+	      <edoal:AttributeDomainRestriction> 
+		<edoal:onAttribute>
+		  <edoal:Relation>
+		    <edoal:compose rdf:parseType="Collection">
+		      <edoal:Relation rdf:about="&vin;hasTerroir"/>
+		      <edoal:Relation rdf:about="&proton;locatedIn"/>
+		    </edoal:compose>
+		  </edoal:Relation>
+		</edoal:onAttribute>
+		<edoal:comparator rdf:resource="&xsd;equals"/>
+  		<edoal:exists><edoal:Class rdf:about="&wine;FrenchRegion"/></edoal:exists>
+	      </edoal:AttributeDomainRestriction>	  
+	    </edoal:and>
+	  </edoal:Class>
+        </entity2>
+	<measure rdf:datatype='&xsd;float'>1.</measure>
+	<relation>SubsumedBy</relation>
+      </Cell>
+    </map>
     <!-- a bit more test on values -->
     <map>
       <Cell rdf:about="MappingRule_class_values">
