@@ -179,7 +179,12 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     @Override
     public Object getEntity(URI u) throws OntowrapException {
 	try {
-	    return ontoInf.getResource(u.toString());
+	    Object o = ontoInf.getRawModel().getResource(u.toString());
+	    if (! ontoInf.contains((Resource) o, RDF.type, ontoInf.getResource(SKOS_CONCEPT))) {
+		return null;//System.out.println(u+" : "+o);
+	    }
+	    
+	    return o;
 	} catch (Exception e) {
 	    throw new OntowrapException("No Object for URI "+u);
 	}
