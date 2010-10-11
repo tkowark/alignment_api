@@ -432,7 +432,6 @@
 	</edoal:transformation>
       </Cell>
     </map>
-<!-- TOCHECK DOES NOT WORK BECAUSE OF OUT TOP/BOTTOM -->
     <map>
       <Cell rdf:about="ExtremeTransformationTest">
 	<entity1>
