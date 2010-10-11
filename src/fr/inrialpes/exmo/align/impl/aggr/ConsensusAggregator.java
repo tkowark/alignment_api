@@ -126,6 +126,13 @@ public class ConsensusAggregator extends BasicAlignment {
 
     }
 
+    /**
+     * Find the relation if it already exists.
+     * 
+     * NOTE: It may be worth to consider that the relations do not have to
+     * be equal but could be more specific or general than one another.
+     * This could typically be made with algebras of relations.
+     */
     public Cell isAlreadyThere( Cell c ){
 	try {
 	    Set<Cell> possible = getAlignCells1( c.getObject1() );
