@@ -84,14 +84,15 @@ public class EDOALParserTest {
 	aparser1 = new AlignmentParser( 0 );
 	aparser1.initAlignment( null );
 	//System.err.println( str1 );
-	alignment = aparser1.parseString( str1 );
+	Alignment al = aparser1.parseString( str1 );
+	assertEquals( alignment.nbCells(), al.nbCells() );
 	// Print it in another string
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
 	renderer = new RDFRendererVisitor( writer );
-	alignment.render( renderer );
+	al.render( renderer );
 	writer.flush();
 	writer.close();
 	String str2 = stream.toString();

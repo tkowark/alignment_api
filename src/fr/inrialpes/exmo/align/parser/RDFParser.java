@@ -553,7 +553,7 @@ public class RDFParser {
 		stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 		URI id = getNodeId( stmt.getResource() );
-		if ( id != null ) comp = new Comparator( id );
+		if ( id != null ) comp = Comparator.getComparator( id );
 		else throw new AlignmentException("edoal:comparator requires an URI");
 		if ( rdfType.equals( SyntaxElement.OCCURENCE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
@@ -681,7 +681,7 @@ public class RDFParser {
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 	    URI id = getNodeId( stmt.getResource() );
 	    if ( id == null ) throw new AlignmentException("edoal:comparator requires and URI");
-	    Comparator comp = new Comparator( id );
+	    Comparator comp = Comparator.getComparator( id );
 	    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 	    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
 	    ValueExpression v = parseValue( stmt.getObject() );

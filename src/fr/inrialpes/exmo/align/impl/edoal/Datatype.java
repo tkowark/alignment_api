@@ -22,6 +22,10 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
+import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.Visitable;
+
 /**
  * <p>
  * Id to represent a datatype
@@ -31,10 +35,14 @@ package fr.inrialpes.exmo.align.impl.edoal;
  * </p>
  */
 
-public class Datatype { //implements Cloneable, Visitable {
+public class Datatype implements Visitable { //implements Cloneable
 
     /** Holds the type */
     private String type;
+
+    public void accept( AlignmentVisitor visitor) throws AlignmentException {
+        visitor.visit( this );
+    }
 
     /**
      * Constructs an object with the given type.
@@ -52,10 +60,6 @@ public class Datatype { //implements Cloneable, Visitable {
 	}
 	this.type = type;
     }
-
-    //    public void accept(AlignmentVisitor visitor) throws AlignmentException {
-    //	visitor.visit(this);
-    //    }
 
     public String plainText() {
 	return type;

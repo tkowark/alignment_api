@@ -35,6 +35,16 @@ public class Comparator {
     public static Comparator LOWER = initComparator( Namespace.XSD.prefix+"lower-than", -1 );
     public static Comparator GREATER = initComparator( Namespace.XSD.prefix+"greater-than", 1 );
 
+    public static Comparator getComparator( URI u ) {
+	if ( u.equals( EQUAL.getURI() ) ) {
+	    return EQUAL;
+	} else if ( u.equals( LOWER.getURI() ) ) {
+	    return LOWER;
+	} else if ( u.equals( GREATER.getURI() ) ) {
+	    return GREATER;
+	} else return new Comparator( u );
+    }
+
     protected Comparator() {
 	super();
     }

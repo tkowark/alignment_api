@@ -35,9 +35,11 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Visitable;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 
@@ -93,7 +95,6 @@ import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 
-
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
  */
@@ -125,6 +126,50 @@ public class EDOALExportTest {
 	writer.close();
 	stream.close();
 	return stream.toString();
+    }
+
+    // Load the full test ==> break because not all can be rendered
+    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
+    public void testOWLRendering0() throws Exception {
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	aparser.initAlignment( null );
+	Alignment alignment = aparser.parse( "file:examples/omwg/total.xml" );
+	assertNotNull( alignment );
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
+	alignment.render( renderer );
+    }
+
+    // Load the stripped down test ==> it loads
+    // This cannot be passed to an OWL parser because no typechecking has been done
+    // This is only a syntactic test
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"testOWLRendering0"})
+    public void testOWLRendering1() throws Exception {
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	aparser.initAlignment( null );
+	Alignment alignment = aparser.parse( "file:examples/omwg/total-owlable.xml" );
+	assertNotNull( alignment );
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	/*
+	OutputStream stream = new FileOutputStream( "/tmp/total.owl" );
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	*/
+	AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
+	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	String str1 = stream.toString();
+	assertEquals( str1.length(), 12099 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
