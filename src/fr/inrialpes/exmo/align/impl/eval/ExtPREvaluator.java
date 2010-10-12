@@ -378,11 +378,9 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     protected int relativePosition( Object o1, Object o2, HeavyLoadedOntology<Object> onto )  throws AlignmentException {
 	try {
 	    if ( onto.isClass( o1 ) && onto.isClass( o2 ) ){
-		isSuperClass( o2, o1, onto ); // This is the level
+		return superClassPosition( o1, o2, onto );
 	    } else if ( onto.isProperty( o1 ) && onto.isProperty( o2 ) ){
-		if ( isSuperProperty( o2, o1, onto ) ) { return -1; }
-		else if ( isSuperProperty( o1, o2, onto ) ) { return 1; }
-		else { return 0; }
+		return superPropertyPosition( o1, o2, onto );
 	    } else if ( onto.isIndividual( o1 ) && onto.isIndividual( o2 ) ){
 		return 0;
 	    }
@@ -391,18 +389,6 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	    throw new AlignmentException( "Cannot access class hierarchy", owex );
 	}
     }
-
-    /**
-     * JE2010: THIS SHOULD BE REWRITTEN AS THE SUBCLASS STUFF
-     */
-    public boolean isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
-	try {
-	    return ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ).contains( prop1 );
-	} catch ( OntowrapException owex ) {
-	    throw new AlignmentException( "Cannot interpret isSuperProperty", owex );
-	}
-    }
-
 
     public int superClassPosition( Object class1, Object class2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
 	int result = - isSuperClass( class2, class1, onto );
@@ -416,7 +402,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      * directly a class is superclass of another or not.  
      *
      * This would require computing the transitive reduction of the superClass
-     * relation which is currently returned bu HeavyLoadedOntology.
+     * relation which is currently returned by HeavyLoadedOntology.
      */
     @SuppressWarnings("unchecked")
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
@@ -448,6 +434,41 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	}
     }
 
+    public int superPropertyPosition( Object prop1, Object prop2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
+	int result = - isSuperProperty( prop2, prop1, onto );
+	if ( result == 0 )
+	    return isSuperProperty( prop1, prop2, onto );
+	return result;
+    }
+
+    public int isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
+	try {
+	    URI uri1 = ontology.getEntityURI( prop1 );
+	    Set<?> bufferedSuperProperties = null;
+	    Set<Object> superproperties = (Set<Object>)ontology.getSuperProperties( prop1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    int level = 0;
+	    int foundlevel = 0;
+	    
+	    while ( !superproperties.isEmpty() ){
+		bufferedSuperProperties = superproperties;
+		superproperties = new HashSet<Object>();
+		level++;
+		for( Object entity : bufferedSuperProperties ) {
+		    if ( ontology.isProperty( entity ) ){
+			URI uri2 = ontology.getEntityURI( entity );
+			if ( uri1.equals( uri2 ) ) {
+			    if ( level < foundlevel ) foundlevel = level;
+			} else {
+			    superproperties.addAll(ontology.getSuperProperties( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
+			}
+		    }
+		}
+	    }
+	    return foundlevel;
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot find entity URI", owex );
+	}
+    }
 
     /**
      * This now output the results in Lockheed format.
