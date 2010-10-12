@@ -100,8 +100,10 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	    // This is a cache failure
 	    throw new OntowrapException("Already loaded [doc cache failure] " + uri, oodaeex );
 	} catch ( OWLOntologyAlreadyExistsException ooaeex ) {
-	    // This is a cache failure
-	    throw new OntowrapException("Already loaded [owl cache failure] " + uri, ooaeex );
+	    // This happens when the ontology has been loaded from a different URIs
+	    ontology = manager.getOntology( ooaeex.getOntologyID() );
+	    if ( ontology == null )
+		throw new OntowrapException("Already loaded [owl cache failure] " + uri, ooaeex );
 	} catch ( OWLOntologyCreationException oocex ) {
 	    oocex.printStackTrace();
 	    throw new OntowrapException("Cannot load " + uri, oocex );
