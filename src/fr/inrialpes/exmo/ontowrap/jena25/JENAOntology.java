@@ -21,8 +21,10 @@
 package fr.inrialpes.exmo.ontowrap.jena25;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -60,7 +62,6 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
     }
     
     public void getEntityAnnotations( Object o, Set<String> annots, String lang) throws OntowrapException {
-	
 	StmtIterator stmtIt = onto.listStatements((Resource)o,null,(RDFNode)null);
 	while (stmtIt.hasNext()) {
 	    Statement st = stmtIt.next();
@@ -72,33 +73,41 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 		    if (lang==null || lang.equals(l.getLanguage())) {
 			annots.add(l.getLexicalForm());
 		    }
-		    else if (obj.isResource()) {
+		}
+		else if (obj.isResource()) {
 			getEntityAnnotations(obj, annots, lang);
-		    }
 		}
 	    }
 	}
-	
-	// THIS SHOULD BE STATIC NOW!!
-	/*Iterator<AnnotationProperty> z = onto.listAnnotationProperties();
-	while (z.hasNext()) {
-	    AnnotationProperty ap = z.next();
-	   // System.out.println("hjhjhjh"+ap);
-	    NodeIterator j = ((OntResource)o).listPropertyValues((Property) ap);
-	    while (j.hasNext()) {
-		RDFNode n = j.nextNode();
-		if (n.isResource())
-		    getEntityAnnotations(n, annots);
-		else if (n.isLiteral()) {
-		    annots.add( ((Literal)n.as(Literal.class)).getLexicalForm() );
+    }
+    
+    public void getEntityAnnotations( Object o, Map<String,String> annots) throws OntowrapException {
+	StmtIterator stmtIt = onto.listStatements((Resource)o,null,(RDFNode)null);
+	while (stmtIt.hasNext()) {
+	    Statement st = stmtIt.next();
+	    
+	    if ( st.getPredicate().canAs(AnnotationProperty.class)) {
+		RDFNode obj= st.getObject();
+		if (obj.isLiteral()) {
+		    Literal l =obj.as(Literal.class);
+		    annots.put(l.getLexicalForm(),l.getLanguage());
 		}
+		else if (obj.isResource()) {
+			getEntityAnnotations(obj, annots);
+		 }
 	    }
-	}*/
+	}
     }
 
     public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	Set<String> annots = new HashSet<String>();
 	getEntityAnnotations(o,annots,null);
+	return annots;
+    }
+    
+    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+	Map<String,String> annots = new HashMap<String,String>();
+	getEntityAnnotations(o,annots);
 	return annots;
     }
 
@@ -335,8 +344,6 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
     public Set<? extends OntProperty> getSuperProperties(Object p, int local, int asserted, int named) {
 	return ((OntProperty) p).listSuperProperties(asserted==OntologyFactory.DIRECT).toSet();
     }
-
-
 }
 
 /*class JENAEntityIt<R extends OntResource> implements Iterator<R> {

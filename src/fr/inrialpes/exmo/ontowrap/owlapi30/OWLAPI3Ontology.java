@@ -21,7 +21,9 @@
 package fr.inrialpes.exmo.ontowrap.owlapi30;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -136,9 +138,29 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	}
 	return annotations;
     }
+    
+    protected Map<String,String> getEntityAnnotationsL( Object o, URI type ) {
+	OWLEntity entity = (OWLEntity) o;
+	Map<String,String> annotations = new HashMap<String,String>();
+	for ( OWLAnnotation annot : entity.getAnnotations( onto ) ) {
+	    OWLAnnotationValue c = annot.getValue();
+	    OWLAnnotationProperty p = annot.getProperty();
+	    if ( c instanceof OWLLiteral ) {
+		    if ( type == null ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getURI()) && p.isLabel() ) ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getURI()) && p.isComment() ) )
+			annotations.put( ((OWLLiteral)c).getLiteral(),  ((OWLLiteral)c).getLang());
+		}
+	}
+	return annotations;
+    }
 
     public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	return getEntityAnnotations(o, null, null);
+    }
+    
+    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+	return getEntityAnnotationsL(o, null);
     }
     
     public Set<String> getEntityAnnotations( Object o, String lang ) throws OntowrapException {

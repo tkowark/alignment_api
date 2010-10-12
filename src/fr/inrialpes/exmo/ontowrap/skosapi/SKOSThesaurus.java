@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.skos.SKOSDataFactory;
@@ -198,6 +199,10 @@ lang = untypedLiteral.getLang();
 	}
 	*/
 	return comments;
+    }
+    
+    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+	throw new UnsupportedOperationException();
     }
 
     // TODO

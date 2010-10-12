@@ -1,8 +1,27 @@
+/*
+ * Copyright (C) INRIA, 2008-2010
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
 package fr.inrialpes.exmo.ontowrap.skoslite;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.hp.hpl.jena.graph.Node;
@@ -207,6 +226,30 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	    }
 	}
 	return annots;
+    }
+    
+    public Map<String,String> getEntityAnnotationsL(Object o, String[] types) throws OntowrapException {
+	HashMap<String,String> annots=new HashMap<String,String>();
+	ExtendedIterator<RDFNode> it=null;
+	for (String t : types) {
+	    if (it==null) 
+		it=ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t));
+	    else 
+		it.andThen(ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t)));
+	}
+	while (it.hasNext()) {
+	    Node n = it.next().asNode();
+	    if (n.isLiteral()) {
+		//System.out.println(n.getLiteralLexicalForm());
+		annots.put(n.getLiteralLexicalForm(),n.getLiteralLanguage());
+	    }
+	}
+	return annots;
+    }
+    
+    @Override
+    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+	return getEntityAnnotationsL(o,new String[]{RDFS.label.toString(),SKOS_NOTE,SKOS_NOTATION});
     }
     
     public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
@@ -441,8 +484,4 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     public void setURI(URI uri) {
 	this.uri=uri;
     }
-    
-   
-    
-
 }

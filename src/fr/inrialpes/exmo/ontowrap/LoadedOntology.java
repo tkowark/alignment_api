@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.ontowrap;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owl.model.OWLEntity;
@@ -106,6 +107,8 @@ public interface LoadedOntology<O> extends Ontology<O> {
      * @throws OntowrapException
      */
     public Set<String> getEntityAnnotations( Object o ) throws OntowrapException;
+    
+    public Map<String,String> getEntityAnnotationsL( Object o ) throws OntowrapException;
 
     /**
      * Returns all the values of the "owl:AnnotationProperty" property for a given entity expressed in the required language. 

@@ -36,6 +36,7 @@ package fr.inrialpes.exmo.ontowrap.owlapi10;
 import java.net.URI;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -154,7 +155,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	} catch (OWLException oex) {
 	    return null;
 	}
-    };
+    }
 
     public Set<String> getEntityComments( Object o ) throws OntowrapException {
 	try {
@@ -163,7 +164,11 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	} catch (OWLException oex) {
 	    return null;
 	}
-    };
+    }
+    
+    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+	throw new UnsupportedOperationException();
+    }
 
     protected Set<String> getAnnotations(final OWLEntity e , final String lang , final String typeAnnot ) throws OWLException {
 	final OWLOntology o = this.onto;
