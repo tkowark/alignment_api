@@ -75,7 +75,7 @@ public class ThresholdGraphEvaluator extends GraphEvaluator {
      * 
      */
     public Vector<Pair> eval( Properties params ) { // throws AlignmentException
-	points = new Vector<Pair>(STEP+1); // 2010evaluate the size
+	points = new Vector<Pair>(STEP+1); 
 	opt = 0.;
 	int nbcorrect = 0;
 	int nbfound = 0;

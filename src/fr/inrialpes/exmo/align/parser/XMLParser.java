@@ -303,7 +303,6 @@ public class XMLParser extends DefaultHandler {
 		extensions = null;
 		cl1 = null;
 		cl2 = null;
-		// JE 2010: test that it works with SE [SEEMS TO WORK]
 	    } else if (pName.equals( SyntaxElement.MAP.name )) {//"map"
 		try {
 		    alignment.init( onto1, onto2 );

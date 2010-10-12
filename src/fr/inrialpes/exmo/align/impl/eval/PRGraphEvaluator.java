@@ -60,8 +60,7 @@ import java.net.URI;
  * Otherwise, it would basically be:
  * SUM_c\in correct( P( c ) ) / nbexpected
  *
- * NOTE (JE:2010): This should be adapated for other notions of Precision and Recall
- * This is fully possible and will be done with 
+ * NOTE: This should be adapated for other notions of Precision and Recall
  *
  */
 
@@ -87,7 +86,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
      * Compute precision and recall graphs.
      */
     public Vector<Pair> eval( Properties params ) { // throws AlignmentException
-	points = new Vector<Pair>(STEP+1); // 2010evaluate the size
+	points = new Vector<Pair>(STEP+1); 
 
 	if ( params != null && params.getProperty( "oldstyle" ) != null ) {
 	    return evalOldStyle();

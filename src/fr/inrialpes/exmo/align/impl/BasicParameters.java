@@ -48,14 +48,14 @@ import org.semanticweb.owl.align.Parameters;
   * By default and for means of communication, parameter names and values 
   * are Strings (even if their type is Object).
   *
-  * [JE:2010] A note about unchecked warnings
+  * A note about unchecked warnings
   * java.util.Properties is declared as hashtable<Object,Object>
   * However all its accessors can only put String as key in the hashtable
   * But propertyNames returns Enumeration and not Enumeration<String>
   * Using keySet will not change anything, because it will be Set<Object>
   * Java 6 introduces Set<String> stringPropertyNames() !!
   *
-  * [JE:2010] This class implements Parameters for compatibility purposes.
+  * This class implements Parameters for compatibility purposes.
   * Parameters is only "morally" deprecated in the Alignment API, but it is
   * not used anymore.
   * 

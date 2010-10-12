@@ -149,16 +149,12 @@ public class RDFParser {
     public static void initSyntax() {
 	if ( rDFModel == null ) {
 	    rDFModel = ModelFactory.createDefaultModel();
-	    // The register is always initialised?
 	    for ( SyntaxElement el : SyntaxElement.values() ) {
-		// JE2010 This is incorrect because there can be Resources (classes)
-		// and/or Property ... They may all be resources...
 		if ( el.isProperty == true ) {
 		    el.resource = rDFModel.createProperty( el.id() );
 		} else {
 		    el.resource = rDFModel.createResource( el.id() );
 		}
-		//register.put( el.getName(), el );
 	    }
 	}
     }
@@ -441,7 +437,7 @@ public class RDFParser {
 		    rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    result = parseProperty( node );
 	} else if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ||
-		    rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) || // JE 2010: no chance
+		    rdfType.equals( SyntaxElement.RELATION_DOMAIN_COND.resource ) || // no chance
 		    rdfType.equals( SyntaxElement.RELATION_CODOMAIN_COND.resource ) ) {
 	    result = parseRelation( node );
 	} else if ( rdfType.equals( SyntaxElement.INSTANCE_EXPR.resource ) ) {
