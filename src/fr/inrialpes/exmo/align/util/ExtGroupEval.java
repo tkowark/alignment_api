@@ -314,7 +314,7 @@ public class ExtGroupEval {
 	    writer.println("<thead valign='top'><tr><th>algo</th>");
 	    // for each algo <td spancol='2'>name</td>
 	    for ( String m : listAlgo ) {
-		writer.println("<th colspan='"+((2*fsize)+1)+"'>"+m+"</th>");
+		writer.println("<th colspan='"+((2*fsize))+"'>"+m+"</th>");
 	    }
 	    writer.println("</tr></thead><tbody><tr><td>test</td>");
 	    // for each algo <td>Prec.</td><td>Rec.</td>
