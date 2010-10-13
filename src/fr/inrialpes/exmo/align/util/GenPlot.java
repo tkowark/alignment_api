@@ -508,8 +508,8 @@ public class GenPlot {
 	output.println("&chds=0,10\"/>");
     }
 
-    // 2010: THIS IS ONLY FOR TSV AND THIS DOES NOT WORK
-    // IT IS SUPPOSED TO PROVIDE
+    // 2010: TSV output is not finished
+    // It is supposed to provide
     // List of algo
     // List of STEP + points
     public void printTSV( Vector<Vector<Pair>> points ) {
@@ -522,7 +522,7 @@ public class GenPlot {
 	    for( int j = 0; j < size; j++ ){
 		Pair precrec = points.get(j).get(i);
 		output.println( precrec.getX()+" "+precrec.getY() );
-	}
+	    }
 	}
 	output.println();
     }
