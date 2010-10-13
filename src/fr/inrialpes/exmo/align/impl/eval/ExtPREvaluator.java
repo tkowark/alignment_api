@@ -195,6 +195,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	if ( nbfound != 0 ) recorientprec = orientRecsimilarity / (double) nbfound;
 	if ( nbexpected != 0 ) recorientrec = orientRecsimilarity / (double) nbexpected;
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
+	//System.err.println(">>>> " + symsimilarity + " : " + effsimilarity + " : " + orientRecsimilarity + " : " + orientPrecsimilarity);
 	return (result);
     }
 
@@ -392,9 +393,8 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 
     public int superClassPosition( Object class1, Object class2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
 	int result = - isSuperClass( class2, class1, onto );
-	if ( result == 0 )
-	    return isSuperClass( class1, class2, onto );
-	return result;
+	if ( result != 0 ) return result;
+	else return isSuperClass( class1, class2, onto );
     }
 
     /**
@@ -409,7 +409,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	try {
 	    URI uri1 = ontology.getEntityURI( class1 );
 	    Set<?> bufferedSuperClasses = null;
-	    Set<Object> superclasses = (Set<Object>)ontology.getSuperClasses( class1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    Set<Object> superclasses = (Set<Object>)ontology.getSuperClasses( class2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    int foundlevel = 0;
 	    
@@ -421,7 +421,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		    if ( ontology.isClass( entity ) ){
 			URI uri2 = ontology.getEntityURI( entity );
 			if ( uri1.equals( uri2 ) ) {
-			    if ( level < foundlevel ) foundlevel = level;
+			    if ( foundlevel == 0 || level < foundlevel ) foundlevel = level;
 			} else {
 			    superclasses.addAll(ontology.getSuperClasses( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
 			}
@@ -436,16 +436,15 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 
     public int superPropertyPosition( Object prop1, Object prop2, HeavyLoadedOntology<Object> onto ) throws AlignmentException {
 	int result = - isSuperProperty( prop2, prop1, onto );
-	if ( result == 0 )
-	    return isSuperProperty( prop1, prop2, onto );
-	return result;
+	if ( result == 0 ) return result;
+	else return isSuperProperty( prop1, prop2, onto );
     }
 
     public int isSuperProperty( Object prop1, Object prop2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    URI uri1 = ontology.getEntityURI( prop1 );
 	    Set<?> bufferedSuperProperties = null;
-	    Set<Object> superproperties = (Set<Object>)ontology.getSuperProperties( prop1, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
+	    Set<Object> superproperties = (Set<Object>)ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    int foundlevel = 0;
 	    
@@ -457,7 +456,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		    if ( ontology.isProperty( entity ) ){
 			URI uri2 = ontology.getEntityURI( entity );
 			if ( uri1.equals( uri2 ) ) {
-			    if ( level < foundlevel ) foundlevel = level;
+			    if ( foundlevel == 0 || level < foundlevel ) foundlevel = level;
 			} else {
 			    superproperties.addAll(ontology.getSuperProperties( entity, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY ) );
 			}
