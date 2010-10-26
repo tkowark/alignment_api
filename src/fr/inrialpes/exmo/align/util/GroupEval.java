@@ -446,8 +446,6 @@ which the program does...
 		    writer.print("<td>");
 		    if ( format.charAt(i) == 'p' ) {
 			writer.print("Prec.");
-		    } else if ( format.charAt(i) == 'r' ) {
-			writer.print("Rec.");
 		    } else if ( format.charAt(i) == 'f' ) {
 			writer.print("Fall.");
 		    } else if ( format.charAt(i) == 'm' ) {
@@ -456,6 +454,8 @@ which the program does...
 			writer.print("Over.");
 		    } else if ( format.charAt(i) == 't' ) {
 			writer.print("Time");
+		    } else if ( format.charAt(i) == 'r' ) {
+			writer.print("Rec.");
 		    }
 		    writer.println("</td>");
 		}
@@ -503,8 +503,6 @@ which the program does...
 			    writer.print("<td>");
 			    if ( format.charAt(i) == 'p' ) {
 				formatter.format("%1.2f", eval.getPrecision());
-			    } else if ( format.charAt(i) == 'r' ) {
-				formatter.format("%1.2f", eval.getRecall());
 			    } else if ( format.charAt(i) == 'f' ) {
 				formatter.format("%1.2f", eval.getFallout());
 			    } else if ( format.charAt(i) == 'm' ) {
@@ -517,6 +515,8 @@ which the program does...
 				} else {
 				    formatter.format("%1.2f", eval.getTime());
 				}
+			    } else if ( format.charAt(i) == 'r' ) {
+				formatter.format("%1.2f", eval.getRecall());
 			    }
 			    writer.println("</td>");
 			}
@@ -541,8 +541,6 @@ which the program does...
 		    writer.print("<td>");
 		    if ( format.charAt(i) == 'p' ) {
 			formatter.format("%1.2f", precision);
-		    } else if ( format.charAt(i) == 'r' ) {
-			formatter.format("%1.2f", recall);
 		    } else if ( format.charAt(i) == 'f' ) {
 			formatter.format("%1.2f", (double)(foundVect[k] - correctVect[k])/foundVect[k]);
 		    } else if ( format.charAt(i) == 'm' ) {
@@ -555,6 +553,8 @@ which the program does...
 			} else {
 			    formatter.format("%1.2f", timeVect[k]);
 			}
+		    } else if ( format.charAt(i) == 'r' ) {
+			formatter.format("%1.2f", recall);
 		    }
 		    writer.println("</td>");
 		};
