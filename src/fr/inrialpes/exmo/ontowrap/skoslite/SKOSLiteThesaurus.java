@@ -48,6 +48,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
     protected final static String SKOS_CONCEPT=SKOS_NS+"Concept";
     protected final static String SKOS_PREFLABEL=SKOS_NS+"prefLabel";
     protected final static String SKOS_NOTE=SKOS_NS+"note";
+    //protected final static String SKOS_SCOPENOTE=SKOS_NS+"scopeNote";
     protected final static String SKOS_NOTATION=SKOS_NS+"notation";
     protected final static String SKOS_BROADERTRANSITIVE=SKOS_NS+"broaderTransitive";
     protected final static String SKOS_NARROWERTRANSITIVE=SKOS_NS+"narrowerTransitive";
@@ -216,7 +217,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	    if (it==null) 
 		it=ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t));
 	    else 
-		it.andThen(ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t)));
+		it=it.andThen(ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t)));
 	}
 	while (it.hasNext()) {
 	    Node n = it.next().asNode();
@@ -235,7 +236,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	    if (it==null) 
 		it=ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t));
 	    else 
-		it.andThen(ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t)));
+		it=it.andThen(ontoInf.listObjectsOfProperty((Resource) o,ontoInf.getProperty(t)));
 	}
 	while (it.hasNext()) {
 	    Node n = it.next().asNode();
