@@ -54,8 +54,14 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    similarity = false; // This is a distance matrix
 	}
 	public double measure( Object o1, Object o2 ) throws Exception {
-	    String s1 = ontology1().getEntityName( o1 );
-	    String s2 = ontology2().getEntityName( o2 );
+	    String s1 = null;
+	    String s2 = null;
+	    try {
+		s1 = ontology1().getEntityName( o1 );
+		s2 = ontology2().getEntityName( o2 );
+	    } catch ( Exception owex ) { // dealt with below
+		if ( debug > 1 ) owex.printStackTrace();
+	    };
 	    // Unnamed entity = max distance
 	    if ( s1 == null || s2 == null ) return 1.;
 	    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
