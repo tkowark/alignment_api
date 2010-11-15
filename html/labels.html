@@ -83,13 +83,11 @@
 <dt>http://purl.org/dc/elements/1.1/description</dt>
 <dd>STRING describing the alignment.</dd>
 <dt>http://purl.org/dc/elements/1.1/identifier</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id
-  instead.</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id.</dd>
 <dt>http://purl.org/dc/elements/1.1/rights</dt>
 <dd>STRING providing information about rights held in and over the alignment.</dd>
 <dt>http://purl.org/dc/elements/1.1/title</dt>
-<dd>Use
-  http://knowledgeweb.semanticweb.org/heterogeneity/alignment#pretty instead.</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#pretty.</dd>
 </dl>
 
 <h2>OMWG Extensions</h2>
@@ -139,33 +137,33 @@ also defines it own sorts of objects that can be annotated.</p>
   extensions for specifying a subclass of omv:Mapping.</dd>
 
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasParameter</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#parameters instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#parameters</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasCreator</dt>
-<dd>Use http://purl.org/dc/elements/1.1/:creator instead</dd>
+<dd>sameAs http://purl.org/dc/elements/1.1/:creator</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#usedMethod</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#variety</dt>
 <dd>STRING denoting [??]</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#type</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#type instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#type</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#purpose</dt>
-<dd>STRING denoting </dd>
+<dd>sameAs http://www.owmg.org/TR/d7/d7.2/purpose</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#URI</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#id</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#processingTime</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#time instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#time</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#value</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting [??]</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#naturalLanguage</dt>
-<dd>Use http://purl.org/dc/elements/1.1/:language instead [??]</dd>
+<dd>sameAs http://purl.org/dc/elements/1.1/:language</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#level</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#level instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#level</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#source</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#uri1 instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#uri1</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#creationDate</dt>
-<dd>Use http://purl.org/dc/elements/1.1/:date instead</dd>
+<dd>sameAs http://purl.org/dc/elements/1.1/:date</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#version</dt>
-<dd>STRING denoting </dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#methodVersion</dd>
 
 </dl>
 
@@ -174,45 +172,41 @@ also defines it own sorts of objects that can be annotated.</p>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#MappingMethod</dt>
 <dd>is the OMV class of mapping methods</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#BasicMethod</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting an atomic method</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#ManualMethod</dt>
-<dd>Use http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method="manual" instead</dd>
+<dd>sameAs http://knowledgeweb.semanticweb.org/heterogeneity/alignment#method="manual"</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#CompoundMethod</dt>
-<dd>is a subclass of the previous one</dd>
+<dd>STRING denotting a method made by composing other methods</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Parallel</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting a method obtained by parallel composition of other methods</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Sequence</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting a method obtained by parallel composition of other methods</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Parameter</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting the parameters of the method</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#composesMethod</dt>
-<dd>STRING denoting </dd>
+<dd>#CompoundMethod linking a compound method to its components</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#aggregatesMethod</dt>
-<dd>STRING denoting </dd>
+<dd>#Method denoting the aggregation of the result of several methods</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Filter</dt>
+<dd>STRING denoting a method made by filtering the result of another</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#filtersMethod</dt>
+<dd>#Method links a filter to the method it filters</dd>
+<dt>http://omv.ontoware.org/2007/05/mappingomv#Algorithm</dt>
+<dd>STRING denoting the name of an algorithm implemented by a BasicMethod</dd>
 </dl>
 
 <h3>Evidence metadata</h3>
 <dl>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasProperty</dt>
-<dd>STRING denoting </dd>
+<dd>#Property linking to properties satisfied by the alignment</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Evidence</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting evidence in favour of the alignment properties</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Proof</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting proofs of properties</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#Property</dt>
-<dd>STRING denoting </dd>
+<dd>STRING denoting properties that an alignment may satisfy</dd>
 <dt>http://omv.ontoware.org/2007/05/mappingomv#hasEvidence</dt>
-<dd>STRING denoting </dd>
-</dl>
-
-<dl>
-<dt>http://omv.ontoware.org/2007/05/mappingomv#Filter</dt>
-<dd>STRING denoting </dd>
-<dt>http://omv.ontoware.org/2007/05/mappingomv#filtersMethod</dt>
-<dd>STRING denoting </dd>
-
-<dt>http://omv.ontoware.org/2007/05/mappingomv#Algorithm</dt>
-<dd>STRING denoting </dd>
+<dd>#Evidence linking to the evidence for a property</dd>
 </dl>
 
 <address>
