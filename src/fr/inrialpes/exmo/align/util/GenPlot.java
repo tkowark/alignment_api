@@ -373,7 +373,7 @@ public class GenPlot {
     public void printPGFTex( Vector<Vector<Pair>> result ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
-	String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta" }	;
+	String colortable[] = { "black", "red", "green!50!black", "blue", "cyan", "magenta" }	;
 	output.println("\\documentclass[11pt]{book}");
 	output.println();
 	output.println("\\usepackage{pgf}");
@@ -483,7 +483,7 @@ public class GenPlot {
 	output.print("&chdl="); // labels
 	int i = 0;
 	//String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
-	//String colortable[] = { "black", "red", "green", "blue", "cyan", "magenta" };
+	//String colortable[] = { "black", "red", "green!50!black", "blue", "cyan", "magenta" };
 	String colortable[] = { "000000", "ffff00", "ff00ff", "00ffff", "ff0000", "00ff00", "0000ff", "888888", "8888ff", "88ff88", "ff8888", "8800ff", "88ff00", "008800", "ff8800", "0088ff", "000088","ff0088","00ff88", "888800", "880088", "008888", "880000", "008800", "000088", "88ffff", "ff88ff", "ffff88" };
 	String style = "";
 	String color = "";
