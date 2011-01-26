@@ -39,6 +39,7 @@ import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.properties .SKOSNarrowerProperty;
 import org.semanticweb.skos.properties .SKOSBroaderProperty;
 
+import fr.inrialpes.exmo.ontowrap.Annotation;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
@@ -201,7 +202,7 @@ lang = untypedLiteral.getLang();
 	return comments;
     }
     
-    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+    public Set<Annotation> getEntityAnnotationsL(Object o) throws OntowrapException {
 	throw new UnsupportedOperationException();
     }
 

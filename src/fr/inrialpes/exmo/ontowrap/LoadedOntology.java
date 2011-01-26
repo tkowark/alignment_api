@@ -108,7 +108,7 @@ public interface LoadedOntology<O> extends Ontology<O> {
      */
     public Set<String> getEntityAnnotations( Object o ) throws OntowrapException;
     
-    public Map<String,String> getEntityAnnotationsL( Object o ) throws OntowrapException;
+    public Set<Annotation> getEntityAnnotationsL( Object o ) throws OntowrapException;
 
     /**
      * Returns all the values of the "owl:AnnotationProperty" property for a given entity expressed in the required language. 

@@ -53,6 +53,7 @@ import org.semanticweb.owlapi.model.OWLNaryBooleanClassExpression;
 import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
+import fr.inrialpes.exmo.ontowrap.Annotation;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
@@ -139,9 +140,9 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	return annotations;
     }
     
-    protected Map<String,String> getEntityAnnotationsL( Object o, URI type ) {
+    protected Set<Annotation> getEntityAnnotationsL( Object o, URI type ) {
 	OWLEntity entity = (OWLEntity) o;
-	Map<String,String> annotations = new HashMap<String,String>();
+	Set<Annotation> annotations = new HashSet<Annotation>();
 	for ( OWLAnnotation annot : entity.getAnnotations( onto ) ) {
 	    OWLAnnotationValue c = annot.getValue();
 	    OWLAnnotationProperty p = annot.getProperty();
@@ -149,7 +150,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 		    if ( type == null ||
 			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getURI()) && p.isLabel() ) ||
 			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getURI()) && p.isComment() ) )
-			annotations.put( ((OWLLiteral)c).getLiteral(),  ((OWLLiteral)c).getLang());
+			annotations.add( new Annotation(((OWLLiteral)c).getLiteral(),  ((OWLLiteral)c).getLang()));
 		}
 	}
 	return annotations;
@@ -159,7 +160,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	return getEntityAnnotations(o, null, null);
     }
     
-    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+    public Set<Annotation> getEntityAnnotationsL(Object o) throws OntowrapException {
 	return getEntityAnnotationsL(o, null);
     }
     

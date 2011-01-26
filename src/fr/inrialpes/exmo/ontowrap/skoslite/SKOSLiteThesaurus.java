@@ -37,6 +37,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import fr.inrialpes.exmo.ontowrap.Annotation;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
@@ -229,8 +230,8 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	return annots;
     }
     
-    public Map<String,String> getEntityAnnotationsL(Object o, String[] types) throws OntowrapException {
-	HashMap<String,String> annots=new HashMap<String,String>();
+    public Set<Annotation> getEntityAnnotationsL(Object o, String[] types) throws OntowrapException {
+	Set<Annotation> annots=new HashSet<Annotation>();
 	ExtendedIterator<RDFNode> it=null;
 	for (String t : types) {
 	    if (it==null) 
@@ -242,14 +243,14 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	    Node n = it.next().asNode();
 	    if (n.isLiteral()) {
 		//System.out.println(n.getLiteralLexicalForm());
-		annots.put(n.getLiteralLexicalForm(),n.getLiteralLanguage());
+		annots.add(new Annotation(n.getLiteralLexicalForm(),n.getLiteralLanguage()));
 	    }
 	}
 	return annots;
     }
     
     @Override
-    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
+    public Set<Annotation> getEntityAnnotationsL(Object o) throws OntowrapException {
 	return getEntityAnnotationsL(o,new String[]{RDFS.label.toString(),SKOS_NOTE,SKOS_NOTATION});
     }
     

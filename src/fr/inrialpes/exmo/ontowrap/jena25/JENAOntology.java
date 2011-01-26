@@ -46,6 +46,7 @@ import com.hp.hpl.jena.util.iterator.Map1;
 
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 
+import fr.inrialpes.exmo.ontowrap.Annotation;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
@@ -81,7 +82,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 	}
     }
     
-    public void getEntityAnnotations( Object o, Map<String,String> annots) throws OntowrapException {
+    public void getEntityAnnotations( Object o, Set<Annotation> annots) throws OntowrapException {
 	StmtIterator stmtIt = onto.listStatements((Resource)o,null,(RDFNode)null);
 	while (stmtIt.hasNext()) {
 	    Statement st = stmtIt.next();
@@ -90,7 +91,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 		RDFNode obj= st.getObject();
 		if (obj.isLiteral()) {
 		    Literal l =obj.as(Literal.class);
-		    annots.put(l.getLexicalForm(),l.getLanguage());
+		    annots.add(new Annotation(l.getLexicalForm(),l.getLanguage()));
 		}
 		else if (obj.isResource()) {
 			getEntityAnnotations(obj, annots);
@@ -105,8 +106,8 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 	return annots;
     }
     
-    public Map<String, String> getEntityAnnotationsL(Object o) throws OntowrapException {
-	Map<String,String> annots = new HashMap<String,String>();
+    public Set<Annotation> getEntityAnnotationsL(Object o) throws OntowrapException {
+	Set<Annotation> annots = new HashSet<Annotation>();
 	getEntityAnnotations(o,annots);
 	return annots;
     }
