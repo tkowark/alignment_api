@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -381,7 +381,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"/html/\">Access</a></center>"
-	    + "(C) INRIA, 2006-2010<br />"
+	    + "(C) INRIA, 2006-2011<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
 	    + "<small>$Revision$ -- $Date$</small>"
 	    + "</center>";
@@ -771,7 +771,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    for( String id : manager.listevaluators() ) {
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
-	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Evaluate\"/>\n";
+	    msg += "</select><br /><input type=\"submit\" name=\"action\" value=\"Evaluate\"/>\n";
 	    msg += "</form>\n";
 	} else if ( perf.equals("eval") ) {
 	    Message answer = manager.eval( new Message(newId(),(Message)null,myId,serverId,"", params) );
