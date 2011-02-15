@@ -520,9 +520,9 @@ public class BasicAlignment implements Alignment {
      */
     public Alignment diff(Alignment align) throws AlignmentException {
 	// Could also test: onto1 == getOntologyObject1();
-	if ( onto1.getURI() != align.getOntology1URI() )
+	if ( !onto1.getURI().equals(align.getOntology1URI()) )
 	    throw new AlignmentException("Can only diff alignments with same ontologies");
-	if ( onto2.getURI() != align.getOntology2URI() )
+	if ( !onto2.getURI().equals(align.getOntology2URI()) )
 	    throw new AlignmentException("Can only diff alignments with same ontologies");
 	BasicAlignment result = createNewAlignment( onto1, onto2 );
 	for ( Cell c1 : this ) {
