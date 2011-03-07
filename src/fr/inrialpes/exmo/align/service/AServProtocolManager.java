@@ -28,7 +28,6 @@ import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
-//import fr.inrialpes.exmo.align.util.DiffAlign;
 import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
