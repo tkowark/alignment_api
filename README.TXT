@@ -4,7 +4,7 @@
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
-Copyright (C) 2003-2010 INRIA.
+Copyright (C) 2003-2011 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -250,11 +250,30 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	writer.close();
 	assertEquals( eval.getPrecision(), 0.7619047619047619);//7272727272727273 );
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getFallout(), 0.23809523809523808);//2727272727272727 );
+	assertEquals( eval.getNoise(), 0.23809523809523814);//2727272727272727 );
 	assertEquals( eval.getFmeasure(), 0.8648648648648648);//8421052631578948 );
 	assertEquals( eval.getOverall(), 0.6875);//625 );
 	//assertEquals( eval.getResult(), 1.34375 );
     }
+
+    @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "raw" }, dependsOnMethods = {"routineEvalTest"})
+    public void routineErrorEvalTest() throws Exception {
+	AlignmentParser aparser1 = new AlignmentParser( 0 );
+	assertNotNull( aparser1 );
+	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	assertNotNull( align1 );
+	aparser1.initAlignment( null );
+	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	assertNotNull( align2 );
+	Properties params = new Properties();
+	assertNotNull( params );
+	PRecEvaluator eval = new PRecEvaluator( align1, align2 );
+	assertNotNull( eval );
+	eval.eval( params ) ;
+
+	eval.getFallout(); //4.2: Deprecated raises an error
+    }
+
 
     @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"})
     public void specificEvalTest() throws Exception {
@@ -282,7 +301,8 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	// These figures must be checked at least onece!
 	assertEquals( eval.getPrecision(), 0.3181818181818182 );
 	assertEquals( eval.getRecall(), 0.3939393939393939 );
-	assertEquals( eval.getFallout(), 1.0 );
+	assertEquals( eval.getNoise(), 1.0 );
+	//assertEquals( eval.getFallout(), 1.0 );
 	assertEquals( eval.getFmeasure(), 0.3520309477756286 );
 	assertEquals( eval.getOverall(), -0.4502164502164502 );
 	//assertEquals( eval.getResult(), 1.34375 );

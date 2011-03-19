@@ -1,7 +1,7 @@
 /*
  * $Id: WeightedPRecEvaluator.java 1494 2010-07-23 14:43:36Z euzenat $
  *
- * Copyright (C) INRIA, 2004-2010
+ * Copyright (C) INRIA, 2004-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ import java.net.URI;
 
 /**
  * Evaluate proximity between two alignments.
- * This function implements Precision/Recall/Fallout. The first alignment
+ * This function implements Precision/Recall. The first alignment
  * is thus the expected one.
  *
  * NOTE: This measure does not take relations nor confidences into account
@@ -56,8 +56,6 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
     protected double precision = 1.;
 
     protected double recall = 1.;
-
-    protected double fallout = 0.;
 
     protected double overall = 0.;
 
@@ -88,7 +86,6 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
     public void init(){
 	precision = 0.;
 	recall = 0.;
-	fallout = 0.;
 	overall = 0.;
 	fmeasure = 0.;
 	time = 0;
@@ -152,7 +149,6 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
     }
 
     protected double computeDerived() {
-	fallout = (double) (nbfound - nbcorrect) / (double) nbfound;
 	fmeasure = 2 * precision * recall / (precision + recall);
 	overall = recall * (2 - (1 / precision));
 	result = recall / precision;
@@ -178,7 +174,6 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	// result += "    <"+Namespace.ATLMAP.shortCut+":falsePositive>");
 	result += "    <dt>precision</dt><dd property=\""+Namespace.ATLMAP.shortCut+":precision\">"+precision+"</dd>\n";
 	result += "    <dt>recall</dt><dd property=\""+Namespace.ATLMAP.shortCut+":recall\">"+recall+"</dd>\n";
-	result += "    <dt>fallout</dt><dd property=\""+Namespace.ATLMAP.shortCut+":fallout\">"+fallout+"</dd>\n";
 	result += "    <dt>F-measure</dt><dd property=\""+Namespace.ATLMAP.shortCut+":fMeasure\">"+fmeasure+"</dd>\n";
 	result += "    <dt>O-measure</dt><dd property=\""+Namespace.ATLMAP.shortCut+":oMeasure\">"+overall+"</dd>\n";
 	if ( time != 0 ) result += "    <dt>time</dt><dd property=\""+Namespace.ATLMAP.shortCut+":time\">"+time+"</dd>\n";
@@ -208,9 +203,7 @@ return result;
 	writer.print(precision);
 	writer.print("</"+Namespace.ATLMAP.shortCut+":precision>\n    <"+Namespace.ATLMAP.shortCut+":recall>");
 	writer.print(recall);
-	writer.print("</"+Namespace.ATLMAP.shortCut+":recall>\n    <fallout>");
-	writer.print(fallout);
-	writer.print("</fallout>\n    <"+Namespace.ATLMAP.shortCut+":fMeasure>");
+	writer.print("</"+Namespace.ATLMAP.shortCut+":recall>\n    <"+Namespace.ATLMAP.shortCut+":fMeasure>");
 	writer.print(fmeasure);
 	writer.print("</"+Namespace.ATLMAP.shortCut+":fMeasure>\n    <"+Namespace.ATLMAP.shortCut+":oMeasure>");
 	writer.print(overall);
@@ -225,7 +218,6 @@ return result;
 	results.setProperty( "precision", Double.toString( precision ) );
 	results.setProperty( "recall", Double.toString( recall ) );
 	results.setProperty( "overall", Double.toString( overall ) );
-	results.setProperty( "fallout", Double.toString( fallout ) );
 	results.setProperty( "fmeasure", Double.toString( fmeasure ) );
 	// WPR
 	results.setProperty( "nbexpected", Double.toString( nbexpected ) );
@@ -238,7 +230,9 @@ return result;
     public double getPrecision() { return precision; }
     public double getRecall() {	return recall; }
     public double getOverall() { return overall; }
-    public double getFallout() { return fallout; }
+    public double getFallout() throws AlignmentException { throw new AlignmentException("Fallout computation to be deprecated (version 4.2)"); }
+    public double getNoise() { return 1.-precision; }
+    public double getSilence() { return 1.-precision; }
     public double getFmeasure() { return fmeasure; }
     // WPR
     public double getExpected() { return nbexpected; }

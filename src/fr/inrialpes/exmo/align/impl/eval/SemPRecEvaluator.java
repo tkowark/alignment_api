@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,7 +44,7 @@ import java.net.URI;
 
 /**
  * Evaluate proximity between two alignments.
- * This function implements Precision/Recall/Fallout. The first alignment
+ * This function implements Precision/Recall. The first alignment
  * is thus the expected one.
  *
  * @author Jerome Euzenat

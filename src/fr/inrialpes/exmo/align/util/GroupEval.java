@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2010, INRIA
+ * Copyright (C) 2003-2011, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     where the options are:
     <pre>
     -o filename --output=filename
-    -f format = prfmot (precision/recall/fallout/f-measure/overall/time) --format=prfmot
+    -f format = prfot (precision/recall/f-measure/overall/time) --format=prfot
     -d debug --debug=level
     -r filename --reference=filename
     -s algo/measure
@@ -447,8 +447,6 @@ which the program does...
 		    if ( format.charAt(i) == 'p' ) {
 			writer.print("Prec.");
 		    } else if ( format.charAt(i) == 'f' ) {
-			writer.print("Fall.");
-		    } else if ( format.charAt(i) == 'm' ) {
 			writer.print("FMeas.");
 		    } else if ( format.charAt(i) == 'o' ) {
 			writer.print("Over.");
@@ -504,8 +502,6 @@ which the program does...
 			    if ( format.charAt(i) == 'p' ) {
 				formatter.format("%1.2f", eval.getPrecision());
 			    } else if ( format.charAt(i) == 'f' ) {
-				formatter.format("%1.2f", eval.getFallout());
-			    } else if ( format.charAt(i) == 'm' ) {
 				formatter.format("%1.2f", eval.getFmeasure());
 			    } else if ( format.charAt(i) == 'o' ) {
 				formatter.format("%1.2f", eval.getOverall());
@@ -542,8 +538,6 @@ which the program does...
 		    if ( format.charAt(i) == 'p' ) {
 			formatter.format("%1.2f", precision);
 		    } else if ( format.charAt(i) == 'f' ) {
-			formatter.format("%1.2f", (double)(foundVect[k] - correctVect[k])/foundVect[k]);
-		    } else if ( format.charAt(i) == 'm' ) {
 			formatter.format("%1.2f", 2 * precision * recall / (precision + recall));
 		    } else if ( format.charAt(i) == 'o' ) {
 			formatter.format("%1.2f", recall * (2 - (1 / precision)));
@@ -574,7 +568,7 @@ which the program does...
     public void usage() {
 	System.out.println("usage: GroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=prfmot -r prfmot\tSpecifies the output order (precision/recall/fallout/f-measure/overall/time)");
+	System.out.println("\t--format=prfot -r prfot\tSpecifies the output order (precision/recall/f-measure/overall/time)");
 	// Apparently not implemented
 	//System.out.println("\t--sup=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");
