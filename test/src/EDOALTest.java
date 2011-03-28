@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,6 +31,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -133,4 +134,20 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	// This does not work because (at least) the order of correspondences is never the same...
 	//assertEquals( wine2, stream.toString() );
     }
+
+    /* This is round triping wrt converting to URIALignment... */
+    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "omwg", "raw" }, dependsOnMethods = {"roundTripTest"})
+    public void anotherRoundTripTest() throws Exception {
+	aparser1.initAlignment( null );
+	EDOALAlignment eal = (EDOALAlignment)aparser1.parse( "file:test/output/wine2.xml" );
+	assertNotNull( eal );
+	assertEquals( eal.nbCells(), 5 ); 
+	URIAlignment al = eal.toURIAlignment();
+	assertNotNull( al );
+	assertEquals( al.nbCells(), 3 );
+	eal = EDOALAlignment.toEDOALAlignment( al ); // does not work because the ontology cannot be loaded!
+	assertNotNull( eal );
+	assertEquals( eal.nbCells(), 3 );
+   }
+
 }

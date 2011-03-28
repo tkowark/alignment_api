@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.6 - 2008 - was OMWGAlignment
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Collection;
 import java.util.Set;
 import java.net.URI;
 
@@ -34,9 +35,12 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
+import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.Extensions;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
@@ -203,11 +207,95 @@ public class EDOALAlignment extends BasicAlignment {
 	};
     };
 
+    /**
+     * This is a clone with the URI instead of Object objects
+     * This conversion will drop any correspondences using something not identified by an URI
+     * For converting to ObjectAlignment, first convert to URIAlignment and load as an ObjectAlignment
+     * The same code as for ObjectAlignment works...
+     */
+    public URIAlignment toURIAlignment() throws AlignmentException {
+	return toURIAlignment( false );
+    }
+    public URIAlignment toURIAlignment( boolean strict ) throws AlignmentException {
+	URIAlignment align = new URIAlignment();
+	align.init( getOntology1URI(), getOntology2URI() );
+	align.setType( getType() );
+	align.setLevel( getLevel() );
+	align.setFile1( getFile1() );
+	align.setFile2( getFile2() );
+	align.setExtensions( convertExtension( "EDOALURIConverted", "http://exmo.inrialpes.fr/align/impl/edoal/EDOALAlignment#toURI" ) );
+	for (Enumeration e = getElements(); e.hasMoreElements();) {
+	    Cell c = (Cell)e.nextElement();
+	    try {
+		align.addAlignCell( c.getId(), c.getObject1AsURI(this), c.getObject2AsURI(this), c.getRelation(), c.getStrength() );
+	    } catch (AlignmentException aex) {
+		// Ignore every cell that does not work
+		if ( strict ) {
+		    throw new AlignmentException( "Cannot convert to URIAlignment" );
+		}
+	    }
+	};
+	return align;
+    }
 
-/**
- * Returns the mappings of the EDOALAlignment 
- * @return The set of rules contained by the EDOALAlignment
- */
+    /**
+     * convert an URI alignment into a corresponding EDOALAlignment
+     * The same could be implemented for ObjectAlignent if necessary
+     */
+    public static EDOALAlignment toEDOALAlignment( URIAlignment al ) throws AlignmentException {
+	EDOALAlignment alignment = new EDOALAlignment();
+	try {
+	    alignment.init( al.getFile1(), al.getFile2() );
+	} catch ( AlignmentException aex ) {
+	    try { // Really a friendly fallback
+		alignment.init( al.getOntology1URI(), al.getOntology2URI() );
+	    } catch ( AlignmentException xx ) {
+		throw aex;
+	    }
+	}
+	alignment.setType( al.getType() );
+	//alignment.setLevel( al.getLevel() ); // Should n't it be EDOAL level?
+	alignment.setExtensions( al.convertExtension( "EDOALConverted", "fr.inrialpes.exmo.align.edoal.EDOALAlignment#toEDOAL" ) );
+	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
+	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
+	try {
+	    for ( Cell c : al ) {
+		// HERE THIS SHOULD BE CREATED AS THE CORRESPONDING ID DEPENDING ON THEIR TYPES... MAKE A FUNCTION
+		Cell newc = alignment.addAlignCell( c.getId(), 
+						    getEntity( o1, c.getObject1AsURI(alignment) ),
+						    getEntity( o2, c.getObject2AsURI(alignment) ),
+						    c.getRelation(), 
+						    c.getStrength() );
+		Collection<String[]> exts = c.getExtensions();
+		if ( exts != null ) {
+		    for ( String[] ext : exts ){
+			newc.setExtension( ext[0], ext[1], ext[2] );
+		    }
+		}
+	    }
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot dereference entity", owex );
+	}
+	return alignment;
+    }
+
+    static private Id getEntity( LoadedOntology<Object> o, URI u ) throws OntowrapException, AlignmentException {
+	Object e = o.getEntity( u );
+	if ( o.isClass( e ) ) {
+	    return new ClassId( u );
+	} else if ( o.isDataProperty( e ) ) {
+	    return new PropertyId( u );
+	} else if ( o.isObjectProperty( e ) ) {
+	    return new RelationId( u );
+	} else if ( o.isIndividual( e ) ) {
+	    return new InstanceId( u );
+	} else throw new AlignmentException( "Cannot interpret URI" );
+    }
+
+    /**
+     * Returns the mappings of the EDOALAlignment 
+     * @return The set of rules contained by the EDOALAlignment
+     */
 
     /**
      * Generate a copy of this alignment object
@@ -225,10 +313,7 @@ public class EDOALAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( String[] ext: extensions.getValues() ){
-	    align.setExtension( ext[0], ext[1], ext[2] );
-	}
-	align.setExtension( Namespace.ALIGNMENT.getUriPrefix(), "id", (String)null );
+	align.setExtensions( convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { ex.printStackTrace(); }

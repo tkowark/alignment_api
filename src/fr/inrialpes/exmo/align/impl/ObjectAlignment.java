@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010
+ * Copyright (C) INRIA, 2003-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -107,30 +107,34 @@ public class ObjectAlignment extends BasicAlignment {
 
     /**
      * This is a clone with the URI instead of Object objects
-     *
      */
     public URIAlignment toURIAlignment() throws AlignmentException {
+	return toURIAlignment( false );
+    }
+
+    public URIAlignment toURIAlignment( boolean strict ) throws AlignmentException {
 	URIAlignment align = new URIAlignment();
 	align.init( getOntology1URI(), getOntology2URI() );
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	for ( String[] ext : extensions.getValues() ) {
-	    align.setExtension( ext[0], ext[1], ext[2] );
-	}
+	align.setExtensions( convertExtension( "EDOALURIConverted", this.getClass().getName()+"#toURI" ) );
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
 	    try {
 		align.addAlignCell( c.getId(), c.getObject1AsURI(this), c.getObject2AsURI(this), c.getRelation(), c.getStrength() );
 	    } catch (AlignmentException aex) {
-		// Sometimes URIs are null, this is ignore
+		// Sometimes URIs are null, this is ignored
+		if ( strict ) {
+		    throw new AlignmentException( "Cannot convert to URIAlignment" );
+		}
 	    }
 	};
 	return align;
     }
 
-    static public ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException, SAXException {
+    public static ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException, SAXException {
 	ObjectAlignment alignment = new ObjectAlignment();
 	try {
 	    alignment.init( al.getFile1(), al.getFile2() );
@@ -143,9 +147,7 @@ public class ObjectAlignment extends BasicAlignment {
 	}
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
-	for ( String[] ext : al.getExtensions() ) {
-	    alignment.setExtension( ext[0], ext[1], ext[2] );
-	}
+	alignment.setExtensions( al.convertExtension( "ObjectURIConverted", "fr.inrialpes.exmo.align.ObjectAlignment#toObject" ) );
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
 	try {

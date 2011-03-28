@@ -41,6 +41,7 @@ import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.util.NullStream;
 
@@ -146,6 +147,12 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	alignment.init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	alignment.align( (Alignment)null, params );
 	assertEquals( alignment.nbCells(), 10 );
+	URIAlignment al = ((ObjectAlignment)alignment).toURIAlignment();
+	assertNotNull( al, "URIAlignment should not be null" );
+	assertEquals( al.nbCells(), 10 );
+	ObjectAlignment al2 = ObjectAlignment.toObjectAlignment( al );
+	assertNotNull( al2, "ObjectAlignment should not be null" );
+	assertEquals( al2.nbCells(), 10 );
 	}
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest7"})
