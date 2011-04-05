@@ -122,7 +122,8 @@ public class RDFParser {
 
     private int debug = 0;
 
-    private boolean isPattern = false;
+    private boolean isPattern = false; // I contain variables
+    private boolean speedparse = false; // skip all checks
 
     private EDOALAlignment alignment;
 
@@ -178,6 +179,8 @@ public class RDFParser {
 	Statement alignDoc = stmtIt.nextStatement();
 	// Step from this statement
 	alignment = parseAlignment( alignDoc.getSubject() );
+	// If necessary type-check the alignment
+	if ( !speedparse ) alignment.accept( new TypeCheckingVisitor() );
 	// Clean up memory
 	rdfmodel.close(); // JE: I am not sure that I will not have trouble with initSyntax
 	return alignment;
@@ -253,6 +256,9 @@ public class RDFParser {
 	    if ( stmtIt.hasNext() ) {
 		final String level = stmtIt.nextStatement().getString();
 		if ((level != null) && (!level.equals(""))) {
+		    //if ( level.equals("0") ) {
+		    //	alignment.setLevel( level );
+		    //} else 
 		    if ( level.startsWith("2EDOAL") ) {
 			alignment.setLevel( level );
 			if ( level.equals("2EDOALPattern") ) isPattern = true;
@@ -372,6 +378,7 @@ public class RDFParser {
 	    // If both have none, then we get a old-style correspondence for free
 	    // If it has one, let's go parsing
 	    // I also assume that the factory only do dispatch
+	    // JE2010 ~later: that would also allow for parsing old alignments
 	    
 	    Expression s = parseExpression( entity1 );
 	    Expression t = parseExpression( entity2 );

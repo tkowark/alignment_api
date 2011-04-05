@@ -32,6 +32,8 @@ import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.parser.RDFParser;
+import fr.inrialpes.exmo.align.util.NullStream;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -43,6 +45,8 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,6 +69,18 @@ public class EDOALParserTest {
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods={ "setUp" })
+    public void typedParsingTest() throws Exception {
+	AlignmentParser aparser2 = new AlignmentParser( 2 );
+	aparser2.initAlignment( null );
+	// Would be good to close System.err at that point...
+	OutputStream serr = System.err;
+	System.setErr( new PrintStream( new NullStream() ) );
+	Alignment al = aparser2.parse( "file:examples/omwg/total.xml" );
+	System.setErr( new PrintStream( serr ) );
+	assertNotNull( al );
+    }
+
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods={ "typedParsingTest" })
     public void roundTripTest() throws Exception {
 	// Load the full test
 	aparser1.initAlignment( null );
