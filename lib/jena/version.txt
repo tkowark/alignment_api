@@ -1,7 +1,7 @@
-jena-2.6.2
-arq-2.8.1
+jena-2.6.4
+arq-2.8.7
 icu4j-3.4.4
-iri-0.7
+iri-0.8
 
 lucene-core-2.3.1
 slf4j-api-1.5.6
