@@ -63,6 +63,7 @@ public class TestGenerator {
 		System.out.println( "[9. Remove all the classes from a level\"removeClasses\"    ---------------]" );
 		System.out.println( "[10. Add nbClasses to a specific level \"addClasses\"       ---------------]" );
 		System.out.println( "[11. Level flattened                   \"levelFlattened\"   ---------------]" );
+                System.out.println( "[12. Remove individuals                \"removeIndividuals\"   ------------]" );
 		System.out.println( "[--------------------------------------------------------------------------]" );
 		System.exit(-1);
 	}
@@ -92,10 +93,10 @@ public class TestGenerator {
 
 			for ( int i=2; i<args.length; i+=2 ) {
 				if ( args[i].equals("addSubClass") )	/* add percentage classes */
-						parameters.setParameter(ParametersIds.ADD_SUBCLASS, args[i+1]);
+					parameters.setParameter(ParametersIds.ADD_SUBCLASS, args[i+1]);
 				//add c classes beginning from level l -> the value of this parameters should be:
 				//beginning_level.number_of_classes_to_add
-				if ( args[i].equals("addClasses") )		/* add c classes beginning from level l */
+				if ( args[i].equals("addClasses") ) 		/* add c classes beginning from level l */
 					parameters.setParameter(ParametersIds.ADD_CLASSES, args[i+1]);
 
 				if ( args[i].equals("removeSubClass") )	/* remove percentage subclasses */
@@ -127,6 +128,9 @@ public class TestGenerator {
 
 				if ( args[i].equals("removeRestriction") ) /* remove percentage restrictions */
 					parameters.setParameter(ParametersIds.REMOVE_RESTRICTION, args[i+1]);
+
+                                if ( args[i].equals("removeIndividuals") ) /* remove percentage individuals */
+					parameters.setParameter(ParametersIds.REMOVE_INDIVIDUALS, args[i+1]);
 			}
 
 			//load the model
@@ -135,13 +139,14 @@ public class TestGenerator {
 			Alignment alignment  = new URIAlignment();				//the initial Alignment
 			//build the ontology modifier for the first time
 			OntologyModifier modifier = new OntologyModifier( model, modifiedModel, alignment);
+                        modifier.initializeProperties();                                        //initialize the reference alignment
 			//get the max level of the class hierarchy of the ontology
 			int level = modifier.getMaxLevel();
 
 			System.out.println( "[-------------------------------------------------]" );
 			for ( int i=0; i<parameters.size(); i++ ) {
 				Parameter p = parameters.getParameter(i);			//the parameter at position index
-				modifier.modifyOntology( p );					//modify the ontology according to parameter p
+                                modifier.modifyOntology( p );					//modify the ontology according to parameter p
 				System.out.println( "[We-modified-the-ontology-for-parameter " + p.getName() + "]");
 			}
 			System.out.println( "[-------------------------------------------------]" );
