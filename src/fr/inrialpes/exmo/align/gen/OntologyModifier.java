@@ -24,12 +24,11 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.service.jade.messageontology.Parameter;
-/*
+
 //Google API classes
 import com.google.api.GoogleAPI;
 import com.google.api.translate.Language;
 import com.google.api.translate.Translate;
-*/
 
 //JENA classes
 import com.hp.hpl.jena.ontology.AllValuesFromRestriction;
@@ -145,12 +144,7 @@ public class OntologyModifier {
 		return str;
 	}
 
-        public String translateString( String source ) {
-	    return source;
-	}
-
-
-        /*
+     
 	//translate the string from English to French
 	public String translateString( String source ) {
 	    String translatedText = "";
@@ -163,7 +157,6 @@ public class OntologyModifier {
 		}
 	    return removeSpaces ( translatedText );
 	  }
-         */
 	
 	//string to upperCase
 	public String toUpperCase ( String source ) { 
@@ -174,7 +167,11 @@ public class OntologyModifier {
 	public String toLowerCase ( String source ) { 
 		return source.toLowerCase();
 	}
-	
+
+        public String getSynonym( String source ) {
+            return source;
+        }
+        /*
 	//synonym of the word
 	public String getSynonym ( String source ) {
 		String synonym = "";
@@ -198,7 +195,35 @@ public class OntologyModifier {
 			return source;	
 		return source;
 	}
-	
+        */
+
+        public String parseString (String str, boolean activeTranslateString, boolean activeSynonym) {
+           // System.out.println ( "str = [" + str + "]" );
+            char [] parsed = str.toCharArray();    
+            String newString = "";
+
+            for ( int i=1; i<parsed.length; i++ ) {
+                if( Character.isUpperCase( parsed[i] ) ) {
+                    String aux = str.substring(0, i);
+
+                    if ( activeTranslateString )
+                        newString = newString.concat( translateString( str.substring(0, i) ) );
+                    if ( activeSynonym )
+                        newString = newString.concat( getSynonym( str.substring(0, i) ) );
+
+                    str = str.substring(i);
+                }
+            }
+
+
+            if ( activeTranslateString )
+                newString = newString.concat( translateString(str.substring(0)) );
+            if ( activeSynonym )
+                newString = newString.concat( getSynonym(str.substring(0)) );
+
+            return newString;
+        }
+
 	//count - the number of elements from the vector
 	//the random numElems that must be selected
 	//use the Fisher and Yates method to shuffle integers from an array
@@ -258,21 +283,21 @@ public class OntologyModifier {
 			if ( nameSpace.equals( this.namespace ) ) {
 				if ( !propertiesIdentifiers.containsKey( localName ) ) {		
 					if ( activeTranslateString ) { 			//replace the URI with the translated one
-						String translateStrg = translateString( localName );
+						 String translateStrg = parseString ( localName, true, false);
 						propertiesIdentifiers.put( localName , translateStrg );
 						replacePropertyLabel( prop.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 						this.params.remove( prop.getURI() );
 						this.params.put( prop.getURI() , this.namespace + translateStrg );	//the reference alignment
 					}
-					else if ( activeRandomString ) {		//replace the URI with a random string
+					else if ( activeRandomString ) {                                                //replace the URI with a random string
 						String newStrg = getRandomString();
 						propertiesIdentifiers.put( localName , newStrg );
 						replacePropertyLabel( prop.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 						this.params.remove( prop.getURI() );
 						this.params.put( prop.getURI() , this.namespace + newStrg);		//the reference alignment
 					}
-					else if ( activeSynonym ) {			//replace the URI with a synonym
-						String synonym = getSynonym( localName );
+					else if ( activeSynonym ) {                                                     //replace the URI with a synonym
+						String synonym = parseString (localName, false, true);
 						if ( propertiesName.contains( synonym ) ) 
 							propertiesIdentifiers.put( localName, localName );
 						else  {
@@ -282,13 +307,13 @@ public class OntologyModifier {
 							this.params.put( prop.getURI(), this.namespace + synonym );	//the reference alignment
 						}
 					}
-					else if ( activeStringOperation == 1 ) {        //replace the URI with the UpperCase URI
+					else if ( activeStringOperation == 1 ) {                                        //replace the URI with the UpperCase URI
 						propertiesIdentifiers.put( localName , toUpperCase( localName ) );
 						replacePropertyLabel( prop.getURI(), toUpperCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 						this.params.remove( prop.getURI() );
 						this.params.put( prop.getURI(), this.namespace + toUpperCase( localName ) );	//the reference alignment
 					}
-					else if ( activeStringOperation == 2 ) {        //replace the URI with the LowerCase URI
+					else if ( activeStringOperation == 2 ) {                                         //replace the URI with the LowerCase URI
 						propertiesIdentifiers.put( localName , toLowerCase( localName ) );
 						replacePropertyLabel( prop.getURI(), toLowerCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 						this.params.remove( prop.getURI() );
@@ -353,7 +378,7 @@ public class OntologyModifier {
 					if ( nameSpace.equals( this.namespace ) ) {
 						if ( !classesIdentifiers.containsKey( localName ) ) {
 							if ( activeTranslateString ) {			//replace the URI with the translated one
-								String translateStrg = translateString ( localName );
+								String translateStrg = parseString (localName, true, false);
 								classesIdentifiers.put( localName , translateStrg );
 								replaceClassLabel( cls.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 								this.params.remove( cls.getURI() );
@@ -368,7 +393,7 @@ public class OntologyModifier {
 								this.params.put( cls.getURI(), this.namespace + newStrg );			//the reference alignment
 							}
 							else if ( activeSynonym ) {			//replace the URI with a synonym
-								String synonym = getSynonym( localName );
+                                                                String synonym = parseString (localName, false, true);
 								classesIdentifiers.put( localName, synonym );
 								this.params.remove( cls.getURI() );
 								replaceClassLabel( cls.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
@@ -601,28 +626,45 @@ public class OntologyModifier {
 	}
 	
 	//add nbClasses beginning from level
-	public void addClasses ( int level, int nbClasses ) {
-		String classURI = this.getRandomString();		//give a random URI to the new class
-		//the parent class -> if level is 1 then we create a new class
+	public void addClasses ( int level, int nbClasses, float percentage ) {
+		String classURI;
+                //the parent class -> if level is 1 then we create a new class
 		//else we get a random class from the level : level-1 to be the parent of the class
 		OntClass parentClass;
 		OntClass childClass;
-		checkClassHierarchy();		//check if the classHierarchy is built
-		if ( level == 1 ) {			//the parent of the class is Thing, we add the class and then the rest of the classes
-			parentClass = this.modifiedModel.createClass( this.namespace + classURI );	//create a new class to the model
-			this.classHierarchy.addClass( this.namespace + classURI, "Thing" );	//add the node in the hierarchy of classes
+                List<OntClass> parentClasses = new ArrayList<OntClass>();
+                List<OntClass> childClasses = new ArrayList<OntClass>();
+
+                checkClassHierarchy();                                                                  //check if the class hierarchy is built
+
+		if ( level == 1 ) {                                                                     //the parent of the class is Thing, we add the class and then the rest of the classes
+			classURI = this.getRandomString();
+                        parentClass = this.modifiedModel.createClass( this.namespace + classURI );	//create a new class to the model
+			this.classHierarchy.addClass( this.namespace + classURI, "Thing" );             //add the node in the hierarchy of classes
+                        childClasses.add(parentClass);
 		}
 		else {
-			parentClass = this.classHierarchy.getRandomClassFromLevel( this.modifiedModel, level-1 );
-			childClass = addClass ( parentClass, classURI );
-			parentClass = childClass;
+
+                        parentClasses = this.classHierarchy.getClassesFromLevel(this.modifiedModel, level);
+                        int nbParentClasses = parentClasses.size();                                     //number of classes from the Ontology
+                        int toAdd = (int) ( percentage * nbClasses );                                            // 1 can be replaced by percentage
+
+                        for ( OntClass pClass : parentClasses ) {
+                            classURI = this.getRandomString();
+                            childClass = addClass (pClass, classURI );
+                            pClass = childClass;
+                            childClasses.add( childClass );
+                        }
 		}
-		
-		for ( int i=level+1; i<level + nbClasses; i++ ) {
-			classURI = "IS_" + classURI;
-			childClass = addClass (parentClass, classURI);
-			parentClass = childClass;
-		}	//this.classHierarchy.printClassHierarchy();
+
+                for ( OntClass pClass : childClasses ) {
+                    classURI = pClass.getLocalName();
+                    for ( int i=level+1; i<level + nbClasses; i++ ) {
+                            classURI = "IS_" + classURI;
+                            childClass = addClass (pClass, classURI);
+                            pClass = childClass;
+                    }	//this.classHierarchy.printClassHierarchy();
+            }
 	}
 	
 	//the class to be removed appears in the domain / range of the property -> change with the parent class
@@ -1060,8 +1102,7 @@ public class OntologyModifier {
 	public void computeAlignment( String fileName ) {
 		URI onto1 = null;
 		URI onto2 = null;
-
-                System.out.println("Namespace = " + this.namespace);
+                //System.out.println("Namespace = " + this.namespace);
 
                 if ( !this.isChanged )      //if the namespace of the ontology is not changed
                     this.namespaceNew = "http://oaei.ontologymatching.org/2010/benchmarks/101/onto1.rdf#";
@@ -1247,8 +1288,7 @@ public class OntologyModifier {
 		}
 		else {
 			name = this.parameter.getName();		//the name of the parameter
-					
-			if ( this.parameter.getValue() != null )	//the value of the parameter
+			if ( this.parameter.getValue() != null ) 	//the value of the parameter
 				value = Float.valueOf( this.parameter.getValue() ).floatValue();
 			else 
 				aux = this.parameter.getValue();
@@ -1279,12 +1319,14 @@ public class OntologyModifier {
 				addProperties ( value );
 			}	//recursive add nbClasses starting from level level
 			if ( name.equals( ParametersIds.ADD_CLASSES ) ) {
-				int index = aux.indexOf(".");
+                                aux = ((Float)value).toString();
+                                int index = aux.indexOf(".");
 				int level = Integer.valueOf( aux.substring(0, index) );
 				int nbClasses = Integer.valueOf( aux.substring(index+1, aux.length()) );
 				System.out.println( "level " + level );
 				System.out.println( "nbClasses " + nbClasses );
-				addClasses ( level, nbClasses );
+                                float percentage = 1.00f;
+				addClasses ( level, nbClasses, percentage );
 			}	//remove all the classes from the level level
 			if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) {
 				System.out.println("Remove all classes from level" + (int)value );
@@ -1295,36 +1337,26 @@ public class OntologyModifier {
 				levelFlattened ( (int)value );
 				System.out.println( "New class hierarchy level " + getMaxLevel() ) ;
 				//this.classHierarchy.printClassHierarchy();
-			}//rename classes
+			}       //rename classes
 			if ( name.equals( ParametersIds.RENAME_CLASSES ) ) {
 				System.out.println("Rename classes" + "[" + value + "]" );
 				//System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
-				this.modifiedModel = renameResource ( false, true, value, true,false, false, 0);
-			}//rename properties
+				this.modifiedModel = renameResource ( false, true, value, false,true, false, 0);
+			}       //rename properties
 			if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) {
 				System.out.println("Rename properties " + "[" + value + "]" );
 				//System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
-				this.modifiedModel = renameResource ( true, false, value, true,false, false, 0);
-			}//remove percentage restrictions
+				this.modifiedModel = renameResource ( true, false, value, false, true, false, 0);
+			}       //remove percentage restrictions
 			if ( name.equals( ParametersIds.REMOVE_RESTRICTION ) ) {
 				System.out.println("Remove restrictions" + "[" + value + "]");
 				removeRestrictions( value );
+			}       //remove percentage individuals
+			if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) {
+				System.out.println("Remove individuals" + "[" + value + "]");
+				removeRestrictions( value );
 			}
 		}
-		/*
-		System.out.println("\n\n\n***\n");
-		
-		Set<Object> e1 = params.keySet();
-		for ( Iterator it = e1.iterator(); it.hasNext(); ) {
-			String key = (String)it.next();
-			String val = (String)params.get( key );
-			System.out.println( "key " + key ); //+ " value " + value );
-		}
-		
-		System.out.println("\n\n\n***\n");
-		*/
-		//compute the alignment and print it to the file referenceAlignment.rdf
-		//computeAlignment( fileName );
 		
 	}
 	
