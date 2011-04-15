@@ -22,4 +22,7 @@ public class ParametersIds {
 	
 	public static String REMOVE_RESTRICTION= "removeRestriction";	//remove restrictions
 
+        public static String REMOVE_INDIVIDUALS= "removeIndividuals";	//remove individuals
+        public static String NO_HIERARCHY      = "noHierarchy";         //no hierarchy
+
 }
