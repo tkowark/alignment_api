@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Archiver-Version: Plexus Archiver
-Created-By: Apache Maven
-Built-By: richardmidwinter
-Build-Jdk: 1.6.0_22
-Main-Class: com.google.api.translate.TranslatorFrame
-Class-Path: json-20090211.jar
-
