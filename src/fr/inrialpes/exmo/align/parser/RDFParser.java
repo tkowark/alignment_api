@@ -322,10 +322,7 @@ public class RDFParser {
      *             if the node is null
      */
     protected Ontology parseOntology(final Resource node) throws AlignmentException {
-	if (node == null) {
-	    throw new AlignmentException("The ontology node must not be null");
-	}
-
+	if (node == null) throw new AlignmentException("The Ontology node must not be null");
 	try {
 	    Resource formu = node.getProperty((Property)SyntaxElement.FORMATT.resource).getResource();
 	    final String formalismName = formu.getProperty((Property)SyntaxElement.NAME.resource).getString();
@@ -338,8 +335,7 @@ public class RDFParser {
 	    if ( location != null ) onto.setFile( new URI( location.getString() ) );
 	    return onto;
 	} catch ( Exception e ) {
-	    throw new AlignmentException("The ontology node isn't correct: "
-					 + node.getLocalName(), e);
+	    throw new AlignmentException("The Ontology node is not correct: "+ node.getLocalName(), e);
 	}
     }
 
@@ -363,8 +359,7 @@ public class RDFParser {
 	    //Get the relation
 	    final EDOALRelation type = new EDOALRelation( relation );
 	    if (type == null) {	// I raise an error in this case anyway
-		throw new IllegalArgumentException("Couln't parse the string \"" + relation
-						   +"\" to a valid rule type");
+		throw new IllegalArgumentException("Cannot parse the string \""+relation+"\" to a valid relation");
 	    }
 	    // parse the measure, the node shall be Literal and it's a number
 	    final float m = node.getProperty((Property)SyntaxElement.MEASURE.resource).getFloat();
