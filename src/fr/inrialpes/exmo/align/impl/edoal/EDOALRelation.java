@@ -21,8 +21,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-// JE2009: This is a total mess that must be rewritten wrt Direction
-
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Relation;
@@ -53,7 +51,7 @@ public class EDOALRelation implements Relation {
 
     /**
      * <p>
-     * Enumeration to distinuish the direction of the mapping.
+     * Enumeration to distinguish the direction of the mapping.
      * </p>
      * <p>
      * $Id$
@@ -62,6 +60,8 @@ public class EDOALRelation implements Relation {
      * @author richi
      * @version $Revision: 1.10 $
      */
+    // JE2011: Direction is now totally local here...
+    // JE2009: This is a total mess that must be rewritten wrt Direction
     // JE2009: THIS SHOULD BE REWRITTEN WITH SUBCLASSES AND NO DIRECTIONS...
     /* [JE:22/01/2008]
      * I make this compliant with 2.2.10 and replacing RDFRuleTYpe
@@ -126,36 +126,27 @@ public class EDOALRelation implements Relation {
 	visitor.visit(this);
     }
 
-    /**
-     * It is intended that the value of the relation is =, < or >.
-     * But this can be any string in other applications.
-     */
-    protected String type = null;
-
     protected Direction direction = null;
 
     /** Creation **/
     public EDOALRelation( String t ) throws AlignmentException {
 	direction = Direction.getRelation( t );
 	if ( direction == null ) throw new AlignmentException( "Unknown EDOALRelation : "+t );
-	type = t;
     }
 
     /** Creation **/
     public EDOALRelation( Direction d ) {
-	type = d.toString();
 	direction = d;
     }
 
     /** Creation: OLD Stuff should disappear **/
     public EDOALRelation( String t, Direction d ) {
 	direction = d;
-	type = t;
     }
 
     /** printable format **/
     public String getRelation(){
-	return type;
+	return direction.toString();
     }
 
     /** printable format **/
@@ -168,6 +159,7 @@ public class EDOALRelation implements Relation {
 	Direction newDirection = null;
 	if ( ! (r instanceof EDOALRelation) ) return null;
 	String rType = ((EDOALRelation)r).getRelation();
+	String type = getRelation();
 	// Compose types
 	if ( type.startsWith("Class") ) { newType = "Class"; }
 	else if ( type.startsWith("Relation") ) { newType = "Relation"; }
@@ -208,6 +200,7 @@ public class EDOALRelation implements Relation {
 
     /** By default the inverse is the relation itself **/
     public Relation inverse() {
+	String type = getRelation();
 	if ( type.equals("Class") ) return new EDOALRelation("Class", direction);
 	else if (type.equals("ClassRelation") ) return new EDOALRelation("RelationClass", direction);
 	else if (type.equals("ClassAttribute") ) return new EDOALRelation("AttributeClass", direction);
@@ -230,7 +223,7 @@ public class EDOALRelation implements Relation {
     /** Are the two relations equal **/
     public boolean equals( Relation r ) {
 	if ( r instanceof EDOALRelation ){
-	    return ( type.equals( ((EDOALRelation)r).getRelation() )
+	    return ( getRelation().equals( ((EDOALRelation)r).getRelation() )
 		     && direction.equals( ((EDOALRelation)r).getDirection() ) );
 	} else {
 	    return false;
@@ -238,7 +231,7 @@ public class EDOALRelation implements Relation {
     }
 
     public int hashCode() {
-	return 5 + 3*type.hashCode() + 7*direction.hashCode() ;
+	return 5 + 7*direction.hashCode() ;
     }
 
     /** Housekeeping **/
@@ -246,7 +239,7 @@ public class EDOALRelation implements Relation {
 
     /** This is kept for displayig more correctly the result **/
     public void write( PrintWriter writer ) {
-	writer.print(direction.toString());
+	writer.print( getRelation() );
     }
 }
 
