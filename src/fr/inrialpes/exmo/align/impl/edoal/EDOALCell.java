@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.2 - 2008
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -40,7 +40,6 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicCell;
-
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
@@ -79,7 +78,7 @@ public class EDOALCell extends BasicCell {
     }
 
     /** Creation **/
-    public EDOALCell( String id, Expression ob1, Expression ob2, EDOALRelation rel, double m ) throws AlignmentException {
+    public EDOALCell( String id, Expression ob1, Expression ob2, Relation rel, double m ) throws AlignmentException {
 	super( id, (Object)ob1, (Object)ob2, rel, m );
     };
 
@@ -113,7 +112,7 @@ public class EDOALCell extends BasicCell {
     }
 
     public Cell inverse() throws AlignmentException {
-	EDOALCell invcell = new EDOALCell( (String)null, (Expression)object2, (Expression)object1, (EDOALRelation)relation.inverse(), strength );
+	EDOALCell invcell = new EDOALCell( (String)null, (Expression)object2, (Expression)object1, relation.inverse(), strength );
 	for ( Transformation trsf : transformations ) {
 	    invcell.addTransformation( trsf.inverse() );
 	}

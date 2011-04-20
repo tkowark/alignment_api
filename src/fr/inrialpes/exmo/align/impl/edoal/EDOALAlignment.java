@@ -142,7 +142,7 @@ public class EDOALAlignment extends BasicAlignment {
 	return super.addAlignCell( ob1, ob2 );
     };
     public Cell createCell(String id, Object ob1, Object ob2, Relation relation, double measure) throws AlignmentException {
-	return (Cell)new EDOALCell( id, (Expression)ob1, (Expression)ob2, (EDOALRelation)relation, measure);
+	return (Cell)new EDOALCell( id, (Expression)ob1, (Expression)ob2, relation, measure);
     }
 
     public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
