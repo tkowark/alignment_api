@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2008
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,16 +23,17 @@
 package fr.inrialpes.exmo.align.parser;
 
 import org.semanticweb.owl.align.AlignmentException;
+import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.BasicOntology;
 
+import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALRelation;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.Id;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
@@ -357,7 +358,7 @@ public class RDFParser {
 	    // determine the relation, the relation shall be Literal
 	    final String relation = node.getProperty((Property)SyntaxElement.RULE_RELATION.resource).getString();
 	    //Get the relation
-	    final EDOALRelation type = new EDOALRelation( relation );
+	    final Relation type = BasicRelation.createRelation( relation );
 	    if (type == null) {	// I raise an error in this case anyway
 		throw new IllegalArgumentException("Cannot parse the string \""+relation+"\" to a valid relation");
 	    }

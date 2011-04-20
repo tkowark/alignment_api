@@ -1,7 +1,7 @@
 /*
  * $Id$
 ¨*
- * Copyright (C) INRIA Rhône-Alpes, 2004-2005
+ * Copyright (C) INRIA, 2004-2005, 2008, 2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,17 +38,21 @@ public class NonTransitiveImplicationRelation extends BasicRelation
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
-    /**
-     * It is intended that the value of the relation is =, < or >.
-     * But this can be any string in other applications.
-     */
+
+    static final String prettyLabel = "~>";
 
     /** Creation **/
     public NonTransitiveImplicationRelation(){
-	super("~>");
+	super(prettyLabel);
     }
     
-    
+    private static NonTransitiveImplicationRelation instance = null;
+
+    public static NonTransitiveImplicationRelation getInstance() {
+	if ( instance == null ) instance = new NonTransitiveImplicationRelation();
+	return instance;
+    }
+
 }
 
 

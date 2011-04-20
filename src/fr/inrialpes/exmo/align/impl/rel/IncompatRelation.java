@@ -1,6 +1,7 @@
 /*
  * $Id$
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ *
+ * Copyright (C) INRIA, 2004, 2008, 2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,19 +38,24 @@ public class IncompatRelation extends BasicRelation
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
-    /**
-     * It is intended that the value of the relation is =, < or >.
-     * But this can be any string in other applications.
-     */
+
+    static final String prettyLabel = "%";
 
     /** Creation **/
     public IncompatRelation(){
-	super("%");
+	super(prettyLabel);
     }
 
-    public Relation compose(Relation r) {
-    	if (r instanceof EquivRelation || r instanceof SubsumeRelation)
-    		return this;
+    private static IncompatRelation instance = null;
+
+    public static IncompatRelation getInstance() {
+	if ( instance == null ) instance = new IncompatRelation();
+	return instance;
+    }
+
+    public Relation compose( Relation r ) {
+    	if ( r instanceof EquivRelation || r instanceof SubsumeRelation )
+	    return this;
     	return null;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2008, 2011
+ * Copyright (C) INRIA, 2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,49 +26,41 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
-import java.io.PrintWriter;
-
 /**
- * Represents an OWL subsumption relation.
+ * Represents a relation between an instance and its class.
  *
  * @author Jérôme Euzenat
  * @version $Id$
  */
 
-public class SubsumedRelation extends BasicRelation
+public class InstanceOfRelation extends BasicRelation
 {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
-        visitor.visit( this );
+	visitor.visit( this );
     }
 
-    static final String prettyLabel = "<";
+    static final String prettyLabel = "InstanceOf";
 
     /** Creation **/
-    public SubsumedRelation(){
+    public InstanceOfRelation(){
 	super(prettyLabel);
     }
 
-    private static SubsumedRelation instance = null;
+    private static InstanceOfRelation instance = null;
 
-    public static SubsumedRelation getInstance() {
-	if ( instance == null ) instance = new SubsumedRelation();
+    public static InstanceOfRelation getInstance() {
+	if ( instance == null ) instance = new InstanceOfRelation();
 	return instance;
     }
 
     public Relation compose(Relation r) {
-    	if ( r.equals(this) || r instanceof EquivRelation )
-    		return this;
-    	else if ( r instanceof IncompatRelation )
-    		return r;
+    	if ( r instanceof EquivRelation || r instanceof SubsumedRelation )
+	    return this;
     	return null;
     }
 
     public Relation inverse() {
-	return SubsumeRelation.getInstance();
-    }
-
-    public void write( PrintWriter writer ) {
-        writer.print("&lt;");
+	return HasInstanceRelation.getInstance();
     }
 
 }

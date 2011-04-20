@@ -43,16 +43,7 @@ import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 
 
-/*
- *
- * JE: 2010
- *
- * THIS SHOULD TEST ALL ERRORS RAISED BY CONSTRUCTORS
- *
- *
- *
- *
- */
+// JE2010: THIS SHOULD TEST ALL ERRORS RAISED BY CONSTRUCTORS
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
@@ -130,7 +121,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
 	// This tests the round triping
 	assertEquals( wine2.length(), stream.toString().length() );
 	// This provides an absolute value
-	assertEquals( wine2.length(), 4709 );
+	assertEquals( wine2.length(), 4671 );
 	// This does not work because (at least) the order of correspondences is never the same...
 	//assertEquals( wine2, stream.toString() );
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,20 +20,20 @@
 
 package fr.inrialpes.exmo.align.impl;
 
-import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
-import fr.inrialpes.exmo.align.impl.rel.SubsumeRelation;
-import fr.inrialpes.exmo.align.impl.rel.SubsumedRelation;
-import fr.inrialpes.exmo.align.impl.rel.IncompatRelation;
-import fr.inrialpes.exmo.align.impl.rel.NonTransitiveImplicationRelation;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Relation;
 
-import java.lang.reflect.Constructor;
-import java.io.PrintWriter;
-
 import org.xml.sax.ContentHandler;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.ClassNotFoundException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents an ontology alignment relation.
@@ -42,52 +42,118 @@ import org.xml.sax.ContentHandler;
  * @version $Id$
  */
 
-public class BasicRelation implements Relation
-{
+public class BasicRelation implements Relation {
+
+    private static Map<String, Class<?>> classIndex = null;
+
+    static Class<?> getClass( String label ) {
+	if ( label == null ) 
+	    throw new NullPointerException("The string to search must not be null");
+	if ( classIndex == null ){
+	    classIndex = new HashMap<String, Class<?>>();
+	    try {
+		Class<?> eq = Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation");
+		Class<?> sub = Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation");
+		Class<?> sup = Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation");
+		Class<?> dis = Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation");
+		Class<?> ins = Class.forName("fr.inrialpes.exmo.align.impl.rel.InstanceOfRelation");
+		Class<?> has = Class.forName("fr.inrialpes.exmo.align.impl.rel.HasInstanceRelation");
+		Class<?> nti = Class.forName("fr.inrialpes.exmo.align.impl.rel.NonTransitiveImplicationRelation");
+		
+		classIndex.put( "Equivalence", eq );
+		classIndex.put( "=", eq );
+		classIndex.put( "equivalence", eq );
+		classIndex.put( "ClassMapping", eq );
+		
+		classIndex.put( "Subsumes", sup );
+		classIndex.put( ">", sup );
+		classIndex.put( "&gt;", sup );
+		
+		classIndex.put( "SubsumedBy", sub );
+		classIndex.put( "<", sub );
+		classIndex.put( "&lt;", sub );
+		
+		classIndex.put("><", dis );
+		classIndex.put("%", dis );
+		classIndex.put("DisjointFrom",dis);
+		classIndex.put("Disjoint",dis);
+		classIndex.put("disjointFrom",dis);
+		classIndex.put("disjoint",dis);
+	    
+		classIndex.put( "InstanceOf", ins );
+	    
+		classIndex.put( "HasInstance", has );
+
+		classIndex.put( "~>", nti );
+		classIndex.put( "~&gt;", nti );
+	    } catch ( ClassNotFoundException cnfe ) {
+		cnfe.printStackTrace(); // should never occur
+	    }
+	}
+	return classIndex.get(label);
+    }
+
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	visitor.visit(this);
+    }
+
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
+
     /**
-     * It is intended that the value of the relation is =, < or >.
-     * But this can be any string in other applications.
+     * The initial relation given by the user (through parser for instance)
+     * This is never used in subclass relations (because they share one relation)
      */
     protected String relation = null;
-
-    /** Creation **/
-    public BasicRelation( String rel ){
-	relation = rel;
-    }
 
     /** printable format **/
     public String getRelation() {
 	return relation;
     }
 
+    /**
+     * The pretty relation attached to the relation type
+     * This is overriden as static in subclasses
+     */
+    protected String prettyLabel = null;
+
+    public String getPrettyLabel() {
+	return prettyLabel;
+    }
+
+    /**
+     * The name to use if no other information is available
+     */
+    public String getClassName() {
+	return getClass().toString();
+    }
+
+    /** Creation **/
+    public BasicRelation( String rel ){
+	relation = rel;
+    }
+
+    /**
+     * The constructor to use
+     */
     public static Relation createRelation( String rel ) {
-	Relation relation = null;
-	if ( rel.equals("=") ) {
-	    relation = new EquivRelation();
-	} else if ( rel.equals("<") || rel.equals("&lt;") ) {
-	    relation = new SubsumedRelation();
-	} else if ( rel.equals(">") || rel.equals("&gt;") ) {
-	    relation = new SubsumeRelation();
-	} else if ( rel.equals("%") ) {
-	    relation = new IncompatRelation();
-	} else if ( rel.equals("~>") || rel.equals("~&gt;") ) {
-	    relation = new NonTransitiveImplicationRelation();
-	} else {
-	    try {
-		// Create a relation from classname
-		Class<?> relationClass = Class.forName(rel);
-		Constructor relationConstructor = relationClass.getConstructor((Class[])null);
-		relation = (Relation)relationConstructor.newInstance((Object[])null);
-	    } catch ( Exception ex ) {
-		//ex.printStackTrace();
-		//Otherwise, just create a Basic relation
-		relation = (Relation)new BasicRelation( rel );
-	    }
-	};
-	return relation;
+	Class<?> relationClass = getClass( rel );
+	if ( relationClass != null ) {
+	    try { // Get existing relation... 
+		Method m = relationClass.getMethod("getInstance");
+		return (Relation)m.invoke(null);
+	    } catch ( Exception ex ) {}; // should not happen
+	}
+	try { // Create a relation from classname
+	    relationClass = Class.forName(rel);
+	    Constructor relationConstructor = relationClass.getConstructor((Class[])null);
+	    return (Relation)relationConstructor.newInstance((Object[])null);
+	} catch ( Exception ex ) {
+	    //ex.printStackTrace();
+	    //Otherwise, just create a Basic relation
+	    return new BasicRelation( rel );
+	}
     }
 
     /** By default the inverse is the relation itself **/
@@ -95,7 +161,7 @@ public class BasicRelation implements Relation
 	return this;
     }
 
-    /** By default...**/
+    /** By default... no composition possible **/
     public Relation compose( Relation r ) {
     	return null;
     }
@@ -117,7 +183,13 @@ public class BasicRelation implements Relation
 
     /** This is kept for displayig more correctly the result **/
     public void write( PrintWriter writer ) {
-	writer.print(relation);
+	if ( relation != null ) {
+	    writer.print( relation );
+	} else if ( getPrettyLabel() != null ) {
+	    writer.print( getPrettyLabel() );
+	} else {
+	    writer.print( getClassName() );
+	}
     }
 }
 

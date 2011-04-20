@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.parser;
 
-
 import java.util.Hashtable;
 import java.util.Properties;
 import java.net.URI;
@@ -70,7 +69,6 @@ import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALRelation;
 
 /**
  * Checks if an EDOALAlignment is well-typed
@@ -132,11 +130,12 @@ public class TypeCheckingVisitor {
 
     public TYPE visit( EDOALCell cell ) throws AlignmentException {
 	this.cell = cell;
-	// JE2011???? Could be useful when not parsing EDOAL
+	// Could be useful when not parsing EDOAL
 	if ( alignment.getLevel().startsWith("2EDOAL") ) {
 	    TYPE t1 = visit( ((Expression)(cell.getObject1())) );
 	    TYPE t2 = visit( ((Expression)(cell.getObject2())) );
 	    // JE2011: This should be dependent on the Relation type (e.g., instanceOf)
+	    // See below
 	    if ( !compatible( t1, t2 ) ) return TYPE.ERROR;
 	}
 	return TYPE.ANY;
@@ -156,9 +155,13 @@ public class TypeCheckingVisitor {
 	return false;
     }
 
-    public TYPE visit( EDOALRelation rel ) {
-	return TYPE.ANY;
-    };
+    // JE2011
+    // This should no be related to the Relation class
+    // and it can implement a compatibility check from the given types!
+    // depending on the 
+    //public TYPE visit( EDOALRelation rel ) {
+    //	return TYPE.ANY;
+    //};
 
     public TYPE visit( final Transformation trsf ) throws AlignmentException {
 	// getType() could allow to do better typing

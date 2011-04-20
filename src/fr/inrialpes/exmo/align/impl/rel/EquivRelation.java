@@ -1,6 +1,7 @@
 /*
  * $Id$
- * Copyright (C) INRIA Rhône-Alpes, 2004
+ *
+ * Copyright (C) INRIA, 2004, 2008, 2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,18 +38,23 @@ public class EquivRelation extends BasicRelation
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
 	visitor.visit( this );
     }
-    /**
-     * It is intended that the value of the relation is =, < or >.
-     * But this can be any string in other applications.
-     */
+
+    static final String prettyLabel = "=";
 
     /** Creation **/
     public EquivRelation(){
-	super("=");
+	super(prettyLabel);
+    }
+
+    private static EquivRelation instance = null;
+
+    public static EquivRelation getInstance() {
+	if ( instance == null ) instance = new EquivRelation();
+	return instance;
     }
 
     public Relation compose(Relation r) {
-		return r;
+	return r;
     }
 
 }
