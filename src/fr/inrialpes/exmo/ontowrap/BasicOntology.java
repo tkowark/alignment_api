@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008, 2010
+ * Copyright (C) INRIA, 2007-2008, 2010-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -60,4 +60,25 @@ public class BasicOntology<O> implements Ontology<O> {
 	}
 	return result;
     }
+
+    public LoadedOntology load() throws OntowrapException {
+	OntowrapException ex = null;
+	// Try to use the default factory
+	try {
+	    return OntologyFactory.getFactory().loadOntology( file );
+	} catch ( OntowrapException owex ) {
+	    ex = new OntowrapException( "Cannot load ontology "+file, owex );
+	}
+	// Otherwise try the possible ones
+	for ( String className : OntologyFactory.getFactories( formalismURI ) ) {
+	    try {
+		return OntologyFactory.newInstance( className ).loadOntology( file );
+	    } catch ( OntowrapException owex ) {
+		if ( ex == null )
+		    ex = new OntowrapException( "Cannot load ontology "+file, owex );
+	    }
+	}
+	throw ex;
+    }
+
 }

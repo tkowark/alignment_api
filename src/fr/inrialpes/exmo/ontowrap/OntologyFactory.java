@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010
+ * Copyright (C) INRIA, 2008, 2010-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,12 @@
 package fr.inrialpes.exmo.ontowrap;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -41,9 +46,42 @@ public abstract class OntologyFactory {
     public static final int MENTIONNED = 11;
     public static final int ALL = 12;
 
+    private static Map<URI,Set<String>> factories = null;
+
     protected static Hashtable<String,OntologyFactory> instances = null;
 
     private static String API_NAME="fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory";
+
+    public static Set<String> getFactories( URI formalism ) {
+	if ( factories == null ){
+	    factories = new HashMap<URI, Set<String>>();
+	    try {
+		HashSet<String> owl = new HashSet<String>();
+		factories.put( new URI("http://www.w3.org/2002/07/owl#"), owl );
+		owl.add( "fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory" );
+		owl.add( "fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory" );
+		owl.add( "fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntologyFactory" );
+
+		HashSet<String> rdfs = new HashSet<String>();
+		factories.put( new URI("http://www.w3.org/2000/01/rdf-schema#"), rdfs );
+		rdfs.add( "fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory" );
+
+		//HashSet<String> owl2 = new HashSet<String>();
+		//factories.put( new URI("http://www.w3.org/2002/07/owl#"), owl2 );
+		//owl2.add( "fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory" );
+		//owl2.add( "fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory" );
+
+		HashSet<String> skos = new HashSet<String>();
+		factories.put( new URI("http://www.w3.org/2004/02/skos/core#"), skos );
+		skos.add( "fr.inrialpes.exmo.ontowrap.skoslite.SKOSLiteOntologyFactory" );
+		skos.add( "fr.inrialpes.exmo.ontowrap.skosapi.SKOSOntologyFactory" );
+
+	    } catch ( URISyntaxException uriex ) {
+		uriex.printStackTrace(); // should never occur
+	    }
+	}
+	return factories.get( formalism );
+    }
 
     public static String getDefaultFactory(){
 	return API_NAME;
@@ -57,7 +95,7 @@ public abstract class OntologyFactory {
 	return newInstance(API_NAME);
     }
 
-    private static OntologyFactory newInstance( String apiName ) {
+    protected static OntologyFactory newInstance( String apiName ) {
 	if ( instances == null ) instances = new Hashtable<String,OntologyFactory>();
 	OntologyFactory of = instances.get( apiName );
 	if ( of != null ) return of;
