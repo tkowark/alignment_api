@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  * Copyright (C) FZI/Juergen Bock, 2010
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,17 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-//package test.com.acme.dona.dep;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNull;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
-//import org.testng.annotations.*;
 
 import java.net.URI;
 
