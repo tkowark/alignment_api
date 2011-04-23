@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,9 +23,6 @@ package fr.inrialpes.exmo.ontowrap;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
-
-import org.semanticweb.owl.model.OWLEntity;
-import org.semanticweb.owl.model.OWLException;
 
 import fr.inrialpes.exmo.ontowrap.util.FilteredSet;
 
