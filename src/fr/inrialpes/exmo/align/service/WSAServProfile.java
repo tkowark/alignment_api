@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.align.service;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.service.msg.Message;
+import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
+import fr.inrialpes.exmo.align.service.msg.NonConformParameters;
 
 import org.semanticweb.owl.align.Alignment;
 

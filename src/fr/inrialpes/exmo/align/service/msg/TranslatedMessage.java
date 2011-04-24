@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,26 +26,15 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class ErrorMsg extends Message {
+public class TranslatedMessage extends Success {
 
-    public ErrorMsg ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+    public TranslatedMessage ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String HTMLString(){
-	return "Generic error: "+content;
+    public String HTMLString() {
+	return content;
     }
     public String RESTString(){
-	return "<error>" + content + "</error>";
-    }
-    public String HTMLRESTString(){
-	return HTMLString();
-    }
-    public String SOAPString(){
-	String res = "    <ErrorMsg>\n";
-	res += "      <msgid>"+surrogate+"</msgid>\n"+"        <sender>"+sender+"</sender>\n" + "        <receiver>"+receiver+"</receiver>\n" ;
-	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
-	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
-	res += "      "+RESTString()+"\n"+"    </ErrorMsg>\n";
-	return res;
+	return "<message>"+content+"</message>";	
     }
 }

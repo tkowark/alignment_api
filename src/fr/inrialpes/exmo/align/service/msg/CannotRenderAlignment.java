@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,14 +26,14 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class UnknownAlignment extends ErrorMsg {
-    public UnknownAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+public class CannotRenderAlignment extends ErrorMsg {
+    public CannotRenderAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String RESTString(){
-	return "<UnknownAlignment>"+content+"</UnknownAlignment>";
-    }
     public String HTMLString(){
-	return "Unknown alignment: "+content;
+	return "Cannot render alignment "+content+": turn it to an ObjectAlignment with ObjectAlignement.toOkbjectAlignement( al )";
+    }
+    public String RESTString(){
+	return "<CannotRenderAlignment>"+content+"</CannotRenderAlignment>";
     }
 }

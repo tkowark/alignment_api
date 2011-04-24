@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,14 +26,31 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class UnreachableAlignment extends ErrorMsg {
-    public UnreachableAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+public class EvalResult extends Success {
+
+    public EvalResult ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String RESTString() {
-	return "<UnreachableAlignment>"+content+"</UnreachableAlignment>";
+    public String HTMLString(){
+	String results = "";
+	if ( getParameters() == null ) {
+	    results += getContent();
+	} else {
+	    results += "Alignment method: "+getContent()+"\n<ul>\n";
+	    for ( String key : getParameters().stringPropertyNames() ) {
+		results += "<li>"+key+" : "+getParameters().getProperty( key )+"</li>\n";
+	    }
+	    results += "</ul>\n";
+	}
+	return results;
     }
-    public String HTMLString() {
-	return "Unreachable alignment: "+content;
+    public String RESTString(){
+	String results = "<EvaluationResults>";
+	for ( String key : getParameters().stringPropertyNames() ) {
+	    results += "<"+key+">"+getParameters().getProperty( key )+"</"+key+">";
+	}
+	results += "</EvaluationResults>";
+	return results;	
     }
+
 }

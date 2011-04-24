@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2006-2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,16 +26,14 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class OntologyURI extends Success {
-
-    public OntologyURI ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+public class UnknownAlignment extends ErrorMsg {
+    public UnknownAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String HTMLString(){
-	return "Ontology URI: "+content;
-    }
     public String RESTString(){
-	return "<uri>"+content+"</uri>";
+	return "<UnknownAlignment>"+content+"</UnknownAlignment>";
     }
-
+    public String HTMLString(){
+	return "Unknown alignment: "+content;
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006, 2008-2009
+ * Copyright (C) INRIA, 2006, 2008-2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,12 +26,19 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class RenderedAlignment extends Success {
+public class Success extends Message {
 
-    public RenderedAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+    public Success ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString(){
-	return "<alignment>"+content+"</alignment>";	
+	return "<content>"+content+"</content>";	
+    }
+    public String SOAPString(){
+	String res = "      <msgid>"+surrogate+"</msgid>\n";
+	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
+	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
+	res += "      "+RESTString()+"\n";
+	return res;
     }
 }

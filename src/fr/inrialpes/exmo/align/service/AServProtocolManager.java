@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,21 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
+import fr.inrialpes.exmo.align.service.msg.Message;
+import fr.inrialpes.exmo.align.service.msg.AlignmentId;
+import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
+import fr.inrialpes.exmo.align.service.msg.AlignmentMetadata;
+import fr.inrialpes.exmo.align.service.msg.EvalResult;
+import fr.inrialpes.exmo.align.service.msg.OntologyURI;
+import fr.inrialpes.exmo.align.service.msg.RenderedAlignment;
+import fr.inrialpes.exmo.align.service.msg.TranslatedMessage;
+import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
+import fr.inrialpes.exmo.align.service.msg.NonConformParameters;
+import fr.inrialpes.exmo.align.service.msg.RunTimeError;
+import fr.inrialpes.exmo.align.service.msg.UnknownAlignment;
+import fr.inrialpes.exmo.align.service.msg.UnknownMethod;
+import fr.inrialpes.exmo.align.service.msg.UnreachableAlignment;
+import fr.inrialpes.exmo.align.service.msg.UnreachableOntology;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -65,7 +65,10 @@ import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
  /**
-  * Represents an ontology alignment relating entities identified by their URIs
+  * This is an AlignmentProcess which perform matching by connecting
+  * to an AlignmentServer and retrieving or computing an alignment.
+  * It uses the SOAP web service interface
+  * TODO: Implement the REST interface
   *
   * @author Jérôme Euzenat
   * @version $Id$

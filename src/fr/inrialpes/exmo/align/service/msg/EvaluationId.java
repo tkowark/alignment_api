@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009
+ * Copyright (C) INRIA, 2008, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
@@ -26,14 +26,24 @@ import java.util.Properties;
  * Contains the messages that should be sent according to the protocol
  */
 
-public class UnreachableOntology extends ErrorMsg {
-    public UnreachableOntology ( int surr, Message rep, String from, String to, String cont, Properties param ) {
+public class EvaluationId extends Success {
+
+    String pretty = null;
+
+    public EvaluationId ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    public String RESTString() {
-	return "<UnreachableOntology>"+content+"</UnreachableOntology>";
+    public String getPretty( String alid ) {
+	// getextension "pretty"
+	// if no pretty then 
+	return alid;
+    };
+    public String HTMLString(){
+	return getContent();
     }
-    public String HTMLString() {
-	return "Unreachable ontology: "+content;
+
+    public String RESTString(){
+	return "<alid>"+content+"</alid>";	
     }
+
 }

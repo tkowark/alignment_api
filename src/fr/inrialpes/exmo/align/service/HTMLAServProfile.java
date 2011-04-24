@@ -23,6 +23,11 @@ package fr.inrialpes.exmo.align.service;
 import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.service.msg.Message;
+import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
+import fr.inrialpes.exmo.align.service.msg.AlignmentId;
+import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
+import fr.inrialpes.exmo.align.service.msg.EvaluationId;
 
 import org.semanticweb.owl.align.Alignment;
 
