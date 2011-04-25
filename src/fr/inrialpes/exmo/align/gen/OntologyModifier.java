@@ -1061,11 +1061,11 @@ public class OntologyModifier {
         //IN CLASS HIERARCHY NU FACE BINE
         public void noHierarchy () {
             int level = this.getMaxLevel();
-            this.classHierarchy.printClassHierarchy();
+            //this.classHierarchy.printClassHierarchy();
             while ( this.getMaxLevel() != 1 ) {
-                System.out.println("\n\n");
+                //System.out.println("\n\n");
                 //this.classHierarchy.printClassHierarchy();
-                System.out.println("\n\n");
+                //System.out.println("\n\n");
                 levelFlattened ( level );
                 level--;
             }
