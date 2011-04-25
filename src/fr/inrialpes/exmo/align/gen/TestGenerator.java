@@ -64,6 +64,7 @@ public class TestGenerator {
 		System.out.println( "[10. Add nbClasses to a specific level \"addClasses\"       ---------------]" );
 		System.out.println( "[11. Level flattened                   \"levelFlattened\"   ---------------]" );
                 System.out.println( "[12. Remove individuals                \"removeIndividuals\"   ------------]" );
+                //noHierarchy
 		System.out.println( "[--------------------------------------------------------------------------]" );
 		System.exit(-1);
 	}
@@ -131,6 +132,8 @@ public class TestGenerator {
 
                                 if ( args[i].equals("removeIndividuals") ) /* remove percentage individuals */
 					parameters.setParameter(ParametersIds.REMOVE_INDIVIDUALS, args[i+1]);
+                                if ( args[i].equals( ("noHierarchy")) )     /* no hierarchy */
+                                        parameters.setParameter( ParametersIds.NO_HIERARCHY , null);
 			}
 
 			//load the model
