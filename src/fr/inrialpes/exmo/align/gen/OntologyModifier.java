@@ -55,11 +55,9 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
 
-/*
 //WordNet API classes
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
-*/
 
 
 //activeRandomString is true -> we replace the label with a random string
@@ -567,6 +565,14 @@ public class OntologyModifier {
 				}
 			}
 		}
+
+                if ( activeClasses ) {
+                    checkClassHierarchy();
+                    //we update the class hierarchy according to the new modifications
+                    this.classHierarchy.updateClassHierarchy( params );
+                    //this.classHierarchy.printClassHierarchy();
+                }
+
 		return newModel;
 	}
 		
@@ -607,22 +613,22 @@ public class OntologyModifier {
 	public OntClass addClass ( OntClass parentClass, String childURI ) {
 		OntClass childClass = this.modifiedModel.createClass( this.namespace + childURI );			//create a new class to the model
 		this.classHierarchy.addClass( this.namespace + childURI, parentClass.getURI() );			//add the node in the hierarchy of classes
-		parentClass.addSubClass( childClass );														//add the childClass as subclass of parentClass
+		parentClass.addSubClass( childClass );									//add the childClass as subclass of parentClass
 		this.modifiedModel.add( childClass, RDFS.subClassOf, parentClass );					//add the class to the model
 		return childClass;
 	}
 		
 	//add the percentage of the specified subclasses
 	public void addSubClasses ( float percentage ) {
-		List<OntClass> classes = getOntologyClasses(); 	//get the list of classes from the Ontology
+		List<OntClass> classes = getOntologyClasses();                  //get the list of classes from the Ontology
 		int nbClasses = classes.size();					//number of classes from the Ontology
 		int toAdd = (int) ( percentage * nbClasses );
 
-		checkClassHierarchy();							//check if the classHierarchy is built		
+		checkClassHierarchy();						//check if the classHierarchy is built		
 		//build the list of properties to be renamed
 		int [] n = this.randNumbers(nbClasses, toAdd);
 		for ( int i=0; i<toAdd; i++ ) {
-			String childURI = this.getRandomString();	//give a random URI to the new class
+			String childURI = this.getRandomString();               //give a random URI to the new class
 			addClass( classes.get(n[i]), childURI );
 		}
 	}
@@ -823,7 +829,7 @@ public class OntologyModifier {
 		for ( int i=0; i<toBeRemoved; i++ ) {
 			Individual indiv = individuals.get(n[i]);				//remove the individual from the reference alignment
 			individualsTo.add( indiv );
-			this.params.remove( indiv.getURI() );
+			//this.params.remove( indiv.getURI() );
 		}
 		
 		for ( Statement st : statements ) {
@@ -1050,6 +1056,20 @@ public class OntologyModifier {
 			}	
 		}				
 	}
+
+        //AICI MAI TREBUIE MODIFICAT!!!
+        //IN CLASS HIERARCHY NU FACE BINE
+        public void noHierarchy () {
+            int level = this.getMaxLevel();
+            this.classHierarchy.printClassHierarchy();
+            while ( this.getMaxLevel() != 1 ) {
+                System.out.println("\n\n");
+                //this.classHierarchy.printClassHierarchy();
+                System.out.println("\n\n");
+                levelFlattened ( level );
+                level--;
+            }
+        }
 	
 	//remove percentage restrictions from the model
 	public void removeRestrictions( float percentage )  { 
@@ -1085,14 +1105,14 @@ public class OntologyModifier {
 		for ( OntProperty prop : properties )				//list all properties
 			if ( prop.getNameSpace().equals( this.namespace ) )
 				this.params.put( prop.getURI() , prop.getURI() );//add them to the initial alignment
-		
+		/*
 		for ( Individual indiv : individuals )	{			//list all individuals
 			if ( indiv.getURI() != null ) { 
-			//System.out.println( "[" + indiv.getURI() + "]" );
+			System.out.println( "[" + indiv.getURI() + "]" );
 				this.params.put( indiv.getURI() , indiv.getURI() );//add them to the initial alignment
 			}
 		}
-		/*
+		
 		for ( Ontology onto : ontologies )								//list all ontologies
 			if ( onto.getNameSpace().equals( this.namespace ) )
 				this.params.put( onto.getURI() , onto.getURI() );//add them to the initial alignment
@@ -1270,11 +1290,7 @@ public class OntologyModifier {
 	//must have the max level of the class hierarchy
 	public int getMaxLevel() {
 		checkClassHierarchy();			//check if the class hierarchy is built
-		//System.out.println("\n***\n");
-		//System.out.println( "THE MAX DEPTH OF THE CLASS HIERARCHY" );
-		System.out.println( "MaxLevelOfClassHierarchy = [" + this.classHierarchy.getMaxLevel() + "]" );
-		//System.out.println( "THE MAX DEPTH OF THE CLASS HIERARCHY" );
-		//System.out.println("\n***\n");
+		//System.out.println( "MaxLevelOfClassHierarchy = [" + this.classHierarchy.getMaxLevel() + "]" );
 		return this.classHierarchy.getMaxLevel();
 			
 	}
@@ -1336,19 +1352,18 @@ public class OntologyModifier {
 			}	//flatten a level
 			if ( name.equals( ParametersIds.LEVEL_FLATTENED ) ) {
 				//levelFlattened ( level );
-				levelFlattened ( (int)value );
+                                levelFlattened ( (int)value );
 				System.out.println( "New class hierarchy level " + getMaxLevel() ) ;
-				//this.classHierarchy.printClassHierarchy();
 			}       //rename classes
 			if ( name.equals( ParametersIds.RENAME_CLASSES ) ) {
 				System.out.println("Rename classes" + "[" + value + "]" );
 				//System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
-				this.modifiedModel = renameResource ( false, true, value, false,true, false, 0);
+				this.modifiedModel = renameResource ( false, true, value, true, false, false, 0);
 			}       //rename properties
 			if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) {
 				System.out.println("Rename properties " + "[" + value + "]" );
 				//System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
-				this.modifiedModel = renameResource ( true, false, value, false, true, false, 0);
+				this.modifiedModel = renameResource ( true, false, value, true, false, false, 0);
 			}       //remove percentage restrictions
 			if ( name.equals( ParametersIds.REMOVE_RESTRICTION ) ) {
 				System.out.println("Remove restrictions" + "[" + value + "]");
@@ -1356,8 +1371,12 @@ public class OntologyModifier {
 			}       //remove percentage individuals
 			if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) {
 				System.out.println("Remove individuals" + "[" + value + "]");
-				removeRestrictions( value );
-			}
+				removeIndividuals( value );
+			}       //no hierarchy
+                        if ( name.equals( ParametersIds.NO_HIERARCHY ) ) {
+                                System.out.println( "NoHierarchy" );
+                                noHierarchy();
+                        }
 		}
 		
 	}
