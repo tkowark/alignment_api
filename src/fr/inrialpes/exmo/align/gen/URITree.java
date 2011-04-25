@@ -2,7 +2,9 @@ package fr.inrialpes.exmo.align.gen;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 /*
  * This class represents the class hierarchy.
@@ -77,7 +79,7 @@ public class URITree {
 	//add the node with the childURI to the parent with the URI parentURI
 	public void add(URITree root, String childURI, String parentURI) { 
 		URITree parent;
-		parent = searchURITree(root, parentURI);		//we search for the parent URITree
+		parent = searchURITree(root, parentURI);                        //we search for the parent URITree
 		addChild(root, parent, childURI);				//we add the new URITree
 	}	
 	
@@ -115,7 +117,55 @@ public class URITree {
 		child.setParent( node );						//set the parent of the node
 		node.getChildrenList().add( child );			//add the node to the parent children list
 	}
-	
+
+
+
+
+
+        //renames the class from the tree after we have renamed the classes
+	@SuppressWarnings("unchecked")
+	public void renameTree(URITree root, Properties params) {
+		int index = 0;
+		URITree node = root;
+		URITree ans = null;
+                String uri;
+
+                //the uri has change
+
+		while ( index < root.getChildrenSize() ) {		//we start to search recursively
+                    uri = root.getChildAt( index ).getURI();
+                   // System.out.println( "uri = " + uri );
+                    if ( params.containsKey( uri ) ) {
+                        if ( !params.get( uri ).equals( uri ) )
+                            root.getChildAt( index ).setURI( (String)params.get( uri ) );
+                            }
+                    rename(root.getChildAt( index ), new ArrayList(),  0, params);
+                    index++;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void rename(URITree node, List occurs, int depth, Properties params) {
+		int index = 0;
+		URITree ans = null;
+		//verify if the label of the URITree is the one with the label of the URITree we search for
+                String uri = node.getURI();
+                if ( params.containsKey( uri ) ) {
+
+                    if ( !params.get( uri ).equals( uri ) ) {
+                        node.setURI( (String)params.get( uri ) );
+                    }
+                }
+
+                while( index < node.getChildrenSize()) {
+			URITree n = node.getChildAt( index );
+			occurs.add( node );
+			rename( n, occurs, depth+1, params );
+			occurs.remove( node );
+			index++;
+		}
+        }
+
 	//returns the URITree with the given URI
 	@SuppressWarnings("unchecked")
 	public URITree searchURITree(URITree root, String URI) {
