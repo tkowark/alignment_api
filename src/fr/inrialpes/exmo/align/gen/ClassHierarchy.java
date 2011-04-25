@@ -47,10 +47,15 @@ public class ClassHierarchy {
 	
 	public void addClass (String childURI, String parentURI) {
 		URITree node = null;
-		node = this.root.searchURITree( this.root, parentURI );			//the node from the hierarchy with the identifier parentURI
-		node.addChildToNode( node, childURI );							//we add the new childURI to the hierarchy
+		node = this.root.searchURITree( this.root, parentURI );                         //the node from the hierarchy with the identifier parentURI
+		node.addChildToNode( node, childURI );						//we add the new childURI to the hierarchy
 	}
 	
+        //updates the class hierarchy
+        public void updateClassHierarchy ( Properties params ) {
+            this.root.renameTree(this.root, params);
+        }
+
 	//returns the list of classes from level level
 	public List<OntClass> getClassesFromLevel (OntModel model, int level) {
 		List <URITree> nodes = this.getNodesFromLevel(level);			//get all the nodes from the specific level
@@ -150,18 +155,32 @@ public class ClassHierarchy {
 	public void buildClassHierarchy(OntModel model) { 
 		Iterator i =  model.listHierarchyRootClasses();
 		this.root = new URITree( "Thing" );									//the root of the hierarchy is always owl:Thing
-		OntClass rootClass;
 		
-		while ( i.hasNext() ) {
-			rootClass = (OntClass)i.next();
-			if ( !rootClass.isAnon() )										//if a root class is not an anonymous class
-				getClass( rootClass, new ArrayList(), 0 ) ;					
-			else {
-				for ( Iterator it = rootClass.listSubClasses(); it.hasNext();  )
-					getClass ( (OntClass)it.next(), new ArrayList(), 1 );
-			}
-		}	
-		
+                //get the list of root classes
+                List<OntClass> ontologyClasses = model.listClasses().toList();
+                List<OntClass> rootClasses = model.listClasses().toList();
+                for ( OntClass cls : ontologyClasses ) {
+                    if ( cls.isHierarchyRoot() )
+                        rootClasses.add( cls );
+                }
+
+                /*
+                System.out.println("\n*****");
+                System.out.println("Root classes ");
+                for ( OntClass cls : rootClasses ) {
+                     System.out.println("ROOT = ["  + cls.getLocalName() + "]");
+                }
+                System.out.println("\n*****\n");
+                */
+                for ( OntClass rootClass : rootClasses ) {
+                    if ( !rootClass.isAnon() )      //if a root class is not an anonymous class
+                        getClass( rootClass, new ArrayList(), 0 ) ;
+                    else {
+                        for ( Iterator it = rootClass.listSubClasses(); it.hasNext(); ) {
+                            getClass ( (OntClass)it.next(), new ArrayList(), 1 );
+                        }
+                    }
+                }
 		this.maxDepth = this.root.getMaxDepth();
 	}
 	
@@ -191,7 +210,8 @@ public class ClassHierarchy {
 				int found = 0;
 				OntClass aux = null;
 				uri = c.getURI();
-				for ( Iterator it = c.listSuperClasses(); it.hasNext(); ) { //search to see if the class has a superclass which is not anonymous
+       
+				for ( Iterator it = c.listSuperClasses(); it.hasNext(); ) {                                     //search to see if the class has a superclass which is not anonymous
 					aux = (OntClass)it.next();
 					if ( !aux.isAnon() ) {									//is not an anonymous class
 						found = 1;											//got the parent
@@ -211,6 +231,7 @@ public class ClassHierarchy {
 	
 	// Render a URI
 	protected String renderURI( PrefixMapping prefixes, String uri ) {
+                //System.out.println("URI = [" + uri + "]");
 		return prefixes.shortForm( uri );
 	}
 	
