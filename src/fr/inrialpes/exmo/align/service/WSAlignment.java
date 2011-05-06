@@ -68,7 +68,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
   * This is an AlignmentProcess which perform matching by connecting
   * to an AlignmentServer and retrieving or computing an alignment.
   * It uses the SOAP web service interface
-  * TODO: Implement the REST interface
+  * TODO: Implement the REST interface (see examples/wservice/AlignmentClient)
   *
   * @author Jérôme Euzenat
   * @version $Id$
