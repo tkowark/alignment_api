@@ -41,7 +41,9 @@ New Alignment API 4.1. <a href="http://gforge.inria.fr/frs/?group_id=117">Get it
   <small>RDF</small> Schema. Aligned entities are
   identified by their <small>URI</small>s-->.</p>
 
-<p>The Alignment API itself is a <i>Java</i> description of tools for accessing the common format. It defines four main interfaces (Alignment, Cell, Relation and Evaluator) and proposes the following services:
+<p>The Alignment API itself is a <i>Java</i> description of tools for
+  accessing the common format. It defines five main interfaces
+  (OntologyNetworks, Alignment, Cell, Relation and Evaluator) and proposes the following services:
 <ul compact="1">
 <li>Storing, finding, and sharing alignments;</li>
 <li>Piping alignment algorithms (improving an existing alignment);</li>
@@ -53,7 +55,7 @@ New Alignment API 4.1. <a href="http://gforge.inria.fr/frs/?group_id=117">Get it
 
 <!-- ******************************************************** -->
 
-<p>Here is the new Alignment API and implementation homepage. It is
+<p>Here is the Alignment API and implementation homepage. It is
   hosted by gforge.inria.fr which helps the developement process (by
   integrating theses pages within the SVN repository for instance).</p>
 
@@ -64,8 +66,18 @@ Santos, <a href="http://www.semantic-web-journal.net/content/new-submission-alig
 <!--J&eacute;r&ocirc;me Euzenat,
 An API for ontology alignment,
 in: Proc. 3rd conference on international semantic web conference (ISWC), Hiroshima (JP), <i>Lecture notes in computer science</i> 3298:698-712, 2004-->
-
-
+</p>
+<p style="font-size: 80%;">
+Please note: The Alignment API is... an API (this may be unfortunate, but it has been named appropriately). 
+Hence, it is <i>not</i> a matcher. A few examples of trivial matchers are provided with the Alignment API which will indeed match ontologies.
+Taking such examples, which can be programmed in a couple of hours, as
+real matchers and comparing this with other matchers is meaningless
+(only when these matchers are worse than that, this is a meaningful result).
+Moreover, mentionning that these systems have been compared with "The
+Alignment API" without qualification is <i>not</i> appropriate. So
+please, compare your systems with serious competitors (hint: those
+which publish papers telling that their systems are good matchers; you
+cannot find such a paper about the Alignment API or one of its sample matcher).
 </p>
 
 <h2>Main resources</h2>
