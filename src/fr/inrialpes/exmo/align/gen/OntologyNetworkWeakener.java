@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,7 +19,7 @@
  * USA.
  */
 
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.gen;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 /**
  * OntologyNetworkWeakener
  *
- * A utility class that transform an ontology network in one with less alignments/
+ * A class which alters ontology networks, usually by altering alignments
  */
 public class OntologyNetworkWeakener {
 
