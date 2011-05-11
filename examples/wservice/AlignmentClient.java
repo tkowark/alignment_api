@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -43,15 +43,17 @@ import java.util.Properties;
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
+import fr.inrialpes.exmo.align.parser.XMLParser;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
+import java.io.InputStream;
+
 public class AlignmentClient {
 
     public static final String //Port Strings
-    //HTML = "8089",
 	HTML = "80",
 	WSDL = "7777";
 
     public static final String //IP Strings
-//	HOST = "localhost";
 	HOST = "aserv.inrialpes.fr";
 
     private int debug = 0;
@@ -103,8 +105,7 @@ public class AlignmentClient {
 	    connection = sendSOAPMessage( message, params );
 	}
 
-	printResult( connection );
-
+	printResult( connection, params );
     }
 
     public String createMessage( Properties params ) throws Exception {
@@ -209,9 +210,6 @@ public class AlignmentClient {
 		 messageBody += "   <wserver>"+arg3+"</wserver>\n";
 		 RESTParams += "&paramn1=wserver&paramv1=" + arg3;
 	    }
-	    //fr.inrialpes.exmo.align.impl.method.SubsDistNameAlignment
-	    //if ( arg3 != null )
-	    //	messageBody += "<force>"+arg3+"</force>";
 	} else if ( cmd.equals("trim" ) ) {
 	    SOAPAction = "trimRequest";
 	    RESTAction = "trim";
@@ -268,12 +266,12 @@ public class AlignmentClient {
 	    SOAPAction = "loadRequest";
 	    messageBody= "    <url>"+url+"</url>\n";
 	    RESTParams = "url=" + url;
-	} else if ( cmd.equals( "retrieve" ) ) {
+	} else if ( cmd.equals( "retrieve" ) || cmd.equals( "parse" ) ) {
 	    SOAPAction = "retrieveRequest";
 	    RESTAction = "retrieve";
 	    String uri = (String)params.getProperty( "arg1" );
 	    String method = (String)params.getProperty( "arg2" );
-	    if ( method == null )
+	    if ( method == null || cmd.equals( "parse" ) )
 		method = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 	    messageBody = "    <id>"+uri+"</id>\n    <method>"+method+"</method>\n";
 	    RESTParams = "id=" + uri + "&method=" + method;
@@ -329,7 +327,6 @@ public class AlignmentClient {
 	}
 	return opt;
     }
-    
 
     public HttpURLConnection sendRESTMessage( String message, Properties param ) throws Exception {
 	URL RESTUrl = null;
@@ -392,9 +389,7 @@ public class AlignmentClient {
             httpConn.setDoOutput(true);
             httpConn.setDoInput(true);
 	}
-
 	return httpConn;
-
     }
 
     public HttpURLConnection sendSOAPMessage( String messageBody, Properties param ) throws Exception {
@@ -465,7 +460,6 @@ public class AlignmentClient {
 	params.setProperty( "host", HOST );
 
 	// Read parameters
-
 	LongOpt[] longopts = new LongOpt[8];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
@@ -536,19 +530,26 @@ public class AlignmentClient {
     }
 
     
-    public void printResult( HttpURLConnection httpConn ) throws Exception {
-	// Read the response  
-	InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
-	BufferedReader in = new BufferedReader(isr);
-	StringBuffer strBuff = new StringBuffer();
-	String line;
-	while ((line = in.readLine()) != null) {
-	    strBuff.append( line + "\n");
+    public void printResult( HttpURLConnection httpConn, Properties params ) throws Exception {
+	if ( params.getProperty( "command" ).equals("parse") ) {
+	    XMLParser parser = new XMLParser(0);
+	    parser.setEmbedded( true );
+	    URIAlignment al = (URIAlignment)parser.parse( (InputStream)httpConn.getInputStream() );
+	    System.out.println( al.nbCells() );
+	} else {
+	    // Read the response  
+	    InputStreamReader isr = new InputStreamReader(httpConn.getInputStream());
+	    BufferedReader in = new BufferedReader(isr);
+	    StringBuffer strBuff = new StringBuffer();
+	    String line;
+	    while ((line = in.readLine()) != null) {
+		strBuff.append( line + "\n");
+	    }
+	    if (in != null) in.close();
+	    String answer = strBuff.toString();
+	    // Printout to be improved...
+	    System.out.println( answer );
 	}
-	if (in != null) in.close();
-	String answer = strBuff.toString();
-	// Printout to be improved...
-	System.out.println( answer );
     }
 
     public void usage() {
@@ -570,7 +571,8 @@ public class AlignmentClient {
 	System.err.println("\tupload File");
 	System.err.println("\tload URL");
 	System.err.println("\tstore AURI");
-	System.err.println("\tretrieve AURI");
+	System.err.println("\tretrieve AURI [method]");
+	System.err.println("\tparse AURI (tests that retrieved alignment can be parsed)");
 	//	System.err.println("\tmetadata AURI key");
 	System.err.println("\tlist alignments");
 	System.err.println("\tlist method");

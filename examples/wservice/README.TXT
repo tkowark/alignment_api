@@ -44,7 +44,7 @@ java AlignmentClient list services		-> XML
 ----------------------------------
 USE WITH THE ALIGNMENT SERVER
 
-$ javac -cp .:../../lib/getopt/getopt.jar AlignmentClient.java
+$ javac -cp .:../../lib/getopt/getopt.jar:../../lib/procalign.jar AlignmentClient.java
 
 $ java -cp .:../../lib/getopt/getopt.jar AlignmentClient match http://alignapi.gforge.inria.fr/tutorial/myOnto.owl http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl
 <SOAP-ENV:Envelope
