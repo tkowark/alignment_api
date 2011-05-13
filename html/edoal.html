@@ -260,14 +260,15 @@ not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetr
 
 <h2 id="sec:examples">Examples</h2>
 
+<p>The best examples are the alignment files found in the
+  "examples/omwg" directory of the Alignment API release zip.</p>
+
 <p>The following exmples illustrate various kids of usage of the vocabulary.</p>
 
 <h3 id="ssec:ex1">Class partition</h3>
 
 <p>This example shows how to express a correspondence between a classes in one ontology corresponding to a set of classes in the other ontology. In order to graps the precise correspondence, the one class is partitioned according to the value of one of its attributes. In this example one ontology has a class LED which has a property color, while the other ontology has three classes RedLED, BlueLED, and GreenLED. The LED class is aligned with the three corresponding classes by specifying a restriction of its scope to the corresponding value of the <i>color</i> attribute.</p>
 
-<!--The following figure illustrates the alignment:</p>
-<img src="class-by-attribute-range-partition-small.png"  border="0" alt="">-->
 <p>The alignment expressed in RDF/N3 is the following:</p>
 
 <div class="detail" id="ex1n3"><pre>
