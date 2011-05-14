@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007, 2009
+ * Copyright (C) INRIA, 2003-2004, 2007, 2009, 2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,8 +36,6 @@ public interface AlignmentProcess extends Alignment
      * The align method computes the alignment from the ontologies.
      * It is hightly dependent on the implementation.
      * It take an initial Alignment as input.
-     * TODO: a set of parameters should better be passed to the alignment
-     * method.
      */
     public void align( Alignment alignment, Properties param ) throws AlignmentException;
 
@@ -50,7 +48,7 @@ public interface AlignmentProcess extends Alignment
      * contains the list of entries accepted. These entries can be set and
      * the Parameters passed to the align() method.
      *
-     * public Parameters getParameters();
+     * public Properties getParameters();
      */
 
 }
