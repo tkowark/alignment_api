@@ -157,9 +157,7 @@ public class XMLParser extends DefaultHandler {
     protected int parseLevel = 0;
 
     /**
-     * The parsing level, if equal to 3 we are in the Alignment
-     * if equal to 5 we are in a cell
-     * and can find metadata
+     * Is the Alignment RDF for embedded in a larger XML structure to be parsed.
      */
     protected boolean embedded = false;
 
