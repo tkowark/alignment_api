@@ -197,7 +197,6 @@ public class AlignmentClient {
 	    if ( arg3 != null ) {
 		method = uri1; uri1 = uri2; uri2 = arg3;
 	    }
-
 	    messageBody = "    <onto1>"+uri1+"</onto1>\n    <onto2>"+uri2+"</onto2>\n";
 	    RESTParams = "onto1=" + uri1 +"&onto2=" + uri2;
 	    if ( method != null ) {
@@ -564,8 +563,8 @@ public class AlignmentClient {
 	System.err.println("commands are:");
 	System.err.println("\twsdl");
 	System.err.println("\tfind URI URI");
-	System.err.println("\tmatch URI URI");
-	System.err.println("\talign URI URI (this is for WSAlignment)");
+	System.err.println("\tmatch URI URI (returns the URI of an alignment)");
+	System.err.println("\talign URI URI (this is for WSAlignment, returns the alignment)");
 	System.err.println("\ttrim AURI [method] threshold");
 	System.err.println("\tinvert AURI");
 	System.err.println("\tupload File");
@@ -575,7 +574,7 @@ public class AlignmentClient {
 	System.err.println("\tparse AURI (tests that retrieved alignment can be parsed)");
 	//	System.err.println("\tmetadata AURI key");
 	System.err.println("\tlist alignments");
-	System.err.println("\tlist method");
+	System.err.println("\tlist methods");
 	System.err.println("\tlist renderers");
 	System.err.println("\tlist services");
 	System.err.println("\tlist evaluators");
