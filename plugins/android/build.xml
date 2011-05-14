@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!-- $Id$ -->
 
-<!-- See JEoid : TOTEST now -->
-
 <project name="alignoid" default="compile" basedir=".">
 
   <!-- this is useful but introduces, Xlint:path warnings -->
   <filelist id="mujar" dir="../../lib">
     <!-- JEoid: maybe check better those which are necessary -->
-    <!-- would better be a named fileset first -->
     <file name="align.jar"/>
     <file name="jena/icu4j.jar"/>
     <file name="jena/iri.jar"/>
@@ -101,7 +98,6 @@
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
     <javac deprecation="yes" nowarn="no" verbose="no" srcdir="../../src/" destdir="classes" encoding="iso8859-15">
-      <!-- JEoid: would be better to be positive rather than negative... -->
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath" />
       <!-- That would be too simple -->
