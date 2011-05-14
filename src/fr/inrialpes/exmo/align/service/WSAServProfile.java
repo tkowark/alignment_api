@@ -203,7 +203,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	Properties newparameters = null;
 	Message answer = null;
 	boolean restful = (param.getProperty("restful")==null)?false:true;
-	String msg="";
+	String svcNS = "\n       xml:base='"+Namespace.ALIGNSVC.prefix+"'"+
+	    "\n       xmlns='"+Namespace.ALIGNSVC.prefix+"'";
+	String msg = "";
 
 	// Set parameters if necessary
 	if ( restful ) {
@@ -239,7 +241,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	if ( perf.equals("WSDL") || method.equals("wsdl") || method.equals("wsdlRequest") ) {
 	    msg += wsdlAnswer( !restful );
 	} else if ( method.equals("listalignmentsRequest") || method.equals("listalignments") ) {
-	    msg += "    <listalignmentsResponse>\n      <alignmentList>\n";
+	    msg += "    <listalignmentsResponse"+svcNS+">\n      <alignmentList>\n";
 	    if ( newparameters.getProperty("msgid") != null ) {
 		msg += "        <in-reply-to>"+newparameters.getProperty("msgid")+"</in-reply-to>\n";
 	    }
@@ -250,27 +252,27 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    msg += "      </alignmentList>\n    </listalignmentsResponse>\n";
 	    // -> List of URI
 	} else if ( method.equals("listmethodsRequest") || method.equals("listmethods") ) { // -> List of String
-	    msg += getClasses( "listmethodsResponse", manager.listmethods(), newparameters );
+	    msg += getClasses( "listmethodsResponse", svcNS, manager.listmethods(), newparameters );
 	} else if ( method.equals("listrenderersRequest") || method.equals("listrenderers") ) { // -> List of String
-	    msg += getClasses( "listrenderersResponse", manager.listrenderers(), newparameters );
+	    msg += getClasses( "listrenderersResponse", svcNS, manager.listrenderers(), newparameters );
 	} else if ( method.equals("listservicesRequest") || method.equals("listservices") ) { // -> List of String
-	    msg += getClasses( "listservicesResponse", manager.listservices(), newparameters );
+	    msg += getClasses( "listservicesResponse", svcNS, manager.listservices(), newparameters );
 	} else if ( method.equals("listevaluatorsRequest") || method.equals("listevaluators") ) { // -> List of String
-	    msg += getClasses( "listevaluatorsResponse", manager.listevaluators(), newparameters );
+	    msg += getClasses( "listevaluatorsResponse", svcNS, manager.listevaluators(), newparameters );
 	} else if ( method.equals("storeRequest") || method.equals("store") ) { // URI -> URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
 		answer = manager.store( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
 	    }
-	    msg += "    <storeResponse>\n"+answer.SOAPString()+"    </storeResponse>\n";
+	    msg += "    <storeResponse"+svcNS+">\n"+answer.SOAPString()+"    </storeResponse>\n";
 	} else if ( method.equals("invertRequest") || method.equals("invert") ) { // URI -> URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
 		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverURL, newparameters.getProperty( "id" ), newparameters) );
 	    }
-	    msg += "    <invertResponse>\n"+answer.SOAPString()+"    </invertResponse>\n";
+	    msg += "    <invertResponse"+svcNS+">\n"+answer.SOAPString()+"    </invertResponse>\n";
 	} else if ( method.equals("trimRequest") || method.equals("trim") ) { // URI * string * float -> URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
@@ -282,7 +284,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 		answer = manager.trim( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
 	    }
-	    msg += "    <trimResponse>\n"+answer.SOAPString()+"    </trimResponse>\n";
+	    msg += "    <trimResponse"+svcNS+">\n"+answer.SOAPString()+"    </trimResponse>\n";
 	} else if ( method.equals("matchRequest") || method.equals("match") ) { // URL * URL * URI * String * boolean * (newparameters) -> URI
 	    if ( newparameters.getProperty( "onto1" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
@@ -291,7 +293,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
 	    }
-	    msg += "    <matchResponse>\n"+answer.SOAPString()+"</matchResponse>\n";
+	    msg += "    <matchResponse"+svcNS+">\n"+answer.SOAPString()+"</matchResponse>\n";
 	} else if ( method.equals("align") ) { // URL * URL * (newparameters) -> URI
 	    // This is a dummy method for emulating a WSAlignement service
 	    if ( newparameters.getProperty( "onto1" ) == null ) {
@@ -320,7 +322,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		    }
 		}
 	    }
-	    msg += "    <alignResponse>\n";
+	    msg += "    <alignResponse"+svcNS+">\n";
 	    if ( answer instanceof ErrorMsg ) {
 		msg += answer.SOAPString();
 	    } else {
@@ -335,7 +337,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
             }
-	    msg += "    <findResponse>\n"+answer.SOAPString()+"    </findResponse>\n";
+	    msg += "    <findResponse"+svcNS+">\n"+answer.SOAPString()+"    </findResponse>\n";
 	} else if ( method.equals("retrieveRequest") || method.equals("retrieve")) { // URI * method -> XML
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
@@ -345,7 +347,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		newparameters.setProperty( "embedded", "true" );
 		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", newparameters) );
 	    }
-	    msg += "    <retrieveResponse>\n";		
+	    msg += "    <retrieveResponse"+svcNS+">\n";		
 	    if ( answer instanceof ErrorMsg ) {
 		msg += answer.SOAPString();
 	    } else {
@@ -362,7 +364,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		newparameters.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
 		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", newparameters) );
             }
-	    msg += "    <metadataResponse>\n"+answer.SOAPString()+"\n    </metadataResponse>\n";
+	    msg += "    <metadataResponse"+svcNS+">\n"+answer.SOAPString()+"\n    </metadataResponse>\n";
 	} else if ( method.equals("loadRequest") || method.equals("load") ) { // URL -> URI
 	    if ( newparameters.getProperty( "url" ) == null &&
 		 param.getProperty( "filename" ) != null ) {
@@ -373,7 +375,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    }
 	    answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
-	    msg += "    <loadResponse>\n"+answer.SOAPString()+"    </loadResponse>\n";
+	    msg += "    <loadResponse"+svcNS+">\n"+answer.SOAPString()+"    </loadResponse>\n";
 	    /*
 	      // JE2009: This has never been in use.
 	} else if ( method.equals("loadfileRequest") ) { // XML -> URI
@@ -382,22 +384,20 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
 	    }
-	    msg += "    <loadResponse>\n"+answer.SOAPString()+"    </loadResponse>\n";
+	    msg += "    <loadResponse"+svcNS+">\n"+answer.SOAPString()+"    </loadResponse>\n";
 	    */
 	} else if ( method.equals("translateRequest") ) { // XML * URI -> XML
 	    // Not done yet
-	    msg += "    <translateResponse>\n"+"    </translateResponse>\n";
+	    msg += "    <translateResponse "+svcNS+">\n"+"    </translateResponse>\n";
 	} else {
-	    msg += "    <UnRecognizedAction />\n";
+	    msg += "    <UnRecognizedAction "+svcNS+"/>\n";
 	}
 
 	if ( restful ) {
 	    return msg;
 	} else {
-	    return "<"+Namespace.SOAP_ENV.shortCut+":Envelope\n" +
-		"   xmlns='"+Namespace.ALIGNSVC.prefix+"'\n" +
-		"   xml:base='"+Namespace.ALIGNSVC.prefix+"'\n" +
-		"   xmlns:"+Namespace.SOAP_ENV.shortCut+"='"+Namespace.SOAP_ENV.prefix+"'\n" +
+	    return "<"+Namespace.SOAP_ENV.shortCut+":Envelope\n"  +
+		"   xmlns:"+Namespace.SOAP_ENV.shortCut+"='"+Namespace.SOAP_ENV.prefix+"'\n"+
 		"   xmlns:"+Namespace.XSI.shortCut+"='"+Namespace.XSI.prefix+"'\n" +
 		"   xmlns:"+Namespace.XSD.shortCut+"='"+Namespace.XSD.uri+"'>\n" +
 		"  <"+Namespace.SOAP_ENV.shortCut+":Body>\n"+msg+"  </"+Namespace.SOAP_ENV.shortCut+":Body>\n" +
@@ -453,8 +453,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	return res;
     }
 
-    private String getClasses( String tag, Set<String> classlist, Properties param ){
-	String res = "    <"+tag+">\n      <classList>\n";
+    private String getClasses( String tag, String ns, Set<String> classlist, Properties param ){
+	String res = "    <"+tag+ns+">\n      <classList>\n";
 	if ( param.getProperty("msgid") != null ) {
 	    res += "        <in-reply-to>"+param.getProperty("msgid")+"</in-reply-to>\n";
 	}
