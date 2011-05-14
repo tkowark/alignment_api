@@ -78,7 +78,7 @@
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
+    <javac deprecation="yes" includeantruntime="false" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
@@ -94,6 +94,7 @@
     <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
     <ant dir="plugins/webcontent" target="compileall" />
+    <ant dir="plugins/android" target="compileall" />
   </target>
 
   <!-- tested -->
@@ -152,7 +153,7 @@
 	<attribute name="Bundle-Name" value="Alignment API"/>
 	<attribute name="Bundle-SymbolicName" value="alignapi"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="org.semanticweb.owl.align"/>
@@ -169,7 +170,7 @@
 	<attribute name="Bundle-Name" value="OntoWrap"/>
 	<attribute name="Bundle-SymbolicName" value="ontowrap"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"/>
@@ -189,15 +190,16 @@
 	<attribute name="Bundle-Name" value="Alignment API implementation"/>
 	<attribute name="Bundle-SymbolicName" value="procalign"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util"/>
+	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.gen"/>
 	<attribute name="Import-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"/>
       </manifest>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/gen/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
@@ -213,7 +215,7 @@
 	<attribute name="Bundle-Name" value="Alignment server"/>
 	<attribute name="Bundle-SymbolicName" value="alignsvc"/>
 	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2010"/>
+	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
 	<attribute name="Bundle-Date" value="${date}"/>
  	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"/>
@@ -255,7 +257,7 @@
     <echo message="Testing..."/>
     <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
 
-    <javac srcdir="test/src" destdir="test/classes" debug="on"
+    <javac srcdir="test/src" includeantruntime="false" destdir="test/classes" debug="on"
 	   classpath="tools/testng/testng.jar" encoding="iso8859-15">
       <classpath refid="classpath"/>
     </javac>
@@ -343,6 +345,9 @@
     <ant dir="plugins/neon" target="jar">
       <property name="version" value="${version}.${svn.revision}"/>
     </ant>
+    <ant dir="plugins/android" target="jar">
+      <property name="version" value="${version}.${svn.revision}"/>
+    </ant>
     <!-- may be useful to change directory -->
     <zip zipfile="${tempdir}/align-${version}.zip">
       <fileset dir=".">
@@ -427,6 +432,7 @@
     <antcall target="cleantest"/>
     <ant dir="plugins/neon" target="clean" />
     <ant dir="plugins/webcontent" target="clean" />
+    <ant dir="plugins/android" target="clean" />
     <delete dir="examples/aligns"/>
     <delete>
       <fileset dir="classes" includes="**/*.class"/>
