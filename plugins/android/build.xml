@@ -88,6 +88,23 @@
     <filter token="VERS" value="${version}"/>
   </target>
 
+  <target name="testindep" depends="init">
+    <echo message="Testing ..."/>
+    <antcall target="clean"/>
+    <!-- copy to src only what is necessary -->
+    <copy todir="src">
+      <fileset refid="musrc"/>
+    </copy>
+    <!-- compile all with the restricted path -->
+    <mkdir dir="classes"/>
+    <property name="javacargs" value="-deprecation" />
+    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
+      <compilerarg value="${javacargs}"/>
+      <classpath refid="classpath"/>
+    </javac>
+    <antcall target="clean"/>
+  </target>
+
   <!-- tested -->
   <!-- JEoid: not even sure it is necessary to recompile
     the otherway would be to select these files from classes and to do
@@ -132,25 +149,7 @@
     <delete>
       <fileset dir="." includes="classes/**/*.class"/>
     </delete>
-    <antcall target="cleanjar"/>
-    <antcall target="jar"/>
-  </target>
-
-  <target name="testindep" depends="init">
-    <echo message="Testing ..."/>
-    <antcall target="clean"/>
-    <!-- copy to src only what is necessary -->
-    <copy todir="src">
-      <fileset refid="musrc"/>
-    </copy>
-    <!-- compile all with the restricted path -->
-    <mkdir dir="classes"/>
-    <property name="javacargs" value="-deprecation" />
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
-      <compilerarg value="${javacargs}"/>
-      <classpath refid="classpath"/>
-    </javac>
-    <antcall target="clean"/>
+    <antcall target="compile"/>
   </target>
 
   <!-- tested -->
@@ -175,6 +174,7 @@
       <fileset dir="classes" includes="fr/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <delete dir="classes" />
   </target>
 
   <!-- tested -->
@@ -185,12 +185,6 @@
       <filelist refid="mujar"/>
       <fileset dir="./lib" includes="microalign.jar"/>
     </zip>
-  </target>
-
-  <!-- tested -->
-  <target name="cleanjar" depends="init">
-    <echo message="Erasing..."/>
-    <delete file="lib/microalign.jar"/>
   </target>
 
   <!-- tested -->

@@ -48,6 +48,8 @@ HOW TO GENERATE
 $ ant compileall              ==> compile the strict necessary
 $ ant jar                     ==> generate the microalign.jar library
 $ ant zip                     ==> gerenate the malign.zip file with necessary jars
+$ ant testindep               ==> recompile the sources in isolation for testing independence
+$ ant clean                   ==> restore the initial state of this directory
 
 HOW TO USE
 ----------
