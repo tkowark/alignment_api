@@ -64,6 +64,10 @@ public class BasicAlignmentTest {
 	assertNotNull( result, "URIAlignment(result) was null" );
 	assertTrue( result instanceof URIAlignment );
 	assertEquals( result.nbCells(), 2, "Alignment should contain 2 cells" );
+	assertEquals( ((BasicAlignment)result).minConfidence(), 0.4666666666666667 );
+	assertEquals( ((BasicAlignment)result).maxConfidence(), 1. );
+	assertEquals( ((BasicAlignment)result).avgConfidence(), 0.7333333333333334 );
+	assertEquals( ((BasicAlignment)result).varianceConfidence(), .07111111111111101 );
 	result.cut( "hard", .5 );
 	assertEquals( result.nbCells(), 1, "Alignment should contain 1 cell" );
     }

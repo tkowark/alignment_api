@@ -127,6 +127,40 @@ public class BasicAlignment implements Alignment {
 	return sum;
     }
 
+    /** A few statistical primitives, undocumented **/
+    public double maxConfidence() {
+	double result = 0.;
+	for ( Cell c : this ) {
+	    if ( c.getStrength() > result ) result = c.getStrength();
+	}
+	return result;
+    }
+    public double minConfidence() {
+	double result = 1.;
+	for ( Cell c : this ) {
+	    if ( c.getStrength() < result ) result = c.getStrength();
+	}
+	return result;
+    }
+    public double avgConfidence() {
+	double result = 0.;
+	for ( Cell c : this ) {
+	    result += c.getStrength();
+	}
+	return result/(double)nbCells();
+    }
+    public double varianceConfidence() {
+	double total = 0.;
+	double var = 0.;
+	for ( Cell c : this ) {
+	    var += c.getStrength() * c.getStrength();
+	    total += c.getStrength();
+	}
+	double avg = total / (double)nbCells();
+	return ( var / (double)nbCells() ) - (avg*avg) ;
+    }
+    // For standard deviation, take the square root of variance
+
     /** Alignment methods * */
     public Object getOntology1() {
 	return onto1.getOntology();
@@ -721,7 +755,6 @@ public class BasicAlignment implements Alignment {
      */
     public void cleanUp() {}
 }
-
 
 class MEnumeration<T> implements Enumeration<T> {
     private Enumeration<Set<T>> set = null; // The enumeration of sets
