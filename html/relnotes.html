@@ -52,26 +52,33 @@ The development of 4 versions continues.
 <li>Render alignments as module descriptions (impl)</li>
 <li>Implement extensive evaluation framework (impl)</li>
 <li>Implement debug options with log4j</li>
+<li>Matcher plugin for OpenII? (util)</li>
 <li>Add more tests</li>
 </ul></p>
 
 <h2>Current SVN trunk version</h2>
 
 <!--h2>Version 4.3 (): xx/xx/xxxx - Zimt</h2-->
-<!--h2>Version 4.2 (): xx/05/2011 - Tring</h2-->
+<!--h2>Version 4.2 (16xx): 29/05/2011 - Tring</h2-->
 
 <p><ul compact="1">
+<li>Added minimal API implementation for embedded devices (android)</li>
 <li>Added type checking to EDOAL parser (parser)</li>
 <li>Added <tt>WeightedPRecEvaluator</tt> weighting confidences (eval)</li>
 <li>Added <tt>toURIAlignment</tt> and <tt>toEDOALAlignment</tt> for <tt>EDOALAlignment</tt> (edoal)</li>
 <li>Added matching test generator facility (gen)</li>
 <li>Added autoselecting <tt>BasicOntology.load()</tt> (ontowrap)</li>
+<li>Reengineered <tt>OntologyNetworkWeakener</tt> and added further weakening methods (gen)</li>
+<!--li>Added <tt>SEALSAlignment</tt> for SEALS evaluation (impl)</li-->
+<li>Added a few statistical primitives to BasicAlignment (impl)</li>
 <li>Suppressed <tt>EDOALRelation</tt>: EDOAL uses <tt>BasicRelation</tt> (edoal)</li>
 <li>EDOAL default printout now uses pretty relations, i.e., &lt;, &gt;, =, % (edoal)</li>
+<li>Modified server answers so that namespaces are well placed in REST (server)</li>
 <li>Changed order of display to precision/F-measure/recall (util)</li>
 <li><span style="color: red;">Suppressed</span> incorrect computation of fallout (eval)</li>
 <li>Upgraded to <span style="color: green">OntoSim 2.1??</span> (lib)</li>
 <li>Minor display changes in HTML display (server)</li>
+<li>Suppressed <tt>PreAlignment</tt> (impl)</li>
 </ul></p>
 
 <h2>Version 4.1 (1534): 13/10/2010 - Napjakmandu</h2>
