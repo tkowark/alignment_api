@@ -437,6 +437,8 @@
     <delete>
       <fileset dir="classes" includes="**/*.class"/>
       <fileset dir="examples" includes="**/*.class"/>
+      <fileset dir="examples/rdf" includes="*.rdf" excludes="newsample.rdf"/>
+      <fileset dir="examples/rdf" includes="*.tex"/>
       <fileset dir="examples/omwg" includes="wine?.xml"/>
       <fileset dir="examples" includes="**/*.jar"/>
       <fileset dir="html/tutorial" includes="**/*.class"/>

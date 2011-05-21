@@ -120,7 +120,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples
 	result.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( ( 1729 <= stream.toString().length() ) && ( stream.toString().length() <= 1731 ), "Rendered differently: expected "+1730+" but was "+stream.toString().length() );
+	assertTrue( ( 2009 <= stream.toString().length() ) && ( stream.toString().length() <= 2011 ), "Rendered differently: expected "+2010+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})
