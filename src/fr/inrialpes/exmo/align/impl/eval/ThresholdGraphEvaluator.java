@@ -1,5 +1,5 @@
 /*
- * $Id: PRGraphEvaluator.java 1433 2010-04-13 07:07:58Z euzenat $
+ * $Id$
  *
  * Copyright (C) INRIA, 2004-2005, 2007-2010
  *
