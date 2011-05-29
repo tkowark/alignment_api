@@ -23,6 +23,7 @@
     Iterates through all the classes in the hierarchy and builds the class hierarchy
  */
 
+
 package fr.inrialpes.exmo.align.gen;
 
 //Jena
@@ -44,7 +45,7 @@ public class ClassHierarchy {
     public ClassHierarchy() {}
 
     //return the root of the hierarchy
-    public URITree getRootClassHierarchy () {                            
+    public URITree getRootClassHierarchy () {
         return this.root;
     }
 
@@ -53,7 +54,7 @@ public class ClassHierarchy {
         this.maxDepth = this.root.getMaxDepth();
         return this.maxDepth;
     }
-	
+
     //print class hierarchy
     public void printClassHierarchy() {
         System.out.println( "[--------------------]" );
@@ -65,12 +66,13 @@ public class ClassHierarchy {
 
     public void addClass (String childURI, String parentURI) {
         URITree node = null;
-        node = this.root.searchURITree( this.root, parentURI );                 //the node from the hierarchy with the identifier parentURI
-        node.addChildToNode( node, childURI );					//we add the new childURI to the hierarchy
+        //node = this.root.searchURITree( this.root, parentURI );               //the node from the hierarchy with the identifier parentURI
+        this.getRootClassHierarchy().add(this.root, parentURI, childURI);       //we add the new childURI to the hierarchy
+        //node._addChildToNode(this.root, parentURI, childURI);
     }
 
     //updates the class hierarchy
-    public void updateClassHierarchy (Properties params) {       
+    public void updateClassHierarchy (Properties params) {
         this.root.renameTree(this.root, params);
     }
 
@@ -82,7 +84,7 @@ public class ClassHierarchy {
             classes.add( model.getOntClass( nodes.get(i).getURI() ) );          //builds the list of classes
         return classes;
     }
-	
+
     //get the nodes from a specific level
     public List<URITree> getNodesFromLevel (int level) {
         return this.getRootClassHierarchy().getNodesFromLevel(this.root, level);
@@ -98,7 +100,7 @@ public class ClassHierarchy {
     public OntClass removeClass ( OntModel model, OntClass cls ) {
         URITree node = this.root.searchURITree( this.root, cls.getURI() );	//search for the class URI in the class hierarchy
         URITree parentNode = null;
-		
+
         int depth = node.getDepth();						//get the depth of the node
         parentNode = node.getParent();						//get the parent of the node
         for ( URITree child : node.getChildrenList() ) {                        //change the parent of the subclasses of the node
@@ -123,23 +125,25 @@ public class ClassHierarchy {
         int index = rdm.nextInt( childrenNodes.size() );			//get a random number between 0 and the number_of_classes_from_that_level
         return model.getOntClass( childrenNodes.get(index).getURI() );          //returns the class from the position that we have selected -> the random number
     }
-	
+
 
     //modifies the class hierarchy after we have flattened it
     public boolean flattenClassHierarchy ( OntModel model, int level, ArrayList<OntClass> childClasses,
                                         ArrayList<OntClass> parentClasses, ArrayList<OntClass> superLevelClasses) {
 
         List<URITree> childrenNodes = getNodesFromLevel( level );
+
         URITree parentNode = null;
         URITree superNode = null;
         boolean active = true;
         for ( URITree childNode : childrenNodes ) {				//for each child class
             parentNode = childNode.getParent();					//get the parent node
+
             superNode = parentNode.getParent();					//get the parents of the parent node
-			
+
             childClasses.add( model.getOntClass( childNode.getURI() ) );        //build the list of children classes
             parentClasses.add( model.getOntClass( parentNode.getURI() ) );	//build the list of parent classes
-			
+
             if ( !superNode.getURI().equals( "Thing" ) ) {			//if the parent of the child class is not owl:Thing (1st level class)
                 superLevelClasses.add( model.getOntClass( superNode.getURI() ) );//build the list of the parents of the parent classes
                 active = true;							//set the flag -> we don't have a 1st level class
@@ -148,7 +152,7 @@ public class ClassHierarchy {
                 active = false;							//set the flag -> we have a 1st level class
             }
         }
-		
+
         flattenHierarchy( childrenNodes );					//modify the links among the nodes from the class hierarchy
         this.getRootClassHierarchy().changeDepth ( this.getRootClassHierarchy(), level );//change the depth
         return active;
@@ -163,7 +167,7 @@ public class ClassHierarchy {
             childNode.setParent( parentNode.getParent() );			//change the parent of my superclass to the [parent of the "parent node"]
 
             childNode.setDepth( parentNode.getDepth() );			//change it's depth
-			
+
             parentNode.getChildrenList().remove( childNode );			//remove it from the children list of parentNode
             parentNode.getParent().getChildrenList().add( childNode );		//add it to the children list of superClass
         }
@@ -177,10 +181,11 @@ public class ClassHierarchy {
 
         //get the list of root classes
         List<OntClass> ontologyClasses = model.listClasses().toList();
-        List<OntClass> rootClasses = model.listClasses().toList();
+        List<OntClass> rootClasses = new ArrayList<OntClass>();// = model.listClasses().toList();
         for ( OntClass cls : ontologyClasses ) {
-            if ( cls.isHierarchyRoot() )
+            if ( cls.isHierarchyRoot() ) {
                 rootClasses.add( cls );
+            }
         }
 
         for ( OntClass rootClass : rootClasses ) {
@@ -221,16 +226,21 @@ public class ClassHierarchy {
                 int found = 0;
                 OntClass aux = null;
                 uri = c.getURI();
-      
-                for ( Iterator it = c.listSuperClasses(); it.hasNext(); ) {     //search to see if the class has a superclass which is not anonymous
+
+                for ( Iterator it = c.listSuperClasses(  ); it.hasNext(); ) {     //search to see if the class has a superclass which is not anonymous
                     aux = (OntClass)it.next();
                     if ( !aux.isAnon() ) {					//is not an anonymous class
                         found = 1;						//got the parent
                         parentURI = aux.getURI();
-                        this.root.add(this.root, uri, parentURI);
+
+                        //it the superclass is .../#Thing
+                        if ( parentURI.contains( "Thing" ) )
+                            this.getRootClassHierarchy().add(this.root, uri, "Thing");
+                        else
+                            this.root.add(this.root, uri, parentURI);
                     }
                 }
-				
+
                 if ( found == 0 ) 						//has no parent until now
                     this.getRootClassHierarchy().add(this.root, uri, "Thing");
             }
@@ -264,13 +274,15 @@ public class ClassHierarchy {
             m_anonIDs.put( anon.getId(), anonID );
         }
     }
-	
+
     // Generate the indentation
     protected void indent( int depth ) {
         for (int i = 0;  i < depth; i++) {
             System.out.print( "  " );
         }
     }
-	
+
 }
+
+
 
