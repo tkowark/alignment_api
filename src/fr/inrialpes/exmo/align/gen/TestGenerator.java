@@ -96,6 +96,5 @@ public class TestGenerator implements AlignedOntologyGenerator {
         this.modifiedModel = modifier.getModifiedOntology();                         //get the modified ontology
         return this.alignment;
     }
-  
 
 }
