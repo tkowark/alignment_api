@@ -58,6 +58,10 @@ public class Main {
             Charset defaultCharset = Charset.forName("UTF8");
             RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
             writer.setProperty("showXmlDeclaration","true");
+            //RDFWriter writer = newModel.getWriter( "RDF/XML-ABBREV" );
+            
+            String namespace = "http://oaei.ontologymatching.org/2010/benchmarks/101/onto_new.rdf#";
+            writer.setProperty( "xmlbase", namespace );
             writer.write(model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
             fout.close();
         } catch (Exception ex) {
@@ -186,5 +190,5 @@ public class Main {
         }
     }
 
-
 }
+
