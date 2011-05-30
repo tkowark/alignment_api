@@ -81,8 +81,8 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     }
 
     public void init(){
-	precision = 0.;
-	recall = 0.;
+	precision = 1.;
+	recall = 1.;
 	overall = 0.;
 	fmeasure = 0.;
 	time = 0;

@@ -259,6 +259,33 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
+    @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
+    public void emptyEvalTest() throws Exception {
+	/*
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
+	*/
+	AlignmentParser aparser1 = new AlignmentParser( 0 );
+	assertNotNull( aparser1 );
+	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	assertNotNull( align1 );
+	aparser1.initAlignment( null );
+	Alignment align2 = new ObjectAlignment();
+	assertNotNull( align2 );
+	align2.init( align1.getOntology1URI(), align1.getOntology2URI() );
+	Properties params = new Properties();
+	assertNotNull( params );
+	PRecEvaluator eval = new PRecEvaluator( align1, align2 );
+	assertNotNull( eval );
+	eval.eval( params ) ;
+
+	assertEquals( eval.getPrecision(), 1.);
+	assertEquals( eval.getRecall(), 0.0 );
+	assertEquals( eval.getNoise(), 0.);
+	assertEquals( eval.getFmeasure(), 0.);
+	assertEquals( eval.getOverall(), 0.);
+	//assertEquals( eval.getResult(), 0. );
+    }
+
     @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "raw" }, dependsOnMethods = {"routineEvalTest"})
     public void routineErrorEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );

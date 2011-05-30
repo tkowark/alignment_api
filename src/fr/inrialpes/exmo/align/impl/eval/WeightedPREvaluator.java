@@ -63,13 +63,10 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 
     protected long time = 0;
 
-    // WPR
     protected double nbexpected = 0.;
 
-    // WPR
     protected double nbfound = 0.;
 
-    // WPR
     protected double nbcorrect = 0.; // nb of cells correctly identified
 
     /** Creation
@@ -84,12 +81,11 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
     }
 
     public void init(){
-	precision = 0.;
-	recall = 0.;
+	precision = 1.;
+	recall = 1.;
 	overall = 0.;
 	fmeasure = 0.;
 	time = 0;
-	// WPR
 	nbexpected = 0.;
 	nbfound = 0.;
 	nbcorrect = 0.;
@@ -112,22 +108,16 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
      */
     public double eval( Properties params ) throws AlignmentException {
 	init();
-	// WPR
-	//nbfound = align2.nbCells();
 	for ( Cell c2 : align2 ) nbfound += c2.getStrength();
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
-	    // WPR
-	    //nbexpected++;
 	    nbexpected += c1.getStrength();
 	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
 	    if( s2 != null ){
 		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
 		    if ( uri1.equals( uri2 ) ) {
-			// WPR
-			//nbcorrect++;
 			double diff = c1.getStrength() - c2.getStrength();
 			nbcorrect += 1. - ((diff>0.)?diff:-diff);
 			break;
@@ -221,7 +211,6 @@ return result;
 	results.setProperty( "recall", Double.toString( recall ) );
 	results.setProperty( "overall", Double.toString( overall ) );
 	results.setProperty( "fmeasure", Double.toString( fmeasure ) );
-	// WPR
 	results.setProperty( "nbexpected", Double.toString( nbexpected ) );
 	results.setProperty( "nbfound", Double.toString( nbfound ) );
 	results.setProperty( "true positive", Double.toString( nbcorrect ) );
@@ -236,7 +225,6 @@ return result;
     public double getNoise() { return 1.-precision; }
     public double getSilence() { return 1.-precision; }
     public double getFmeasure() { return fmeasure; }
-    // WPR
     public double getExpected() { return nbexpected; }
     public double getFound() { return nbfound; }
     public double getCorrect() { return nbcorrect; }
