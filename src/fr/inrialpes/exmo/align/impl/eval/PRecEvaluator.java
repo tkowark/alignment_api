@@ -138,9 +138,11 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     }
 
     protected double computeDerived() {
-	fmeasure = 2 * precision * recall / (precision + recall);
-	overall = recall * (2 - (1 / precision));
-	result = recall / precision;
+	if ( precision != 0. ) {
+	    fmeasure = 2 * precision * recall / (precision + recall);
+	    overall = recall * (2 - (1 / precision));
+	    result = recall / precision;
+	} else { result = 0.; }
 	String timeExt = align2.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
 	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
