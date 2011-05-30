@@ -51,7 +51,7 @@
   <target name="versionnumber" depends="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
-    <property name="version.minor" value="1"/>
+    <property name="version.minor" value="2"/>
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
     <condition property="svn.revision" value="${svn.rev}" else="nosvn">
       <isset property="svn.rev"/>

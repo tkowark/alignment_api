@@ -59,7 +59,8 @@ The development of 4 versions continues.
 <h2>Current SVN trunk version</h2>
 
 <!--h2>Version 4.3 (): xx/xx/xxxx - Zimt</h2-->
-<!--h2>Version 4.2 (16xx): 29/05/2011 - Tring</h2-->
+
+<h2>Version 4.2 (1618): 31/05/2011 - Tring</h2>
 
 <p><ul compact="1">
 <li>Added minimal API implementation for embedded devices (android)</li>
@@ -76,7 +77,9 @@ The development of 4 versions continues.
 <li>Modified server answers so that namespaces are well placed in REST (server)</li>
 <li>Changed order of display to precision/F-measure/recall (util)</li>
 <li><span style="color: red;">Suppressed</span> incorrect computation of fallout (eval)</li>
-<li>Upgraded to <span style="color: green">OntoSim 2.1??</span> (lib)</li>
+<li>Corrected NaN derived measures when precision is 0. (eval)</li>
+<li>Set precision to 1. when alignments are empty (eval)</li>
+<li>Upgraded to <span style="color: green">OntoSim 2.2</span> (lib)</li>
 <li>Minor display changes in HTML display (server)</li>
 <li>Suppressed <tt>PreAlignment</tt> (impl)</li>
 </ul></p>
