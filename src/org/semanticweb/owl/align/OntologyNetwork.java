@@ -32,7 +32,7 @@ import fr.inrialpes.exmo.ontowrap.Ontology;
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.
  *
- * @author Jérôme Euzenat
+ * @author Jï¿½rï¿½me Euzenat
  * @version $Id$ 
  */
 
@@ -46,6 +46,7 @@ public interface OntologyNetwork extends Cloneable {
     public Set<URI> getOntologies();
     public Set<Alignment> getTargetingAlignments( URI onto );
     public Set<Alignment> getSourceAlignments( URI onto );
+    public Set<Alignment> getAlignments(URI srcOnto, URI dstOnto);
 
     /**
      * close reflexively the network.

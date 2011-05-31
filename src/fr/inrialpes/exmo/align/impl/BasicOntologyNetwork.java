@@ -24,7 +24,9 @@ import java.lang.Cloneable;
 import java.lang.Iterable;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -47,10 +49,13 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 
     protected Hashtable<URI,OntologyTriple> ontologies;
     protected HashSet<Alignment> alignments;
+    
+    protected HashMap<URI,Map<URI,Set<Alignment>>> onto2Align;
 
     public BasicOntologyNetwork(){
 	ontologies = new Hashtable<URI,OntologyTriple>();
 	alignments = new HashSet<Alignment>();
+	onto2Align = new HashMap<URI,Map<URI,Set<Alignment>>>();
     }
 
     public void addOntology( URI onto ){
@@ -67,6 +72,10 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 		remAlignment( al );
 	    }
 	    ontologies.remove( onto ); // Or set to null
+	    
+	    onto2Align.remove(onto);
+	    for (Map<URI,Set<Alignment>> m : onto2Align.values())
+		m.remove(onto);  
 	}
     };
     public void addAlignment( Alignment al ) throws AlignmentException {
@@ -77,11 +86,24 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	addOntology( o2 );
 	ontologies.get( o2 ).targettingAlignments.add( al );
 	alignments.add( al );
+	
+	Map<URI,Set<Alignment>> m = onto2Align.get(al.getOntology1URI());
+	if (m==null) {
+	    m=new HashMap<URI,Set<Alignment>>();
+	    onto2Align.put(al.getOntology1URI(), m);
+	}
+	Set<Alignment> aligns=m.get(al.getOntology2URI());
+	if (aligns==null) {
+	    aligns = new HashSet<Alignment>();
+	    m.put(al.getOntology2URI(), aligns);
+	}
+	aligns.add(al);
     }; 
     public void remAlignment( Alignment al ) throws AlignmentException {
 	ontologies.get( al.getOntology1URI() ).sourceAlignments.remove( al );
 	ontologies.get( al.getOntology2URI() ).targettingAlignments.remove( al );
 	alignments.remove( al );
+	onto2Align.get(al.getOntology1URI()).get(al.getOntology2URI()).remove(al);
     };
     public Set<Alignment> getAlignments(){
 	return alignments;
@@ -101,6 +123,15 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	HashSet<Alignment> newal = new HashSet<Alignment>();
 	for ( Alignment al : alignments ) newal.add( al.inverse() );
 	for ( Alignment al : newal ) addAlignment( al );
+    }
+
+    public Set<Alignment> getAlignments(URI srcOnto, URI dstOnto) {
+	Map<URI,Set<Alignment>> m = onto2Align.get(srcOnto);
+	if (m!=null) {
+	    Set<Alignment> aligns = m.get(dstOnto);
+	    if (aligns!=null) return Collections.unmodifiableSet(aligns);
+	}
+	return Collections.emptySet();
     }
 
 }
