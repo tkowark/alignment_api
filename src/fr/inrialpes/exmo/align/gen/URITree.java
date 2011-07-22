@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: URITree.java
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2003-2010, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,7 +35,7 @@ public class URITree {
     private URITree parent;		//the parent of the node
     int depth;				//the depth of the node
     int maxDepth;			//the max depth of the node
-
+	
     public URITree(String URI) {
         this.URI = URI;
         this.children = new ArrayList<URITree>();
@@ -48,47 +48,47 @@ public class URITree {
     public String getURI () {
         return this.URI;
     }
-
+	
     //set the URI of the node
     public void setURI(String URI) {
         this.URI = URI;
     }
-
+	
     //set the depth of the node
     public void setDepth (int depth) {
         this.depth = depth;
     }
-
+	
     //get the depth of the node
     public int getDepth() {
         return this.depth;
     }
-
+	
     //return the max depth
     public int getMaxDepth() {
         return this.maxDepth;
     }
-
+	
     //set the parent of the node
     public void setParent ( URITree parent ) {
         this.parent = parent;
     }
-
+	
     //get the parent of the node
     public URITree getParent () {
         return this.parent;
    }
-
+	
     //returns a child from a specific position
     public URITree getChildAt ( int index ) {
         return this.children.get( index );
     }
-
+	
     //return the list of children nodes
     public ArrayList<URITree> getChildrenList() {
         return this.children;
     }
-
+	
     //returns the size of the children
     public int getChildrenSize() {
         return this.children.size();
@@ -96,7 +96,7 @@ public class URITree {
 
     //add the node with the childURI to the parent with the URI parentURI
     public void add(URITree root, String childURI, String parentURI) {
-        //adds the node to the class hierarchy -> a class might have more than one
+        //adds the node to the class hierarchy -> a class might have more than one 
         //superclass we have to add it to each superclass in part, not only to one
         _addChildToNode( root, parentURI, childURI );
     }
@@ -105,7 +105,7 @@ public class URITree {
     public void addChild (URITree root, URITree node, String URI) {
         int index = 0;
         URITree n = null;
-
+		
 	while ( index < node.getChildrenSize() ) {                              //if the child is already in the list
             if ( node.getChildAt( index ).getURI().equals( URI ) )
                 return;
@@ -123,15 +123,15 @@ public class URITree {
         }
         addChildToNode( node, URI );
     }
-
+	
     //add child to a specific node
     public void addChildToNode(URITree node, String URI) {
         URITree child = new URITree( URI );                                     //creates a new node
         child.setDepth( node.getDepth() + 1 );                                  //set the depth of the node
-
+		
         if ( this.maxDepth < node.getDepth()+1  )                               //keeps track of the max depth of the hierarchy
             this.maxDepth = node.getDepth() + 1;
-
+       
         child.setParent( node );                                                //sets the parent of the node
         node.getChildrenList().add( child );                                    //adds the node to the parent children list
     }
@@ -223,10 +223,10 @@ public class URITree {
         int index = 0;
         URITree node = root;
         URITree ans = null;
-
+		
         if ( root.getURI().equals( URI ) )                                      //if the root has the URI as the URI searched
             return root;
-
+		
         while ( index < root.getChildrenSize() ) {                              //we start to search recursively
             if ( root.getChildAt( index ).getURI().equals( URI ) )
                 return root.getChildAt( index );                                //we found the node with the given URI
@@ -271,12 +271,12 @@ public class URITree {
                 root.getChildrenList().remove( index );                         //found the node to delete
                 //return;
             }
-
+			
             remove(root.getChildAt( index ), new ArrayList(),  0, URI);
             index++;
         }
     }
-
+	
     @SuppressWarnings("unchecked")
     public void remove(URITree node, List occurs, int depth, String URI) {
         int index = 0;
@@ -292,10 +292,10 @@ public class URITree {
                 child.setParent( parent );                                      //modify the parent
                 parent.getChildrenList().add( child );                          //add the child to the parent of node
                 cnt++;
-            }
+            }	
             parent.getChildrenList().remove( node );                            //remove the node from the children list
         }
-
+		
         while( index < node.getChildrenSize()) {
             URITree n = node.getChildAt( index );
             occurs.add( node );
@@ -334,7 +334,7 @@ public class URITree {
             index++;
         }
     }
-
+	
     //change the depth if the nodes lower the level to node.getDepth()-1
     @SuppressWarnings("unchecked")
     public void changeDepth (URITree root, int level) {
@@ -349,12 +349,12 @@ public class URITree {
     @SuppressWarnings("unchecked")
     public void change (URITree node, List occurs, int depth, int level) {
         int index = 0;
-
+		
         if ( node.getDepth() > level ) 	{                                       //if it's on the level that we want, we add it to the hierarchy
             int dept = node.getDepth();
             node.setDepth( dept-1 );
         }
-
+		
         while( index < node.getChildrenList().size() ) {
             URITree n = node.getChildrenList().get(index);
             occurs.add( node );
@@ -363,13 +363,13 @@ public class URITree {
             index++;
         }
     }
-
+	
     //print the tree
     @SuppressWarnings("unchecked")
     public void printURITree( URITree root ) {
         int index = 0;
         //System.out.println( "[" + root.getURI() + "]" + "->" + root.getDepth() );
-
+		
         while ( index < root.getChildrenList().size() ) {
             //recursively print all the children URITrees
             print(root.getChildAt(index), new ArrayList(),  0);
@@ -382,7 +382,7 @@ public class URITree {
         int index = 0;
         indent( node.getDepth() );
         System.out.println( "[" + node.getURI() + "]" + "->" + node.getDepth() );
-
+		
         while( index < node.getChildrenList().size() ) {
             URITree n = node.getChildrenList().get( index );
             occurs.add( node );
@@ -397,8 +397,7 @@ public class URITree {
             System.out.print( "  " );
         }
     }
-
+		
 }
-
 
 

@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: ParametersIds.java
  *
- * Copyright (C) 2010, INRIA
+ * Copyright (C) 2003-2010, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -26,19 +26,20 @@
 package fr.inrialpes.exmo.align.gen;
 
 public class ParametersIds {
-    public static String ADD_SUBCLASS    = "addSubClass";               //adds random classes
-    public static String REMOVE_SUBCLASS = "removeSubClass";            //removes random classes
-    public static String REMOVE_PROPERTY = "removeProperty";            //removes random properties
-    public static String REMOVE_COMMENT  = "removeComment";             //removes random comments
-    public static String LEVEL_FLATTENED = "levelFlattened";            //flattens a level
-    public static String ADD_PROPERTY    = "addProperty";               //adds random propeties
-    public static String REMOVE_CLASSES  = "removeClasses";             //remove classes from level
-    public static String ADD_CLASSES      = "addClasses";               //add c classes beginning from level l -> the value of this parameters should be:
-                                                                        //beginning_level.number_of_classes_to_add
-    public static String RENAME_PROPERTIES="renameProperties";          //renames properties
-    public static String RENAME_CLASSES   ="renameClasses";		//renames classes
-    public static String RENAME_RESOURCES = "renameResources";          //renames properties + classes
-    public static String REMOVE_RESTRICTION= "removeRestriction";	//removes restrictions
-    public static String REMOVE_INDIVIDUALS= "removeIndividuals";	//removes individuals
-    public static String NO_HIERARCHY      = "noHierarchy";             //no hierarchy
+    public static String ADD_CLASSES        = "addClasses";                     //adds random classes
+    public static String REMOVE_CLASSES     = "removeClasses";                  //removes random classes
+    public static String REMOVE_PROPERTIES  = "removeProperties";               //removes random properties
+    public static String REMOVE_COMMENTS    = "removeComments";                 //removes random comments
+    public static String LEVEL_FLATTENED    = "levelFlattened";                 //flattens a level
+    public static String ADD_PROPERTIES     = "addProperties";                  //adds random propeties
+    public static String REMOVE_CLASSESLEVEL= "removeClasses";                  //remove classes from level
+    public static String ADD_CLASSESLEVEL   = "addClassesLevel";                //add c classes beginning from level l -> the value of this parameters should be:
+                                                                                //beginning_level.number_of_classes_to_add
+    public static String RENAME_PROPERTIES  = "renameProperties";               //renames properties
+    public static String RENAME_CLASSES     = "renameClasses";                  //renames classes
+    public static String RENAME_RESOURCES   = "renameResources";                //renames properties + classes
+    public static String REMOVE_RESTRICTIONS= "removeRestrictions";             //removes restrictions
+    public static String REMOVE_INDIVIDUALS = "removeIndividuals";              //removes individuals
+    public static String NO_HIERARCHY       = "noHierarchy";                    //no hierarchy
 }
+

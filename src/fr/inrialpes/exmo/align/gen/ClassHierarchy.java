@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: ClassHierarchy.java
  *
- * Copyright (C) 2010-2011, INRIA
+ * Copyright (C) 2003-2010, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +22,6 @@
 /*  This program is based on the ClassHierarchy.java example.
     Iterates through all the classes in the hierarchy and builds the class hierarchy
  */
-
 
 package fr.inrialpes.exmo.align.gen;
 
@@ -66,9 +65,7 @@ public class ClassHierarchy {
 
     public void addClass (String childURI, String parentURI) {
         URITree node = null;
-        //node = this.root.searchURITree( this.root, parentURI );               //the node from the hierarchy with the identifier parentURI
         this.getRootClassHierarchy().add(this.root, parentURI, childURI);       //we add the new childURI to the hierarchy
-        //node._addChildToNode(this.root, parentURI, childURI);
     }
 
     //updates the class hierarchy
@@ -97,7 +94,7 @@ public class ClassHierarchy {
 
     //remove the URI of the class from the hierarchy
     //returns the parent of the class if it exists or 0 other way -> not owl:Thing
-    public OntClass removeClass ( OntModel model, OntClass cls ) {
+    public OntClass removeClass (OntModel model, OntClass cls) {
         URITree node = this.root.searchURITree( this.root, cls.getURI() );	//search for the class URI in the class hierarchy
         URITree parentNode = null;
 
@@ -283,6 +280,4 @@ public class ClassHierarchy {
     }
 
 }
-
-
 

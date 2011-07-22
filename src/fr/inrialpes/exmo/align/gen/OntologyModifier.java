@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: OntologyModifier.java
  *
- * Copyright (C) 2010-2011, INRIA
+ * Copyright (C) 2003-2010, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,15 +25,9 @@
   The file in which we store the alignment is "referenceAlignment.rdf"
 */
 
-
 package fr.inrialpes.exmo.align.gen;
 
 //Java classes
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,16 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 
 //Alignment API classes
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
 
-import fr.inrialpes.exmo.align.impl.Annotations;
-import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.service.jade.messageontology.Parameter;
 
 //Google API classes
@@ -76,7 +65,6 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.RDFReader;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.util.ResourceUtils;
@@ -84,6 +72,7 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import java.util.Enumeration;
 /*
 //WordNet API classes
 import edu.smu.tspell.wordnet.Synset;
@@ -105,7 +94,8 @@ public class OntologyModifier {
     private boolean isBuild;							//keep track if the class hierarchy is build
     private boolean isAlign;							//keep track it the initial alignment has already been computed
     private boolean isChanged;                                                  //keep track if the namespace of the new ontology is changed
-    public static String fileName = "referenceAlignment.rdf";                   //the reference alignment
+    public static String fileName = "refalign.rdf";                             //the reference alignment
+    private String base;                                                        //
 
     //Ontology init, Ontology modified, Alignment align
     public OntologyModifier ( OntModel model, OntModel modifiedModel, Alignment alignment ) {
@@ -116,14 +106,7 @@ public class OntologyModifier {
 	this.isBuild = false;
 	this.isAlign = false;
         this.isChanged = false;
-	this.namespace = model.getNsPrefixURI("");
-        //if has no namespace, choose a default one
-        if ( this.namespace == null ) {
-            //RDFReader reader = this.model.getReader();
-            this.model.setNsPrefix("", "http://oaei.ontologymatching.org/2010/benchmarks/101/onto.rdf#");
-            this.namespace = model.getNsPrefixURI("");
-            System.out.println( "Set default namespace [" + this.namespace + "]" );
-        }
+	this.namespace = model.getNsPrefixURI("");       
         this.namespaceNew = "";
 	this.params = new Properties();
     }
@@ -138,7 +121,7 @@ public class OntologyModifier {
         //this.classHierarchy.printClassHierarchy();
     }
 
-    //generate random string with the length "length"
+    //generates a random string with the length "length"
     public String getRandomString() {
         Random generator = new Random();
         String characters = "abcdefghijklmnopqrstuvwxyz";
@@ -150,7 +133,7 @@ public class OntologyModifier {
 	return new String(text).toUpperCase();
     }
 
-    //remove spaces from a string
+    //removes spaces from a string
     public String removeSpaces ( String str ) {
         //return str.replaceAll("\\s+", "");
         if ( !str.contains( " " ) )
@@ -173,7 +156,7 @@ public class OntologyModifier {
         return str;
     }
 
-    //translate the string from English to French
+    //translates the string from English to French
     public String translateString( String source ) {
         String translatedText = "";
         GoogleAPI.setHttpReferrer("http://code.google.com/p/google-api-translate-java/");
@@ -249,11 +232,10 @@ public class OntologyModifier {
             newString = newString.concat( getSynonym(str.substring(0)) );
         return newString;
     }
-
-
+    
     //count - the number of elements from the vector
     //the random numElems that must be selected
-    //use the Fisher and Yates method to shuffle integers from an array
+    //uses the Fisher and Yates method to shuffle integers from an array
     public int [] randNumbers (int count, int numElems) {
         int [] vect = new int[count];
         int [] n    = new int[numElems];
@@ -272,7 +254,7 @@ public class OntologyModifier {
         return n;
     }
 
-    //replace the label of the property
+    //replaces the label of the property
     public void replacePropertyLabel( String uri, String newLabel, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation ) {
         OntProperty prop = this.modifiedModel.getOntProperty( uri );
         if ( prop.getLabel( "en" ) != null ) {
@@ -287,35 +269,37 @@ public class OntologyModifier {
     //gets the URIs of the properties and their translation
     public HashMap<String, String> getPropertiesIdentifiers ( float percentage, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation) {
         HashMap<String, String> propertiesIdentifiers = new HashMap<String, String>();	//the HashMap of the properties identifiers
-	List<OntProperty> properties = getOntologyProperties();                 //the list of all the properties
 	List<String> propertiesName = new ArrayList<String>();                  //the properties identifiers
-	List<OntProperty> propertiesTo = new ArrayList<OntProperty>();
-	int nbProperties, toBeRenamed;
 
-        List<OntProperty> notRenamedProperties = new ArrayList<OntProperty>();
-        List<OntProperty> modelProperties = this.getOntologyProperties();
+        List<OntProperty> propertiesTo = new ArrayList<OntProperty>();          //the list of properties to be renamed
+	List<OntProperty> notRenamedProperties = new ArrayList<OntProperty>();  //the list of not renamed properties
+        List<OntProperty> properties = getOntologyProperties();                 //the list of all the properties
+
+        int nbProperties, toBeRenamed, renamedProperties;
+
         //builds the list of all unrenamed properties from the model
-        for ( OntProperty p : modelProperties ) {
-            String key = p.getURI();
-            if ( this.params.containsKey( key ) ) {
+        for ( OntProperty p : properties ) {
+            String uri = base + p.getLocalName();
+            if ( this.params.containsKey( uri ) ) {
+                String key = uri;
                 String value = this.params.getProperty( key );
-                if ( key.equals( value ) ) {
-                    notRenamedProperties.add( p );                              //add the property to not renamed properties
-                }
+                if ( key.equals( value ) ) 
+                    notRenamedProperties.add( p );      //add the property to not renamed properties  
             }
         }
-        nbProperties = properties.size();                                       //the number of renamed properties
-        toBeRenamed = (int)( percentage*nbProperties );
 
-        if ( notRenamedProperties.size() < 2*toBeRenamed )
-            toBeRenamed = notRenamedProperties.size();
+
+        nbProperties = properties.size();                                       //the number of renamed properties
+        renamedProperties = nbProperties - notRenamedProperties.size();
+        toBeRenamed = (int)(percentage*nbProperties) - renamedProperties;       // -renamedProperties -> for Benchmark
+
 
         //builds the list of properties to be renamed
 	int [] n = this.randNumbers(notRenamedProperties.size(), toBeRenamed);
 	for ( int i=0; i<toBeRenamed; i++ ) {
 		OntProperty p = notRenamedProperties.get(n[i]);
 		propertiesTo.add(p);
-                if ( p.getNameSpace().equals( this.namespace ) )
+                if ( p.getNameSpace().equals( this.namespace ) ) 
                     propertiesName.add( p.getLocalName() );
 	}
 
@@ -330,16 +314,16 @@ public class OntologyModifier {
                             propertiesIdentifiers.put( localName , translateStrg );
                             replacePropertyLabel( prop.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 
-                            if ( params.containsKey( prop.getURI() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( prop.getURI() , this.namespace + translateStrg );//the reference alignment
+                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
+                                this.params.put( this.base + prop.getLocalName() , this.base + translateStrg );//the reference alignment
                             }
                         }
                         else if ( activeRandomString ) {                        //replace the URI with a random string
                             String newStrg = getRandomString();
                             propertiesIdentifiers.put( localName , newStrg );
                             replacePropertyLabel( prop.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( prop.getURI() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( prop.getURI() , this.namespace + newStrg);//the reference alignment
+                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
+                                this.params.put( this.base + prop.getLocalName() , this.base + newStrg);//the reference alignment
                             }
                         }
                         else if ( activeSynonym ) {
@@ -349,30 +333,30 @@ public class OntologyModifier {
                             else  {
                                 propertiesIdentifiers.put( localName, synonym );
                                 replacePropertyLabel( prop.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( prop.getURI() ) ) {    //this.params.remove( prop.getURI() );
-                                    this.params.put( prop.getURI(), this.namespace + synonym );	//the reference alignment
+                                if ( params.containsKey( this.base + prop.getLocalName() ) ) {    //this.params.remove( prop.getURI() );
+                                    this.params.put( this.base + prop.getLocalName() , this.base + synonym );	//the reference alignment
                                 }
                             }
                         }
                         else if ( activeStringOperation == 1 ) {                //replace the URI with the UpperCase URI
                             propertiesIdentifiers.put( localName , toUpperCase( localName ) );
                             replacePropertyLabel( prop.getURI(), toUpperCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( prop.getURI() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( prop.getURI(), this.namespace + toUpperCase( localName ) ); //the reference alignment
+                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
+                                this.params.put( this.base + prop.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
                             }
                         }
                         else if ( activeStringOperation == 2 ) {
                             propertiesIdentifiers.put( localName , toLowerCase( localName ) );
                             replacePropertyLabel( prop.getURI(), toLowerCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( prop.getURI() ) ) {        // this.params.remove( prop.getURI() );
-                                this.params.put( prop.getURI(), this.namespace + toLowerCase( localName ) ); //the reference alignment
+                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        // this.params.remove( prop.getURI() );
+                                this.params.put( this.base + prop.getLocalName() , this.base + toLowerCase( localName ) ); //the reference alignment
                             }
                         }
                         else {
                             propertiesIdentifiers.put( localName,  localName + "PROPERTY" );
                             replacePropertyLabel( prop.getURI(), localName + "PROPERTY", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( prop.getURI() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( prop.getURI(), this.namespace + localName + "PROPERTY" );
+                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
+                                this.params.put( this.base + prop.getLocalName() , this.base + localName + "PROPERTY" );
                             }
                         }
                     }
@@ -380,8 +364,8 @@ public class OntologyModifier {
         }
         return propertiesIdentifiers;
     }
-    
-    //replace the label of the class
+
+    //replaces the label of the class
     public void replaceClassLabel( String uri, String newLabel, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation ) {
         OntClass c = this.modifiedModel.getOntClass( uri );
 
@@ -396,30 +380,30 @@ public class OntologyModifier {
     //gets the URIs of the classes and their translation
     public HashMap<String, String> getClassesIdentifiers ( float percentage, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation ) {
         HashMap<String, String> classesIdentifiers = new HashMap<String, String>(); //the HashMap of classes identifiers
-        List<OntClass> classes = this.getOntologyClasses();
-        List<OntClass> classesTo = new ArrayList<OntClass>();
-        int nbClasses, toBeRenamed ;
 
-        List<OntClass> notRenamedClasses = new ArrayList<OntClass>();
-        List<OntClass> modelClasses = this.getOntologyClasses();
+        int nbClasses, toBeRenamed, renamedClasses;
+
+        List<OntClass> notRenamedClasses = new ArrayList<OntClass>();           //the list of not renamed classes
+        List<OntClass> classes = this.getOntologyClasses();                     //the list of ontology classes
+        List<OntClass> classesTo = new ArrayList<OntClass>();                   //the list of classes to be renamed
 
         //builds the list of all unrenamed classes from the model
-        for ( OntClass c : modelClasses ) {
-            String uri = c.getURI();
+        for ( OntClass c : classes ) {
+            String uri = base + c.getLocalName();
             //gets the pair <key, value>
             if ( this.params.containsKey( uri ) ) {
                 String key = uri;
                 String value = this.params.getProperty( uri );
                 //they didnt change
-                if ( key.equals( value ) )
+                if ( key.equals( value ) ) 
                     notRenamedClasses.add( c ); //add the class to not renamed classes
             }
         }
+        
+        nbClasses = classes.size();                                             //the number of renamed classes
+        renamedClasses = nbClasses - notRenamedClasses.size();
+        toBeRenamed = (int)(percentage*nbClasses) - renamedClasses;             // -renamedClasses -> for Benchmark
 
-        nbClasses = classes.size();                     //the number of renamed classes
-        toBeRenamed = (int)( percentage*nbClasses );    //the number of classes to be renamed
-        if ( notRenamedClasses.size() < 2 * toBeRenamed )
-            toBeRenamed = notRenamedClasses.size();
 
         //build the list of classes to be renamed
         int [] n = this.randNumbers(notRenamedClasses.size(), toBeRenamed);
@@ -441,45 +425,45 @@ public class OntologyModifier {
                                 String translateStrg = parseString (localName, true, false);
                                 classesIdentifiers.put( localName , translateStrg );
                                 replaceClassLabel( cls.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI() , this.namespace + translateStrg);	//the reference alignment
+                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + translateStrg);	//the reference alignment
                                 }
                             }
                             else if ( activeRandomString )	{		//replace the URI with a random string
                                 String newStrg = getRandomString();
                                 classesIdentifiers.put( localName , newStrg );
                                 replaceClassLabel( cls.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI(), this.namespace + newStrg );	//the reference alignment
+                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + newStrg );	//the reference alignment
                                 }
                             }
                             else if ( activeSynonym ) {                         //replace the URI with a synonym
                                 String synonym = parseString (localName, false, true);
 				classesIdentifiers.put( localName, synonym );
 				replaceClassLabel( cls.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-				if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI(), this.namespace + synonym );//the reference alignment
+				if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + synonym );//the reference alignment
                                 }
                             }
                             else if ( activeStringOperation == 1 ){             //replace the URI with the UpperCase URI
                                 classesIdentifiers.put( localName , toUpperCase( localName ) );
                                 replaceClassLabel( cls.getURI(), toUpperCase(localName), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI(), this.namespace + toUpperCase( localName ) ); //the reference alignment
+                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
                                 }
                             }
                             else if ( activeStringOperation == 2 ){             //replace the URI with the LowerCase URI
                                 classesIdentifiers.put( localName , toLowerCase( localName ) );
                                 replaceClassLabel( cls.getURI(), toLowerCase(localName), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI(), this.namespace + toLowerCase( localName ) );     //the reference alignment
+                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + toLowerCase( localName ) );     //the reference alignment
                                 }
                             }
                             else {
                                 classesIdentifiers.put( localName, localName + "CLASS" );
                                 replaceClassLabel( cls.getURI(), localName + "CLASS", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( cls.getURI() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( cls.getURI(), this.namespace + localName + "CLASS" );
+                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
+                                    this.params.put( this.base + cls.getLocalName() , this.base + localName + "CLASS" );
                                 }
                             }
                         }
@@ -497,11 +481,14 @@ public class OntologyModifier {
         List<Statement> statements = null;                                      //the list of all statements
         HashMap<String, String> propertiesIdentifiers = null;                   //the HashMap of the properties identifiers
         HashMap<String, String> classesIdentifiers = null;                      //the HashMap of the classes identifiers
+
         String subjectLocalName,   subjectNameSpace;
         String predicateLocalName, predicateNameSpace;
         String objectLocalName,    objectNameSpace;
+
         boolean isPred, isSubj, isObj;
         isPred = isSubj = isObj = false;
+
         OntModel newModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);//create new Model
         //get properties and classes identifiers
         if ( activeProperties )
@@ -509,16 +496,19 @@ public class OntologyModifier {
         if ( activeClasses )
             classesIdentifiers    = getClassesIdentifiers   ( percentage, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation);
         statements = this.modifiedModel.listStatements().toList();              //get all the statements of the model
-
+      
         //iterate and modify the identifiers
         for ( Statement stm : statements ) {
+
             Resource subject   = stm.getSubject();                              //the subject
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
+
             Resource subj = null;
             Property pred = null;
             Resource obj  = null;
             isPred = isSubj = isObj = false;
+
             //if it is the subject of the statement
             if ( subject.getLocalName() != null ) {
                 if ( activeProperties ) {
@@ -546,6 +536,7 @@ public class OntologyModifier {
                     }
                 }
             }
+
             //if it is the predicate of the statement
             if ( activeProperties ) {
                 if ( propertiesIdentifiers.containsKey( predicate.getLocalName() ) ) {
@@ -572,6 +563,7 @@ public class OntologyModifier {
                     }
                 }
             }
+            
             //if it is the object of the statement
             if ( object.canAs( Resource.class ) )
                 if ( object.isURIResource() ) {
@@ -603,21 +595,29 @@ public class OntologyModifier {
 
             if ( isSubj ) {
                 if ( isPred ) {
-                    if ( isObj )    newModel.add( subj, pred, obj );
-                    else            newModel.add( subj, pred, object );
+                    if ( isObj )
+                        newModel.add( subj, pred, obj );
+                    else
+                        newModel.add( subj, pred, object );
                 }
                 else {
-                    if ( isObj )    newModel.add( subj, predicate, obj );
-                    else            newModel.add( subj, predicate, object );
+                    if ( isObj )
+                        newModel.add( subj, predicate, obj );
+                    else
+                        newModel.add( subj, predicate, object );
                 }
             } else {
                 if ( isPred ) {
-                    if ( isObj )    newModel.add( subject, pred, obj );
-                    else            newModel.add( subject, pred, object );
+                    if ( isObj )
+                        newModel.add( subject, pred, obj );
+                    else
+                        newModel.add( subject, pred, object );
                 }
                 else {
-                    if ( isObj )    newModel.add( subject, predicate, obj );
-                    else            newModel.add( subject, predicate, object );
+                    if ( isObj )
+                        newModel.add( subject, predicate, obj );
+                    else
+                        newModel.add( subject, predicate, object );
                 }
             }
         }
@@ -629,7 +629,7 @@ public class OntologyModifier {
         return newModel;
     }
 
-    //checks if the class hierarchy is build
+    //check if the class hierarchy is build
     public void checkClassHierarchy() {
         if ( !this.isBuild ) {
             buildClassHierarchy();
@@ -677,7 +677,7 @@ public class OntologyModifier {
         List<OntClass> classes = getOntologyClasses();                          //get the list of classes from the Ontology
         int nbClasses = classes.size();                                         //number of classes from the Ontology
         int toAdd = (int) ( percentage * nbClasses );
-
+		
         checkClassHierarchy();                                                  //check if the classHierarchy is built
         //build the list of properties to be renamed
         int [] n = this.randNumbers(nbClasses, toAdd);
@@ -735,7 +735,7 @@ public class OntologyModifier {
         String subjectNameSpace, subjectLocalName;
         String objectNameSpace, objectLocalName;
         String predicateNameSpace, predicateLocalName;
-
+        
         //iterate and modify the identifiers
         for ( Statement stm : statements ) {
             Resource subject   = stm.getSubject();                              //the subject
@@ -747,12 +747,12 @@ public class OntologyModifier {
             isSubj = isObj = isPred = false;
 
             //if the class appears as the subject of a proposition
-            if ( subject.getURI() != null )
+            if ( subject.getURI() != null ) 
             if ( uris.containsKey( subject.getURI() ) ) {
                 isSubj = true;
                 subj = newModel.createResource( uris.get( subject.getURI() ) );
             }
-
+            
             //if appears as the predicate - never
             if ( predicate.getURI() != null )
             if ( uris.containsKey( predicate.getURI() ) ) {
@@ -789,11 +789,11 @@ public class OntologyModifier {
                     else            newModel.add( subject, predicate, object );
                 }
             }
-        }
+        }       
         return newModel;
     }
 
-    //checks if the removed class appears as AllValueFrom or SomeValueFrom in a restriction
+    //check if the removed class appears as AllValueFrom or SomeValueFrom in a restriction
     @SuppressWarnings("unchecked")
     public void checkClassesRestrictions ( OntClass childClass, OntClass parentClass )  {
         Restriction restr = null;
@@ -837,12 +837,12 @@ public class OntologyModifier {
             for (OntClass clss : subClasses) 					//new superclass =>
                 clss.setSuperClass( parentClass );				//=>the superclass of the node
 
-            checkClassesRestrictions( cls, parentClass );
+	    checkClassesRestrictions( cls, parentClass );
             cls.remove();							//remove the class from the Ontology
             return parentClass.getURI();
     }
 
-     //removes the subClasses from the list
+    //remove the subClasses from the list
     public void removeSubClasses ( float percentage ) {
         List<OntClass> classes = this.getOntologyClasses();			//the list of classes from Ontologu
         List<OntClass> removedClasses = new ArrayList<OntClass>();
@@ -868,17 +868,16 @@ public class OntologyModifier {
 
         //checks if the class appears like unionOf.. and replaces its appearence with the superclass
         this.modifiedModel = changeDomainRange( uris );
-
+        
         //remove the URI of the class from the reference alignment
         for ( String key : this.params.stringPropertyNames() ) {
             String value = this.params.getProperty( key );
-            if ( cl.contains( key ) )
+            if ( cl.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length() )) )
                 this.params.remove( key );
-            if ( cl.contains( value ) )                                         //we iterate to check if the class appears only like value
+            if ( cl.contains( this.namespace + value.substring(value.indexOf(this.base) + this.base.length() )) )                                          //we iterate to check if the class appears only like value
                 this.params.remove( key );
         }
     }
-
 
     //remove all the classes from a specific level
     public void removeClassesFromLevel ( int level ) {
@@ -890,25 +889,12 @@ public class OntologyModifier {
         List<OntClass> classes = new ArrayList<OntClass>();
         checkClassHierarchy();							//check if the class hierarchy is built
         classes = this.classHierarchy.getClassesFromLevel(this.modifiedModel, level);
-
-        for ( OntClass cls : classes ) {
-            parentURI = removeClass ( cls );
-            OntClass parentClass = this.modifiedModel.getOntClass( parentURI );
-            checkClassesRestrictions( cls, parentClass );
-            uris.put( cls.getURI(), parentURI);
+        for ( int i=0; i<classes.size(); i++ ) {                                //remove the classes from the hierarchy
+            parentURI = removeClass ( classes.get(i) );
+            uris.put(classes.get(i).getURI(), parentURI);
         }
-
         //checks if the class appears like unionOf .. and replaces its appearence with the superclass
         this.modifiedModel = changeDomainRange( uris );
-        //remove the URI of the class from the reference alignment
-        for ( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty( key );
-            if ( uris.containsKey( key ) )
-                this.params.remove( key );
-            if ( uris.containsValue( value ) )                                         //we iterate to check if the class appears only like value
-                this.params.remove( key );
-        }
-
     }
 
     //remove percentage individuals from Ontology
@@ -919,7 +905,7 @@ public class OntologyModifier {
         List<Statement> statements = this.modifiedModel.listStatements().toList();
         int nbIndividuals = individuals.size();					//the number of individuals
         int toBeRemoved = (int)( percentage*nbIndividuals );                    //the number of individuals to be removed
-
+        
         int [] n = this.randNumbers(nbIndividuals, toBeRemoved);                //build the list of individuals to be removed
         for ( int i=0; i<toBeRemoved; i++ ) {
             Individual indiv = individuals.get(n[i]);				//remove the individual from the reference alignment
@@ -965,6 +951,7 @@ public class OntologyModifier {
             propertiesToBeRemoved.add( p );
             pr.add( p.getURI() );
 
+
             //this.params.remove( p.getURI() );
             for ( Iterator it = p.listReferringRestrictions(); it.hasNext();  ) {//get the restrictions of that property
                 restrictions.add( (Restriction)it.next() );
@@ -1001,10 +988,10 @@ public class OntologyModifier {
         //since we don't respect any order the value can appear as a value, thus we must iterate among all params to delete it
         for ( String key : this.params.stringPropertyNames() ) {
             String value = this.params.getProperty(key);
-            if ( pr.contains( key ) ) {     //System.out.println( "Elimin " + key );
+            if ( pr.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {     //System.out.println( "Elimin " + key );
                 this.params.remove( key );
             }
-            if ( pr.contains( value ) ) {   //System.out.println( "Elimin " + key );
+            if ( pr.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length()) ) ) {   //System.out.println( "Elimin " + key );
                 this.params.remove( key );
             }
         }
@@ -1032,7 +1019,6 @@ public class OntologyModifier {
                 this.modifiedModel.remove( st );				//appears as subject, predicate or object
         }
     }
-
 
     //add object properties to the Ontology
     public void addProperties ( float percentage ) {
@@ -1195,14 +1181,22 @@ public class OntologyModifier {
             for ( OntClass cls : supCls ) {
                 if ( cls.isRestriction() ) {
                     Restriction r = cls.asRestriction();
-                    if ( r.isAllValuesFromRestriction() )           restr.add(r);
-                    if ( r.isCardinalityRestriction() )             restr.add(r);
-                    if ( r.isHasValueRestriction() )                restr.add(r);
-                    if ( r.isMaxCardinalityRestriction() )          restr.add(r);
-                    if ( r.isMinCardinalityRestriction() )          restr.add(r);
-                    if ( r.isSomeValuesFromRestriction() )          restr.add(r);
+                    if ( r.isAllValuesFromRestriction() )
+                        restr.add(r);
+                    if ( r.isCardinalityRestriction() )  
+                        restr.add(r);
+                    if ( r.isHasValueRestriction() )
+                        restr.add(r);
+                    if ( r.isMaxCardinalityRestriction() )
+                        restr.add(r);
+                    if ( r.isMinCardinalityRestriction() )
+                        restr.add(r);
+                    if ( r.isSomeValuesFromRestriction() )
+                        restr.add(r);
+                    //System.out.println( cls.getURI() + cls.getLocalName() );
                 }
             }
+            //System.out.println( restr.size() );
 
             if ( !restrictions.containsKey( parentClass.getURI() ) ) {
                 restrictions.put( parentClass.getURI(), restr );
@@ -1213,6 +1207,10 @@ public class OntologyModifier {
             if (  active ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
                OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
 
+               //System.out.println("SuperClass class [" + superClass.getURI() + "]");
+               //System.out.println("Parent class [" + parentClass.getURI() + "]");
+               //System.out.println("Child class [" + childClass.getURI() + "]");
+               
                if ( this.modifiedModel.containsResource(parentClass) ) {
                    //to check if the class appears as unionOf, someValuesFrom, allValuesFrom ..
                    unionOf.put(parentClass.getURI(), superClass.getURI());
@@ -1223,15 +1221,18 @@ public class OntologyModifier {
                parentClass.removeSubClass( childClass );
             } else {
                 OntClass superClass = this.modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
+
                 if ( this.modifiedModel.containsResource(parentClass) ) {
                    //to check if the class appears as unionOf..
                    unionOf.put(parentClass.getURI(), superClass.getURI());
                    checkClassesRestrictions ( parentClass, superClass );
                    parentClass.remove();
                }
+
                 parentClass.removeSubClass( childClass );
-            }
+            }            
         }
+
         int i = 0;
         for ( String uri : parentURI ) {
             OntClass childClass = levelClasses.get( i );
@@ -1241,18 +1242,21 @@ public class OntologyModifier {
             }
             i++;
         }
+
         //checks if the class appears like unionOf, someValuesFrom, allValuesFrom .. and replaces its appearence with the superclass
         this.modifiedModel = changeDomainRange(unionOf);
+
         //remove the parentClass from the alignment
         for ( String key : this.params.stringPropertyNames() ) {
             String value = this.params.getProperty(key);
-            if ( parentURI.contains(key) ) {        //this.classHierarchy.removeUri("Thing", key);
+            if ( parentURI.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {        //this.classHierarchy.removeUri("Thing", key);
                 this.params.remove(key);
             }
-            if ( parentURI.contains( value ) ) {    //this.classHierarchy.removeUri("Thing", value);
+            if ( parentURI.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length() ))) {    //this.classHierarchy.removeUri("Thing", value);
                 this.params.remove(key);
             }
         }
+
     }
 
     //flatten level - for noHierarchy
@@ -1288,6 +1292,7 @@ public class OntologyModifier {
             //this.classHierarchy.printClassHierarchy();
             _noHierarchy ( level );
             level--;
+            
         }
     }
 
@@ -1304,6 +1309,7 @@ public class OntologyModifier {
             Restriction res = restrictions.get(n[i]);
             restrictionsTo.add( res );
         }
+
         for ( Restriction res : restrictionsTo )
             res.remove();
     }
@@ -1314,8 +1320,12 @@ public class OntologyModifier {
         List<OntProperty> properties = this.modifiedModel.listAllOntProperties().toList();//all properties
         List<Individual> individuals = this.modifiedModel.listIndividuals().toList();//all individuals
         List<Ontology> ontologies    = this.modifiedModel.listOntologies().toList();//all Ontologies
-        this.isAlign = true;							//the alignment has been computed for the first time
 
+        this.params = new Properties();
+
+        this.isAlign = true;							//the alignment has been computed for the first time
+        this.base = this.namespace;
+        
         for ( OntClass cls : classes )                                          //list all classes
             if ( cls.getNameSpace().equals( this.namespace ) )
                 this.params.put( cls.getURI() , cls.getURI() );                 //add them to the initial alignment
@@ -1331,68 +1341,63 @@ public class OntologyModifier {
         URI onto1 = null;
         URI onto2 = null;
 
-        if ( !this.isChanged ) {                                                 //if the namespace of the ontology is not changed
-            int index = this.namespace.indexOf("#");
-            this.namespaceNew = this.namespace.substring(0, index) + "new#";
-            //this.namespaceNew = "http://oaei.ontologymatching.org/2010/benchmarks/101/onto1.rdf#";
-        }
-
         this.alignment  = new URIAlignment();
+        
         try {
-            onto1 = new URI ( this.namespace );
-            onto2 = new URI ( this.namespaceNew );
-            this.alignment.init(onto1, onto2);
-            long time = System.currentTimeMillis();
+            onto1 = new URI ( this.base.substring(0, this.base.lastIndexOf("#")) );
+            onto2 = new URI( this.namespaceNew.substring(0, this.namespaceNew.lastIndexOf("#")) );
 
+            this.alignment.init(onto1, onto2);
+            this.alignment.setFile1(onto1);
+            this.alignment.setFile2(onto2);
+            
             //Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
             for ( String key : this.params.stringPropertyNames() ) {
                 String value = this.params.getProperty(key);
-                URI uri1 = URI.create( key );
-                String newValue = null;
-                URI uri2 = URI.create( value );
-                if ( value.contains( this.namespace ) ) {
-                    newValue = value.substring( this.namespace.length() );
-                    uri2 = URI.create( this.namespaceNew + newValue );
-                }
-                else {
-                    newValue = value;
-                    uri2 = URI.create( newValue );
-                }
+                URI uri1 = URI.create(key);
+                URI uri2 = URI.create(this.namespaceNew + value.substring(value.indexOf(this.base) + this.base.length()));
+                //System.out.println( "[" + key + "][" + value + "]" );
                 this.alignment.addAlignCell( uri1, uri2, "=", 1 );
             }
 
-            long newTime = System.currentTimeMillis();
-            this.alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
-
+            /*
             OutputStream stream ;//= new FileOutputStream(filename);
             if ( fileName == null ) {
                 stream = System.out;
             } else {
                 stream = new FileOutputStream( fileName );
             }
+            
             // Outputing
             PrintWriter  writer = new PrintWriter (
                                     new BufferedWriter(
                                         new OutputStreamWriter( stream, "UTF-8" )), true);
             AlignmentVisitor renderer = new RDFRendererVisitor( writer );
             this.alignment.render(renderer);
+
+            //RDFRendererVisitor renderer = new RDFRendererVisitor(writer);
+            //renderer.visit(this.alignment);
+            
             writer.flush();
             writer.close();
+             * 
+             */
         } catch (AlignmentException aex)  { System.out.println( "Exception " + aex.getMessage() );
         } catch (Exception ex) {  System.err.println("Exception " + ex.getMessage());
         }
     }
 
+    public void setNewNamespace(String newNamespace) {
+        this.namespaceNew = newNamespace;
+        //System.out.println("New namespace [" + this.namespaceNew + "]");
+    }
+
     //change the namespace of the modified ontology
     public OntModel changeNamespace () {
         List<Statement> statements = this.modifiedModel.listStatements().toList(); //the statements of the model
-        String newNamespace;
-
-        int index = this.namespace.indexOf("#");
-        newNamespace = this.namespace.substring(0, index) + "new#";
-        this.namespaceNew = newNamespace;
+        
         this.isChanged = true;
-        boolean isSubj, isPred, isObj;
+        boolean isSubj, isPred, isObj;;
 
         OntModel newModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );//create new Model
 
@@ -1401,7 +1406,7 @@ public class OntologyModifier {
             Resource subject   = stm.getSubject();                              //the subject
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
-
+            
             Resource subj = null;
             Property pred = null;
             Resource obj  = null;
@@ -1411,7 +1416,7 @@ public class OntologyModifier {
             if ( subject.getLocalName() != null )
                 if ( !subject.isLiteral() )
                     if ( subject.getNameSpace().equals( this.namespace ) ) {
-                        subj = newModel.createResource( newNamespace + subject.getLocalName() );
+                        subj = newModel.createResource( this.namespaceNew + subject.getLocalName() );
                         isSubj = true;
                     }
 
@@ -1419,52 +1424,89 @@ public class OntologyModifier {
                 if ( object.canAs( Resource.class ) )
                     if ( object.isURIResource() )
                         if ( object.asResource().getNameSpace().equals( this.namespace ) ) {
-                            obj = newModel.createResource( newNamespace + object.asResource().getLocalName() );
+                            obj = newModel.createResource( this.namespaceNew + object.asResource().getLocalName() );
                             isObj = true;
                         }
 
             if ( !predicate.isLiteral() )
                 if ( predicate.getNameSpace().equals( this.namespace ) ) {
-                    pred = newModel.createProperty( newNamespace + predicate.getLocalName() );
+                    pred = newModel.createProperty( this.namespaceNew + predicate.getLocalName() );
                     isPred = true;
                 }
 
             if ( isSubj ) {
                 if ( isPred ) {
-                    if ( isObj )        newModel.add( subj, pred, obj );
-                    else                newModel.add(subj, pred, object);
+                    if ( isObj )
+                        newModel.add( subj, pred, obj );
+                    else
+                        newModel.add(subj, pred, object);
                 }
                 else {
-                    if ( isObj )        newModel.add( subj, predicate, obj );
-                    else                newModel.add( subj, predicate, object );
+                    if ( isObj )
+                        newModel.add( subj, predicate, obj );
+                    else
+                        newModel.add( subj, predicate, object );
                 }
             } else {
                 if ( isPred ) {
-                    if ( isObj )        newModel.add( subject, pred, obj );
-                    else                newModel.add( subject, pred, object );
+                    if ( isObj )
+                        newModel.add( subject, pred, obj );
+                    else
+                        newModel.add( subject, pred, object );
                 }
                 else {
-                    if ( isObj )        newModel.add( subject, predicate, obj );
-                    else                newModel.add( subject, predicate, object );
+                    if ( isObj )
+                        newModel.add( subject, predicate, obj );
+                    else
+                        newModel.add( subject, predicate, object );
                 }
             }
         }
+
         //rename the namespace of owl:Ontology
         List<Ontology> ontos = newModel.listOntologies().toList();
         for ( Ontology o : ontos ) {
-            ResourceUtils.renameResource( o, newNamespace );
+            ResourceUtils.renameResource( o, this.namespaceNew );
         }
-        //this.namespace = newNamespace;                                        //change the namespace
+
         return newModel;
     }
 
     //returns the modified ontology after changing the namespace
     public OntModel getModifiedOntology () {
         //System.out.println( "->change namespace" );
-        if ( !this.isChanged )
-            this.modifiedModel = changeNamespace();				//change the namespace of the modified ontology
+        this.modifiedModel = changeNamespace();				//change the namespace of the modified ontology
         //System.out.println( "->namespace changed" );
         return this.modifiedModel;
+    }
+
+    //set the model
+    public void setModel( OntModel model ) {
+        this.model = model;
+    }
+
+    public void setModifiedModel(OntModel model) {
+        this.modifiedModel = model;
+    }
+
+    //ca ii schimbi namespace-ul, de-asta trebuie sa il intorci pe asta separat
+    public OntModel getModifiedModel() {
+        return this.modifiedModel;
+    }
+
+    //get properties
+    public Properties getProperties() {
+        return this.params;
+    }
+
+    public void setProperties( Properties params ) {
+        this.params = params;
+
+        Enumeration e = this.params.propertyNames();
+        String aux = (String)e.nextElement();
+        base = aux.substring(0, aux.lastIndexOf("#")+1);
+
+        this.isAlign = true;
     }
 
     //returns the alignment
@@ -1495,33 +1537,44 @@ public class OntologyModifier {
                 value = Float.valueOf( this.parameter.getValue() ).floatValue();
             else
                 aux = this.parameter.getValue();
+            
 
             if ( !this.isAlign ) {
                 initializeAlignment();                                          //determine the elements from the initial reference alignment
             }
 
                 //add percentage classes
-            if ( name.equals( ParametersIds.ADD_SUBCLASS ) ) {
+            if ( name.equals( ParametersIds.ADD_CLASSES ) ) {
                 System.out.println( "Add Class" + "[" + value + "]");
                 addSubClasses( value );
-            }	//remove percentage classes
-            if ( name.equals( ParametersIds.REMOVE_SUBCLASS ) ) {
+            }
+
+            //remove percentage classes
+            if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) {
                 System.out.println( "Remove Class" + "[" + value + "]");
                 removeSubClasses( value );
-            }	//remove percentage comments
-            if ( name.equals( ParametersIds.REMOVE_COMMENT ) ) {
+            }
+
+            //remove percentage comments
+            if ( name.equals( ParametersIds.REMOVE_COMMENTS ) ) {
                 System.out.println( "Remove Comments" + "[" + value + "]");
                 removeComments ( value );
-            }	//remove percentage properties
-            if ( name.equals( ParametersIds.REMOVE_PROPERTY ) ) {
+            }
+
+            //remove percentage properties
+            if ( name.equals( ParametersIds.REMOVE_PROPERTIES ) ) {
                 System.out.println( "Remove Property" + "[" + value + "]");
                 removeProperties ( value );
-            }	//add percentage properties
-            if ( name.equals( ParametersIds.ADD_PROPERTY ) ) {
+            }
+
+            //add percentage properties
+            if ( name.equals( ParametersIds.ADD_PROPERTIES ) ) {
                 System.out.println( "Add Property" + "[" + value + "]");
                 addProperties ( value );
-            }	//recursive add nbClasses starting from level level
-            if ( name.equals( ParametersIds.ADD_CLASSES ) ) {
+            }
+
+            //recursive add nbClasses starting from level level
+            if ( name.equals( ParametersIds.ADD_CLASSESLEVEL ) ) {
                 aux = ((Float)value).toString();
                 int index = aux.indexOf(".");
                 int level = Integer.valueOf( aux.substring(0, index) );
@@ -1530,38 +1583,57 @@ public class OntologyModifier {
                 System.out.println( "nbClasses " + nbClasses );
                 float percentage = 1.00f;
                 addClasses ( level, nbClasses, percentage );
-            }	//remove all the classes from the level level
-            if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) {
+            }
+
+            //remove all the classes from the level level
+            if ( name.equals( ParametersIds.REMOVE_CLASSESLEVEL ) ) {
                 System.out.println("Remove all classes from level" + (int)value );
                 removeClassesFromLevel ( (int)value );
-            }	//flatten a level
+            }
+
+            //flatten a level
             if ( name.equals( ParametersIds.LEVEL_FLATTENED ) ) {
                 //levelFlattened ( level );
                 levelFlattened ( (int)value );
                 System.out.println( "New class hierarchy level " + getMaxLevel() ) ;
-            }       //rename classes
+            }
+
+            //rename classes
             if ( name.equals( ParametersIds.RENAME_CLASSES ) ) {
                 System.out.println("Rename classes" + "[" + value + "]" );
                 //System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
                 this.modifiedModel = renameResource ( false, true, value, true, false, false, 0);
-            }       //rename properties
+            }
+
+            //rename properties
             if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) {
                 System.out.println("Rename properties " + "[" + value + "]" );
                 //System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
                 this.modifiedModel = renameResource ( true, false, value, true, false, false, 0);
-            }       //remove percentage restrictions
-            if ( name.equals( ParametersIds.REMOVE_RESTRICTION ) ) {
+            }
+
+            //remove percentage restrictions
+            if ( name.equals( ParametersIds.REMOVE_RESTRICTIONS ) ) {
                 System.out.println("Remove restrictions" + "[" + value + "]");
                 removeRestrictions( value );
-            }       //remove percentage individuals
+            }
+
+            //remove percentage individuals
             if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) {
                 System.out.println("Remove individuals" + "[" + value + "]");
                 removeIndividuals( value );
-            }       //no hierarchy
+            }
+
+            //no hierarchy
             if ( name.equals( ParametersIds.NO_HIERARCHY ) ) {
                 System.out.println( "NoHierarchy" );
                 noHierarchy();
             }
+
+            //rebuild the class hierarchy every time
+            this.isBuild = false;
+            this.isChanged = false;
+
         }
     }
 
