@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010
+ * Copyright (C) INRIA, 2003-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,10 +80,17 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	}
     }
 
-    /** Creation **/
+    /**
+     * Creation
+     * (4.3) For compatibility reason with previous versions, the type is set to
+     * "?*" so that the behaviour is the same.
+     * In future version (5.0), this should be reverted to "**",
+     * so the extractors will behave differently
+     **/
     public StringDistAlignment() {
 	setSimilarity( new StringDistMatrixMeasure() );
-	setType("**");
+	setType("?*");
+	//setType("11");
     }
 
     /* Processing */

@@ -56,12 +56,24 @@ The development of 4 versions continues.
 <li>Add more tests</li>
 </ul></p>
 
+<!-- NOTE FOR VERSION 5
+The default type of StringDistAlignment should be reverted to "**"
+with a warning: 
+-->
+
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 4.3 (): xx/xx/xxxx - Zimt</h2-->
+<!--h2>Version 4.3 (): xx/xx/2011 - Zimt</h2-->
 <p><ul compact="1">
 <li>Full reengineering of the test generator (gen)</li>
+<li>Implemented <tt>extractss</tt> for ** alignments in <tt>DistanceAlignment</tt> (impl)</li>
+<li>Changed default type of <tt>StringDistAlignment</tt> to "?*" for
+  preserving the previous behaviour (impl)</li>
 <li>Added level lines in the triangle display of <tt>GroupEval</tt> (util)</li>
+<li>Suppressed the guard for applying the Hungarian algorithm to
+  equisimilarity situations (impl)</li>
+<li>Fixed a bug on <tt>DistanceAlignment</tt> 1:1 extraction when the
+  second ontology is larger than the first one (impl)</li>
 </ul></p>
 
 <h2>Version 4.2 (1618): 31/05/2011 - Tring</h2>

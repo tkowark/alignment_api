@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010
+ * Copyright (C) INRIA, 2003-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -138,16 +138,17 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
 	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqq( threshold, params );
 	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractqs( threshold, params );
-	else if ( type.equals("**") || type.equals("+*") || type.equals("*+") || type.equals("++") ) return extractqs( threshold, params );
+	else if ( type.equals("**") || type.equals("+*") || type.equals("*+") || type.equals("++") ) return extractss( threshold, params );
 	// The else should be an error message
 	else throw new AlignmentException("Unknown alignment type: "+type);
     }
 
-    // JE: It is now certainly possible to virtualise extraction has it has
+    // JE: It is now certainly possible to virtualise extraction as it has
     // been done for printing matrix in MatrixMeasure (todo)
 
     /**
      * Extract the alignment of a ?* type
+     * Non symmetric: for each entity of onto1, take the highest if superior to threshold
      * Complexity: O(n^2)
      */
     @SuppressWarnings("unchecked") //ConcatenatedIterator
@@ -169,7 +170,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 				       ontology2().getDataProperties().iterator());
 	      for ( Object current : pit2 ){
 		  if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1,current);
-		  else val =  1 - sim.getPropertySimilarity(prop1,current);
+		  else val =  1. - sim.getPropertySimilarity(prop1,current);
 		  if ( val > max) {
 		      found = true; max = val; prop2 = current;
 		  }
@@ -182,7 +183,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	      Object class2 = null;
 	      for ( Object current : ontology2().getClasses() ) {
 		  if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1,current);
-		  else val = 1 - sim.getClassSimilarity(class1,current);
+		  else val = 1. - sim.getClassSimilarity(class1,current);
 		  if (val > max) {
 		      found = true; max = val; class2 = current;
 		  }
@@ -214,9 +215,63 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
     }
 
     /**
+     * Extract the alignment of a ** type
+     * Symmetric: return all elements above threshold
+     * Complexity: O(n^2)
+     */
+    @SuppressWarnings("unchecked") //ConcatenatedIterator
+    public Alignment extractss( double threshold, Properties params) {
+	double val = 0.;
+	try {
+	    // Extract for properties
+	    ConcatenatedIterator pit1 = new 
+		ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+				     ontology1().getDataProperties().iterator());
+	    for( Object prop1 : pit1 ){
+		ConcatenatedIterator pit2 = new 
+		    ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+					 ontology2().getDataProperties().iterator());
+		for ( Object prop2 : pit2 ){
+		    if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1,prop2);
+		    else val =  1. - sim.getPropertySimilarity(prop1,prop2);
+		    if ( val > threshold ) addAlignCell(prop1,prop2, "=", val);
+		}
+	    }
+	    // Extract for classes
+	    for ( Object class1 : ontology1().getClasses() ) {
+		for ( Object class2 : ontology2().getClasses() ) {
+		    if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1,class2);
+		    else val = 1. - sim.getClassSimilarity(class1,class2);
+		    if (val > threshold ) addAlignCell(class1, class2, "=", val);
+		}
+	    }
+	    // Extract for individuals
+	    if (  params.getProperty("noinst") == null ){
+		for ( Object ind1 : ontology1().getIndividuals() ) {
+		    if ( ontology1().getEntityURI( ind1 ) != null ) {
+			for ( Object ind2 : ontology2().getIndividuals() ) {
+			    if ( ontology2().getEntityURI( ind2 ) != null ) {
+				if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ind1, ind2 );
+				else val = 1 - sim.getIndividualSimilarity( ind1, ind2 );
+				if ( val > threshold ) addAlignCell(ind1,ind2, "=", val);
+			    }
+			}
+		    }
+		}
+	    }
+	} catch (OntowrapException owex) { owex.printStackTrace(); //}
+	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	return((Alignment)this);
+    }
+
+    /**
      * Extract the alignment of a ?? type
      * 
-     * exact algorithm using the Hungarian method
+     * exact algorithm using the Hungarian method.
+     * This algorithm contains several guards to prevent the HungarianAlgorithm to
+     * raise problems:
+     * - It invert column and rows when nbrows > nbcol (Hungarian loops)
+     * - It prevents to generate alignments when one category has no elements.
      */
     @SuppressWarnings("unchecked") //ConcatenatedIterator
     public Alignment extractqq( double threshold, Properties params) {
@@ -227,29 +282,26 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	    // Create a matrix
 	    int nbclasses1 = ontology1().nbClasses();
 	    int nbclasses2 = ontology2().nbClasses();
-	    double[][] matrix = new double[nbclasses1][nbclasses2];
-	    Object[] class1 = new Object[nbclasses1];
-	    Object[] class2 = new Object[nbclasses2];
-	    int i = 0;
-	    for ( Object ob : ontology1().getClasses() ) {
-		class1[i++] = ob;
-	    }
-	    int j = 0;
-	    for ( Object ob : ontology2().getClasses() ) {
-		class2[j++] = ob;
-	    }
-	    // ival indicates if all cells have the same value, or different (-1)
-	    double ival = sim.getClassSimilarity(class1[0],class2[0]);
-	    for( i = 0; i < nbclasses1; i++ ){
-		for( j = 0; j < nbclasses2; j++ ){
-		    if ( ival != -1. && ival != sim.getClassSimilarity(class1[i],class2[j] ) ) ival = -1.;
-		    if ( sim.getSimilarity() ) matrix[i][j] = sim.getClassSimilarity(class1[i],class2[j]);
-		    else matrix[i][j] = 1 - sim.getClassSimilarity(class1[i],class2[j]);
+	    if ( nbclasses1 != 0 && nbclasses2 != 0 ) {
+		double[][] matrix = new double[nbclasses1][nbclasses2];
+		Object[] class1 = new Object[nbclasses1];
+		Object[] class2 = new Object[nbclasses2];
+		int i = 0;
+		for ( Object ob : ontology1().getClasses() ) {
+		    class1[i++] = ob;
 		}
-	    }
-	    // Pass it to the algorithm
-	    if ( ival == -1. ) { // if values are the same, return an empty alignment
-		int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+		int j = 0;
+		for ( Object ob : ontology2().getClasses() ) {
+		    class2[j++] = ob;
+		}
+		for( i = 0; i < nbclasses1; i++ ){
+		    for( j = 0; j < nbclasses2; j++ ){
+			if ( sim.getSimilarity() ) matrix[i][j] = sim.getClassSimilarity(class1[i],class2[j]);
+			else matrix[i][j] = 1. - sim.getClassSimilarity(class1[i],class2[j]);
+		    }
+		}
+		// Pass it to the algorithm
+		int[][] result = callHungarianMethod( matrix, nbclasses1, nbclasses2 );
 		// Extract the result
 		for( i=0; i < result.length ; i++ ){
 		    // The matrix has been destroyed
@@ -264,56 +316,53 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		    }
 		}
 	    }
-	} catch (AlignmentException alex) { alex.printStackTrace(); }
-	catch (OntowrapException owex) { owex.printStackTrace(); }
+	} catch ( AlignmentException alex) { alex.printStackTrace(); }
+	catch ( OntowrapException owex) { owex.printStackTrace(); }
 	// For properties
 	try{
 	    int nbprop1 = ontology1().nbProperties();
 	    int nbprop2 = ontology2().nbProperties();
-	    double[][] matrix = new double[nbprop1][nbprop2];
-	    Object[] prop1 = new Object[nbprop1];
-	    Object[] prop2 = new Object[nbprop2];
-	    int i = 0;
-	    ConcatenatedIterator pit1 = new 
-		ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-				     ontology1().getDataProperties().iterator());
-	    for ( Object ob: pit1 ) prop1[i++] = ob;
-	    int j = 0;
-	    ConcatenatedIterator pit2 = new 
-		ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-				     ontology2().getDataProperties().iterator());
-	    for ( Object ob: pit2 ) prop2[j++] = ob;
-	    double ival = sim.getPropertySimilarity(prop1[0],prop2[0]);
-	    for( i = 0; i < nbprop1; i++ ){
-		for( j = 0; j < nbprop2; j++ ){
-		    if ( ival != -1. && ival != sim.getPropertySimilarity(prop1[i],prop2[j] ) ) ival = -1.;
-		    if ( sim.getSimilarity() ) matrix[i][j] = sim.getPropertySimilarity(prop1[i],prop2[j]);
-		    else 
-		    matrix[i][j] = 1 - sim.getPropertySimilarity(prop1[i],prop2[j]);
+	    if ( nbprop1 != 0 && nbprop2 != 0 ) {
+		double[][] matrix = new double[nbprop1][nbprop2];
+		Object[] prop1 = new Object[nbprop1];
+		Object[] prop2 = new Object[nbprop2];
+		int i = 0;
+		ConcatenatedIterator pit1 = new 
+		    ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
+					 ontology1().getDataProperties().iterator());
+		for ( Object ob: pit1 ) prop1[i++] = ob;
+		int j = 0;
+		ConcatenatedIterator pit2 = new 
+		    ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
+					 ontology2().getDataProperties().iterator());
+		for ( Object ob: pit2 ) prop2[j++] = ob;
+		for( i = 0; i < nbprop1; i++ ){
+		    for( j = 0; j < nbprop2; j++ ){
+			if ( sim.getSimilarity() ) matrix[i][j] = sim.getPropertySimilarity(prop1[i],prop2[j]);
+			else matrix[i][j] = 1. - sim.getPropertySimilarity(prop1[i],prop2[j]);
+		    }
+		}
+		// Pass it to the algorithm
+		int[][] result = callHungarianMethod( matrix, nbprop1, nbprop2 );
+		// Extract the result
+		for( i=0; i < result.length ; i++ ){
+		    // The matrix has been destroyed
+		    double val;
+		    if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
+		    else val = 1 - sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
+		    // JE: here using strict-> is a very good idea.
+		    // it means that alignments with 0. similarity
+		    // will be excluded from the best match. 
+		    if( val > threshold ){
+			addCell( new ObjectCell( (String)null, prop1[result[i][0]], prop2[result[i][1]], BasicRelation.createRelation("="), val ) );
+		    }
 		}
 	    }
-	    // Pass it to the algorithm
-	if ( ival == -1. ) {
-	    int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
-	    // Extract the result
-	    for( i=0; i < result.length ; i++ ){
-		// The matrix has been destroyed
-		double val;
-		if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
-		else val = 1 - sim.getPropertySimilarity(prop1[result[i][0]],prop2[result[i][1]]);
-		// JE: here using strict-> is a very good idea.
-		// it means that alignments with 0. similarity
-		// will be excluded from the best match. 
-		if( val > threshold ){
-		    addCell( new ObjectCell( (String)null, prop1[result[i][0]], prop2[result[i][1]], BasicRelation.createRelation("="), val ) );
-		}
-	    }
-	}
 	} catch (AlignmentException alex) { alex.printStackTrace(); }
 	catch (OntowrapException owex) { owex.printStackTrace(); }
 	// For individuals
 	if (  params.getProperty("noinst") == null ){
-	    try{
+	    try {
 		// Create individual lists
 		Object[] ind1 = new Object[ontology1().nbIndividuals()];
 		Object[] ind2 = new Object[ontology2().nbIndividuals()];
@@ -331,38 +380,51 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 			ind1[nbind1++] = ob;
 		    }
 		}
-		double[][] matrix = new double[nbind1][nbind2];
-		int i, j;
-	    double ival = sim.getIndividualSimilarity(ind1[0],ind2[0]);
-		for( i=0; i < nbind1; i++ ){
-		    for( j=0; j < nbind2; j++ ){
-			if ( ival != -1. && ival != sim.getIndividualSimilarity(ind1[i],ind2[j] ) ) ival = -1.;
-			if ( sim.getSimilarity() ) matrix[i][j] = sim.getIndividualSimilarity(ind1[i],ind2[j]);
-			else 
-			matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
+		if ( nbind1 != 0 && nbind2 != 0 ) {
+		    double[][] matrix = new double[nbind1][nbind2];
+		    int i, j;
+		    for( i=0; i < nbind1; i++ ){
+			for( j=0; j < nbind2; j++ ){
+			    if ( sim.getSimilarity() ) matrix[i][j] = sim.getIndividualSimilarity(ind1[i],ind2[j]);
+			    else matrix[i][j] = 1 - sim.getIndividualSimilarity(ind1[i],ind2[j]);
+			}
+		    }
+		    // Pass it to the algorithm
+		    int[][] result = callHungarianMethod( matrix, nbind1, nbind2 );
+		    // Extract the result
+		    for( i=0; i < result.length ; i++ ){
+			// The matrix has been destroyed
+			double val;
+			if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+			else val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
+			// JE: here using strict-> is a very good idea.
+			// it means that alignments with 0. similarity
+			// will be excluded from the best match. 
+			if( val > threshold ){
+			    addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
+			}
 		    }
 		}
-		// Pass it to the algorithm
-	if ( ival == -1. ) {
-		int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
-		// Extract the result
-		for( i=0; i < result.length ; i++ ){
-		    // The matrix has been destroyed
-		    double val;
-		    if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
-		    else val = 1 - sim.getIndividualSimilarity(ind1[result[i][0]],ind2[result[i][1]]);
-		    // JE: here using strict-> is a very good idea.
-		    // it means that alignments with 0. similarity
-		    // will be excluded from the best match. 
-		    if( val > threshold ){
-			addCell( new ObjectCell( (String)null, ind1[result[i][0]], ind2[result[i][1]], BasicRelation.createRelation("="), val ) );
-		    }
-		}
-	}
 	    } catch (AlignmentException alex) { alex.printStackTrace(); //}
 	    } catch (OntowrapException owex) { owex.printStackTrace(); }
 	}
 	return((Alignment)this);
+    }
+
+    public int[][] callHungarianMethod( double[][] matrix, int i, int j ) {
+	boolean transposed = false;
+	if ( i > j ) { // transposed aray (because rows>columns).
+	    matrix = HungarianAlgorithm.transpose(matrix);
+	    transposed = true;
+	}
+	int[][] result = HungarianAlgorithm.hgAlgorithm( matrix, "max" );
+	if ( transposed ) {
+	    for( int k=0; k < result.length ; k++ ) { 
+		int val = result[k][0]; result[k][0] = result[k][1]; result[k][1] = val; 
+	    }
+	    
+	}
+	return result;
     }
 
     /**
