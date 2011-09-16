@@ -1,5 +1,5 @@
 /*
- * $Id: EntityFilter.java 896 2010-03-26 14:45:46Z jdavid $
+ * $Id$
  *
  * Copyright (C) INRIA, 2010
  *
