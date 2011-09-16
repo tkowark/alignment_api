@@ -248,6 +248,11 @@ public class BasicAlignment implements Alignment {
 	return array;
     }
 
+    public void deleteAllCells() {
+	hash1 = new Hashtable<Object,Set<Cell>>();
+	hash2 = new Hashtable<Object,Set<Cell>>();
+    }
+
     /** Cell methods **/
     public Cell addAlignCell( String id, Object ob1, Object ob2, Relation relation, double measure, Extensions extensions ) throws AlignmentException {
 	Cell cell = createCell( id, ob1, ob2, relation, measure);
