@@ -132,15 +132,19 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	dal.align( (Alignment)null, params ); // This initialises the matrix
 	assertEquals( dal.nbCells(), 10 );
 	// ****CLASSICAL EXTRACTIONS****
- 	// Test ** extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+ 	// Test ?* extraction
+	dal.deleteAllCells();
 	dal.extractqs( 0., params );
 	assertEquals( dal.nbCells(), 10 );
+ 	// Test ** extraction
+	dal.deleteAllCells();
+	dal.extractss( 0., params );
+	assertEquals( dal.nbCells(), 10 ); // Because all is 0.
 	// Test 11 extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqq( 0., params );
 	assertEquals( dal.nbCells(), 10 );
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqqgreedy( 0., params );
 	assertEquals( dal.nbCells(), 10 );
 	// ****ZERO'ED ALIGNMENT****
@@ -159,37 +163,43 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	}
 	//dal.printDistanceMatrix( params );
  	// Test ** extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	//printAlignment( dal );
+	dal.extractss( 0., params );
+	assertEquals( dal.nbCells(), 0 );
+	dal.deleteAllCells();
 	dal.extractqs( 0., params );
 	assertEquals( dal.nbCells(), 0 );
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqs( 1., params );
 	assertEquals( dal.nbCells(), 0 );
 	// Test 11 extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqq( 0., params );
 	assertEquals( dal.nbCells(), 0 );
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqqgreedy( 0., params );
 	assertEquals( dal.nbCells(), 0 );
 	// ****ADDED ONE EXPECTED CORRESPONDENCE****
 	// Do it with only one cell... (all 0. but 1)
 	mm.clmatrix[5][5] = .5;
  	// Test ** extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	//printAlignment( dal );
 	dal.extractqs( 0., params );
 	assertEquals( dal.nbCells(), 1 );
 	// ********  TEST THIS *******
-	//for ( Cell c : dal ) { dal.removeAlignCell( c ); }
-	//dal.extractqs( .6, params );
-	//assertEquals( dal.nbCells(), 0 );
+	dal.deleteAllCells();
+	dal.extractss( 0., params );
+	assertEquals( dal.nbCells(), 1 );
+	dal.deleteAllCells();
+	dal.extractqs( .6, params );
+	assertEquals( dal.nbCells(), 0 );
 	// Test 11 extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqq( 0., params );
 	assertEquals( dal.nbCells(), 1 );
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqqgreedy( 0., params );
 	assertEquals( dal.nbCells(), 1 );
 	// ****ADDED ONE EXPECTED CORRESPONDENCE****
@@ -198,19 +208,22 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	mm.clmatrix[8][8] = .5;
 	mm.clmatrix[8][5] = .5;
  	// Test ** extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
+	dal.extractss( 0., params );
+	assertEquals( dal.nbCells(), 4 );
+	dal.deleteAllCells();
 	//printAlignment( dal );
 	dal.extractqs( 0., params );
 	assertEquals( dal.nbCells(), 2 );
 	// ********  TEST THIS *******
-	//for ( Cell c : dal ) { dal.removeAlignCell( c ); }
-	//dal.extractqs( .6, params );
-	//assertEquals( dal.nbCells(), 0 );
+	dal.deleteAllCells();
+	dal.extractqs( .6, params );
+	assertEquals( dal.nbCells(), 0 );
 	// Test 11 extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqq( 0., params );
 	assertEquals( dal.nbCells(), 2 );
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqqgreedy( 0., params );
 	assertEquals( dal.nbCells(), 2 );
     }
@@ -231,11 +244,10 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 	dal.align( (Alignment)null, params ); // This initialises the matrix
 	assertEquals( dal.nbCells(), 10 );
 	// Test 11 extraction
-	for ( Cell c : dal ) { dal.removeAlignCell( c ); }
+	dal.deleteAllCells();
 	dal.extractqq( 0., params );
 	assertEquals( dal.nbCells(), 10 ); // **** java.lang.ArrayIndexOutOfBoundsException: 0
     }
-
 
     public void printAlignment( Alignment dal ) {
 	try {
