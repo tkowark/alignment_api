@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010
+ * Copyright (C) INRIA, 2003-2005, 2007-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -496,6 +496,7 @@ public class XMLParser extends DefaultHandler {
 		    parseLevel = alignLevel; // restore level²<
 		    alignLevel = -1;
 		} else {
+		    if ( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" ) ) namespaceURI = Namespace.ALIGNMENT.uri;
 		    if ( parseLevel == 3 ){
 			alignment.setExtension( namespaceURI, pName, content );
 		    } else if ( parseLevel == 5 ) {
