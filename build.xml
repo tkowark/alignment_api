@@ -30,7 +30,7 @@
       svnbranch: copy the version under svn
       clean: clean-up before release
 
-	-Dversion=${version}.${svn.revision}
+	-Dversion=${version} -Dsvn.revision=${svn.revision} -Dversion.update=${version.update}
     </echo>
   </target>
 
@@ -85,7 +85,7 @@
   </target>
 
   <!-- tested -->
-  <target name="compileall" depends="init">
+  <target name="compileall" depends="versionnumber">
     <echo message="Erasing..."/>
     <delete>
       <fileset dir="." includes="classes/**/*.class"/>
