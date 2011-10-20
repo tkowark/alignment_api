@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2011
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -113,7 +113,14 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	onto.setFormURI( formalismUri );
 	onto.setOntology( ontology );
 	onto.setFile( uri );
-	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
+	try {
+	    onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
+	} catch ( Exception e ) { // Should be a NullPointerException
+	    // Better put in the OntowrapException of loaded
+	    // The ontology has no URI. In principle, it is not valid
+	    // It may be possible to put the uri instead (now it is void)
+	    e.printStackTrace();
+	}
 	cache.recordOntology( uri, onto );
 	//System.err.println( "   after-cache: "+cache.getOntology( uri ) );
 	return onto;
