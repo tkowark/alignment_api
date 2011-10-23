@@ -136,6 +136,9 @@ public class ArbitraryTest {
             RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
             writer.setProperty("showXmlDeclaration","true");
             model.setNsPrefix("", ns);
+
+            model.createOntology(ns);
+            
             writer.setProperty( "xmlbase", ns );
             writer.write(model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
             fout.close();
