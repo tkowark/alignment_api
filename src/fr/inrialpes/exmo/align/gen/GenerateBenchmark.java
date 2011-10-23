@@ -88,6 +88,9 @@ public class GenerateBenchmark {
             RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
             writer.setProperty("showXmlDeclaration","true");
             model.setNsPrefix("", ns);
+
+            model.createOntology(ns);
+
             writer.setProperty( "xmlbase", ns );
             writer.write(model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
             fout.close();
@@ -145,11 +148,6 @@ public class GenerateBenchmark {
             //retrieve the parameters
             this.parameters = t.getParameters();
 
-
-            //System.out.println("Alignmnent");
-            
-
-
         }
         catch ( Exception ex ) {
             System.err.println( "Error " + ex.getMessage()  );
@@ -184,7 +182,7 @@ public class GenerateBenchmark {
         this.parameters = new Properties();
         crtDirName = this.fileName;
         
-        TestGenerator t = new TestGenerator();                              //build an instance of TestGenerator
+        TestGenerator t = new TestGenerator();                                  //build an instance of TestGenerator
        
         /*
          * Test 101
