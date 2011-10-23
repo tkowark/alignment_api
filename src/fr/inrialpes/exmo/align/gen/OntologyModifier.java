@@ -25,6 +25,12 @@
   The file in which we store the alignment is "referenceAlignment.rdf"
 */
 
+/* This program receives as input two ontologies (the original ontology, the ontology that must be modified),
+  an alignment and a parameter with the modification that must be applied to the input ontology.
+  After the modification of the initial ontology the alignment must be computed
+  The file in which we store the alignment is "referenceAlignment.rdf"
+*/
+
 package fr.inrialpes.exmo.align.gen;
 
 //Java classes
@@ -1489,7 +1495,6 @@ public class OntologyModifier {
         this.modifiedModel = model;
     }
 
-    //ca ii schimbi namespace-ul, de-asta trebuie sa il intorci pe asta separat
     public OntModel getModifiedModel() {
         return this.modifiedModel;
     }
