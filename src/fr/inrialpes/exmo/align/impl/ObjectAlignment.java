@@ -150,13 +150,23 @@ public class ObjectAlignment extends BasicAlignment {
 	alignment.setExtensions( al.convertExtension( "ObjectURIConverted", "fr.inrialpes.exmo.align.ObjectAlignment#toObject" ) );
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
+	Object obj1 = null;
+	Object obj2 = null;
+
 	try {
 	    for ( Cell c : al ) {
-		Cell newc = alignment.addAlignCell( c.getId(), 
-						    o1.getEntity( c.getObject1AsURI(alignment) ),
-						    o2.getEntity( c.getObject2AsURI(alignment) ),
-						    c.getRelation(), 
-						    c.getStrength() );
+		try {
+		    obj1 = o1.getEntity( c.getObject1AsURI( alignment ) );
+		} catch ( NullPointerException npe ) {
+		    throw new AlignmentException( "Cannot dereference entity "+c.getObject1AsURI( alignment ), npe );
+		}
+		try {
+		    obj2 = o2.getEntity( c.getObject2AsURI( alignment ) );
+		} catch ( NullPointerException npe ) {
+		    throw new AlignmentException( "Cannot dereference entity "+c.getObject2AsURI( alignment ), npe );
+		}
+		Cell newc = alignment.addAlignCell( c.getId(), obj1, obj2,
+						    c.getRelation(), c.getStrength() );
 		Collection<String[]> exts = c.getExtensions();
 		if ( exts != null ) {
 		    for ( String[] ext : exts ){
