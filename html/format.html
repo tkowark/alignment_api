@@ -7,6 +7,8 @@
 </head>
 <body bgcollor="#ffffff">
 
+<p style="background-color: yellow;">A more expressive format is offered as <a href="edoal.html">EDOAL</a>.</p>
+
 <h1  class="titre">A format for ontology alignment</h1>
 
 <p>The Alignment API use a general Alignment format. Its
@@ -82,6 +84,10 @@
   Alignments and on Cells. I.e., if additional string-valued
   qualified attributes are added to the objects, they will be preserved through
   the implementation.
+</p>
+<p>
+These attributes must belong to a different namespace than the
+Alignment format namespace. Otherwise, errors will be raised.
 </p>
 <p>
 Moreover, many standard extensions have already been defined and are
