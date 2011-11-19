@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007, 2009
+ * Copyright (C) INRIA, 2007, 2009, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -38,6 +38,11 @@ public interface Directory {
      * Register an alignment to the directory (if necessary)
      */
     public void register( Alignment al ) throws AServException;
+
+    /**
+     * Unregister an alignment to the directory (if necessary)
+     */
+    public void unregister( Alignment al ) throws AServException;
 
     /**
      * Shutdown the connection and/or registration to the directory

@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -90,11 +90,11 @@ public class CacheImpl {
     final int INIT_ERROR = 3;
 
     //static public final String SVCNS = "http://exmo.inrialpes.fr/align/service#";
-    static public final String SVCNS = Namespace.ALIGNSVC.getUriPrefix();
-    static public final String CACHED = "cached";
-    static public final String STORED = "stored";
-    static public final String OURI1 = "ouri1";
-    static public final String OURI2 = "ouri2";
+    static private final String SVCNS = Namespace.ALIGNSVC.getUriPrefix();
+    static private final String CACHED = "cached";
+    static private final String STORED = "stored";
+    static private final String OURI1 = "ouri1";
+    static private final String OURI2 = "ouri2";
 	
     //**********************************************************************
 
@@ -458,7 +458,7 @@ public class CacheImpl {
     /**
      * records alignment identified by id
      */
-    public String recordAlignment( String id, Alignment alignment, boolean force ){
+    public String recordAlignment( String id, Alignment alignment, boolean force ) {
 	// record the Id!
 	//CLD put in comment this line for allowing to create a new ID for any alignment  
 	//if ( alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) == null )
@@ -490,7 +490,23 @@ public class CacheImpl {
 	    return null;
 	}
     }
-    
+
+    /**
+     * suppresses the record for an alignment
+     */
+    public void unRecordAlignment( Alignment alignment ) {
+	String id = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	try {
+	    Set<Alignment> s1 = ontologyTable.get( new URI( alignment.getExtension( SVCNS, OURI1) ) );
+	    if ( s1 != null ) s1.remove( alignment );
+	    Set<Alignment> s2 = ontologyTable.get( new URI( alignment.getExtension( SVCNS, OURI2) ) );
+	    if ( s2 != null ) s2.remove( alignment );
+	} catch ( URISyntaxException uriex ) {
+	    uriex.printStackTrace(); // should never happen
+	}
+	alignmentTable.remove( id );
+    }
+
     //**********************************************************************
     // STORING IN DATABASE
     /**
@@ -529,22 +545,39 @@ public class CacheImpl {
 	else return false;
     }
 
+
+    /**
+     * Non publicised class
+     */
+    public void eraseAlignment( String id ) throws SQLException, AlignmentException {
+	Alignment alignment = getAlignment( id );
+	if ( alignment != null ) {
+	    unstoreAlignment( id, alignment );
+	    // Suppress it from the cache...
+	    unRecordAlignment( alignment );
+	}
+    }
+
     /**
      * Non publicised class
      */
     public void unstoreAlignment( String id ) throws SQLException, AlignmentException {
 	Alignment alignment = getAlignment( id );
 	if ( alignment != null ) {
-	    Statement st = createStatement();
-	    String query = "DELETE FROM extension WHERE id='"+id+"'";
-	    st.executeUpdate(query);
-	    query = "DELETE FROM alignment WHERE id='"+id+"'";
-	    st.executeUpdate(query);
-	    query = "DELETE FROM cell WHERE id='"+id+"'";
-	    st.executeUpdate(query);
-	    alignment.setExtension( SVCNS, STORED, (String)null);
-	    st.close();
+	    unstoreAlignment( id, alignment );
 	}
+    }
+
+    public void unstoreAlignment( String id, Alignment alignment ) throws SQLException, AlignmentException {
+	Statement st = createStatement();
+	String query = "DELETE FROM extension WHERE id='"+id+"'";
+	st.executeUpdate(query);
+	query = "DELETE FROM alignment WHERE id='"+id+"'";
+	st.executeUpdate(query);
+	query = "DELETE FROM cell WHERE id='"+id+"'";
+	st.executeUpdate(query);
+	alignment.setExtension( SVCNS, STORED, (String)null);
+	st.close();
     }
 
     public void storeAlignment( String id ) throws AlignmentException, SQLException  {

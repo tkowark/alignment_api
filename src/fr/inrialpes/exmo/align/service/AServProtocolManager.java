@@ -432,12 +432,12 @@ public class AServProtocolManager {
      *********************************************************************/
 
     // Implementation specific
-    public Message store( Message mess ){
+    public Message store( Message mess ) {
 	String id = mess.getContent();
 	Alignment al=null;
 	 
 	try {
-	    try{
+	    try {
 	    	al = alignmentCache.getAlignment( id );
 	    } catch(Exception ex) {
 	    	//System.err.println("Unknown Id in Store :=" + id );
@@ -454,7 +454,7 @@ public class AServProtocolManager {
 		for ( Directory d : directories.values() ){
 		    // Declare the alignment in the directory
 		    try { d.register( al ); }
-		    catch (AServException e) { e.printStackTrace(); }// ignore
+		    catch ( AServException e ) { e.printStackTrace(); }// ignore
 		}
 	    }
 	    // register by them
@@ -462,6 +462,29 @@ public class AServProtocolManager {
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,
 				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
 	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
+	}
+    }
+
+    // Implementation specific
+    public Message erase( Message mess ) {
+	String id = mess.getContent();
+	Alignment al = null;
+	try {
+	    al = alignmentCache.getAlignment( id );
+	    // Erase it from directories
+	    for ( Directory d : directories.values() ){
+		try { d.register( al ); }
+		catch ( AServException e ) { e.printStackTrace(); }// ignore
+	    }
+	    // Erase it from storage
+	    try {
+		alignmentCache.eraseAlignment( id );
+	    } catch ( Exception ex ) { ex.printStackTrace(); }// ignore
+	    // Should be a SuppressedAlignment
+	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,
+				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+	} catch ( Exception ex ) {
 	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
 	}
     }
@@ -682,11 +705,7 @@ public class AServProtocolManager {
 	} catch (Exception e) {
 	    return false;
 	}
-	if ( al.getExtension(CacheImpl.SVCNS, CacheImpl.STORED) != null && al.getExtension(CacheImpl.SVCNS, CacheImpl.STORED) != "" ) {
-	    return true;
-	} else {
-	    return false;
-	}
+	return alignmentCache.isAlignmentStored( al );
     }
 
     /*********************************************************************

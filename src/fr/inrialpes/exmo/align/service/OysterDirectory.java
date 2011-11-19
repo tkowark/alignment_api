@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -89,6 +89,13 @@ public class OysterDirectory implements Directory {
 
     // Certainly return 
     public void getAlignmentReferences( Ontology o1, Ontology o2 ){
+    }
+
+    /**
+     * unregister an alignment from the directory (if necessary)
+     * This is not implemented
+     */
+    public void unregister( Alignment al ) {
     }
 
     /**

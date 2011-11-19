@@ -501,6 +501,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
 	    }
 	    msg += "</ul>";
+	} if ( perf.equals("manalignments") ){ // Manage ailignments
+	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
+	    for ( Alignment al : manager.alignments() ) {
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a> "+al.nbCells()+" <a href=\"../html/errrazze?id="+id+"\">DEL</a></li>";
+	    }
+	    msg += "</ul>";
+	} if ( perf.equals("errrazze") ){ // Suppress an alignment
+	    String id = params.getProperty("id");
+	    if ( id != null && !id.equals("") ) { // Erase it
+		Message answer = manager.erase( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		if ( answer instanceof ErrorMsg ) {
+		    msg = testErrorMessages( answer, params );
+		} else {
+		    msg = "<h1>Alignment deleted</h1>";
+		    msg += displayAnswer( answer, params );
+		}
+	    }
 	} else 	if ( perf.equals("prmstore") ) {
 	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
 	    msg += "Alignment id:  <select name=\"id\">";
