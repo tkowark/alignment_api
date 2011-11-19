@@ -28,8 +28,21 @@ import fr.inrialpes.exmo.ontowrap.util.FilteredSet;
 
 public interface LoadedOntology<O> extends Ontology<O> {
 
+    /**
+     * returns the entity corresponding to the given URI
+     * If no such entity exists, may return null or raise an exception
+     * @param u an URI
+     * @return the corresponding entity in the ontology or null
+     * @throws OntowrapException when an exception has been caught
+     */
     public Object getEntity( URI u ) throws OntowrapException;
 
+    /**
+     * returns the URI of an entity in the ontology
+     * @param o the entity
+     * @return its URI if it exists or null
+     * @throws OntowrapException when an exception has been caught
+     */
     public URI getEntityURI( Object o ) throws OntowrapException;
     
     /**
