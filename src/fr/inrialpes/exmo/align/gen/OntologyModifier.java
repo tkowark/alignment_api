@@ -1,5 +1,5 @@
 /*
- * $Id: OntologyModifier.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -45,8 +45,6 @@ import java.util.Random;
 //Alignment API classes
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
-
-import fr.inrialpes.exmo.align.service.jade.messageontology.Parameter;
 
 //Google API classes
 import com.google.api.GoogleAPI;
@@ -94,7 +92,6 @@ public class OntologyModifier {
     private OntModel modifiedModel;						//the modified 	Ontology
     private String namespace;							//the Namespace
     private String namespaceNew;
-    private Parameter parameter;						//the parameter for which we must apply the changes
     private Alignment alignment;						//the alignment of the two Ontologies
     private Properties params;							//the alignment
     private boolean isBuild;							//keep track if the class hierarchy is build
@@ -108,7 +105,6 @@ public class OntologyModifier {
         this.model = model;
         this.modifiedModel = modifiedModel;
 	this.alignment = alignment;
-	this.parameter = null;
 	this.isBuild = false;
 	this.isAlign = false;
         this.isChanged = false;
@@ -1526,22 +1522,19 @@ public class OntologyModifier {
     }
 
     //OntModel model, OntModel modifiedModel, Alignment alignment
-    public void modifyOntology( Parameter p ) {
-        this.parameter = p;                                                     //set the parameter
+    public void modifyOntology( String name, String param ) {
         float value = 0.0f;
-        String name, aux = "";
+	String aux = "";
 
-        if ( this.parameter == null ) {
+        if ( name == null || param == null || name.equals("") ) {
             System.out.println( "No parameter" );                               //no parameter as input
-        }
-        else {
-            name = this.parameter.getName();                                    //the name of the parameter
-            if ( this.parameter.getValue().equals( ParametersIds.NO_HIERARCHY ) )
+        } else {
+            if ( param.equals( ParametersIds.NO_HIERARCHY ) )
                 ;
-            else if(this.parameter.getValue() != null)                          //the value of the parameter
-                value = Float.valueOf( this.parameter.getValue() ).floatValue();
+            else if( param != null)                          //the value of the parameter
+                value = Float.valueOf( param ).floatValue(); // ??
             else
-                aux = this.parameter.getValue();
+                aux = param;
             
 
             if ( !this.isAlign ) {

@@ -1,5 +1,5 @@
 /*
- * $Id: TestGenerator.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -28,7 +28,6 @@ package fr.inrialpes.exmo.align.gen;
 import com.hp.hpl.jena.ontology.OntModel;
 import fr.inrialpes.exmo.align.gen.inter.AlignedOntologyGenerator;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.service.jade.messageontology.Parameter;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
 import java.util.Properties;
@@ -78,14 +77,14 @@ public class TestGenerator implements AlignedOntologyGenerator {
 
     //set the parameters
     public void setParameters(Properties p) {
-        this.parameters = p;
-        modifier.setProperties(this.parameters);
+        parameters = p;
+        modifier.setProperties(parameters);
     }
 
     //get the parameters
     public Properties getParameters() {
-        this.parameters = modifier.getProperties();                             //get the properties
-        return this.parameters;
+        parameters = modifier.getProperties();                             //get the properties
+        return parameters;
     }
 
     //generate the alingnment
@@ -100,15 +99,11 @@ public class TestGenerator implements AlignedOntologyGenerator {
         System.out.println( "[-------------------------------------------------]" );
         for(String key : this.params.stringPropertyNames()) {
             String value = this.params.getProperty(key);                    //System.out.println( "[" +key + "] => [" + value + "]");
-            //iterate through all the parameters
-            Parameter param = new Parameter();                                  //build a parameter
-            param.setName( key );
-            param.setValue( value );
-            modifier.modifyOntology( param );					//modify the ontology according to it
+            modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
         System.out.println( "[-------------------------------------------------]" );
 
-                                                                                //saves the alignment into the file "referenceAlignment.rdf", null->System.out
+                                                                                //saves the alignment into the file "refalign.rdf", null->System.out
         modifier.computeAlignment( "refalign.rdf" );                  //at the end, compute the reference alignment
         this.alignment = modifier.getAlignment();                               //get the reference alignment
         this.modifiedModel = modifier.getModifiedOntology();                    //get the modified ontology
@@ -132,11 +127,7 @@ public class TestGenerator implements AlignedOntologyGenerator {
         System.out.println( "[-------------------------------------------------]" );
         for(String key : this.params.stringPropertyNames()) {
             String value = this.params.getProperty(key);                    //System.out.println( "[" +key + "] => [" + value + "]");
-            //iterate through all the parameters
-            Parameter param = new Parameter();                                  //build a parameter
-            param.setName( key );
-            param.setValue( value );
-            modifier.modifyOntology( param );					//modify the ontology according to it
+            modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
         System.out.println( "[-------------------------------------------------]" );
 
