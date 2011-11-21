@@ -570,11 +570,19 @@ public class CacheImpl {
 
     public void unstoreAlignment( String id, Alignment alignment ) throws SQLException, AlignmentException {
 	Statement st = createStatement();
-	String query = "DELETE FROM extension WHERE id='"+id+"'";
+	String query = null;
+	for ( Cell c : alignment ) {
+	    String cellid = c.getId();
+	    if ( cellid != null && !cellid.equals("") ) {
+		query = "DELETE FROM extension WHERE id='"+cellid+"'";
+		st.executeUpdate(query);
+	    }
+	}
+	query = "DELETE FROM cell WHERE id='"+id+"'";
+	st.executeUpdate(query);
+	query = "DELETE FROM extension WHERE id='"+id+"'";
 	st.executeUpdate(query);
 	query = "DELETE FROM alignment WHERE id='"+id+"'";
-	st.executeUpdate(query);
-	query = "DELETE FROM cell WHERE id='"+id+"'";
 	st.executeUpdate(query);
 	alignment.setExtension( SVCNS, STORED, (String)null);
 	st.close();
@@ -653,8 +661,7 @@ public class CacheImpl {
 			st.executeUpdate(query);
 		    }
 		    if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
-		    	// JE: I must now store all the extensions
-		    	// JE:EXT
+		    	// Store extensions
 			for ( String[] ext : c.getExtensions() ) {
 			    String uri = ext[0];
 			    String tag = ext[1];

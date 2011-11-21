@@ -492,7 +492,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//System.err.println("HTML["+perf+"]");
 	// REST get
 	String msg = "";
-	if ( perf.equals("listalignments") ){
+	if ( perf.equals("listalignments") ) {
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
@@ -501,7 +501,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
 	    }
 	    msg += "</ul>";
-	} if ( perf.equals("manalignments") ){ // Manage ailignments
+	} else if ( perf.equals("manalignments") ){ // Manage ailignments
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
@@ -510,7 +510,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a> "+al.nbCells()+" <a href=\"../html/errrazze?id="+id+"\">DEL</a></li>";
 	    }
 	    msg += "</ul>";
-	} if ( perf.equals("errrazze") ){ // Suppress an alignment
+	} else if ( perf.equals("errrazze") ){ // Suppress an alignment
 	    String id = params.getProperty("id");
 	    if ( id != null && !id.equals("") ) { // Erase it
 		Message answer = manager.erase( new Message(newId(),(Message)null,myId,serverId,id, params) );
