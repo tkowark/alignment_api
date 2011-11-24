@@ -1,5 +1,5 @@
 /*
- * $Id: ClassHierarchy.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -127,7 +127,6 @@ public class ClassHierarchy {
     //modifies the class hierarchy after we have flattened it
     public boolean flattenClassHierarchy ( OntModel model, int level, ArrayList<OntClass> childClasses,
                                         ArrayList<OntClass> parentClasses, ArrayList<OntClass> superLevelClasses) {
-
         List<URITree> childrenNodes = getNodesFromLevel( level );
 
         URITree parentNode = null;

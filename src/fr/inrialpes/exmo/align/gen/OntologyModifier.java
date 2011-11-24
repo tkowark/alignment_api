@@ -1263,13 +1263,12 @@ public class OntologyModifier {
 
     //flatten level - for noHierarchy
     public void _noHierarchy ( int level ) {
+        if ( level == 1 ) return;
         int size;
         boolean active = false;
         ArrayList<OntClass> levelClasses = new ArrayList<OntClass>();		//the list of classes from that level
         ArrayList<OntClass> parentLevelClasses = new ArrayList<OntClass>();	//the list of parent of the child classes from that level
         ArrayList<OntClass> superLevelClasses = new ArrayList<OntClass>();	//the list of parent of the parent classes from that level
-        if ( level == 1 )                                                       //no change
-            return;
         checkClassHierarchy();                                                  //check if the class hierarchy is built
         active = this.classHierarchy.flattenClassHierarchy( this.modifiedModel, level, levelClasses, parentLevelClasses, superLevelClasses);
         size = levelClasses.size();
@@ -1335,7 +1334,7 @@ public class OntologyModifier {
         for ( OntProperty prop : properties )                                   //list all properties
             if ( prop.getNameSpace().equals( this.namespace ) )
                 this.params.put( prop.getURI() , prop.getURI() );               //add them to the initial alignment
-	}
+    }
 
     //compute the alignment after the modifications
     @SuppressWarnings("unchecked")
@@ -1541,38 +1540,23 @@ public class OntologyModifier {
                 initializeAlignment();                                          //determine the elements from the initial reference alignment
             }
 
-                //add percentage classes
-            if ( name.equals( ParametersIds.ADD_CLASSES ) ) {
+                
+            if ( name.equals( ParametersIds.ADD_CLASSES ) ) { //add percentage classes
                 System.out.println( "Add Class" + "[" + value + "]");
                 addSubClasses( value );
-            }
-
-            //remove percentage classes
-            if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) { //remove percentage classes
                 System.out.println( "Remove Class" + "[" + value + "]");
                 removeSubClasses( value );
-            }
-
-            //remove percentage comments
-            if ( name.equals( ParametersIds.REMOVE_COMMENTS ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_COMMENTS ) ) { //remove percentage comments
                 System.out.println( "Remove Comments" + "[" + value + "]");
                 removeComments ( value );
-            }
-
-            //remove percentage properties
-            if ( name.equals( ParametersIds.REMOVE_PROPERTIES ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_PROPERTIES ) ) { //remove percentage properties
                 System.out.println( "Remove Property" + "[" + value + "]");
                 removeProperties ( value );
-            }
-
-            //add percentage properties
-            if ( name.equals( ParametersIds.ADD_PROPERTIES ) ) {
+            } else if ( name.equals( ParametersIds.ADD_PROPERTIES ) ) { //add percentage properties
                 System.out.println( "Add Property" + "[" + value + "]");
                 addProperties ( value );
-            }
-
-            //recursive add nbClasses starting from level level
-            if ( name.equals( ParametersIds.ADD_CLASSESLEVEL ) ) {
+            } else if ( name.equals( ParametersIds.ADD_CLASSESLEVEL ) ) { //recursive add nbClasses starting from level level
                 aux = ((Float)value).toString();
                 int index = aux.indexOf(".");
                 int level = Integer.valueOf( aux.substring(0, index) );
@@ -1581,49 +1565,28 @@ public class OntologyModifier {
                 System.out.println( "nbClasses " + nbClasses );
                 float percentage = 1.00f;
                 addClasses ( level, nbClasses, percentage );
-            }
-
-            //remove all the classes from the level level
-            if ( name.equals( ParametersIds.REMOVE_CLASSESLEVEL ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_CLASSESLEVEL ) ) { //remove all the classes from the level level
                 System.out.println("Remove all classes from level" + (int)value );
                 removeClassesFromLevel ( (int)value );
-            }
-
-            //flatten a level
-            if ( name.equals( ParametersIds.LEVEL_FLATTENED ) ) {
+            } else if ( name.equals( ParametersIds.LEVEL_FLATTENED ) ) { //flatten a level
                 //levelFlattened ( level );
                 levelFlattened ( (int)value );
                 System.out.println( "New class hierarchy level " + getMaxLevel() ) ;
-            }
-
-            //rename classes
-            if ( name.equals( ParametersIds.RENAME_CLASSES ) ) {
+            } else if ( name.equals( ParametersIds.RENAME_CLASSES ) ) { //rename classes
                 System.out.println("Rename classes" + "[" + value + "]" );
                 //System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
                 this.modifiedModel = renameResource ( false, true, value, true, false, false, 0);
-            }
-
-            //rename properties
-            if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) {
+            } else if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) { //rename properties
                 System.out.println("Rename properties " + "[" + value + "]" );
                 //System.out.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
                 this.modifiedModel = renameResource ( true, false, value, true, false, false, 0);
-            }
-
-            //remove percentage restrictions
-            if ( name.equals( ParametersIds.REMOVE_RESTRICTIONS ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_RESTRICTIONS ) ) { //remove percentage restrictions
                 System.out.println("Remove restrictions" + "[" + value + "]");
                 removeRestrictions( value );
-            }
-
-            //remove percentage individuals
-            if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) {
+            } else if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) { //remove percentage individuals
                 System.out.println("Remove individuals" + "[" + value + "]");
                 removeIndividuals( value );
-            }
-
-            //no hierarchy
-            if ( name.equals( ParametersIds.NO_HIERARCHY ) ) {
+            } else if ( name.equals( ParametersIds.NO_HIERARCHY ) ) { //no hierarchy
                 System.out.println( "NoHierarchy" );
                 noHierarchy();
             }

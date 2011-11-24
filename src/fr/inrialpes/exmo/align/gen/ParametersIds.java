@@ -1,5 +1,5 @@
 /*
- * $Id: ParametersIds.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -32,8 +32,8 @@ public class ParametersIds {
     public static String REMOVE_COMMENTS    = "removeComments";                 //removes random comments
     public static String LEVEL_FLATTENED    = "levelFlattened";                 //flattens a level
     public static String ADD_PROPERTIES     = "addProperties";                  //adds random propeties
-    public static String REMOVE_CLASSESLEVEL= "removeClasses";                  //remove classes from level
-    public static String ADD_CLASSESLEVEL   = "addClassesLevel";                //add c classes beginning from level l -> the value of this parameters should be:
+    public static String REMOVE_CLASSESLEVEL= "removeClassLevel";                  //remove classes from level
+    public static String ADD_CLASSESLEVEL   = "addClassLevel";                //add c classes beginning from level l -> the value of this parameters should be:
                                                                                 //beginning_level.number_of_classes_to_add
     public static String RENAME_PROPERTIES  = "renameProperties";               //renames properties
     public static String RENAME_CLASSES     = "renameClasses";                  //renames classes

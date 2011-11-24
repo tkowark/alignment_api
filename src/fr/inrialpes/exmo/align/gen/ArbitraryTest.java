@@ -1,5 +1,5 @@
 /*
- * $Id: ArbitraryTest.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -21,6 +21,8 @@
 
 /*
  * Generates an arbitrary test.
+ * The days of this class are counted: it is highly redundant with the first part of
+ * GenerateBenchmark and should be merged with TestGenerator.
  */
 
 package fr.inrialpes.exmo.align.gen;
@@ -28,6 +30,14 @@ package fr.inrialpes.exmo.align.gen;
 //Java classes
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.util.Properties;
 
 //Jena API classes
 import com.hp.hpl.jena.ontology.OntModel;
@@ -38,97 +48,44 @@ import com.hp.hpl.jena.util.FileManager;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import java.io.File;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.util.Properties;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 public class ArbitraryTest {
-    private String fileName;                                                    //the initial file
-    private String testNumber;                                                  //the test number
-    private String [] params;                                                   //vector to build the parameters
-    private Properties parameters;                                              //the parameters
+    //private String fileName;                                                    //the initial file
+    //private String testNumber;                                                  //the test number
+    //private Properties parameters;                                              //the parameters
     public final String namespace = "http://oaei.ontologymatching.org/2011/gen/";
 
     //constructor
-    public ArbitraryTest(String fileName, String testNumber, String [] params) {
-        this.fileName = fileName;
-        this.testNumber = testNumber;
-        this.params = params;
-    }
-
-    //build the parameters
-    public void buildParameters() {
-        parameters = new Properties();                                          //initialize the parameters
-
-        for ( int i=0; i<params.length; i+=2 ) {
-            if ( params[i].equals("addClasses") )                               /* add percentage classes */
-                parameters.setProperty(ParametersIds.ADD_CLASSES, params[i+1]);
-
-            if ( params[i].equals("addProperties") )                            /* add percentage properties */
-                parameters.setProperty(ParametersIds.ADD_PROPERTIES, params[i+1]);
-
-            //add c classes beginning from level l -> the value of this parameters should be:
-            //beginning_level.number_of_classes_to_add
-            if ( params[i].equals("addClassesLevel") )                          /* add c classes beginning from level l */
-                parameters.setProperty(ParametersIds.ADD_CLASSES, params[i+1]);
-            
-            if ( params[i].equals("removeClasses") )                            /* remove percentage classes */
-                parameters.setProperty(ParametersIds.REMOVE_CLASSES, params[i+1]);
-
-            if ( params[i].equals("removeProperties") )                         /* remove percentage properties */
-                parameters.setProperty(ParametersIds.REMOVE_PROPERTIES, params[i+1]);
-
-            if ( params[i].equals("removeComments") )                           /* remove percentage comments */
-                parameters.setProperty(ParametersIds.REMOVE_COMMENTS, params[i+1]);
-
-            if ( params[i].equals("removeRestrictions") )                       /* remove percentage restrictions */
-                parameters.setProperty(ParametersIds.REMOVE_RESTRICTIONS, params[i+1]);
-
-            if ( params[i].equals("removeIndividuals") )                        /* remove percentage individuals */
-                parameters.setProperty(ParametersIds.REMOVE_INDIVIDUALS, params[i+1]);
-
-            if ( params[i].equals("renameClasses") )                            /* rename percentage classes */
-                parameters.setProperty(ParametersIds.RENAME_CLASSES, params[i+1]);
-
-            if ( params[i].equals("renameProperties") )                         /* rename percentage properties */
-                parameters.setProperty(ParametersIds.RENAME_PROPERTIES, params[i+1]);
-
-            if ( params[i].equals("levelFlattened") )                           /* flattened level */
-                parameters.setProperty(ParametersIds.LEVEL_FLATTENED, params[i+1]);
-
-            if ( params[i].equals( ("noHierarchy")) )                           /* no hierarchy */
-                parameters.setProperty( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY);
-        }
+    public ArbitraryTest() {
+        //this.fileName = fileName;
+        //this.testNumber = testNumber;
+        //parameters = params;
     }
 
     //get the prefix to build the namespace
-    public String getPrefix(String fileName) {
+    public String getPrefix( String fileName ) {
         return fileName.substring(0, fileName.lastIndexOf("."));
     }
 
     //get the uri
-    public String getURI(String fileName, String testNumber) {
-        return this.namespace + this.getPrefix(fileName) + "/" + testNumber + "/" + fileName + "#";
+    public String getURI( String fileName, String testNumber ) {
+        return this.namespace + getPrefix(fileName) + "/" + testNumber + "/" + fileName + "#";
     }
 
     //load ontology
-    public OntModel loadOntology (String fileName) {
+    public OntModel loadOntology ( String fileName ) {
         InputStream in = FileManager.get().open( fileName );
         OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-        model.read(in, null);
+        model.read( in, null );
         return model;
     }
 
     //write ontology
-    public static void writeOntology(OntModel model, String destFile, String ns) {
+    public static void writeOntology( OntModel model, String destFile, String ns ) {
         try {
             File f = new File(destFile);
             FileOutputStream fout = new FileOutputStream(f);
@@ -143,28 +100,29 @@ public class ArbitraryTest {
             writer.write(model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
             fout.close();
         } catch (Exception ex) {
-            System.out.println("Exception " + ex.getMessage());
+            System.err.println("Exception " + ex.getMessage());
         }
     }
 
+    // JE: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> THE REAL STUFF
+
+    // JE: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> WE SHOULD HAVE INCREMENTAL HERE IN THE SAME WAY!
 
     //modify ontology
-    public void modifyOntology(){
-        //build the list of parameters
-        this.buildParameters();
+    public void modifyOntology( String fileName, String testNumber, Properties params ) {
         //modify the model
         try {
             OntModel model = loadOntology(fileName);                      //load the initial ontology
-            TestGenerator t = new TestGenerator();                          //build an instance of TestGenerator
             JENAOntology onto = new JENAOntology();                         //cast the model into Ontology
             onto.setOntology( (OntModel)model );
             //set the TestGenerator ontology
+            TestGenerator t = new TestGenerator();                          //build an instance of TestGenerator
             t.setOntology(onto);
             //set the namespace
-            t.setNamespace( this.getURI(this.fileName, this.testNumber) );
+            t.setNamespace( getURI( fileName, testNumber) );
             //t.setNamespace( "http://oaei.ontologymatching.org/2011/gen/onto/101/onto.rdf#" );
 
-            Alignment align = t.generate(onto, parameters);                 //generate the alignment
+            Alignment align = t.generate( onto, params );                 //generate the alignment
 
             JENAOntology modified = (JENAOntology)t.getModifiedOntology();  //get the modified ontology
 
@@ -172,13 +130,13 @@ public class ArbitraryTest {
             //build the directory to save the file
             boolean create;
             create = new File(testNumber).mkdir();
-            if ( create )   System.out.println(" Succesufully created the directory ");
-            else            System.out.println(" Error creating the directory ");
+            if ( create )   System.err.println(" Succesufully created the directory ");
+            else            System.err.println(" Error creating the directory ");
 
             //new File(testNumber).mkdir();
             //write the ontology into the directory
             if ( modified.getOntology() instanceof OntModel )
-                writeOntology(modified.getOntology(), testNumber + "/" + fileName, this.getURI(this.fileName, this.testNumber));            //write the ontology
+                writeOntology(modified.getOntology(), testNumber + "/" + fileName, getURI( fileName, testNumber ));            //write the ontology
             //write the alignment into the directory
             OutputStream stream = new FileOutputStream( testNumber + "/" + "refalign.rdf" );
             // Outputing
@@ -194,9 +152,9 @@ public class ArbitraryTest {
             System.err.println( "Error " + ex.getMessage()  );
         }
 
-        System.out.println( "***" );
-        System.out.println( "END" );
-        System.out.println( "***" );
+        System.err.println( "***" );
+        System.err.println( "END" );
+        System.err.println( "***" );
     }
 
 

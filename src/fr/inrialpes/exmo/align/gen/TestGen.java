@@ -1,5 +1,5 @@
 /*
- * $Id: TestGen.java$
+ * $Id$
  *
  * Copyright (C) 2011, INRIA
  *
@@ -21,11 +21,14 @@
 
 package fr.inrialpes.exmo.align.gen;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
-/** Generates tests.
+import java.util.Properties;
+
+/** 
+    An utility application for generating tests from command line.
+    It can either generate a single test or a whole test suite from a single ontology.
     
     <pre>
     java -cp procalign.jar fr.inrialpes.exmo.align.gen.TestGen [options]
@@ -38,37 +41,49 @@ import gnu.getopt.LongOpt;
 
         --fileName=file             --> the file name of the ontology
 
+        --debug[=n] -d [n]          --> Report debug info at level n,
         --testNumber=number         --> the number of the generated test
    </pre>
 
 */
 
 public class TestGen {
-    private BasicParameters params = null;
+    private Properties params = null;
     private String methodName = null;                                           //the name of the method
     private String testNumber = null;                                           //the number of the generated test
     private String fileName   = null;                                           //the name of the input file
+    private String dir        = null;                                           //the name of the input file
+    private int debug         = 0;
     public static String ARBITRARY_TEST = "arbitraryTest";                      //generate an arbitrary test
     public static String GENERATE_BENCHMARK = "generateBenchmark";              //generate the Benchmark dataset
 
+    public TestGen() {
+	fileName = "onto.rdf";
+    }
+
     public static void main(String[] args) {
         try { new TestGen().run( args ); }
-        catch (Exception ex) { ex.printStackTrace(); };
+        catch ( Exception ex ) { ex.printStackTrace(); };
     }
 
       public void run(String[] args) throws Exception {
-          LongOpt[] longopts = new LongOpt[4];
-          params = new BasicParameters();
+          LongOpt[] longopts = new LongOpt[8];
+          params = new Properties();
 
           longopts[0] = new LongOpt("method", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-          longopts[1] = new LongOpt("fileName", LongOpt.REQUIRED_ARGUMENT, null, 'p');
+          longopts[1] = new LongOpt("fileName", LongOpt.REQUIRED_ARGUMENT, null, 'n');
           longopts[2] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
           longopts[3] = new LongOpt("testNumber", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	  longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+	  longopts[5] = new LongOpt("outdir", LongOpt.REQUIRED_ARGUMENT, null, 'o');
+	  longopts[6] = new LongOpt("urlprefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
+	  longopts[7] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
           
 
-          Getopt g = new Getopt("", args, "h:m:p:t", longopts);
+          Getopt g = new Getopt("", args, "d::o:u:h:m:n:D:t", longopts);
           int c;
-          
+          String arg;
+
           while ((c = g.getopt()) != -1) {
               switch (c) {
                   case 'h':
@@ -76,37 +91,56 @@ public class TestGen {
                       return;
                   case 'm':
                       methodName = g.getOptarg();
-                      System.out.println("method " + "[" + methodName + "]");
+                      System.err.println("method " + "[" + methodName + "]");
                       break;
-                  case 'p':
+                  case 'n':
                       fileName = g.getOptarg();
-                      System.out.println("fileName " + "[" + fileName + "]");
+		      params.setProperty( "filename", fileName );
+                      System.err.println("fileName " + "[" + fileName + "]");
                       break;
                   case 't':
                       testNumber = g.getOptarg();
-                      System.out.println("testNumber " + "[" + testNumber + "]");
+                      System.err.println("testNumber " + "[" + testNumber + "]");
                       break;
+	      case 'o' :
+		  /* Use output directory */
+		  params.setProperty( "outdir", g.getOptarg() );
+		  break;
+	      case 'u' :
+		  /* URLPrefix */
+		  params.setProperty( "urlprefix", g.getOptarg() );
+		  break;
+	      case 'd' :
+		  /* Debug level  */
+		  arg = g.getOptarg();
+		  if ( arg != null ) debug = Integer.parseInt(arg.trim());
+		  else debug = 4;
+		  break;
+	      case 'D' :
+		  /* Parameter definition: could be used for all parameters */
+		  arg = g.getOptarg();
+		  int index = arg.indexOf('=');
+		  if ( index != -1 ) {
+		      params.setProperty( arg.substring( 0, index), 
+					  arg.substring(index+1));
+		  } else {
+		      System.err.println("Bad parameter syntax: "+g);
+		      printUsage();
+		      System.exit(0);
+		  }
+		  break;
               }
           }
 
           //generate an arbitrary test
-          if (methodName.equals(this.ARBITRARY_TEST)) {
-              int currentNb = g.getOptind();
-              int totalNb = args.length;
-
-              //copy the vector of parameters
-              String[] parameters = new String[totalNb-currentNb];
-              System.arraycopy(args, currentNb, parameters, 0, totalNb-currentNb);
-
+          if ( methodName.equals( ARBITRARY_TEST ) ) {
               //build an ArbitraryTest object and modify the ontology according to it
-              ArbitraryTest at = new ArbitraryTest(this.fileName, this.testNumber, parameters);
-              at.modifyOntology();
-          }
-
-          //generate the benchmark
-          if (methodName.equals(this.GENERATE_BENCHMARK)) {
-              GenerateBenchmark gb = new GenerateBenchmark(this.fileName);
-              gb.generate();
+              ArbitraryTest at = new ArbitraryTest();
+              at.modifyOntology( fileName, testNumber, params );
+          } else if ( methodName.equals( GENERATE_BENCHMARK ) ) {
+	      //generate the benchmark
+              GenerateBenchmark gb = new GenerateBenchmark( fileName );
+              gb.generate( params );
           }
     }
 
@@ -114,25 +148,25 @@ public class TestGen {
      public void printUsage() {
          System.out.println("TestGen [options]");
          System.out.println("options are");
-         System.out.println("--method=methodName, where methodName can be \"arbitraryTest\" or \"generateBenchmark\"");
-         System.out.println("--fileName=file");
+         System.out.println("--method=methodName, where methodName can be \""+ARBITRARY_TEST+"\" or \""+GENERATE_BENCHMARK+"\"");
+         System.out.println("--fileName=file [default: onto.rdf]");
          System.out.println("--testNumber=number, if the arbitraryTest is chosen");
-         System.out.println("parameter value");
+         System.out.println("-Dparameter=value");
          System.out.println("where the parameters are");
          System.out.println( "[--------------------------------------------------------------------------]" );
          System.out.println( "[------------- The list of all modification is the following: --------------]" );
-         System.out.println( "[1. Remove percentage subclasses       \"removeClasses\"    --------------]" );
-         System.out.println( "[2. Remove percentage properties       \"removeProperties\"    --------------]" );
-         System.out.println( "[3. Remove percentage comments         \"removeComments\"     --------------]" );
-         System.out.println( "[4. Remove percentage restrictions     \"removeRestrictions\" --------------]" );
-         System.out.println( "[5. Remove individuals                 \"removeIndividuals\"   ------------]" );
-         System.out.println( "[6. Add percentage subclasses          \"addClasses\"       --------------]" );
-         System.out.println( "[7. Add percentage properties          \"addProperties\"       --------------]" );
-         System.out.println( "[8. Rename percentage classes          \"renameClasses\"     --------------]" );
-         System.out.println( "[9. Rename percentage properties       \"renameProperties\"  --------------]" );
-         System.out.println( "[10. noHierarchy                       \"noHierarchy\"    ---------------]" );
-         System.out.println( "[11. Level flattened                   \"levelFlattened\"   ---------------]" );
-         System.out.println( "[12. Add nbClasses to a specific level \"addClassesLevel\"       ---------------]" );
+         System.out.println( "[1. Remove percentage subclasses       \""+ParametersIds.REMOVE_CLASSES+"\"    --------------]" );
+         System.out.println( "[2. Remove percentage properties       \""+ParametersIds.REMOVE_PROPERTIES+"\"    --------------]" );
+         System.out.println( "[3. Remove percentage comments         \""+ParametersIds.REMOVE_COMMENTS+"\"     --------------]" );
+         System.out.println( "[4. Remove percentage restrictions     \""+ParametersIds.REMOVE_RESTRICTIONS+"\" --------------]" );
+         System.out.println( "[5. Remove individuals                 \""+ParametersIds.REMOVE_INDIVIDUALS+"\"   ------------]" );
+         System.out.println( "[6. Add percentage subclasses          \""+ParametersIds.ADD_CLASSES+"\"       --------------]" );
+         System.out.println( "[7. Add percentage properties          \""+ParametersIds.ADD_PROPERTIES+"\"       --------------]" );
+         System.out.println( "[8. Rename percentage classes          \""+ParametersIds.RENAME_CLASSES+"\"     --------------]" );
+         System.out.println( "[9. Rename percentage properties       \""+ParametersIds.RENAME_PROPERTIES+"\"  --------------]" );
+         System.out.println( "[10. noHierarchy                       \""+ParametersIds.NO_HIERARCHY+"\"    ---------------]" );
+         System.out.println( "[11. Level flattened                   \""+ParametersIds.LEVEL_FLATTENED+"\"   ---------------]" );
+         System.out.println( "[12. Add nbClasses to a specific level \""+ParametersIds.ADD_CLASSESLEVEL+"\"       ---------------]" );
          System.out.println( "[--------------------------------------------------------------------------]" );
     }
     
