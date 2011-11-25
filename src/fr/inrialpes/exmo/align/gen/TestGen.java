@@ -67,20 +67,22 @@ public class TestGen {
     }
 
       public void run(String[] args) throws Exception {
-          LongOpt[] longopts = new LongOpt[8];
+          LongOpt[] longopts = new LongOpt[10];
           params = new Properties();
 
           longopts[0] = new LongOpt("method", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-          longopts[1] = new LongOpt("fileName", LongOpt.REQUIRED_ARGUMENT, null, 'n');
+          longopts[1] = new LongOpt("init", LongOpt.REQUIRED_ARGUMENT, null, 'i');
           longopts[2] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
           longopts[3] = new LongOpt("testNumber", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	  longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	  longopts[5] = new LongOpt("outdir", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	  longopts[6] = new LongOpt("urlprefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	  longopts[7] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+	  longopts[7] = new LongOpt("ontoname", LongOpt.REQUIRED_ARGUMENT, null, 'n');
+	  longopts[8] = new LongOpt("alignname", LongOpt.REQUIRED_ARGUMENT, null, 'a');
+	  longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
           
 
-          Getopt g = new Getopt("", args, "d::o:u:h:m:n:D:t", longopts);
+          Getopt g = new Getopt("", args, "d::o:u:h:m:n:i:a:D:t", longopts);
           int c;
           String arg;
 
@@ -93,31 +95,33 @@ public class TestGen {
                       methodName = g.getOptarg();
                       System.err.println("method " + "[" + methodName + "]");
                       break;
-                  case 'n':
+                  case 'i':
                       fileName = g.getOptarg();
 		      params.setProperty( "filename", fileName );
                       System.err.println("fileName " + "[" + fileName + "]");
+                      break;
+                  case 'n':
+		      params.setProperty( "ontoname", g.getOptarg() );
+                      break;
+                  case 'a':
+		      params.setProperty( "alignname", g.getOptarg() );
                       break;
                   case 't':
                       testNumber = g.getOptarg();
                       System.err.println("testNumber " + "[" + testNumber + "]");
                       break;
-	      case 'o' :
-		  /* Use output directory */
+	      case 'o' : /* Use output directory */
 		  params.setProperty( "outdir", g.getOptarg() );
 		  break;
-	      case 'u' :
-		  /* URLPrefix */
+	      case 'u' : /* URLPrefix */
 		  params.setProperty( "urlprefix", g.getOptarg() );
 		  break;
-	      case 'd' :
-		  /* Debug level  */
+	      case 'd' : /* Debug level  */
 		  arg = g.getOptarg();
-		  if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		  else debug = 4;
+		  if ( arg != null ) params.setProperty( "debug", arg.trim() );
+		  else 		  params.setProperty( "debug", "4" );
 		  break;
-	      case 'D' :
-		  /* Parameter definition: could be used for all parameters */
+	      case 'D' : /* Parameter definition: could be used for all parameters */
 		  arg = g.getOptarg();
 		  int index = arg.indexOf('=');
 		  if ( index != -1 ) {
@@ -132,13 +136,10 @@ public class TestGen {
               }
           }
 
-          //generate an arbitrary test
-          if ( methodName.equals( ARBITRARY_TEST ) ) {
-              //build an ArbitraryTest object and modify the ontology according to it
-              ArbitraryTest at = new ArbitraryTest();
-              at.modifyOntology( fileName, testNumber, params );
-          } else if ( methodName.equals( GENERATE_BENCHMARK ) ) {
-	      //generate the benchmark
+          if ( methodName.equals( ARBITRARY_TEST ) ) { //generate an arbitrary test
+	      TestGenerator tg = new TestGenerator();
+              tg.modifyOntology( fileName, (Properties)null, testNumber, params );
+          } else if ( methodName.equals( GENERATE_BENCHMARK ) ) { //generate the benchmark
               GenerateBenchmark gb = new GenerateBenchmark( fileName );
               gb.generate( params );
           }
@@ -149,8 +150,14 @@ public class TestGen {
          System.out.println("TestGen [options]");
          System.out.println("options are");
          System.out.println("--method=methodName, where methodName can be \""+ARBITRARY_TEST+"\" or \""+GENERATE_BENCHMARK+"\"");
-         System.out.println("--fileName=file [default: onto.rdf]");
+         System.out.println("--initonto=filename (initial ontology)");
+         System.out.println("--alignname=filename [default: refalign.rdf]");
+         System.out.println("--ontoname=filename [default: onto.rdf]");
+         System.out.println("--urlprefix=url");
+         System.out.println("--outdir=directory [default: .]");
          System.out.println("--testNumber=number, if the arbitraryTest is chosen");
+         System.out.println("--help");
+         System.out.println("--debug=number [default: 0]");
          System.out.println("-Dparameter=value");
          System.out.println("where the parameters are");
          System.out.println( "[--------------------------------------------------------------------------]" );

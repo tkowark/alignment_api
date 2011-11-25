@@ -88,6 +88,7 @@ import edu.smu.tspell.wordnet.WordNetDatabase;
 
 public class OntologyModifier {
     private ClassHierarchy classHierarchy;                                      //the class hierarchy
+    // JE: In all this class, model is useless!
     private OntModel model;                                                     //the model - the original Ontology
     private OntModel modifiedModel;						//the modified 	Ontology
     private String namespace;							//the Namespace
@@ -95,15 +96,15 @@ public class OntologyModifier {
     private Alignment alignment;						//the alignment of the two Ontologies
     private Properties params;							//the alignment
     private boolean isBuild;							//keep track if the class hierarchy is build
-    private boolean isAlign;							//keep track it the initial alignment has already been computed
+    private boolean isAlign;							//keep track if the initial alignment has already been computed
     private boolean isChanged;                                                  //keep track if the namespace of the new ontology is changed
-    public static String fileName = "refalign.rdf";                             //the reference alignment
     private String base;                                                        //
 
     //Ontology init, Ontology modified, Alignment align
-    public OntologyModifier ( OntModel model, OntModel modifiedModel, Alignment alignment ) {
+    // JE: Here the alignment is useless... it is used only if nothing is computed!
+    public OntologyModifier ( OntModel model, Alignment alignment ) {
         this.model = model;
-        this.modifiedModel = modifiedModel;
+        this.modifiedModel = model;
 	this.alignment = alignment;
 	this.isBuild = false;
 	this.isAlign = false;
@@ -1315,7 +1316,22 @@ public class OntologyModifier {
             res.remove();
     }
 
+    // isAlign is a not so good way to test initialisation
+    // (initialisation with an empty Properties is done in the initialiser)
+    // but the "params" is used everywhere...
+
     //the initial reference alignment
+    // JE: !!!: no order guarantee in properties !!!
+    public void initializeAlignment( Properties params ) {
+        this.params = params;
+
+        Enumeration e = this.params.propertyNames();
+        String aux = (String)e.nextElement();
+        base = aux.substring(0, aux.lastIndexOf("#")+1);
+
+        this.isAlign = true;
+    }
+
     public void initializeAlignment() {
         List<OntClass> classes       = this.modifiedModel.listNamedClasses().toList();//all classes
         List<OntProperty> properties = this.modifiedModel.listAllOntProperties().toList();//all properties
@@ -1360,29 +1376,6 @@ public class OntologyModifier {
                 //System.out.println( "[" + key + "][" + value + "]" );
                 this.alignment.addAlignCell( uri1, uri2, "=", 1 );
             }
-
-            /*
-            OutputStream stream ;//= new FileOutputStream(filename);
-            if ( fileName == null ) {
-                stream = System.out;
-            } else {
-                stream = new FileOutputStream( fileName );
-            }
-            
-            // Outputing
-            PrintWriter  writer = new PrintWriter (
-                                    new BufferedWriter(
-                                        new OutputStreamWriter( stream, "UTF-8" )), true);
-            AlignmentVisitor renderer = new RDFRendererVisitor( writer );
-            this.alignment.render(renderer);
-
-            //RDFRendererVisitor renderer = new RDFRendererVisitor(writer);
-            //renderer.visit(this.alignment);
-            
-            writer.flush();
-            writer.close();
-             * 
-             */
         } catch (AlignmentException aex)  { System.out.println( "Exception " + aex.getMessage() );
         } catch (Exception ex) {  System.err.println("Exception " + ex.getMessage());
         }
@@ -1497,16 +1490,6 @@ public class OntologyModifier {
     //get properties
     public Properties getProperties() {
         return this.params;
-    }
-
-    public void setProperties( Properties params ) {
-        this.params = params;
-
-        Enumeration e = this.params.propertyNames();
-        String aux = (String)e.nextElement();
-        base = aux.substring(0, aux.lastIndexOf("#")+1);
-
-        this.isAlign = true;
     }
 
     //returns the alignment

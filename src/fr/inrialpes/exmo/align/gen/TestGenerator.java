@@ -30,127 +30,196 @@
 
 package fr.inrialpes.exmo.align.gen;
 
-import com.hp.hpl.jena.ontology.OntModel;
+// Alignment API implementation classes
 import fr.inrialpes.exmo.align.gen.inter.AlignedOntologyGenerator;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.ontowrap.Ontology;
-import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
-import java.util.Properties;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentVisitor;
+
+//Java classes
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.File;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.Properties;
+
+//Jena API classes
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.util.FileManager;
+
+import java.util.Properties;
 
 public class TestGenerator implements AlignedOntologyGenerator {
-    private Properties parameters;                                              //the set of parameters
+    private String urlprefix = "http://example.com/"; // Prefix (before testnumber) of test URL
+    private String dirprefix = "";                    // Prefix (idem) of directory
+    private String ontoname = "onto.rdf";             // name of ontology to generate
+    private String alignname = "refalign.rdf";        // name of alignment to generate
+
     private Properties params;                                                  //the modifications
-    private OntModel model;                                                     //initial ontology
-    private OntModel modifiedModel;                                             //modified ontology
-    private Alignment alignment;                                                //the reference alignment
-     private String namespace = "";                                             //the namespace
+    private OntModel modifiedOntology;                                             //modified ontology
+    private Alignment resultAlignment;                                                //the reference alignment
+    private String namespace = "";                                             //the namespace
     private OntologyModifier modifier = null;                                   //the modifier
+    private boolean debug = false;
 
     public TestGenerator() {}
 
+    // ******************************************************* SETTERS
+    public void setURLPrefix( String u ) { urlprefix = u; }
+
+    public void setDirPrefix( String d ) { dirprefix = d; }
+
+    public void setOntoFilename( String o ) { ontoname = o; }
+
+    public void setAlignFilename( String a ) { alignname = a; }
+
+    public void setDebug( boolean d ) { debug = d; }
+
     //returns the modified ontology
-    public Ontology getModifiedOntology() {
-        JENAOntology onto = new JENAOntology();                                 //cast the model into Ontology
-        onto.setOntology( this.modifiedModel );
-        return onto;                                                            //return the ontology
+    public OntModel getModifiedOntology() { return modifiedOntology ; }
+
+    public void setNamespace( String ns ) { namespace = ns; }
+    //return the newNamespace
+    public String getNamespace() { return namespace; }
+
+    // ******************************************************* GB STUFF
+
+    //gets the URI
+    public String getURI( String testNumber ) {
+        return urlprefix + "/" + testNumber + "/" + ontoname + "#"; // Do not like this #...
+        //return urlprefix + getPrefix(ontoname) + "/" + testNumber + "/" + ontoname + "#";
     }
 
-    //set the initial ontology
-    public void setOntology( Ontology o ) {
-        if ( o instanceof JENAOntology ) {
-            this.model = ((JENAOntology)o).getOntology();
-            this.modifiedModel = ((JENAOntology)o).getOntology();
-        } else {
-            System.err.println("Error : The object given is not an OntModel");
-            System.exit(-1);
+    public static String directoryName( String dir, String suffix ) {
+	if ( suffix == null ) return dir;
+	else return dir+"-"+suffix;
+    }
+
+    // ******************************************************* FACILITIES
+
+    public OntModel loadOntology ( String file ) {
+        InputStream in = FileManager.get().open( file );
+        OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+        model.read( in, null );
+	return model;
+    }
+
+    //writes ontology
+    public static void writeOntology( OntModel model, String destFile, String ns ) {
+        try {
+            File f = new File( destFile );
+            FileOutputStream fout = new FileOutputStream( f );
+            Charset defaultCharset = Charset.forName("UTF8");
+            RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
+            writer.setProperty( "showXmlDeclaration","true" );
+            model.setNsPrefix( "", ns ); // JE: what about it?
+            writer.setProperty( "xmlbase", ns );
+            model.createOntology( ns );
+            writer.write( model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
+            fout.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    private void outputTestDirectory( OntModel onto, Alignment align, String testnumber ) {
+	// build the directory to save the file
+	boolean create = new File( dirprefix+"/"+testnumber ).mkdir();
+	/* if ( create )   System.err.println(" Succesufully created the directory ");
+	   else            System.err.println(" Error creating the directory "); */
+	
+	// write the ontology into the directory
+	writeOntology( onto, dirprefix+"/"+testnumber+"/"+ontoname, getURI( testnumber ));
+	
+	try {
+	    //write the alignment into the directory
+	    OutputStream stream = new FileOutputStream( dirprefix+"/"+testnumber+"/"+alignname );
+	    // Outputing
+	    PrintWriter  writer = new PrintWriter (
+						   new BufferedWriter(
+								      new OutputStreamWriter( stream, "UTF-8" )), true);
+	    AlignmentVisitor renderer = new RDFRendererVisitor( writer );
+	    align.render( renderer );
+	    writer.flush();
+	    writer.close();
+        } catch ( Exception ex ) {
+            ex.printStackTrace();
+        }
     }
 
-    //return the newNamespace
-    public String getNamespace() {
-        return this.namespace;
-    }
-
-    //set the parameters
-    // JE: modifier may not have been initialised
-    public void setParameters(Properties p) {
-        parameters = p;
-        modifier.setProperties(parameters);
-    }
-
-    //get the parameters
-    public Properties getParameters() {
-        parameters = modifier.getProperties();                             //get the properties
-        return parameters;
-    }
-
-    //generate the alingnment
+    //modifies an ontology from an existing test
     /**
-     * This in fact is dependent on:
-     * - p
-     * - model
-     * - modifiedModel
-     * - alignment
+     * Generate a test by altering an existing test
      */
-    public Alignment generate( Ontology o, Properties p ) {
-        this.params = p;
-        this.alignment  = new URIAlignment();
+    public Properties incrementModifyOntology( String pKey, String pVal, String suffix, String prevTest, Properties al, String testNb ) {
+	Properties p = new Properties();
+	p.setProperty( pKey, pVal );
+	String prevDirName = directoryName( prevTest, suffix );
+	String crtDirName = directoryName( testNb, suffix );
+	return modifyOntology( dirprefix+"/"+prevDirName+"/"+ontoname, al, crtDirName, p );
+    }
+
+    //modifies an ontology
+    /**
+     * Generate a test from an ontology
+     */
+    public Properties modifyOntology( String file, Properties al, String testNumber, Properties params) {
+	if ( debug ) System.err.println( "Source: "+file+" generate "+testNumber );
+	//set the TestGenerator ontology
+	OntModel onto = loadOntology( file ); // who needs model?
+	//set the namespace
+	setNamespace( getURI( testNumber ) );
+	Alignment align = null;
+	if ( al == null )
+	    align = generate( onto, params );
+	else
+	    align = generate( onto, params, al );
+	
+	outputTestDirectory( getModifiedOntology(), align, testNumber );
+	return modifier.getProperties();
+    }
+
+    // ******************************************************* GENERATOR
+    //generate the alingnment
+    public Alignment generate( OntModel onto, Properties p, Properties initalign ) {
+	if ( debug ) System.err.println( urlprefix+" / "+dirprefix+" / "+ontoname+" / "+alignname );
+        params = p;
 	// Initialise the modifier class
-        modifier = new OntologyModifier( this.model, this.modifiedModel, this.alignment);   //build the ontology modifier for the first time
-        modifier.setNewNamespace( this.namespace );
-	// JE: This should be put OUT of the modifier (this generate Properties... instead of alignments...)
-        modifier.initializeAlignment();                                         // initialize the reference alignment
+        modifier = new OntologyModifier( onto, new URIAlignment());   //build the ontology modifier for the first time
+        modifier.setNewNamespace( namespace );
+	// Initialize the reference alignment
+        if ( initalign == null ) {
+	    modifier.initializeAlignment();                                         
+	} else {
+	    modifier.initializeAlignment( initalign );
+	}
 
 	// Apply all modifications
-        //System.out.println( "[-------------------------------------------------]" );
-        for( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty(key);
-	    //System.out.println( "[" +key + "] => [" + value + "]");
+        if ( debug ) System.out.println( "[-------------------------------------------------]" );
+        for( String key : params.stringPropertyNames() ) {
+            String value = params.getProperty(key);
+	    if ( debug ) System.out.println( "[" +key + "] => [" + value + "]");
 	    modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
-        //System.out.println( "[-------------------------------------------------]" );
 
-        // JE: this refalign should be variabilised
 	//saves the alignment into the file "refalign.rdf", null->System.out
-        modifier.computeAlignment( "refalign.rdf" );                  //at the end, compute the reference alignment
-        this.alignment = modifier.getAlignment();                               //get the reference alignment
-        this.modifiedModel = modifier.getModifiedOntology();                    //get the modified ontology
-        return this.alignment;
+        modifier.computeAlignment( alignname );                  //at the end, compute the reference alignment
+        resultAlignment = modifier.getAlignment();                               //get the reference alignment
+        modifiedOntology = modifier.getModifiedOntology();                    //get the modified ontology
+        return resultAlignment;
     }
 
-    //generate the alingnment
-    //newParams => keeps track of the previous modifications
-    public Alignment generate(Ontology o, Properties p, Properties newParams) {
-        this.params = p;
-        this.alignment  = new URIAlignment();
-        modifier = new OntologyModifier( this.model, this.modifiedModel, this.alignment);   //build the ontology modifier for the first time
-	// JE: These two lines (one commented and the next one) are the only difference with the other
-	// The first one is a different between incremental (an alignment has been initialised)
-        //modifier.initializeAlignment();                                         //initialize the reference alignment
-
-        modifier.setProperties(newParams);
-        //set the new namespace
-        modifier.setNewNamespace( this.namespace );
-
-        //System.out.println( "[-------------------------------------------------]" );
-        for( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty(key);
-	    //System.out.println( "[" +key + "] => [" + value + "]");
-            modifier.modifyOntology( key, value );					//modify the ontology according to it
-        }
-        //System.out.println( "[-------------------------------------------------]" );
-
-                                                                                //saves the alignment into the file "referenceAlignment.rdf", null->System.out
-        modifier.computeAlignment( "refalign.rdf" );                            //at the end, compute the reference alignment
-        this.alignment = modifier.getAlignment();                               //get the reference alignment
-        this.modifiedModel = modifier.getModifiedOntology();                    //get the modified ontology
-        return this.alignment;
+    public Alignment generate( OntModel onto, Properties p ) {
+	return generate( onto, p, (Properties)null );
     }
-
-
 }

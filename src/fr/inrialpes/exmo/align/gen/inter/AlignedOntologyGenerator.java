@@ -22,13 +22,13 @@
 
 package fr.inrialpes.exmo.align.gen.inter;
 
-import fr.inrialpes.exmo.ontowrap.Ontology;
-import java.util.Properties;
+import com.hp.hpl.jena.ontology.OntModel;
 import org.semanticweb.owl.align.Alignment;
+import java.util.Properties;
 
 public interface AlignedOntologyGenerator {
 
-        //generate an Alignment refering to the generated Ontology as onto2 (to be saved)
-    public Alignment generate(Ontology o, Properties p);;
+    //generate an Alignment refering to the generated Ontology as onto2 (to be saved)
+    public Alignment generate( OntModel o, Properties p );
 
 }
