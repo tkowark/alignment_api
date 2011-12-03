@@ -31,7 +31,7 @@ package fr.inrialpes.exmo.align.gen;
 
 import java.util.Properties;
 
-public class GenerateBenchmark {
+public class BenchmarkGenerator {
 
     private String initOntoFile;                                                    //the initial file
     private Properties align;                                              //the alignment parameter
@@ -41,7 +41,7 @@ public class GenerateBenchmark {
     static String FULL = "1.0f";
 
     //constructor
-    public  GenerateBenchmark( String fileName ) {
+    public BenchmarkGenerator( String fileName ) {
         initOntoFile = fileName;
 	generator = new TestGenerator();
     }
