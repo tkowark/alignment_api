@@ -116,6 +116,8 @@ public class TestGenerator implements AlignedOntologyGenerator {
 
     //writes ontology
     public static void writeOntology( OntModel model, String destFile, String ns ) {
+	// JE: How to ensure that it generates the owl:Ontology close?
+	// Otherwise, some parsers cannot parse it correctly
         try {
             File f = new File( destFile );
             FileOutputStream fout = new FileOutputStream( f );
@@ -169,14 +171,22 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	return modifyOntology( dirprefix+"/"+prevDirName+"/"+ontoname, al, crtDirName, p );
     }
 
+    /**
+     * Generate a test by altering an existing test
+     */
+    public Properties incrementModifyOntology( String prevTestDir, Properties al, String testDir, Properties params ) {
+	// JE: maybe ERROR crtDirName
+	return modifyOntology( dirprefix+"/"+prevTestDir+"/"+ontoname, al, testDir, params );
+    }
+
     //modifies an ontology
     /**
      * Generate a test from an ontology
      */
     public Properties modifyOntology( String file, Properties al, String testNumber, Properties params) {
-	if ( debug ) System.err.println( "Source: "+file+" generate "+testNumber );
+	if ( debug ) System.err.println( "Source: "+file+" Target "+testNumber );
 	//set the TestGenerator ontology
-	OntModel onto = loadOntology( file ); // who needs model?
+	OntModel onto = loadOntology( file );
 	//set the namespace
 	setNamespace( getURI( testNumber ) );
 	Alignment align = null;
@@ -189,13 +199,16 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	return modifier.getProperties();
     }
 
+
     // ******************************************************* GENERATOR
     //generate the alingnment
-    public Alignment generate( OntModel onto, Properties p, Properties initalign ) {
-	if ( debug ) System.err.println( urlprefix+" / "+dirprefix+" / "+ontoname+" / "+alignname );
-        params = p;
+    public Alignment generate( OntModel onto, Properties params, Properties initalign ) {
+        if ( debug ) {
+	    System.err.println( "[-------------------------------------------------]" );
+	    System.err.println( urlprefix+" / "+dirprefix+" / "+ontoname+" / "+alignname );
+	}
 	// Initialise the modifier class
-        modifier = new OntologyModifier( onto, new URIAlignment());   //build the ontology modifier for the first time
+        modifier = new OntologyModifier( onto, new URIAlignment() );
         modifier.setNewNamespace( namespace );
 	// Initialize the reference alignment
         if ( initalign == null ) {
@@ -205,10 +218,34 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	}
 
 	// Apply all modifications
-        if ( debug ) System.out.println( "[-------------------------------------------------]" );
+	/*
+	// JE: Here there is an obvious problems that the modifications are NOT applied in the specified order!
+	// Hence we should have a mega reordering of these parameter (for all of these, if they are here, do something)
+	// That would be better as a list in this case than parameters
+	// But parameters are more flexible...
+	applyModification( modifier, params, ParametersIds.REMOVE_CLASSES );
+	applyModification( modifier, params, ParametersIds.REMOVE_PROPERTIES );
+	applyModification( modifier, params, ParametersIds.REMOVE_COMMENTS );
+	applyModification( modifier, params, ParametersIds.REMOVE_RESTRICTIONS );
+
+	applyModification( modifier, params, ParametersIds.ADD_CLASSES );
+	applyModification( modifier, params, ParametersIds.ADD_PROPERTIES );
+
+	// SUPPRESSED FOR TESTING THAT THIS IS THE CULPRIT
+	//if ( params.getProperty( ParametersIds.ADD_CLASSES ) == null ) applyModification( modifier, params, ParametersIds.RENAME_CLASSES );
+	applyModification( modifier, params, ParametersIds.RENAME_CLASSES );
+	applyModification( modifier, params, ParametersIds.RENAME_PROPERTIES );
+	// UNTIL HERE, WE USE THE DOCUMENTED ORDER
+
+	applyModification( modifier, params, ParametersIds.REMOVE_CLASSESLEVEL );
+	applyModification( modifier, params, ParametersIds.LEVEL_FLATTENED );
+	applyModification( modifier, params, ParametersIds.NO_HIERARCHY );
+	applyModification( modifier, params, ParametersIds.ADD_CLASSESLEVEL );
+	applyModification( modifier, params, ParametersIds.REMOVE_INDIVIDUALS );
+	*/
         for( String key : params.stringPropertyNames() ) {
             String value = params.getProperty(key);
-	    if ( debug ) System.out.println( "[" +key + "] => [" + value + "]");
+	    //if ( debug ) System.out.println( "[" +key + "] => [" + value + "]");
 	    modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
 
@@ -222,4 +259,9 @@ public class TestGenerator implements AlignedOntologyGenerator {
     public Alignment generate( OntModel onto, Properties p ) {
 	return generate( onto, p, (Properties)null );
     }
+
+    public void applyModification( OntologyModifier modifier, Properties p, String m ) {
+	modifier.modifyOntology( m, p.getProperty( m ) );
+    }
 }
+

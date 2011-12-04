@@ -23,78 +23,32 @@
  * Generates the OAEI Benchmark dataset from an ontology
  * It can generate it in a continuous way (each test build on top of a previous one)
  * or generate tests independently.
- * 
- * Variations can also be obtained.
  */
 
 package fr.inrialpes.exmo.align.gen;
 
 import java.util.Properties;
 
-public class BenchmarkGenerator {
+public class BenchmarkGenerator extends TestSet {
 
-    private String initOntoFile;                                                    //the initial file
-    private Properties align;                                              //the alignment parameter
-    private TestGenerator generator;                                  // a TestGenerator
-    private boolean debug = false;
-
-    static String FULL = "1.0f";
-
-    //constructor
-    public BenchmarkGenerator( String fileName ) {
-        initOntoFile = fileName;
-	generator = new TestGenerator();
-    }
-
-    //generates the Benchmark
-    public void generate( Properties params ) {
+    public void initTestCases( Properties params ) {
 	// Process params
-	if ( params.getProperty( "urlprefix" ) != null ) generator.setURLPrefix( params.getProperty( "urlprefix" ) );
-	if ( params.getProperty( "outdir" )!= null )  generator.setDirPrefix( params.getProperty( "outdir" ) );
-	String ontoname = params.getProperty( "ontoname" );
-	if ( ontoname != null ) {
-	    generator.setOntoFilename( params.getProperty( "ontoname" ) );
-	} else {
-	    ontoname = "onto.rdf"; // could be better
-	}
-	if ( params.getProperty( "alignname" ) != null ) generator.setAlignFilename( params.getProperty( "alignname" ) );
-
 	debug = ( params.getProperty( "debug" ) != null );
-	generator.setDebug( debug );
 
-	//private String testnumber = ""; // will not work if no number...
-	//testnumber = params.getProperty( "testNumber" );
-	//if ( testnumber == null ) 
-
-        //keep track of the alignment
-        Properties alignRenameResources;
-        Properties alignInitial;
-
-        Properties p = new Properties();                                        //modify the ontology according to this parameters
-        
-        String prevDirName;
-
+	// Test configuration parameters
 	String mod = params.getProperty( "modality" ); // "mult"
 	String hard = params.getProperty( "increment" );
 	String max = params.getProperty( "maximum" );
 	if ( debug ) System.err.println( " Mod: "+mod+" / Incr: "+hard );
-
 	String SUFFIX = null;
 
-        /*
-         * Test 101
-	 * Generate the initial situation
-         */
-        align = generator.modifyOntology( initOntoFile, (Properties)null, "101", p );
-        alignInitial = (Properties)align.clone();
-        alignRenameResources = (Properties)align.clone();
-        prevDirName = "101"+"/";
+        /* Test 101 Generate the initial situation */
+	root = initTests( "101" );
 
         /*
          * Tests 201, 202, 248, 249, 253, 258, 259, 250, 254,
          *       262, 257, 260, 265, 261, 266, 251, 252
          */
-	// JE: look at the (Float).toString() below...
 	boolean multModality = (mod != null && mod.startsWith( "mult" ));
 	float i1 = 0.0f;
 	int maximum = Integer.parseInt( "5" );
@@ -104,155 +58,157 @@ public class BenchmarkGenerator {
 	} catch ( Exception ex ) {
 	    ex.printStackTrace(); // continue with the default
 	}
+	String PREVTEST = "101";
 	for ( int i = 0; i1 < 1.00f ; i++ ) { // && i < maximum
+	    if ( i > 0 ) PREVTEST = "201"+SUFFIX; // The previous suffix
 	    if ( !multModality ) i1 += incr; // traditional
 	    else i1 += (1. - i1) * incr; // hardened
-	    if ( debug ) System.err.println( " ******************************************************** "+i+": i1 = "+i1 );
+	    //if ( debug ) System.err.println( " ******************************************************** "+i+": i1 = "+i1 );
 
 	    if ( i1 < 1.0f ) {
-		SUFFIX = ((Float)i1).toString().substring(2, 3);
+		SUFFIX = "-"+((Float)i1).toString().substring(2, 3); // 2 4 6 8
 	    } else {
-		SUFFIX = null;
+		SUFFIX = "";
 	    }
 
             /* 201-x *** no names */
-	    // This bootstraps because the 101 has no SUFFIX
-            p = new Properties();
-            p.setProperty( ParametersIds.RENAME_CLASSES, ((Float)i1).toString() );
-            p.setProperty( ParametersIds.RENAME_PROPERTIES, ((Float)i1).toString() );
-	    // This dirprefix business could have been solved before...
-	    String dirprefix = params.getProperty( "outdir" );
-	    if (dirprefix != null ) { dirprefix = dirprefix+"/"; } else { dirprefix = ""; }
-	    align = generator.modifyOntology( dirprefix+prevDirName+ontoname, align, generator.directoryName( "201", SUFFIX ), p);
-
-               /* 202-x *** no names + no comments */
-	       align = generator.incrementModifyOntology( ParametersIds.REMOVE_COMMENTS, FULL, SUFFIX, "201", align, "202" );
-
-                    /* 248-x *** no names + no comments +  no hierarchy */
-	            align = generator.incrementModifyOntology( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY, SUFFIX, "202", align, "248" );
-
-                        /* 253-x *** no names + no comments + no hierarchy + no instance */
-	                align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "248", align, "253" );
-
-                     /* 249-x *** no names + no comments + no instance */
-	             align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "202", align, "249" );
-
-                     ////get the parameters
-                     alignRenameResources = (Properties)align.clone();
-
-                     /* 250-x *** no names + no comments + no property */
- 	             align = generator.incrementModifyOntology( ParametersIds.REMOVE_PROPERTIES, FULL, SUFFIX, "202", align, "250" );
-
-                         /* 254-x *** no names + no comments + no property + no hierarchy */
- 	                 align = generator.incrementModifyOntology( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY, SUFFIX, "250", align, "254" );
-
-                             /* 262-x *** no names + no comments + no property + no hierarchy + no instance */
- 	                     align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "254", align, "262" );
-
-                         /* 257-x *** no names + no comments + no property + no instance */
- 	                 align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "250", align, "257" );
-
-                         /* 261-x *** no names + no comments + no property + expand */
- 	                 align = generator.incrementModifyOntology( ParametersIds.ADD_CLASSES, FULL, SUFFIX, "250", align, "261" );
-
-                             /* 266-x *** no names + no comments + no property + expand + no instance */
-  	                    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "261", align, "266" );
-
-                         /* 260-x *** no names + no comments + no property + flatten */
-			    align = generator.incrementModifyOntology( ParametersIds.LEVEL_FLATTENED, "2", SUFFIX, "250", align, "260" );
-
-                             /* 265-x *** no names + no comments + no property + flatten + no instance */
-   	                    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "260", align, "265" );
-
-                     //re-establish the parameters
-                     align = (Properties)alignRenameResources.clone();
-
-                     /* 251-x *** no names + no comments + flatten */
-   	             align = generator.incrementModifyOntology( ParametersIds.LEVEL_FLATTENED, "2", SUFFIX, "202", align, "251" );
-
-                         /* 258-x *** no names + no comments + flatten + no instance */
-   	                 align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "251", align, "258" );
-
-                     //re-establish the parameters
-                     align = (Properties)alignRenameResources.clone();
-
-                     /* 252-x *** no names + no comments + expand */
-   	             align = generator.incrementModifyOntology( ParametersIds.ADD_CLASSES, FULL, SUFFIX, "202", align, "252" );
-
-                         /* 259-x *** no names + no comments + expand + no instance */
-   	                 align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "252", align, "259" );
-
-//           alignNoProperty = modifier.getProperties();                           //get the modifed properties
-
-            align = (Properties)alignRenameResources.clone();
-            prevDirName = generator.directoryName( "201", SUFFIX ) + "/";
+	    addTestChild( PREVTEST, "201"+SUFFIX,
+			  newProperties( ParametersIds.RENAME_CLASSES, ((Float)i1).toString(),
+					 ParametersIds.RENAME_PROPERTIES, ((Float)i1).toString() ) );
+	    /* 202-x *** no names + no comments */
+	    addTestChild( "201"+SUFFIX, "202"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_COMMENTS, FULL ) );
+	    /* 248-x *** no names + no comments +  no hierarchy */	
+	    addTestChild( "202"+SUFFIX, "248"+SUFFIX,
+			  newProperties( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY ) );
+	    /* 253-x *** no names + no comments + no hierarchy + no instance */
+	    addTestChild( "248"+SUFFIX, "253"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 249-x *** no names + no comments + no instance */
+	    addTestChild( "202"+SUFFIX, "249"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 250-x *** no names + no comments + no property */
+	    addTestChild( "202"+SUFFIX, "250"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_PROPERTIES, FULL ) );
+	    /* 254-x *** no names + no comments + no property + no hierarchy */
+	    addTestChild( "250"+SUFFIX, "254"+SUFFIX,
+			  newProperties( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY ) );
+	    /* 262-x *** no names + no comments + no property + no hierarchy + no instance */
+	    addTestChild( "254"+SUFFIX, "262"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 257-x *** no names + no comments + no property + no instance */
+	    addTestChild( "250"+SUFFIX, "257"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 261-x *** no names + no comments + no property + expand */
+	    addTestChild( "250"+SUFFIX, "261"+SUFFIX,
+			  newProperties( ParametersIds.ADD_CLASSES, FULL ) );
+	    /* 266-x *** no names + no comments + no property + expand + no instance */
+	    addTestChild( "261"+SUFFIX, "266"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 260-x *** no names + no comments + no property + flatten */
+	    addTestChild( "250"+SUFFIX, "260"+SUFFIX,
+			  newProperties( ParametersIds.LEVEL_FLATTENED, "2" ) );
+	    /* 265-x *** no names + no comments + no property + flatten + no instance */
+	    addTestChild( "260"+SUFFIX, "265"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 251-x *** no names + no comments + flatten */
+	    addTestChild( "202"+SUFFIX, "251"+SUFFIX,
+			  newProperties( ParametersIds.LEVEL_FLATTENED, "2" ) );
+	    /* 258-x *** no names + no comments + flatten + no instance */
+	    addTestChild( "251"+SUFFIX, "258"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    /* 252-x *** no names + no comments + expand */
+	    addTestChild( "202"+SUFFIX, "252"+SUFFIX,
+			  newProperties( ParametersIds.ADD_CLASSES, FULL ) );
+	    /* 259-x *** no names + no comments + expand + no instance */
+	    addTestChild( "252"+SUFFIX, "259"+SUFFIX,
+			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
         }
-
-        //re-establish the parameters
-	SUFFIX = null;
-        align = (Properties)alignInitial.clone();
-
-        /* Tests 221, 232, 233, 241 */
-
         /* 221 *** no hierarchy */
-	align = generator.incrementModifyOntology( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY, SUFFIX, "101", align, "221" );
-
-            /* 232 *** no hierarchy + no instance */
-	    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "221", align, "232" );
-
-            /* 233 *** no hierarchy + no property */
-	    align = generator.incrementModifyOntology( ParametersIds.REMOVE_PROPERTIES, FULL, SUFFIX, "221", align, "233" );
-
-                /* 241 *** no hierarchy + no property + no instance */
-	        align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "233", align, "241" );
-
-        //re-establish the align
-        align = (Properties)alignInitial.clone();
-
-        /* Tests 222, 237 */
-
+	addTestChild( "101", "221",
+		      newProperties( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY ) );
+	/* 232 *** no hierarchy + no instance */
+	addTestChild( "221", "232",
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	/* 233 *** no hierarchy + no property */
+	addTestChild( "221", "233",
+		      newProperties( ParametersIds.REMOVE_PROPERTIES, FULL ) );
+	/* 241 *** no hierarchy + no property + no instance */
+	addTestChild( "233", "241",
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
         /* 222 *** flatten */
-	align = generator.incrementModifyOntology( ParametersIds.LEVEL_FLATTENED, "2", SUFFIX, "101", align, "222" );
-
-            /* 237 *** flatten + no instance */
-	    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "222", align, "237" );
-                   
-
-        //re-establish the parameters
-        align = (Properties)alignInitial.clone();
-
-        /* Tests 223, 238 */
-
+	addTestChild( "101", "222",
+		      newProperties( ParametersIds.LEVEL_FLATTENED, "2" ) );
+	/* 237 *** flatten + no instance */
+	addTestChild( "222", "237",
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
         /* 223 *** expand */
-	align = generator.incrementModifyOntology( ParametersIds.ADD_CLASSES, FULL, SUFFIX, "101", align, "223" );
-
-            /* 238 *** expand + no instance */
-	    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "223", align, "238" );
-
+	addTestChild( "101", "223",
+		      newProperties( ParametersIds.ADD_CLASSES, FULL ) );
+	/* 238 *** expand + no instance */
+	addTestChild( "223", "238", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL) );
         /* 224 *** no instance */
-	align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "101", align, "224" );
-
+	addTestChild( "101", "224", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
         /* 225 *** no restrictions */
-	align = generator.incrementModifyOntology( ParametersIds.REMOVE_RESTRICTIONS, FULL, SUFFIX, "101", align, "225" );
-
-        /* Tests 228, 239, 246, 236, 240, 247 */
-
+	addTestChild( "101", "225", 
+		      newProperties( ParametersIds.REMOVE_RESTRICTIONS, FULL ) );
         /* 228 *** no property */
-	align = generator.incrementModifyOntology( ParametersIds.REMOVE_PROPERTIES, FULL, SUFFIX, "101", align, "228" );
-
-            /* 236 *** no property + no instance */
-	    align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "228", align, "236" );
-
-            /* 240 *** no property + expand */
-	    align = generator.incrementModifyOntology( ParametersIds.ADD_CLASSES, FULL, SUFFIX, "228", align, "240" );
-
-                /* 247 *** no property + expand + no instance */
-	        align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "240", align, "247" );
-
-            /* 239 *** no property + flatten */
-	    align = generator.incrementModifyOntology( ParametersIds.LEVEL_FLATTENED, FULL, SUFFIX, "228", align, "239" );
-
-                /* 246 *** no property + flatten + no instance */
-	        align = generator.incrementModifyOntology( ParametersIds.REMOVE_INDIVIDUALS, FULL, SUFFIX, "239", align, "246" );
+	addTestChild( "101", "228", 
+		      newProperties( ParametersIds.REMOVE_PROPERTIES, FULL ) );
+	/* 236 *** no property + no instance */
+	addTestChild( "228", "236", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	/* 240 *** no property + expand */
+	addTestChild( "228", "240", 
+		      newProperties( ParametersIds.ADD_CLASSES, FULL ) );
+	/* 247 *** no property + expand + no instance */
+	addTestChild( "240", "247", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	/* 239 *** no property + flatten */
+	addTestChild( "228", "239", 
+		      newProperties( ParametersIds.LEVEL_FLATTENED, FULL ) );
+	/* 246 *** no property + flatten + no instance */
+	addTestChild( "239", "246", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
     }
+
+    /*
+*101 --> 201
+*        201 --> 202
+*                202 --> 248
+*                        248 --> 253
+*                202 --> 249
+*                202 --> 250
+*                        250 --> 254
+*                                254 --> 262
+*                        250 --> 257
+*                        250 --> 261
+*                                261 --> 266
+*                        250 --> 260
+*                                260 --> 265
+*                202 --> 251
+*                        251 --> 258
+*                202 --> 252
+*                        252 --> 259
+//-------
+*101 --> 221
+*        221 --> 232
+*        221 --> 233
+*                233 --> 241
+*101 --> 222
+*        222 --> 237
+*101 --> 223
+*        223 --> 238
+*101 --> 224
+*101 --> 225
+*101 --> 228
+*        228 --> 236
+*        228 --> 240
+*                240 --> 247
+*        228 --> 239
+*                239 --> 246
+    */
+
 }

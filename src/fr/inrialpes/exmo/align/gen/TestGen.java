@@ -71,7 +71,7 @@ public class TestGen {
           params = new Properties();
 
           longopts[0] = new LongOpt("method", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-          longopts[1] = new LongOpt("init", LongOpt.REQUIRED_ARGUMENT, null, 'i');
+          longopts[1] = new LongOpt("initonto", LongOpt.REQUIRED_ARGUMENT, null, 'i');
           longopts[2] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
           longopts[3] = new LongOpt("testNumber", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	  longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
@@ -140,11 +140,10 @@ public class TestGen {
 	      TestGenerator tg = new TestGenerator();
               tg.modifyOntology( fileName, (Properties)null, testNumber, params );
           } else if ( methodName.equals( GENERATE_BENCHMARK ) ) { //generate the benchmark
-              GenerateBenchmark gb = new GenerateBenchmark( fileName );
+              BenchmarkGenerator gb = new BenchmarkGenerator();
               gb.generate( params );
           }
     }
-
 
      public void printUsage() {
          System.out.println("TestGen [options]");
