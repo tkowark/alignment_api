@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2010, INRIA
+ * Copyright (C) 2003-2011, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 /* This program evaluates the results of several ontology aligners
    and generates a LaTeX diagram for each of these
 */
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;

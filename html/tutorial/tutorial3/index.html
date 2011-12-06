@@ -231,7 +231,7 @@ $ javac -classpath .:../../../lib/align.jar:../../../lib/procalign.jar -d result
 </div>
 and can be used in:
 <div class="fragment">
-$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar:results fr.inrialpes.exmo.align.util.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
+$ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar:results fr.inrialpes.exmo.align.cli.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 </p>
 <p> 
@@ -342,7 +342,7 @@ In order to have this new class directly jar-launchable, it is sufficient to del
 Manifest-Version: 1.0
 Created-By: Jerome.Euzenat@inrialpes.fr
 Class-Path: align.jar ontowrap.jar procalign.jar mymatcher.jar
-Main-Class: fr/inrialpes/exmo/align/util/Procalign
+Main-Class: fr/inrialpes/exmo/align/cli/Procalign
 </div>
 
 The jar may then be launched by:

@@ -183,7 +183,7 @@
     <jar jarfile="lib/procalign.jar">
       <manifest>
 	<attribute name="Built-Date" value="${date}"/>
-        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.util.Procalign"/>
+        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.cli.Procalign"/>
         <attribute name="Class-Path" value="${jarclasspath}"/>
 	<attribute name="Implementation-Title" value="Alignment API implementation"/>
 	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
@@ -193,12 +193,13 @@
 	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.gen"/>
+	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen"/>
 	<attribute name="Import-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"/>
       </manifest>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
+      <fileset dir="classes" includes="fr/inrialpes/exmo/align/cli/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/gen/**/*.class"/>
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>

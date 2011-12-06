@@ -19,12 +19,16 @@
  * USA.
  */
 
-package fr.inrialpes.exmo.align.gen;
+package fr.inrialpes.exmo.align.cli;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.util.Properties;
+
+import fr.inrialpes.exmo.align.gen.TestGenerator;
+import fr.inrialpes.exmo.align.gen.BenchmarkGenerator;
+import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 /** 
     An utility application for generating tests from command line.

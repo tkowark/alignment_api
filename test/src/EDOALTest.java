@@ -55,7 +55,7 @@ public class EDOALTest {
     @Test(groups = { "full", "omwg", "raw" })
     public void loadPrintTest() throws Exception {
 	/*
-java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine.xml > wine2.xml
+java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter wine.xml > wine2.xml
 	*/
 	aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
@@ -75,7 +75,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"loadPrintTest"})
     public void roundTripTest() throws Exception {
 	/*
-java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter wine2.xml > wine3.xml
+java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter wine2.xml > wine3.xml
 	*/
 	aparser1.initAlignment( null );
 	alignment = aparser1.parse( "file:test/output/wine2.xml" );

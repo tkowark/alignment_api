@@ -100,7 +100,7 @@ between two bibliographic ontologies. They can be seen here:</p>
 	
 <h2>Matching</h2>
 	
-<p>For demonstrating the use of our implementation of the Alignment <abbr>API</abbr>, we implemented a particular processor (<tt>fr.inrialpes.exmo.align.util.Procalign</tt>) which:</p>
+<p>For demonstrating the use of our implementation of the Alignment <abbr>API</abbr>, we implemented a particular processor (<tt>fr.inrialpes.exmo.align.cli.Procalign</tt>) which:</p>
 <ul>
 <li>Reads two <acronym title="Web Ontology Language">OWL</acronym>/<abbr>RDF</abbr> ontologies;</li>
 	<li>Creates an alignment object;</li>
@@ -209,7 +209,7 @@ $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.St
     a WordNet based distance provided with the <abbr>API</abbr>
     implementation by ($WNDIR is the directory where wordnet 3.0 is installed):</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar:../../../lib/jwnl/jwnl.jar fr.inrialpes.exmo.align.util.Procalign -Dwndict=$WNDIR -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
+$ java -cp ../../../lib/procalign.jar:../../../lib/jwnl/jwnl.jar fr.inrialpes.exmo.align.cli.Procalign -Dwndict=$WNDIR -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
 </div>
 
 <p>See the output in <a href="results/jwnl.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/jwnl.html"><abbr>HTML</abbr></a> (if rendered as before).</p></div>
@@ -239,7 +239,7 @@ $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.St
 
 <p><b>Other manipulations:</b> It is possible to invert an alignment with the following command:</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter -i results/SMOA5.rdf -o results/AOMS5.rdf
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i results/SMOA5.rdf -o results/AOMS5.rdf
 </div>
 <p>See the output in <a href="results/AOMS5.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/AOMS5.html"><abbr>HTML</abbr></a> (if rendered as before). The results is an alignment from the source to the target. Inverting alignment is only the exchange of the order of the elements in the alignment file. This can be useful when you have an alignment of <i>A</i> to <i>B</i>, an alignment from <i>C</i> to <i>B</i> and you want to go from <i>A</i> to <i>C</i>. The solution is then to invert the second alignment and to compose them.</p>
 
@@ -251,7 +251,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter
 	
 <p>Once a good alignment has been found, only half of the work has been done. In order to actually use our result it is necessary to transform it into some processable format. For instance, if one wants to merge two OWL ontologies, the alignment can be changed into set of <acronym>OWL</acronym> "bridging" axioms. This is achieved by "rendering" the alignment in <acronym>OWL</acronym> (through the <tt>-r</tt> switch):</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 </div>
 
 <p>The result is a set of OWL assertions of the form:</p>
@@ -267,7 +267,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter
 
 <p>If one wants to use the alignments only for infering on instances without actually merging the classes, she can generate SWRL rules:</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
 </div>
 <p>which brings for the same assertions:</p>
 <div class="owl"><pre>
@@ -304,7 +304,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter
 	
 <p>Exchanging data can also be achieved more simply through <abbr>XSLT</abbr> transformations which will transform the <acronym>OWL</acronym> instance files from one ontology to another:</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
 </div>
 <p>this transformation can be applied to the data of <a href="data.xml">data.xml</a>:</p>
 <div class="fragment">
@@ -318,7 +318,7 @@ $ xsltproc results/SMOA5.xsl data.xml > results/data.xml
 
 <p>For evaluating we use another class than <tt>Procalign</tt>. It is called <tt>EvalAlign</tt> we should specify this to <tt>java</tt>. By default, it computes precision, recall and associated measures. It can be invoked this way:</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/equal.rdf
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/equal.rdf
 </div>
 
 <p>The first argument is always the reference alignment, the second one is the alignment to be evaluated. The result is given here:</p>
@@ -350,7 +350,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i 
 <div class="explain" id="qu5"><p>Since it returns more correspondences by loosening the constraints for being a correspondence, it is expected that the recall will increase at the expense of precision.</p></div>
 <p>We can see the results of:</p>
 <div class="fragment">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/levenshtein33.rdf
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/levenshtein33.rdf
 </div>
 <div class="button">
 	<input type="button" onclick="show('qu6')" value="Show result"/>
@@ -375,7 +375,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i 
 <p>It is possible to summarize these results by comparing them to each others. This can be achieved by the <tt>GroupEval</tt> class. This class can output several formats (by default html) and takes all the alignments in the subdirectories of the current directory. Here we only have the <tt>results</tt> directory:</p>
 <div class="fragment">
 $ cp ../refalign.rdf results
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.util.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c -f prm -o results/eval.html
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c -f prm -o results/eval.html
 </div>
 
 <p>The results are displayed in the <a href="results/eval.html">results/eval.html</a> file whose main content is the table:</p>

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2008
+ * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,7 +20,7 @@
 
 /* 
 */
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.cli;
 
 //Imported JAVA classes
 import java.lang.Integer;

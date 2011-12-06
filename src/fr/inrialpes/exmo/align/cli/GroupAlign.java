@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, 2010, INRIA
+ * Copyright (C) 2003-2008, 2010-2011, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -29,7 +29,7 @@
 
 /* This program evaluates the results of several ontology aligners in a row.
 */
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;

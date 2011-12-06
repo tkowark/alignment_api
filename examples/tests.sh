@@ -45,32 +45,32 @@ java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl
 # Evaluate their performances
 echo "Comparing..."
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/NameEq.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/NameEq.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/EditDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/EditDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/SubsDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/SubsDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist4.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist4.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist7.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist7.owl
 
 # Other evaluations
 echo "Comparing again..."
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/NameEq.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/NameEq.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/EditDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/EditDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/SubsDistName.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/SubsDistName.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist4.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist4.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist7.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SymMeanEvaluator file://$CWD/rdf/bibref.owl file://$CWD/aligns/StrucSubsDist7.owl
 # Pipelining
 echo "Pipelining..."
 
@@ -78,7 +78,7 @@ java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl
 
 java -jar ../lib/procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.ClassStructAlignment -a aligns/PropSubsDist.owl -o aligns/Piped.owl
 
-java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/StrucSubsDist.owl file://$CWD/aligns/Piped.owl
+java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/StrucSubsDist.owl file://$CWD/aligns/Piped.owl
 
 # Rendering
 echo "Rendering..."

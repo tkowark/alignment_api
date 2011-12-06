@@ -16,7 +16,7 @@ implementation described here. It is included in the
 <h2>Evaluating</h2>
 <p>For demonstrating the use of the API, we implement it and use it
   through a particular processor
-  (<tt>fr.inrialpes.exmo.align.util.EvalAlign</tt>) which:
+  (<tt>fr.inrialpes.exmo.align.cli.EvalAlign</tt>) which:
 <ul compact="1">
 <li>Reads two OWL/RDF ontologies;</li>
 <li>Creates an alignment object;</li>
@@ -25,7 +25,7 @@ implementation described here. It is included in the
 </ul>
 Running the program is achieved through:
 <div class="fragment"><pre>
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign
 Require two alignement filenames
 usage: EvalAlign [options] file1 file2
 options are:
@@ -35,7 +35,7 @@ options are:
 </pre></div>
 or ($CWD is the current directory)
 <div class="fragment"><pre>
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign file://$CWD/result/align1.owl file://$CWD/result/align2.owl 
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign file://$CWD/result/align1.owl file://$CWD/result/align2.owl 
 </pre></div>
 </p>
 

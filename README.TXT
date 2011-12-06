@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      03/06/2011, version 4.2                        #
+#                      03/12/2011, version 4.3                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
@@ -61,7 +61,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -o examples/rdf/sample.rdf
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter file:examples/rdf/newsample.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:examples/rdf/newsample.rdf
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf
 
@@ -71,7 +71,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=subStringDistance -t .4 -o examples/rdf/bibref2.rdf
 
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
 
 $ java -jar lib/procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/examples/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > examples/rdf/matrix.tex
 
@@ -123,7 +123,8 @@ plugins/neon/	Plug-in for the NeOn toolkit
 src/		Java sources of ontoalign
 		org.semanticweb.owl.align: the API
 		fr.inrialpes.exmo.align.impl: basic implementation
-		fr.inrialpes.exmo.align.util: utility wrapper functions
+		fr.inrialpes.exmo.align.util: utility functions
+		fr.inrialpes.exmo.align.cli: command line interface
 		fr.inrialpes.exmo.align.ling: WordNet-based implementation
 		fr.inrialpes.exmo.align.service: Alignment Service
 		fr.inrialpes.exmo.ontowrap: Abstract ontology layer

@@ -64,7 +64,11 @@ with a warning:
 <h2>Current SVN trunk version</h2>
 
 <!--h2>Version 4.3 (): xx/xx/2011 - Zimt</h2-->
+<p><span style="color: red;">BEWARE:</span> All command-line utilities
+  are now found in the <span style="color: red;">cli</span> package
+  instead of <b>util</b>.</p>
 <p><ul compact="1">
+<li>Created new "Command line interface" directory (util/cli)</li>
 <li>Full reengineering of the test generator (gen)</li>
 <li>Implemented <tt>extractss</tt> for ** alignments in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Changed default type of <tt>StringDistAlignment</tt> to "?*" for
@@ -77,6 +81,7 @@ with a warning:
   equisimilarity situations (impl)</li>
 <li>Slightly modified the parser so that it accepts Alignment URI with
   or without # (parser)</li>
+<li>Added better error checking in <tt>toObjectAlignment</tt> (impl)</li>
 <li>Fixed a bug on <tt>DistanceAlignment</tt> 1:1 extraction when the
   second ontology is larger than the first one (impl)</li>
 </ul></p>

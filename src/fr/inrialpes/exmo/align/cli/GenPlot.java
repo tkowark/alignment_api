@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010, INRIA
+ * Copyright (C) 2003-2011, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
  * This program evaluates the results of several ontology aligners and plot
  * these results
 */
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
 

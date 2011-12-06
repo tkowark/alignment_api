@@ -28,7 +28,7 @@
     <exclude name="fr/inrialpes/exmo/align/gen/**/*.java"/>
     <exclude name="fr/inrialpes/exmo/align/ling/**/*.java"/>
     <exclude name="fr/inrialpes/exmo/align/service/**/*.java"/>
-    <exclude name="fr/inrialpes/exmo/align/util/**/*.java"/>
+    <exclude name="fr/inrialpes/exmo/align/cli/**/*.java"/>
     <!-- for picoalign -->
     <!--exclude name="fr/inrialpes/exmo/align/impl/edoal/**/*.java"/>
 	<exclude name="fr/inrialpes/exmo/align/parser/RDFParser.java"/-->
@@ -126,7 +126,7 @@
       <exclude name="fr/inrialpes/exmo/align/gen/**/*.java"/>
       <exclude name="fr/inrialpes/exmo/align/ling/**/*.java"/>
       <exclude name="fr/inrialpes/exmo/align/service/**/*.java"/>
-      <exclude name="fr/inrialpes/exmo/align/util/**/*.java"/>
+      <exclude name="fr/inrialpes/exmo/align/cli/**/*.java"/>
       <!-- for picoalign -->
       <!--exclude name="fr/inrialpes/exmo/align/impl/edoal/**/*.java"/>
 	  <exclude name="fr/inrialpes/exmo/align/parser/RDFParser.java"/-->

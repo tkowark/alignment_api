@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, 2007-2010 INRIA
+ * Copyright (C) 2003-2005, 2007-2011 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@
    It uses the generalisations of precision and recall described in
    [Ehrig & Euzenat 2005].
 */
-package fr.inrialpes.exmo.align.util;
+package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;

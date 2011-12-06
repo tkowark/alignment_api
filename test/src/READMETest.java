@@ -105,7 +105,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/exa
     @Test(groups = { "full", "impl", "raw" })
     public void routineTest5() throws Exception {
 	/*
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.ParserPrinter examples/rdf/newsample.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter examples/rdf/newsample.rdf
 	*/
 	AlignmentParser aparser = new AlignmentParser( 0 );
 	assertNotNull( aparser, "AlignmentParser was null" );
@@ -228,7 +228,7 @@ $ java -jar lib/Procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
     public void routineEvalTest() throws Exception {
 	/*
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
 	*/
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
@@ -262,7 +262,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrial
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
     public void emptyEvalTest() throws Exception {
 	/*
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.util.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/examples/rdf/bibref2.rdf file://$CWD/examples/rdf/bibref.rdf
 	*/
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
