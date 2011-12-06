@@ -88,28 +88,26 @@ public class TestGen {
 
           while ((c = g.getopt()) != -1) {
               switch (c) {
-                  case 'h':
-                      printUsage();
-                      return;
-                  case 'm':
-                      methodName = g.getOptarg();
-                      System.err.println("method " + "[" + methodName + "]");
-                      break;
-                  case 'i':
-                      fileName = g.getOptarg();
-		      params.setProperty( "filename", fileName );
-                      System.err.println("fileName " + "[" + fileName + "]");
-                      break;
-                  case 'n':
-		      params.setProperty( "ontoname", g.getOptarg() );
-                      break;
-                  case 'a':
-		      params.setProperty( "alignname", g.getOptarg() );
-                      break;
-                  case 't':
-                      testNumber = g.getOptarg();
-                      System.err.println("testNumber " + "[" + testNumber + "]");
-                      break;
+	      case 'h':
+		  printUsage();
+		  return;
+	      case 'm':
+		  methodName = g.getOptarg();
+		  break;
+	      case 'i':
+		  fileName = g.getOptarg();
+		  params.setProperty( "filename", fileName );
+		  break;
+	      case 'n':
+		  params.setProperty( "ontoname", g.getOptarg() );
+		  break;
+	      case 'a':
+		  params.setProperty( "alignname", g.getOptarg() );
+		  break;
+	      case 't':
+		  testNumber = g.getOptarg();
+		  System.err.println("testNumber " + "[" + testNumber + "]");
+		  break;
 	      case 'o' : /* Use output directory */
 		  params.setProperty( "outdir", g.getOptarg() );
 		  break;
@@ -135,6 +133,8 @@ public class TestGen {
 		  break;
               }
           }
+
+	  if ( debug > 0 ) System.err.println( " >>>> "+methodName+" from "+fileName );
 
           if ( methodName.equals( ARBITRARY_TEST ) ) { //generate an arbitrary test
 	      TestGenerator tg = new TestGenerator();

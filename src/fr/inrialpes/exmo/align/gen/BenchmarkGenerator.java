@@ -36,37 +36,36 @@ public class BenchmarkGenerator extends TestSet {
 	debug = ( params.getProperty( "debug" ) != null );
 
 	// Test configuration parameters
+	int maximum = 5;
+	float incr = 0.2f;
 	String mod = params.getProperty( "modality" ); // "mult"
-	String hard = params.getProperty( "increment" );
-	String max = params.getProperty( "maximum" );
-	if ( debug ) System.err.println( " Mod: "+mod+" / Incr: "+hard );
-	String SUFFIX = null;
-
-        /* Test 101 Generate the initial situation */
-	root = initTests( "101" );
-
-        /*
-         * Tests 201, 202, 248, 249, 253, 258, 259, 250, 254,
-         *       262, 257, 260, 265, 261, 266, 251, 252
-         */
 	boolean multModality = (mod != null && mod.startsWith( "mult" ));
-	float i1 = 0.0f;
-	int maximum = Integer.parseInt( "5" );
-	float incr = Float.parseFloat( "0.2" );
+	String hard = params.getProperty( "increment" );
 	try {
 	    if ( hard != null && !hard.equals("") ) incr = Float.parseFloat( hard );
 	} catch ( Exception ex ) {
 	    ex.printStackTrace(); // continue with the default
 	}
+	String max = params.getProperty( "maximum" );
+	if ( max != null ) maximum = Integer.parseInt( max );
+	if ( debug ) System.err.println( " Mod: "+mod+" / Incr: "+incr+" / Max: "+maximum );
+
+        /* Test 101 Generate the initial situation */
+	root = initTests( "101" );
 	String PREVTEST = "101";
-	for ( int i = 0; i1 < 1.00f ; i++ ) { // && i < maximum
+
+	String SUFFIX = null;
+	float i1 = 0.0f;
+
+	/* Iterator for gradual change  */
+	for ( int i = 0; i1 < 1.00f && i < maximum ; i++ ) { //
 	    if ( i > 0 ) PREVTEST = "201"+SUFFIX; // The previous suffix
 	    if ( !multModality ) i1 += incr; // traditional
 	    else i1 += (1. - i1) * incr; // hardened
 	    //if ( debug ) System.err.println( " ******************************************************** "+i+": i1 = "+i1 );
 
 	    if ( i1 < 1.0f ) {
-		SUFFIX = "-"+((Float)i1).toString().substring(2, 3); // 2 4 6 8
+		SUFFIX = "-"+(i+1)*2; //((Float)i1).toString().substring(2, 3); // 2 4 6 8
 	    } else {
 		SUFFIX = "";
 	    }

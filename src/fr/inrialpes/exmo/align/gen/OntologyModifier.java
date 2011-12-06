@@ -87,6 +87,7 @@ import edu.smu.tspell.wordnet.WordNetDatabase;
 //activeTranslateString is true -> we translate the label
 
 public class OntologyModifier {
+    private boolean debug = false;
     private ClassHierarchy classHierarchy;                                      //the class hierarchy
     // JE: In all this class, model is useless!
     private OntModel model;                                                     //the model - the original Ontology
@@ -95,33 +96,63 @@ public class OntologyModifier {
     private String namespaceNew;
     private Alignment alignment;						//the alignment of the two Ontologies
     private Properties params;							//the alignment
-    private boolean isBuild;							//keep track if the class hierarchy is build
-    private boolean isAlign;							//keep track if the initial alignment has already been computed
-    private boolean isChanged;                                                  //keep track if the namespace of the new ontology is changed
+    private boolean isBuild = false;							//keep track if the class hierarchy is build
+    private boolean isAlign = false;							//keep track if the initial alignment has already been computed
+    private boolean isChanged = false;                                                  //keep track if the namespace of the new ontology is changed
     private String base;                                                        //
 
+    // -------------------------
+    // Constructors
     //Ontology init, Ontology modified, Alignment align
     // JE: Here the alignment is useless... it is used only if nothing is computed!
     public OntologyModifier ( OntModel model, Alignment alignment ) {
         modifiedModel = model;
-	namespace = model.getNsPrefixURI("");       // JE: ???
 	this.alignment = alignment;
-        isBuild = false;
-	isAlign = false;
-        isChanged = false;
+	namespace = model.getNsPrefixURI("");       // JE: ???
         namespaceNew = "";
 	params = new Properties();
     }
 
-    //no-args constructor
-    public OntologyModifier () { }
+    // -------------------------
+    // Accessors
 
-    //if we add / remove a class we need to keep track of the class hierarchy
-    public void buildClassHierarchy () {
-        classHierarchy = new ClassHierarchy();
-        classHierarchy.buildClassHierarchy( modifiedModel );
-        //classHierarchy.printClassHierarchy();
+    public void setDebug( boolean d ) { 
+	debug = d;
     }
+
+    public void setNewNamespace(String newNamespace) {
+        this.namespaceNew = newNamespace;
+        //if ( debug ) System.err.println("New namespace [" + this.namespaceNew + "]");
+    }
+
+    //returns the modified ontology after changing the namespace
+    public OntModel getModifiedOntology () {
+        //if ( debug ) System.err.println( "->change namespace" );
+        modifiedModel = changeNamespace();				//change the namespace of the modified ontology
+        //if ( debug ) System.err.println( "->namespace changed" );
+        return modifiedModel;
+    }
+
+    public void setModifiedModel(OntModel model) {
+        modifiedModel = model;
+    }
+
+    public OntModel getModifiedModel() {
+        return modifiedModel;
+    }
+
+    //get properties
+    public Properties getProperties() {
+        return this.params;
+    }
+
+    //returns the alignment
+    public Alignment getAlignment() {
+        return this.alignment;
+    }
+
+    // -------------------------
+    // Utility (string) functions
 
     //generates a random string with the length "length"
     public String getRandomString() {
@@ -211,7 +242,7 @@ public class OntologyModifier {
         */
 
     public String parseString (String str, boolean activeTranslateString, boolean activeSynonym) {
-        // System.err.println ( "str = [" + str + "]" );
+        // if ( debug ) System.err.println ( "str = [" + str + "]" );
         char [] parsed = str.toCharArray();
         String newString = "";
 
@@ -235,6 +266,9 @@ public class OntologyModifier {
         return newString;
     }
     
+    // -------------------------
+    // Utility (randomizing) functions
+
     //count - the number of elements from the vector
     //the random numElems that must be selected
     //uses the Fisher and Yates method to shuffle integers from an array
@@ -255,6 +289,9 @@ public class OntologyModifier {
         }
         return n;
     }
+
+    // -------------------------
+    // Label replacement
 
     //replaces the label of the property
     public void replacePropertyLabel( String uri, String newLabel, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation ) {
@@ -634,6 +671,22 @@ public class OntologyModifier {
         return newModel;
     }
 
+    // -------------------------
+    // Class hierarchy utilities
+
+    //must have the max level of the class hierarchy
+    public int getMaxLevel() {
+        checkClassHierarchy();                                                  //check if the class hierarchy is built
+        return this.classHierarchy.getMaxLevel();
+    }
+
+    //if we add / remove a class we need to keep track of the class hierarchy
+    public void buildClassHierarchy () {
+        classHierarchy = new ClassHierarchy();
+        classHierarchy.buildClassHierarchy( modifiedModel );
+        //classHierarchy.printClassHierarchy();
+    }
+
     //check if the class hierarchy is build
     public void checkClassHierarchy() {
         if ( !this.isBuild ) {
@@ -887,7 +940,7 @@ public class OntologyModifier {
     public void removeClassesFromLevel ( int level ) {
         HashMap<String, String> uris = new HashMap<String, String>();
         String parentURI = "";
-        //System.err.println( "Level " + level );
+        //if ( debug ) System.err.println( "Level " + level );
         /*	if ( level == 1 )						//except classes from level 1
          return;	*/
         List<OntClass> classes = new ArrayList<OntClass>();
@@ -990,10 +1043,10 @@ public class OntologyModifier {
         //since we don't respect any order the value can appear as a value, thus we must iterate among all params to delete it
         for ( String key : this.params.stringPropertyNames() ) {
             String value = this.params.getProperty(key);
-            if ( pr.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {     //System.err.println( "Elimin " + key );
+            if ( pr.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {     //if ( debug ) System.err.println( "Elimin " + key );
                 this.params.remove( key );
             }
-            if ( pr.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length()) ) ) {   //System.err.println( "Elimin " + key );
+            if ( pr.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length()) ) ) {   //if ( debug ) System.err.println( "Elimin " + key );
                 this.params.remove( key );
             }
         }
@@ -1195,10 +1248,10 @@ public class OntologyModifier {
                         restr.add(r);
                     if ( r.isSomeValuesFromRestriction() )
                         restr.add(r);
-                    //System.err.println( cls.getURI() + cls.getLocalName() );
+                    //if ( debug ) System.err.println( cls.getURI() + cls.getLocalName() );
                 }
             }
-            //System.err.println( restr.size() );
+            //if ( debug ) System.err.println( restr.size() );
 
             if ( !restrictions.containsKey( parentClass.getURI() ) ) {
                 restrictions.put( parentClass.getURI(), restr );
@@ -1209,9 +1262,9 @@ public class OntologyModifier {
             if (  active ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
                OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
 
-               //System.err.println("SuperClass class [" + superClass.getURI() + "]");
-               //System.err.println("Parent class [" + parentClass.getURI() + "]");
-               //System.err.println("Child class [" + childClass.getURI() + "]");
+               //if ( debug ) System.err.println("SuperClass class [" + superClass.getURI() + "]");
+               //if ( debug ) System.err.println("Parent class [" + parentClass.getURI() + "]");
+               //if ( debug ) System.err.println("Child class [" + childClass.getURI() + "]");
                
                if ( modifiedModel.containsResource(parentClass) ) {
                    //to check if the class appears as unionOf, someValuesFrom, allValuesFrom ..
@@ -1315,6 +1368,9 @@ public class OntologyModifier {
             res.remove();
     }
 
+    // -------------------------
+    // Alignment management
+
     // isAlign is a not so good way to test initialisation
     // (initialisation with an empty Properties is done in the initialiser)
     // but the "params" is used everywhere...
@@ -1372,7 +1428,7 @@ public class OntologyModifier {
                 String value = this.params.getProperty(key);
                 URI uri1 = URI.create(key);
                 URI uri2 = URI.create(this.namespaceNew + value.substring(value.indexOf(this.base) + this.base.length()));
-                //System.err.println( "[" + key + "][" + value + "]" );
+                //if ( debug ) System.err.println( "[" + key + "][" + value + "]" );
                 this.alignment.addAlignCell( uri1, uri2, "=", 1 );
             }
         } catch (AlignmentException aex)  { System.err.println( "Exception " + aex.getMessage() );
@@ -1380,10 +1436,8 @@ public class OntologyModifier {
         }
     }
 
-    public void setNewNamespace(String newNamespace) {
-        this.namespaceNew = newNamespace;
-        //System.err.println("New namespace [" + this.namespaceNew + "]");
-    }
+    // -------------------------
+    // Namespace management and change
 
     //change the namespace of the modified ontology
     // JE: ??
@@ -1464,37 +1518,8 @@ public class OntologyModifier {
         return newModel;
     }
 
-    //returns the modified ontology after changing the namespace
-    public OntModel getModifiedOntology () {
-        //System.err.println( "->change namespace" );
-        modifiedModel = changeNamespace();				//change the namespace of the modified ontology
-        //System.err.println( "->namespace changed" );
-        return modifiedModel;
-    }
-
-    public void setModifiedModel(OntModel model) {
-        modifiedModel = model;
-    }
-
-    public OntModel getModifiedModel() {
-        return modifiedModel;
-    }
-
-    //get properties
-    public Properties getProperties() {
-        return this.params;
-    }
-
-    //returns the alignment
-    public Alignment getAlignment() {
-        return this.alignment;
-    }
-
-    //must have the max level of the class hierarchy
-    public int getMaxLevel() {
-        checkClassHierarchy();                                                  //check if the class hierarchy is built
-        return this.classHierarchy.getMaxLevel();
-    }
+    // -------------------------
+    // Main entry point
 
     //OntModel model, OntModel modifiedModel, Alignment alignment
     public void modifyOntology( String name, String param ) {
@@ -1518,52 +1543,52 @@ public class OntologyModifier {
 	}
 
 	if ( name.equals( ParametersIds.ADD_CLASSES ) ) { //add percentage classes
-	    System.err.println( "Add Class" + "[" + value + "]");
+	    if ( debug ) System.err.println( "Add Class" + "[" + value + "]");
 	    addSubClasses( value );
 	} else if ( name.equals( ParametersIds.REMOVE_CLASSES ) ) { //remove percentage classes
-	    System.err.println( "Remove Class" + "[" + value + "]");
+	    if ( debug ) System.err.println( "Remove Class" + "[" + value + "]");
 	    removeSubClasses( value );
 	} else if ( name.equals( ParametersIds.REMOVE_COMMENTS ) ) { //remove percentage comments
-	    System.err.println( "Remove Comments" + "[" + value + "]");
+	    if ( debug ) System.err.println( "Remove Comments" + "[" + value + "]");
 	    removeComments ( value );
 	} else if ( name.equals( ParametersIds.REMOVE_PROPERTIES ) ) { //remove percentage properties
-	    System.err.println( "Remove Property" + "[" + value + "]");
+	    if ( debug ) System.err.println( "Remove Property" + "[" + value + "]");
 	    removeProperties ( value );
 	} else if ( name.equals( ParametersIds.ADD_PROPERTIES ) ) { //add percentage properties
-	    System.err.println( "Add Property" + "[" + value + "]");
+	    if ( debug ) System.err.println( "Add Property" + "[" + value + "]");
 	    addProperties ( value );
 	} else if ( name.equals( ParametersIds.ADD_CLASSESLEVEL ) ) { //recursive add nbClasses starting from level level
 	    aux = ((Float)value).toString();
 	    int index = aux.indexOf(".");
 	    int level = Integer.valueOf( aux.substring(0, index) );
 	    int nbClasses = Integer.valueOf( aux.substring(index+1, aux.length()) );
-	    System.err.println( "level " + level );
-	    System.err.println( "nbClasses " + nbClasses );
+	    if ( debug ) System.err.println( "level " + level );
+	    if ( debug ) System.err.println( "nbClasses " + nbClasses );
 	    float percentage = 1.00f;
 	    addClasses ( level, nbClasses, percentage );
 	} else if ( name.equals( ParametersIds.REMOVE_CLASSESLEVEL ) ) { //remove all the classes from the level level
-	    System.err.println("Remove all classes from level" + (int)value );
+	    if ( debug ) System.err.println("Remove all classes from level" + (int)value );
 	    removeClassesFromLevel ( (int)value );
 	} else if ( name.equals( ParametersIds.LEVEL_FLATTENED ) ) { //flatten a level
 	    //levelFlattened ( level );
 	    levelFlattened ( (int)value );
-	    System.err.println( "New class hierarchy level " + getMaxLevel() ) ;
+	    if ( debug ) System.err.println( "New class hierarchy level " + getMaxLevel() ) ;
 	} else if ( name.equals( ParametersIds.RENAME_CLASSES ) ) { //rename classes
-	    System.err.println("Rename classes" + "[" + value + "]" );
-	    //System.err.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
+	    if ( debug ) System.err.println("Rename classes" + "[" + value + "]" );
+	    //if ( debug ) System.err.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
 	    modifiedModel = renameResource ( false, true, value, true, false, false, 0);
 	} else if ( name.equals( ParametersIds.RENAME_PROPERTIES ) ) { //rename properties
-	    System.err.println("Rename properties " + "[" + value + "]" );
-	    //System.err.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
+	    if ( debug ) System.err.println("Rename properties " + "[" + value + "]" );
+	    //if ( debug ) System.err.println("\nValue = " + value + "\n");	//activeProperties, activeClasses, ..
 	    modifiedModel = renameResource ( true, false, value, true, false, false, 0);
 	} else if ( name.equals( ParametersIds.REMOVE_RESTRICTIONS ) ) { //remove percentage restrictions
-	    System.err.println("Remove restrictions" + "[" + value + "]");
+	    if ( debug ) System.err.println("Remove restrictions" + "[" + value + "]");
 	    removeRestrictions( value );
 	} else if ( name.equals( ParametersIds.REMOVE_INDIVIDUALS ) ) { //remove percentage individuals
-	    System.err.println("Remove individuals" + "[" + value + "]");
+	    if ( debug ) System.err.println("Remove individuals" + "[" + value + "]");
 	    removeIndividuals( value );
 	} else if ( name.equals( ParametersIds.NO_HIERARCHY ) ) { //no hierarchy
-	    System.err.println( "NoHierarchy" );
+	    if ( debug ) System.err.println( "NoHierarchy" );
 	    noHierarchy();
 	}
 

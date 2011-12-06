@@ -209,6 +209,7 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	}
 	// Initialise the modifier class
         modifier = new OntologyModifier( onto, new URIAlignment() );
+	modifier.setDebug( debug );
         modifier.setNewNamespace( namespace );
 	// Initialize the reference alignment
         if ( initalign == null ) {
@@ -218,15 +219,14 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	}
 
 	// Apply all modifications
-	/*
 	// JE: Here there is an obvious problems that the modifications are NOT applied in the specified order!
 	// Hence we should have a mega reordering of these parameter (for all of these, if they are here, do something)
 	// That would be better as a list in this case than parameters
 	// But parameters are more flexible...
 	applyModification( modifier, params, ParametersIds.REMOVE_CLASSES );
 	applyModification( modifier, params, ParametersIds.REMOVE_PROPERTIES );
-	applyModification( modifier, params, ParametersIds.REMOVE_COMMENTS );
 	applyModification( modifier, params, ParametersIds.REMOVE_RESTRICTIONS );
+	applyModification( modifier, params, ParametersIds.REMOVE_COMMENTS );
 
 	applyModification( modifier, params, ParametersIds.ADD_CLASSES );
 	applyModification( modifier, params, ParametersIds.ADD_PROPERTIES );
@@ -242,12 +242,14 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	applyModification( modifier, params, ParametersIds.NO_HIERARCHY );
 	applyModification( modifier, params, ParametersIds.ADD_CLASSESLEVEL );
 	applyModification( modifier, params, ParametersIds.REMOVE_INDIVIDUALS );
-	*/
+
+	/*
         for( String key : params.stringPropertyNames() ) {
             String value = params.getProperty(key);
 	    //if ( debug ) System.out.println( "[" +key + "] => [" + value + "]");
 	    modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
+	*/
 
 	//saves the alignment into the file "refalign.rdf", null->System.out
         modifier.computeAlignment( alignname );                  //at the end, compute the reference alignment
