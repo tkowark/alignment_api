@@ -59,12 +59,13 @@ import com.hp.hpl.jena.util.FileManager;
 
 import java.util.Properties;
 
-public class TestGenerator implements AlignedOntologyGenerator {
+// implements AlignedOntologyGenerator
+public class TestGenerator {
     private String urlprefix = "http://example.com/"; // Prefix (before testnumber) of test URL
     private String dirprefix = "";                    // Prefix (idem) of directory
     private String ontoname = "onto.rdf";             // name of ontology to generate
     private String alignname = "refalign.rdf";        // name of alignment to generate
-
+    private String initOntoURI = null;                // URI of initial ontology
     private Properties params;                                                  //the modifications
     private OntModel modifiedOntology;                                             //modified ontology
     private Alignment resultAlignment;                                                //the reference alignment
@@ -86,7 +87,10 @@ public class TestGenerator implements AlignedOntologyGenerator {
     public void setDebug( boolean d ) { debug = d; }
 
     //returns the modified ontology
-    public OntModel getModifiedOntology() { return modifiedOntology ; }
+    public OntModel getModifiedOntology() { return modifiedOntology; }
+
+    //returns the modified ontology
+    public void setInitOntoURI( String uri ) { initOntoURI = uri; }
 
     public void setNamespace( String ns ) { namespace = ns; }
     //return the newNamespace
@@ -189,11 +193,7 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	OntModel onto = loadOntology( file );
 	//set the namespace
 	setNamespace( getURI( testNumber ) );
-	Alignment align = null;
-	if ( al == null )
-	    align = generate( onto, params );
-	else
-	    align = generate( onto, params, al );
+	Alignment align = generate( onto, params, al );
 	
 	outputTestDirectory( getModifiedOntology(), align, testNumber );
 	return modifier.getProperties();
@@ -206,6 +206,7 @@ public class TestGenerator implements AlignedOntologyGenerator {
         if ( debug ) {
 	    System.err.println( "[-------------------------------------------------]" );
 	    System.err.println( urlprefix+" / "+dirprefix+" / "+ontoname+" / "+alignname );
+	    System.err.println( namespace );
 	}
 	// Initialise the modifier class
         modifier = new OntologyModifier( onto, new URIAlignment() );
@@ -213,7 +214,11 @@ public class TestGenerator implements AlignedOntologyGenerator {
         modifier.setNewNamespace( namespace );
 	// Initialize the reference alignment
         if ( initalign == null ) {
-	    modifier.initializeAlignment();                                         
+	    if ( params.getProperty( "copy101" ) != null ) {
+		modifier.initializeAlignment( true );
+	    } else {
+		modifier.initializeAlignment( false );
+	    }                                         
 	} else {
 	    modifier.initializeAlignment( initalign );
 	}
@@ -231,17 +236,15 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	applyModification( modifier, params, ParametersIds.ADD_CLASSES );
 	applyModification( modifier, params, ParametersIds.ADD_PROPERTIES );
 
-	// SUPPRESSED FOR TESTING THAT THIS IS THE CULPRIT
-	//if ( params.getProperty( ParametersIds.ADD_CLASSES ) == null ) applyModification( modifier, params, ParametersIds.RENAME_CLASSES );
 	applyModification( modifier, params, ParametersIds.RENAME_CLASSES );
 	applyModification( modifier, params, ParametersIds.RENAME_PROPERTIES );
 	// UNTIL HERE, WE USE THE DOCUMENTED ORDER
 
+	applyModification( modifier, params, ParametersIds.REMOVE_INDIVIDUALS );
 	applyModification( modifier, params, ParametersIds.REMOVE_CLASSESLEVEL );
 	applyModification( modifier, params, ParametersIds.LEVEL_FLATTENED );
-	applyModification( modifier, params, ParametersIds.NO_HIERARCHY );
 	applyModification( modifier, params, ParametersIds.ADD_CLASSESLEVEL );
-	applyModification( modifier, params, ParametersIds.REMOVE_INDIVIDUALS );
+	applyModification( modifier, params, ParametersIds.NO_HIERARCHY );
 
 	/*
         for( String key : params.stringPropertyNames() ) {
@@ -252,14 +255,10 @@ public class TestGenerator implements AlignedOntologyGenerator {
 	*/
 
 	//saves the alignment into the file "refalign.rdf", null->System.out
-        modifier.computeAlignment( alignname );                  //at the end, compute the reference alignment
-        resultAlignment = modifier.getAlignment();                               //get the reference alignment
+                        //at the end, compute the reference alignment
+        resultAlignment = modifier.getAlignment();  //get the reference alignment
         modifiedOntology = modifier.getModifiedOntology();                    //get the modified ontology
         return resultAlignment;
-    }
-
-    public Alignment generate( OntModel onto, Properties p ) {
-	return generate( onto, p, (Properties)null );
     }
 
     public void applyModification( OntologyModifier modifier, Properties p, String m ) {

@@ -35,6 +35,9 @@ public class BenchmarkGenerator extends TestSet {
 	// Process params
 	debug = ( params.getProperty( "debug" ) != null );
 
+	// JE: ugly 
+	secondOntoFile = params.getProperty( "outdir" )+"/101/onto.rdf";
+
 	// Test configuration parameters
 	int maximum = 5;
 	float incr = 0.2f;

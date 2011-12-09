@@ -40,6 +40,7 @@ import java.util.HashSet;
 public abstract class TestSet {
 
     private String initOntoFile;                         //the initial ontology file
+    protected String secondOntoFile;                         //the secondary ontology file
     protected boolean continuous = false;
     protected boolean debug = false;
 
@@ -86,10 +87,6 @@ public abstract class TestSet {
     // ----------------------------------------------------------
     // Generates the test set
     public void generate( Properties params ) {
-	// Initialises test cases tree
-	initTestCases( params );
-	// Print it
-	if ( debug ) printTestHierarchy( root, 0 );
 	// Generator parameters... are these OK?
 	generator.setDebug( debug );
 	initOntoFile = params.getProperty( "filename" ); // If no filename error
@@ -102,15 +99,23 @@ public abstract class TestSet {
 	} else {
 	    ontoname = "onto.rdf"; // could be better
 	}
+	secondOntoFile = initOntoFile; // default value
+
+	// Initialises test cases tree
+	initTestCases( params );
+	// Print it
+	if ( debug ) printTestHierarchy( root, 0 );
 	if ( params.getProperty( "alignname" ) != null ) generator.setAlignFilename( params.getProperty( "alignname" ) );
 	// Generate all tests
 	startTestGeneration();
     }
 
     // Recursively generate tests
+    // All this is really tied to 
     public void startTestGeneration() {
-	Properties newalign;
-	newalign = generator.modifyOntology( initOntoFile, (Properties)null, root.name, new Properties() );
+	Properties parameters = new Properties();
+	parameters.setProperty( "copy101", "" );
+	Properties newalign = generator.modifyOntology( initOntoFile, (Properties)null, root.name, parameters );
 	for ( TestCase sub : root.subTests ) {
 	    generateTest( sub, newalign );
 	}
@@ -121,7 +126,8 @@ public abstract class TestSet {
 	if ( continuous ) {
 	    newalign = generator.incrementModifyOntology( c.father.name, (Properties)align.clone(), c.name, c.parameters );
 	} else {
-	    newalign = generator.modifyOntology( initOntoFile, (Properties)null, c.name, c.cumulated );
+	    // Here we should start from the initOntoFile 101
+	    newalign = generator.modifyOntology( secondOntoFile, (Properties)null, c.name, c.cumulated );
 	}
 	for ( TestCase sub : c.subTests ) {
 	    generateTest( sub, newalign );

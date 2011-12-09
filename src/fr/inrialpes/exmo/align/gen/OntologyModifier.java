@@ -88,29 +88,28 @@ import edu.smu.tspell.wordnet.WordNetDatabase;
 
 public class OntologyModifier {
     private boolean debug = false;
-    private ClassHierarchy classHierarchy;                                      //the class hierarchy
-    // JE: In all this class, model is useless!
-    private OntModel model;                                                     //the model - the original Ontology
-    private OntModel modifiedModel;						//the modified 	Ontology
-    private String namespace;							//the Namespace
+
+    private ClassHierarchy classHierarchy;      //the class hierarchy
+    private OntModel modifiedModel;		//the modified 	Ontology
+    private Properties alignment;		//the alignment
+
+    private String namespace;			//the Namespace
     private String namespaceNew;
-    private Alignment alignment;						//the alignment of the two Ontologies
-    private Properties params;							//the alignment
-    private boolean isBuild = false;							//keep track if the class hierarchy is build
-    private boolean isAlign = false;							//keep track if the initial alignment has already been computed
-    private boolean isChanged = false;                                                  //keep track if the namespace of the new ontology is changed
-    private String base;                                                        //
+
+    private boolean isBuild = false;		//keep track if the class hierarchy is build
+    private boolean isAlign = false;		//keep track if the initial alignment has already been computed
+    private boolean isChanged = false;          //keep track if the namespace of the new ontology is changed
+    private String base;                        //
 
     // -------------------------
     // Constructors
     //Ontology init, Ontology modified, Alignment align
     // JE: Here the alignment is useless... it is used only if nothing is computed!
-    public OntologyModifier ( OntModel model, Alignment alignment ) {
+    public OntologyModifier ( OntModel model, Alignment al ) {
         modifiedModel = model;
-	this.alignment = alignment;
-	namespace = model.getNsPrefixURI("");       // JE: ???
-        namespaceNew = "";
-	params = new Properties();
+	// get the default namespace of the model
+	namespace = model.getNsPrefixURI("");
+	alignment = new Properties();
     }
 
     // -------------------------
@@ -120,8 +119,8 @@ public class OntologyModifier {
 	debug = d;
     }
 
-    public void setNewNamespace(String newNamespace) {
-        this.namespaceNew = newNamespace;
+    public void setNewNamespace( String newNamespace ) {
+        namespaceNew = newNamespace;
         //if ( debug ) System.err.println("New namespace [" + this.namespaceNew + "]");
     }
 
@@ -143,12 +142,7 @@ public class OntologyModifier {
 
     //get properties
     public Properties getProperties() {
-        return this.params;
-    }
-
-    //returns the alignment
-    public Alignment getAlignment() {
-        return this.alignment;
+        return alignment;
     }
 
     // -------------------------
@@ -319,10 +313,10 @@ public class OntologyModifier {
         //builds the list of all unrenamed properties from the model
         for ( OntProperty p : properties ) {
             String uri = base + p.getLocalName();
-	    // JE: I am affraid that this.params is a terible thing here
-            if ( this.params.containsKey( uri ) ) {
+	    // JE: I am affraid that alignment is a terible thing here
+            if ( alignment.containsKey( uri ) ) {
                 String key = uri;
-                String value = this.params.getProperty( key );
+                String value = alignment.getProperty( key );
                 if ( key.equals( value ) ) 
                     notRenamedProperties.add( p );      //add the property to not renamed properties  
             }
@@ -356,16 +350,16 @@ public class OntologyModifier {
                             propertiesIdentifiers.put( localName , translateStrg );
                             replacePropertyLabel( prop.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 
-                            if ( params.containsKey( base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( base + prop.getLocalName() , base + translateStrg );//the reference alignment
+                            if ( alignment.containsKey( base + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( base + prop.getLocalName() , base + translateStrg );//the reference alignment
                             }
                         }
                         else if ( activeRandomString ) {                        //replace the URI with a random string
                             String newStrg = getRandomString();
                             propertiesIdentifiers.put( localName , newStrg );
                             replacePropertyLabel( prop.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( base + prop.getLocalName() , base + newStrg);//the reference alignment
+                            if ( alignment.containsKey( base + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( base + prop.getLocalName() , base + newStrg);//the reference alignment
                             }
                         }
                         else if ( activeSynonym ) {
@@ -375,30 +369,30 @@ public class OntologyModifier {
                             else  {
                                 propertiesIdentifiers.put( localName, synonym );
                                 replacePropertyLabel( prop.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + prop.getLocalName() ) ) {    //this.params.remove( prop.getURI() );
-                                    this.params.put( this.base + prop.getLocalName() , this.base + synonym );	//the reference alignment
+                                if ( alignment.containsKey( this.base + prop.getLocalName() ) ) {    //alignment.remove( prop.getURI() );
+                                    alignment.put( this.base + prop.getLocalName() , this.base + synonym );	//the reference alignment
                                 }
                             }
                         }
                         else if ( activeStringOperation == 1 ) {                //replace the URI with the UpperCase URI
                             propertiesIdentifiers.put( localName , toUpperCase( localName ) );
                             replacePropertyLabel( prop.getURI(), toUpperCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( this.base + prop.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
+                            if ( alignment.containsKey( this.base + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( this.base + prop.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
                             }
                         }
                         else if ( activeStringOperation == 2 ) {
                             propertiesIdentifiers.put( localName , toLowerCase( localName ) );
                             replacePropertyLabel( prop.getURI(), toLowerCase( localName ), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        // this.params.remove( prop.getURI() );
-                                this.params.put( this.base + prop.getLocalName() , this.base + toLowerCase( localName ) ); //the reference alignment
+                            if ( alignment.containsKey( this.base + prop.getLocalName() ) ) {        // alignment.remove( prop.getURI() );
+                                alignment.put( this.base + prop.getLocalName() , this.base + toLowerCase( localName ) ); //the reference alignment
                             }
                         }
                         else {
                             propertiesIdentifiers.put( localName,  localName + "PROPERTY" );
                             replacePropertyLabel( prop.getURI(), localName + "PROPERTY", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( params.containsKey( this.base + prop.getLocalName() ) ) {        //this.params.remove( prop.getURI() );
-                                this.params.put( this.base + prop.getLocalName() , this.base + localName + "PROPERTY" );
+                            if ( alignment.containsKey( this.base + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( this.base + prop.getLocalName() , this.base + localName + "PROPERTY" );
                             }
                         }
                     }
@@ -429,14 +423,14 @@ public class OntologyModifier {
         List<OntClass> classes = getOntologyClasses();                     //the list of ontology classes
         List<OntClass> classesTo = new ArrayList<OntClass>();                   //the list of classes to be renamed
 
-	// params contains those classes which have already been renamed
+	// alignment contains those classes which have already been renamed
         //builds the list of all unrenamed classes from the model
         for ( OntClass c : classes ) {
             String uri = base + c.getLocalName();
             //gets the pair <key, value>
-            if ( this.params.containsKey( uri ) ) {
+            if ( alignment.containsKey( uri ) ) {
                 String key = uri;
-                String value = this.params.getProperty( uri );
+                String value = alignment.getProperty( uri );
                 //they didnt change
                 if ( key.equals( value ) ) 
                     notRenamedClasses.add( c ); //add the class to not renamed classes
@@ -469,45 +463,45 @@ public class OntologyModifier {
                                 String translateStrg = parseString (localName, true, false);
                                 classesIdentifiers.put( localName , translateStrg );
                                 replaceClassLabel( cls.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + translateStrg);	//the reference alignment
+                                if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + translateStrg);	//the reference alignment
                                 }
                             }
                             else if ( activeRandomString )	{		//replace the URI with a random string
                                 String newStrg = getRandomString();
                                 classesIdentifiers.put( localName , newStrg );
                                 replaceClassLabel( cls.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + newStrg );	//the reference alignment
+                                if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + newStrg );	//the reference alignment
                                 }
                             }
                             else if ( activeSynonym ) {                         //replace the URI with a synonym
                                 String synonym = parseString (localName, false, true);
 				classesIdentifiers.put( localName, synonym );
 				replaceClassLabel( cls.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-				if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + synonym );//the reference alignment
+				if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + synonym );//the reference alignment
                                 }
                             }
                             else if ( activeStringOperation == 1 ){             //replace the URI with the UpperCase URI
                                 classesIdentifiers.put( localName , toUpperCase( localName ) );
                                 replaceClassLabel( cls.getURI(), toUpperCase(localName), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
+                                if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + toUpperCase( localName ) ); //the reference alignment
                                 }
                             }
                             else if ( activeStringOperation == 2 ){             //replace the URI with the LowerCase URI
                                 classesIdentifiers.put( localName , toLowerCase( localName ) );
                                 replaceClassLabel( cls.getURI(), toLowerCase(localName), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + toLowerCase( localName ) );     //the reference alignment
+                                if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + toLowerCase( localName ) );     //the reference alignment
                                 }
                             }
                             else {
                                 classesIdentifiers.put( localName, localName + "CLASS" );
                                 replaceClassLabel( cls.getURI(), localName + "CLASS", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( params.containsKey( this.base + cls.getLocalName() ) ) {     //this.params.remove( cls.getURI() );
-                                    this.params.put( this.base + cls.getLocalName() , this.base + localName + "CLASS" );
+                                if ( alignment.containsKey( this.base + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( this.base + cls.getLocalName() , this.base + localName + "CLASS" );
                                 }
                             }
                         }
@@ -666,7 +660,7 @@ public class OntologyModifier {
         if ( activeClasses ) {
             checkClassHierarchy();
             //we update the class hierarchy according to the new modifications
-            this.classHierarchy.updateClassHierarchy( params );     //this.classHierarchy.printClassHierarchy();
+            this.classHierarchy.updateClassHierarchy( alignment );     //this.classHierarchy.printClassHierarchy();
         }
         return newModel;
     }
@@ -927,12 +921,12 @@ public class OntologyModifier {
         modifiedModel = changeDomainRange( uris );
         
         //remove the URI of the class from the reference alignment
-        for ( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty( key );
+        for ( String key : alignment.stringPropertyNames() ) {
+            String value = alignment.getProperty( key );
             if ( cl.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length() )) )
-                this.params.remove( key );
+                alignment.remove( key );
             if ( cl.contains( this.namespace + value.substring(value.indexOf(this.base) + this.base.length() )) )                                          //we iterate to check if the class appears only like value
-                this.params.remove( key );
+                alignment.remove( key );
         }
     }
 
@@ -966,7 +960,7 @@ public class OntologyModifier {
         for ( int i=0; i<toBeRemoved; i++ ) {
             Individual indiv = individuals.get(n[i]);				//remove the individual from the reference alignment
             individualsTo.add( indiv );
-            //this.params.remove( indiv.getURI() );
+            //alignment.remove( indiv.getURI() );
         }
 
         for ( Statement st : modifiedModel.listStatements().toList() ) {
@@ -1007,7 +1001,7 @@ public class OntologyModifier {
             pr.add( p.getURI() );
 
 
-            //this.params.remove( p.getURI() );
+            //alignment.remove( p.getURI() );
             for ( Iterator it = p.listReferringRestrictions(); it.hasNext();  ) {//get the restrictions of that property
                 restrictions.add( (Restriction)it.next() );
             }
@@ -1036,18 +1030,18 @@ public class OntologyModifier {
             }
         }
 
-        for ( OntClass c : resources )
-            c.remove();
+        for ( OntClass c : resources ) c.remove();
 
-        //remove that property from params
-        //since we don't respect any order the value can appear as a value, thus we must iterate among all params to delete it
-        for ( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty(key);
-            if ( pr.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {     //if ( debug ) System.err.println( "Elimin " + key );
-                this.params.remove( key );
+        //remove that property from alignment
+        //since we don't respect any order the value can appear as a value, thus we must iterate among all alignment to delete it
+	int baselength = base.length();
+        for ( String key : alignment.stringPropertyNames() ) {
+            String value = alignment.getProperty(key);
+            if ( pr.contains( this.namespace + key.substring(key.indexOf(this.base) + baselength ) ) ) {     //if ( debug ) System.err.println( "Elimin " + key );
+                alignment.remove( key );
             }
-            if ( pr.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length()) ) ) {   //if ( debug ) System.err.println( "Elimin " + key );
-                this.params.remove( key );
+            if ( pr.contains( this.namespace + value.substring(key.indexOf(this.base) + baselength) ) ) {   //if ( debug ) System.err.println( "Elimin " + key );
+                alignment.remove( key );
             }
         }
 
@@ -1302,13 +1296,14 @@ public class OntologyModifier {
         modifiedModel = changeDomainRange(unionOf);
 
         //remove the parentClass from the alignment
-        for ( String key : this.params.stringPropertyNames() ) {
-            String value = this.params.getProperty(key);
-            if ( parentURI.contains( this.namespace + key.substring(key.indexOf(this.base) + this.base.length()) ) ) {        //this.classHierarchy.removeUri("Thing", key);
-                this.params.remove(key);
+	int baselength = base.length();
+        for ( String key : alignment.stringPropertyNames() ) {
+            String value = alignment.getProperty(key);
+            if ( parentURI.contains( this.namespace + key.substring(key.indexOf(this.base) + baselength) ) ) {        //this.classHierarchy.removeUri("Thing", key);
+                alignment.remove(key);
             }
-            if ( parentURI.contains( this.namespace + value.substring(key.indexOf(this.base) + this.base.length() ))) {    //this.classHierarchy.removeUri("Thing", value);
-                this.params.remove(key);
+            if ( parentURI.contains( this.namespace + value.substring(key.indexOf(this.base) + baselength ))) {    //this.classHierarchy.removeUri("Thing", value);
+                alignment.remove(key);
             }
         }
 
@@ -1373,67 +1368,86 @@ public class OntologyModifier {
 
     // isAlign is a not so good way to test initialisation
     // (initialisation with an empty Properties is done in the initialiser)
-    // but the "params" is used everywhere...
+    // but the "alignment" is used everywhere...
 
     //the initial reference alignment
     // JE: !!!: no order guarantee in properties !!!
-    public void initializeAlignment( Properties params ) {
-        this.params = params;
+    public void initializeAlignment( Properties al ) {
+        alignment = al;
 
-        Enumeration e = this.params.propertyNames();
+        Enumeration e = alignment.propertyNames();
         String aux = (String)e.nextElement();
         base = aux.substring(0, aux.lastIndexOf("#")+1);
 
-        this.isAlign = true;
+        isAlign = true;
     }
 
-    public void initializeAlignment() {
+    /**
+     * copy101 indicates if the ontology is copied in the directory and aligned with itself
+     * or if it is not copied...
+     */
+    public void initializeAlignment( boolean copy101 ) {
+	//if ( namespaceNew == null ) new AlignmentException( "New namespace should have been initialised" );
         List<OntClass> classes       = modifiedModel.listNamedClasses().toList();//all classes
         List<OntProperty> properties = modifiedModel.listAllOntProperties().toList();//all properties
         List<Individual> individuals = modifiedModel.listIndividuals().toList();//all individuals
         List<Ontology> ontologies    = modifiedModel.listOntologies().toList();//all Ontologies
 
-        this.params = new Properties();
+        alignment = new Properties();
 
-        this.isAlign = true;							//the alignment has been computed for the first time
-        this.base = this.namespace;
-        
+	if ( copy101 ) {
+	    base = namespaceNew;
+	} else {
+	    base = namespace;
+	}
+
+	// JE: the namespace change is only correct for '#' namespaces...
         for ( OntClass cls : classes )                                          //list all classes
-            if ( cls.getNameSpace().equals( this.namespace ) )
-                this.params.put( cls.getURI() , cls.getURI() );                 //add them to the initial alignment
+            if ( cls.getNameSpace().equals( namespace ) ) {
+		// Change URI
+		String u = cls.getURI();
+		String frag = u.substring( namespace.length(), u.length() );
+		String uri = base+frag;
+		alignment.put( uri, uri );                //add them to the initial alignment
+	    } 
 
         for ( OntProperty prop : properties )                                   //list all properties
-            if ( prop.getNameSpace().equals( this.namespace ) )
-                this.params.put( prop.getURI() , prop.getURI() );               //add them to the initial alignment
+            if ( prop.getNameSpace().equals( namespace ) ) {
+		// Change URI
+		String u = prop.getURI();
+		String frag = u.substring( namespace.length(), u.length() );
+		String uri = base+frag;
+		alignment.put( uri, uri );                //add them to the initial alignment
+	    }
+        isAlign = true;							//the alignment has been computed for the first time
     }
 
     //compute the alignment after the modifications
+    // JE: I'd rather have an alignment
     @SuppressWarnings("unchecked")
-    public void computeAlignment( String fileName ) {
-        URI onto1 = null;
-        URI onto2 = null;
-
-        this.alignment  = new URIAlignment();
+    public Alignment getAlignment() {
+        Alignment extractedAlignment  = new URIAlignment();
         
         try {
-            onto1 = new URI ( this.base.substring(0, this.base.lastIndexOf("#")) );
-            onto2 = new URI( this.namespaceNew.substring(0, this.namespaceNew.lastIndexOf("#")) );
+            URI onto1 = new URI( base.substring(0, base.lastIndexOf("#")) );
+            URI onto2 = new URI( namespaceNew.substring(0, namespaceNew.lastIndexOf("#")) );
 
-            this.alignment.init(onto1, onto2);
-            this.alignment.setFile1(onto1);
-            this.alignment.setFile2(onto2);
+            extractedAlignment.init(onto1, onto2);
+            extractedAlignment.setFile1(onto1);
+            extractedAlignment.setFile2(onto2);
             
             //Cell addAlignCell(Object ob1, Object ob2, String relation, double measure) throws AlignmentException {
-            for ( String key : this.params.stringPropertyNames() ) {
-                String value = this.params.getProperty(key);
+            for ( String key : alignment.stringPropertyNames() ) {
+                String value = alignment.getProperty(key);
                 URI uri1 = URI.create(key);
                 URI uri2 = URI.create(this.namespaceNew + value.substring(value.indexOf(this.base) + this.base.length()));
                 //if ( debug ) System.err.println( "[" + key + "][" + value + "]" );
-                this.alignment.addAlignCell( uri1, uri2, "=", 1 );
+                extractedAlignment.addAlignCell( uri1, uri2, "=", 1 );
             }
-        } catch (AlignmentException aex)  { System.err.println( "Exception " + aex.getMessage() );
-        } catch (Exception ex) {  System.err.println("Exception " + ex.getMessage());
+        } catch ( Exception ex ) {  
+	    ex.printStackTrace();
         }
+	return extractedAlignment;
     }
 
     // -------------------------
@@ -1538,8 +1552,8 @@ public class OntologyModifier {
 	else
 	    aux = param;
 
-	if ( !this.isAlign ) {
-	    initializeAlignment();                                          //determine the elements from the initial reference alignment
+	if ( !isAlign ) {
+	    initializeAlignment( false );         //determine the elements from the initial reference alignment
 	}
 
 	if ( name.equals( ParametersIds.ADD_CLASSES ) ) { //add percentage classes
