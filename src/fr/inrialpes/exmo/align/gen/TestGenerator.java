@@ -118,17 +118,18 @@ public class TestGenerator {
 	return model;
     }
 
-    //writes ontology
     public static void writeOntology( OntModel model, String destFile, String ns ) {
-	// JE: How to ensure that it generates the owl:Ontology close?
-	// Otherwise, some parsers cannot parse it correctly
         try {
             File f = new File( destFile );
             FileOutputStream fout = new FileOutputStream( f );
             Charset defaultCharset = Charset.forName("UTF8");
             RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
             writer.setProperty( "showXmlDeclaration","true" );
-            model.setNsPrefix( "", ns ); // JE: what about it?
+	    // Instructions below are Jena specific
+	    // They ensure that the default prefix (that of the ontology) is ns
+	    // This also warrants that the owl:Ontology element is generated
+	    // Without these, the generator does not work.
+            model.setNsPrefix( "", ns );
             writer.setProperty( "xmlbase", ns );
             model.createOntology( ns );
             writer.write( model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
@@ -141,12 +142,8 @@ public class TestGenerator {
     private void outputTestDirectory( OntModel onto, Alignment align, String testnumber ) {
 	// build the directory to save the file
 	boolean create = new File( dirprefix+"/"+testnumber ).mkdir();
-	/* if ( create )   System.err.println(" Succesufully created the directory ");
-	   else            System.err.println(" Error creating the directory "); */
-	
 	// write the ontology into the directory
 	writeOntology( onto, dirprefix+"/"+testnumber+"/"+ontoname, getURI( testnumber ));
-	
 	try {
 	    //write the alignment into the directory
 	    OutputStream stream = new FileOutputStream( dirprefix+"/"+testnumber+"/"+alignname );
@@ -163,7 +160,6 @@ public class TestGenerator {
         }
     }
 
-    //modifies an ontology from an existing test
     /**
      * Generate a test by altering an existing test
      */
