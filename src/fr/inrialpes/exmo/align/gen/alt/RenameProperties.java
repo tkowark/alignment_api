@@ -19,16 +19,25 @@
  * USA.
  */
 
+package fr.inrialpes.exmo.align.gen.alt;
 
-package fr.inrialpes.exmo.align.gen.inter;
-
-import com.hp.hpl.jena.ontology.OntModel;
-import org.semanticweb.owl.align.Alignment;
 import java.util.Properties;
 
-public interface AlignedOntologyGenerator {
+import fr.inrialpes.exmo.align.gen.Alterator;
+import fr.inrialpes.exmo.align.gen.ParametersIds;
 
-    //generate an Alignment refering to the generated Ontology as onto2 (to be saved)
-    public Alignment generate( OntModel o, Properties p );
+public class RenameProperties extends RenameThings {
+
+    public RenameProperties( Alterator om ) {
+	initModel( om );
+    };
+
+    public Alterator modify( Properties params ) {
+	String p = params.getProperty( ParametersIds.RENAME_PROPERTIES );
+	if ( p == null ) return null;
+	float percentage = Float.parseFloat( p );
+	modifiedModel = renameResource ( true, false, percentage, true, false, false, 0);
+	return this; // useless
+    };
 
 }

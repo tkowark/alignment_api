@@ -105,14 +105,16 @@ public class BenchmarkGenerator extends TestSet {
 	    addTestChild( "250"+SUFFIX, "261"+SUFFIX,
 			  newProperties( ParametersIds.ADD_CLASSES, FULL ) );
 	    /* 266-x *** no names + no comments + no property + expand + no instance */
-	    addTestChild( "261"+SUFFIX, "266"+SUFFIX,
-			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    // This would generate graded 266 (which is nice, but not in bench)
+	    //addTestChild( "261"+SUFFIX, "266"+SUFFIX,
+	    //	  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
 	    /* 260-x *** no names + no comments + no property + flatten */
 	    addTestChild( "250"+SUFFIX, "260"+SUFFIX,
 			  newProperties( ParametersIds.LEVEL_FLATTENED, "2" ) );
 	    /* 265-x *** no names + no comments + no property + flatten + no instance */
-	    addTestChild( "260"+SUFFIX, "265"+SUFFIX,
-			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	    // This would generate graded 266 (which is nice, but not in bench)
+	    //addTestChild( "260"+SUFFIX, "265"+SUFFIX,
+	    //		  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
 	    /* 251-x *** no names + no comments + flatten */
 	    addTestChild( "202"+SUFFIX, "251"+SUFFIX,
 			  newProperties( ParametersIds.LEVEL_FLATTENED, "2" ) );
@@ -126,9 +128,22 @@ public class BenchmarkGenerator extends TestSet {
 	    addTestChild( "252"+SUFFIX, "259"+SUFFIX,
 			  newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
         }
+        /* 203 *** no comments */
+	//Too easy
+	//addTestChild( "101", "203",
+	//	      newProperties( ParametersIds.REMOVE_COMMENTS, FULL ) );
+        /* 204 *** naming convention */
+        /* 205 *** synonyms */
+        /* 207 *** translation (classes) */
+        /* 206 *** translation (classes and properties) */
+        /* 208 *** naming convention + no comments */
+        /* 209 *** synonyms + no comments */
+        /* 210 *** translation + no comments */
         /* 221 *** no hierarchy */
 	addTestChild( "101", "221",
 		      newProperties( ParametersIds.NO_HIERARCHY, ParametersIds.NO_HIERARCHY ) );
+        /* 230 *** flattened classes */
+        /* 231 *** expanded classes */
 	/* 232 *** no hierarchy + no instance */
 	addTestChild( "221", "232",
 		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
@@ -173,6 +188,13 @@ public class BenchmarkGenerator extends TestSet {
 		      newProperties( ParametersIds.LEVEL_FLATTENED, FULL ) );
 	/* 246 *** no property + flatten + no instance */
 	addTestChild( "239", "246", 
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	/* 265-x *** no names + no comments + no property + flatten + no instance */
+	// Warning: For this to work, the suffix should be the more difficult test
+	addTestChild( "260"+SUFFIX, "265",
+		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
+	/* 266-x *** no names + no comments + no property + expand + no instance */
+	addTestChild( "261"+SUFFIX, "266",
 		      newProperties( ParametersIds.REMOVE_INDIVIDUALS, FULL ) );
     }
 
