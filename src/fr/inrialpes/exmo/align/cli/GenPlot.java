@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2011, INRIA
+ * Copyright (C) 2003-2012, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -424,7 +424,7 @@ public class GenPlot {
 	for( Vector<Pair> table : result ) {
 	    String algo = listAlgo.get(i);
 	    // Open one file
-	    PrintWriter writer;
+	    PrintWriter writer = null;
 	    try {
 		writer = new PrintWriter (
 				    new BufferedWriter(
@@ -446,8 +446,11 @@ public class GenPlot {
 		    if ( debug > 1 ) System.err.println( " >> "+p.getX()+" - "+p.getY() );
 		    writer.println( p.getX()*10+" "+ p.getY()*10 );
 		}
-		writer.close();
-	    } catch (Exception ex) { ex.printStackTrace(); }
+	    } catch (Exception ex) {
+		ex.printStackTrace(); 
+	    } finally {
+		if ( writer != null ) writer.close();
+	    }
 	    // UnsupportedEncodingException + FileNotFoundException
 	    i++;
 	}

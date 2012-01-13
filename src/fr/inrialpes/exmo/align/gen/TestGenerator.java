@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -114,12 +114,14 @@ public class TestGenerator {
 
     public static void writeOntology( OntModel model, String destFile, String ns ) {
 	//System.err.println( " ==> Writing: "+ns );
+	FileOutputStream fout = null;
         try {
             File f = new File( destFile );
-            FileOutputStream fout = new FileOutputStream( f );
+            fout = new FileOutputStream( f );
             Charset defaultCharset = Charset.forName("UTF8");
             RDFWriter writer = model.getWriter("RDF/XML-ABBREV");
             writer.setProperty( "showXmlDeclaration","true" );
+	    writer.setProperty("relativeURIs","");//faster
 	    // Instructions below are Jena specific
 	    // They ensure that the default prefix (that of the ontology) is ns
 	    // This also warrants that the owl:Ontology element is generated
@@ -128,31 +130,36 @@ public class TestGenerator {
             writer.setProperty( "xmlbase", ns );
             model.createOntology( ns );
             writer.write( model.getBaseModel(), new OutputStreamWriter(fout, defaultCharset), "");
-            fout.close();
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
+        } finally {
+	    try { fout.close(); } catch (Exception ex) {};
+	}
     }
 
     private void outputTestDirectory( OntModel onto, Alignment align, String testnumber ) {
 	// build the directory to save the file
 	boolean create = new File( dirprefix+"/"+testnumber ).mkdir();
+	PrintWriter writer = null;
 	// write the ontology into the directory
 	writeOntology( onto, dirprefix+"/"+testnumber+"/"+ontoname, getURI( testnumber ));
 	try {
 	    //write the alignment into the directory
 	    OutputStream stream = new FileOutputStream( dirprefix+"/"+testnumber+"/"+alignname );
 	    // Outputing
-	    PrintWriter  writer = new PrintWriter (
-						   new BufferedWriter(
-								      new OutputStreamWriter( stream, "UTF-8" )), true);
+	    writer = new PrintWriter (
+				      new BufferedWriter(
+							 new OutputStreamWriter( stream, "UTF-8" )), true);
 	    AlignmentVisitor renderer = new RDFRendererVisitor( writer );
 	    align.render( renderer );
-	    writer.flush();
-	    writer.close();
         } catch ( Exception ex ) {
             ex.printStackTrace();
-        }
+        } finally {
+	    if ( writer != null ) {
+		writer.flush();
+		writer.close();
+	    }
+	}
     }
 
     /**

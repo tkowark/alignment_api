@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2006-2011
+ * Copyright (C) INRIA, 2006-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -220,9 +220,9 @@ public class CacheImpl {
 	String value;
 
 	URIAlignment result = new URIAlignment();
-		
+	Statement st = null;
 	try {
-	    Statement st = createStatement();
+	    st = createStatement();
 	    // Get basic ontology metadata
 	    query = "SELECT * FROM alignment WHERE id = '" + id  +"'";
 	    rs = st.executeQuery(query);
@@ -246,11 +246,12 @@ public class CacheImpl {
 		value = rs.getString("val");
 		result.setExtension( rs.getString("uri"), tag, value);
 	    }
-	    st.close();
 	} catch (Exception e) { // URI exception that should not occur
 	    System.err.println("Unlikely URI exception!");
 	    e.printStackTrace();
 	    return null;
+	} finally {
+	    try { st.close(); } catch (Exception ex) {};
 	}
 	// has been extracted from the database
 	//result.setExtension( SVCNS, STORED, "DATE");

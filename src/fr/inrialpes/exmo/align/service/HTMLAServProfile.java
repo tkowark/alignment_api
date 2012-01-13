@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2011
+ * Copyright (C) INRIA, 2006-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -232,9 +232,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 				if (bytes < 0) break;
 				fos.write(buffer, 0, bytes);
 			    }
+            		} catch (Exception e) {
+			} finally {
 			    fos.flush();
 			    fos.close();
-            		} catch (Exception e) {
 			}
                		is.close();
 			params.setProperty( "content", "" );

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2011
+ * Copyright (C) INRIA, 2006-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -411,17 +411,15 @@ public class AServProtocolManager {
 		al = ObjectAlignment.toObjectAlignment( (URIAlignment)al );
 		al.render( renderer );
 	    }
-	    writer.flush();
-	    writer.close();
 	} catch (AlignmentException e) {
-	    writer.flush();
-	    writer.close();
 	    return new UnknownMethod(newId(),mess,myId,mess.getSender(),method,(Properties)null);
 	} catch (Exception e) { // These are exceptions related to I/O
 	    writer.flush();
-	    writer.close();
-	    System.err.println(result.toString());
+	    System.err.println( result.toString() );
 	    e.printStackTrace();
+	} finally {
+	    writer.flush();
+	    writer.close();
 	}
 
 	return new RenderedAlignment(newId(),mess,myId,mess.getSender(),result.toString(),(Properties)null);
@@ -874,21 +872,27 @@ public class AServProtocolManager {
 		if ( debug ) System.err.println("JAR "+entryName);
 		visited.add( entryName );
 		//System.err.println(  "jarEntry is a jarfile="+je.getName() );
+		InputStream jarSt = null;
+		OutputStream out = null;
+		File f = null;
 		try {
-		    InputStream jarSt = jar.getInputStream( (ZipEntry)entry );
-		    File f = File.createTempFile( "aservTmpFile"+visited.size(), "jar" );
-		    OutputStream out = new FileOutputStream( f );
+		    jarSt = jar.getInputStream( (ZipEntry)entry );
+		    f = File.createTempFile( "aservTmpFile"+visited.size(), "jar" );
+		    out = new FileOutputStream( f );
 		    byte buf[]=new byte[1024];
 		    int len1 ;
 		    while( (len1 = jarSt.read(buf))>0 )
 			out.write(buf,0,len1);
-		    out.close();
-		    jarSt.close();
 		    JarFile inJar = new JarFile( f );
 		    exploreJar( list, visited, tosubclass, inJar, debug );
-		    f.delete();
 		} catch (IOException ioex) {
 		    System.err.println( "Cannot read embedded jar: "+ioex );
+		} finally {
+		    try {
+			jarSt.close();
+			out.close();
+			f.delete();
+		    } catch (Exception ex) {};
 		}
 	    } 
 	}

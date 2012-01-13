@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2005, 2007-2011 INRIA
+ * Copyright (C) 2003-2005, 2007-2012 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -439,8 +439,12 @@ public class ExtGroupEval {
 	    writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
 	    writer.println("NaN: division per zero, likely due to empty alignent.</small></p>");
 	    writer.println("</body></html>");
+	} catch (Exception ex) {
+	    ex.printStackTrace();
+	} finally {
+	    writer.flush();
 	    writer.close();
-	} catch (Exception ex) {  ex.printStackTrace(); }
+	}
     }
 
     public void usage() {

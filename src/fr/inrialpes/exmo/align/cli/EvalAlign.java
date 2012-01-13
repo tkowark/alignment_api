@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008, 2010-2011
+ * Copyright (C) INRIA, 2003-2008, 2010-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -197,10 +197,11 @@ public class EvalAlign {
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
 	    eval.write( writer );
-	    writer.flush();
-	    writer.close();
 	} catch ( IOException ex ) {
 	    ex.printStackTrace();
+	} finally {
+	    writer.flush();
+	    writer.close();
 	}
     }
 

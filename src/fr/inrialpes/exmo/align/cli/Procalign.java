@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, 2010-2011 INRIA
+ * Copyright (C) 2003-2008, 2010-2012 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -272,14 +272,16 @@ public class Procalign {
 		usage();
 		throw ex;
 	    }
-
+	    
 	    // Output
 	    result.render(renderer);
-	    writer.flush();
-	    writer.close();
-
 	} catch (Exception ex) {
 	    throw ex;
+	} finally {
+	    if ( writer != null ) {
+		writer.flush();
+		writer.close();
+	    }
 	}
 	return result;
     }

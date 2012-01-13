@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011
+ * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -234,9 +234,10 @@ public class ParserPrinter {
 		    // Throw the initial one
 		    throw aex;
 		}
+	    } finally {
+		writer.flush();
+		writer.close();
 	    }
-	    writer.flush();
-	    writer.close();
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();
