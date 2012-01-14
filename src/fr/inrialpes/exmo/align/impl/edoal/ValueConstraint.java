@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,10 +21,9 @@
 package fr.inrialpes.exmo.align.impl.edoal;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Visitable;
 
-public class ValueConstraint implements Cloneable, Visitable {
+// JE: 2012 this class seems not used anywhere
+public class ValueConstraint implements Cloneable {
 
     // JE: 2010 this must be replaced by path-or-value
     Value value = null;
@@ -40,8 +39,10 @@ public class ValueConstraint implements Cloneable, Visitable {
 	comparator = comp;
     }    
 
-    public void accept( AlignmentVisitor visitor ) throws AlignmentException {
+    /*
+      public void accept( EDOALVisitor visitor ) throws AlignmentException {
 	visitor.visit(this);
     }
+    */
 
 }

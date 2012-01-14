@@ -60,8 +60,8 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class BasicAlignment implements Alignment {
 
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
     }
 
     protected Ontology<Object> onto1 = null;

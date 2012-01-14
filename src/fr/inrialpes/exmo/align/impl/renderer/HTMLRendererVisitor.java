@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,7 +26,6 @@ import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -50,7 +49,7 @@ import fr.inrialpes.exmo.ontowrap.LoadedOntology;
  * @version $Id$ 
  */
 
-public class HTMLRendererVisitor implements AlignmentVisitor {
+public class HTMLRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     
     PrintWriter writer = null;
     Alignment alignment = null;
@@ -68,13 +67,9 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Alignment ) visit( (Alignment)o );
-	else if ( o instanceof Cell ) visit( (Cell)o );
-	else if ( o instanceof Relation ) visit( (Relation)o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	alignment = align;
 	nslist = new Hashtable<String,String>();
 	nslist.put(Namespace.ALIGNMENT.uri,"align");
@@ -150,6 +145,8 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+	// default behaviour
 	this.cell = cell;
 	URI u1, u2;
 	// JE: I think that now these two clauses should be unified (3.4)
@@ -179,6 +176,8 @@ public class HTMLRendererVisitor implements AlignmentVisitor {
 	writer.println("</tr>");
     }
     public void visit( Relation rel ) {
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
 	rel.write( writer );
     };
 }

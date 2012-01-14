@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,7 +35,7 @@ import java.net.URI;
  * @version $Id$
  */
 
-public class IndentedRendererVisitor {
+public class IndentedRendererVisitor extends GenericReflectiveVisitor {
 
     PrintWriter writer = null;
 

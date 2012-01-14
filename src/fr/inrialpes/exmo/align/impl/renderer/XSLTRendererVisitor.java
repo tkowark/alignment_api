@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2010
+ * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,11 +24,8 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintWriter;
-
-import java.lang.reflect.Method;
 import java.net.URI;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -49,7 +46,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  * @version $Id$ 
  */
 
-public class XSLTRendererVisitor implements AlignmentVisitor {
+public class XSLTRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
@@ -73,13 +70,9 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Alignment ) visit( (Alignment)o );
-	else if ( o instanceof Cell ) visit( (Cell)o );
-	else if ( o instanceof Relation ) visit( (Relation)o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
 	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
@@ -126,6 +119,8 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+	// default behaviour
 	this.cell = cell;
 	cell.getRelation().accept( this );
     }
@@ -184,26 +179,10 @@ public class XSLTRendererVisitor implements AlignmentVisitor {
     public void visit( SubsumeRelation rel ){};
     public void visit( SubsumedRelation rel ){};
     public void visit( IncompatRelation rel ){};
-
     public void visit( Relation rel ) throws AlignmentException {
-	// JE: I do not understand why I need this,
-	// but this seems to be the case...
-	try {
-	    Method mm = null;
-	    if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation").isInstance(rel) ){
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
-	    }
-	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (Exception e) { throw new AlignmentException("Dispatching problem ", e); };
-    };
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
+	throw new AlignmentException( "Cannot render generic Relation" );
+    }
+
 }

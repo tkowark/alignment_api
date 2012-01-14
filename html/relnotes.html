@@ -42,8 +42,7 @@ The development of 4 versions continues.
 <li>Complete tutorial4 with distributed reasoning.</li>
 <li>Genericize evaluators in <tt>GraphEvaluator</tt> and <tt>GenPlot</tt> (eval)</li>
 <li>Implementation of a provenance metadata tag (server/impl)</li>
-<li>Replace <tt>DistanceAlignment</tt> and <tt>Similarity</tt> with a version more in line
-  with <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl)</tt>
+<li>Replace <tt>DistanceAlignment</tt> and <tt>Similarity</tt> with a version more in line with <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl)</tt>
 <!--li>Implemented transformations in EDOAL (edoal)</li-->
 <li>Improve HTML interface layout and usability (server)</li>
 <li>Implement metadata edition (server)</li>
@@ -71,6 +70,7 @@ with a warning:
 <p><ul compact="1">
 <li>Created new "Command line interface" directory (util/cli)</li>
 <li>Full reengineering of the test generator (gen)</li>
+<li>Improved visitors by implementing a reflective visitor (impl)</li>
 <li>Implemented <tt>extractss</tt> for ** alignments in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Changed default type of <tt>StringDistAlignment</tt> to "?*" for
   preserving the previous behaviour (impl)</li>
@@ -86,6 +86,8 @@ with a warning:
 <li>Added better error checking in <tt>toObjectAlignment</tt> (impl)</li>
 <li>Fixed a bug on <tt>DistanceAlignment</tt> 1:1 extraction when the
   second ontology is larger than the first one (impl)</li>
+<li>Fixed a bug in the EDOAL parser and printer for taking into
+  account the <tt>edoal:type</tt> within <tt>edoal:Literal</tt> (edoal)</li>
 <li>Used more systematically <tt>finally</tt></li>
 </ul></p>
 

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2007
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,9 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
@@ -60,7 +58,7 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * @version $Revision: 1.7 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
-public abstract class Expression implements Cloneable, Visitable {
+public abstract class Expression implements Cloneable {
 
     // should not be reasonable to have several variables
     // This would cost too much
@@ -68,7 +66,7 @@ public abstract class Expression implements Cloneable, Visitable {
 
     protected Expression() {}
 
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
+    public void accept(EDOALVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
 

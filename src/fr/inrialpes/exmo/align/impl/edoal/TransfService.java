@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.2 - 2006
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,8 +29,6 @@ import java.util.Set;
 import java.net.URI;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Visitable;
 
 /**
  * <p>
@@ -53,55 +51,56 @@ import org.semanticweb.owl.align.Visitable;
  * 
  * @author richi
  * @version $Revision: 1.2 $
- * @date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
-public class TransfService implements Cloneable, Visitable {
-	/** resource (uri) to the service */
-	private URI res;
+public class TransfService implements Cloneable {
+    /** resource (uri) to the service */
+    private URI res;
 
-	/** id of the transformation function (only used if it is a service) */
-	private URI id;
+    /** id of the transformation function (only used if it is a service) */
+    private URI id;
 
-	/** paramteters for the transformation */
-	private Set<Id> params;
-
-	/**
-	 * <p>
-	 * Constructs a transf.
-	 * </p>
-	 * 
-	 * @param res
-	 *            uri to the service
-	 * @param params
-	 *            parameters for the transformation
-	 * @throws NullPointerException
-	 *             if the res is {@code null}
-	 */
-	public TransfService(final URI res, final Collection<Id> params) {
-		this(res, null, params);
-	}
-
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
+    /** paramteters for the transformation */
+    private Set<Id> params;
+    
+    /**
+     * <p>
+     * Constructs a transf.
+     * </p>
+     * 
+     * @param res
+     *            uri to the service
+     * @param params
+     *            parameters for the transformation
+     * @throws NullPointerException
+     *             if the res is {@code null}
+     */
+    public TransfService(final URI res, final Collection<Id> params) {
+	this(res, null, params);
+    }
+    /*
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
 	visitor.visit(this);
     }
+    */
 
-	/**
-	 * <p>
-	 * Constructs a service.
-	 * </p>
-	 * 
-	 * @param res
-	 *            uri to the service
-	 * @param id
-	 *            id of the transformation function
-	 * @param params
-	 *            parameters for the transformation
-	 * @throws NullPointerException
-	 *             if the res is {@code null}
-	 */
+    /**
+     * <p>
+     * Constructs a service.
+     * </p>
+     * 
+     * @param res
+     *            uri to the service
+     * @param id
+     *            id of the transformation function
+     * @param params
+     *            parameters for the transformation
+     * @throws NullPointerException
+     *             if the res is {@code null}
+     */
     @SuppressWarnings( "unchecked" )
-    public TransfService(final URI res, final URI id,
-			 final Collection<Id> params) {
+	public TransfService(final URI res, final URI id,
+			     final Collection<Id> params) {
 	if (res == null) {
 	    throw new NullPointerException("The resource must not be null");
 	}
@@ -116,98 +115,98 @@ public class TransfService implements Cloneable, Visitable {
 	}
     }
 
-	/**
-	 * Returns the resource / uri to the transformation.
-	 * 
-	 * @return the uri to the transformator
-	 */
-	public URI getRes() {
-		return res;
-	}
+    /**
+     * Returns the resource / uri to the transformation.
+     * 
+     * @return the uri to the transformator
+     */
+    public URI getRes() {
+	return res;
+    }
 
-	/**
-	 * Returns the id of the transformation function. This function only returns
-	 * a usable value (another value than {@code null}) if it is a service.
-	 * 
-	 * @return the id of the function
-	 * @see #hasId()
-	 */
-	public URI getId() {
-		return id;
-	}
+    /**
+     * Returns the id of the transformation function. This function only returns
+     * a usable value (another value than {@code null}) if it is a service.
+     * 
+     * @return the id of the function
+     * @see #hasId()
+     */
+    public URI getId() {
+	return id;
+    }
 
-	/**
-	 * Returns an unmodifiable set of parameters needed for the transformation.
-	 * 
-	 * @return the set of parameters
-	 */
-	public Set<Id> getParameters() {
-		return Collections.unmodifiableSet(params);
-	}
+    /**
+     * Returns an unmodifiable set of parameters needed for the transformation.
+     * 
+     * @return the set of parameters
+     */
+    public Set<Id> getParameters() {
+	return Collections.unmodifiableSet(params);
+    }
 
-	/**
-	 * Returns whether there is a id.
-	 * 
-	 * @return {@code true} if there is a usable id, otherwise {@code false}
-	 * @see #getId()
-	 */
-	public boolean hasId() {
-		return id != null;
-	}
+    /**
+     * Returns whether there is a id.
+     * 
+     * @return {@code true} if there is a usable id, otherwise {@code false}
+     * @see #getId()
+     */
+    public boolean hasId() {
+	return id != null;
+    }
 
-	/**
-	 * <p>
-	 * Returns a short string description of this object. <b>The format of the
-	 * returned string is undocumented and subject to change.</b>
-	 * </p>
-	 * <p>
-	 * An example string could be:
-	 * {@code transf: http://my/super/transf params: [dollar]}
-	 * </p>
-	 */
-	public String toString() {
-		return "transf: " + res + ((id != null) ? " id: " + id : "")
-				+ " params: " + params;
+    /**
+     * <p>
+     * Returns a short string description of this object. <b>The format of the
+     * returned string is undocumented and subject to change.</b>
+     * </p>
+     * <p>
+     * An example string could be:
+     * {@code transf: http://my/super/transf params: [dollar]}
+     * </p>
+     */
+    public String toString() {
+	return "transf: " + res + ((id != null) ? " id: " + id : "")
+	    + " params: " + params;
+    }
+    
+    public boolean equals(final Object o) {
+	if (o == this) {
+	    return true;
 	}
-
-	public boolean equals(final Object o) {
-		if (o == this) {
-			return true;
-		}
-		if (!(o instanceof TransfService)) {
-			return false;
-		}
-		TransfService t = (TransfService) o;
-		return res.equals(t.res)
-				&& ((id == t.id) || ((id != null) && id.equals(t.id)))
-				&& (params.size() == t.params.size())
-				&& params.containsAll(t.params);
+	if (!(o instanceof TransfService)) {
+	    return false;
 	}
-
-	public int hashCode() {
-		int hash = 17;
-		hash = hash * 37 + res.hashCode();
-		hash = hash * 37 + ((id != null) ? id.hashCode() : 0);
-		hash = hash * 37 + params.hashCode();
-		return hash;
-	}
+	TransfService t = (TransfService) o;
+	return res.equals(t.res)
+	    && ((id == t.id) || ((id != null) && id.equals(t.id)))
+	    && (params.size() == t.params.size())
+	    && params.containsAll(t.params);
+    }
+    
+    public int hashCode() {
+	int hash = 17;
+	hash = hash * 37 + res.hashCode();
+	hash = hash * 37 + ((id != null) ? id.hashCode() : 0);
+	hash = hash * 37 + params.hashCode();
+	return hash;
+    }
 
     @SuppressWarnings( "unchecked" )
 	public Object clone() {
-		try {
-			TransfService clone = (TransfService) super.clone();
-			// JE: noclone on URI
-			//clone.res = (URI) res.clone();
-			clone.res = res;
-			clone.params = (params.isEmpty()) ? Collections.EMPTY_SET //[W:unchecked]
-					: new HashSet<Id>(params);
-			// JE: noclone on URI
-			//clone.id = (id == null) ? null : (URI) id.clone();
-			clone.id = (id == null) ? null : id;
-			return clone;
-		} catch (CloneNotSupportedException e) {
-			assert true : "Object is always cloneable";
-		}
-		return null;
+	try {
+	    TransfService clone = (TransfService) super.clone();
+	    // JE: noclone on URI
+	    //clone.res = (URI) res.clone();
+	    clone.res = res;
+	    clone.params = (params.isEmpty()) ? Collections.EMPTY_SET //[W:unchecked]
+		: new HashSet<Id>(params);
+	    // JE: noclone on URI
+	    //clone.id = (id == null) ? null : (URI) id.clone();
+	    clone.id = (id == null) ? null : id;
+	    return clone;
+	} catch (CloneNotSupportedException e) {
+	    assert true : "Object is always cloneable";
 	}
+	return null;
+    }
 }

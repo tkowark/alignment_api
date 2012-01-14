@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,9 +24,7 @@ import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
@@ -69,7 +67,7 @@ public class Apply implements ValueExpression {
 	arguments = args;
     }
 
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
+    public void accept(EDOALVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
 

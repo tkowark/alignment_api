@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2010
+ * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012
  * Copyright (C) Quentin Reul, 2008
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,10 +25,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -48,7 +45,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  * @version $Id$ 
  */
 
-public class SKOSRendererVisitor implements AlignmentVisitor {
+public class SKOSRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
     LoadedOntology onto1 = null;
@@ -68,14 +65,9 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	     && !p.getProperty( "pre2008" ).equals("") ) pre2008 = true;
     };
 
-    // This must be considered
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Alignment ) visit( (Alignment)o );
-	else if ( o instanceof Cell ) visit( (Cell)o );
-	else if ( o instanceof Relation ) visit( (Relation)o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
 	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
@@ -117,6 +109,8 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+	// default behaviour
 	this.cell = cell;
 	if ( onto1 != null ) {
 	    try {
@@ -155,32 +149,8 @@ public class SKOSRendererVisitor implements AlignmentVisitor {
 	throw new AlignmentException("Cannot translate in SKOS"+rel);
     }
     public void visit( Relation rel ) throws AlignmentException {
-	// JE: I do not understand why I need this,
-	// but this seems to be the case...
-	try {
-	    Method mm = null;
-	    if ( Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation").isInstance(rel) ){
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation")});
-	    } else if (Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation").isInstance(rel) ) {
-		mm = this.getClass().getMethod("visit",
-					       new Class [] {Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation")});
-	    }
-	    if ( mm != null ) mm.invoke(this,new Object[] {rel});
-	} catch (IllegalAccessException e) {
-	    e.printStackTrace();
-	} catch (ClassNotFoundException e) {
-	    e.printStackTrace();
-	} catch (NoSuchMethodException e) {
-	    e.printStackTrace();
-	} catch (InvocationTargetException e) { 
-	    e.printStackTrace();
-	}
-    };
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
+	throw new AlignmentException( "Cannot render generic Relation" );
+    }
 }

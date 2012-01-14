@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007, 2009-2010
+ * Copyright (C) INRIA, 2007, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,8 +25,10 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.io.PrintWriter;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
+import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
@@ -41,7 +43,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
  * @version $Id$ 
  */
 
-public class XMLMetadataRendererVisitor implements AlignmentVisitor {
+public class XMLMetadataRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     
     PrintWriter writer = null;
     Alignment alignment = null;
@@ -58,11 +60,9 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Alignment ) visit( (Alignment)o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	String extensionString = "";
 	alignment = align;
 	nslist = new Hashtable<String,String>();
@@ -149,4 +149,14 @@ public class XMLMetadataRendererVisitor implements AlignmentVisitor {
 	writer.print("</rdf:RDF>\n");
     }
 
+    public void visit( Cell c ) {
+	if ( subsumedInvocableMethod( this, c, Cell.class ) ) return;
+	// default behaviour
+    };
+
+    public void visit( Relation r ) {
+	if ( subsumedInvocableMethod( this, r, Relation.class ) ) return;
+	// default behaviour
+    };
+    
 }

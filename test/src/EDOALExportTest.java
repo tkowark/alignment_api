@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.3 -- 2007
- * Copyright (C) INRIA, 2009-2011
+ * Copyright (C) INRIA, 2009-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Visitable;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
@@ -98,7 +97,7 @@ public class EDOALExportTest {
     public void setUp() throws Exception {
     }
 
-    private String render( Visitable v ) throws Exception {
+    private String render( Expression v ) throws Exception {
 	// JE2009: This can only be improved if we can change the stream
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter ( new BufferedWriter(
@@ -447,8 +446,18 @@ public class EDOALExportTest {
 	final EDOALAlignment doc = new EDOALAlignment();
 	doc.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, "http://asdf" );
 	doc.init( o1, o2 );
-	
-	assertEquals( render( doc ), 
+
+	stream = new ByteArrayOutputStream(); 
+	writer = new PrintWriter ( new BufferedWriter(
+				                 new OutputStreamWriter( stream, "UTF-8" )), true);
+	renderer = new RDFRendererVisitor( writer );
+	renderer.setIndentString("");	// Indent should be empty
+	renderer.setNewLineString("");
+	doc.accept( renderer );//doc.render( renderer );
+	writer.flush();
+	writer.close();
+	stream.close();
+	assertEquals( stream.toString(), 
 "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"+
          " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"+
          " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"+
@@ -464,7 +473,17 @@ public class EDOALExportTest {
 	    + "</Ontology>" + "</onto2>"
 		      + "</Alignment>" +"</rdf:RDF>" );
 	doc.setType( "1*" );
-	assertEquals( render( doc ), 
+	stream = new ByteArrayOutputStream(); 
+	writer = new PrintWriter ( new BufferedWriter(
+				                 new OutputStreamWriter( stream, "UTF-8" )), true);
+	renderer = new RDFRendererVisitor( writer );
+	renderer.setIndentString("");	// Indent should be empty
+	renderer.setNewLineString("");
+	doc.accept( renderer );//doc.render( renderer );
+	writer.flush();
+	writer.close();
+	stream.close();
+	assertEquals( stream.toString(), 
 "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"+
          " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"+
          " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"+
@@ -478,7 +497,7 @@ public class EDOALExportTest {
 	    + "<Ontology rdf:about=\"http://target\"><location>http://target</location>"
 	    + "<formalism><Formalism align:name=\"wsml\" align:uri=\"http://wsml\"/></formalism>"
 	    + "</Ontology>" + "</onto2>"
-		      + "</Alignment>" +"</rdf:RDF>" );
+	    + "</Alignment>" +"</rdf:RDF>" );
     }
 
 }

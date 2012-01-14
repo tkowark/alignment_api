@@ -28,7 +28,6 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -115,32 +114,9 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    NL = p.getProperty( "newline" );
     }
 
-    /*
-     * JE: These major dispatches are a pain.
-     * I should learn a bit more Java about that 
-     * (and at least inverse the order
-     */
-    // JE: Beware: THERE MAY BE EFFECTIVE STUFF MISSING THERE (CAN WE DO THE DISPATCH LOWER -- YES)
-    // It is a real mess already...
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
-	else if ( o instanceof RelationRestriction ) visit( (RelationRestriction)o );
-	else if ( o instanceof PropertyRestriction ) visit( (PropertyRestriction)o );
-	else if ( o instanceof ClassRestriction ) visit( (ClassRestriction)o );
-	else if ( o instanceof PathExpression ) visit( (PathExpression)o );
-	else if ( o instanceof PropertyExpression ) visit( (PropertyExpression)o );
-	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
-	else if ( o instanceof RelationExpression ) visit( (RelationExpression)o );
-	else if ( o instanceof Expression ) visit( (Expression)o );
-	else if ( o instanceof ValueExpression ) visit( (ValueExpression)o );
-	else if ( o instanceof Transformation ) visit( (Transformation)o );
-	else if ( o instanceof Cell ) visit( (Cell)o );
-	else if ( o instanceof Relation ) visit( (Relation)o );
-	else if ( o instanceof Alignment ) visit( (Alignment)o );
-	else throw new AlignmentException( "Cannot dispatch expression "+o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	String extensionString = "";
 	alignment = align;
 	nslist = new Hashtable<String,String>();
@@ -254,6 +230,8 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+	// default behaviour
 	this.cell = cell;
 	URI u1 = cell.getObject1AsURI(alignment);
 	URI u2 = cell.getObject2AsURI(alignment);
@@ -329,6 +307,8 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( Relation rel ) {
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
 	rel.write( writer );
     };
 

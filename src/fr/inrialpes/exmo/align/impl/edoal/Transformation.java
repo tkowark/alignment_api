@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,9 +21,7 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.Visitable;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
@@ -35,14 +33,14 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * @version $Id$ 
  */
 
-public class Transformation implements Visitable {
+public class Transformation {
 
     // JE: bad values...
     private String type; // "oo", "o-" or "-o"
     private ValueExpression expr1;
     private ValueExpression expr2;
 
-    public void accept( AlignmentVisitor visitor) throws AlignmentException {
+    public void accept( EDOALVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
 

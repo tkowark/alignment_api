@@ -33,10 +33,10 @@ import fr.inrialpes.exmo.align.impl.BasicRelation;
  * @version $Id$
  */
 
-public class EquivRelation extends BasicRelation
-{
-    public void accept( AlignmentVisitor visitor) throws AlignmentException {
-	visitor.visit( this );
+public class EquivRelation extends BasicRelation {
+
+    public void accept( AlignmentVisitor visitor ) throws AlignmentException {
+	visitor.visit( (EquivRelation)this );
     }
 
     static final String prettyLabel = "=";

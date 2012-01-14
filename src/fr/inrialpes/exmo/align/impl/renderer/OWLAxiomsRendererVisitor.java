@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2011
+ * Copyright (C) INRIA, 2003-2004, 2007-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,10 +24,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -82,6 +79,7 @@ import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -90,7 +88,7 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
  * @version $Id$ 
  */
 
-public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor {
+public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor, EDOALVisitor {
     boolean heterogeneous = false;
     boolean edoal = false;
     Alignment alignment = null;
@@ -109,17 +107,9 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	if ( p.getProperty("heterogeneous") != null ) heterogeneous = true;
     };
 
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Expression ) visit( (Expression)o );
-	else if ( o instanceof ValueExpression ) visit( (ValueExpression)o );
-	else if ( o instanceof Transformation ) visit( (Transformation)o );
-	else if ( o instanceof Cell ) visit( (Cell)o );
-	else if ( o instanceof Relation ) visit( (Relation)o );
-	else if ( o instanceof Alignment ) visit( (Alignment)o );
-	else throw new AlignmentException( "Cannot dispatch Expression "+o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	alignment = align;
 	if ( align instanceof ObjectAlignment ){
 	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
@@ -165,6 +155,8 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+	// default behaviour
 	if ( cell.getId() != null ) writer.print(NL+NL+"<!-- "+cell.getId()+" -->"+NL);
 	if ( cell instanceof EDOALCell ) {
 	    visit( (EDOALCell)cell );
@@ -217,6 +209,8 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     // This is the previous code... which is the one which was used.
     // It should be reintroduced in the dispatch!
     public void visit( Relation rel ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
 	Object ob2 = cell.getObject2();
 	if ( edoal ) {
 	    String owlrel = getRelationName( rel, ob2 );
@@ -455,20 +449,15 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 
     public void visit( Expression o ) throws AlignmentException {
 	if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
-	else if ( o instanceof RelationRestriction ) visit( (RelationRestriction)o );
-	else if ( o instanceof PropertyRestriction ) visit( (PropertyRestriction)o );
-	else if ( o instanceof ClassRestriction ) visit( (ClassRestriction)o );
 	else if ( o instanceof PathExpression ) visit( (PathExpression)o );
-	else if ( o instanceof PropertyExpression ) visit( (PropertyExpression)o );
 	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
-	else if ( o instanceof RelationExpression ) visit( (RelationExpression)o );
-	else throw new AlignmentException( "Cannot dispatch Expression "+o );
+	else throw new AlignmentException( "Cannot dispatch generic Expression "+o );
     }
 
     public void visit( final PathExpression p ) throws AlignmentException {
 	if ( p instanceof RelationExpression ) visit( (RelationExpression)p );
 	else if ( p instanceof PropertyExpression ) visit( (PropertyExpression)p );
-	else throw new AlignmentException( "Cannot dispatch PathExpression "+p );
+	else throw new AlignmentException( "Cannot dispatch generic PathExpression "+p );
     }
 
     public void visit( final ClassExpression e ) throws AlignmentException {
@@ -940,7 +929,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	else if ( e instanceof PathExpression )  visit( (PathExpression)e );
 	else if ( e instanceof Apply )  visit( (Apply)e );
 	else if ( e instanceof Value )  visit( (Value)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	else throw new AlignmentException( "Cannot dispatch generic ValueExpression "+e );
     }
 
     // Unused: see ClassValueRestriction above
@@ -968,6 +957,5 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     public void visit( final Datatype e ) {
 	indentedOutput("<owl:Datatype><owl:onDataType rdf:resource=\""+e.plainText()+"\"/></owl:Datatype>");
     }
-	
 
 }

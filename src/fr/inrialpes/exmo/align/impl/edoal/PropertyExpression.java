@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2006 -- then AttributeExpr.java
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Visitable;
 
 /**
  * <p>
@@ -42,7 +40,7 @@ import org.semanticweb.owl.align.Visitable;
  * @version $Revision: 1.7 $
  */
 
-public abstract class PropertyExpression extends PathExpression implements Cloneable, Visitable {
+public abstract class PropertyExpression extends PathExpression implements Cloneable {
 
     /**
      * Creates a simple PropertyExpression
@@ -51,7 +49,7 @@ public abstract class PropertyExpression extends PathExpression implements Clone
 	super();
     }
 
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
+    public void accept(EDOALVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
 

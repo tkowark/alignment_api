@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,8 +23,6 @@
 package fr.inrialpes.exmo.align.impl.edoal;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Visitable;
 
 /**
  * <p>
@@ -48,11 +46,11 @@ import org.semanticweb.owl.align.Visitable;
  * @author Francois Scharffe
  * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
-public abstract class RelationRestriction extends RelationExpression implements Visitable {
+public abstract class RelationRestriction extends RelationExpression {
 
     protected RelationRestriction() {}
 
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
+    public void accept(EDOALVisitor visitor) throws AlignmentException {
 	visitor.visit(this);
     }
 

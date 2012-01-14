@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,8 +26,9 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
+import org.semanticweb.owl.align.Relation;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -47,8 +48,7 @@ import fr.inrialpes.exmo.ontowrap.LoadedOntology;
  * @version $Id$ 
  */
 
-public class HTMLMetadataRendererVisitor implements AlignmentVisitor
-{
+public class HTMLMetadataRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     
     PrintWriter writer = null;
     Alignment alignment = null;
@@ -64,11 +64,9 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
     };
 
-    public void visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Alignment ) visit( (Alignment)o );
-    }
-
     public void visit( Alignment align ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	// default behaviour
 	alignment = align;
 	nslist = new Hashtable<String,String>();
 	nslist.put(Namespace.ALIGNMENT.uri,"align");
@@ -130,4 +128,14 @@ public class HTMLMetadataRendererVisitor implements AlignmentVisitor
 	writer.print("</body>\n</html>\n");
     }
 
+    public void visit( Cell c ) {
+	if ( subsumedInvocableMethod( this, c, Cell.class ) ) return;
+	// default behaviour
+    };
+
+    public void visit( Relation r ) {
+	if ( subsumedInvocableMethod( this, r, Relation.class ) ) return;
+	// default behaviour
+    };
+    
 }
