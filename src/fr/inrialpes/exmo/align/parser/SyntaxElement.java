@@ -4,7 +4,7 @@
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Copyright (C) 2005 Digital Enterprise Research Insitute (DERI) Galway
  * Sourceforge version 1.6 - 2008 - then OmwgElement
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -117,6 +117,7 @@ public enum SyntaxElement {
 	RELATION_EXPR(  Namespace.EDOAL, "Relation", true),
 	//SERVICE(        Namespace.EDOAL, "service"),
 	STRING(          Namespace.EDOAL, "string"),
+	ETYPE(           Namespace.EDOAL, "type"),
 	SYMMETRIC(      Namespace.EDOAL, "symmetric", Constructor.SYMMETRIC),
 	TOCLASS(        Namespace.EDOAL, "class"),
 	ALL(            Namespace.EDOAL, "all"),

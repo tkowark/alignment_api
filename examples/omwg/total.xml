@@ -272,7 +272,7 @@
 		  </edoal:Property>
 		</edoal:onAttribute>
 		<edoal:comparator rdf:resource="&xsd;equals"/>
-  		<edoal:value><edoal:Literal edoal:string="33"/></edoal:value>
+  		<edoal:value><edoal:Literal edoal:type="&xsd;int" edoal:string="33"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:AttributeValueRestriction> 
 		<edoal:onAttribute>
@@ -319,11 +319,11 @@
   		<edoal:value>
 		  <edoal:Apply edoal:operator="http://example.org/mydummyoperation/">
 		    <edoal:arguments rdf:parseType="Collection">
-		      <edoal:Literal edoal:string="43"/>
+		      <edoal:Literal edoal:type="&xsd;int" edoal:string="43"/>
 		      <edoal:Property rdf:about="&vin;matrid"/>
 		      <edoal:Apply edoal:operator="http://example.org/mydummyoperation2/">
 			<edoal:arguments rdf:parseType="Collection">
-			  <edoal:Literal edoal:string="22"/>
+			  <edoal:Literal edoal:type="&xsd;int" edoal:string="22"/>
 			  <edoal:Property rdf:about="&vin;matrid"/>
 			  <edoal:Apply edoal:operator="http://example.org/mydummyoperation3/">
 			    <edoal:arguments rdf:parseType="Collection"/>
@@ -716,7 +716,7 @@
 	      <edoal:Apply edoal:operator="concat">
 		<edoal:arguments rdf:parseType="Collection">
 		  <edoal:Property rdf:about="vcard:firstname"/>
-		  <edoal:Literal edoal:string=" "/>
+		  <edoal:Literal edoal:type="&xsd;string" edoal:string=" "/>
 		  <!-- or even compute middle initial from middlename -->
 		  <edoal:Property rdf:about="vcard:middleinitial"/>
 		  <edoal:Literal edoal:string=". "/>

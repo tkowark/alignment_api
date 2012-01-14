@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010
+ * Copyright (C) INRIA, 2003-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -81,6 +81,7 @@ import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 
 /**
  * Renders an alignment in its RDF format
@@ -89,7 +90,7 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
  * @version $Id$
  */
 
-public class RDFRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor {
+public class RDFRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor,EDOALVisitor {
 
     Alignment alignment = null;
     Cell cell = null;
@@ -136,6 +137,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	else if ( o instanceof Cell ) visit( (Cell)o );
 	else if ( o instanceof Relation ) visit( (Relation)o );
 	else if ( o instanceof Alignment ) visit( (Alignment)o );
+	else throw new AlignmentException( "Cannot dispatch expression "+o );
     }
 
     public void visit( Alignment align ) throws AlignmentException {
@@ -331,7 +333,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     };
 
     public void visit( Expression o ) throws AlignmentException {
-	throw new AlignmentException("Cannot export abstract Expression: "+o );
+	if ( o instanceof PathExpression ) visit( (PathExpression)o );
+	else if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
+	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
+	else throw new AlignmentException( "Cannot dispatch Expression "+o );
     }
 
     // DONE
@@ -378,7 +383,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	if ( (op == Constructor.AND) || (op == Constructor.OR) ) writer.print(" "+SyntaxElement.RDF_PARSETYPE.print(DEF)+"=\"Collection\"");
 	writer.print(">"+NL);
 	increaseIndent();
-	for (final ClassExpression ce : e.getComponents()) {
+	for ( final ClassExpression ce : e.getComponents() ) {
 	    writer.print(linePrefix);
 	    visit( ce );
 	    writer.print(NL);
@@ -714,12 +719,11 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( final Value e ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.LITERAL.print(DEF)+" "+SyntaxElement.STRING.print(DEF)+"=\"");
-	writer.print(e.getValue());
+	indentedOutput("<"+SyntaxElement.LITERAL.print(DEF)+" ");
 	if ( e.getType() != null ) {
-	    writer.print(" "+SyntaxElement.TYPE.print(DEF)+"=\""+e.getType()+"\"");
+	    writer.print(SyntaxElement.ETYPE.print(DEF)+"=\""+e.getType()+"\" ");
 	}
-	writer.print("\"/>");
+	writer.print(SyntaxElement.STRING.print(DEF)+"=\""+e.getValue()+"\"/>");
     }
 	
     public void visit( final Apply e ) throws AlignmentException {

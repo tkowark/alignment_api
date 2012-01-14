@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2008
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -801,12 +801,17 @@ public class RDFParser {
 		return parseInstance( (Resource)node );
 	    } else if ( nodeType.equals( SyntaxElement.LITERAL.resource ) ) {
 		if ( ((Resource)node).hasProperty( (Property)SyntaxElement.STRING.resource ) ) {
-		    if ( ((Resource)node).hasProperty( (Property)SyntaxElement.TYPE.resource ) ) {
+		    URI u = null;
+		    if ( ((Resource)node).hasProperty( (Property)SyntaxElement.ETYPE.resource ) ) {
 			try {
-			    return new Value( ((Resource)node).getProperty( (Property)SyntaxElement.STRING.resource ).getLiteral().getString(), new URI( ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() ) );
+			    u = new URI( ((Resource)node).getProperty( (Property)SyntaxElement.ETYPE.resource ).getLiteral().getString() );
 			} catch (URISyntaxException urisex) {
-			    throw new AlignmentException( "Incorect URI for edoal:type : "+ ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() );
+			    //throw new AlignmentException( "Incorect URI for edoal:type : "+ ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() );
+			    urisex.printStackTrace();
 			}
+		    }
+		    if ( u != null ) {
+			return new Value( ((Resource)node).getProperty( (Property)SyntaxElement.STRING.resource ).getLiteral().getString(), u );
 		    } else {
 			return new Value( ((Resource)node).getProperty( (Property)SyntaxElement.STRING.resource ).getLiteral().getString() );
 		    }
