@@ -10,6 +10,94 @@
 [<a href="format.html">Alignment format</a>]
 [<a href="./">API</a>]
 
+<script type="text/javascript">/*<![CDATA[*/
+/*
+	Written by Jonathan Snook, http://www.snook.ca/jonathan
+	Add-ons by Robert Nyman, http://www.robertnyman.com
+	Author says "The credit comment is all it takes, no license. Go crazy with it!:-)"
+	From http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/
+*/
+
+var displayed = [];
+displayed["fssyntax"] = 1;
+displayed["rdfxml"] = 0;
+displayed["n3"] = 0;
+displayed["graph"] = 0;
+displayed["owlxml"] = 0;
+
+function primerOnLoad() {
+  display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');
+  display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');
+  display('graph', 'none');  set_display_by_id('hide-ms', 'none');       set_display_by_id('show-ms', '');
+  display('owlxml', 'none');      set_display_by_id('hide-xs', 'none');       set_display_by_id('show-xs', '');
+}
+
+function display(syntax,status) {
+  var howmany = 0;
+  if (status=='none') {
+    displayed[syntax] = 0; 
+  } else { 
+    displayed[syntax] = 1;
+  }
+  for ( i in displayed ) {
+       howmany = howmany + displayed[i];
+  }
+  set_display_by_class('div',syntax,status);
+  if ( howmany == 1 ) {
+      set_display_by_class('b','syntax-head','none');
+  } else {
+      set_display_by_class('b','syntax-head','');
+  }
+}
+
+function getElementsByClassName(oElm, strTagName, oClassNames){
+	var arrElements = (! (! (strTagName == "*") || ! (oElm.all)))? oElm.all : oElm.getElementsByTagName(strTagName);
+	var arrReturnElements = new Array();
+	var arrRegExpClassNames = new Array();
+	if(typeof oClassNames == "object"){
+		for(var i=0; !(i>=oClassNames.length); i++){ /*>*/
+			arrRegExpClassNames.push(new RegExp("(^|\\s)" + oClassNames[i].replace(/\-/g, "\\-") + "(\\s|$)"));
+		}
+	}
+	else{
+		arrRegExpClassNames.push(new RegExp("(^|\\s)" + oClassNames.replace(/\-/g, "\\-") + "(\\s|$)"));
+	}
+	var oElement;
+	var bMatchesAll;
+	for(var j=0; !(j>=arrElements.length); j++){ /*>*/
+		oElement = arrElements[j];
+		bMatchesAll = true;
+		for(var k=0; !(k>=arrRegExpClassNames.length); k++){ /*>*/
+			if(!arrRegExpClassNames[k].test(oElement.className)){
+				bMatchesAll = false;
+				break;
+			}
+		}
+		if(bMatchesAll){
+			arrReturnElements.push(oElement);
+		}
+	}
+	return (arrReturnElements)
+}
+
+function set_display_by_class(el, cls, newValue) {
+   var e = getElementsByClassName(document, el, cls);
+   if (e != null) {
+      for (var i=0; !(i>=e.length); i++) {
+        e[i].style.display = newValue;
+      }
+   }
+}
+
+function set_display_by_id(id, newValue) {
+   var e = document.getElementById(id);
+   if (e != null) {
+     e.style.display = newValue;
+   }
+}
+/*]]>*/
+</script>
+
 <h1 class="titre">EDOAL: Expressive and Declarative Ontology Alignment Language</h1>
 
 <p>
@@ -125,6 +213,56 @@ recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt>
 <p>Details on each property are available on the <a href="format.html">alignment format</a> page.</p>
 
 <h3 id="ssec:entities">Entities</h3>
+
+<p>
+A quick overview of the implemented EDOAL API is provided here (<b>abstract</b>
+classes are in bold and <i>interfaces</i> in italics):
+<pre>
+EDOALAlignment extends BasicAlignment
+
+EDOALCell extends BasicCell
+
+<b>Expression</b> implements <i>Clonable</i>
+|- <a href="#ssec:classes"><b>ClassExpression</b></a>
+|  |- ClassId implements <i>Id</i>
+|  |- ClassConstruction
+|  |- <b>ClassRestriction</b>
+|     |- ClassDomainRestriction
+|     |- ClassOccurenceRestriction
+|     |- ClassTypeRestriction
+|     |- ClassValueRestriction
+|- <b>PathExpression</b> implements <i>ValueExpression</i>
+|  |- <a href="#ssec:properties"><b>PropertyExpression</b></a>
+|  |  |- PropertyId implements <i>Id</i>
+|  |  |- PropertyConstruction
+|  |  |- <b>PropertyRestriction</b>
+|  |     |- PropertyDomainRestriction
+|  |     |- PropertyTypeRestriction
+|  |     |- PropertyValueRestriction
+|  |- <a href="#ssec:relations"><b>RelationExpression</b></a>
+|     |- RelationId implements <i>Id</i>
+|     |- RelationConstruction
+|     |- <b>RelationRestriction</b>
+|        |- RelationCoDomainRestriction
+|        |- RelationDomainRestriction
+|- <a href="#ssec:instances"><b>InstanceExpression</b></a>
+   |- InstanceId implements <i>Id</i>
+
+Value implements <i>ValueExpression</i>
+Apply implements <i>ValueExpression</i>
+
+Transformation
+
+TransfService implements <i>Clonable</i>
+
+<a href="sec:patterns">Variable</a>
+
+Comparator
+
+Datatype
+</pre>
+</p>
+
 <h4 id="ssec:classes">Classes</h4>
 <p>Class entities can be constructed using one of the three operators <i>and, or,
 not</i>.<ul>
@@ -163,36 +301,16 @@ A class can be defined using its URI or a restriction. Restrictions are defined 
 
 <u>typerest</u> ::= <!--&lt;all> <u>type</u> &lt;/all> | &lt;exists> <u>type</u> &lt;/exists> | -->&lt;type> <u>type</u> &lt;/type>
 
+<u>type</u> ::= &lt;Datatype rdf:about=" <u>URI</u> " />
+
 <u>classrest</u> ::= &lt;all> <u>classexpr</u> &lt;/all> | &lt;exists> <u>classexpr</u> &lt;/exists> | &lt;class> <u>classexpre</u> &lt;/class>
 
 <u>comp</u> ::= &lt;comparator rdf:resource=" <u>URI</u> "/>
 
-<u>value</u> ::= &lt;Literal string=" <u>STRING</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
+<u>value</u> ::= &lt;Literal {type=" <u>URI</u> "} string=" <u>STRING</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
         | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 </pre></div>
 
-
-<!--div class="fragment"><pre>
-classexpr ::= &lt;Class {rdf:about="uri"}?\&gt;
-               classconst*            
-              &lt;/Class&gt;
-              
-classconst ::= &lt;and>
-                classexpr
-                | class-restriction
-               &lt;/and>
-             | &lt;or>
-                classexpr
-                | class-restriction
-               &lt;/or>
-             | &lt;not>classexpr&lt;/not>
-
-class-restriction ::= &lt;Restriction>
-                       &lt;onProperty>attrexpr&lt;/onProperty>
-                       &lt;comparator rdf:about={xsd-comparator} />
-                       &lt;value>value&lt;/value>
-                      &lt;/Restriction>
-</pre></div-->
 
 <p>Comparators are taken from the XPath function specification [<a href="http://www.w3.org/TR/xpath-functions">1</a>].</p>
 
@@ -229,7 +347,8 @@ transformation ::= &lt;Transformation>
                       &lt;/parameters>                  
                      &lt;/Transformation>
 </pre></div-->
-<p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p>
+
+<!--p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p-->
 
 <h4 id="ssec:relations">Relations</h4>
 <p>Relations correspond to object properties in OWL. Relation entities can be constructed using the operators <i>and, or,
@@ -265,12 +384,90 @@ not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetr
 
 <p>The following exmples illustrate various kids of usage of the vocabulary.</p>
 
+<div class="syntaxmenu">
+<p>The buttons below can be used to show or hide the available syntaxes.</p><form action=""><p>
+<input id="hide-rs" onclick="display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');" type="button" value="Hide RDF/XML Syntax" />
+<input id="show-rs" onclick="display('rdfxml', '');      set_display_by_id('hide-rs', '');       set_display_by_id('show-rs', 'none');" style="display:none" type="button" value="Show RDF/XML Syntax" />
+<input id="hide-ts" onclick="display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');" type="button" value="Hide N3 Syntax" />
+<input id="show-ts" onclick="display('n3', '');      set_display_by_id('hide-ts', '');       set_display_by_id('show-ts', 'none');" style="display:none" type="button" value="Show N3 Syntax" />
+<input id="hide-ms" onclick="display('graph', 'none');            set_display_by_id('hide-ms', 'none');             set_display_by_id('show-ms', '');" type="button" value="Hide Graph" />
+<input id="show-ms" onclick="display('graph','');      set_display_by_id('hide-ms', '');       set_display_by_id('show-ms', 'none');" style="display:none" type="button" value="Show Graph" />
+</p></form>
+</div>
+
+<p>
+In case of conflict, the RDF/XML syntax is the authoritative one.
+This is also the one for which we have developed parsers and renderers.
+However, we are glad that you report errors in the other syntaxes as well.
+</p>
+
 <h3 id="ssec:ex1">Class partition</h3>
 
-<p>This example shows how to express a correspondence between a classes in one ontology corresponding to a set of classes in the other ontology. In order to graps the precise correspondence, the one class is partitioned according to the value of one of its attributes. In this example one ontology has a class LED which has a property color, while the other ontology has three classes RedLED, BlueLED, and GreenLED. The LED class is aligned with the three corresponding classes by specifying a restriction of its scope to the corresponding value of the <i>color</i> attribute.</p>
+<p>This example shows how to express a correspondence between a class in one ontology corresponding to a set of classes in the other ontology. In order to graps the precise correspondence, the one class is partitioned according to the value of one of its attributes. In this example one ontology has a class LED which has a property color, while the other ontology has three classes RedLED, BlueLED, and GreenLED. The LED class is aligned with the three corresponding classes by specifying a restriction of its scope to the corresponding value of the <i>color</i> attribute.</p>
 
-<p>The alignment expressed in RDF/N3 is the following:</p>
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="fragment">
+<pre>
+&lt;align:Cell rdf:about="#cell1">
+  &lt;align:entity1>
+    &lt;edoal:Class>
+      &lt;edoal:and rdf:parseType="Collection">
+        &lt;edoal:Class rdf:about="&O1;LED" />
+        &lt;edoal:AttributeValueRestriction>
+          &lt;edoal:onAttribute>
+            &lt;edoal:Relation rdf:about="&O1;hasColor" />
+          &lt;/edoal:onAttribute>
+	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Blue"/>&lt;/edoal:value>
+        &lt;/edoal:AttributeValueRestriction>
+      &lt;/edoal:and>
+    &lt;/edoal:Class>
+  &lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;BlueLED" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+&lt;/align:Cell>
 
+&lt;align:Cell rdf:about="#cell2">
+  &lt;align:entity1>
+    &lt;edoal:Class>
+      &lt;edoal:and rdf:parseType="Collection">
+        &lt;edoal:Class rdf:about="&O1;LED" />
+        &lt;edoal:AttributeValueRestriction>
+          &lt;edoal:onAttribute>
+            &lt;edoal:Relation rdf:about="&O1;hasColor" />
+          &lt;/edoal:onAttribute>
+	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Red"/>&lt;/edoal:value>
+        &lt;/edoal:AttributeValueRestriction>
+      &lt;/edoal:and>
+    &lt;/edoal:Class>
+  &lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;RedLED" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+&lt;/align:Cell>
+
+&lt;align:Cell rdf:about="#cell3">
+  &lt;align:entity1>
+    &lt;edoal:Class>
+      &lt;edoal:and rdf:parseType="Collection">
+        &lt;edoal:Class rdf:about="&O1;LED" />
+        &lt;edoal:AttributeValueRestriction>
+          &lt;edoal:onAttribute>
+            &lt;edoal:Relation rdf:about="&O1;hasColor" />
+          &lt;/edoal:onAttribute>
+	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Green"/>&lt;/edoal:value>
+        &lt;/edoal:AttributeValueRestriction>
+      &lt;/edoal:and>
+    &lt;/edoal:Class>
+  &lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;GreenLED" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+&lt;/align:Cell>
+</pre>
+</div>
+</div>
+<div class="n3"><div class="exampleheader">N3 Syntax</div>
 <div class="detail" id="ex1n3"><pre>
 O1:LED a edoal:Class;
 O1:hasColor a edoal:Relation.
@@ -308,17 +505,71 @@ O2:GreenLED a edoal:Class.
 		edoal:and O1:LED.
 	align:entity2 O2:GreenLED.
 </pre></div>
-
-<p>The corresponding graph:</p>
-
+</div>
+<div class="graph"><div class="exampleheader">Graph</div>
 <center>
 <!--<img src="graph-partition-pattern-alignment-representation-small.png" border="0" alt="">-->
 <object type="image/svg+xml" data="img/graph-partition-pattern-alignment-representation-corrected.svg" width="600" height="300">
 </object> 
 </center>
+</div>
 
 <h3 id="ssec:ex2">Property value transformation (XPath function)</h3>
+
 <p>This exemple shows how to use a transformation between property values. Two cases can be considered: static transformations such as unit conversion, and transformations which vary over time such as currency conversions. This example illustrates a static conversion from pounds to kilograms using a XPath function.</p>
+
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<p>We give two valid version of this correspondence depending on if
+  the correspondence apply to the two properties (version 1) or the
+  bearer of the transformed properties (version 2).
+<div class="fragment">
+<pre>
+&lt;align:Cell rdf:about="#cell">
+  &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;weight" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+  &lt;edoal:transformation>
+    &lt;edoal:Transformation edoal:type="o-">
+      &lt;edoal:entity1>
+	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
+      &lt;/edoal:entity1>
+      &lt;edoal:entity2>
+	&lt;edoal:Apply edoal:operator="&fn;safe-divide">
+	  &lt;edoal:arguments rdf:parseType="Collection">
+            &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
+            &lt;edoal:Literal edoal:type="&xsd;float" edoal:string="2.679229" />
+	  &lt;/edoal:arguments>
+	&lt;/edoal:Apply>
+      &lt;/edoal:entity2>
+    &lt;/edoal:Transformation>
+  &lt;/edoal:transformation>
+&lt;/align:Cell>
+</pre>
+</div>
+<div class="fragment">
+<pre>
+&lt;align:Cell rdf:about="#cell">
+  &lt;align:entity1>&lt;edoal:Class rdf:about="&O1;Person" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;Patient" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+  &lt;edoal:transformation>
+    &lt;edoal:Transformation edoal:type="o-">
+      &lt;edoal:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/edoal:entity1>
+      &lt;edoal:entity2>
+	&lt;edoal:Apply edoal:operator="&fn;safe-divide">
+	  &lt;edoal:arguments rdf:parseType="Collection">
+            &lt;edoal:Property rdf:about="&O2;weight" />
+            &lt;edoal:Literal edoal:type="&xsd;float" edoal:string="2.679229" />
+	  &lt;/edoal:arguments>
+	&lt;/edoal:Apply>
+      &lt;/edoal:entity2>
+    &lt;/edoal:Transformation>
+  &lt;/edoal:transformation>
+&lt;/align:Cell>
+</pre>
+</div>
+</div>
+<div class="n3"><div class="exampleheader">N3 Syntax</div>
 <div class="detail" id="ex2n3"><pre>
 01:hasWeight a edoal:Property.
 O2:weight a edoal:Property.
@@ -333,19 +584,45 @@ O2:weight a edoal:Property.
 		].
 	].
 </pre></div>
-<p>The corresponding graph:</p>
-
+</div>
+<div class="graph"><div class="exampleheader">Graph</div>
 <center>
 <!--<img src="graph-property-value-xpath-transformation-small.png" border="0" alt="RDF graph of a property value transformation using a XPath function">-->
 <object data="img/graph-property-value-xpath-transformation.svg" type="image/svg+xml" width="500" height="70">
 </object>
 </center>
+</div>
 
 <h3 id="ssec:ex3">Property value transformation (other service)</h3>
+
 <p>This example illustrates the conversion between two currencies. A transformation service is specified.</p>
 
-<!--<img src="property-data-transformation-small.png" border="0" alt="Property value transformation pattern">-->
-<p>The alignment expressed in RDF/N3 is the following:</p>
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="fragment"><pre>
+&lt;align:Cell>
+  &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;price" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;hasPrice" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+  &lt;edoal:transformation>
+    &lt;edoal:Transformation edoal:type="o-">
+      &lt;edoal:entity1>
+	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
+      &lt;/edoal:entity1>
+      &lt;edoal:entity2>
+	&lt;edoal:Apply edoal:operator="http://www.google.com/finance/converter">
+	  &lt;edoal:arguments rdf:parseType="Collection">
+            &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
+            &lt;edoal:Literal edoal:value="EUR" />
+            &lt;edoal:Literal edoal:value="CNY" />
+	  &lt;/edoal:arguments>
+	&lt;/edoal:Apply>
+      &lt;/edoal:entity2>
+    &lt;/edoal:Transformation>
+  &lt;/edoal:transformation>
+</pre>
+</div>
+</div>
+<div class="n3"><div class="exampleheader">N3 Syntax</div>
 <div class="detail" id="ex3n3"><pre>
 O1:price a edoal:Property.
 O2:hasPrice a edoal:Property.
@@ -359,18 +636,55 @@ O2:hasPrice a edoal:Property.
 	];
 	align:entity2 O2:hasPrice.
 </pre></div>
-<p>The corresponding graph:</p>
-
+</div>
+<div class="graph"><div class="exampleheader">Graph</div>
 <center>
 <!--<img src="graph-property-value-transformation-small.png" border="0" alt="Property data transformation RDF graph">-->
 <object data="img/graph-property-value-transformation.svg" type="image/svg+xml" width="600" height="150">
 </object>
 </center>
+</div>
+<!--<img src="property-data-transformation-small.png" border="0" alt="Property value transformation pattern">-->
 
 <h3 id="ssec:ex4">Class with attribute value restriction</h3>
 
-<p>This alignment pattern makes use of three variables. Var3 is a property variable representing a property having in its domain the class of the class variable Var1. Morover, the property Var3 has an interger value. This pattern thus captures all correspondences between two classes, the scope of one class being restricted to only those instances having a specific value (not specified by the pattern) for one of its property whith datatype "integer".</p>
+<p>
+This alignment pattern makes use of three variables. Var3 is a
+property variable representing a property having in its domain the
+class identified by the variable Var1. 
+Moreover, the property Var3 has an integer value.
+This pattern thus captures all correspondences between two classes, the scope of one class being restricted to only those instances having a specific value (not specified by the pattern) for one of its property whith datatype "integer".</p>
 
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="fragment">
+<pre>
+&lt;align:Cell rdf:about="#Cell1">
+  &lt;align:entity1>
+    &lt;edoal:Class>
+      &lt;edoal:and rdf:parseType="Collection">
+        &lt;edoal:Class edoal:var="#var1" />
+        &lt;edoal:AttributeTypeRestriction>
+          &lt;edoal:onProperty>
+            &lt;edoal:PropertyDomainRestriction edoal:var="#var3">
+              &lt;edoal:class>
+                &lt;edoal:Class edoal:var="#var1" />
+              &lt;/edoal:class>
+            &lt;/edoal:PropertyDomainRestriction>
+          &lt;/edoal:onProperty>
+          &lt;edoal:type>&lt;edoal:Datatype rdf:about="&xsd;integer" />&lt;/edoal:type>
+        &lt;/edoal:AttributeTypeRestriction>
+      &lt;/edoal:and>
+    &lt;/edoal:Class>
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;edoal:Class edoal:var="#var2" />
+  &lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+&lt;/align:Cell>
+</pre>
+</div>
+</div>
+<div class="n3"><div class="exampleheader">N3 Syntax</div>
 <div class="detail" id="ex4n3"><pre>
 :var1 a edoal:Variable;
 	a edoal:Class.
@@ -394,20 +708,21 @@ O2:hasPrice a edoal:Property.
 	].
 	align:entity2 :var2.
 </pre></div>
-
-<p>The corresponding graph:</p>
+</div>
+<div class="graph"><div class="exampleheader">Graph</div>
 <center>
 <object data="img/graph-class-with-attribute-value-restriction.svg" type="image/svg+xml" width="530" height="120">
 </object>
 </center>
+</div>
 
-<h2>EDOAL Pattern</h2>
+<h2 id="sec:patterns">EDOAL Pattern</h2>
 
 <p>
 EDOAL also contains a pattern language with allows for expressing
 generalised correspondences in which entities can be abstract. This
 language is not very different from EDOAL (beside its introduction of
-variables).
+variables which are already present in the previous example).
 </p>
 <p>
 It will be released at a later stage. Ask Fran&ccedil;ois Scharffe
@@ -446,6 +761,15 @@ It has now been redesigned and reimplemented under the name of
 EDOAL. It is a plain component of the Alignment API and is maintained
 together with it.
 </p>
+
+<h2>Thanks</h2>
+
+<p>
+Thanks to <a href="http://www.snook.ca/jonathan">Jonathan Snook</a>
+and <a href="http://www.robertnyman.com">Robert Nyman</a> for the
+syntax toggling scripts borrowed from the OWL Recommendation web page.
+<a href="http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/">http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/</a>.
+</p> 
 
 <address>
 <small>
