@@ -140,7 +140,7 @@ public class EDOALExportTest {
 	// Print it in a string
 	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
 	PrintWriter writer = new PrintWriter (
-			  new BufferedWriter(
+			      new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
 	/*
 	OutputStream stream = new FileOutputStream( "/tmp/total.owl" );
@@ -153,7 +153,8 @@ public class EDOALExportTest {
 	writer.flush();
 	writer.close();
 	String str1 = stream.toString();
-	assertEquals( str1.length(), 12099 );
+	//System.err.println(str1);
+	assertEquals( str1.length(), 11612 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
