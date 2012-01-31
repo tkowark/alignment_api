@@ -356,19 +356,35 @@ public class RDFParser {
 	try {
 	    // Should be better to use Alignment API relation recognition
 	    // determine the relation, the relation shall be Literal
-	    final String relation = node.getProperty((Property)SyntaxElement.RULE_RELATION.resource).getString();
+	    Statement st = node.getProperty((Property)SyntaxElement.RULE_RELATION.resource);
+	    if ( st == null ) {
+		throw new AlignmentException("Correspondence must contain a relation" + node.getLocalName());
+	    }
+	    final String relation = st.getString();
 	    //Get the relation
 	    final Relation type = BasicRelation.createRelation( relation );
 	    if (type == null) {	// I raise an error in this case anyway
 		throw new IllegalArgumentException("Cannot parse the string \""+relation+"\" to a valid relation");
 	    }
 	    // parse the measure, the node shall be Literal and it's a number
-	    final float m = node.getProperty((Property)SyntaxElement.MEASURE.resource).getFloat();
+	    st = node.getProperty((Property)SyntaxElement.MEASURE.resource);
+	    if ( st == null ) {
+		throw new AlignmentException("Correspondence must contain a measure" + node.getLocalName());
+	    }
+	    final float m = st.getFloat();
 	    // get the id
 	    final String id = node.getURI();
 	    //parsing the entity1 and entity2 
-	    Resource entity1 = node.getProperty((Property)SyntaxElement.ENTITY1.resource).getResource();
-	    Resource entity2 = node.getProperty((Property)SyntaxElement.ENTITY2.resource).getResource();
+	    st = node.getProperty((Property)SyntaxElement.ENTITY1.resource);
+	    if ( st == null ) {
+		throw new AlignmentException("Correspondence must contain an entity1" + node.getLocalName());
+	    }
+	    Resource entity1 = st.getResource();
+	    st = node.getProperty((Property)SyntaxElement.ENTITY2.resource);
+	    if ( st == null ) {
+		throw new AlignmentException("Correspondence must contain an entity2" + node.getLocalName());
+	    }
+	    Resource entity2 = st.getResource();
 	    // JE2010:
 	    // Here it would be better to check if the entity has a type.
 	    // If both have none, then we get a old-style correspondence for free
@@ -396,7 +412,7 @@ public class RDFParser {
 	    }
 	    return cell;
 	} catch (Exception e) {  //wrap other type exception
-	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct:" + node.getLocalName() + " "+e.getMessage());
+	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct: " + node.getLocalName() + " "+e.getMessage());
 	    throw new AlignmentException("Cannot parse correspondence " + node.getLocalName(), e);
 	}
     }
