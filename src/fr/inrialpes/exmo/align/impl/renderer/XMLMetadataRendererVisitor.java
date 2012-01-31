@@ -149,12 +149,12 @@ public class XMLMetadataRendererVisitor extends GenericReflectiveVisitor impleme
 	writer.print("</rdf:RDF>\n");
     }
 
-    public void visit( Cell c ) {
+    public void visit( Cell c ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, c, Cell.class ) ) return;
 	// default behaviour
     };
 
-    public void visit( Relation r ) {
+    public void visit( Relation r ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, r, Relation.class ) ) return;
 	// default behaviour
     };

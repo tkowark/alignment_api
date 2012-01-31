@@ -166,26 +166,27 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	    Object ob2 = cell.getObject2();
 	    URI u1;
 	    try {
-		if ( cell.getRelation() instanceof SubsumedRelation ){
-		    u1 = onto2.getEntityURI( cell.getObject2() );
+		Relation rel = cell.getRelation();
+		if ( rel instanceof SubsumedRelation || rel instanceof HasInstanceRelation ){
+		    u1 = onto2.getEntityURI( ob2 );
 		} else {
 		    u1 = onto1.getEntityURI( ob1 );
 		}
 		if ( ob1 instanceof ClassExpression || onto1.isClass( ob1 ) ) {
 		    writer.print("  <owl:Class rdf:about=\""+u1+"\">"+NL);
-		    cell.getRelation().accept( this );
+		    rel.accept( this );
 		    writer.print("  </owl:Class>"+NL);
 		} else if ( ob1 instanceof PropertyExpression || onto1.isDataProperty( ob1 ) ) {
 		    writer.print("  <owl:DatatypeProperty rdf:about=\""+u1+"\">"+NL);
-		    cell.getRelation().accept( this );
+		    rel.accept( this );
 		    writer.print("  </owl:DatatypeProperty>"+NL);
 		} else if ( ob1 instanceof RelationExpression || onto1.isObjectProperty( ob1 ) ) {
 		    writer.print("  <owl:ObjectProperty rdf:about=\""+u1+"\">"+NL);
-		    cell.getRelation().accept( this );
+		    rel.accept( this );
 		    writer.print("  </owl:ObjectProperty>"+NL);
 		} else if ( ob1 instanceof InstanceExpression || onto1.isIndividual( ob1 ) ) {
 		    writer.print("  <owl:Thing rdf:about=\""+u1+"\">"+NL);
-		    cell.getRelation().accept( this );
+		    rel.accept( this );
 		    writer.print("  </owl:Thing>"+NL);
 		}
 	    } catch ( OntowrapException owex ) {
@@ -197,11 +198,13 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     public void visit( EDOALCell cell ) throws AlignmentException {
 	this.cell = cell;
 	toProcess = cell.getRelation();
+	increaseIndent();
 	if ( toProcess instanceof SubsumeRelation || toProcess instanceof HasInstanceRelation ) {
 	    ((Expression)cell.getObject2()).accept( this );
 	} else {
 	    ((Expression)cell.getObject1()).accept( this );
 	}
+	decreaseIndent();
 	writer.print(NL);
     }
 
@@ -233,14 +236,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 		throw new AlignmentException( "Error accessing ontology", owex );
 	    }
 	}
-	/* This dispatch may be used for more customization
-	if ( rel instanceof EquivRelation ) visit( (EquivRelation)rel );
-	else if ( rel instanceof SubsumeRelation ) visit( (SubsumeRelation)rel );
-	else if ( rel instanceof SubsumedRelation ) visit( (SubsumedRelation)rel );
-	else if ( rel instanceof IncompatRelation ) visit( (IncompatRelation)rel );
-	else if ( rel instanceof InstanceOfRelation ) visit( (InstanceOfRelation)rel );
-	else if ( rel instanceof HasInstanceRelation ) visit( (HasInstanceRelation)rel );
-	*/
     }
 
 
@@ -341,107 +336,143 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 
     public void visit( EquivRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	String owlrel = getRelationName( onto2, rel, ob2 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	if ( !edoal ) {
+	    String owlrel = getRelationName( onto2, rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    try {
 		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Error accessing ontology", owex );
 	    }
 	} else {
+	    String owlrel = getRelationName( rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    if ( ob2 instanceof InstanceId ) {
-		writer.print("    <"+owlrel+" rdf:resource=\""+((InstanceId)ob2).getURI()+"\"/>"+NL);
+		indentedOutput("<"+owlrel+" rdf:resource=\""+((InstanceId)ob2).getURI()+"\"/>");
 	    } else {
-		writer.println("    <"+owlrel+">");
+		indentedOutput("<"+owlrel+">");
+		writer.print(NL);
+		increaseIndent();
 		((Expression)ob2).accept( this );
-		writer.println("    </"+owlrel+">");
+		decreaseIndent();
+		writer.print(NL);
+		indentedOutput("</"+owlrel+">");
 	    }
 	}
     }
 
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	Object ob2 = cell.getObject2();
-	String owlrel = getRelationName( onto2, rel, ob2 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	if ( !edoal ) {
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Error accessing ontology", owex );
-	    }
-	} else {
-	    writer.println("    <"+owlrel+">");
-	    ((Expression)ob2).accept( this );
-	    writer.println("    </"+owlrel+">");
-	}
-    }
-
-    public void visit( SubsumedRelation rel ) throws AlignmentException {
 	Object ob1 = cell.getObject1();
-	String owlrel = getRelationName( onto1, rel, ob1 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	if ( !edoal ) {
+	    String owlrel = getRelationName( onto1, rel, ob1 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    try {
 		writer.print("    <"+owlrel+" rdf:resource=\""+onto1.getEntityURI( ob1 )+"\"/>"+NL);
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Error accessing ontology", owex );
 	    }
 	} else {
-	    writer.println("    <"+owlrel+">");
+	    String owlrel = getRelationName( rel, ob1 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    indentedOutput("<"+owlrel+">");
+	    writer.print(NL);
+	    increaseIndent();
 	    ((Expression)ob1).accept( this );
-	    writer.println("    </"+owlrel+">");
+	    decreaseIndent();
+	    writer.print(NL);
+	    indentedOutput("</"+owlrel+">");
+	}
+    }
+
+    public void visit( SubsumedRelation rel ) throws AlignmentException {
+	Object ob2 = cell.getObject2();
+	if ( !edoal ) {
+	    String owlrel = getRelationName( onto2, rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    try {
+		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Error accessing ontology", owex );
+	    }
+	} else {
+	    String owlrel = getRelationName( rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    indentedOutput("<"+owlrel+">");
+	    writer.print(NL);
+	    increaseIndent();
+	    ((Expression)ob2).accept( this );
+	    decreaseIndent();
+	    writer.print(NL);
+	    indentedOutput("</"+owlrel+">");
 	}
     }
 
     public void visit( IncompatRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	String owlrel = getRelationName( onto2, rel, ob2 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	if ( !edoal ) {
+	    String owlrel = getRelationName( onto2, rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    try {
 		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Cannot find entity URI", owex );
 	    }
 	} else {
-	    writer.println("    <"+owlrel+">");
+	    String owlrel = getRelationName( rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    indentedOutput("<"+owlrel+">");
+	    writer.print(NL);
+	    increaseIndent();
 	    ((Expression)ob2).accept( this );
-	    writer.println("    </"+owlrel+">");
+	    writer.print(NL);
+	    decreaseIndent();
+	    indentedOutput("</"+owlrel+">");
 	}
     }
 
     public void visit( InstanceOfRelation rel ) throws AlignmentException {
 	Object ob2 = cell.getObject2();
-	String owlrel = getRelationName( onto2, rel, ob2 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	if ( !edoal ) {
+	    String owlrel = getRelationName( onto2, rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    try {
 		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Cannot find entity URI", owex );
 	    }
 	} else {
-	    writer.println("    <"+owlrel+">");
+	    String owlrel = getRelationName( rel, ob2 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    indentedOutput("<"+owlrel+">");
+	    writer.print(NL);
+	    increaseIndent();
 	    ((Expression)ob2).accept( this );
-	    writer.println("    </"+owlrel+">");
+	    writer.print(NL);
+	    decreaseIndent();
+	    indentedOutput("</"+owlrel+">");
 	}
     }
 
     public void visit( HasInstanceRelation rel ) throws AlignmentException {
 	Object ob1 = cell.getObject1();
-	String owlrel = getRelationName( onto1, rel, ob1 );
-	if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	if ( !edoal ) {
+	    String owlrel = getRelationName( onto1, rel, ob1 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
 	    try {
 		writer.print("    <"+owlrel+" rdf:resource=\""+onto1.getEntityURI( ob1 )+"\"/>"+NL);
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Error accessing ontology", owex );
 	    }
 	} else {
-	    writer.println("    <"+owlrel+">");
+	    String owlrel = getRelationName( rel, ob1 );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    indentedOutput("<"+owlrel+">");
+	    writer.print(NL);
+	    increaseIndent();
 	    ((Expression)ob1).accept( this );
-	    writer.println("    </"+owlrel+">");
+	    writer.print(NL);
+	    decreaseIndent();
+	    indentedOutput("</"+owlrel+">");
 	}
     }
 
@@ -673,7 +704,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
      * and Property (DataProperty) constructor than owl:inverseOf
      * It is thus imposible to transcribe our and, or and not constructors.
      */
-    public void visit(final PropertyConstruction e) throws AlignmentException {
+    public void visit( final PropertyConstruction e ) throws AlignmentException {
 	Relation toProcessNext = toProcess;
 	toProcess = null;
 	indentedOutput("<owl:DatatypePropety>"+NL);

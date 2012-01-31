@@ -128,12 +128,12 @@ public class HTMLMetadataRendererVisitor extends GenericReflectiveVisitor implem
 	writer.print("</body>\n</html>\n");
     }
 
-    public void visit( Cell c ) {
+    public void visit( Cell c ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, c, Cell.class ) ) return;
 	// default behaviour
     };
 
-    public void visit( Relation r ) {
+    public void visit( Relation r ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, r, Relation.class ) ) return;
 	// default behaviour
     };

@@ -175,7 +175,7 @@ public class HTMLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	//	writer.print("      <semantics>"+cell.getSemantics()+"</semantics>\n");
 	writer.println("</tr>");
     }
-    public void visit( Relation rel ) {
+    public void visit( Relation rel ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
 	// default behaviour
 	rel.write( writer );

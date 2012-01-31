@@ -23,6 +23,8 @@ package fr.inrialpes.exmo.align.impl.renderer;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.semanticweb.owl.align.AlignmentException;
+
 /**
  * This class offers the tools for implementing Reflective visitors,
  * i.e., visitors in which the visit method will depend on the actual
@@ -74,7 +76,7 @@ public class GenericReflectiveVisitor {
 	return m;
     }
 
-    public boolean subsumedInvocableMethod( Object visitor, Object o, Class cl ) {
+    public boolean subsumedInvocableMethod( Object visitor, Object o, Class cl ) throws AlignmentException {
 	Method method = getMethod( o.getClass(), cl );
 	if ( method != null ) {
 	    try {
@@ -83,7 +85,11 @@ public class GenericReflectiveVisitor {
 	    } catch ( IllegalAccessException iaex ) {
 		iaex.printStackTrace();
 	    } catch ( InvocationTargetException itex ) { 
-		itex.printStackTrace();
+		if ( itex.getCause() instanceof AlignmentException ) {
+		    throw (AlignmentException)itex.getCause();
+		} else {
+		    itex.printStackTrace();
+		}
 	    }
 	}
 	return false;

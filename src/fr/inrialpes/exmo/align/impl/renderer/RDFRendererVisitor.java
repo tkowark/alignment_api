@@ -306,7 +306,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	}
     }
 
-    public void visit( Relation rel ) {
+    public void visit( Relation rel ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
 	// default behaviour
 	rel.write( writer );
