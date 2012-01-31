@@ -44,7 +44,7 @@
   <target name="compile" depends="init">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="neonalign" encoding="iso8859-15">
+    <javac deprecation="yes" includeantruntime="false" nowarn="no" verbose="no" srcdir="src" destdir="neonalign" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>

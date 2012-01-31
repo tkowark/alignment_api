@@ -98,7 +98,7 @@
     <!-- compile all with the restricted path -->
     <mkdir dir="classes"/>
     <property name="javacargs" value="-deprecation" />
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
+    <javac deprecation="yes" includeantruntime="false" nowarn="no" verbose="no" srcdir="src" destdir="classes" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath"/>
     </javac>
@@ -114,7 +114,7 @@
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
-    <javac deprecation="yes" nowarn="no" verbose="no" srcdir="../../src/" destdir="classes" encoding="iso8859-15">
+    <javac deprecation="yes" includeantruntime="false" nowarn="no" verbose="no" srcdir="../../src/" destdir="classes" encoding="iso8859-15">
       <compilerarg value="${javacargs}"/>
       <classpath refid="classpath" />
       <!-- That would be too simple -->
