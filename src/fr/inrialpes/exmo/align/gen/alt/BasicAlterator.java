@@ -1,7 +1,7 @@
 /**
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -42,6 +42,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Enumeration;
+
+import java.lang.StringBuffer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 
 //Alignment API classes
 import org.semanticweb.owl.align.Alignment;
@@ -135,43 +142,25 @@ public abstract class BasicAlterator implements Alterator {
     // -------------------------
     // Accessors
 
-    public void setDebug( boolean d ) { 
-	debug = d;
-    }
+    public void setDebug( boolean d ) { debug = d; }
 
     //returns the modified ontology after changing the namespace
-    public OntModel getModifiedOntology () {
-        return modifiedModel;
-    }
+    public OntModel getModifiedOntology () { return modifiedModel; }
 
-    public void setModifiedModel(OntModel model) {
-        modifiedModel = model;
-    }
+    public void setModifiedModel( OntModel model ) { modifiedModel = model; }
 
-    public OntModel getModifiedModel() {
-        return modifiedModel;
-    }
+    public OntModel getModifiedModel() { return modifiedModel; }
 
-    public ClassHierarchy getHierarchy() {
-        return classHierarchy;
-    }
+    public ClassHierarchy getHierarchy() { return classHierarchy; }
 
     //get properties
-    public Properties getProtoAlignment() {
-        return alignment;
-    }
+    public Properties getProtoAlignment() { return alignment; }
 
-    public OntModel getProtoOntology() {
-        return modifiedModel;
-    }
+    public OntModel getProtoOntology() { return modifiedModel; }
 
-    public String getNamespace() {
-        return modifiedOntologyNS;
-    }
+    public String getNamespace() { return modifiedOntologyNS; }
 
-    public String getBase() {
-        return initOntologyNS;
-    }
+    public String getBase() { return initOntologyNS; }
 
     // -------------------------
     // Utility (string) functions
@@ -226,6 +215,8 @@ public abstract class BasicAlterator implements Alterator {
         //classHierarchy.printClassHierarchy();
     }
 
+    // JE: this is usually not efficient, since these lists will likely be used for iterating
+
     //gets the Ontology classes
     @SuppressWarnings("unchecked")
     public List<OntClass> getOntologyClasses () {
@@ -265,64 +256,28 @@ public abstract class BasicAlterator implements Alterator {
     //changes the unionOf, intersectionOf
     public OntModel changeDomainRange ( HashMap<String, String> uris ) {
         OntModel newModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);//create new Model
-        boolean isSubj, isObj, isPred;
-        String subjectNameSpace, subjectLocalName;
-        String objectNameSpace, objectLocalName;
-        String predicateNameSpace, predicateLocalName;
         
         //iterate and modify the identifiers
         for ( Statement stm : modifiedModel.listStatements().toList() ) {
             Resource subject   = stm.getSubject();                              //the subject
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
-            Resource subj = null;
-            Property pred = null;
-            Resource obj  = null;
-            isSubj = isObj = isPred = false;
 
             //if the class appears as the subject of a proposition
-            if ( subject.getURI() != null ) 
-            if ( uris.containsKey( subject.getURI() ) ) {
-                isSubj = true;
-                subj = newModel.createResource( uris.get( subject.getURI() ) );
+            if ( ( subject.getURI() != null ) && ( uris.containsKey( subject.getURI() ) ) ) {
+                subject = newModel.createResource( uris.get( subject.getURI() ) );
             }
             
             //if appears as the predicate - never
-            if ( predicate.getURI() != null )
-            if ( uris.containsKey( predicate.getURI() ) ) {
-                isPred = true;
-                pred = newModel.createProperty( uris.get( predicate.getURI() ) );
+	    if ( ( predicate.getURI() != null ) && ( uris.containsKey( predicate.getURI() ) ) ) {
+                predicate = newModel.createProperty( uris.get( predicate.getURI() ) );
             }
-
             //if appears as the object of the statement
-             if ( object.canAs( Resource.class ) )
-                if ( object.isURIResource() ) {
-                    if ( object.asResource().getURI() != null )
-                        if ( uris.containsKey( object.asResource().getURI() ) ) {
-                            isObj = true;
-                            obj = newModel.createResource( uris.get( object.asResource().getURI() ) );
-                        }
-                    }
-
-            if ( isSubj ) {
-                if ( isPred ) {
-                    if ( isObj )    newModel.add( subj, pred, obj );
-                    else            newModel.add( subj, pred, object );
-                }
-                else {
-                    if ( isObj )    newModel.add( subj, predicate, obj );
-                    else            newModel.add( subj, predicate, object );
-                }
-            } else {
-                if ( isPred ) {
-                    if ( isObj )    newModel.add( subject, pred, obj );
-                    else            newModel.add( subject, pred, object );
-                }
-                else {
-                    if ( isObj )    newModel.add( subject, predicate, obj );
-                    else            newModel.add( subject, predicate, object );
-                }
-            }
+	    if ( ( object.canAs( Resource.class ) ) && ( object.isURIResource() ) 
+		 && ( object.asResource().getURI() != null ) && ( uris.containsKey( object.asResource().getURI() ) ) ) {
+		object = newModel.createResource( uris.get( object.asResource().getURI() ) );
+	    }
+            newModel.add( subject, predicate, object );
         }       
         return newModel;
     }
@@ -330,26 +285,21 @@ public abstract class BasicAlterator implements Alterator {
     //check if the removed class appears as AllValueFrom or SomeValueFrom in a restriction
     @SuppressWarnings("unchecked")
     public void checkClassesRestrictions ( OntClass childClass, OntClass parentClass )  {
-        Restriction restr = null;
+	String uri = childClass.getURI();
         for ( Iterator it = modifiedModel.listRestrictions(); it.hasNext(); ) {
-            restr = (Restriction)it.next();					//get the restriction
+            Restriction restr = (Restriction)it.next();					//get the restriction
             /* isAllValuesFromRestriction */
             if ( restr.isAllValuesFromRestriction() )  {
                 AllValuesFromRestriction av = restr.asAllValuesFromRestriction();
-                if ( av.getAllValuesFrom().getURI() != null )                   //if points to the childClass
-                    //if ( av.getNameSpace().equals( this.modifiedOntologyNS ) )
-                        if ( av.getAllValuesFrom().getURI().equals( childClass.getURI() ) )
-                            av.setAllValuesFrom( parentClass );                     //change to point to the parentClass
-				 }
-            /* isHasValueRestriction */
+                if ( uri.equals( av.getAllValuesFrom().getURI() ) )                   //if points to the childClass
+		    av.setAllValuesFrom( parentClass );                     //change to point to the parentClass
+	    }
+            /* SomeValueFromRestriction */
             if ( restr.isSomeValuesFromRestriction() ) {
                 SomeValuesFromRestriction sv = restr.asSomeValuesFromRestriction();
-                if ( sv.getSomeValuesFrom().getURI() != null )                  //if points to the childClass
-                    //if ( sv.getNameSpace().equals( this.modifiedOntologyNS ) )
-                        if ( sv.getSomeValuesFrom().getURI().equals( childClass.getURI() ) )
-                            sv.setSomeValuesFrom( parentClass );                    //change to point to the parentClass
+                if ( uri.equals( sv.getSomeValuesFrom().getURI() ) )                  //if points to the childClass
+		    sv.setSomeValuesFrom( parentClass );                    //change to point to the parentClass
             }
-
         }
     }
 
@@ -363,8 +313,8 @@ public abstract class BasicAlterator implements Alterator {
         parentClass = this.classHierarchy.removeClass( modifiedModel, cls );//get the parent of the class
 
         for (Iterator it1 = cls.listSubClasses(); it1.hasNext(); ) {            //build the list of subclasses
-            OntClass subCls = (OntClass)it1.next();				//because we can't change the
-            subClasses.add( subCls );						//model while we are iterating
+	    //because we can't change the
+            subClasses.add( (OntClass)it1.next() );						//model while we are iterating
         }
 
         if ( parentClass != thing )						//now we change the superclass of classes
@@ -395,8 +345,9 @@ public abstract class BasicAlterator implements Alterator {
     }
 
     public void relocateTest( String base1, String base2 ) {
-        extractedAlignment  = extractAlignment( base1, base2 );
-	modifiedModel = changeNamespace( base2 );
+        extractedAlignment = extractAlignment( base1, base2 );
+	modifiedModel = changeNamespace2( base2 );
+	modifiedOntologyNS = base2;
     }
 
     @SuppressWarnings("unchecked")
@@ -444,65 +395,110 @@ public abstract class BasicAlterator implements Alterator {
 
     /**
      * Modifies the namespace of the generated ontology
+     * This is the initial implementation.
+     * However... it has some problem with Jena treating fragments (containing numbers and / in them).
      */
-    // It may be in fact faster to output in a String and to modify namespaces on the fly
-    // To be tested.
     public OntModel changeNamespace ( String ns ) {
-        boolean isSubj, isPred, isObj;
-
-        OntModel newModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );//create new Model
+        OntModel newModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM ); //create new Model
 
         //iterate through all the statements and change the namespace
         for ( Statement stm : modifiedModel.listStatements().toList() ) {
             Resource subject   = stm.getSubject();                              //the subject
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
-            
-            Resource subj = null;
-            Property pred = null;
-            Resource obj  = null;
-
-            isPred = isSubj = isObj = false;
 
             if ( ( subject.getLocalName() != null ) && ( !subject.isLiteral() )
 		 && ( subject.getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		subj = newModel.createResource( ns + subject.getLocalName() );
-		isSubj = true;
+		subject = newModel.createResource( ns + subject.getLocalName() );
 	    }
             if ( !object.isLiteral() && ( object.canAs( Resource.class ) ) && ( object.isURIResource() )
 		 && ( object.asResource().getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		obj = newModel.createResource( ns + object.asResource().getLocalName() );
-		isObj = true;
+		object = newModel.createResource( ns + object.asResource().getLocalName() );
 	    }
             if ( !predicate.isLiteral() && ( predicate.getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		pred = newModel.createProperty( ns + predicate.getLocalName() );
-		isPred = true;
+		predicate = newModel.createProperty( ns + predicate.getLocalName() );
 	    }
-            if ( isSubj ) {
-                if ( isPred ) {
-                    if ( isObj )
-                        newModel.add( subj, pred, obj );
-                    else
-                        newModel.add(subj, pred, object);
-                } else if ( isObj )
-		    newModel.add( subj, predicate, obj );
-		else
-		    newModel.add( subj, predicate, object );
-            } else if ( isPred ) {
-		if ( isObj ) newModel.add( subject, pred, obj );
-		else newModel.add( subject, pred, object );
-	    } else if ( isObj ) newModel.add( subject, predicate, obj );
-	    else newModel.add( subject, predicate, object );
+	    newModel.add( subject, predicate, object );
 	}
 
-        //rename the namespace of owl:Ontology
-        List<Ontology> ontos = newModel.listOntologies().toList();
-        for ( Ontology o : ontos ) {
-            ResourceUtils.renameResource( o, ns );
-        }
-
+	/*
+	  Ontology onto = newModel.getOntology( modifiedOntologyNS );
+	if ( onto == null ) { // Ugly but efficient
+	    for ( Ontology o : newModel.listOntologies().toList() ) {
+		onto = o;
+	    }
+	}
+	ResourceUtils.renameResource( onto, ns );
+	*/
+	renameOntology( newModel, modifiedOntologyNS, ns );
         return newModel;
     }
 
+    /**
+     * JE: starting an attempt to do the relocation through String reading and writing:
+     * The ideal case is that in the generated files, the namespace appears exactly twice:
+     * in xmlns and in xml:base.
+     * But it depends on the actual seed.
+     * Two versions would be possible:
+     * OntModel.write( OutputStream out ) / OntModel.write( Writer writer ) 
+     * new Model().read( InputStream in, String base ) / new Model().read(Reader reader, String base)
+     * So far this is less efficient (and less correct) than the modifications above
+     * However, it solves a problem that has been observed in Jena:
+     * Jena does not like to have fragment identividers containing numbers! (and other combinations)
+     */
+
+    // At the moment, this is slower... and likely to be wrong...
+    // Why would it be wrong? It is however strange...
+    public OntModel changeNamespace2( String base2 ) {
+	OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+	try {
+	    //Charset defaultCharset = Charset.forName("UTF8");
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    //StringWriter sout = new StringWriter();
+	    RDFWriter writer = modifiedModel.getWriter("RDF/XML-ABBREV");
+	    writer.setProperty( "showXmlDeclaration","true" );
+	    writer.setProperty( "relativeURIs", "" );//faster 26.6 -> 26.03 (?)
+	    // -------- critical section
+	    // I am curious: isn't it possible to set new ns here? Apparently NO
+	    writer.setProperty( "xmlbase", modifiedOntologyNS );
+	    modifiedModel.setNsPrefix( "", modifiedOntologyNS );
+	    renameOntology( modifiedModel, modifiedOntologyNS, modifiedOntologyNS );
+	    // --------
+	    writer.write( modifiedModel.getBaseModel(), out, "");
+	    //writer.write( modifiedModel.getBaseModel(), sout, "");
+	    String serial = out.toString( "UTF8" );
+	    //StringBuffer serial = sout.getBuffer();
+	    // Can be printed right away
+	    String sout = serial.replace( modifiedOntologyNS, base2 ); // Does not work well with StringBuffer
+	    // JE: This part below is unnecessary if we just want to print the result and close the story
+	    // But suppressing it makes problems even in random...
+	    // Using the read allocate as much as before
+	    //InputStream in = null; from the string
+	    ByteArrayInputStream in = new ByteArrayInputStream( sout.getBytes("UTF8") );
+	    model.read( in, null );
+	} catch ( Exception ex ) { //UnsupportedEncodingException;
+	    ex.printStackTrace(); 
+	}
+	return model;
+    }
+
+    /**
+     * Rename the ontology, just in case it does not have the same URI as its content...
+     * This happens
+     * oldURI should be useless
+     */
+    public void renameOntology( OntModel model, String oldURI, String newURI ) {
+	Ontology onto = model.getOntology( oldURI );
+	if ( onto == null ) { // Ugly but efficient
+	    for ( Ontology o : model.listOntologies().toList() ) {
+		onto = o; break;
+	    }
+	}
+	if ( onto == null ) {
+	    model.createOntology( newURI );
+	} else {
+	    ResourceUtils.renameResource( onto, newURI );
+	}
+    }
 
 }
