@@ -6,8 +6,6 @@
 <!ENTITY proton "http://proton.semanticweb.org/">
 ]>
 
-<!-- JE2010: With the "#" in the end, this is parsed (by the RDF parser...)
-    without it, this is not! -->
 <rdf:RDF xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment#" 
 	 xml:base="http://oms.omwg.org/wine-vin/"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
