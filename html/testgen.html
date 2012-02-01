@@ -1,0 +1,184 @@
+<html>
+<head>
+<title>Alignment API: test generation framework</title>
+<link rel="stylesheet" type="text/css" href="base.css" />
+<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body bgcollor="#ffffff">
+
+<h1  class="titre">Alignment API: test generation framework</h1>
+
+<p>The Alignment API implementation offers facilities to
+  automatically generate data test sets that can be used for
+  evaluating alignments.</p>
+<p>These facilities works only on OWL ontologies and are dependent on
+  the Jena API (which is included in the API lib directory).</p>
+<p>It allows for generating altered ontologies from a seed ontology
+  and generating the reference alignment between the two ontologies).</p>
+
+<h2>Using predefined alterators</h2>
+
+<p>
+Alterators are simple classes, implementing the <tt>Alterator</tt> interface
+</p>
+
+<p>
+The available predefined alterators are:
+<dl>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+</dl>
+</p>
+
+<h3>Benchmark generator</h3>
+
+<p>
+The BenchmarkGenerator class is an example of a whole test set
+defined at once. 
+It combines various alterators in a specified way.
+This can be applied to any seed ontology (that Jena
+is able to parse).
+It can be invoked from the command line through:
+<pre>
+$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -m generateBenchmark -u outputurl -o outputdir -i seedontology
+</pre>
+</p>
+
+<h3>Designing a whole test set</h3>
+
+<p>
+Designing a whole test set can be achived as it is done for
+Benchmarks, by instantiating the <tt>TestSet</tt> class and creating
+a hierarchy of tests (each one built from another; but this can be
+achieved by having all tests generated from the init ontology).
+</p>
+
+<h3>Adaptive benchmark generator</h3>
+
+<p>Not available yet.</p>
+
+<h3>Hidden ontology generator</h3>
+
+<p>Not available yet.</p>
+
+<h2>Ontology network alterators</h2>
+
+<h2>Creating a simple test</h2>
+
+
+<h2>Extending the test generation framework</h2>
+
+<p>The test framework is based on the notion of Alterator instances of
+  the <tt>fr.inrialpes.exmo.align.gen.Alterator</tt>. An
+  alterator, takes as input an ontology (Jena <tt>OntModel</tt>) and an
+  alignment (<tt>Alignment</tt>) and generates an altered ontology and
+  alignment.</p>
+<p>
+So its interface is :
+
+
+/**
+ * An abstract test generator which takes as input an ontology and an
+ * alignment between this ontology and another one and transform the
+ * ontology and the alignment accordingly to a type of alteration.
+ *
+ * It follows a particular lifecycle
+ */
+public interface Alterator {
+
+    /**
+     * It is created either:
+     * - from a seed ontology and generate the alignment between this
+     *   ontology itself
+     * - from a previous alterator from which it will take the output
+     *   ontology and alignment as input.
+     */
+    //public Alterator( Alterator om );
+
+    /**
+     * the namespace of the input ontology
+     */
+    public String getNamespace();
+    /**
+     * the namespace of the source ontology in the input alignment
+     */
+    public String getBase();
+
+    /**
+     * modify applies the alteration to the input (the results are kept in 
+     * internal structures.
+     */
+    public Alterator modify( Properties params );
+
+    // Temporary
+    /**
+     * getProtoAlignment, getProtoOntology, getHierarchy
+     * are used for accessing these internal structure at creation time.
+     */
+    public Properties getProtoAlignment();
+    public OntModel getProtoOntology();
+    public ClassHierarchy getHierarchy();
+
+    /**
+     * Modifies the namespaces of source and target ontologies
+     * (for the main purpose of outputing them)
+     */
+    public void relocateTest( String namespace1, String namespace2 );
+    public void relocateTest( String namespace2 );
+
+    /**
+     * Returns the altered Alignment and Ontology in output form
+     */
+    public Alignment getAlignment();
+    public OntModel getModifiedOntology();
+
+</p>
+<p>
+Most of the functions of alterators are available in
+the <tt>BasicAlterator</tt>, so that creating a new alterator requires
+only to write the <tt>modify( Properties )</tt> method if it extends 
+<tt>BasicAlterator</tt>.
+</p>
+
+<address>
+<small>
+<hr />
+<center>http://alignapi.gforge.inria.fr/testgen.html</center>
+<hr />
+$Id$
+</small>
+</address>
+</body>
+</html>
