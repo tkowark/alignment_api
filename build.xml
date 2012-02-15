@@ -45,7 +45,7 @@
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi20/owlapi-bin.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar align.jar ontowrap.jar procalign.jar"/>
   </target>
 
   <target name="versionnumber" depends="init">
