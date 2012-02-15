@@ -727,13 +727,13 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutputln("<"+SyntaxElement.TRENT1.print(DEF)+">");
 	increaseIndent();
-	((ValueExpression)(transf.getObject1())).accept( this );
+	transf.getObject1().accept( this );
 	decreaseIndent();
 	writer.print(NL);
 	indentedOutputln("</"+SyntaxElement.TRENT1.print(DEF)+">");
 	indentedOutputln("<"+SyntaxElement.TRENT2.print(DEF)+">");
 	increaseIndent();
-	((ValueExpression)(transf.getObject2())).accept( this );
+	transf.getObject2().accept( this );
 	decreaseIndent();
 	writer.print(NL);
 	indentedOutputln("</"+SyntaxElement.TRENT2.print(DEF)+">");

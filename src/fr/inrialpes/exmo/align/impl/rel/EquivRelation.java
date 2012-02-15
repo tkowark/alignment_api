@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004, 2008, 2011
+ * Copyright (C) INRIA, 2004, 2008, 2011-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,7 @@ import fr.inrialpes.exmo.align.impl.BasicRelation;
 public class EquivRelation extends BasicRelation {
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException {
-	visitor.visit( (EquivRelation)this );
+	visitor.visit( this );
     }
 
     static final String prettyLabel = "=";
