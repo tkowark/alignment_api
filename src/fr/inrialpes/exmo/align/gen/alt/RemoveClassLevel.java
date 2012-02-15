@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -42,17 +42,12 @@ public class RemoveClassLevel extends BasicAlterator {
 	if ( p == null ) return null;
 	int level = Integer.parseInt( p );
         HashMap<String, String> uris = new HashMap<String, String>();
-        String parentURI = "";
         //if ( debug ) System.err.println( "Level " + level );
-        /*	if ( level == 1 )						//except classes from level 1
-         return;	*/
-        List<OntClass> classes = new ArrayList<OntClass>();
-        buildClassHierarchy();							//check if the class hierarchy is built
-        classes = this.classHierarchy.getClassesFromLevel(modifiedModel, level);
-        for ( int i=0; i<classes.size(); i++ ) {                                //remove the classes from the hierarchy
-            parentURI = removeClass ( classes.get(i) );
-            uris.put(classes.get(i).getURI(), parentURI);
-        }
+        buildClassHierarchy();							//build the class hierarchy if necessary
+	for ( OntClass cl : classHierarchy.getClassesFromLevel( modifiedModel, level ) ) {                                //remove the classes from the hierarchy
+            String parentURI = removeClass( cl );
+            uris.put( cl.getURI(), parentURI );
+	}
         //checks if the class appears like unionOf .. and replaces its appearence with the superclass
         modifiedModel = changeDomainRange( uris );
 	return this; // useless

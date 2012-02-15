@@ -35,6 +35,7 @@ public class AlteratorFactory {
     private static Map<String,String> alterators = null;
 
     public static Alterator newInstance( String id, Alterator om ) {
+	//System.err.println( ">>>>>>>> "+id );
 	if ( alterators == null ) init();
 	String classname = alterators.get( id );
 	Alterator alt = null;

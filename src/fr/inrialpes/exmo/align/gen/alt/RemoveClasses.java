@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -45,22 +45,21 @@ public class RemoveClasses extends BasicAlterator {
         List<OntClass> removedClasses = new ArrayList<OntClass>();
         List<String> cl = new ArrayList<String>();
         HashMap<String, String> uris = new HashMap<String, String>();           //the HashMap of strings
-        String parentURI = "";
         int nbClasses = classes.size();						//number of classes
-        buildClassHierarchy();							//check if the class hierarchy is built
+        buildClassHierarchy();							//build the class hierarchy if necessary
         int toBeRemoved =  Math.round(percentage*nbClasses);			//the number of classes to be removed
 
         //build the list of classes to be removed
-        int [] n = this.randNumbers(nbClasses, toBeRemoved);
+        int [] n = this.randNumbers( nbClasses, toBeRemoved );
         for ( int i=0; i<toBeRemoved; i++ ) {
             OntClass cls = classes.get(n[i]);
             removedClasses.add( cls );
-            cl.add( cls.getURI() );                                             //builds the list of labels of classes to be removed
+            cl.add( getLocalName( cls.getURI() ) );                             //builds the list of labels of classes to be removed
         }
 
         for ( OntClass cls : removedClasses ) {					//remove the classes from the list
-            parentURI = removeClass (cls);
-            uris.put(cls.getURI(), parentURI);
+            String parentURI = removeClass( cls );
+            uris.put( cls.getURI(), parentURI );
         }
 
         //checks if the class appears like unionOf.. and replaces its appearence with the superclass

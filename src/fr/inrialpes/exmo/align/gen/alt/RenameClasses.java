@@ -40,7 +40,7 @@ public class RenameClasses extends RenameThings {
 	String p = params.getProperty( ParametersIds.RENAME_CLASSES );
 	if ( p == null ) return null;
 	float percentage = Float.parseFloat( p );
-	modifiedModel = renameResource ( false, true, percentage, true, false, false, 0);
+	modifiedModel = renameResource( false, true, percentage, true, false, false, 0 );
 	return this; // useless
     };
 

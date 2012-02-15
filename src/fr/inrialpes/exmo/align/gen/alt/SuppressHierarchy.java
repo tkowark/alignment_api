@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -51,26 +51,22 @@ public class SuppressHierarchy extends BasicAlterator {
     // flatten level
     public void noHierarchy ( int level ) {
         if ( level == 1 ) return;
-        int size;
-        boolean active = false;
         ArrayList<OntClass> levelClasses = new ArrayList<OntClass>();		//the list of classes from that level
         ArrayList<OntClass> parentLevelClasses = new ArrayList<OntClass>();	//the list of parent of the child classes from that level
         ArrayList<OntClass> superLevelClasses = new ArrayList<OntClass>();	//the list of parent of the parent classes from that level
         buildClassHierarchy();                                                  //check if the class hierarchy is built
-        active = this.classHierarchy.flattenClassHierarchy( modifiedModel, level, levelClasses, parentLevelClasses, superLevelClasses);
-        size = levelClasses.size();
+        classHierarchy.flattenClassHierarchy( modifiedModel, level, levelClasses, parentLevelClasses, superLevelClasses);
+        int size = levelClasses.size();
 
         for ( int i=0; i<size; i++ ) {
             OntClass childClass = levelClasses.get( i );			//child class
             OntClass parentClass = parentLevelClasses.get( i );                 //parent class
             //all the classes are subclasses of owl: Thing
-            if (  active ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
-               OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
+	    OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
+            if ( superClass != null ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
                childClass.addSuperClass( superClass );
-               parentClass.removeSubClass( childClass );
-            } else {
-                parentClass.removeSubClass( childClass );
             }
+	    parentClass.removeSubClass( childClass );
         }
     }
 

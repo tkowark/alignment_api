@@ -163,6 +163,32 @@ public abstract class BasicAlterator implements Alterator {
     public String getBase() { return initOntologyNS; }
 
     // -------------------------
+    // Utility (URI) functions
+    // This is a roundabout for a Jena but which is not able to 
+    // correctly get the local name if it contains non alphabetical characters
+
+    public static String getLocalName( String uri ) {
+	if ( uri == null ) return null;
+	int index = uri.lastIndexOf("#");
+	if ( index == -1 ) {
+	    index = uri.lastIndexOf("/");
+	    return uri.substring( index+1 );
+	} else {
+	    return uri.substring( index+1 );
+	}
+    }
+
+    public static String getNameSpace( String uri ) {
+	int index = uri.lastIndexOf("#");
+	if ( index == -1 ) {
+	    index = uri.lastIndexOf("/");
+		return uri.substring( 0, index+1 );
+	} else {
+	    return uri.substring( 0, index+1 );
+	}
+    }
+
+    // -------------------------
     // Utility (string) functions
 
     //generates a random string with the length "length"
@@ -219,11 +245,12 @@ public abstract class BasicAlterator implements Alterator {
 
     //gets the Ontology classes
     @SuppressWarnings("unchecked")
-    public List<OntClass> getOntologyClasses () {
+    public List<OntClass> getOntologyClasses() {
         List<OntClass> classes = new ArrayList<OntClass>();
         for ( Iterator it = modifiedModel.listNamedClasses(); it.hasNext(); ) {
             OntClass aux = (OntClass)it.next();
-            if ( aux.getNameSpace().equals( modifiedOntologyNS ) ) {
+	    // JE: why not startsWith ?
+            if ( getNameSpace( aux.getURI() ).equals( modifiedOntologyNS ) ) {
                 classes.add( aux );
             }
         }
@@ -232,11 +259,12 @@ public abstract class BasicAlterator implements Alterator {
 
     //gets the Ontology properties
     @SuppressWarnings("unchecked")
-    public List<OntProperty> getOntologyProperties () {
+    public List<OntProperty> getOntologyProperties() {
         List<OntProperty> properties = new ArrayList<OntProperty>();
         for ( Iterator it = modifiedModel.listAllOntProperties(); it.hasNext(); ) {
             OntProperty prop = (OntProperty)it.next();
-            if ( prop.getNameSpace().equals( modifiedOntologyNS ) )
+	    // JE: why not startsWith ?
+            if ( getNameSpace( prop.getURI() ).equals( modifiedOntologyNS ) )
                 properties.add( prop );
         }
         return properties;
@@ -305,25 +333,24 @@ public abstract class BasicAlterator implements Alterator {
 
     //removes a class, returns the uri of his parent
     @SuppressWarnings("unchecked")
-    public String removeClass ( OntClass cls ) {
-        OntClass parentClass;
+    public String removeClass( OntClass cls ) {
         ArrayList<OntClass> subClasses = new ArrayList<OntClass>();		//the list of all the subclasses of the class
         OntClass thing = modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
-        buildClassHierarchy();							//check if the class hierarchy is built
-        parentClass = this.classHierarchy.removeClass( modifiedModel, cls );//get the parent of the class
+        buildClassHierarchy();							//build the class hierarchy if necessary
+        OntClass parentClass = classHierarchy.removeClass( modifiedModel, cls );//get the parent of the class
 
-        for (Iterator it1 = cls.listSubClasses(); it1.hasNext(); ) {            //build the list of subclasses
+        for (Iterator it = cls.listSubClasses(); it.hasNext(); ) {            //build the list of subclasses
 	    //because we can't change the
-            subClasses.add( (OntClass)it1.next() );						//model while we are iterating
+            subClasses.add( (OntClass)it.next() );						//model while we are iterating
         }
 
         if ( parentClass != thing )						//now we change the superclass of classes
             for (OntClass clss : subClasses) 					//new superclass =>
                 clss.setSuperClass( parentClass );				//=>the superclass of the node
 
-	    checkClassesRestrictions( cls, parentClass );
-            cls.remove();							//remove the class from the Ontology
-            return parentClass.getURI();
+	checkClassesRestrictions( cls, parentClass );
+	cls.remove();							//remove the class from the Ontology
+	return parentClass.getURI();
     }
 
     //compute the alignment after the modifications
@@ -346,7 +373,7 @@ public abstract class BasicAlterator implements Alterator {
 
     public void relocateTest( String base1, String base2 ) {
         extractedAlignment = extractAlignment( base1, base2 );
-	modifiedModel = changeNamespace2( base2 );
+	modifiedModel = changeNamespace( base2 );
 	modifiedOntologyNS = base2;
     }
 
@@ -358,32 +385,22 @@ public abstract class BasicAlterator implements Alterator {
 	//System.err.println( "-----> "+base1 );
 	//System.err.println( "-----> "+base2 );
         try {
-            URI onto1 = new URI( base1.substring(0, base1.lastIndexOf("#")) );
-            URI onto2 = new URI( base2.substring(0, base2.lastIndexOf("#")) );
+            URI onto1 = new URI( getNameSpace( base1 ) );
+            URI onto2 = new URI( getNameSpace( base2 ) );
 
             extractedAlignment.init( onto1, onto2 );
 	    // JE: not likely correct
             extractedAlignment.setFile1( onto1 );
             extractedAlignment.setFile2( onto2 );
             
-	    int endBase = initOntologyNS.lastIndexOf("#")+1;
- 	    int endBase2 = base2.lastIndexOf("#")+1;
- 	    Properties newProp = new Properties();
             for ( String key : alignment.stringPropertyNames() ) {
-                String value = alignment.getProperty(key);
-		String source = key;
- 		// JE: This is useless in principle...
- 		if ( !key.startsWith( base1 ) ) {
-		    String fragment = key.substring( endBase );
-		    source = base1+fragment;
+		if ( !key.equals("##") ) {
+		    String value = alignment.getProperty(key);
+		    //if ( debug ) System.err.println( "[" + source + "][" + target + "]" );
+		    extractedAlignment.addAlignCell( URI.create( base1+key ), URI.create( base2+value ) );
 		}
-		// JE: not efficient certainly
-		String target = base2+value.substring( value.lastIndexOf("#")+1 );
-                //if ( debug ) System.err.println( "[" + source + "][" + target + "]" );
-                extractedAlignment.addAlignCell( URI.create( source ), URI.create( target ) );
-		newProp.put( source, target );
             }
-	    alignment = newProp;
+	    alignment.setProperty( "##", base1 );
         } catch ( Exception ex ) {  
 	    ex.printStackTrace();
         }
@@ -407,29 +424,19 @@ public abstract class BasicAlterator implements Alterator {
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
 
-            if ( ( subject.getLocalName() != null ) && ( !subject.isLiteral() )
-		 && ( subject.getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		subject = newModel.createResource( ns + subject.getLocalName() );
+            if ( !subject.isLiteral() && ( subject.getURI() != null )
+		 && ( getNameSpace( subject.getURI() ).equals( modifiedOntologyNS ) ) ) {
+		subject = newModel.createResource( ns + getLocalName( subject.getURI() ) );
 	    }
             if ( !object.isLiteral() && ( object.canAs( Resource.class ) ) && ( object.isURIResource() )
-		 && ( object.asResource().getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		object = newModel.createResource( ns + object.asResource().getLocalName() );
+		 && ( getNameSpace( object.asResource().getURI() ).equals( modifiedOntologyNS ) ) ) {
+		object = newModel.createResource( ns + getLocalName( object.asResource().getURI() ) );
 	    }
-            if ( !predicate.isLiteral() && ( predicate.getNameSpace().equals( modifiedOntologyNS ) ) ) {
-		predicate = newModel.createProperty( ns + predicate.getLocalName() );
+            if ( !predicate.isLiteral() && ( getNameSpace( predicate.getURI() ).equals( modifiedOntologyNS ) ) ) {
+		predicate = newModel.createProperty( ns + getLocalName( predicate.getURI() ) );
 	    }
 	    newModel.add( subject, predicate, object );
 	}
-
-	/*
-	  Ontology onto = newModel.getOntology( modifiedOntologyNS );
-	if ( onto == null ) { // Ugly but efficient
-	    for ( Ontology o : newModel.listOntologies().toList() ) {
-		onto = o;
-	    }
-	}
-	ResourceUtils.renameResource( onto, ns );
-	*/
 	renameOntology( newModel, modifiedOntologyNS, ns );
         return newModel;
     }
@@ -442,13 +449,8 @@ public abstract class BasicAlterator implements Alterator {
      * Two versions would be possible:
      * OntModel.write( OutputStream out ) / OntModel.write( Writer writer ) 
      * new Model().read( InputStream in, String base ) / new Model().read(Reader reader, String base)
-     * So far this is less efficient (and less correct) than the modifications above
-     * However, it solves a problem that has been observed in Jena:
-     * Jena does not like to have fragment identividers containing numbers! (and other combinations)
+     * So far this is less efficient (and less elegant) than the modifications above
      */
-
-    // At the moment, this is slower... and likely to be wrong...
-    // Why would it be wrong? It is however strange...
     public OntModel changeNamespace2( String base2 ) {
 	OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
 	try {

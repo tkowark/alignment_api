@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -42,17 +42,17 @@ public class FlattenLevel extends BasicAlterator {
     public Alterator modify( Properties params ) {
 	String p = params.getProperty( ParametersIds.LEVEL_FLATTENED );
 	if ( p == null ) return null;
-	// Should be an float casted in int!!!
+	// Should be a float cast in int!!!
 	int level = (int)Float.parseFloat( p );
-        int size;
-        boolean active = false;
         ArrayList<OntClass> levelClasses = new ArrayList<OntClass>();		//the list of classes from that level
         ArrayList<OntClass> parentLevelClasses = new ArrayList<OntClass>();	//the list of parent of the child classes from that level
         ArrayList<OntClass> superLevelClasses = new ArrayList<OntClass>();	//the list of parent of the parent classes from that level
         if ( level == 1 ) return this; //no change
         buildClassHierarchy();                                                  //check if the class hierarchy is built
-        active = classHierarchy.flattenClassHierarchy( modifiedModel, level, levelClasses, parentLevelClasses, superLevelClasses);
-        size = levelClasses.size();
+	//classHierarchy.printClassHierarchy();
+        classHierarchy.flattenClassHierarchy( modifiedModel, level, levelClasses, parentLevelClasses, superLevelClasses);
+	//classHierarchy.printClassHierarchy();
+        final int size = levelClasses.size();
 
         /* remove duplicates from list */
         HashMap<String, ArrayList<Restriction>> restrictions = new HashMap<String, ArrayList<Restriction>>();
@@ -81,7 +81,7 @@ public class FlattenLevel extends BasicAlterator {
                         restr.add(r);
                     if ( r.isSomeValuesFromRestriction() )
                         restr.add(r);
-                    //if ( debug ) System.err.println( cls.getURI() + cls.getLocalName() );
+                    //if ( debug ) System.err.println( cls.getURI() );
                 }
             }
             //if ( debug ) System.err.println( restr.size() );
@@ -91,34 +91,19 @@ public class FlattenLevel extends BasicAlterator {
             }
             parentURI.add( parentClass.getURI() );
 
-            //all the classes are subclasses of owl: Thing
-            if (  active ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
-               OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
-
-               //if ( debug ) System.err.println("SuperClass class [" + superClass.getURI() + "]");
-               //if ( debug ) System.err.println("Parent class [" + parentClass.getURI() + "]");
-               //if ( debug ) System.err.println("Child class [" + childClass.getURI() + "]");
-               
-               if ( modifiedModel.containsResource(parentClass) ) {
-                   //to check if the class appears as unionOf, someValuesFrom, allValuesFrom ..
-                   unionOf.put(parentClass.getURI(), superClass.getURI());
-                   checkClassesRestrictions ( parentClass, superClass );
-                   parentClass.remove();
-               }
-               childClass.addSuperClass( superClass );
-               parentClass.removeSubClass( childClass );
-            } else {
-                OntClass superClass = modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
-
-                if ( modifiedModel.containsResource(parentClass) ) {
-                   //to check if the class appears as unionOf..
-                   unionOf.put(parentClass.getURI(), superClass.getURI());
-                   checkClassesRestrictions ( parentClass, superClass );
-                   parentClass.remove();
-               }
-
-                parentClass.removeSubClass( childClass );
-            }            
+	    OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
+	    if ( superClass == null ) superClass = modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
+	    //if ( debug ) System.err.println("SuperClass class [" + superClass.getURI() + "]");
+	    //if ( debug ) System.err.println("Parent class [" + parentClass.getURI() + "]");
+	    //if ( debug ) System.err.println("Child class [" + childClass.getURI() + "]");
+	    if ( modifiedModel.containsResource( parentClass ) ) {
+		//to check if the class appears as unionOf, someValuesFrom, allValuesFrom ..
+		unionOf.put( parentClass.getURI(), superClass.getURI() );
+		checkClassesRestrictions( parentClass, superClass );
+		parentClass.remove();
+	    }
+	    if ( superLevelClasses.get( i ) != null ) childClass.addSuperClass( superClass );
+	    parentClass.removeSubClass( childClass );
         }
 
         int i = 0;
@@ -138,10 +123,11 @@ public class FlattenLevel extends BasicAlterator {
 	int baselength = initOntologyNS.length(); // key.indexOf+baselenght == baselenght...
         for ( String key : alignment.stringPropertyNames() ) {
             String value = alignment.getProperty( key );
-            if ( parentURI.contains( modifiedOntologyNS + key.substring( key.indexOf( initOntologyNS ) + baselength) ) ) {        //this.classHierarchy.removeUri("Thing", key);
+            if ( parentURI.contains( modifiedOntologyNS + key ) ) {        //this.classHierarchy.removeUri("Thing", key);
                 alignment.remove( key );
             }
-            if ( parentURI.contains( modifiedOntologyNS + value.substring( key.indexOf( initOntologyNS ) + baselength ))) {    //this.classHierarchy.removeUri("Thing", value);
+		// This is strange
+            if ( parentURI.contains( modifiedOntologyNS + value ) ) {    //this.classHierarchy.removeUri("Thing", value);
                 alignment.remove( key );
             }
         }

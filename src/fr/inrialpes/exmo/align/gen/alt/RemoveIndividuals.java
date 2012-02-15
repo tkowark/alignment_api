@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -54,7 +54,7 @@ public class RemoveIndividuals extends BasicAlterator {
         for ( int i=0; i<toBeRemoved; i++ ) {
             Individual indiv = individuals.get(n[i]);				//remove the individual from the reference alignment
             individualsTo.add( indiv );
-            //alignment.remove( indiv.getURI() );
+            //alignment.remove( getLocalName( indiv.getURI() ) );
         }
 
         for ( Statement st : modifiedModel.listStatements().toList() ) {

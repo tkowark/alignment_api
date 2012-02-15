@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -57,7 +57,7 @@ public class AddClassLevel extends BasicAlterator {
 
         buildClassHierarchy();                                                  //check if the class hierarchy is built
         if ( level == 1 ) {                                                     //the parent of the class is Thing, we add the class and then the rest of the classes
-           classURI = this.getRandomString();
+           classURI = getRandomString();
            parentClass = modifiedModel.createClass( modifiedOntologyNS + classURI );//create a new class to the model
            classHierarchy.addClass( modifiedOntologyNS + classURI, "Thing" );  //add the node in the hierarchy of classes
            childClasses.add(parentClass);
@@ -68,7 +68,7 @@ public class AddClassLevel extends BasicAlterator {
             int toAdd = Math.round( percentage*nbClasses );                       // 1 can be replaced by percentage
 
             for ( OntClass pClass : parentClasses ) {
-                classURI = this.getRandomString();
+                classURI = getRandomString();
                 childClass = addClass (pClass, classURI );
                 pClass = childClass;
                 childClasses.add( childClass );
@@ -76,9 +76,8 @@ public class AddClassLevel extends BasicAlterator {
         }
 
         for ( OntClass pClass : childClasses ) {
-            classURI = pClass.getLocalName();
+	    classURI = "IS_" + getLocalName( pClass.getURI() );
             for ( int i=level+1; i<level + nbClasses; i++ ) {
-                classURI = "IS_" + classURI;
                 childClass = addClass (pClass, classURI);
                 pClass = childClass;
             }	//this.classHierarchy.printClassHierarchy();

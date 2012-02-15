@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -51,23 +51,31 @@ public class EmptyModification extends BasicAlterator {
     // Clearly here setDebug, setNamespace are important
 
     public Alterator modify( Properties params ) {
+	//System.err.println( "********************************************************************************************" );
 	relocateSource = ( params.getProperty( "copy101" ) != null );
 
 	if ( alignment == null ) {
 	    initOntologyNS = modifiedOntologyNS;
 
 	    alignment = new Properties();
+	    alignment.setProperty( "##", initOntologyNS );
 
+	    // Jena has a bug when URIs contain non alphabetical characters
+	    // in the localName, it does not split correctly ns/localname
 	    for ( OntClass cls : modifiedModel.listNamedClasses().toList() ) {
-		if ( cls.getNameSpace().equals( modifiedOntologyNS ) ) {
-		    String uri = cls.getURI();
-		    alignment.put( uri, uri ); //add them to the initial alignment
+		String uri = cls.getURI();
+		if ( uri.startsWith( modifiedOntologyNS ) ) {
+		    String ln = uri.substring( uri.lastIndexOf("#")+1 );
+		    //add them to the initial alignment
+		    if ( ln != null && !ln.equals("") )	alignment.put( ln, ln );
 		} 
 	    }
 	    for ( OntProperty prop : modifiedModel.listAllOntProperties().toList() ) {
-		if ( prop.getNameSpace().equals( modifiedOntologyNS ) ) {
-		    String uri = prop.getURI();
-		    alignment.put( uri, uri ); //add them to the initial alignment
+		String uri = prop.getURI();
+		if ( uri.startsWith( modifiedOntologyNS ) ) {
+		    String ln = uri.substring( uri.lastIndexOf("#")+1 );
+		    //add them to the initial alignment
+		    if ( ln != null && !ln.equals("") )	alignment.put( ln, ln );
 		}
 	    }
 	}
@@ -82,10 +90,7 @@ public class EmptyModification extends BasicAlterator {
     //the initial reference alignment
     public void initializeAlignment( Properties al ) {
         alignment = al;
-
-        Enumeration e = alignment.propertyNames();
-        String aux = (String)e.nextElement();
-        initOntologyNS = aux.substring(0, aux.lastIndexOf("#")+1);
+	initOntologyNS = al.getProperty( "##" );
     }
 
 }

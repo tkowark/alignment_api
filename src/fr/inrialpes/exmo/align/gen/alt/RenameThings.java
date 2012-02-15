@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -88,10 +88,9 @@ public abstract class RenameThings extends BasicAlterator {
 
         // build the list of all unrenamed properties from the model
         for ( OntProperty p : properties ) {
-	    String local = p.getLocalName();
-            String uri = initOntologyNS+local;
-            if ( alignment.containsKey( uri ) ) {
-                if ( alignment.getProperty( uri ).equals( modifiedOntologyNS+local ) )
+	    String local = getLocalName( p.getURI() );
+            if ( alignment.containsKey( local ) ) {
+                if ( alignment.getProperty( local ).equals( local ) )
                     notRenamedProperties.add( p );      //add the property to not renamed properties  
             }
         }
@@ -107,13 +106,13 @@ public abstract class RenameThings extends BasicAlterator {
 	for ( int i=0; i<toBeRenamed; i++ ) {
 		OntProperty p = notRenamedProperties.get(n[i]);
 		propertiesTo.add(p);
-                if ( p.getNameSpace().equals( modifiedOntologyNS ) ) 
-                    propertiesName.add( p.getLocalName() );
+                if ( getNameSpace( p.getURI() ).equals( modifiedOntologyNS ) ) 
+                    propertiesName.add( getLocalName( p.getURI() ) );
 	}
 
 	for ( OntProperty prop : propertiesTo ) {
-		String prefix = prop.getNameSpace();
-		String localName = prop.getLocalName();
+	    String prefix = getNameSpace( prop.getURI() );
+		String localName = getLocalName( prop.getURI() );
 		//has the same Namespace as the Ontology Namespace
                 if ( prefix.equals( modifiedOntologyNS ) ) {
                     if ( !propertiesIdentifiers.containsKey( localName ) ) {
@@ -122,15 +121,15 @@ public abstract class RenameThings extends BasicAlterator {
                             propertiesIdentifiers.put( localName , translateStrg );
                             replacePropertyLabel( prop.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
 
-                            if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
-                                alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + translateStrg );//the reference alignment
+                            if ( alignment.containsKey( localName ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( localName, translateStrg );//the reference alignment
                             }
                         } else if ( activeRandomString ) {                        //replace the URI with a random string
                             String newStrg = getRandomString();
                             propertiesIdentifiers.put( localName , newStrg );
                             replacePropertyLabel( prop.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
-                                alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + newStrg);//the reference alignment
+                            if ( alignment.containsKey( localName ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( localName, newStrg);//the reference alignment
                             }
                         } else if ( activeSynonym ) {
                             String synonym = parseString (localName, false, true);
@@ -139,27 +138,27 @@ public abstract class RenameThings extends BasicAlterator {
                             else  {
                                 propertiesIdentifiers.put( localName, synonym );
                                 replacePropertyLabel( prop.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {    //alignment.remove( prop.getURI() );
-                                    alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + synonym );	//the reference alignment
+                                if ( alignment.containsKey( localName ) ) {    //alignment.remove( prop.getURI() );
+                                    alignment.put( localName, synonym );	//the reference alignment
                                 }
                             }
                         } else if ( activeStringOperation == 1 ) {                //replace the URI with the UpperCase URI
                             propertiesIdentifiers.put( localName , localName.toUpperCase() );
                             replacePropertyLabel( prop.getURI(), localName.toUpperCase(), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
-                                alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + localName.toUpperCase() ); //the reference alignment
+                            if ( alignment.containsKey( localName ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( localName, localName.toUpperCase() ); //the reference alignment
                             }
                         } else if ( activeStringOperation == 2 ) {
                             propertiesIdentifiers.put( localName , localName.toLowerCase() );
                             replacePropertyLabel( prop.getURI(), localName.toLowerCase(), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {        // alignment.remove( prop.getURI() );
-                                alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + localName.toLowerCase() ); //the reference alignment
+                            if ( alignment.containsKey( localName ) ) {        // alignment.remove( prop.getURI() );
+                                alignment.put( localName, localName.toLowerCase() ); //the reference alignment
                             }
                         } else {
                             propertiesIdentifiers.put( localName,  localName + "PROPERTY" );
                             replacePropertyLabel( prop.getURI(), localName + "PROPERTY", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                            if ( alignment.containsKey( initOntologyNS + prop.getLocalName() ) ) {        //alignment.remove( prop.getURI() );
-                                alignment.put( initOntologyNS + prop.getLocalName() , initOntologyNS + localName + "PROPERTY" );
+                            if ( alignment.containsKey( localName ) ) {        //alignment.remove( prop.getURI() );
+                                alignment.put( localName, localName + "PROPERTY" );
                             }
                         }
                     }
@@ -192,12 +191,10 @@ public abstract class RenameThings extends BasicAlterator {
 
 	// alignment contains those classes which have already been renamed
         //builds the list of all unrenamed classes from the model
-	// JE: All these operations are very expensive (be better with either no namespace or alignment)
         for ( OntClass c : classes ) {
-	    String local = c.getLocalName();
-            String uri = initOntologyNS + local;
-            if ( alignment.containsKey( uri ) ) {
-                if ( alignment.getProperty( uri ).equals( modifiedOntologyNS+local ) )
+	    String local = getLocalName( c.getURI() );
+            if ( alignment.containsKey( local ) ) {
+                if ( alignment.getProperty( local ).equals( local ) )
                     notRenamedClasses.add( c ); //add the class to not renamed classes
             }
         }
@@ -220,8 +217,8 @@ public abstract class RenameThings extends BasicAlterator {
         for ( OntClass cls : classesTo ) {
             if ( !cls.isRestriction() ) {
                 if ( !cls.isAnon() ) {
-                    String prefix = cls.getNameSpace();
-                    String localName = cls.getLocalName();
+                    String prefix = getNameSpace( cls.getURI() );
+                    String localName = getLocalName( cls.getURI() );
 
                     //has the same Namespace as the Ontology Namespace
                     if ( prefix.equals( modifiedOntologyNS ) ) {
@@ -230,40 +227,40 @@ public abstract class RenameThings extends BasicAlterator {
                                 String translateStrg = parseString (localName, true, false);
                                 classesIdentifiers.put( localName , translateStrg );
                                 replaceClassLabel( cls.getURI(), translateStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + translateStrg);	//the reference alignment
+                                if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, translateStrg);	//the reference alignment
                                 }
                             } else if ( activeRandomString )	{		//replace the URI with a random string
                                 String newStrg = getRandomString();
                                 classesIdentifiers.put( localName , newStrg );
                                 replaceClassLabel( cls.getURI(), newStrg, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + newStrg );	//the reference alignment
+                                if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, newStrg );	//the reference alignment
                                 }
                             } else if ( activeSynonym ) {                         //replace the URI with a synonym
                                 String synonym = parseString (localName, false, true);
 				classesIdentifiers.put( localName, synonym );
 				replaceClassLabel( cls.getURI(), synonym, activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-				if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + synonym );//the reference alignment
+				if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, synonym );//the reference alignment
                                 }
                             } else if ( activeStringOperation == 1 ){             //replace the URI with the UpperCase URI
                                 classesIdentifiers.put( localName , localName.toUpperCase() );
                                 replaceClassLabel( cls.getURI(), localName.toUpperCase(), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + localName.toUpperCase() ); //the reference alignment
+                                if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, localName.toUpperCase() ); //the reference alignment
                                 }
                             } else if ( activeStringOperation == 2 ){             //replace the URI with the LowerCase URI
                                 classesIdentifiers.put( localName , localName.toLowerCase() );
                                 replaceClassLabel( cls.getURI(), localName.toLowerCase(), activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + localName.toLowerCase() );     //the reference alignment
+                                if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, localName.toLowerCase() );     //the reference alignment
                                 }
                             } else {
                                 classesIdentifiers.put( localName, localName + "CLASS" );
                                 replaceClassLabel( cls.getURI(), localName + "CLASS", activeRandomString, activeTranslateString, activeSynonym, activeStringOperation );
-                                if ( alignment.containsKey( initOntologyNS + cls.getLocalName() ) ) {     //alignment.remove( cls.getURI() );
-                                    alignment.put( initOntologyNS + cls.getLocalName() , initOntologyNS + localName + "CLASS" );
+                                if ( alignment.containsKey( localName ) ) {     //alignment.remove( cls.getURI() );
+                                    alignment.put( localName, localName + "CLASS" );
                                 }
                             }
                         }
@@ -277,7 +274,7 @@ public abstract class RenameThings extends BasicAlterator {
     //renames percentage properties and classes
     //activeProperties -> if true, then rename properties
     //activeClasses -> if true, then rename classes
-    public OntModel renameResource ( boolean activeProperties, boolean activeClasses, float percentage, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation) {
+    public OntModel renameResource( boolean activeProperties, boolean activeClasses, float percentage, boolean activeRandomString, boolean activeTranslateString, boolean activeSynonym, int activeStringOperation) {
         List<Statement> statements = null;                                      //the list of all statements
         HashMap<String, String> propertiesIdentifiers = null;                   //the HashMap of the properties identifiers
         HashMap<String, String> classesIdentifiers = null;                      //the HashMap of the classes identifiers
@@ -296,39 +293,31 @@ public abstract class RenameThings extends BasicAlterator {
             Property predicate = stm.getPredicate();                            //the predicate
             RDFNode object     = stm.getObject();                               //the object
 
-	    String subjectLocalName,   subjectNameSpace;
-	    String predicateLocalName, predicateNameSpace;
-	    String objectLocalName,    objectNameSpace;
-	    
 	    boolean isPred, isSubj, isObj;
-
-            Resource subj = null;
-            Property pred = null;
-            Resource obj  = null;
             isPred = isSubj = isObj = false;
 
+	    String subjuri = subject.getURI();
+	    String subjectLocalName = getLocalName( subjuri );
+            Resource subj = null;
             //if it is the subject of the statement
-            if ( subject.getLocalName() != null ) {
+            if ( subjectLocalName != null ) {
+	        String subjectNameSpace = getNameSpace( subjuri );
                 if ( activeProperties ) {
-                    if ( propertiesIdentifiers.containsKey( subject.getLocalName() ) ) {
+                    if ( propertiesIdentifiers.containsKey( subjectLocalName ) ) {
                         //if the namespace of the subject is the same as the namespace of the property identifier
-                        if ( subject.getNameSpace().equals( modifiedOntologyNS ) ) {//that we want to remove
+                        if ( subjectNameSpace.equals( modifiedOntologyNS ) ) {//that we want to remove
                             isSubj = true;
-                            subjectNameSpace = subject.getNameSpace();
-                            subjectLocalName = subject.getLocalName();
                             subj = newModel.createResource( subjectNameSpace + propertiesIdentifiers.get( subjectLocalName ) );
                         }
                     }
                 }
 
                 if ( activeClasses ) {
-                    if ( classesIdentifiers.containsKey( subject.getLocalName() ) ) {
+                    if ( classesIdentifiers.containsKey( subjectLocalName ) ) {
                         //if the namespace of the subject is the same as the namespace of the property identifier
                        //that we want to remove
-                        if (subject.getNameSpace().equals( modifiedOntologyNS ) ) {
+                        if ( subjectNameSpace.equals( modifiedOntologyNS ) ) {
                             isSubj = true;
-                            subjectNameSpace = subject.getNameSpace();
-                            subjectLocalName = subject.getLocalName();
                             subj = newModel.createResource( subjectNameSpace + classesIdentifiers.get( subjectLocalName ) );
                         }
                     }
@@ -336,55 +325,55 @@ public abstract class RenameThings extends BasicAlterator {
             }
 
             //if it is the predicate of the statement
+	    String preduri =  predicate.getURI();
+	    String predicateLocalName = getLocalName( preduri );
+	    String predicateNameSpace = getNameSpace( preduri );
+            Property pred = null;
             if ( activeProperties ) {
-                if ( propertiesIdentifiers.containsKey( predicate.getLocalName() ) ) {
+		    if ( propertiesIdentifiers.containsKey( predicateLocalName ) ) {
                     //if the namespace of the predicate is the same as the namespace of the property identifier
                     //that we want to remove
-                    if ( predicate.getNameSpace().equals( modifiedOntologyNS ) ) {
+                    if ( predicateNameSpace.equals( modifiedOntologyNS ) ) {
                         isPred = true;
-                        predicateNameSpace = predicate.getNameSpace();
-                        predicateLocalName = predicate.getLocalName();
                         pred = newModel.createProperty(predicateNameSpace, propertiesIdentifiers.get( predicateLocalName ) );
                     }
                 }
             }
 
             if ( activeClasses ) {
-                if ( classesIdentifiers.containsKey( predicate.getLocalName() ) ) {
+                if ( classesIdentifiers.containsKey( predicateLocalName ) ) {
                     //if the namespace of the predicate is the same as the namespace of the property identifier
                     //that we want to remove
-                    if ( predicate.getNameSpace().equals( modifiedOntologyNS ) ) {
+                    if ( predicateNameSpace.equals( modifiedOntologyNS ) ) {
                         isPred = true;
-                        predicateNameSpace = predicate.getNameSpace();
-                        predicateLocalName = predicate.getLocalName();
                         pred = newModel.createProperty(predicateNameSpace, classesIdentifiers.get( predicateLocalName ) );
                     }
                 }
             }
             
+            Resource obj  = null;
             //if it is the object of the statement
             if ( object.canAs( Resource.class ) )
                 if ( object.isURIResource() ) {
+		    String uri =  object.asResource().getURI();
+		    String objectLocalName = getLocalName( uri );
+		    String objectNameSpace = getNameSpace( uri );
                     if ( activeProperties ) {
-                        if ( propertiesIdentifiers.containsKey( object.asResource().getLocalName() ) ) {
+                        if ( propertiesIdentifiers.containsKey( objectLocalName ) ) {
                             //if the namespace of the object is the same as the namespace of the property identifier
                             //that we want to remove
-                            if ( object.asResource().getNameSpace().equals( modifiedOntologyNS ) ) {
+                            if ( objectNameSpace.equals( modifiedOntologyNS ) ) {
                                 isObj = true;
-                                objectNameSpace = object.asResource().getNameSpace();
-                                objectLocalName = object.asResource().getLocalName();
                                 obj = newModel.createResource(objectNameSpace + propertiesIdentifiers.get( objectLocalName ) );
                             }
                         }
                     }
 
                     if ( activeClasses ) {
-                        if ( classesIdentifiers.containsKey( object.asResource().getLocalName() ) ) {
+                        if ( classesIdentifiers.containsKey( objectLocalName ) ) {
                             //if the namespace of the object is the same as the namespace of the property identifier that we want to remove
-                            if ( object.asResource().getNameSpace().equals( modifiedOntologyNS ) ) {
+                            if ( objectNameSpace.equals( modifiedOntologyNS ) ) {
                                 isObj = true;
-                                objectNameSpace = object.asResource().getNameSpace();
-                                objectLocalName = object.asResource().getLocalName();
                                 obj = newModel.createResource(objectNameSpace + classesIdentifiers.get( objectLocalName ) );
                             }
                         }

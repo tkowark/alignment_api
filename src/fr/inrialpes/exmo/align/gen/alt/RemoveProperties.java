@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -67,7 +67,7 @@ public class RemoveProperties extends BasicAlterator {
         for ( int i=0; i<toBeRemoved; i++ ) {					//build the list of properties to be removed
             OntProperty property = properties.get( n[i] );
             propertiesToBeRemoved.add( property );
-            pr.add( property.getURI() );
+            pr.add( getLocalName( property.getURI() ) );
 
             //alignment.remove( p.getURI() );
 	    //get the restrictions of that property
@@ -115,16 +115,16 @@ public class RemoveProperties extends BasicAlterator {
             isSubj = isPred = isObj = false;
 
             if ( propertiesToBeRemoved.contains( subject ) )			//if appears as subject
-                if ( subject.getNameSpace().equals( modifiedOntologyNS ) )
+                if ( getNameSpace( subject.getURI() ).equals( modifiedOntologyNS ) )
                     isSubj = true;
 
             if ( propertiesToBeRemoved.contains( predicate ) )			//if appears as predicate
-                if ( predicate.getNameSpace().equals( modifiedOntologyNS ) )
+                if ( getNameSpace( predicate.getURI() ).equals( modifiedOntologyNS ) )
                     isPred = true;
 
             if ( object.canAs( Resource.class ) )				//if appears as object
                 if ( propertiesToBeRemoved.contains( object ) )
-                    if ( object.asResource().getNameSpace().equals( modifiedOntologyNS ) )
+                    if ( getNameSpace( object.asResource().getURI() ).equals( modifiedOntologyNS ) )
                         isObj = true;
 
             if ( isSubj || isPred || isObj )					//remove the statement in which the prop
