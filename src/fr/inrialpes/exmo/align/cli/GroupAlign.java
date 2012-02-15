@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, 2010-2011, INRIA
+ * Copyright (C) 2003-2008, 2010-2012, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * Modifications to the initial code base are copyright of their
@@ -231,23 +231,18 @@ public class GroupAlign {
 	int size = subdir.length;
 	for ( int i=0 ; i < size; i++ ) {
 	    if( subdir[i].isDirectory() ) {
-		try {
-		    // Align
-		    if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
-		    align( subdir[i] );
-		    // Unload the ontologies
-		    OntologyFactory.clear();
-		} catch (Exception e) { 
-		    if ( debug > 1 ) e.printStackTrace(); }
+		// Align
+		if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
+		align( subdir[i] );
 	    }
 	}
     }
 
-    public void align ( File dir ) throws Exception {
+    public void align ( File dir ) {
 	String prefix = null;
-	// toURI(). is not very good
 	AlignmentProcess result = null;
 	Alignment init = null;
+	PrintWriter writer = null;
 
 	if ( urlprefix != null ){
 	    prefix = urlprefix+"/"+dir.getName()+"/";
@@ -263,74 +258,81 @@ public class GroupAlign {
 	}
 	//System.err.println("Here it is "+prefix+" (end by /?)");
 
-	BasicConfigurator.configure();
-	if ( uri1 == null ) {uri1 = new URI(prefix+source);}
-	if (!source.equalsIgnoreCase("onto1.rdf") && !target.equalsIgnoreCase("onto1.rdf")){uri1 = new URI(prefix+source);}
-	URI uri2 = new URI(prefix+target);
-
-	if (debug > 1) System.err.println(" Handler set");
-	if (debug > 1) System.err.println(" URI1: "+uri1);
-	if (debug > 1) System.err.println(" URI2: "+uri2);
-
 	try {
-	    if (initName != null) {
-		AlignmentParser aparser = new AlignmentParser(debug-1);
-		init = aparser.parse( initName );
-		uri1 = init.getFile1();
-		uri2 = init.getFile2();
-		if (debug > 1) System.err.println(" Init parsed");
+	    BasicConfigurator.configure();
+	    if ( !source.equalsIgnoreCase("onto1.rdf") 
+		 && !target.equalsIgnoreCase("onto1.rdf") ) {
+		uri1 = new URI(prefix+source);
+	    } else if ( uri1 == null ) uri1 = new URI(prefix+source);
+	    URI uri2 = new URI(prefix+target);
+
+	    if (debug > 1) System.err.println(" Handler set");
+	    if (debug > 1) System.err.println(" URI1: "+uri1);
+	    if (debug > 1) System.err.println(" URI2: "+uri2);
+	    
+	    try {
+		if (initName != null) {
+		    AlignmentParser aparser = new AlignmentParser(debug-1);
+		    init = aparser.parse( initName );
+		    uri1 = init.getFile1();
+		    uri2 = init.getFile2();
+		    if (debug > 1) System.err.println(" Init parsed");
+		}
+
+		// Create alignment object
+		Object[] mparams = {};
+		Class[] cparams = {};
+		Class<?> alignmentClass = Class.forName(alignmentClassName);
+		java.lang.reflect.Constructor alignmentConstructor =
+		    alignmentClass.getConstructor(cparams);
+		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+		result.init( uri1, uri2 );
+	    } catch (Exception ex) {
+		System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
+		throw ex;
 	    }
 
-	    // Create alignment object
-	    Object[] mparams = {};
-	    Class[] cparams = {};
-	    Class<?> alignmentClass = Class.forName(alignmentClassName);
-	    java.lang.reflect.Constructor alignmentConstructor =
-		alignmentClass.getConstructor(cparams);
-	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-	    result.init( uri1, uri2 );
-	} catch (Exception ex) {
-	    System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
-	    throw ex;
+	    if (debug > 1) System.err.println(" Alignment structure created");
+
+	    // Compute alignment
+	    long time = System.currentTimeMillis();
+	    result.align(init, params); // add opts
+	    long newTime = System.currentTimeMillis();
+	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+	    
+	    if (debug > 1) System.err.println(" Alignment performed");
+	    
+	    // Set output file
+	    writer = new PrintWriter (
+                         new BufferedWriter(
+                             new OutputStreamWriter( 
+                                 new FileOutputStream(dir+File.separator+filename+".rdf"), "UTF-8" )), true);
+	    AlignmentVisitor renderer = null;
+
+	    try {
+		Object[] mparams = { (Object)writer };
+		Class[] cparams = { Class.forName("java.io.PrintWriter") };
+		java.lang.reflect.Constructor rendererConstructor =
+		    Class.forName(rendererClass).getConstructor(cparams);
+		renderer = (AlignmentVisitor)rendererConstructor.newInstance(mparams);
+	    } catch (Exception ex) {
+		System.err.println("Cannot create renderer "+rendererClass+"\n"+ ex.getMessage());
+		throw ex;
+	    }
+
+	    if (debug > 1) System.err.println(" Outputing result to "+dir+File.separator+filename+".rdf");
+	    // Output
+	    result.render( renderer);
+
+	    if (debug > 1) System.err.println(" Done..."+renderer+"\n");
+	} catch (Exception ex) { 
+	    if ( debug > 1 ) ex.printStackTrace(); 
+	} finally {
+	    // JE: This instruction is very important
+	    if ( writer != null ) writer.close();
+	    // Unload the ontologies
+	    try { OntologyFactory.clear(); } catch (Exception e) {};
 	}
-
-	if (debug > 1) System.err.println(" Alignment structure created");
-
-	// Compute alignment
-	long time = System.currentTimeMillis();
-	result.align(init, params); // add opts
-	long newTime = System.currentTimeMillis();
-	result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
-
-	if (debug > 1) System.err.println(" Alignment performed");
-
-	// Set output file
-	PrintWriter writer = new PrintWriter (
-			          new BufferedWriter(
-				       new OutputStreamWriter( 
-                                            new FileOutputStream(dir+File.separator+filename+".rdf"), "UTF-8" )), true);
-	AlignmentVisitor renderer = null;
-
-	try {
-	    Object[] mparams = { (Object)writer };
-	    Class[] cparams = { Class.forName("java.io.PrintWriter") };
-	    java.lang.reflect.Constructor rendererConstructor =
-		Class.forName(rendererClass).getConstructor(cparams);
-	    renderer = (AlignmentVisitor)rendererConstructor.newInstance(mparams);
-	} catch (Exception ex) {
-	    System.err.println("Cannot create renderer "+rendererClass+"\n"+ ex.getMessage());
-	    throw ex;
-	}
-
-	if (debug > 1) System.err.println(" Outputing result to "+dir+File.separator+filename+".rdf");
-	// Output
-	result.render( renderer);
-
-	if (debug > 1) System.err.println(" Done..."+renderer+"\n");
-	// It should be useful to unload ontologies
-
-	// JE: This instruction is very important
-	writer.close();
     }
 
     public void usage() {
