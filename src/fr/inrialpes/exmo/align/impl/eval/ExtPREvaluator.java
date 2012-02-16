@@ -404,11 +404,11 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      * This would require computing the transitive reduction of the superClass
      * relation which is currently returned by HeavyLoadedOntology.
      */
-    @SuppressWarnings("unchecked")
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    URI uri1 = ontology.getEntityURI( class1 );
 	    Set<?> bufferedSuperClasses = null;
+	    @SuppressWarnings("unchecked")
 	    Set<Object> superclasses = (Set<Object>)ontology.getSuperClasses( class2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    int foundlevel = 0;
@@ -444,6 +444,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	try {
 	    URI uri1 = ontology.getEntityURI( prop1 );
 	    Set<?> bufferedSuperProperties = null;
+	    @SuppressWarnings("unchecked")
 	    Set<Object> superproperties = (Set<Object>)ontology.getSuperProperties( prop2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    int foundlevel = 0;
