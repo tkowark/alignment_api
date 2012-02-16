@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -48,10 +48,10 @@ public class SKOSThesaurus extends BasicOntology<SKOSDataset> implements HeavyLo
 
     SKOSDataFactory factory;
 
-    private static HashSet NullSet = new HashSet();
+    private static HashSet<Object> NullSet = new HashSet<Object>();
 
     public SKOSThesaurus () {
-	NullSet = new HashSet();
+	NullSet = new HashSet<Object>();
     }
 
     public void setFactory( SKOSDataFactory df ){

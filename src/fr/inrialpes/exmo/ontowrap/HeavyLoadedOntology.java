@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010
+ * Copyright (C) INRIA, 2008, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,7 +35,7 @@ public interface HeavyLoadedOntology<O> extends LoadedOntology<O> {
     public boolean getCapabilities( int Direct, int Asserted, int Named ) throws OntowrapException;
 
     /* Class methods */
-    public <E >Set<E> getSubClasses( E c, int local, int asserted, int named );
+    public Set<? extends Object> getSubClasses( Object c, int local, int asserted, int named );
     public Set<? extends Object> getSuperClasses( Object c, int local, int asserted, int named ) throws OntowrapException;
     public Set<? extends Object> getProperties( Object c, int local, int asserted, int named ) throws OntowrapException;
     public Set<? extends Object> getDataProperties( Object c, int local, int asserted, int named ) throws OntowrapException;

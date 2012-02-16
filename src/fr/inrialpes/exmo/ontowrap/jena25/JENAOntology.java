@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008, 2010
+ * Copyright (C) INRIA, 2003-2008, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -315,8 +315,8 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 
     public Set<OntProperty> getObjectProperties(Object c, int local, int asserted, int named) {
 	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this) {
-	    protected boolean isFiltered(OntProperty obj) {
-		return super.isFiltered(obj) && !((OntProperty) obj).isObjectProperty();
+	    protected boolean isFiltered( OntProperty obj ) {
+		return super.isFiltered(obj) && !obj.isObjectProperty();
 	    }  
 	};
     }
@@ -328,7 +328,7 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 	return ((OntProperty) p).listRange().toSet();
     }
 
-    public  Set<? extends Object> getSubClasses(Object c, int local, int asserted, int named) {
+    public  Set<? extends OntClass> getSubClasses(Object c, int local, int asserted, int named) {
 	return ((OntClass) c).listSubClasses(asserted==OntologyFactory.DIRECT).toSet();
     }
 

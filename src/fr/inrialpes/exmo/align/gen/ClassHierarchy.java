@@ -32,6 +32,7 @@ import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.rdf.model.AnonId;
 
 //Java
 import java.util.List;
@@ -44,7 +45,7 @@ import java.util.Iterator;
 
 public class ClassHierarchy {
     private URITree root;							//the root of the tree
-    private Map m_anonIDs = new HashMap();
+    private Map<AnonId,String> m_anonIDs = new HashMap<AnonId,String>();
     private int m_anonCount = 0;
 
     public ClassHierarchy() {}
@@ -60,7 +61,7 @@ public class ClassHierarchy {
     }
 
     public void addClass( String childURI, String parentURI ) {
-        root.add( root, parentURI, childURI );       //we add the new childURI to the hierarchy
+        root.add( parentURI, childURI );       //we add the new childURI to the hierarchy
     }
 
     //updates the class hierarchy
@@ -71,15 +72,10 @@ public class ClassHierarchy {
     //returns the list of classes from level level
     public List<OntClass> getClassesFromLevel( OntModel model, int level ) {
         ArrayList<OntClass> classes = new ArrayList<OntClass>();
-	for ( URITree node : getNodesFromLevel(level) ) {
+	for ( URITree node : root.getNodesFromLevel( level ) ) {
             classes.add( model.getOntClass( node.getURI() ) );          //builds the list of classes
 	}
         return classes;
-    }
-
-    //get the nodes from a specific level
-    public List<URITree> getNodesFromLevel( int level ) {
-        return root.getNodesFromLevel( root, level);
     }
 
     //remove the URI of the class from the hierarchy
@@ -102,7 +98,7 @@ public class ClassHierarchy {
     //return a random class from the level - level
     public OntClass getRandomClassFromLevel( OntModel model, int level ) {
         Random rdm = new Random();
-        List<URITree> childrenNodes = getNodesFromLevel( level );		//get the list of nodes from the level level
+        List<URITree> childrenNodes = root.getNodesFromLevel( level );		//get the list of nodes from the level level
         int index = rdm.nextInt( childrenNodes.size() );			//get a random number between 0 and the number_of_classes_from_that_level
         return model.getOntClass( childrenNodes.get(index).getURI() );          //returns the class from the position that we have selected -> the random number
     }
@@ -110,7 +106,7 @@ public class ClassHierarchy {
     //modifies the class hierarchy after we have flattened it
     public void flattenClassHierarchy( OntModel model, int level, ArrayList<OntClass> childClasses,
                                         ArrayList<OntClass> parentClasses, ArrayList<OntClass> superLevelClasses) {
-        List<URITree> childrenNodes = getNodesFromLevel( level );
+        List<URITree> childrenNodes = root.getNodesFromLevel( level );
         for ( URITree childNode : childrenNodes ) {				//for each child class
             URITree parentNode = childNode.getParent();					//get the parent node
             URITree superNode = parentNode.getParent();					//get the parents of the parent node
@@ -151,11 +147,10 @@ public class ClassHierarchy {
             superNode.getChildrenList().remove( parentNode );			//remove it from the children list of parentNode
         } 
         //flattenHierarchy( childrenNodes );					//modify the links among the nodes from the class hierarchy
-        root.changeDepth ( root, level ); //change the depth
+        root.changeDepth( level ); //change the depth
     }
 
     //builds the class hierarchy
-    @SuppressWarnings("unchecked")
     public void buildClassHierarchy(OntModel model) {
         Iterator i =  model.listHierarchyRootClasses();
         root = new URITree( "Thing" );					//the root of the hierarchy is always owl:Thing
@@ -180,12 +175,12 @@ public class ClassHierarchy {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // JE: Strange unchecked certainly fixable
     public void getClass ( OntClass cls, List occurs, int depth ) {
         renderClassDescription( cls, depth );
 
-        if ( cls.canAs( OntClass.class )  &&  !occurs.contains( cls ) ) {	// recurse to the next level down
-            for ( Iterator it = cls.listSubClasses( true );  it.hasNext(); ) {
+        if ( cls.canAs( OntClass.class ) && !occurs.contains( cls ) ) {	// recurse to the next level down
+            for ( Iterator it = cls.listSubClasses( true ); it.hasNext(); ) {
                 OntClass sub = (OntClass)it.next();
                 occurs.add( cls );						// we push this expression on the occurs list before we recurse
                 getClass( sub, occurs, depth + 1 );
@@ -200,15 +195,14 @@ public class ClassHierarchy {
     public void printClassHierarchy() {
         System.out.println( "[--------------------]" );
         System.out.println( "The class hierarchy" );
-        root.printURITree( root );						//we print the tree
+        root.printURITree();						//we print the tree
         System.out.println( "The class hierachy" );
         System.out.println( "[---------------------]" );
     }
 
-    @SuppressWarnings("unchecked")
     public void renderClassDescription( OntClass c, int depth ) {
         if (c.isRestriction()) {
-            renderRestriction( (Restriction) c.as( Restriction.class ) );
+            renderRestriction( c.as( Restriction.class ) );
         }
         else {
             if ( !c.isAnon() ) {
@@ -226,14 +220,14 @@ public class ClassHierarchy {
 
                         //it the superclass is .../#Thing
                         if ( parentURI.contains( "Thing" ) )
-                            root.add( root, uri, "Thing");
+                            root.add( uri, "Thing");
                         else
-                            root.add( root, uri, parentURI);
+                            root.add( uri, parentURI);
                     }
                 }
 
                 if ( found == 0 ) 						//has no parent until now
-                    root.add( root, uri, "Thing");
+                    root.add( uri, "Thing");
             } else {
                 renderAnonymous( c, "class" );					//an anonymous class
             }
@@ -256,21 +250,12 @@ public class ClassHierarchy {
     }
 
     // Render an anonymous class or restriction
-    @SuppressWarnings("unchecked")
     protected void renderAnonymous( Resource anon, String name ) {
-        String anonID = (String) m_anonIDs.get( anon.getId() );
+        String anonID = m_anonIDs.get( anon.getId() );
         if (anonID == null) {
             anonID = "a-" + m_anonCount++;
             m_anonIDs.put( anon.getId(), anonID );
         }
     }
-
-    // Generate the indentation
-    protected void indent( int depth ) {
-        for (int i = 0;  i < depth; i++) {
-            System.out.print( "  " );
-        }
-    }
-
 }
 

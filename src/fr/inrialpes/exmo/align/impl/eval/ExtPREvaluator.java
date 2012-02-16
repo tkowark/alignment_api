@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2010
+ * Copyright (C) INRIA, 2004-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -153,7 +153,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	nbfound = align2.nbCells();
 
 	for ( Cell c1 : align1 ){
-	    Set<Cell> s2 = (Set<Cell>)align2.getAlignCells1( c1.getObject1() );
+	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
 	    try {
 		URI uri1 = onto2.getEntityURI( c1.getObject2() );
 		if( s2 != null ){

@@ -67,15 +67,17 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
 	similarity = false; // This is a distance
     };
 
-    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ) {
+    
+    @SuppressWarnings({"unchecked"})
+	    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ) {
 	// create the matrices and all structures
 	super.initialize( onto1, onto2, align );
 	try {
 	    if ( !(onto1 instanceof HeavyLoadedOntology) 
 		 || !(onto2 instanceof HeavyLoadedOntology) )
 		throw new AlignmentException( "InstanceBasedMatrixMeasure requires HeavyLoadedOntology");
-		HeavyLoadedOntology ontology1 = (HeavyLoadedOntology)onto1;
-		HeavyLoadedOntology ontology2 = (HeavyLoadedOntology)onto2;
+	    HeavyLoadedOntology ontology1 = (HeavyLoadedOntology)onto1;
+	    HeavyLoadedOntology ontology2 = (HeavyLoadedOntology)onto2;
 
 	    // Normalise class comparators (which instance belongs to which class)
 	    classinst1 = new Set[nbclass1];

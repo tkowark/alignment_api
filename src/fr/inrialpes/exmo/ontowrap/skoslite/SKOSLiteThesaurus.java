@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -148,24 +148,22 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
      * returns all sub concepts of given object c.
      * 
      */
-    @SuppressWarnings("unchecked")
-    public <E> Set<E> getSubClasses(E c, int local, int asserted, int named) {
-	HashSet<E> sub = new HashSet<E>(); 
+    public Set<? extends Object> getSubClasses(Object c, int local, int asserted, int named) {
+	HashSet<Object> sub = new HashSet<Object>(); 
 	//System.out.println(c);
 	StmtIterator it =ontoInf.listStatements(null,ontoInf.getProperty(SKOS_BROADERTRANSITIVE),(Resource) c);
-	while (it.hasNext()) {
+	while ( it.hasNext() ) {
 	    Statement st = it.next();
-	    sub.add((E)st.getSubject());
+	    sub.add( st.getSubject() );
 	}
 	it =ontoInf.listStatements((Resource) c,ontoInf.getProperty(SKOS_NARROWERTRANSITIVE),(RDFNode)null);
 	while (it.hasNext()) {
 	    Statement st = it.next();
-	    sub.add((E)st.getObject());
+	    sub.add( st.getObject() );
 	}
 	return sub;
     }
 
-   
     @Override
     public Set<? extends Object> getSuperClasses(Object c, int local, int asserted, int named) throws OntowrapException {
 	HashSet<Object> sub = new HashSet<Object>(); 

@@ -342,8 +342,8 @@ public class WGroupEval {
 	System.out.println("% Plots");
 	int k = 0;
 	for ( String m: listAlgo ) {
-	    double precision = (double)correctVect[k]/foundVect[k];
-	    double recall = (double)correctVect[k]/expected;
+	    double precision = correctVect[k]/foundVect[k];
+	    double recall = correctVect[k]/expected;
 	    double prec2 = precision*precision;
 	    double a = ((prec2-(recall*recall)+1)/2);
 	    double b = java.lang.Math.sqrt( prec2 - (a*a) );

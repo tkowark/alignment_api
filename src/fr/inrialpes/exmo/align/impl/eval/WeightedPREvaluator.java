@@ -1,7 +1,7 @@
 /*
  * $Id: WeightedPRecEvaluator.java 1494 2010-07-23 14:43:36Z euzenat $
  *
- * Copyright (C) INRIA, 2004-2011
+ * Copyright (C) INRIA, 2004-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -130,8 +130,8 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	// nbexpected is 0 [=> nbcorrect is 0] (r=1, p=0)
 	// precision+recall is 0 [= nbcorrect is 0]
 	// precision is 0 [= nbcorrect is 0]
-	if ( nbfound != 0 ) precision = (double) nbcorrect / (double) nbfound;
-	if ( nbexpected != 0 ) recall = (double) nbcorrect / (double) nbexpected;
+	if ( nbfound != 0 ) precision = nbcorrect / nbfound;
+	if ( nbexpected != 0 ) recall = nbcorrect / nbexpected;
 	return computeDerived();
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
