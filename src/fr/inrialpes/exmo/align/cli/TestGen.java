@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import fr.inrialpes.exmo.align.gen.TestGenerator;
 import fr.inrialpes.exmo.align.gen.BenchmarkGenerator;
+import fr.inrialpes.exmo.align.gen.DiscriminantGenerator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 /** 
@@ -60,6 +61,7 @@ public class TestGen {
     private int debug         = 0;
     public static String ARBITRARY_TEST = "arbitraryTest";                      //generate an arbitrary test
     public static String GENERATE_BENCHMARK = "generateBenchmark";              //generate the Benchmark dataset
+    public static String DISCRIMINANT_BENCHMARK = "disc";              //generate the Benchmark dataset
 
     public TestGen() {
 	fileName = "onto.rdf";
@@ -145,6 +147,9 @@ public class TestGen {
               tg.modifyOntology( fileName, (Properties)null, testNumber, params );
           } else if ( methodName.equals( GENERATE_BENCHMARK ) ) { //generate the benchmark
               BenchmarkGenerator gb = new BenchmarkGenerator();
+              gb.generate( params );
+	  } else if ( methodName.equals( DISCRIMINANT_BENCHMARK ) ) { //generate the benchmark
+              DiscriminantGenerator gb = new DiscriminantGenerator();
               gb.generate( params );
           }
     }
