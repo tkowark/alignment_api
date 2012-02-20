@@ -60,6 +60,7 @@ public class RemoveProperties extends BasicAlterator {
 
         int nbProperties = properties.size();				//the number of properties
 
+	//System.err.println( percentage );
         int toBeRemoved = Math.round( percentage*nbProperties );			//the number of properties to be removed
 
         //build the list of classes to be removed

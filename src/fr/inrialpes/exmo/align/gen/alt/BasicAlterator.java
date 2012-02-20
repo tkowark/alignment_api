@@ -211,8 +211,9 @@ public abstract class BasicAlterator implements Alterator {
 
     //count - the number of elements from the vector
     //the random numElems that must be selected
+    // numElems <= count
     //uses the Fisher and Yates method to shuffle integers from an array
-    public int [] randNumbers (int count, int numElems) {
+    public int [] randNumbers ( int count, int numElems ) {
         int [] vect = new int[count];
         int [] n    = new int[numElems];
         int aux, rand;
