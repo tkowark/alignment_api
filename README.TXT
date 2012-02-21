@@ -1,10 +1,10 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      03/12/2011, version 4.3                        #
+#                      21/02/2012, version 4.3                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
-Copyright (C) 2003-2011 INRIA.
+Copyright (C) 2003-2012 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.

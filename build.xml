@@ -51,15 +51,20 @@
   <target name="versionnumber" depends="init">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
-    <property name="version.minor" value="2"/>
+    <property name="version.minor" value="3"/>
+    <property name="copyyear" value="2003-2012"/>
+    <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
     <condition property="svn.revision" value="${svn.rev}" else="nosvn">
       <isset property="svn.rev"/>
     </condition>
+    <!-- second attempt -->
+    <!--exec executable="svn" output="/tmp/svn.properties">
+      <arg value="info" />
+    </exec-->
+    <property prefix="svn" file="/tmp/svn.properties"/>
+    <property name="svn.rev" value="${svn.Revision}"/>
     <property name="version" value="${version.major}.${version.minor}"/>
-    <tstamp>
-      <format property="curyear" pattern="yyyy" locale="fr"/>
-    </tstamp>
     <property name="login" value="${user.name}"/>
     <property name="debug" value="off"/>
     <property name="rep" value="svn+ssh://scm.gforge.inria.fr/svn/alignapi"/>
@@ -149,11 +154,11 @@
       <manifest>
 	<attribute name="Built-Date" value="${date}"/>
 	<attribute name="Specification-Title" value="Alignment API"/>
-	<attribute name="Specification-Version" value="${version}.${version.update}"/>
+	<attribute name="Specification-Version" value="${version} (${svn.rev})"/>
 	<attribute name="Bundle-Name" value="Alignment API"/>
 	<attribute name="Bundle-SymbolicName" value="alignapi"/>
-	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
+	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="org.semanticweb.owl.align"/>
@@ -166,11 +171,11 @@
       <manifest>
 	<attribute name="Built-Date" value="${date}"/>
 	<attribute name="Specification-Title" value="Ontology wrapper"/>
-	<attribute name="Specification-Version" value="${version}.${version.update}"/>
+	<attribute name="Specification-Version" value="${version} (${svn.rev})"/>
 	<attribute name="Bundle-Name" value="OntoWrap"/>
 	<attribute name="Bundle-SymbolicName" value="ontowrap"/>
-	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
+	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"/>
@@ -186,11 +191,11 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.cli.Procalign"/>
         <attribute name="Class-Path" value="${jarclasspath}"/>
 	<attribute name="Implementation-Title" value="Alignment API implementation"/>
-	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
+	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
 	<attribute name="Bundle-Name" value="Alignment API implementation"/>
 	<attribute name="Bundle-SymbolicName" value="procalign"/>
-	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
+	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
 	<attribute name="Bundle-Date" value="${date}"/>
 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen"/>
@@ -212,11 +217,11 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
         <attribute name="Class-Path" value="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server"/>
-	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
+	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
 	<attribute name="Bundle-Name" value="Alignment server"/>
 	<attribute name="Bundle-SymbolicName" value="alignsvc"/>
-	<attribute name="Bundle-Version" value="${version}.${version.update}"/>
-	<attribute name="Bundle-Copyright" value="INRIA, 2003-2011"/>
+	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
 	<attribute name="Bundle-Date" value="${date}"/>
  	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
 	<attribute name="Export-package" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"/>
@@ -248,7 +253,7 @@
 	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jaroyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
         <attribute name="Class-Path" value="alignsvc.jar ontosim.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
-	<attribute name="Implementation-Version" value="${version}.${version.update}"/> 
+	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
       </manifest>
     </jar>
   </target>
@@ -290,8 +295,8 @@
   </target>
 
   <!-- tested -->
-  <target name="javadoc" depends="init">
-   <echo message="Javadocing..."/>
+  <target name="javadoc" depends="versionnumber">
+   <echo message="Javadocing... ${version}"/>
    <javadoc
       destdir="javadoc"
       author="true"
@@ -299,8 +304,8 @@
       Use="true" Splitindex="true" private="true"
       Windowtitle="Alignment API and Server"
       doctitle="Alignment API and Server ${version}" 
-      header="Alignment API and Server ${version}.${version.update}"
-      bottom="(C) INRIA &amp; friends, 2003-${curryear}"
+      header="Alignment API and Server ${version} (${svn.rev})"
+      bottom="(C) INRIA &amp; friends, ${copyyear}"
       >
      <classpath refid="classpath"/>
      <packageset dir="src" defaultexcludes="yes">
