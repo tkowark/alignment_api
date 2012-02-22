@@ -29,6 +29,14 @@ package fr.inrialpes.exmo.align.gen;
 
 import java.util.Properties;
 
+/**
+ * This class serves as an example for systematically generating the
+ * alteration space at a particular resolution.
+ * It could be generalised by:
+ * - using an arbitrary number of dimensions (instead of 3)
+ * - having a different step on each dimention
+ * All this could be achieved by using the parameters which could be Alterator/Step
+ */
 public class DiscriminantGenerator extends TestSet {
 
     public void initTestCases( Properties params ) {
