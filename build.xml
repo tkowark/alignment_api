@@ -75,7 +75,6 @@
 
   <target name="upgrade">
     <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim" filtering="false"/>
-    <echo message="mappingapi is only updated from its directory"/>
   </target>
 
   <!-- tested -->
