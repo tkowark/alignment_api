@@ -93,9 +93,13 @@ public class TestGenerator {
     // ******************************************************* GB STUFF
 
     //gets the URI
-    public String getURI( String testNumber ) {
-        return urlprefix + "/" + testNumber + "/" + ontoname + "#"; // Do not like this #...
-        //return urlprefix + getPrefix(ontoname) + "/" + testNumber + "/" + ontoname + "#";
+    public String getURI( String dirName ) {
+	if ( dirName != null ) {
+	    return urlprefix + "/" + dirName + "/" + ontoname + "#"; // Do not like this #...
+	} else {
+	    return urlprefix + "/" + ontoname + "#"; // Do not like this #...
+	}
+        //return urlprefix + getPrefix(ontoname) + "/" + dirName + "/" + ontoname + "#";
     }
 
     public static String directoryName( String dir, String suffix ) {
@@ -137,15 +141,17 @@ public class TestGenerator {
 	}
     }
 
-    private void outputTestDirectory( OntModel onto, Alignment align, String testnumber ) {
+    private void outputTestDirectory( OntModel onto, Alignment align, String dirName ) {
+	String dir = dirprefix;
+	if ( dirName != null ) dir += "/"+dirName;
 	// build the directory to save the file
-	boolean create = new File( dirprefix+"/"+testnumber ).mkdir();
+	boolean create = new File( dir ).mkdir();
 	PrintWriter writer = null;
 	// write the ontology into the directory
-	writeOntology( onto, dirprefix+"/"+testnumber+"/"+ontoname, getURI( testnumber ));
+	writeOntology( onto, dir+"/"+ontoname, getURI( dirName ));
 	try {
 	    //write the alignment into the directory
-	    OutputStream stream = new FileOutputStream( dirprefix+"/"+testnumber+"/"+alignname );
+	    OutputStream stream = new FileOutputStream( dir+"/"+alignname );
 	    // Outputing
 	    writer = new PrintWriter (
 				      new BufferedWriter(
@@ -184,18 +190,18 @@ public class TestGenerator {
     /**
      * Generate a test from an ontology
      */
-    public Properties modifyOntology( String file, Properties al, String testNumber, Properties params) {
-	if ( debug ) System.err.println( "Source: "+file+" Target "+testNumber );
+    public Properties modifyOntology( String file, Properties al, String dirName, Properties params) {
+	if ( debug ) System.err.println( "Source: "+file+" Target "+dirName );
 	//set the TestGenerator ontology
 	OntModel onto = loadOntology( file );
 	Alterator modifier = generate( onto, params, al );
 	// Prepare to generate
-	modifier.relocateTest( getURI( testNumber ) );
+	modifier.relocateTest( getURI( dirName ) );
 	Alignment align = modifier.getAlignment(); // process, not just get
 	modifiedOntology = modifier.getModifiedOntology();
 	//saves the alignment into the file "refalign.rdf", null->System.out
                         //at the end, compute the reference alignment
-	outputTestDirectory( modifiedOntology, align, testNumber );
+	outputTestDirectory( modifiedOntology, align, dirName );
 	return modifier.getProtoAlignment();
     }
 
