@@ -16,161 +16,305 @@
 <p>It allows for generating altered ontologies from a seed ontology
   and generating the reference alignment between the two ontologies).</p>
 
-<h2>Using predefined alterators</h2>
+<h2>Generating tests</h2>
+
+<h3>Generating tests from the command line</h3>
+
+<center>
+<img width="72%" src="img/testgeneration.png">
+</center>
+<p>
+It is possible to use the command line command <tt>TestGen</tt> in
+order to generate tests.
+</p>
+<p>
+It can be invoked for generating only one test:
+<div class="fragment">
+$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -u outputurl -o outputdir -Dparameter=value seedontology
+</div>
+such that:
+<ul>
+<li>seed ontology is the ontology which is altered for producing the test;</li>
+<li>outputurl is the url prefix that will be used for the generated ontology;</li>
+<li>outputdir is the directory in which the test will be generated;</li>
+<li>-Dparameter=value are the parameters used for generating this tests (see Alterator section below)</li>
+</ul>
+For instance:
+<div class="fragment">
+$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -u http://example.com/mynewtest -o mynewtest -DremoveComments=1. -DrenameClasses=.75 -DremoveProperties=.5 biblio.owl
+</div>
+</p>
+<p>
+It may also be used for generating a whole test set (see below) by:
+<div class="fragment">
+$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -t testsetclass -u outputurl -o outputdir seedontology
+</div>
+In which, testsetclass is the class name of an implementation
+of <tt>TestSet</tt> (see below) to be used for generating a testset. 
+For instance:
+<div class="fragment">
+$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -t fr.inrialpes.exmo.align.gen.BenchmarkGenerator -u http://example.com/mynewtestset -o mynewtestset -Dcontinuous=1 biblio.owl
+</div>
+generates part of the initial <a href="http://oaei.ontologymatching.org">OAEI</a> benchmarks.
+</p>
+
+<h3>Generating tests from Java</h3>
 
 <p>
-Alterators are simple classes, implementing the <tt>Alterator</tt> interface
+The equivalent to the command line invokations may be obtained in Java
+by the simple:
+<div class="owl" id="qu1"><pre>
+TestGenerator tg = new TestGenerator();
+tg.setDirPrefix( dir );
+tg.setURLPrefix( url );
+tg.modifyOntology( fileName, (Properties)null, testNumber, params );
+</pre></div>
+for generating only one test, and
+<div class="owl" id="qu1"><pre>
+TestSet gb = new BenchmarkGenerator();
+gb.generate( params );
+</pre></div>
+for generating a test set (here <tt>BenchmarkGenerator</tt>).
 </p>
+
+<h2>Ontology alterators</h2>
+
+<p>
+The tests are generated from the notion of <tt>Alterators</tt>.
+Ontology alterators are classes, implementing
+the <tt>Alterator</tt> interface.
+</p>
+<center>
+<img width="36%" src="img/alterator.png">
+</center>
+<p>
+The test framework is based on the notion of <tt>Alterator</tt> instances of
+the <tt>fr.inrialpes.exmo.align.gen.Alterator</tt>. An
+alterator, takes as input an ontology (Jena <tt>OntModel</tt>) and an
+alignment (<tt>Alignment</tt>) and generates an altered ontology and
+alignment. Following the schema of the figure.
+</p>
+
+<h3>Predefined alterators</h3>
 
 <p>
 The available predefined alterators are:
 <dl>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
+<dt>EmptyModification []</dt>
+<dd>generates a test in which the initial ontology is not
+  altered. This test is used in test sets (see below), for the root test.</dd>
+<!--dt>AddClassLevel [addClassLevel=<i>p.n</i>]</dt>
+<dd>adds at level <i>p</i> (from the top) of the class hierarchy </dd-->
+<dt>AddClasses [addClasses=<i>p</i>]</dt>
+<dd>adds <i>p</i>% classes.</dd>
+<dt>AddProperties [addProperties=<i>p</i>]</dt>
+<dd>adds <i>p</i>% properties.</dd>
+<dt>FlattenLevel [levelFlattened=<i>n</i>]</dt>
+<dd>removes all classes of level <i>n</i> (their subclasses are
+  directly conenected to their superclasses).</dd>
+<!--dt>RemoveClassLevel []</dt>
+<dd></dd-->
+<dt>RemoveClasses [removeClasses=<i>p</i>]</dt>
+<dd>removes <i>p</i>% of classes.</dd>
+<dt>RemoveComments [removeComments=<i>p</i>]</dt>
+<dd>removes <i>p</i>% of comments.</dd>
+<dt>RemoveIndividuals [removeIndividuals=<i>p</i>]</dt>
+<dd>removes <i>p</i>% of individuals.</dd>
+<dt>RemoveProperties [removeProperties=<i>p</i>]</dt>
+<dd>removes <i>p</i>% of properties.</dd>
+<dt>RemoveRestrictions [removeRestrictions=<i>p</i>]</dt>
+<dd>removes <i>p</i>% of restriction.</dd>
+<dt>RenameClasses [renameClasses=<i>p</i>]</dt>
+<dd>renames <i>p</i>% of classes in various ways [default: random]</dd>
+<dt>RenameProperties [renameProperties=<i>p</i>]</dt>
+<dd>renames <i>p</i>% of properties in various ways [default: random]</dd>
+<dt>SuppressHierarchy [noHierarchy]</dt>
+<dd>suppresses all subclasses relations (but to owl:Thing)</dd>
 </dl>
 </p>
 
-<h3>Benchmark generator</h3>
+<h3>Adding new alterators</h3>
 
 <p>
-The BenchmarkGenerator class is an example of a whole test set
-defined at once. 
-It combines various alterators in a specified way.
-This can be applied to any seed ontology (that Jena
-is able to parse).
-It can be invoked from the command line through:
-<pre>
-$ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -m generateBenchmark -u outputurl -o outputdir -i seedontology
-</pre>
-</p>
-
-<h3>Designing a whole test set</h3>
-
-<p>
-Designing a whole test set can be achived as it is done for
-Benchmarks, by instantiating the <tt>TestSet</tt> class and creating
-a hierarchy of tests (each one built from another; but this can be
-achieved by having all tests generated from the init ontology).
-</p>
-
-<h3>Adaptive benchmark generator</h3>
-
-<p>Not available yet.</p>
-
-<h3>Hidden ontology generator</h3>
-
-<p>Not available yet.</p>
-
-<h2>Ontology network alterators</h2>
-
-<h2>Creating a simple test</h2>
-
-
-<h2>Extending the test generation framework</h2>
-
-<p>The test framework is based on the notion of Alterator instances of
-  the <tt>fr.inrialpes.exmo.align.gen.Alterator</tt>. An
-  alterator, takes as input an ontology (Jena <tt>OntModel</tt>) and an
-  alignment (<tt>Alignment</tt>) and generates an altered ontology and
-  alignment.</p>
-<p>
-So its interface is :
-
-
-/**
- * An abstract test generator which takes as input an ontology and an
- * alignment between this ontology and another one and transform the
- * ontology and the alignment accordingly to a type of alteration.
- *
- * It follows a particular lifecycle
- */
-public interface Alterator {
-
-    /**
-     * It is created either:
-     * - from a seed ontology and generate the alignment between this
-     *   ontology itself
-     * - from a previous alterator from which it will take the output
-     *   ontology and alignment as input.
-     */
-    //public Alterator( Alterator om );
-
-    /**
-     * the namespace of the input ontology
-     */
-    public String getNamespace();
-    /**
-     * the namespace of the source ontology in the input alignment
-     */
-    public String getBase();
-
-    /**
-     * modify applies the alteration to the input (the results are kept in 
-     * internal structures.
-     */
-    public Alterator modify( Properties params );
-
-    // Temporary
-    /**
-     * getProtoAlignment, getProtoOntology, getHierarchy
-     * are used for accessing these internal structure at creation time.
-     */
-    public Properties getProtoAlignment();
-    public OntModel getProtoOntology();
-    public ClassHierarchy getHierarchy();
-
-    /**
-     * Modifies the namespaces of source and target ontologies
-     * (for the main purpose of outputing them)
-     */
-    public void relocateTest( String namespace1, String namespace2 );
-    public void relocateTest( String namespace2 );
-
-    /**
-     * Returns the altered Alignment and Ontology in output form
-     */
-    public Alignment getAlignment();
-    public OntModel getModifiedOntology();
-
-</p>
-<p>
-Most of the functions of alterators are available in
+The alterator interface is rather complex.
+However, most of the functions of alterators are available in
 the <tt>BasicAlterator</tt>, so that creating a new alterator requires
 only to write the <tt>modify( Properties )</tt> method if it extends 
 <tt>BasicAlterator</tt>.
 </p>
+<p>
+An alterator follows a particulat lifecycle:
+</p>
+<h4>Creation</h4>
+<p>
+The Alterator is created either:
+<ul>
+<li>from a seed ontology and generate the alignment between this ontology itself</li>
+<li>from a previous alterator from which it will take the output ontology and alignment as input.</li>
+</ul>
+So a "virtual" constructor should be provided in which the alterator
+is created from a previous alterator:
+<div class="owl" id="qu1"><pre>
+public Alterator( Alterator om );
+</pre></div>
+</p>
+<p>
+Once this has been done, it is possible to retrieve the namespace of
+the input ontology (which is the target of the previous alignment if
+an alterator has been used for creating the alignment):
+<div class="owl" id="qu1"><pre>
+public String getNamespace();
+</pre></div>
+and the namespace of the source ontology in the input alignment
+<div class="owl" id="qu1"><pre>
+public String getBase();
+</pre></div>
+</p>
+
+<h4>Modification</h4>
+
+<p>The <tt>modify</tt> method applies the alteration to the input:
+<div class="owl" id="qu1"><pre>
+public Alterator modify( Properties params );
+</pre></div>
+The results are kept in internal structures which, in the case
+of <tt>BasicAlterator</tt> have the following accessors:
+<div class="owl" id="qu1"><pre>
+public Properties getProtoAlignment();
+public OntModel getProtoOntology();
+public ClassHierarchy getHierarchy();
+</pre></div>
+</p>
+
+<h4>Relocation</h4>
+
+<p>
+It is often useful to relocate the results, i.e., to change their
+namespaces in both the ontologies and alignments to output. This is
+achieved with the following methods (the namespaces are those of the
+source and target ontology respectively):
+<div class="owl" id="qu1"><pre>
+public void relocateTest( String namespace1, String namespace2 );
+public void relocateTest( String namespace2 );
+</pre></div>
+</p>
+
+<h4>Exporting the results</h4>
+
+<p>
+Finally, results can be obtained through the two following primitives:
+<div class="owl" id="qu1"><pre>
+public Alignment getAlignment();
+public OntModel getModifiedOntology();
+</pre></div>
+</p>
+
+<h2>Test sets</h2>
+
+<p>
+Full test sets can be generated from one seed ontology (see Figure). For that
+purpose, the structure of the test set is defined through a
+structure which described how a test is generated from scratch or from
+other tests in the test set.
+</p>
+<center>
+<img width="72%" src="img/testset.png">
+</center>
+<p>
+From this structure it is possible to generate the test set with
+different modalities which are specified through parameters.
+</p>
+
+<h3>Predefined test sets</h3>
+
+<h4>Benchmark generator</h4>
+
+<p>
+The <tt>BenchmarkGenerator</tt> class is an example of a whole test set
+defined at once. 
+It combines various alterators in a specified way.
+This can be applied to any seed ontology (that Jena
+is able to parse).
+</p>
+
+<h4>Adaptive benchmark generator</h4>
+
+<p>Not available yet.</p>
+
+<h4>Hidden ontology generator</h4>
+
+<p>Not available yet.</p>
+
+<h3>Adding new test sets</h3>
+
+<p>
+Designing a whole test set can be achieved, as it is done for
+Benchmarks, by extending the <tt>TestSet</tt> class and creating
+a hierarchy of tests (each one built from another; but this can be
+achieved by having all tests generated from the init ontology).
+</p>
+
+<p>
+New test sets can be obtained by extending the <tt>TestSet</tt>
+abstract class. The only abstract method is:
+<div class="owl" id="qu1"><pre>
+public abstract void initTestCases( Properties params );
+</pre></div>
+It creates a structure comprising the test cases as a hierarchy with
+an initial test (which will bear the initial ontology):
+<div class="owl" id="qu1"><pre>
+TestCase initTests( String labelInitTest );
+</pre></div>
+and other tests derived from the initial one through alterations:
+<div class="owl" id="qu1"><pre>
+void addTestChild( String labelParentTest, String labelNewTest, 
+                           Properties alterationSpecification );
+</pre></div>
+<tt>initTestCases</tt> is only used for creating this structure which
+will be later processed to generate a particular test from a precise
+seed ontology and various modalities (in particular if each test will
+be generated intependently of the others (random) or if they will be
+generated incrementally by further alterating previous tests (continuous).
+</p>
+
+<h2>Ontology network alterators</h2>
+
+<p>
+Ontology network alterators obey to the <tt>OntologyNetworkWeakener</tt> interface.
+This interface is very simple since it consists of one single
+method: <tt>weaken</tt> taking as argument an onology network, an int
+(absolute value) or a double (percentage) characterizing the amount of
+alteration and a set of optional parameters in a <tt>Properties</tt>
+object.
+Each alterator returns a brand new ontology network with eventually
+modified alignments.
+</p>
+<p>
+Ontology network alterators cannot be obtained at command line.
+</p>
+<h3>Predefined network alterators</h3>
+<p>
+Some alterators are available with the Alignment API implementation:
+<dl>
+<dt>NetworkAlignmentDropper</dt>
+<dd>randomly drops <i>n</i>% of all alignments in the network. <i>n</i> is a number between 0. and 1.
+</dd>
+<dt>NetworkAlignmentWeakener</dt>
+<dd>suppresses <i>n</i>% of the correspondences at random in each alignments. <i>n</i> is a number between 0. and 1.
+A <tt>threshold</tt> parameter tells if the corrrespondences are suppressed at random (false) of by suppressing the <i>n</i>% of lower confidence (true)
+</dd>
+<dt>NetworkCorrespondenceDropper</dt>
+<dd>suppresses <i>n</i>% of the correspondences at random in all alignments (globally). <i>n</i> is a number between 0. and 1. a <tt>threshold</tt> parameter tells if the corrrespondences are suppressed at random (false) of by suppressing the <i>n</i>% of lower confidence (true).
+</dd>
+<dt>NetworkDeconnector</dt>
+<dd>(Not implemented) suppresses alignments in the ontology network so that it retain <i>n</i>-connectivity, i.e., any pairs of ontologies connected by less than <i>n</i> alignments are still connected through at most <i>n</i> alignments. 
+</dd>
+<!--dt>OntologyNetworkGenerator</dt>
+<dd></dd-->
+</dl>
+</p>
+
+<!--h3>Adding new network alterators</h3-->
 
 <address>
 <small>
