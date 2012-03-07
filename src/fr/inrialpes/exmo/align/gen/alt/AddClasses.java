@@ -46,8 +46,8 @@ public class AddClasses extends BasicAlterator {
 		
         buildClassHierarchy();                                                  //check if the classHierarchy is built
 
-        //build the list of properties to be renamed
-        int[] n = this.randNumbers( nbClasses, toAdd );
+        //build the list of classes to which adding a subclass
+        int[] n = randNumbers( nbClasses, toAdd );
         for ( int i=0; i<toAdd; i++ ) {
             addClass( classes.get(n[i]), getRandomString() ); //give a random URI to the new class
         }
