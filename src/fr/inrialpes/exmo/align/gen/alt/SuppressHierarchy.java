@@ -39,16 +39,15 @@ public class SuppressHierarchy extends BasicAlterator {
     public Alterator modify( Properties params ) {
 	String p = params.getProperty( ParametersIds.NO_HIERARCHY );
 	if ( p == null ) return null;
-        int level = getMaxLevel();
-        while ( getMaxLevel() != 1 ) { // JE: dangerous to not use level
-            //this.classHierarchy.printClassHierarchy();
+        buildClassHierarchy();                                                  //builds the class hierarchy if necessary
+        for( int level = classHierarchy.getMaxLevel(); level > 1; level-- ) {
             noHierarchy ( level );
-            level--;
         }
 	return this; // useless
     };
 
-    // flatten level
+    // This suppress attach all classes of a level to the level above
+    // JE: why not directly attach all classes to Thing (or the root) and set childs to all these classes but root to null?
     public void noHierarchy ( int level ) {
         if ( level == 1 ) return;
         ArrayList<OntClass> levelClasses = new ArrayList<OntClass>();		//the list of classes from that level
@@ -69,11 +68,4 @@ public class SuppressHierarchy extends BasicAlterator {
 	    parentClass.removeSubClass( childClass );
         }
     }
-
-    //must have the max level of the class hierarchy
-    public int getMaxLevel() {
-        buildClassHierarchy();                                                  //check if the class hierarchy is built
-        return classHierarchy.getMaxLevel();
-    }
-
 }

@@ -103,7 +103,6 @@ public class ClassHierarchy {
         return model.getOntClass( childrenNodes.get(index).getURI() );          //returns the class from the position that we have selected -> the random number
     }
 
-    //modifies the class hierarchy after we have flattened it
     public void flattenClassHierarchy( OntModel model, int level, ArrayList<OntClass> childClasses,
                                         ArrayList<OntClass> parentClasses, ArrayList<OntClass> superLevelClasses) {
         List<URITree> childrenNodes = root.getNodesFromLevel( level );
@@ -138,7 +137,7 @@ public class ClassHierarchy {
 	    }
 	    System.err.println();
 	    */
-            childNode.setParent( parentNode.getParent() );			//change the parent of my superclass to the [parent of the "parent node"]
+            childNode.setParent( superNode );			//change the parent of my superclass to the [parent of the "parent node"]
 	    // JE : likely wrong in multiple inheritance
             childNode.setDepth( parentNode.getDepth() );			//change it's depth
             parentNode.getChildrenList().remove( childNode );			//remove it from the children list of parentNode

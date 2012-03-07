@@ -46,8 +46,7 @@ public class AddClassLevel extends BasicAlterator {
 	int nbClasses = Integer.valueOf( p.substring(index+1, p.length()) );
 	if ( debug ) System.err.println( "level " + level );
 	if ( debug ) System.err.println( "nbClasses " + nbClasses );
-	float percentage = 1.00f;
-        String classURI;
+	//float percentage = 1.00f;
         //the parent class -> if level is 1 then we create a new class
         //else we get a random class from the level : level-1 to be the parent of the class
         OntClass parentClass;
@@ -57,28 +56,22 @@ public class AddClassLevel extends BasicAlterator {
 
         buildClassHierarchy();                                                  //check if the class hierarchy is built
         if ( level == 1 ) {                                                     //the parent of the class is Thing, we add the class and then the rest of the classes
-           classURI = getRandomString();
-           parentClass = modifiedModel.createClass( modifiedOntologyNS + classURI );//create a new class to the model
-           classHierarchy.addClass( modifiedOntologyNS + classURI, "Thing" );  //add the node in the hierarchy of classes
-           childClasses.add(parentClass);
-        }
-        else {
-            parentClasses = classHierarchy.getClassesFromLevel(modifiedModel, level);
-            int nbParentClasses = parentClasses.size();                         //number of classes from the Ontology
-            int toAdd = Math.round( percentage*nbClasses );                       // 1 can be replaced by percentage
-
+	    String classURI = getRandomString();
+	    parentClass = modifiedModel.createClass( modifiedOntologyNS + classURI );//create a new class to the model
+	    classHierarchy.addClass( modifiedOntologyNS + classURI, "Thing" );  //add the node in the hierarchy of classes
+	    childClasses.add(parentClass);
+        } else {
+            parentClasses = classHierarchy.getClassesFromLevel( modifiedModel, level );
+            //int nbParentClasses = parentClasses.size();                         //number of classes from the Ontology
+            //int toAdd = Math.round( percentage*nbClasses );                       // 1 can be replaced by percentage
             for ( OntClass pClass : parentClasses ) {
-                classURI = getRandomString();
-                childClass = addClass (pClass, classURI );
-                pClass = childClass;
-                childClasses.add( childClass );
+                childClasses.add( addClass( pClass, getRandomString() ) );
             }
         }
-
         for ( OntClass pClass : childClasses ) {
-	    classURI = "IS_" + getLocalName( pClass.getURI() );
-            for ( int i=level+1; i<level + nbClasses; i++ ) {
-                childClass = addClass (pClass, classURI);
+	    String classURI = "IS_" + getLocalName( pClass.getURI() );
+            for ( int i = 1; i < nbClasses; i++ ) {
+                childClass = addClass( pClass, classURI );
                 pClass = childClass;
             }	//this.classHierarchy.printClassHierarchy();
         }

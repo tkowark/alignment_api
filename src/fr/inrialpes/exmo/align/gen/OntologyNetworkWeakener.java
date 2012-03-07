@@ -30,7 +30,7 @@ import java.util.Properties;
  * OntologyNetworkWeakener
  *
  * A interface which alters ontology networks.
- * NOTE: These two primitives would benefit from the hability to declare static in ineterfaces...
+ * NOTE: These two primitives would benefit from the hability to declare static in interfaces...
  * Now we have to create instances of the implementing classes.
  *
  */
