@@ -54,7 +54,7 @@ public class BenchmarkGenerator extends TestSet {
 	if ( debug ) System.err.println( " Mod: "+mod+" / Incr: "+incr+" / Max: "+maximum );
 
         /* Test 101 Generate the initial situation */
-	root = initTests( "101" );
+	initTests( "101" );
 	String PREVTEST = "101";
 
 	String SUFFIX = null;

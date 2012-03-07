@@ -28,7 +28,7 @@ import java.util.Properties;
 
 import fr.inrialpes.exmo.align.gen.TestGenerator;
 import fr.inrialpes.exmo.align.gen.BenchmarkGenerator;
-import fr.inrialpes.exmo.align.gen.DiscriminantGenerator;
+import fr.inrialpes.exmo.align.gen.TestSet;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 /** 
@@ -36,18 +36,13 @@ import fr.inrialpes.exmo.align.gen.ParametersIds;
     It can either generate a single test or a whole test suite from a single ontology.
     
     <pre>
-    java -cp procalign.jar fr.inrialpes.exmo.align.gen.TestGen [options]
+    java -cp procalign.jar fr.inrialpes.exmo.align.gen.TestGen [options] filename
     </pre>
 
-    where the options are:
+    where filename is the seed ontology,
+    and the options are:
     <pre>
-        --method=methodName         --> arbitraryTest
-                                    --> generateBenchmark
-
-        --fileName=file             --> the file name of the ontology
-
         --debug[=n] -d [n]          --> Report debug info at level n,
-        --testNumber=number         --> the number of the generated test
    </pre>
 
 */
@@ -55,13 +50,10 @@ import fr.inrialpes.exmo.align.gen.ParametersIds;
 public class TestGen {
     private Properties params = null;
     private String methodName = null;                                           //the name of the method
-    private String testNumber = null;                                           //the number of the generated test
     private String fileName   = null;                                           //the name of the input file
-    private String dir        = null;                                           //the name of the input file
+    private String dir        = ".";                                           //
+    private String url;                                                        //
     private int debug         = 0;
-    public static String ARBITRARY_TEST = "arbitraryTest";                      //generate an arbitrary test
-    public static String GENERATE_BENCHMARK = "generateBenchmark";              //generate the Benchmark dataset
-    public static String DISCRIMINANT_BENCHMARK = "disc";              //generate the Benchmark dataset
 
     public TestGen() {
 	fileName = "onto.rdf";
@@ -72,117 +64,125 @@ public class TestGen {
         catch ( Exception ex ) { ex.printStackTrace(); };
     }
 
-      public void run(String[] args) throws Exception {
-          LongOpt[] longopts = new LongOpt[10];
-          params = new Properties();
-
-          longopts[0] = new LongOpt("method", LongOpt.REQUIRED_ARGUMENT, null, 'm');
-          longopts[1] = new LongOpt("initonto", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-          longopts[2] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-          longopts[3] = new LongOpt("testNumber", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	  longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	  longopts[5] = new LongOpt("outdir", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	  longopts[6] = new LongOpt("urlprefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	  longopts[7] = new LongOpt("ontoname", LongOpt.REQUIRED_ARGUMENT, null, 'n');
-	  longopts[8] = new LongOpt("alignname", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-	  longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
+    public void run(String[] args) throws Exception {
+	LongOpt[] longopts = new LongOpt[10];
+	params = new Properties();
+	
+	longopts[0] = new LongOpt("testset", LongOpt.REQUIRED_ARGUMENT, null, 't');
+	longopts[1] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
+	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
+	longopts[3] = new LongOpt("outdir", LongOpt.REQUIRED_ARGUMENT, null, 'o');
+	longopts[4] = new LongOpt("urlprefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
+	longopts[5] = new LongOpt("ontoname", LongOpt.REQUIRED_ARGUMENT, null, 'n');
+	longopts[6] = new LongOpt("alignname", LongOpt.REQUIRED_ARGUMENT, null, 'a');
+	longopts[7] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
           
+	Getopt g = new Getopt("", args, "d::o:u:m:n:a:D:t:h", longopts);
+	int c;
+	String arg;
 
-          Getopt g = new Getopt("", args, "d::o:u:h:m:n:i:a:D:t", longopts);
-          int c;
-          String arg;
+	while ((c = g.getopt()) != -1) {
+	    switch (c) {
+	    case 'h':
+		usage();
+		return;
+	    case 't':
+		methodName = g.getOptarg();
+		break;
+	    case 'n':
+		params.setProperty( "ontoname", g.getOptarg() );
+		break;
+	    case 'a':
+		params.setProperty( "alignname", g.getOptarg() );
+		break;
+	    case 'o' : /* Use output directory */
+		dir = g.getOptarg();
+		params.setProperty( "outdir", dir );
+		break;
+	    case 'u' : /* URLPrefix */
+		url = g.getOptarg();
+		params.setProperty( "urlprefix", url );
+		break;
+	    case 'd' : /* Debug level  */
+		arg = g.getOptarg();
+		if ( arg != null ) params.setProperty( "debug", arg.trim() );
+		else 		  params.setProperty( "debug", "4" );
+		break;
+	    case 'D' : /* Parameter definition: could be used for all parameters */
+		arg = g.getOptarg();
+		int index = arg.indexOf('=');
+		if ( index != -1 ) {
+		    params.setProperty( arg.substring( 0, index), 
+					arg.substring(index+1));
+		} else {
+		    System.err.println("Bad parameter syntax: "+g);
+		    usage();
+		    System.exit(0);
+		}
+		break;
+	    }
+	}
 
-          while ((c = g.getopt()) != -1) {
-              switch (c) {
-	      case 'h':
-		  printUsage();
-		  return;
-	      case 'm':
-		  methodName = g.getOptarg();
-		  break;
-	      case 'i':
-		  fileName = g.getOptarg();
-		  params.setProperty( "filename", fileName );
-		  break;
-	      case 'n':
-		  params.setProperty( "ontoname", g.getOptarg() );
-		  break;
-	      case 'a':
-		  params.setProperty( "alignname", g.getOptarg() );
-		  break;
-	      case 't':
-		  testNumber = g.getOptarg();
-		  System.err.println("testNumber " + "[" + testNumber + "]");
-		  break;
-	      case 'o' : /* Use output directory */
-		  params.setProperty( "outdir", g.getOptarg() );
-		  break;
-	      case 'u' : /* URLPrefix */
-		  params.setProperty( "urlprefix", g.getOptarg() );
-		  break;
-	      case 'd' : /* Debug level  */
-		  arg = g.getOptarg();
-		  if ( arg != null ) params.setProperty( "debug", arg.trim() );
-		  else 		  params.setProperty( "debug", "4" );
-		  break;
-	      case 'D' : /* Parameter definition: could be used for all parameters */
-		  arg = g.getOptarg();
-		  int index = arg.indexOf('=');
-		  if ( index != -1 ) {
-		      params.setProperty( arg.substring( 0, index), 
-					  arg.substring(index+1));
-		  } else {
-		      System.err.println("Bad parameter syntax: "+g);
-		      printUsage();
-		      System.exit(0);
-		  }
-		  break;
-              }
-          }
+	// We need an ontology
+	int i = g.getOptind();
+	
+	if ( args.length > i ) {
+	    fileName = args[i];
+	    params.setProperty( "filename", fileName );
+	} else {
+	    System.out.println("Require the seed ontology filename");
+	    usage();
+	    return;
+	}
 
-	  if ( debug > 0 ) System.err.println( " >>>> "+methodName+" from "+fileName );
+	if ( debug > 0 ) System.err.println( " >>>> "+methodName+" from "+fileName );
 
-          if ( methodName.equals( ARBITRARY_TEST ) ) { //generate an arbitrary test
-	      TestGenerator tg = new TestGenerator();
-              tg.modifyOntology( fileName, (Properties)null, testNumber, params );
-          } else if ( methodName.equals( GENERATE_BENCHMARK ) ) { //generate the benchmark
-              BenchmarkGenerator gb = new BenchmarkGenerator();
-              gb.generate( params );
-	  } else if ( methodName.equals( DISCRIMINANT_BENCHMARK ) ) { //generate the benchmark
-              DiscriminantGenerator gb = new DiscriminantGenerator();
-              gb.generate( params );
-          }
+	if ( methodName == null ) { // generate one test
+	    TestGenerator tg = new TestGenerator();
+	    tg.setDirPrefix( dir );
+	    tg.setURLPrefix( url );
+	    tg.modifyOntology( fileName, (Properties)null, (String)null, params );
+	} else { // generate a test set
+	    TestSet tset = null;
+	    try {
+		Object[] mparams = {};
+		Class<?> testSetClass = Class.forName( methodName );
+		Class[] cparams = {};
+		java.lang.reflect.Constructor testSetConstructor = testSetClass.getConstructor(cparams);
+		tset = (TestSet)testSetConstructor.newInstance(mparams);
+	    } catch (Exception ex) {
+		System.err.println("Cannot create TestSet "+methodName+"\n"+ex.getMessage());
+		usage();
+		throw ex;
+	    }
+	    tset.generate( params );
+	}
     }
 
-     public void printUsage() {
-         System.out.println("TestGen [options]");
-         System.out.println("options are");
-         System.out.println("--method=methodName, where methodName can be \""+ARBITRARY_TEST+"\" or \""+GENERATE_BENCHMARK+"\"");
-         System.out.println("--initonto=filename (initial ontology)");
-         System.out.println("--alignname=filename [default: refalign.rdf]");
-         System.out.println("--ontoname=filename [default: onto.rdf]");
-         System.out.println("--urlprefix=url");
-         System.out.println("--outdir=directory [default: .]");
-         System.out.println("--testNumber=number, if the arbitraryTest is chosen");
-         System.out.println("--help");
-         System.out.println("--debug=number [default: 0]");
-         System.out.println("-Dparameter=value");
-         System.out.println("where the parameters are");
-         System.out.println( "[--------------------------------------------------------------------------]" );
-         System.out.println( "[------------- The list of all modification is the following: --------------]" );
-         System.out.println( "[1. Remove percentage subclasses       \""+ParametersIds.REMOVE_CLASSES+"\"    --------------]" );
-         System.out.println( "[2. Remove percentage properties       \""+ParametersIds.REMOVE_PROPERTIES+"\"    --------------]" );
-         System.out.println( "[3. Remove percentage comments         \""+ParametersIds.REMOVE_COMMENTS+"\"     --------------]" );
-         System.out.println( "[4. Remove percentage restrictions     \""+ParametersIds.REMOVE_RESTRICTIONS+"\" --------------]" );
-         System.out.println( "[5. Remove individuals                 \""+ParametersIds.REMOVE_INDIVIDUALS+"\"   ------------]" );
-         System.out.println( "[6. Add percentage subclasses          \""+ParametersIds.ADD_CLASSES+"\"       --------------]" );
-         System.out.println( "[7. Add percentage properties          \""+ParametersIds.ADD_PROPERTIES+"\"       --------------]" );
-         System.out.println( "[8. Rename percentage classes          \""+ParametersIds.RENAME_CLASSES+"\"     --------------]" );
-         System.out.println( "[9. Rename percentage properties       \""+ParametersIds.RENAME_PROPERTIES+"\"  --------------]" );
-         System.out.println( "[10. noHierarchy                       \""+ParametersIds.NO_HIERARCHY+"\"    ---------------]" );
-         System.out.println( "[11. Level flattened                   \""+ParametersIds.LEVEL_FLATTENED+"\"   ---------------]" );
-         System.out.println( "[12. Add nbClasses to a specific level \""+ParametersIds.ADD_CLASSESLEVEL+"\"       ---------------]" );
-         System.out.println( "[--------------------------------------------------------------------------]" );
+    public void usage() {
+	System.out.println("TestGen [options] filename");
+	System.out.println("such that filename is the filename of the seed ontology\n");
+	System.out.println("options are:");
+	System.out.println("\t--urlprefix=url");
+	System.out.println("\t--testset=classname, where classname is the name of an implementation of TestSet");
+	System.out.println("\t--alignname=filename [default: refalign.rdf]");
+	System.out.println("\t--ontoname=filename [default: onto.rdf]");
+	System.out.println("\t--outdir=directory [default: .]");
+	System.out.println("\t--help");
+	System.out.println("\t--debug=number [default: 0]");
+	System.out.println("\t-Dparameter=value");
+	System.out.println("where the parameters are");
+	System.out.println( "\tRemove percentage subclasses       \""+ParametersIds.REMOVE_CLASSES+"\"" );
+	System.out.println( "\tRemove percentage properties       \""+ParametersIds.REMOVE_PROPERTIES+"\"" );
+	System.out.println( "\tRemove percentage comments         \""+ParametersIds.REMOVE_COMMENTS+"\"" );
+	System.out.println( "\tRemove percentage restrictions     \""+ParametersIds.REMOVE_RESTRICTIONS+"\"" );
+	System.out.println( "\tRemove individuals                 \""+ParametersIds.REMOVE_INDIVIDUALS+"\"" );
+	System.out.println( "\tAdd percentage subclasses          \""+ParametersIds.ADD_CLASSES+"\"" );
+	System.out.println( "\tAdd percentage properties          \""+ParametersIds.ADD_PROPERTIES+"\"" );
+	System.out.println( "\tRename percentage classes          \""+ParametersIds.RENAME_CLASSES+"\"" );
+	System.out.println( "\tRename percentage properties       \""+ParametersIds.RENAME_PROPERTIES+"\"" );
+	System.out.println( "\tnoHierarchy                        \""+ParametersIds.NO_HIERARCHY+"\"" );
+	System.out.println( "\tLevel flattened                    \""+ParametersIds.LEVEL_FLATTENED+"\"" );
+	System.out.println( "\tAdd nbClasses to a specific level  \""+ParametersIds.ADD_CLASSESLEVEL+"\"" );
     }
-    
 }

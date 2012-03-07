@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -66,6 +66,7 @@ public abstract class TestSet {
     public TestCase initTests( String name ) {
 	TestCase c = TestCase.initTestTree( name );
 	tests.put( name, c );
+	root = c;
 	return c;
     }
 

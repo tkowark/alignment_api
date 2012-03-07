@@ -58,7 +58,7 @@ public class DiscriminantGenerator extends TestSet {
 	if ( debug ) System.err.println( " STEP: "+STEP+" / INCR: "+INCR );
 
         /* Test 000 Generate the initial situation */
-	root = initTests( "000" );
+	initTests( "000" );
 
 	for ( int i = 0; i < STEP; i++ ) {
 	    String label1 = i+"00";
@@ -83,6 +83,4 @@ public class DiscriminantGenerator extends TestSet {
 	    }
 	}
     }
-
-
 }
