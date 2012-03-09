@@ -44,7 +44,6 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.URICell;
 import fr.inrialpes.exmo.align.impl.Namespace;

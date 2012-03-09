@@ -81,13 +81,13 @@ public class BasicAlignment implements Alignment {
 
     protected Extensions extensions = null;
 
-    protected BasicParameters namespaces = null;
+    protected Properties namespaces = null;
 
     public BasicAlignment() {
 	hash1 = new Hashtable<Object,Set<Cell>>();
 	hash2 = new Hashtable<Object,Set<Cell>>();
 	extensions = new Extensions();
-	namespaces = new BasicParameters();
+	namespaces = new Properties();
 	if ( this instanceof AlignmentProcess ) setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, getClass().getName() );
 	onto1 = new BasicOntology<Object>();
 	onto2 = new BasicOntology<Object>();
@@ -222,14 +222,14 @@ public class BasicAlignment implements Alignment {
 	return extensions.getExtension( uri, label );
     };
 
-    public BasicParameters getXNamespaces(){ return namespaces; }
+    public Properties getXNamespaces(){ return namespaces; }
 
     public void setXNamespace( String label, String uri ) {
-	namespaces.setParameter( label, uri );
+	namespaces.setProperty( label, uri );
     };
 
     public String getXNamespace( String label ) {
-	return namespaces.getParameter( label );
+	return (String)namespaces.getProperty( label );
     };
 
     public Enumeration<Cell> getElements() {
@@ -696,8 +696,9 @@ public class BasicAlignment implements Alignment {
 	result.setType( getType() );
 	result.setLevel( getLevel() );
 	result.setExtensions( convertExtension( "inverted", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" ) );
-	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
+	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
+	//    String label = (String)e.nextElement();
+	for ( String label : namespaces.stringPropertyNames() ) {
 	    result.setXNamespace( label, getXNamespace( label ) );
 	}
 	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
@@ -736,8 +737,9 @@ public class BasicAlignment implements Alignment {
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
 	align.setExtensions( convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
-	for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
+	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
+	//    String label = (String)e.nextElement();
+	for ( String label : namespaces.stringPropertyNames() ) {
 	    align.setXNamespace( label, getXNamespace( label ) );
 	}
 	try { align.ingest( this ); }

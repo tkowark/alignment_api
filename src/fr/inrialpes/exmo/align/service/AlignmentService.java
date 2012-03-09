@@ -24,7 +24,6 @@ import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
 import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.util.NullStream;
 
 import gnu.getopt.LongOpt;
@@ -248,11 +247,6 @@ public class AlignmentService {
 		/* Use filename instead of stdout */
 		outfile = g.getOptarg();
 		break;
-		//case 'p' :
-		/* Read parameters from filename */
-		//paramfile = g.getOptarg();
-		//BasicParameters.read( params, paramfile);
-		//break;
 	    case 'l' :
 		/* Use the given file as a database image to load */
 		filename = g.getOptarg();

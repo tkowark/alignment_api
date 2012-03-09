@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.service.msg.Message;

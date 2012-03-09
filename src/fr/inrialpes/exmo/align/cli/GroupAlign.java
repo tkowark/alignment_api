@@ -37,13 +37,13 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -52,6 +52,7 @@ import java.lang.Integer;
 import java.lang.Long;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
@@ -88,7 +89,7 @@ $Id$
 
 public class GroupAlign {
 
-    BasicParameters params = null;
+    Properties params = null;
     String filename = "align";
     String paramfile = null;
     String urlprefix = null;
@@ -109,7 +110,7 @@ public class GroupAlign {
     public void run(String[] args) throws Exception {
 
 	LongOpt[] longopts = new LongOpt[13];
-	params = new BasicParameters();
+	params = new Properties();
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -151,7 +152,7 @@ public class GroupAlign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		BasicParameters.read( params, paramfile );
+		params.loadFromXML( new FileInputStream( paramfile ) );
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */
@@ -182,7 +183,7 @@ public class GroupAlign {
 		arg = g.getOptarg();
 		int index = arg.indexOf('=');
 		if ( index != -1 ) {
-		    params.setParameter( arg.substring( 0, index), 
+		    params.setProperty( arg.substring( 0, index), 
 					 arg.substring(index+1));
 		} else {
 		    System.err.println("Bad parameter syntax: "+g);
@@ -207,10 +208,10 @@ public class GroupAlign {
 
 	//int i = g.getOptind();
 
-	if (debug == 0 && params.getParameter("debug") != null) {
-	    debug = Integer.parseInt(params.getParameter("debug"));
+	if (debug == 0 && params.getProperty("debug") != null) {
+	    debug = Integer.parseInt(params.getProperty("debug"));
 	}
-	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
+	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	iterateDirectories();
     }

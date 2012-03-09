@@ -152,11 +152,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    writer.print(NL+INDENT+INDENT+INDENT+INDENT+" xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
 	if ( align instanceof BasicAlignment ) {
-	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    if ( !label.equals("rdf") && !label.equals("xsd")
-		 && !label.equals("<default>") )
-		writer.print(NL+INDENT+INDENT+INDENT+INDENT+" xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
+	    for ( String label : ((BasicAlignment)align).getXNamespaces().stringPropertyNames() ) {
+		if ( !label.equals("rdf") && !label.equals("xsd")
+		     && !label.equals("<default>") )
+		    writer.print(NL+INDENT+INDENT+INDENT+INDENT+" xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
 	    }
 	}
 	writer.print(">"+NL);

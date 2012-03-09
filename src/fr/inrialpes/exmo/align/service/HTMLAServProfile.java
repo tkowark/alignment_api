@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.service.msg.Message;
@@ -305,10 +304,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	*/
 
 	// Convert parms to parameters
-	BasicParameters params = new BasicParameters();
-	Enumeration e = parms.propertyNames();
-	while ( e.hasMoreElements()) {
-	    String key = (String)e.nextElement();
+	Properties params = new Properties();
+	for ( String key : parms.stringPropertyNames() ) {
 	    if ( debug > 1 ) System.err.println( "  PRM: '" + key + "' = '" +parms.getProperty( key ) + "'" );
 	    if ( key.startsWith( "paramn" ) ){
 		params.setProperty( parms.getProperty( key ),
@@ -387,7 +384,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * HTTP administration interface
      * Allows some limited administration of the server through HTTP
      */
-    public Response adminAnswer( String uri, String perf, Properties header, BasicParameters params ) {
+    public Response adminAnswer( String uri, String perf, Properties header, Properties params ) {
 	if ( debug > 0 ) System.err.println("ADMIN["+perf+"]");
 	String msg = "";
         if ( perf.equals("listmethods") ){
@@ -464,7 +461,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Returns the alignment in RDF/XML
      */
     public Response returnAlignment( String uri ) {
-	BasicParameters params = new BasicParameters();
+	Properties params = new Properties();
 	params.setProperty("id", manager.serverURL()+uri);
 	params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
 	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
@@ -479,7 +476,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * User friendly HTTP interface
      * uses the protocol but offers user-targeted interaction
      */
-    public Response htmlAnswer( String uri, String perf, Properties header, BasicParameters params ) {
+    public Response htmlAnswer( String uri, String perf, Properties header, Properties params ) {
 	//System.err.println("HTML["+perf+"]");
 	// REST get
 	String msg = "";
@@ -855,11 +852,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // ===============================================
     // Util
 
-    public Response wsdlAnswer(String uri, String perf, Properties header, BasicParameters params  ) {
+    public Response wsdlAnswer(String uri, String perf, Properties header, Properties params  ) {
 	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer( false ) );
     }	 
 
-    private String testErrorMessages( Message answer, BasicParameters param ) {
+    private String testErrorMessages( Message answer, Properties param ) {
 	if ( param.getProperty("restful") != null ) {
 	    return answer.RESTString();
 	} else {
@@ -867,7 +864,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	}
     }
 
-    private String displayAnswer( Message answer, BasicParameters param ) {
+    private String displayAnswer( Message answer, Properties param ) {
 	String result = null;
 	if( param.getProperty("restful") != null ) {
 	    if( param.getProperty("return").equals("HTML") ) {

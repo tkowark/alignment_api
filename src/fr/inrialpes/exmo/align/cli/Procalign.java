@@ -33,15 +33,16 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.Long;
@@ -113,7 +114,7 @@ public class Procalign {
 	AlignmentVisitor renderer = null;
 	int debug = 0;
 	double threshold = 0;
-	BasicParameters params = new BasicParameters();
+	Properties params = new Properties();
 
 	LongOpt[] longopts = new LongOpt[10];
 
@@ -145,7 +146,7 @@ public class Procalign {
 	    case 'p' :
 		/* Read parameters from filename */
 		paramfile = g.getOptarg();
-		BasicParameters.read( params, paramfile);
+		params.loadFromXML( new FileInputStream( paramfile ) );
 		break;
 	    case 'r' :
 		/* Use the given class for rendering */

@@ -94,11 +94,10 @@ public class XMLMetadataRendererVisitor extends GenericReflectiveVisitor impleme
 	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
 	if ( align instanceof BasicAlignment ) {
-	    for ( Enumeration e = ((BasicAlignment)align).getXNamespaces().getNames() ; e.hasMoreElements(); ){
-	    String label = (String)e.nextElement();
-	    if ( !label.equals("rdf") && !label.equals("xsd")
-		 && !label.equals("<default>") )
-		writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
+	    for ( String label : ((BasicAlignment)align).getXNamespaces().stringPropertyNames() ) {
+		if ( !label.equals("rdf") && !label.equals("xsd")
+		     && !label.equals("<default>") )
+		    writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
 	    }
 	}
 	writer.print(">\n");

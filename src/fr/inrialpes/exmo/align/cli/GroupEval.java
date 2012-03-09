@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2011, INRIA
+ * Copyright (C) 2003-2012, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@ package fr.inrialpes.exmo.align.cli;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
@@ -45,6 +44,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
@@ -89,7 +89,7 @@ $Id$
 
 public class GroupEval {
 
-    BasicParameters params = null;
+    Properties params = null;
     String filename = null;
     String reference = "refalign.rdf";
     String format = "pr";
@@ -182,8 +182,8 @@ public class GroupEval {
 	    listAlgo.add( s );	    
 	}
 
-	params = new BasicParameters();
-	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
+	params = new Properties();
+	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	print( iterateDirectories() );
     }
@@ -264,7 +264,7 @@ public class GroupEval {
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
-	    params.setParameter( "debug", Integer.toString( nextdebug ) );
+	    params.setProperty( "debug", Integer.toString( nextdebug ) );
 	    eval.eval( params ) ;
 	} catch (Exception ex) {
 	    if ( debug > 1 ) {

@@ -31,7 +31,6 @@ package fr.inrialpes.exmo.align.cli;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.eval.ExtPREvaluator;
@@ -49,6 +48,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
@@ -93,7 +93,7 @@ $Id$
 
 public class ExtGroupEval {
 
-    BasicParameters params = null;
+    Properties params = null;
     String filename = null;
     String reference = "refalign.rdf";
     String format = "s";
@@ -184,8 +184,8 @@ public class ExtGroupEval {
 	    listAlgo.add( s );	    
 	}
 
-	params = new BasicParameters();
-	if (debug > 0) params.setParameter( "debug", Integer.toString( debug-1 ) );
+	params = new Properties();
+	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	print( iterateDirectories() );
     }
@@ -267,7 +267,7 @@ public class ExtGroupEval {
 	    eval = new ExtPREvaluator(ObjectAlignment.toObjectAlignment( (URIAlignment)align1 ), 
 				      ObjectAlignment.toObjectAlignment( (URIAlignment)align2 ) );
 	    // Compare
-	    params.setParameter( "debug", Integer.toString( nextdebug ) );
+	    params.setProperty( "debug", Integer.toString( nextdebug ) );
 	    eval.eval( params ) ;
 	} catch (Exception ex) {
 	    if ( debug > 1 ) {

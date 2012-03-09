@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA, 2006, 2008-2009, 2011
+ * Copyright (C) INRIA, 2006, 2008-2009, 2011-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -42,7 +42,6 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.util.Logger;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
@@ -130,8 +129,6 @@ public class JadeFIPAAServiceAgent extends Agent {
 						ContentElement ce = null;
 						ce = CTmanager.extractContent(msg);
 						params = decodeMessage(ce,params);
-
-						//Parameters params = new BasicParameters();
 
 						if (ce instanceof ALIGN){
 							Message answer = manager.align(new Message(newId(), (Message)null,myId,serverId,"",params));
