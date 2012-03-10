@@ -158,8 +158,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
         return result;
     }
 
-
-    private String writeCellsHTML(Set<Cell> set, String what) { 
+    private String writeCellsHTML( Set<Cell> set, String what ) { 
 	String result = ""; 
 	try {
 	    result += "              <dt> " + what + "</dt><dd>\n";
@@ -173,10 +172,30 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 	return result;  
     }
 
+    public void printAsCells ( String what, Set<Cell> set, PrintWriter writer ) {
+	writer.println("  <"+what+" rdf:parseType=\"Collection\">");
+	for ( Cell c : truepositive ){
+	    try {
+		writer.println("    <Cell>");
+		writer.println("      <entity1 rdf:resource=\""+c.getObject1AsURI()+"\">");
+		writer.println("      <entity2 rdf:resource=\""+c.getObject2AsURI()+"\">");
+		writer.println("      <relation>"+c.getRelation().getRelation()+"</relation>");
+		writer.println("    </Cell>");
+	    } catch (AlignmentException e) {
+		e.printStackTrace(); 
+	    }
+	}
+	writer.println("  </"+what+">");
+    }
 
-    public void write(PrintWriter writer) throws java.io.IOException {
-	// Cassia: here you can put your display as XML But this is not compulsory
+    public void write( PrintWriter writer ) throws java.io.IOException {
 	writer.println("<?xml version='1.0' encoding='utf-8' standalone='yes'?>");
+	writer.println("<DiffAlignment>");
+	// Should be good to add the reference alignments
+	printAsCells( "truePositive", truepositive, writer );
+	printAsCells( "falsePositive", falsepositive, writer );
+	printAsCells( "falseNegative", falsenegative, writer );
+	writer.println("</DiffAlignment>");
     }
 
     public Properties getResults() {
