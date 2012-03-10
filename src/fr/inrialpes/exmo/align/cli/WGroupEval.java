@@ -569,7 +569,7 @@ which the program does...
     public void usage() {
 	System.out.println("usage: WGroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=prfot -r prfot\tSpecifies the output order (precision/recall/f-measure/overall/time)");
+	System.out.println("\t--format=prfot -f prfot\tSpecifies the output order (precision/recall/f-measure/overall/time)");
 	// Apparently not implemented
 	//System.out.println("\t--sup=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");

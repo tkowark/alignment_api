@@ -160,10 +160,10 @@ public class GenPlot {
 		/* List of filename */
 		fileNames = g.getOptarg();
 		break;
-	    case 's' :
+		//case 's' :
 		/* Step */
-		fileNames = g.getOptarg();
-		break;
+		//fileNames = g.getOptarg();
+		//break;
 	    case 'd' :
 		/* Debug level  */
 		arg = g.getOptarg();

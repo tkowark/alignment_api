@@ -450,13 +450,17 @@ public class ExtGroupEval {
     public void usage() {
 	System.out.println("usage: ExtGroupEval [options]");
 	System.out.println("options are:");
-	System.out.println("\t--format=sepr -r sepr\tSpecifies the extended measures used (symetric/effort-based/precision-oriented/recall-oriented)");
+	System.out.println("\t--format=sepr -f sepr\tSpecifies the extended measures used (symetric/effort-based/precision-oriented/recall-oriented)");
 	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
-	System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
+	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");
+	// Apparently not implemented
+	//System.out.println("\t--dominant=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
 	System.out.println("\t--type=html|xml|tex|ascii -t html|xml|tex|ascii\tSpecifies the output format");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
+	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.print("\n"+ExtGroupEval.class.getPackage().getImplementationTitle()+" "+ExtGroupEval.class.getPackage().getImplementationVersion());
 	System.err.println(" ($Id$)\n");
     }
 }
