@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2008-2010
+ * Copyright (C) INRIA, 2004-2005, 2008-2010, 2012
  * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
@@ -43,8 +43,12 @@ import org.xml.sax.SAXParseException;
 import org.semanticweb.owl.align.Parameters;
 
 /**
+  * @deprecated
+  * This class implements Parameters for compatibility purposes.
+  * Parameter list structure used everywhere at the begining of the API.
+  * Parameters has been "morally" deprecated in the Alignment API for long, 
+  * it is now (4.4) not used anymore and marked deprecated.
   *
-  * Standard parameter list structure to be used everywhere.
   * By default and for means of communication, parameter names and values 
   * are Strings (even if their type is Object).
   *
@@ -54,15 +58,12 @@ import org.semanticweb.owl.align.Parameters;
   * But propertyNames returns Enumeration and not Enumeration<String>
   * Using keySet will not change anything, because it will be Set<Object>
   * Java 6 introduces Set<String> stringPropertyNames() !!
-  *
-  * This class implements Parameters for compatibility purposes.
-  * Parameters is only "morally" deprecated in the Alignment API, but it is
-  * not used anymore.
   * 
   * @author Jérôme Euzenat
   * @version $Id$ 
  */
 
+//@Deprecated
 public class BasicParameters extends Properties implements Parameters, Cloneable {
  
     static final long serialVersionUID = 400L;

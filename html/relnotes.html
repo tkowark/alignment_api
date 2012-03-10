@@ -7,7 +7,7 @@
 </head>
 <body bgcolor="#ffffff">
 
-<center><h1>Alignment API, release notes</h1></center>
+<center><h1>Alignment API: release notes</h1></center>
 
 <p style="font-size: 80%;"><span style="font-weight: bold;">Release numbers:</span> major release numbers are for majors
   redesign that will modify the API and may lead you to
@@ -63,10 +63,15 @@ with a warning:
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 4.4 (): ??/??/2012 - ?????????</h2-->
+<!--h2>Version 4.4 (17xx): ??/??/2012 - ?????????</h2-->
 
 <p><ul compact="1">
+<li><span style="color: red;">Deprecated</span> <tt>BasicParameters</tt>,
+  use <tt>java.lang.Properties</tt> instead; <tt>BasicParameters</tt>
+  is not used anymore in the API (impl)</tt>
+<li><tt>BasicAlignment.getXNamespaces()</tt> returns <tt>Properties</tt> (impl)</li>
 <li>Simplified <tt>TestGen</tt> options (cli)</li>
+<li>All documentation is now on the web site and not in the (outdated) manuals (doc)</li>
 </ul></p>
 
 <h2>Version 4.3 (1690): 22/02/2012 - Zimt</h2>

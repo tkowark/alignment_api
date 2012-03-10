@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,7 +53,6 @@ import org.weblab_project.core.model.Annotation;
  
 import org.weblab_project.core.model.user.UsageContext;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;

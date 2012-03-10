@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008, 2010
+ * Copyright (C) INRIA, 2007-2008, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,14 +24,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
-import java.lang.StringBuffer;
-
 import java.io.FileInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
- 
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
@@ -39,7 +36,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Vector;
+import java.util.Properties;
 import java.util.zip.ZipInputStream;
+import java.lang.StringBuffer;
 
 import javax.swing.JOptionPane;
  
@@ -61,8 +60,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import fr.inrialpes.exmo.align.impl.BasicParameters;
- 
 public class WSInterface {
 		
 		//public AlignmentClient ws = null;
@@ -95,12 +92,12 @@ public class WSInterface {
 	    	
 			String answer = null;
 			try {
-				BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","load");
-				//params.setParameter( "arg1", alignId);
+				Properties params = new Properties();
+				params.setProperty( "host", HOST );
+				//params.setProperty( "http", PORT );
+				//params.setProperty( "wsdl", WSDL );
+				params.setProperty( "command","load");
+				//params.setProperty( "arg1", alignId);
 				
 				uploadFile = alignId;
 				//System.out.println("Load file= "+ uploadFile);
@@ -143,12 +140,12 @@ public class WSInterface {
 			try {
 				// Read parameters
 				 
-				BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
+				Properties params = new Properties();
+				params.setProperty( "host", HOST );
 				 
-				params.setParameter( "command","trim");
-				params.setParameter( "arg1",alignId);
-				params.setParameter( "arg2",thres);
+				params.setProperty( "command","trim");
+				params.setProperty( "arg1",alignId);
+				params.setProperty( "arg2",thres);
 					
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -191,11 +188,11 @@ public class WSInterface {
 			try {
 				// Read parameters
 				 
-				BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
+				Properties params = new Properties();
+				params.setProperty( "host", HOST );
 				 
-				params.setParameter( "command","list");
-				params.setParameter( "arg1","methods");
+				params.setProperty( "command","list");
+				params.setProperty( "arg1","methods");
 					
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -232,12 +229,12 @@ public class WSInterface {
 		     
 			try {
 				// Read parameters 
-				BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
+				Properties params = new Properties();
+				params.setProperty( "host", HOST );
 				 
-				params.setParameter( "command","find");
-				params.setParameter( "arg1", onto1);
-				params.setParameter( "arg2", onto2);	
+				params.setProperty( "command","find");
+				params.setProperty( "arg1", onto1);
+				params.setProperty( "arg2", onto2);	
 				// Create the SOAP message
 				String message = createMessage( params );
 				  	
@@ -270,12 +267,12 @@ public class WSInterface {
 			try {
 				// Read parameters
 				 
-				BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","list");
-				params.setParameter( "arg1","alignments");
+				Properties params = new Properties();
+				params.setProperty( "host", HOST );
+				//params.setProperty( "http", PORT );
+				//params.setProperty( "wsdl", WSDL );
+				params.setProperty( "command","list");
+				params.setProperty( "arg1","alignments");
 					
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -320,14 +317,14 @@ public class WSInterface {
 				//System.out.println("Uri 1="+ onto1);
 			    //System.out.println("Uri 2="+ onto2);
 			    
-			    BasicParameters params = new BasicParameters();
-				params.setParameter( "host", HOST );
-				//params.setParameter( "http", PORT );
-				//params.setParameter( "wsdl", WSDL );
-				params.setParameter( "command","match");
-				params.setParameter( "arg1", method);
-				params.setParameter( "arg2", onto1);
-				params.setParameter( "arg3", onto2);
+			    Properties params = new Properties();
+				params.setProperty( "host", HOST );
+				//params.setProperty( "http", PORT );
+				//params.setProperty( "wsdl", WSDL );
+				params.setProperty( "command","match");
+				params.setProperty( "arg1", method);
+				params.setProperty( "arg2", onto1);
+				params.setProperty( "arg3", onto2);
 				
 			    try {
 			    	// Read parameters
@@ -374,19 +371,19 @@ public class WSInterface {
 		//retrieve alignment for storing in OWL file
 		
 		 
-		BasicParameters params = new BasicParameters();
-		params.setParameter( "host", HOST );
-		//params.setParameter( "http", PORT );
-		//params.setParameter( "wsdl", WSDL );
-		params.setParameter( "command","retrieve");
-		params.setParameter( "arg1", alignId);
-		params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor");
+		Properties params = new Properties();
+		params.setProperty( "host", HOST );
+		//params.setProperty( "http", PORT );
+		//params.setProperty( "wsdl", WSDL );
+		params.setProperty( "command","retrieve");
+		params.setProperty( "arg1", alignId);
+		params.setProperty( "arg2", "fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor");
 		
 		String answer=null;
 	     
 		try {
 			// Read parameters
-			//BasicParameters params = ws.readParameters( aservArgRetrieve );
+			//Properties params = ws.readParameters( aservArgRetrieve );
 			
 			// Create the SOAP message
 			String message = createMessage( params );
@@ -433,19 +430,19 @@ public class WSInterface {
 			//retrieve alignment for storing in OWL file
 			
 			 
-			BasicParameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","retrieve");
-			params.setParameter( "arg1", alignId);
-			params.setParameter( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
+			Properties params = new Properties();
+			params.setProperty( "host", HOST );
+			//params.setProperty( "http", PORT );
+			//params.setProperty( "wsdl", WSDL );
+			params.setProperty( "command","retrieve");
+			params.setProperty( "arg1", alignId);
+			params.setProperty( "arg2", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor");
 			
 			String answer=null;
 		     
 			try {
 				// Read parameters
-				//BasicParameters params = ws.readParameters( aservArgRetrieve );
+				//Properties params = ws.readParameters( aservArgRetrieve );
 				
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -479,19 +476,19 @@ public class WSInterface {
 	    
 	    public String render(String alignId, String method) {
  
-			BasicParameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","retrieve");
-			params.setParameter( "arg1", alignId);
-			params.setParameter( "arg2", method);
+			Properties params = new Properties();
+			params.setProperty( "host", HOST );
+			//params.setProperty( "http", PORT );
+			//params.setProperty( "wsdl", WSDL );
+			params.setProperty( "command","retrieve");
+			params.setProperty( "arg1", alignId);
+			params.setProperty( "arg2", method);
 			
 			String answer=null;
 		     
 			try {
 				// Read parameters
-				//BasicParameters params = ws.readParameters( aservArgRetrieve );
+				//Properties params = ws.readParameters( aservArgRetrieve );
 				
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -527,19 +524,19 @@ public class WSInterface {
 			
 	    	//retrieve alignment for displaying
 			
-			BasicParameters params = new BasicParameters();
-			params.setParameter( "host", HOST );
-			//params.setParameter( "http", PORT );
-			//params.setParameter( "wsdl", WSDL );
-			params.setParameter( "command","store");
-			params.setParameter( "arg1", alignId);
+			Properties params = new Properties();
+			params.setProperty( "host", HOST );
+			//params.setProperty( "http", PORT );
+			//params.setProperty( "wsdl", WSDL );
+			params.setProperty( "command","store");
+			params.setProperty( "arg1", alignId);
 			 
 			String answer = null;
 			
 			try {
 				// Read parameters
 				 
-				//BasicParameters params = ws.readParameters( aservArgRetrieve );
+				//Properties params = ws.readParameters( aservArgRetrieve );
 				
 				// Create the SOAP message
 				String message = createMessage( params );
@@ -733,15 +730,15 @@ public class WSInterface {
 	    }
 
 	    
-	    public String createMessage( BasicParameters params ) throws Exception {
+	    public String createMessage( Properties params ) throws Exception {
 	        String messageBegin = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\'http://schemas.xmlsoap.org/soap/envelope/\' " +
 				                  "xmlns:xsi=\'http://www.w3.org/1999/XMLSchema-instance\' " + 
 				                  "xmlns:xsd=\'http://www.w3.org/1999/XMLSchema\'>" +
 				                  "<SOAP-ENV:Body>";
 		String messageBody = "";
-		String cmd = params.getParameter( "command" );
+		String cmd = params.getProperty( "command" );
 		if ( cmd.equals("list" ) ) {
-		    String arg = params.getParameter( "arg1" );
+		    String arg = params.getProperty( "arg1" );
 		    if ( arg.equals("methods" ) ){  
 			SOAPAction = "listmethodsRequest";
 		    } else if ( arg.equals("renderers" ) ){
@@ -758,8 +755,8 @@ public class WSInterface {
 		    SOAPAction = "wsdlRequest";
 		} else if ( cmd.equals("find" ) ) {
 		    SOAPAction = "findRequest";
-		    String uri1 = params.getParameter( "arg1" );
-		    String uri2 = params.getParameter( "arg2" );
+		    String uri1 = params.getProperty( "arg1" );
+		    String uri2 = params.getProperty( "arg2" );
 		    if ( uri2 == null ){
 			//usage();
 			System.exit(-1);
@@ -767,18 +764,18 @@ public class WSInterface {
 		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		} else if ( cmd.equals("match" ) ) {
 		    SOAPAction = "matchRequest";
-		    String uri1 = params.getParameter( "arg1" );
-		    String uri2 = params.getParameter( "arg2" );
+		    String uri1 = params.getProperty( "arg1" );
+		    String uri2 = params.getProperty( "arg2" );
 		    if ( uri2 == null ){
 			//usage();
 			System.exit(-1);
 		    }
 		    String method = null;
-		    String arg3 = params.getParameter( "arg3" );
+		    String arg3 = params.getProperty( "arg3" );
 		    if ( arg3 != null ) {
 			method = uri1; uri1 = uri2; uri2 = arg3;
 		    }
-		    arg3 = params.getParameter( "arg4" );
+		    arg3 = params.getProperty( "arg4" );
 		    messageBody = "<url1>"+uri1+"</url1><url2>"+uri2+"</url2>";
 		    if ( method != null )
 			messageBody += "<method>"+method+"</method>";
@@ -787,14 +784,14 @@ public class WSInterface {
 			messageBody += "<force>"+arg3+"</force>";
 		} else if ( cmd.equals("trim" ) ) {
 		    SOAPAction = "cutRequest";
-		    String id = params.getParameter( "arg1" );
-		    String thres = params.getParameter( "arg2" );
+		    String id = params.getProperty( "arg1" );
+		    String thres = params.getProperty( "arg2" );
 		    if ( thres == null ){
 			//usage();
 			//System.exit(-1);
 		    }
 		    String method = null;
-		    String arg3 = params.getParameter( "arg3" );
+		    String arg3 = params.getProperty( "arg3" );
 		    if ( arg3 != null ) {
 			method = thres; thres = arg3;
 		    }
@@ -803,7 +800,7 @@ public class WSInterface {
 			messageBody += "<method>"+method+"</method>";
 		} else if ( cmd.equals("invert" ) ) {
 		    SOAPAction = "invertRequest";
-		    String uri = params.getParameter( "arg1" );
+		    String uri = params.getProperty( "arg1" );
 		    if ( uri == null ){
 			//usage();
 			//System.exit(-1);
@@ -811,14 +808,14 @@ public class WSInterface {
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("store" ) ) {
 		    SOAPAction = "storeRequest";
-		    String uri = params.getParameter( "arg1" );
+		    String uri = params.getProperty( "arg1" );
 		    if ( uri == null ) {
 			//usage();
 			//System.exit(-1);
 		    }
 		    messageBody = "<alid>"+uri+"</alid>";
 		} else if ( cmd.equals("load" ) ) {
-		    String url = params.getParameter( "arg1" );
+		    String url = params.getProperty( "arg1" );
 		    if ( url == null ){
 			SOAPAction = "loadRequest";
 			/* 
@@ -852,8 +849,8 @@ public class WSInterface {
 		    */
 		} else if ( cmd.equals("retrieve" ) ) {
 		    SOAPAction = "retrieveRequest";
-		    String uri = params.getParameter( "arg1" );
-		    String method = params.getParameter( "arg2" );
+		    String uri = params.getProperty( "arg1" );
+		    String method = params.getProperty( "arg2" );
 		    if ( method == null ){
 			//usage();
 			//System.exit(-1);
@@ -861,8 +858,8 @@ public class WSInterface {
 		    messageBody = "<alid>"+uri+"</alid><method>"+method+"</method>";
 		} else if ( cmd.equals("metadata" ) ) {
 		    SOAPAction = "metadata";
-		    String uri = params.getParameter( "arg1" );
-		    String key = params.getParameter( "arg2" );
+		    String uri = params.getProperty( "arg1" );
+		    String key = params.getProperty( "arg2" );
 		    if ( key == null ){
 			//usage();
 			//System.exit(-1);
@@ -878,7 +875,7 @@ public class WSInterface {
 		return message;
 	    }
 	    
-	    public String sendMessage( String message, BasicParameters param )   {
+	    public String sendMessage( String message, Properties param )   {
 	    	// Create the connection
 	        	 
 	        byte[] b = message.getBytes();
@@ -934,7 +931,7 @@ public class WSInterface {
 	    	return answer;
 	    }
 	    
-	    public String sendFile( String message, BasicParameters param )   {
+	    public String sendFile( String message, Properties param )   {
 	    	// Create the connection
 	        	 
 	        //byte[] b = message.getBytes();
