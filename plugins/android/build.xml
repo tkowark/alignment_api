@@ -15,9 +15,9 @@
     <file name="log4j/slf4j-api.jar"/>
     <file name="log4j/slf4j-log4j.jar"/>
     <file name="xerces/resolver.jar"/>
-    <file name="xerces/xercesImpl.jar"/>
+    <file name="xerces/xercesImpl.jar"/>            <!-- redundancy in the two following -->
     <file name="xsdlib/xsdlib.jar"/>
-    <file name="xsdlib/relaxngDatatype.jar"/>
+    <!--file name="xsdlib/relaxngDatatype.jar"/-->  <!-- is this one in the JDK? -->
   </filelist>
 
   <fileset id="musrc" dir="../../src">
@@ -47,7 +47,10 @@
   <path id="classpath">
     <filelist refid="mujar"/>
   </path>
-    
+
+  <taskdef resource="proguard/ant/task.properties"
+	   classpath="../../tools/proguard/proguard.jar" />
+
   <!-- tested -->
   <target name="usage" depends="init">
     <echo>ant _target_ _options_
@@ -152,8 +155,36 @@
     <antcall target="compile"/>
   </target>
 
+  <target name="shrink" depends="jar">
+    <proguard shrink="true" optimize="true" obfuscate="false" warn="true"
+	      skipnonpubliclibraryclasses="false" optimizationpasses="2">
+      <optimizations filter="!code/simplification/arithmetic,!field/*,!class/merging/*,!code/allocation/variable" />
+      <keepattributes filter="SourceFile,SourceDir,LineNumberTable,LocalVariableTable,LocalVariableTypeTable" />
+      <libraryjar refid="classpath" />
+      <!-- MacOS X way to call ${java.home}/lib/rt.jar -->
+      <libraryjar file="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Classes/classes.jar" />
+      <injar file="lib/microalign.jar" />
+      <outjar file="lib/microalign2.jar" />
+      <!-- we do not have these -->
+      <!--keepclassmembers access="public" type="class" name="*">
+	<method access="public" name="Main" type="void" parameters="java.lang.String[]" />
+      </keepclassmembers-->
+      <keep type="class" access="public" name="*" implements="org.semanticweb.owl.align.Alignment" />
+      <keep type="class" access="public" name="*" implements="org.semanticweb.owl.align.Relation" />
+      <keep type="class" access="public" name="*" implements="org.semanticweb.owl.align.Cell" />
+      <keep type="class" access="public" name="*" implements="org.semanticweb.owl.align.Evaluator" />
+      <keep type="class" access="public" name="*" implements="org.semanticweb.owl.align.AlignmentVisitor" />
+      <keep type="class" access="public" name="fr.inrialpes.exmo.align.parser.*Parser" />
+      <keepclassmembers access="public" type="class" name="fr.inrialpes.exmo.align.impl.rel.*">
+	<method access="public" name="getInstance" />
+      </keepclassmembers>
+      <keep type="class" access="public" name="fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory" />
+      <keep type="class" access="public" name="fr.inrialpes.exmo.ontowrap.skoslite.SKOSLiteOntologyFactory" />
+    </proguard>
+  </target>
+
   <!-- tested -->
-  <target name="jar" depends="compile">
+  <target name="jar" depends="compileall">
     <echo message="Jarchiving..."/>
     <delete file="lib/microalign.jar"/>
     <jar jarfile="lib/microalign.jar">
