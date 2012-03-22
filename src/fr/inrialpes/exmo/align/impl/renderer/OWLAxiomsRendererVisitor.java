@@ -711,6 +711,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	increaseIndent();
 	final Constructor op = e.getOperator();
 	String owlop = null;
+	if ( op == Constructor.COMP ) owlop = "propertyChainAxiom";
 	// JE: FOR TESTING
 	//owlop = "FORTESTING("+op.name()+")";
 	if ( owlop == null ) throw new AlignmentException( "Cannot translate property construction in OWL : "+op );
@@ -861,7 +862,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
      * closure and the compositional closure (or composition) can only be obtained by
      * defining a property subsumed by this closure through an axiom.
      * It is also possible to rewrite the reflexive closures as axioms as well.
-     * But the transitive closure can only be obtained through subsuption.
+     * But the transitive closure can only be obtained through subsumption.
      */
     public void visit( final RelationConstruction e ) throws AlignmentException {
 	Relation toProcessNext = toProcess;
@@ -870,7 +871,11 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	increaseIndent();
 	final Constructor op = e.getOperator();
 	String owlop = null;
-	if ( op == Constructor.INVERSE ) owlop = "owl:inverseOf";
+	if ( op == Constructor.INVERSE ) {
+	    owlop = "inverseOf";
+	} else if ( op == Constructor.COMP ) {
+	    owlop = "propertyChainAxiom";
+	}
 	// JE: FOR TESTING
 	//owlop = "FORTESTING("+op.name()+")";
 	if ( owlop == null ) throw new AlignmentException( "Cannot translate relation construction in OWL : "+op );
