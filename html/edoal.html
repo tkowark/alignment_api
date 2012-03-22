@@ -25,13 +25,6 @@ displayed["n3"] = 0;
 displayed["graph"] = 0;
 displayed["owlxml"] = 0;
 
-function primerOnLoad() {
-  display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');
-  display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');
-  display('graph', 'none');  set_display_by_id('hide-ms', 'none');       set_display_by_id('show-ms', '');
-  display('owlxml', 'none');      set_display_by_id('hide-xs', 'none');       set_display_by_id('show-xs', '');
-}
-
 function display(syntax,status) {
   var howmany = 0;
   if (status=='none') {
@@ -95,6 +88,14 @@ function set_display_by_id(id, newValue) {
      e.style.display = newValue;
    }
 }
+
+function primerOnLoad() {
+  display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');
+  display('n3', '');      set_display_by_id('hide-ts', '');       set_display_by_id('show-ts', 'none');
+  display('graph', 'none');  set_display_by_id('hide-ms', 'none');       set_display_by_id('show-ms', '');
+  display('owlxml', 'none');      set_display_by_id('hide-xs', 'none');       set_display_by_id('show-xs', '');
+}
+
 /*]]>*/
 </script>
 
@@ -123,7 +124,7 @@ the <a href="format.html">alignment format</a>.</p>
  <dt><a href="#sec:examples">Examples</a></dt>
 </dl-->
 
-<h2 id="sec:purpose">Purpose</h2>
+<h3 id="sec:purpose">Purpose</h3>
 
 <p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
 
@@ -131,7 +132,7 @@ the <a href="format.html">alignment format</a>.</p>
 
 <p>This vocabulary was originally designed with the goal of representing patterns of correspondence between ontologies. It was since then both simplified and extended to obtain a minimal vocabulary on top of the alignment format, able to express all possible kinds of ontology alignments.</p>
 
-<h2 id="sec:features">Features</h2>
+<h3 id="sec:features">Features</h3>
 
 The alignment vocabulary has the following features:
 <ul>
@@ -145,7 +146,24 @@ The alignment vocabulary has the following features:
  supports a limited kind of transformations. This will be improved soon.</li>
 </ul>
 
-<h2 id="sec:vocabulary">Vocabulary</h2>
+<div class="syntaxmenu">
+<p>The buttons below can be used to show or hide the available syntaxes.</p><form action=""><p>
+<input id="hide-rs" onclick="display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');" type="button" value="Hide RDF/XML Syntax" />
+<input id="show-rs" onclick="display('rdfxml', '');      set_display_by_id('hide-rs', '');       set_display_by_id('show-rs', 'none');" style="display:none" type="button" value="Show RDF/XML Syntax" />
+<input id="hide-ts" onclick="display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');" type="button" value="Hide N3 Syntax" />
+<input id="show-ts" onclick="display('n3', '');      set_display_by_id('hide-ts', '');       set_display_by_id('show-ts', 'none');" style="display:none" type="button" value="Show N3 Syntax" />
+<input id="hide-ms" onclick="display('graph', 'none');            set_display_by_id('hide-ms', 'none');             set_display_by_id('show-ms', '');" type="button" value="Hide Graph" />
+<input id="show-ms" onclick="display('graph','');      set_display_by_id('hide-ms', '');       set_display_by_id('show-ms', 'none');" style="display:none" type="button" value="Show Graph" />
+</p></form>
+<p>
+In case of conflict, the RDF/XML syntax is the authoritative one.
+This is also the one for which we have developed parsers and renderers.
+However, we are glad that you report errors in the other syntaxes as well.
+</p>
+</div>
+
+
+<h2 id="ssec:headers">Alignment and cells</h2>
 
 <p>
 In the alignment format, an alignment is a set of cells, each cell being a correspondence between two entities. The alignment vocabulary extend this scheme by allowing cells to contain compound entity descriptions. Each entity can be typed according to one of the following category: Class, Instance, Relation, Property. A relation corresponds to an object property in OWL, a property to a datatype property. Each entity can then be restricted, and transformation can be specified on propery values. 
@@ -159,9 +177,7 @@ The diagram below shows the vocabulary classes ???
 <p>
 While <i>Alignment</i> and <i>Cell</i> are described by the <a href="format.html">alignment format</a>, we will focus here on the remaining classes.</p>
 
-<h3 id="ssec:headers">Headers</h3>
-
-<h4 id="ssec:namespaces">Namespaces</h4>
+<h3 id="ssec:namespaces">Namespaces</h3>
 <p>
 The namespace for the Alignment format is
 still <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#</tt>
@@ -176,53 +192,98 @@ Comparators are taken from the W3C XPath functions
 recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt>
 (usual prefix: functions).</p>
 
-<h4 id="ssec:alignment">Alignment</h4>
-<p>As specified by the alignment format, an alignment contains a set of correspondences (cells). Each cell can be linked to an alignment using the <i>map</i> property. The alignment moreover specifies the two aligned ontologies, and as exemplified in the code below.</p>
+<h3 id="ssec:alignment">Alignment format</h3>
 
-<div class="fragment"><pre>
+<p>
+An EDOAL alignment is an alignment as specified by the alignment format.
+It is identified by its level which must be "2EDOAL".
+This tells tools that the alignment is on level 2, i.e., correspondences are across constructed entities, and that the corresponding entities are specified according to the expressive language.
+This ensures the compatibility with other extensions of the format.
+ 
+The alignment moreover specifies the two aligned ontologies, and as
+exemplified in the code below.
+</p>
+
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
 &lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
-         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
-&lt;Alignment>
-  &lt;xml>yes&lt;/xml>
-  &lt;level>0&lt;/level>
-  &lt;type>**&lt;/type>
+         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
+         xmlns:edoal='http://ns.inria.org/edoal/1.0/'>
+&lt;align:Alignment>
+  &lt;align:xml>yes&lt;/align:xml>
+  &lt;align:level><b>2EDOAL</b>&lt;/align:level>
+  &lt;align:type>**&lt;/align:type>
   &lt;align:method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/align:method>
   &lt;align:time>7&lt;/align:time>
-  &lt;onto1>
-    &lt;Ontology rdf:about="http://www.example.org/ontology1">
-      &lt;location>file:examples/rdf/onto1.owl&lt;/location>
-      &lt;formalism>
-        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
-      &lt;/formalism>
-    &lt;/Ontology>
-  &lt;/onto1>
-  &lt;onto2>
-    &lt;Ontology rdf:about="http://www.example.org/ontology2">
-      &lt;location>file:examples/rdf/onto2.owl&lt;/location>
-      &lt;formalism>
-        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
-      &lt;/formalism>
-    &lt;/Ontology>
-  &lt;/onto2>
+  &lt;align:onto1>
+    &lt;align:Ontology rdf:about="http://www.example.org/ontology1">
+      &lt;align:location>file:examples/rdf/onto1.owl&lt;/align:location>
+      &lt;align:formalism>
+        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/align:formalism>
+    &lt;/align:Ontology>
+  &lt;/align:onto1>
+  &lt;align:onto2>
+    &lt;align:Ontology rdf:about="http://www.example.org/ontology2">
+      &lt;align:location>file:examples/rdf/onto2.owl&lt;/location>
+      &lt;align:formalism>
+        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+      &lt;/align:formalism>
+    &lt;/align:Ontology>
+  &lt;/align:onto2>
 ...
-</pre></div>
+</pre></div></div>
 
 <p>Details on each property are available on the <a href="format.html">alignment format</a> page.</p>
 
-<h3 id="ssec:entities">Entities</h3>
+<p>An alignment contains a set of correspondences (<tt>Cell</tt>s). 
+Each cell can be linked to an alignment using the <tt>map</tt> property.
+</p>
+
+<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+...
+  &lt;align:map>
+    &lt;align:Cell>
+      &lt;align:entity1>&lt;<b>edoal:Class</b> rdf:about="http://www.example.org/ontology1#entity1" />&lt;/align:entity1>
+      &lt;align:entity2>&lt;<b>edoal:Class</b> rdf:about="http://www.example.org/ontology2#entity2" />&lt;/align:entity2>
+      &lt;align:relation>=&lt;/align:relation>
+      &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
+      &lt;<b>edoal:transformation</b>>...&lt;/<b>edoal:transformation</b>>
+  &lt;/align:map>
+...
+</pre></div></div>
+
+<p>
+As the example shows, the EDOAL vocabulary only appears within the
+"entity" properties and very specificaly in the <tt>edoal:transformation</tt>
+property.
+</p>
+<p>
+The correspondence between the two entities could have been expressed
+in the simple Alignment format because these have named entities
+identified by a URI. However, the correspondence provides more
+information because it tells that these entities are Classes.
+</p>
+<p>
+The strength of EDOAL is to express more complex entities which are
+described below.
+</p>
+
+<h3 id="ssec:entities" id="sec:vocabulary">Entities</h3>
 
 <p>
 A quick overview of the implemented EDOAL API is provided here (<b>abstract</b>
 classes are in bold and <i>interfaces</i> in italics):
 <pre>
 EDOALAlignment extends BasicAlignment
-
 EDOALCell extends BasicCell
-
-<b>Expression</b> implements <i>Clonable</i>
+<b>Expression</b>
 |- <a href="#ssec:classes"><b>ClassExpression</b></a>
 |  |- ClassId implements <i>Id</i>
 |  |- ClassConstruction
@@ -247,23 +308,29 @@ EDOALCell extends BasicCell
 |        |- RelationDomainRestriction
 |- <a href="#ssec:instances"><b>InstanceExpression</b></a>
    |- InstanceId implements <i>Id</i>
-
 Value implements <i>ValueExpression</i>
 Apply implements <i>ValueExpression</i>
-
 Transformation
-
 TransfService implements <i>Clonable</i>
-
 <a href="sec:patterns">Variable</a>
-
 Comparator
-
 Datatype
 </pre>
 </p>
+<p>
+Below are the syntactic declaration of these entities.
+</p>
+<p>
+The <i>Id</i> interface is implemented by expressions identified by
+an URI: these are the named entities of ontologies that may be used in
+basic URIAlignments. The <i>ValueExpression</i> is implemented by
+expressions that identify in context a particular value or instance.
+This can be an instance or a literal as well as a path expression that
+leads to that value in the context of an instance.
+</p>
 
-<h4 id="ssec:classes">Classes</h4>
+<h2 id="ssec:classes">Class expressions</h2>
+
 <p>Class entities can be constructed using one of the three operators <i>and, or,
 not</i>.<ul>
   <li><i>and</i> represents the interesection of the classes in the
@@ -272,7 +339,19 @@ not</i>.<ul>
 
   <li><i>not</i> represents the negation of a given class.</li>
 </ul>
-A class can be defined using its URI or a restriction. Restrictions are defined by giving an <i>attribute</i> (relation or property), a <i>comparator</i> defining the relation to a <i>value</i>.</p>
+A class can also be identified by using its URI or defined through a
+  restriction. There are four types of class restrictions:
+<ul>
+<li><i>AttributeDomainRestriction</i> which restricts the values of
+  relations to be in a particular class;</li>
+<li><i>AttributeTypeRestriction</i> which restricts the values of
+  properties to be in a particular type;</li>
+<li><i>AttributeValueRestriction</i> which restricts the value of
+  properties or relations to a particular value;</li>
+<li><i>AttributeOccurenceRestriction</i> which constrains the
+  cardinality of a property or relation;</li>
+</ul>
+Restrictions are defined by giving an <i>path expression</i> (relation or property), a <i>comparator</i> defining the relation to a <i>value</i>.</p>
 
 <div class="fragment"><pre>
 <u>classexpr</u> ::= &lt;Class rdf:about=" <u>URI</u> "/>
@@ -311,10 +390,82 @@ A class can be defined using its URI or a restriction. Restrictions are defined 
         | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 </pre></div>
 
-
 <p>Comparators are taken from the XPath function specification [<a href="http://www.w3.org/TR/xpath-functions">1</a>].</p>
 
-<h4 id="ssec:properties">Properties</h4>
+<div class="rdfxml">
+Hence, a class expression may be an identified class:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Class rdf:about="&amp;wine;WineFlavor"/>
+</pre></div></div>
+<div class="rdfxml">
+a disjunction or class expressions:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Class>
+      &lt;or rdf:parseType="Collection">
+        &lt;Class rdf:about="&amp;vin;Acidite"/>
+        &lt;Class rdf:about="&amp;vin;Astreingence"/>
+        &lt;Class rdf:about="&amp;vin;Amertume"/>
+      &lt;/Collection>&lt;/or>
+    &lt;/Class>
+</pre></div></div>
+<div class="rdfxml">
+or as a restriction on the value of a property (here a property path):
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+      &lt;AttributeValueRestriction>
+        &lt;onAttribute>
+          &lt;Property>
+            &lt;compose rdf:parseType="Collection">
+              &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
+              &lt;Property rdf:about="&amp;proton;name"/>
+            &lt;/compose>
+          &lt;/Property>
+        &lt;/onAttribute>
+        &lt;comparator rdf:resource="&amp;xsd;equals"/>
+        &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
+      &lt;/AttributeValueRestriction>
+</pre></div>
+Thanks to paths and restrictions, it is possible to restrict a correspondence to ``Wines whose producing region is located in Aquitaine'' using the following restriction. The comparator is issued from the standard XML Schema comparators.
+</div>
+<!--div class="rdfxml">
+We can with this restriction build the correspondence between
+``BordeauxWine'' and ``Vin'' whose ``terroir'' is located in
+``Aquitaine'' (Aquitaine is the administrative region to which belongs the city of Bordeaux).
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+&lt;align:Cell>
+  &lt;align:entity1>
+    &lt;Class rdf:about="&amp;wine;BordeauxWine">
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;Class rdf:about="&amp;vin;Vin">
+      &lt;attributeValueCondition>
+        &lt;Restriction>
+          &lt;onAttribute>
+            &lt;Relation>
+              &lt;compose rdf:parseType="Collection">
+                &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
+                &lt;Relation rdf:about="&amp;proton;LocatedIn"/>
+              &lt;/compose>
+            &lt;/Relation>
+          &lt;/onAttribute>
+          &lt;comparator rdf:resource="&amp;xsd;equals"/>
+          &lt;value rdf:datatype="&amp;xsd;string">Acquitaine&lt;/value>
+        &lt;/Restriction>
+      &lt;/attributeValueCondition>
+    &lt;/Class>
+  &lt;/align:entity2>
+&lt;/align:Cell>
+</pre></div></div-->
+
+
+<h2 id="ssec:properties">Property expressions</h2>
 <p>Properties entities can be constructed using one of the operators <i>and, or,
 not</i> and <i>compose</i>.
 Property values can be transformed by applying a <i>Transformation</i> function. </p>
@@ -334,23 +485,53 @@ Property values can be transformed by applying a <i>Transformation</i> function.
 
 </pre></div>
 
-<!--div class="fragment"><pre>
-transformation ::= &lt;Transformation>
-                    xpath-transformation
-                   &lt;/Transformation>
-                   | &lt;Transformation>            
-                      &lt;transformation rdf:resource="uri"/>
-                      &lt;parameters>
-                       &lt;rdf:Seq>
-                      	&lt;rdf:li />*	
-                       &lt;/rdf:Seq>
-                      &lt;/parameters>                  
-                     &lt;/Transformation>
-</pre></div-->
+<div class="rdfxml">
+As previously properties can be identified by its URI:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Property rdf:about="&amp;wine;hasVintageYear"/>
+</pre></div></div>
+<div class="rdfxml">
+As previously properties can be assembled by boolean connectors:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Property>
+      &lt;and rdf:parseType="Collection">
+        &lt;Property rdf:about="&amp;vin;propri&eacute;taire"/>
+        &lt;Property rdf:about="&amp;vin;n&eacute;gociant"/>
+      &lt;/and>
+    &lt;/Property>
+</pre></div></div>
+<div class="rdfxml">
+but they can be obtained through a path, i.e., a sequence of relations
+ending by a property:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Property>
+      &lt;compose rdf:parseType="Collection">
+        &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
+        &lt;Property rdf:about="&amp;proton;name"/>
+      &lt;/compose>
+    &lt;/Property>
+</pre></div></div>
 
-<!--p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p-->
+<div class="rdfxml">
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+      &lt;PropertyTypeRestriction>
+        &lt;type>
+          &lt;Datatype rdf:about="&amp;xsd;" />
+        &lt;/type>
+      &lt;/PropertyTypeRestriction>
+</pre></div></div>
 
-<h4 id="ssec:relations">Relations</h4>
+
+<h2 id="ssec:relations">Relation expressions</h2>
+
 <p>Relations correspond to object properties in OWL. Relation entities can be constructed using the operators <i>and, or,
 not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetric</i>. Like properties they can also be composed in a path of relations using <i>first</i> and <i>next</i>. Relations <i>domain</i> and <i>range</i> can be restricted.</p>
 
@@ -370,43 +551,151 @@ not, compose</i>, but also <i>inverse, transitive, reflexive,</i> and <i>symmetr
            | &lt;reflexive> <u>relexpr</u> &lt;/reflexive>
 </pre></div>
 
-<h4 id="ssec:instances">Instances</h4>
+
+<div class="rdfxml">
+Domain restriction is exemplified in the following correspondence with relation expression:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+&lt;align:Cell>
+  &lt;align:entity1>
+    &lt;Relation rdf:about="&amp;wine;locatedIn">
+      &lt;domainRestriction>
+        &lt;Class rdf:about="&amp;wine;Wine" />
+      &lt;/domainRestriction>
+    &lt;/Relation>
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+  &lt;/align:entity2>
+  &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
+  &lt;align:relation>&lt;&lt;/align:relation>
+&lt;/align:Cell>
+</pre></div></div>
+
+<div class="rdfxml">
+An example of occurrence restriction would be the wines produced in a region with no adjacent region, such as an island. For instance Moscatel Madeira wine is produced on the island of Madeira.
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+&lt;align:Cell>
+  &lt;align:entity1>
+    &lt;Class rdf:about="&amp;wine;Wine">
+      &lt;attributeOccurrenceCondition>
+        &lt;Restriction>
+          &lt;onAttribute>
+            &lt;Relation>
+              &lt;compose rdf:parseType="Collection">
+                &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
+                &lt;Relation rdf:about="&amp;wine;adjacentRegion"/>
+              &lt;/compose>
+            &lt;/Relation>
+          &lt;/onAttribute>
+          &lt;comparator rdf:resource="&amp;xsd;greater-than"/>
+          &lt;value rdf:datatype="&amp;xsd;int">0&lt;/value>
+        &lt;/Restriction>
+      &lt;/attributeOccurrenceCondition>
+    &lt;/Class>
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;Class rdf:about="&amp;vin;Madere" />
+  &lt;/align:entity2>
+  &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
+  &lt;align:relation>>&lt;/align:relation>
+&lt;/align:Cell>
+</pre></div></div>
+
+<div class="rdfxml">
+Another example 
+uses a path to state that a locally grown wine is a wine whose owner (propri&eacute;taire) is the same person as the first seller (n&eacute;gociant) for this wine.
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+&lt;align:Cell>
+  &lt;align:entity1>
+    &lt;Class rdf:about="&amp;wine;LocallyGrownWine"/>
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;Class rdf:about="&amp;vin;Vin">
+      &lt;attributeValueCondition>
+        &lt;Restriction>
+          &lt;onAttribute>
+            &lt;Relation rdf:about="&amp;vin;propri&eacute;taire"/>&lt;/first>
+          &lt;/onAttribute>
+          &lt;comparator rdf:resource="&amp;xsd;equals"/>
+          &lt;value>&lt;Relation rdf:about="&amp;vin;n&eacute;gotiant"/>&lt;/value>
+        &lt;/Restriction>
+      &lt;/attributeValueCondition>
+    &lt;/Class>
+  &lt;/align:entity2>
+  &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
+  &lt;align:relation>>&lt;/align:relation>
+&lt;/align:Cell>
+</pre></div></div>
+
+
+<h2 id="ssec:instances">Instances</h2>
+
 <p>Instances are always single entities refering to an individual
   through its URI.</p>
 <div class="fragment"><pre>
 <u>instance</u> ::= &lt;Instance rdf:about=" <u>URI</u> "/>
 </pre></div>
 
-<h2 id="sec:examples">Examples</h2>
+<!--h2 id="ssec:transfs">Transformations</h2-->
+
+<!--div class="fragment"><pre>
+transformation ::= &lt;Transformation>
+                    xpath-transformation
+                   &lt;/Transformation>
+                   | &lt;Transformation>            
+                      &lt;transformation rdf:resource="uri"/>
+                      &lt;parameters>
+                       &lt;rdf:Seq>
+                      	&lt;rdf:li />*	
+                       &lt;/rdf:Seq>
+                      &lt;/parameters>                  
+                     &lt;/Transformation>
+</pre></div-->
+
+<!--p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p-->
+
+<!--div class="rdfxml">
+The following correspondence shows an example of the use of data transformation:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+&lt;align:Cell>
+  &lt;align:entity1>
+    &lt;Property rdf:about="&amp;wine;hasVintageYear"/>
+  &lt;/align:entity1>
+  &lt;align:entity2>
+    &lt;Property rdf:about="&amp;vin;annee\_millesime">
+      &lt;apply>
+        &lt;Transf rdf:resource="Transformation:Date2Int" />
+        &lt;Property rdf:about="&amp;wine;date"/>
+      &lt;/apply>
+    &lt;/Property>
+  &lt;/align:entity2>
+  &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
+  &lt;align:relation>=&lt;/align:relation>
+&lt;/align:Cell>
+</pre></div></div-->
+
+
+<h2 id="sec:examples">Longer examples</h2>
 
 <p>The best examples are the alignment files found in the
   "examples/omwg" directory of the Alignment API release zip.</p>
 
-<p>The following exmples illustrate various kids of usage of the vocabulary.</p>
-
-<div class="syntaxmenu">
-<p>The buttons below can be used to show or hide the available syntaxes.</p><form action=""><p>
-<input id="hide-rs" onclick="display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');" type="button" value="Hide RDF/XML Syntax" />
-<input id="show-rs" onclick="display('rdfxml', '');      set_display_by_id('hide-rs', '');       set_display_by_id('show-rs', 'none');" style="display:none" type="button" value="Show RDF/XML Syntax" />
-<input id="hide-ts" onclick="display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');" type="button" value="Hide N3 Syntax" />
-<input id="show-ts" onclick="display('n3', '');      set_display_by_id('hide-ts', '');       set_display_by_id('show-ts', 'none');" style="display:none" type="button" value="Show N3 Syntax" />
-<input id="hide-ms" onclick="display('graph', 'none');            set_display_by_id('hide-ms', 'none');             set_display_by_id('show-ms', '');" type="button" value="Hide Graph" />
-<input id="show-ms" onclick="display('graph','');      set_display_by_id('hide-ms', '');       set_display_by_id('show-ms', 'none');" style="display:none" type="button" value="Show Graph" />
-</p></form>
-</div>
-
-<p>
-In case of conflict, the RDF/XML syntax is the authoritative one.
-This is also the one for which we have developed parsers and renderers.
-However, we are glad that you report errors in the other syntaxes as well.
-</p>
+<p>The following examples illustrate various kids of usage of the vocabulary.</p>
 
 <h3 id="ssec:ex1">Class partition</h3>
 
 <p>This example shows how to express a correspondence between a class in one ontology corresponding to a set of classes in the other ontology. In order to graps the precise correspondence, the one class is partitioned according to the value of one of its attributes. In this example one ontology has a class LED which has a property color, while the other ontology has three classes RedLED, BlueLED, and GreenLED. The LED class is aligned with the three corresponding classes by specifying a restriction of its scope to the corresponding value of the <i>color</i> attribute.</p>
 
 <div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
-<div class="fragment">
+<div class="detail">
 <pre>
 &lt;align:Cell rdf:about="#cell1">
   &lt;align:entity1>
@@ -417,7 +706,7 @@ However, we are glad that you report errors in the other syntaxes as well.
           &lt;edoal:onAttribute>
             &lt;edoal:Relation rdf:about="&O1;hasColor" />
           &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
           &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Blue"/>&lt;/edoal:value>
         &lt;/edoal:AttributeValueRestriction>
       &lt;/edoal:and>
@@ -436,7 +725,7 @@ However, we are glad that you report errors in the other syntaxes as well.
           &lt;edoal:onAttribute>
             &lt;edoal:Relation rdf:about="&O1;hasColor" />
           &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
           &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Red"/>&lt;/edoal:value>
         &lt;/edoal:AttributeValueRestriction>
       &lt;/edoal:and>
@@ -455,7 +744,7 @@ However, we are glad that you report errors in the other syntaxes as well.
           &lt;edoal:onAttribute>
             &lt;edoal:Relation rdf:about="&O1;hasColor" />
           &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&xsd;equals" />
+	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
           &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Green"/>&lt;/edoal:value>
         &lt;/edoal:AttributeValueRestriction>
       &lt;/edoal:and>
@@ -476,7 +765,7 @@ O2:BlueLED a edoal:Class.
 :cell1 a align:Cell;
 	align:entity1 [
 		edoal:and [
-			edoal:onProperty O1:hasColor;
+			edoal:onAttribute O1:hasColor;
 			edoal:comparator function:equals;
 			edoal:value O1:Blue.
 		];
@@ -487,7 +776,7 @@ O2:RedLED a edoal:Class.
 :cell2 a align:Cell;
 	align:entity1  [
 		edoal:and [
-			edoal:onProperty O1:hasColor;
+			edoal:onAttribute O1:hasColor;
 			edoal:comparator function:equals;
 			edoal:value O1:Red.
 		];
@@ -498,13 +787,14 @@ O2:GreenLED a edoal:Class.
 :cell3 a align:Cell;
 	align:entity1  [
 		edoal:and [
-			edoal:onProperty O1:hasColor;
+			edoal:onAttribute O1:hasColor;
 			edoal:comparator function:equals;
 			edoal:value O1:Green.
 		];
 		edoal:and O1:LED.
 	align:entity2 O2:GreenLED.
-</pre></div>
+</pre>
+</div>
 </div>
 <div class="graph"><div class="exampleheader">Graph</div>
 <center>
@@ -522,7 +812,7 @@ O2:GreenLED a edoal:Class.
 <p>We give two valid version of this correspondence depending on if
   the correspondence apply to the two properties (version 1) or the
   bearer of the transformed properties (version 2).
-<div class="fragment">
+<div class="detail">
 <pre>
 &lt;align:Cell rdf:about="#cell">
   &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/align:entity1>
@@ -598,7 +888,7 @@ O2:weight a edoal:Property.
 <p>This example illustrates the conversion between two currencies. A transformation service is specified.</p>
 
 <div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
-<div class="fragment"><pre>
+<div class="detail"><pre>
 &lt;align:Cell>
   &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;price" />&lt;/align:entity1>
   &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;hasPrice" />&lt;/align:entity2>
@@ -657,7 +947,7 @@ Moreover, the property Var3 has an integer value.
 This pattern thus captures all correspondences between two classes, the scope of one class being restricted to only those instances having a specific value (not specified by the pattern) for one of its property whith datatype "integer".</p>
 
 <div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
-<div class="fragment">
+<div class="detail">
 <pre>
 &lt;align:Cell rdf:about="#Cell1">
   &lt;align:entity1>
@@ -665,13 +955,13 @@ This pattern thus captures all correspondences between two classes, the scope of
       &lt;edoal:and rdf:parseType="Collection">
         &lt;edoal:Class edoal:var="#var1" />
         &lt;edoal:AttributeTypeRestriction>
-          &lt;edoal:onProperty>
+          &lt;edoal:onAttribute>
             &lt;edoal:PropertyDomainRestriction edoal:var="#var3">
               &lt;edoal:class>
                 &lt;edoal:Class edoal:var="#var1" />
               &lt;/edoal:class>
             &lt;/edoal:PropertyDomainRestriction>
-          &lt;/edoal:onProperty>
+          &lt;/edoal:onAttribute>
           &lt;edoal:type>&lt;edoal:Datatype rdf:about="&xsd;integer" />&lt;/edoal:type>
         &lt;/edoal:AttributeTypeRestriction>
       &lt;/edoal:and>
@@ -704,7 +994,7 @@ This pattern thus captures all correspondences between two classes, the scope of
 		edoal:and :var1;
 		edoal:and [
 			a edoal:Restriction;
-			edoal:onProperty :var3.
+			edoal:onAttribute :var3.
 		].
 	].
 	align:entity2 :var2.
