@@ -159,7 +159,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	// default behaviour
 	if ( cell.getId() != null ) writer.print(NL+NL+"<!-- "+cell.getId()+" -->"+NL);
 	if ( cell instanceof EDOALCell ) {
-	    ((EDOALCell)cell).accept( this ); // useless cast?
+	    cell.accept( this ); // useless cast?
 	} else {
 	    this.cell = cell;
 	    Object ob1 = cell.getObject1();
