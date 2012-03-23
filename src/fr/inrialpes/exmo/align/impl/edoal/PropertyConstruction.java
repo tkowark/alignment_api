@@ -31,21 +31,18 @@ import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * <p>
  * Represents a PropertyConstruction.
  * </p>
  * 
- * @author Francois Scharffe, Adrian Mocan
- * 
  * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
  * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/PropertyExpr.java,v $,
- * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
-
-// JE2010: Should it be abstract with RelationConjunction??
 
 public class PropertyConstruction extends PropertyExpression {
 
@@ -79,6 +76,13 @@ public class PropertyConstruction extends PropertyExpression {
 	this.operator = op;
     }
 
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	return visitor.visit(this);
+    }
+
     public Constructor getOperator() {
 	return operator;
     }
@@ -95,11 +99,6 @@ public class PropertyConstruction extends PropertyExpression {
 	components.add( exp );
     }
 
-    /*
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
-    */
     /*
     public Object clone() {
 	return super.clone();

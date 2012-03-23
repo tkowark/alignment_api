@@ -22,8 +22,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * <p>
  * Superclass for all AttributeConditions.
@@ -37,14 +35,8 @@ import org.semanticweb.owl.align.AlignmentException;
  * <p>
  * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author Richard Pöttler
- * @author Adrian Mocan
- * @author Francois Scharffe
- * @version $Revision: 1.6 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 
 public abstract class PropertyRestriction extends PropertyExpression implements Cloneable {
@@ -53,10 +45,6 @@ public abstract class PropertyRestriction extends PropertyExpression implements 
 	super();
     }
     
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
-
     /*
     public Object clone() {
 	try {

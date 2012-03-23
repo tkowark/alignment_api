@@ -25,19 +25,12 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import java.util.Collection;
 import java.util.Set;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * <p>
  * Represents a PropertyExpression.
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author Francois Scharffe, Adrian Mocan
- * @author richi
- * @version $Revision: 1.7 $
+ * @version $Id$
  */
 
 public abstract class PropertyExpression extends PathExpression implements Cloneable {
@@ -48,9 +41,4 @@ public abstract class PropertyExpression extends PathExpression implements Clone
     public PropertyExpression() {
 	super();
     }
-
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
-
 }

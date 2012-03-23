@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010-2011
+ * Copyright (C) INRIA, 2010-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -80,7 +80,7 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 
 public class TypeCheckingVisitor {
 
-    private enum TYPE { CLASS, PROPERTY, RELATION, INSTANCE, VALUE, DATATYPE, ANY, ERROR };
+    public enum TYPE { CLASS, PROPERTY, RELATION, INSTANCE, VALUE, DATATYPE, ANY, ERROR };
 
     EDOALAlignment alignment = null;
     EDOALCell cell = null;
@@ -96,27 +96,11 @@ public class TypeCheckingVisitor {
 	nslist = new Hashtable<URI,TYPE>();
     }
 	
-    /*
-     * JE: These major dispatches are a pain.
-     * I should learn a bit more Java about that 
-     * (and at least inverse the order
-     */
-
     public TYPE visit( Visitable o ) throws AlignmentException {
-	if ( o instanceof Expression ) return visit( (Expression)o );
-	else throw new AlignmentException( "Cannot type check all" );
+	throw new AlignmentException( "Cannot type check all" );
     }
 
     public TYPE visit( Expression o ) throws AlignmentException {
-	if ( o instanceof ClassExpression ) return visit( (ClassExpression)o );
-	//else if ( o instanceof TransfService ) return visit( (TransfService)o );
-	else if ( o instanceof RelationRestriction ) return visit( (RelationRestriction)o );
-	else if ( o instanceof PropertyRestriction ) return visit( (PropertyRestriction)o );
-	else if ( o instanceof ClassRestriction ) return visit( (ClassRestriction)o );
-	else if ( o instanceof PathExpression ) return visit( (PathExpression)o );
-	else if ( o instanceof PropertyExpression ) return visit( (PropertyExpression)o );
-	else if ( o instanceof InstanceExpression ) return visit( (InstanceExpression)o );
-	else if ( o instanceof RelationExpression ) return visit( (RelationExpression)o );
 	throw new AlignmentException("Cannot export abstract Expression: "+o );
     }
 
@@ -132,8 +116,8 @@ public class TypeCheckingVisitor {
 	this.cell = cell;
 	// Could be useful when not parsing EDOAL
 	if ( alignment.getLevel().startsWith("2EDOAL") ) {
-	    TYPE t1 = visit( ((Expression)(cell.getObject1())) );
-	    TYPE t2 = visit( ((Expression)(cell.getObject2())) );
+	    TYPE t1 = ((Expression)(cell.getObject1())).accept( this );
+	    TYPE t2 = ((Expression)(cell.getObject2())).accept( this );
 	    // JE2011: This should be dependent on the Relation type (e.g., instanceOf)
 	    // See below
 	    if ( !compatible( t1, t2 ) ) return TYPE.ERROR;
@@ -156,7 +140,7 @@ public class TypeCheckingVisitor {
     }
 
     // JE2011
-    // This should no be related to the Relation class
+    // This should not be related to the Relation class
     // and it can implement a compatibility check from the given types!
     // depending on the 
     //public TYPE visit( EDOALRelation rel ) {
@@ -165,24 +149,19 @@ public class TypeCheckingVisitor {
 
     public TYPE visit( final Transformation trsf ) throws AlignmentException {
 	// getType() could allow to do better typing
-	TYPE tp1 = visit( trsf.getObject1() );
-	TYPE tp2 = visit( trsf.getObject2() );
+	TYPE tp1 = trsf.getObject1().accept( this );
+	TYPE tp2 = trsf.getObject2().accept( this );
 	if ( !compatible( tp1, TYPE.VALUE ) ) return raiseError( null, tp1, TYPE.VALUE );
 	if ( !compatible( tp2, TYPE.VALUE ) ) return raiseError( null, tp2, TYPE.VALUE );
 	return TYPE.ANY;
     }
 
     public TYPE visit( final PathExpression p ) throws AlignmentException {
-	if ( p instanceof RelationExpression ) return visit( (RelationExpression)p );
-	else if ( p instanceof PropertyExpression ) return visit( (PropertyExpression)p );
-	else throw new AlignmentException( "Cannot dispatch PathExpression "+p );
+	throw new AlignmentException( "Cannot dispatch PathExpression "+p );
     }
 
     public TYPE visit( final ClassExpression e ) throws AlignmentException {
-	if ( e instanceof ClassId ) return visit( (ClassId)e );
-	else if ( e instanceof ClassConstruction ) return visit( (ClassConstruction)e );
-	else if ( e instanceof ClassRestriction ) return visit( (ClassRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 
     public TYPE visit( final ClassId e ) throws AlignmentException {
@@ -196,7 +175,7 @@ public class TypeCheckingVisitor {
 	final Constructor op = e.getOperator(); // do we test the operator?
 	boolean allright = true;
 	for (final ClassExpression ce : e.getComponents()) {
-	    TYPE tp = visit( ce );
+	    TYPE tp = ce.accept( this );
 	    if ( !compatible( tp, TYPE.CLASS ) ) {
 		raiseError( null, tp, TYPE.CLASS );
 		allright = false;
@@ -207,31 +186,27 @@ public class TypeCheckingVisitor {
     }
     
     public TYPE visit(final ClassRestriction e) throws AlignmentException {
-	if ( e instanceof ClassValueRestriction ) return visit( (ClassValueRestriction)e );
-	else if ( e instanceof ClassTypeRestriction ) return visit( (ClassTypeRestriction)e );
-	else if ( e instanceof ClassDomainRestriction ) return visit( (ClassDomainRestriction)e );
-	else if ( e instanceof ClassOccurenceRestriction ) return visit( (ClassOccurenceRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassRestriction "+e );
     }
 
     public TYPE visit( final ClassValueRestriction c ) throws AlignmentException {
-	TYPE ptype = visit( c.getRestrictionPath() );
-	TYPE tp = visit( c.getValue() );
+	TYPE ptype = c.getRestrictionPath().accept( this );
+	TYPE tp = c.getValue().accept( this );
 	if ( !pcompatible( ptype, tp ) ) return raiseError( null, ptype, tp );
 	return TYPE.CLASS;
     }
 
     public TYPE visit( final ClassTypeRestriction c ) throws AlignmentException {
-	TYPE ptype = visit( c.getRestrictionPath() );
-	TYPE tp = visit( c.getType() );
+	TYPE ptype = c.getRestrictionPath().accept( this );
+	TYPE tp = c.getType().accept( this );
 	if ( !compatible( ptype, TYPE.PROPERTY ) ) return raiseError( null, ptype, TYPE.PROPERTY );
 	if ( !compatible( tp, TYPE.DATATYPE ) ) return raiseError( null, tp, TYPE.DATATYPE );
 	return TYPE.CLASS;
     }
 
     public TYPE visit( final ClassDomainRestriction c ) throws AlignmentException {
-	TYPE ptype = visit( c.getRestrictionPath() );
-	TYPE tp = visit( c.getDomain() );
+	TYPE ptype = c.getRestrictionPath().accept( this );
+	TYPE tp = c.getDomain().accept( this );
 	if ( !compatible( ptype, TYPE.RELATION ) ) return raiseError( null, ptype, TYPE.RELATION );
 	if ( !compatible( tp, TYPE.CLASS ) ) return raiseError( null, tp, TYPE.CLASS );
 	return TYPE.CLASS;
@@ -239,7 +214,7 @@ public class TypeCheckingVisitor {
 
     public TYPE visit( final ClassOccurenceRestriction c ) throws AlignmentException {
 	//c.getComparator().getURI();
-	TYPE ptype = visit( c.getRestrictionPath() );
+	TYPE ptype = c.getRestrictionPath().accept( this );
 	// c.getOccurence() is an integer
 	if ( !compatible( ptype, TYPE.RELATION ) && 
 	     !compatible( ptype, TYPE.PROPERTY ) ) return raiseError( null, ptype, TYPE.RELATION );
@@ -247,10 +222,7 @@ public class TypeCheckingVisitor {
     }
     
     public TYPE visit(final PropertyExpression e) throws AlignmentException {
-	if ( e instanceof PropertyId ) return visit( (PropertyId)e );
-	else if ( e instanceof PropertyConstruction ) return visit( (PropertyConstruction)e );
-	else if ( e instanceof PropertyRestriction ) return visit( (PropertyRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch PropertyExpression "+e );
     }
 	
     public TYPE visit(final PropertyId e) throws AlignmentException {
@@ -264,7 +236,7 @@ public class TypeCheckingVisitor {
 	//final Constructor op = e.getOperator(); // do we test the operator?
 	boolean allright = true;
 	for ( final PathExpression pe : e.getComponents() ) {
-	    TYPE tp = visit( pe );
+	    TYPE tp = pe.accept( this );
 	    if ( !compatible( tp, TYPE.PROPERTY ) ) {
 		raiseError( null, tp, TYPE.PROPERTY );
 		allright = false;
@@ -275,36 +247,30 @@ public class TypeCheckingVisitor {
     }
     
     public TYPE visit(final PropertyRestriction e) throws AlignmentException {
-	if ( e instanceof PropertyValueRestriction ) return visit( (PropertyValueRestriction)e );
-	else if ( e instanceof PropertyDomainRestriction ) return visit( (PropertyDomainRestriction)e );
-	else if ( e instanceof PropertyTypeRestriction ) return visit( (PropertyTypeRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch PropertyRestriction "+e );
     }
 	
     public TYPE visit(final PropertyValueRestriction c) throws AlignmentException {
 	//c.getComparator().getURI(); // do we test the operator?
-	TYPE type = visit( c.getValue() );
+	TYPE type = c.getValue().accept( this );
 	if ( !compatible( type, TYPE.VALUE ) ) return raiseError( null, type, TYPE.VALUE );
 	return TYPE.PROPERTY;
     }
 
     public TYPE visit(final PropertyDomainRestriction c) throws AlignmentException {
-	TYPE type = visit( c.getDomain() );
+	TYPE type = c.getDomain().accept( this );
 	if ( !compatible( type, TYPE.DATATYPE ) ) return raiseError( null, type, TYPE.DATATYPE );
 	return TYPE.PROPERTY;
     }
 
     public TYPE visit(final PropertyTypeRestriction c) throws AlignmentException {
-	TYPE type = visit( c.getType() );
+	TYPE type = c.getType().accept( this );
 	if ( !compatible( type, TYPE.DATATYPE ) ) return raiseError( null, type, TYPE.DATATYPE );
 	return TYPE.PROPERTY;
     }
     
     public TYPE visit( final RelationExpression e ) throws AlignmentException {
-	if ( e instanceof RelationId ) return visit( (RelationId)e );
-	else if ( e instanceof RelationRestriction ) return visit( (RelationRestriction)e );
-	else if ( e instanceof RelationConstruction ) return visit( (RelationConstruction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch RelationExpression "+e );
     }
 	
     public TYPE visit( final RelationId e ) throws AlignmentException {
@@ -318,7 +284,7 @@ public class TypeCheckingVisitor {
 	final Constructor op = e.getOperator(); // do we test the operator?
 	boolean allright = true;
 	for (final PathExpression re : e.getComponents()) {
-	    TYPE tp = visit( re );
+	    TYPE tp = re.accept( this );
 	    if ( !compatible( tp, TYPE.RELATION ) ) {
 		raiseError( null, tp, TYPE.RELATION );
 		allright = false;
@@ -329,26 +295,23 @@ public class TypeCheckingVisitor {
     }
     
     public TYPE visit( final RelationRestriction e ) throws AlignmentException {
-	if ( e instanceof RelationCoDomainRestriction ) return visit( (RelationCoDomainRestriction)e );
-	else if ( e instanceof RelationDomainRestriction ) return visit( (RelationDomainRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch RelationRestriction "+e );
     }
 	
     public TYPE visit(final RelationCoDomainRestriction c) throws AlignmentException {
-	TYPE type = visit( c.getCoDomain() );
+	TYPE type = c.getCoDomain().accept( this );
 	if ( !compatible( type, TYPE.CLASS ) ) return raiseError( null, type, TYPE.CLASS );
 	return TYPE.RELATION;
     }
 
     public TYPE visit(final RelationDomainRestriction c) throws AlignmentException {
-	TYPE type = visit( c.getDomain() );
+	TYPE type = c.getDomain().accept( this );
 	if ( !compatible( type, TYPE.CLASS ) ) return raiseError( null, type, TYPE.CLASS );
 	return TYPE.RELATION;
     }
     
     public TYPE visit( final InstanceExpression e ) throws AlignmentException {
-	if ( e instanceof InstanceId ) return visit( (InstanceId)e );
-	else throw new AlignmentException( "Cannot handle InstanceExpression "+e );
+	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
     }
 
     public TYPE visit( final InstanceId e ) throws AlignmentException {
@@ -359,11 +322,8 @@ public class TypeCheckingVisitor {
     }
     
     public TYPE visit( final ValueExpression e ) throws AlignmentException {
-	if ( e instanceof Value ) return visit( (Value)e );
-	else if ( e instanceof Apply ) return visit( (Apply)e );
-	else if ( e instanceof InstanceExpression ) return visit( (InstanceExpression)e );
-	else if ( e instanceof PathExpression ) {
-	    TYPE type = visit( (PathExpression)e );
+	if ( e instanceof PathExpression ) {
+	    TYPE type = e.accept( this );
 	    if ( !compatible( type, TYPE.PROPERTY ) ) return raiseError( null, type, TYPE.PROPERTY );
 	    return TYPE.VALUE;
 	} else throw new AlignmentException( "Cannot handle ValueExpression "+e );
@@ -377,7 +337,7 @@ public class TypeCheckingVisitor {
 	// e.getOperation()
 	boolean allright = true;
 	for ( ValueExpression ve : e.getArguments() ) {
-	    TYPE tp = visit( ve );
+	    TYPE tp = ve.accept( this );
 	    if ( !compatible( tp, TYPE.VALUE ) ) {
 		raiseError( null, tp, TYPE.VALUE );
 		allright = false;

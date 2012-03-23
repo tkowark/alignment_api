@@ -22,6 +22,9 @@ package fr.inrialpes.exmo.align.impl.edoal;
 
 import org.semanticweb.owl.align.AlignmentException;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /** 
  * Interface implemented by expressions which can be used as values:
  * Value, Path, Instance
@@ -30,5 +33,7 @@ import org.semanticweb.owl.align.AlignmentException;
 public interface ValueExpression {
 
     public void accept( EDOALVisitor v ) throws AlignmentException;
+
+    public abstract TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException;
 }
 

@@ -24,12 +24,12 @@ package fr.inrialpes.exmo.align.impl.edoal;
 
 import org.semanticweb.owl.align.AlignmentException;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * <p>
  * Id to represent a datatype
- * </p>
- * <p>
- * $Id$
  * </p>
  */
 
@@ -40,6 +40,9 @@ public class Datatype { //implements Cloneable
 
     public void accept( EDOALVisitor visitor) throws AlignmentException {
         visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor  ) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     /**

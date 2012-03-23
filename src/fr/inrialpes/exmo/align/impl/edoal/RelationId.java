@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006 -- then RelationExpr
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,10 +27,11 @@ import java.net.URISyntaxException;
 
 import org.semanticweb.owl.align.AlignmentException;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * A simple Id to represent a Relation.
- * 
- * @author richi
  * 
  */
 public class RelationId extends RelationExpression implements Id {
@@ -68,6 +69,13 @@ public class RelationId extends RelationExpression implements Id {
 	id = u.toString();
     }
     
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	return visitor.visit(this);
+    }
+
     public URI getURI(){
 	return uri;
     }

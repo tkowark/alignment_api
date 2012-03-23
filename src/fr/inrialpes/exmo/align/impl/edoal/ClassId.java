@@ -25,15 +25,15 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import java.util.Collection;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
+
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
  * A simple Id to represent a Class.
- * 
- * @author richi
  * 
  */
 public class ClassId extends ClassExpression implements Id {
@@ -72,6 +72,13 @@ public class ClassId extends ClassExpression implements Id {
 	id = u.toString();
     }
     
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor  ) throws AlignmentException {
+	return visitor.visit(this);
+    }
+
     public URI getURI(){
 	return uri;
     }

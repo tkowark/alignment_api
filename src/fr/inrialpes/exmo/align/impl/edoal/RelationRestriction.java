@@ -22,8 +22,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * <p>
  * Superclass for all RelationConditions.
@@ -37,21 +35,11 @@ import org.semanticweb.owl.align.AlignmentException;
  * <p>
  * Created on 23-Mar-2005 Committed by $Author: poettler_ric $
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * 
- * @author Richard Pöttler
- * @author Francois Scharffe
- * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 public abstract class RelationRestriction extends RelationExpression {
 
     protected RelationRestriction() {}
-
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
 
 }

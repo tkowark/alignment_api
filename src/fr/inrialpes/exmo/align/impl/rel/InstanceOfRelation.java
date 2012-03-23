@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2011
+ * Copyright (C) INRIA, 2011-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,10 +26,11 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * Represents a relation between an instance and its class.
  *
- * @author Jérôme Euzenat
  * @version $Id$
  */
 
@@ -37,6 +38,9 @@ public class InstanceOfRelation extends BasicRelation
 {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
 	visitor.visit( this );
+    }
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	visitor.visit(this);
     }
 
     static final String prettyLabel = "InstanceOf";

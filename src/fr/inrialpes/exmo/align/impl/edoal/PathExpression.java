@@ -24,35 +24,21 @@ package fr.inrialpes.exmo.align.impl.edoal;
 
 import java.util.Collection;
 
-import org.semanticweb.owl.align.AlignmentException;
-
-import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
-
 /**
  * <p>
- * Represents a RelationExpression.
+ * Represents a RelationExpression or a PropertyExpression.
+ * </p>
+ * <p>
+ * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
  * </p>
  * 
- * @author Francois Scharffe, Adrian Mocan
- * 
- * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
- * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/RelationExpr.java,v $,
- * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 
 public abstract class PathExpression extends Expression implements Cloneable, ValueExpression {
 
     public PathExpression() {
 	super();
-    }
-
-    public void accept( EDOALVisitor visitor ) throws AlignmentException {
-	visitor.visit( this );
-    }
-    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
     }
 
     /*

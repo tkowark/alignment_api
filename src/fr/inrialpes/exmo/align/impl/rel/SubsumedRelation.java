@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2008, 2011
+ * Copyright (C) INRIA, 2004-2005, 2008, 2011-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,12 +26,13 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 import java.io.PrintWriter;
 
 /**
  * Represents an OWL subsumption relation.
  *
- * @author Jérôme Euzenat
  * @version $Id$
  */
 
@@ -39,6 +40,9 @@ public class SubsumedRelation extends BasicRelation
 {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
+    }
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	visitor.visit(this);
     }
 
     static final String prettyLabel = "<";

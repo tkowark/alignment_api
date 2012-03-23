@@ -22,22 +22,14 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Collection;
-
-import org.semanticweb.owl.align.AlignmentException;
-
-
 /**
  * <p>
  * Represents a RelationExpression.
  * </p>
- * 
- * @author Francois Scharffe, Adrian Mocan
- * 
+ * <p>
  * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
- * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/RelationExpr.java,v $,
+ * </p>
+ *
  * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
  */
 
@@ -47,9 +39,6 @@ public abstract class RelationExpression extends PathExpression implements Clone
 	super();
     }
 
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
     /*
     public Object clone() {
 	return super.clone();

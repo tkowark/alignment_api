@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.4 - 2006 -- then InstanceExpr
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,10 +25,13 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.semanticweb.owl.align.AlignmentException;
+
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * A simple Id to represent a Instance.
- * 
- * @author richi
  * 
  */
 
@@ -64,6 +67,13 @@ public class InstanceId extends InstanceExpression implements Id {
 	this.uri = u;
     }
     
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor  ) throws AlignmentException {
+	return visitor.visit(this);
+    }
+
     /**
      * Returns the Id.
      * 

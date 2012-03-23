@@ -26,10 +26,11 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * Represents an OWL equivalence relation.
  *
- * @author Jérôme Euzenat
  * @version $Id$
  */
 
@@ -37,6 +38,9 @@ public class EquivRelation extends BasicRelation {
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException {
 	visitor.visit( this );
+    }
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	visitor.visit(this);
     }
 
     static final String prettyLabel = "=";

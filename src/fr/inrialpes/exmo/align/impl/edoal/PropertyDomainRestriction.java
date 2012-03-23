@@ -22,16 +22,17 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
+import org.semanticweb.owl.align.AlignmentException;
+
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * <p>
  * Represents a domainRestriction tag for PropertyExpressions.
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author Richard Pöttler
- * @version $Revision: 1.4 $
+ * @version $Id$
  * 
  */
 public class PropertyDomainRestriction extends PropertyRestriction {
@@ -58,6 +59,13 @@ public class PropertyDomainRestriction extends PropertyRestriction {
     public PropertyDomainRestriction( final ClassExpression dom ) {
 	super();
 	domain = dom;
+    }
+
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     public ClassExpression getDomain() {

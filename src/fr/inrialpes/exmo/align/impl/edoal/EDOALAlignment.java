@@ -73,7 +73,7 @@ public class EDOALAlignment extends BasicAlignment {
 	variables = new Hashtable<String,Variable>();
     }
 
-    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
 	visitor.visit(this);
     }
 

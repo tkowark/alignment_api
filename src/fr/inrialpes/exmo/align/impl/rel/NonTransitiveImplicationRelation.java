@@ -1,7 +1,7 @@
 /*
  * $Id$
 ¨*
- * Copyright (C) INRIA, 2004-2005, 2008, 2011
+ * Copyright (C) INRIA, 2004-2005, 2008, 2011-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,11 +25,12 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 /**
  * Represents a non transitive implication relation.
  * as it can be found in C-OWL and other works
  *
- * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
@@ -37,6 +38,9 @@ public class NonTransitiveImplicationRelation extends BasicRelation
 {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
+    }
+    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	visitor.visit(this);
     }
 
     static final String prettyLabel = "~>";

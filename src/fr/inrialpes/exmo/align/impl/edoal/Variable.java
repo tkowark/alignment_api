@@ -26,8 +26,6 @@ import java.util.HashSet;
 /**
  * A simple Id to represent a Instance.
  * 
- * @author richi
- * 
  */
 
 public class Variable {
@@ -60,7 +58,6 @@ public class Variable {
     public String plainText() {
 	return toString();
     }
-    
     
     /**
      * <p>

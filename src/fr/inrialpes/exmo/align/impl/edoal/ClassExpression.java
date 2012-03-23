@@ -31,14 +31,11 @@ import org.semanticweb.owl.align.AlignmentVisitor;
  * <p>
  * Represents a ClassExpression.
  * </p>
- * 
- * @author Francois Scharffe, Adrian Mocan
- * 
+ * <p>
  * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
- * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/ClassExpr.java,v $,
- * @version $Revision: 1.5 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * </p>
+ *
+ * @version $Id$
  */
 
 public abstract class ClassExpression extends Expression {
@@ -46,12 +43,6 @@ public abstract class ClassExpression extends Expression {
     protected ClassExpression() {
 	super();
     }
-
-    /*
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
-    */
 
     /*    public Object clone() {
 	return super.clone();

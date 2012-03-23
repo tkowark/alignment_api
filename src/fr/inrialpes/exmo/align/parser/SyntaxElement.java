@@ -215,7 +215,7 @@ public enum SyntaxElement {
 	    throw new NullPointerException("The string must not be null");
 	}
 	for ( SyntaxElement e : SyntaxElement.values() ) {
-	    if ( s.equals(e.getName()) ) {
+	    if ( s.equals( e.getName() ) ) {
 		return e;
 	    }
 	}

@@ -30,6 +30,7 @@ import java.util.Set;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 /**
  * <p>
@@ -48,14 +49,11 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * <code>toString</code> and <code>hashCode</code> methods must be
  * overwritten, too.
  * </p>
- * 
- * @author Francois Scharffe, Adrian Mocan
- * 
+ * <p>
  * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
+ * </p>
  * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/Expression.java,v $,
- * @version $Revision: 1.7 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 
 public abstract class Expression implements Cloneable {
@@ -66,13 +64,9 @@ public abstract class Expression implements Cloneable {
 
     protected Expression() {}
 
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
+    public abstract void accept( EDOALVisitor visitor ) throws AlignmentException;
 
-    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
+    public abstract TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException;
 
     public Variable getVariable() { return variable; }
     public void setVariable( Variable v ) { variable = v; }

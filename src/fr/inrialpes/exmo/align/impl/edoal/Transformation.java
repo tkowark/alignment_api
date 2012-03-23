@@ -24,12 +24,12 @@ package fr.inrialpes.exmo.align.impl.edoal;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 /**
  * This implements a transformation of an entity into another.
  * The transformation is specified usually through function and can go one way or bith ways 
  *
- * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
@@ -43,9 +43,8 @@ public class Transformation {
     public void accept( EDOALVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }
-
-    public void accept( TypeCheckingVisitor visitor ) throws AlignmentException {
-	visitor.visit(this);
+    public TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     /** Creation **/

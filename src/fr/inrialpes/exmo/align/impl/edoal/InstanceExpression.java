@@ -22,23 +22,18 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * <p>
  * Represents a InstanceExpression.
  * </p>
- * 
- * @author Francois Scharffe, Adrian Mocan
- * 
+ * <p>
  * Created on 23-Mar-2005 Committed by $Author: adrianmocan $
- * 
- * $Source:
- * /cvsroot/mediation/mappingapi/src/fr.inrialpes.exmo.align.impl.edoal/InstanceExpr.java,v $,
- * @version $Revision: 1.4 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * </p>
+ *
+ * @version $Id$
  */
 
-public class InstanceExpression extends Expression implements ValueExpression {
+public abstract class InstanceExpression extends Expression implements ValueExpression {
 
     /**
      * Creates a simple InstaneExpression with the given Id.
@@ -47,9 +42,6 @@ public class InstanceExpression extends Expression implements ValueExpression {
 	super();
     }
 
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
     /*
     public Object clone() {
 	return super.clone();

@@ -311,27 +311,19 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	rel.write( writer );
     };
 
+    
     public void visit( Expression o ) throws AlignmentException {
-	if ( o instanceof PathExpression ) visit( (PathExpression)o );
-	else if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
-	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
-	else throw new AlignmentException( "Cannot dispatch Expression "+o );
+	throw new AlignmentException( "Cannot dispatch Expression "+o );
     }
 
-    // DONE
     public void visit( final PathExpression p ) throws AlignmentException {
-	if ( p instanceof RelationExpression ) visit( (RelationExpression)p );
-	else if ( p instanceof PropertyExpression ) visit( (PropertyExpression)p );
-	else throw new AlignmentException( "Cannot dispatch PathExpression "+p );
+	throw new AlignmentException( "Cannot dispatch PathExpression "+p );
     }
 
-    // DONE
     public void visit( final ClassExpression e ) throws AlignmentException {
-	if ( e instanceof ClassId ) visit( (ClassId)e );
-	else if ( e instanceof ClassConstruction )  visit( (ClassConstruction)e );
-	else if ( e instanceof ClassRestriction )  visit( (ClassRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
+    
 
     public void renderVariables( Expression expr ) {
 	if ( expr.getVariable() != null ) {
@@ -339,7 +331,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	}
     }
 
-    // DONE+TESTED
     public void visit( final ClassId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.CLASS_EXPR.print(DEF));
 	if ( e.getURI() != null ) {
@@ -350,7 +341,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("/>");
     }
 
-    // DONE+TESTED
     public void visit( final ClassConstruction e ) throws AlignmentException {
 	final Constructor op = e.getOperator();
 	String sop = SyntaxElement.getElement( op ).print(DEF) ;
@@ -364,7 +354,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	for ( final ClassExpression ce : e.getComponents() ) {
 	    writer.print(linePrefix);
-	    visit( ce );
+	    ce.accept( this );
 	    writer.print(NL);
 	}
 	decreaseIndent();
@@ -373,16 +363,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.CLASS_EXPR.print(DEF)+">");
     }
     
-    // DONE+TESTED
     public void visit(final ClassRestriction e) throws AlignmentException {
-	if ( e instanceof ClassValueRestriction ) visit( (ClassValueRestriction)e );
-	else if ( e instanceof ClassTypeRestriction )  visit( (ClassTypeRestriction)e );
-	else if ( e instanceof ClassDomainRestriction )  visit( (ClassDomainRestriction)e );
-	else if ( e instanceof ClassOccurenceRestriction )  visit( (ClassOccurenceRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
-
-    // DONE+TESTED
+    
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -390,7 +374,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getRestrictionPath() );
+	c.getRestrictionPath().accept( this );
 	decreaseIndent();
 	writer.print(NL);
 	indentedOutputln("</"+SyntaxElement.ONPROPERTY.print(DEF)+">");
@@ -400,7 +384,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("\"/>"+NL);
 	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getValue() );
+	c.getValue().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
@@ -408,7 +392,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.VALUE_COND.print(DEF)+">");
     }
 
-    // DONE+TESTED
     public void visit( final ClassTypeRestriction c ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.TYPE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -416,17 +399,16 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getRestrictionPath() );
+	c.getRestrictionPath().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
-	visit( c.getType() ); // Directly -> to be changed for rendering all/exists
+	c.getType().accept( this ); // Directly -> to be changed for rendering all/exists
 	decreaseIndent();
 	writer.print(NL);
 	indentedOutput("</"+SyntaxElement.TYPE_COND.print(DEF)+">");
     }
 
-    // DONE+TESTED
     public void visit( final ClassDomainRestriction c ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -434,7 +416,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getRestrictionPath() );
+	c.getRestrictionPath().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
@@ -444,7 +426,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    indentedOutput("<"+SyntaxElement.EXISTS.print(DEF)+">"+NL);
 	}
 	increaseIndent();
-	visit( c.getDomain() );
+	c.getDomain().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	if ( c.isUniversal() ) {
@@ -456,7 +438,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.DOMAIN_RESTRICTION.print(DEF)+">");
     }
 
-    // DONE+TESTED
     public void visit( final ClassOccurenceRestriction c ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.OCCURENCE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -464,7 +445,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getRestrictionPath() );
+	c.getRestrictionPath().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.ONPROPERTY.print(DEF)+">"+NL);
@@ -479,15 +460,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.OCCURENCE_COND.print(DEF)+">");
     }
     
-    // DONE
     public void visit(final PropertyExpression e) throws AlignmentException {
-	if ( e instanceof PropertyId ) visit( (PropertyId)e );
-	else if ( e instanceof PropertyConstruction ) visit( (PropertyConstruction)e );
-	else if ( e instanceof PropertyRestriction ) visit( (PropertyRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
-	
-    // DONE
+    
     public void visit(final PropertyId e) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_EXPR.print(DEF));
 	if ( e.getURI() != null ){
@@ -498,7 +474,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("/>");
     }
 
-    // DONE
     public void visit(final PropertyConstruction e) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_EXPR.print(DEF));
 	if ( isPattern ) renderVariables( e );
@@ -513,12 +488,12 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	if ( (op == Constructor.AND) || (op == Constructor.OR) || (op == Constructor.COMP) ) {
 	    for ( final PathExpression pe : e.getComponents() ) {
 		writer.print(linePrefix);
-		visit( pe );
+		pe.accept( this );
 		writer.print(NL);
 	    }
 	} else {
 	    for (final PathExpression pe : e.getComponents()) {
-		visit( pe );
+		pe.accept( this );
 		writer.print(NL);
 	    }
 	}
@@ -527,16 +502,11 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.PROPERTY_EXPR.print(DEF)+">");
     }
-    
-    // DONE
+
     public void visit(final PropertyRestriction e) throws AlignmentException {
-	if ( e instanceof PropertyValueRestriction ) visit( (PropertyValueRestriction)e );
-	else if ( e instanceof PropertyDomainRestriction ) visit( (PropertyDomainRestriction)e );
-	else if ( e instanceof PropertyTypeRestriction ) visit( (PropertyTypeRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
-	
-    // DONE
+    
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -548,7 +518,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("\"/>"+NL);
 	indentedOutput("<"+SyntaxElement.VALUE.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getValue() );
+	c.getValue().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.VALUE.print(DEF)+">"+NL);
@@ -556,7 +526,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF)+">");
     }
 
-    // DONE
     public void visit(final PropertyDomainRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -564,7 +533,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getDomain() );
+	c.getDomain().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
@@ -572,26 +541,20 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.PROPERTY_DOMAIN_COND.print(DEF)+">");
     }
 
-    // DONE
     public void visit(final PropertyTypeRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
 	writer.print(">"+NL);
 	increaseIndent();
-	visit( c.getType() );
+	c.getType().accept( this );
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF)+">");
     }
     
-    // DONE
     public void visit( final RelationExpression e ) throws AlignmentException {
-	if ( e instanceof RelationId ) visit( (RelationId)e );
-	else if ( e instanceof RelationRestriction ) visit( (RelationRestriction)e );
-	else if ( e instanceof RelationConstruction ) visit( (RelationConstruction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
-	
-    // DONE
+    
     public void visit( final RelationId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_EXPR.print(DEF));
 	if ( e.getURI() != null ) {
@@ -602,7 +565,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("/>");
     }
 
-    // DONE
     public void visit( final RelationConstruction e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_EXPR.print(DEF));
 	if ( isPattern ) renderVariables( e );
@@ -617,12 +579,12 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	if ( (op == Constructor.AND) || (op == Constructor.OR) || (op == Constructor.COMP) ) {
 	    for (final PathExpression re : e.getComponents()) {
 		writer.print(linePrefix);
-		visit( re );
+		re.accept( this );
 		writer.print(NL);
 	    }
 	} else { // NOT... or else: enumerate them
 	    for (final PathExpression re : e.getComponents()) {
-		visit( re );
+		re.accept( this );
 		writer.print(NL);
 	    }
 	}
@@ -632,14 +594,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.RELATION_EXPR.print(DEF)+">");
     }
     
-    // DONE
     public void visit( final RelationRestriction e ) throws AlignmentException {
-	if ( e instanceof RelationCoDomainRestriction ) visit( (RelationCoDomainRestriction)e );
-	else if ( e instanceof RelationDomainRestriction ) visit( (RelationDomainRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
-    // DONE
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -647,7 +605,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getCoDomain() );
+	c.getCoDomain().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
@@ -655,7 +613,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF)+">");
     }
 
-    // DONE
     public void visit(final RelationDomainRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -663,7 +620,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	indentedOutput("<"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
 	increaseIndent();
-	visit( c.getDomain() );
+	c.getDomain().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.TOCLASS.print(DEF)+">"+NL);
@@ -671,13 +628,10 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF)+">");
     }
     
-    // DONE
     public void visit( final InstanceExpression e ) throws AlignmentException {
-	if ( e instanceof InstanceId ) visit( (InstanceId)e );
-	else throw new AlignmentException( "Cannot handle InstanceExpression "+e );
+	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
     }
 
-    // DONE+TESTED
     public void visit( final InstanceId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.INSTANCE_EXPR.print(DEF));
 	if ( e.getURI() != null ) {
@@ -688,13 +642,8 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("/>");
     }
     
-    // DONE+TESTED
     public void visit( final ValueExpression e ) throws AlignmentException {
-	if ( e instanceof InstanceExpression ) visit( (InstanceExpression)e );
-	else if ( e instanceof PathExpression )  visit( (PathExpression)e );
-	else if ( e instanceof Apply )  visit( (Apply)e );
-	else if ( e instanceof Value )  visit( (Value)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 
     public void visit( final Value e ) throws AlignmentException {
@@ -712,7 +661,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	increaseIndent();
 	for ( final ValueExpression ve : e.getArguments() ) {
 	    writer.print(linePrefix);
-	    visit( ve );
+	    ve.accept( this );
 	    writer.print(NL);
 	}
 	decreaseIndent();
@@ -740,7 +689,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.TRANSF.print(DEF)+">");
     }
 
-    // DONE
     public void visit( final Datatype e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.DATATYPE.print(DEF)+">");
 	writer.print(e.plainText());

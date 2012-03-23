@@ -27,17 +27,14 @@ import java.net.URI;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 /**
  * <p>
  * Id to represent a simple valuestring.
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author richi
- * @version $Revision: 1.2 $
+ * @version $Id$
  */
 public class Value implements ValueExpression { //implements Cloneable, Visitable {
 
@@ -75,12 +72,11 @@ public class Value implements ValueExpression { //implements Cloneable, Visitabl
 	this.type = type;
     }
 
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
 	visitor.visit(this);
     }
-
-    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
+    public TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     public String getValue() {

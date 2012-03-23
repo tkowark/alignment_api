@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.net.URI;
 
-import org.semanticweb.owl.align.AlignmentException;
-
 /**
  * <p>
  * Represents a tranformation service to transform the values of attributes.
@@ -45,14 +43,10 @@ import org.semanticweb.owl.align.AlignmentException;
  * function at the given address. The {@code pov} specifies the parameters
  * needed for the function to compute the transformaion.
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author richi
- * @version $Revision: 1.2 $
- * date $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
+
 public class TransfService implements Cloneable {
     /** resource (uri) to the service */
     private URI res;
@@ -78,11 +72,6 @@ public class TransfService implements Cloneable {
     public TransfService(final URI res, final Collection<Id> params) {
 	this(res, null, params);
     }
-    /*
-    public void accept( EDOALVisitor visitor ) throws AlignmentException {
-	visitor.visit(this);
-    }
-    */
 
     /**
      * <p>

@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 /**
  * <p>
@@ -37,9 +38,8 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * function/service. The {@code args} specifies the parameters needed for the
  * function to compute the transformaion.
  * </p>
- * <p>
- * $Id$
- * </p>
+ *
+ * @version $Id$
  */
 
 public class Apply implements ValueExpression {
@@ -67,12 +67,11 @@ public class Apply implements ValueExpression {
 	arguments = args;
     }
 
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
 	visitor.visit(this);
     }
-
-    public void accept(TypeCheckingVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
+    public TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     public URI getOperation() {

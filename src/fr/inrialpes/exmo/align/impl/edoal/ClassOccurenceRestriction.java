@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006 -- then AttributeOccurenceCondition.java
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,22 +22,17 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
+import org.semanticweb.owl.align.AlignmentException;
+
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
+
 /**
  * <p>
  * Represents a attributeOccurenceRestriction tag for a ClassExpressions.
  * </p>
- * <p>
- * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
- * </p>
- * <p>
- * $Id: ClassOccurenceRestriction.java,v 1.5 2006/11/15 16:01:17 poettler_ric
- * Exp $
- * </p>
  * 
- * @author Francois Scharffe
- * @author Adrian Mocan
- * @author Richard Pöttler
- * @version $Revision: 1.6 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 public class ClassOccurenceRestriction extends ClassRestriction implements Cloneable {
 
@@ -61,6 +56,13 @@ public class ClassOccurenceRestriction extends ClassRestriction implements Clone
 	constrainedPath = p;
 	comparator = c;
 	occurence = n;
+    }
+
+    public void accept( EDOALVisitor visitor ) throws AlignmentException {
+	visitor.visit( this );
+    }
+    public TYPE accept(TypeCheckingVisitor visitor) throws AlignmentException {
+	return visitor.visit(this);
     }
 
     public int getOccurence() { return occurence; }

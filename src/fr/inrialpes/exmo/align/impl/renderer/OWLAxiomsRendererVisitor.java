@@ -159,7 +159,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	// default behaviour
 	if ( cell.getId() != null ) writer.print(NL+NL+"<!-- "+cell.getId()+" -->"+NL);
 	if ( cell instanceof EDOALCell ) {
-	    visit( (EDOALCell)cell );
+	    ((EDOALCell)cell).accept( this ); // useless cast?
 	} else {
 	    this.cell = cell;
 	    Object ob1 = cell.getObject1();
@@ -238,6 +238,31 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	}
     }
 
+    public void printRel( Object ob, LoadedOntology onto, Relation rel ) throws AlignmentException {
+	if ( !edoal ) {
+	    String owlrel = getRelationName( onto, rel, ob );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    try {
+		writer.print("    <"+owlrel+" rdf:resource=\""+onto.getEntityURI( ob )+"\"/>"+NL);
+	    } catch ( OntowrapException owex ) {
+		throw new AlignmentException( "Error accessing ontology", owex );
+	    }
+	} else {
+	    String owlrel = getRelationName( rel, ob );
+	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
+	    if ( ob instanceof InstanceId ) {
+		indentedOutput("<"+owlrel+" rdf:resource=\""+((InstanceId)ob).getURI()+"\"/>");
+	    } else {
+		indentedOutput("<"+owlrel+">");
+		writer.print(NL);
+		increaseIndent();
+		((Expression)ob).accept( this ); // ?? no cast
+		decreaseIndent();
+		writer.print(NL);
+		indentedOutput("</"+owlrel+">");
+	    }
+	}
+    }
 
     /**
      * For EDOAL relation name depends on type of expressions
@@ -335,167 +360,41 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
      */
 
     public void visit( EquivRelation rel ) throws AlignmentException {
-	Object ob2 = cell.getObject2();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto2, rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Error accessing ontology", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    if ( ob2 instanceof InstanceId ) {
-		indentedOutput("<"+owlrel+" rdf:resource=\""+((InstanceId)ob2).getURI()+"\"/>");
-	    } else {
-		indentedOutput("<"+owlrel+">");
-		writer.print(NL);
-		increaseIndent();
-		((Expression)ob2).accept( this );
-		decreaseIndent();
-		writer.print(NL);
-		indentedOutput("</"+owlrel+">");
-	    }
-	}
+	printRel( cell.getObject2(), onto2, rel );
     }
 
     public void visit( SubsumeRelation rel ) throws AlignmentException {
-	Object ob1 = cell.getObject1();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto1, rel, ob1 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto1.getEntityURI( ob1 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Error accessing ontology", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob1 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    indentedOutput("<"+owlrel+">");
-	    writer.print(NL);
-	    increaseIndent();
-	    ((Expression)ob1).accept( this );
-	    decreaseIndent();
-	    writer.print(NL);
-	    indentedOutput("</"+owlrel+">");
-	}
+	printRel( cell.getObject1(), onto1, rel );
     }
 
     public void visit( SubsumedRelation rel ) throws AlignmentException {
-	Object ob2 = cell.getObject2();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto2, rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Error accessing ontology", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    indentedOutput("<"+owlrel+">");
-	    writer.print(NL);
-	    increaseIndent();
-	    ((Expression)ob2).accept( this );
-	    decreaseIndent();
-	    writer.print(NL);
-	    indentedOutput("</"+owlrel+">");
-	}
+	printRel( cell.getObject2(), onto2, rel );
     }
 
     public void visit( IncompatRelation rel ) throws AlignmentException {
-	Object ob2 = cell.getObject2();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto2, rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Cannot find entity URI", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    indentedOutput("<"+owlrel+">");
-	    writer.print(NL);
-	    increaseIndent();
-	    ((Expression)ob2).accept( this );
-	    writer.print(NL);
-	    decreaseIndent();
-	    indentedOutput("</"+owlrel+">");
-	}
+	printRel( cell.getObject2(), onto2, rel );
     }
 
     public void visit( InstanceOfRelation rel ) throws AlignmentException {
-	Object ob2 = cell.getObject2();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto2, rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto2.getEntityURI( ob2 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Cannot find entity URI", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob2 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    indentedOutput("<"+owlrel+">");
-	    writer.print(NL);
-	    increaseIndent();
-	    ((Expression)ob2).accept( this );
-	    writer.print(NL);
-	    decreaseIndent();
-	    indentedOutput("</"+owlrel+">");
-	}
+	printRel( cell.getObject2(), onto2, rel );
     }
 
     public void visit( HasInstanceRelation rel ) throws AlignmentException {
-	Object ob1 = cell.getObject1();
-	if ( !edoal ) {
-	    String owlrel = getRelationName( onto1, rel, ob1 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    try {
-		writer.print("    <"+owlrel+" rdf:resource=\""+onto1.getEntityURI( ob1 )+"\"/>"+NL);
-	    } catch ( OntowrapException owex ) {
-		throw new AlignmentException( "Error accessing ontology", owex );
-	    }
-	} else {
-	    String owlrel = getRelationName( rel, ob1 );
-	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
-	    indentedOutput("<"+owlrel+">");
-	    writer.print(NL);
-	    increaseIndent();
-	    ((Expression)ob1).accept( this );
-	    writer.print(NL);
-	    decreaseIndent();
-	    indentedOutput("</"+owlrel+">");
-	}
+	printRel( cell.getObject1(), onto1, rel );
     }
 
     // ******* EDOAL
 
     public void visit( Expression o ) throws AlignmentException {
-	if ( o instanceof ClassExpression ) visit( (ClassExpression)o );
-	else if ( o instanceof PathExpression ) visit( (PathExpression)o );
-	else if ( o instanceof InstanceExpression ) visit( (InstanceExpression)o );
-	else throw new AlignmentException( "Cannot dispatch generic Expression "+o );
+	throw new AlignmentException( "Cannot dispatch generic Expression "+o );
     }
 
     public void visit( final PathExpression p ) throws AlignmentException {
-	if ( p instanceof RelationExpression ) visit( (RelationExpression)p );
-	else if ( p instanceof PropertyExpression ) visit( (PropertyExpression)p );
-	else throw new AlignmentException( "Cannot dispatch generic PathExpression "+p );
+	throw new AlignmentException( "Cannot dispatch generic PathExpression "+p );
     }
 
     public void visit( final ClassExpression e ) throws AlignmentException {
-	if ( e instanceof ClassId ) visit( (ClassId)e );
-	else if ( e instanceof ClassConstruction )  visit( (ClassConstruction)e );
-	else if ( e instanceof ClassRestriction )  visit( (ClassRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 
     public void visit( final ClassId e ) throws AlignmentException {
@@ -561,11 +460,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
 
     public void visit(final ClassRestriction e) throws AlignmentException {
-	if ( e instanceof ClassValueRestriction ) visit( (ClassValueRestriction)e );
-	else if ( e instanceof ClassTypeRestriction )  visit( (ClassTypeRestriction)e );
-	else if ( e instanceof ClassDomainRestriction )  visit( (ClassDomainRestriction)e );
-	else if ( e instanceof ClassOccurenceRestriction )  visit( (ClassOccurenceRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
@@ -612,7 +507,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	indentedOutput("</owl:onProperty>"+NL);
 	indentedOutput("<owl:allValuesFrom>"+NL);
 	increaseIndent();
-	visit( c.getType() ); // JE2010 ??
+	c.getType().accept( this );
 	writer.print(NL);
 	decreaseIndent();
 	indentedOutput("</owl:allValuesFrom>"+NL);
@@ -678,10 +573,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit(final PropertyExpression e) throws AlignmentException {
-	if ( e instanceof PropertyId ) visit( (PropertyId)e );
-	else if ( e instanceof PropertyConstruction ) visit( (PropertyConstruction)e );
-	else if ( e instanceof PropertyRestriction ) visit( (PropertyRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
     public void visit(final PropertyId e) throws AlignmentException {
@@ -739,10 +631,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit(final PropertyRestriction e) throws AlignmentException {
-	if ( e instanceof PropertyValueRestriction ) visit( (PropertyValueRestriction)e );
-	else if ( e instanceof PropertyDomainRestriction ) visit( (PropertyDomainRestriction)e );
-	else if ( e instanceof PropertyTypeRestriction ) visit( (PropertyTypeRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
@@ -833,10 +722,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit( final RelationExpression e ) throws AlignmentException {
-	if ( e instanceof RelationId ) visit( (RelationId)e );
-	else if ( e instanceof RelationRestriction ) visit( (RelationRestriction)e );
-	else if ( e instanceof RelationConstruction ) visit( (RelationConstruction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
     public void visit( final RelationId e ) throws AlignmentException {
@@ -903,9 +789,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit( final RelationRestriction e ) throws AlignmentException {
-	if ( e instanceof RelationCoDomainRestriction ) visit( (RelationCoDomainRestriction)e );
-	else if ( e instanceof RelationDomainRestriction ) visit( (RelationDomainRestriction)e );
-	else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
+	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
@@ -941,8 +825,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit( final InstanceExpression e ) throws AlignmentException {
-	if ( e instanceof InstanceId ) visit( (InstanceId)e );
-	else throw new AlignmentException( "Cannot handle InstanceExpression "+e );
+	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
     }
 
     public void visit( final InstanceId e ) throws AlignmentException {
@@ -961,17 +844,13 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit( final ValueExpression e ) throws AlignmentException {
-	if ( e instanceof InstanceExpression ) visit( (InstanceExpression)e );
-	else if ( e instanceof PathExpression )  visit( (PathExpression)e );
-	else if ( e instanceof Apply )  visit( (Apply)e );
-	else if ( e instanceof Value )  visit( (Value)e );
-	else throw new AlignmentException( "Cannot dispatch generic ValueExpression "+e );
+	throw new AlignmentException( "Cannot dispatch generic ValueExpression "+e );
     }
 
     // Unused: see ClassValueRestriction above
     public void visit( final Value e ) throws AlignmentException {
     }
-	
+
     // OWL does not allow for function calls
     public void visit( final Apply e ) throws AlignmentException {
 	throw new AlignmentException( "Cannot render function call in OWL "+e );

@@ -38,14 +38,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
  * <p>
  * Created on 24-Mar-2005 Committed by $Author: poettler_ric $
  * </p>
- * <p>
- * $Id$
- * </p>
  * 
- * @author Francois Scharffe
- * @author Adrian Mocan
- * @author Richard Pöttler
- * @version $Revision: 1.6 $ $Date: 2010-03-07 20:40:05 +0100 (Sun, 07 Mar 2010) $
+ * @version $Id$
  */
 public abstract class ClassRestriction extends ClassExpression { 
 
@@ -56,12 +50,6 @@ public abstract class ClassRestriction extends ClassExpression {
 	super();
 	constrainedPath = att;
     }
-
-    /*
-    public void accept(AlignmentVisitor visitor) throws AlignmentException {
-	visitor.visit(this);
-    }
-    */
 
     public PathExpression getRestrictionPath() {
 	return constrainedPath;
