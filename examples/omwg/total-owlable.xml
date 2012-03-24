@@ -137,7 +137,7 @@
 		<edoal:onAttribute>
 		  <edoal:Relation rdf:about="&wine;hasTerroir"/>
 		</edoal:onAttribute>
-  		<edoal:datatype>An-integer-as-datatype</edoal:datatype>
+  		<edoal:datatype><edoal:Datatype rdf:about="http://example.com/An-integer-as-datatype" /></edoal:datatype>
 	      </edoal:AttributeTypeRestriction>	  
 	      <edoal:AttributeOccurenceRestriction> 
 		<edoal:onAttribute>
@@ -410,7 +410,7 @@
         <measure rdf:datatype='&xsd;float'>1.</measure>
         <relation>SubsumedBy</relation>
 	<edoal:transformation>
-	  <edoal:Transformation edoal:type="o-">
+	  <edoal:Transformation edoal:direction="o-">
 	    <edoal:entity1>
 	      <edoal:Property><edoal:compose rdf:parseType="Collection"/></edoal:Property>
 	    </edoal:entity1>
@@ -445,7 +445,7 @@
         <measure rdf:datatype='&xsd;float'>1.</measure>
         <relation>SubsumedBy</relation>
 	<edoal:transformation>
-	  <edoal:Transformation edoal:type="o-">
+	  <edoal:Transformation edoal:direction="o-">
 	    <edoal:entity1>
 	      <edoal:Relation><edoal:compose /></edoal:Relation>
 	    </edoal:entity1>

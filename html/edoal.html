@@ -4,12 +4,6 @@
 <!--style type="text/css">@import url(style.css);</style-->
 <link rel="stylesheet" type="text/css" href="base.css" />
 <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-
-<body>
-[<a href="format.html">Alignment format</a>]
-[<a href="./">API</a>]
-
 <script type="text/javascript">/*<![CDATA[*/
 /*
 	Written by Jonathan Snook, http://www.snook.ca/jonathan
@@ -19,11 +13,9 @@
 */
 
 var displayed = [];
-displayed["fssyntax"] = 1;
-displayed["rdfxml"] = 0;
+displayed["rdfxml"] = 1;
 displayed["n3"] = 0;
 displayed["graph"] = 0;
-displayed["owlxml"] = 0;
 
 function display(syntax,status) {
   var howmany = 0;
@@ -90,14 +82,18 @@ function set_display_by_id(id, newValue) {
 }
 
 function primerOnLoad() {
-  display('rdfxml', 'none');      set_display_by_id('hide-rs', 'none');       set_display_by_id('show-rs', '');
-  display('n3', '');      set_display_by_id('hide-ts', '');       set_display_by_id('show-ts', 'none');
+  display('rdfxml', '');      set_display_by_id('hide-rs', '');       set_display_by_id('show-rs', 'none');
+  display('n3', 'none');      set_display_by_id('hide-ts', 'none');       set_display_by_id('show-ts', '');
   display('graph', 'none');  set_display_by_id('hide-ms', 'none');       set_display_by_id('show-ms', '');
-  display('owlxml', 'none');      set_display_by_id('hide-xs', 'none');       set_display_by_id('show-xs', '');
 }
 
 /*]]>*/
 </script>
+</head>
+<body>
+[<a href="format.html">Alignment format</a>]
+[<a href="./">API</a>]
+
 
 <h1 class="titre">EDOAL: Expressive and Declarative Ontology Alignment Language</h1>
 
@@ -125,6 +121,12 @@ the <a href="format.html">alignment format</a>.</p>
 </dl-->
 
 <h3 id="sec:purpose">Purpose</h3>
+
+<!--div class="rdfxml">
+<div class="exampleheader"><span class="exampleheader">RDF/XML Syntax</span></div>
+<pre>&lt;owl:IrreflexiveProperty rdf:about="parentOf"/&gt;
+</pre>
+</div-->
 
 <p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
 
@@ -188,9 +190,11 @@ EDOAL's own namespace is <tt>http://ns.inria.org/edoal/1.0/</tt> (usual
 prefix: edoal).
 </p>
 <p>
+<b>NOTE: THIS IS TO BE FIXED</b>
 Comparators are taken from the W3C XPath functions
-recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt>
-(usual prefix: functions).</p>
+recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt> [<a href="http://www.w3.org/TR/xpath-functions">1</a>]
+(usual prefix: functions), which are also XML schema comparators.
+</p>
 
 <h3 id="ssec:alignment">Alignment format</h3>
 
@@ -204,7 +208,8 @@ The alignment moreover specifies the two aligned ontologies, and as
 exemplified in the code below.
 </p>
 
-<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<div class="rdfxml">
+<div class="exampleheader">RDF/XML Syntax</div>
 <div class="detail">
 <pre>
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
@@ -243,8 +248,9 @@ exemplified in the code below.
 <p>An alignment contains a set of correspondences (<tt>Cell</tt>s). 
 Each cell can be linked to an alignment using the <tt>map</tt> property.
 </p>
-
-<div class="rdfxml"><div class="exampleheader">RDF/XML Syntax</div>
+<p>
+<div class="rdfxml">
+<div class="exampleheader">RDF/XML Syntax</div>
 <div class="detail">
 <pre>
 ...
@@ -258,7 +264,7 @@ Each cell can be linked to an alignment using the <tt>map</tt> property.
   &lt;/align:map>
 ...
 </pre></div></div>
-
+</p>
 <p>
 As the example shows, the EDOAL vocabulary only appears within the
 "entity" properties and very specificaly in the <tt>edoal:transformation</tt>
@@ -318,15 +324,21 @@ Datatype
 </pre>
 </p>
 <p>
-Below are the syntactic declaration of these entities.
-</p>
-<p>
 The <i>Id</i> interface is implemented by expressions identified by
 an URI: these are the named entities of ontologies that may be used in
 basic URIAlignments. The <i>ValueExpression</i> is implemented by
 expressions that identify in context a particular value or instance.
 This can be an instance or a literal as well as a path expression that
 leads to that value in the context of an instance.
+</p>
+<p>
+Hence, the entities that can be found in cells are:
+<div class="fragment"><pre>
+<u>entity</u> ::= <u>instexpr</u> | <u>classexpr</u> | <u>attexpr</u>
+
+<u>attexpr</u> ::= <u>propexpr</u> | <u>relexpr</u>
+</pre></div>
+Below are the syntactic declaration of these entities.
 </p>
 
 <h2 id="ssec:classes">Class expressions</h2>
@@ -356,7 +368,7 @@ Restrictions are defined by giving an <i>path expression</i> (relation or proper
 <div class="fragment"><pre>
 <u>classexpr</u> ::= &lt;Class rdf:about=" <u>URI</u> "/>
             | &lt;Class> <u>classconst</u> &lt;/Class>
-            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> &lt;value>&lt;Literal type="&xsd;Integer" string="INTEGER" />&lt;/value> &lt;/AttributeOccurenceRestriction>
+            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> &lt;value>&lt;Literal edoal:type="&xsd;Integer" edoal:string="INTEGER" />&lt;/value> &lt;/AttributeOccurenceRestriction>
             | &lt;AttributeDomainRestriction> <u>onatt</u> <u>classrest</u> &lt;/AttributeDomainRestriction>
             | &lt;AttributeTypeRestriction> <u>onatt</u> <u>typerest</u> &lt;/AttributeTypeRestriction>
             | &lt;AttributeValueRestriction> <u>onatt</u> <u>comp</u> (&lt;value><u>instexpr</u>&lt;/value>|<u>val</u>) &lt;/AttributeValueRestriction>
@@ -370,15 +382,9 @@ Restrictions are defined by giving an <i>path expression</i> (relation or proper
   table:</p>
 
 <div class="fragment"><pre>
-<u>entity</u> ::= <u>instexpr</u> | <u>classexpr</u> | <u>attexpr</u>
-
-<u>attexpr</u> ::= <u>propexpr</u> | <u>relexpr</u>
-
 <u>onatt</u> ::= &lt;onAttribute> <u>attexpr</u> &lt;/onAttribute>
 
-<u>val</u> ::= &lt;value> <u>value</u> &lt;/value> 
-
-<u>typerest</u> ::= <!--&lt;all> <u>type</u> &lt;/all> | &lt;exists> <u>type</u> &lt;/exists> | -->&lt;type> <u>type</u> &lt;/type>
+<u>typerest</u> ::= <!--&lt;all> <u>type</u> &lt;/all> | &lt;exists> <u>type</u> &lt;/exists> | -->&lt;datatype> <u>type</u> &lt;/datatype>
 
 <u>type</u> ::= &lt;Datatype rdf:about=" <u>URI</u> " />
 
@@ -386,11 +392,7 @@ Restrictions are defined by giving an <i>path expression</i> (relation or proper
 
 <u>comp</u> ::= &lt;comparator rdf:resource=" <u>URI</u> "/>
 
-<u>value</u> ::= &lt;Literal {type=" <u>URI</u> "} string=" <u>STRING</u> " /> | <u>instepr</u> | <u>attrexpr</u> 
-        | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 </pre></div>
-
-<p>Comparators are taken from the XPath function specification [<a href="http://www.w3.org/TR/xpath-functions">1</a>].</p>
 
 <div class="rdfxml">
 Hence, a class expression may be an identified class:
@@ -430,7 +432,7 @@ or as a restriction on the value of a property (here a property path):
         &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
       &lt;/AttributeValueRestriction>
 </pre></div>
-Thanks to paths and restrictions, it is possible to restrict a correspondence to ``Wines whose producing region is located in Aquitaine'' using the following restriction. The comparator is issued from the standard XML Schema comparators.
+Thanks to paths and restrictions, it is possible to restrict a correspondence to ``Wines whose producing region is located in Aquitaine'' using the following restriction.
 </div>
 <!--div class="rdfxml">
 We can with this restriction build the correspondence between
@@ -456,7 +458,7 @@ We can with this restriction build the correspondence between
             &lt;/Relation>
           &lt;/onAttribute>
           &lt;comparator rdf:resource="&amp;xsd;equals"/>
-          &lt;value rdf:datatype="&amp;xsd;string">Acquitaine&lt;/value>
+          &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
         &lt;/Restriction>
       &lt;/attributeValueCondition>
     &lt;/Class>
@@ -519,13 +521,14 @@ ending by a property:
 </pre></div></div>
 
 <div class="rdfxml">
+blabla
 <div class="exampleheader">RDF/XML Syntax</div>
 <div class="detail">
 <pre>
       &lt;PropertyTypeRestriction>
-        &lt;type>
-          &lt;Datatype rdf:about="&amp;xsd;" />
-        &lt;/type>
+        &lt;datatype>
+          &lt;Datatype rdf:about="&amp;xsd;Integer" />
+        &lt;/datatype>
       &lt;/PropertyTypeRestriction>
 </pre></div></div>
 
@@ -592,7 +595,7 @@ An example of occurrence restriction would be the wines produced in a region wit
             &lt;/Relation>
           &lt;/onAttribute>
           &lt;comparator rdf:resource="&amp;xsd;greater-than"/>
-          &lt;value rdf:datatype="&amp;xsd;int">0&lt;/value>
+          &lt;value edoal:type="&amp;xsd;int">0&lt;/value>
         &lt;/Restriction>
       &lt;/attributeOccurrenceCondition>
     &lt;/Class>
@@ -634,53 +637,120 @@ uses a path to state that a locally grown wine is a wine whose owner (propri&eac
 </pre></div></div>
 
 
-<h2 id="ssec:instances">Instances</h2>
+<h2 id="ssec:values">Values</h2>
 
-<p>Instances are always single entities refering to an individual
-  through its URI.</p>
+<p>
+A value expression may be used in alignments for denoting an
+individual things (not a class, a property or a relations). These
+values may be:
+<ul>
+<li>a litteral value;</li>
+<li>an individual instance;</li>
+<li>a value reachable to a property or relation;</li>
+<li>a value computable by a function from arguments which are values.</li>
+</ul>
+</p>
+
+<p>
+They obey the following grammar:
 <div class="fragment"><pre>
-<u>instance</u> ::= &lt;Instance rdf:about=" <u>URI</u> "/>
+<u>val</u> ::= &lt;value> <u>value</u> &lt;/value> 
+
+<u>value</u> ::= &lt;Literal {edoal:type=" <u>URI</u> "} edoal:string=" <u>STRING</u> " /> 
+        | <u>instexpr</u>
+        | <u>attrexpr</u> 
+        | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
+
+<u>instexpr</u> ::= &lt;Instance rdf:about=" <u>URI</u> "/>
+</pre></div>
+</p>
+
+<!--h2>Instances</h2-->
+
+<div class="rdfxml">
+Literal values:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Literal edoal:type="&amp;xsd;Integer" edoal:string="123" />
+    &lt;Literal edoal:type="&amp;xsd;Integer">123&lt;/Literal>
+</pre></div></div>
+
+<p>
+Instances are always single entities refering to an individual
+  through its URI:
+<div id="ssec:instances" class="rdfxml">
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+    &lt;Instance rdf:about="&amp;vin;hasTerroir" />
+</pre></div></div>
+</p>
+<p>
+<div class="rdfxml">
+Application of an operator is not operational but may be expressed in
+the following way:
+<div class="exampleheader">RDF/XML Syntax</div>
+<div class="detail">
+<pre>
+      &lt;Apply operator="http://example.com/Whatever">
+        &lt;arguments rdf:parseType="Collection">
+          &lt;Literal rdf:about="&amp;xsd;Integer">123&lt;/Literal>
+          &lt;Property>
+            &lt;compose rdf:parseType="Collection">
+             &lt;edoal:Relation rdf:about="&amp;vin;hasTerroir" />
+             &lt;edoal:Property rdf:about="&amp;proton;localedIn" />
+            &lt;/compose>
+          &lt;/Property>
+          &lt;Instance rdf:about="&vin;Bordelais" />
+        &lt;/arguments>
+      &lt;/Apply>
+</pre></div></div>
+</p>
+<h2 id="ssec:transf">Transformations</h2>
+
+<p>
+<b>The development of transformations is still work in progress and you
+can contribute by providing your requirements.</b>
+Transformations are expressed in the cell itself. Transformations do
+not express constraints on the classes or properties, but constraints
+on instances that should match.
+</p>
+
+<div class="fragment"><pre>
+<u>transformation</u> ::=  &lt;Transformation operator=" <u>URI</u> " direction=" <u>STRING</u> ">
+                        &lt;arguments rdf:parseType="Collection"> <u>value</u>* &lt;/arguments> 
+                    &lt;/Transformation>
 </pre></div>
 
-<!--h2 id="ssec:transfs">Transformations</h2-->
+<p>
+Transformations <!--are of two kinds, either XPath transformation functions can be used, or other transformation services -->can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p>
 
-<!--div class="fragment"><pre>
-transformation ::= &lt;Transformation>
-                    xpath-transformation
-                   &lt;/Transformation>
-                   | &lt;Transformation>            
-                      &lt;transformation rdf:resource="uri"/>
-                      &lt;parameters>
-                       &lt;rdf:Seq>
-                      	&lt;rdf:li />*	
-                       &lt;/rdf:Seq>
-                      &lt;/parameters>                  
-                     &lt;/Transformation>
-</pre></div-->
-
-<!--p>Transformations are of two kinds, either XPath transformation functions can be used, or other transformation services can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p-->
-
-<!--div class="rdfxml">
+<div class="rdfxml">
 The following correspondence shows an example of the use of data transformation:
 <div class="exampleheader">RDF/XML Syntax</div>
 <div class="detail">
 <pre>
-&lt;align:Cell>
-  &lt;align:entity1>
-    &lt;Property rdf:about="&amp;wine;hasVintageYear"/>
-  &lt;/align:entity1>
-  &lt;align:entity2>
-    &lt;Property rdf:about="&amp;vin;annee\_millesime">
-      &lt;apply>
-        &lt;Transf rdf:resource="Transformation:Date2Int" />
-        &lt;Property rdf:about="&amp;wine;date"/>
-      &lt;/apply>
-    &lt;/Property>
-  &lt;/align:entity2>
-  &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
-  &lt;align:relation>=&lt;/align:relation>
-&lt;/align:Cell>
-</pre></div></div-->
+	&lt;edoal:transformation>
+	  &lt;edoal:Transformation edoal:direction="o-">
+	    &lt;edoal:entity1>
+	      &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
+	    &lt;/edoal:entity1>
+	    &lt;edoal:entity2>
+	      &lt;edoal:Apply edoal:operator="concat">
+		&lt;edoal:arguments rdf:parseType="Collection">
+		  &lt;edoal:Property rdf:about="vcard:firstname"/>
+		  &lt;edoal:Literal edoal:type="&amp;xsd;string" edoal:string=" "/>
+		  &lt;!-- or even compute middle initial from middlename -->
+		  &lt;edoal:Property rdf:about="vcard:middleinitial"/>
+		  &lt;edoal:Literal edoal:string=". "/>
+		  &lt;edoal:Property rdf:about="vcard:lastname"/>
+		&lt;/edoal:arguments>
+	      &lt;/edoal:Apply>
+	    &lt;/edoal:entity2>
+	  &lt;/edoal:Transformation>
+	&lt;/edoal:transformation>
+</pre></div></div>
 
 
 <h2 id="sec:examples">Longer examples</h2>
@@ -819,7 +889,7 @@ O2:GreenLED a edoal:Class.
   &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;weight" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
   &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:type="o-">
+    &lt;edoal:Transformation edoal:direction="o-">
       &lt;edoal:entity1>
 	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
       &lt;/edoal:entity1>
@@ -843,7 +913,7 @@ O2:GreenLED a edoal:Class.
   &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;Patient" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
   &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:type="o-">
+    &lt;edoal:Transformation edoal:direction="o-">
       &lt;edoal:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/edoal:entity1>
       &lt;edoal:entity2>
 	&lt;edoal:Apply edoal:operator="&fn;safe-divide">
@@ -894,7 +964,7 @@ O2:weight a edoal:Property.
   &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;hasPrice" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
   &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:type="o-">
+    &lt;edoal:Transformation edoal:direction="o-">
       &lt;edoal:entity1>
 	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
       &lt;/edoal:entity1>
@@ -962,7 +1032,7 @@ This pattern thus captures all correspondences between two classes, the scope of
               &lt;/edoal:class>
             &lt;/edoal:PropertyDomainRestriction>
           &lt;/edoal:onAttribute>
-          &lt;edoal:type>&lt;edoal:Datatype rdf:about="&xsd;integer" />&lt;/edoal:type>
+          &lt;edoal:datatype>&lt;edoal:Datatype rdf:about="&xsd;integer" />&lt;/edoal:datatype>
         &lt;/edoal:AttributeTypeRestriction>
       &lt;/edoal:and>
     &lt;/edoal:Class>
@@ -1065,6 +1135,7 @@ syntax toggling scripts borrowed from the OWL Recommendation web page.
 <address>
 <small>
 <hr />
+<script type="text/javascript">primerOnLoad();</script>
 <center>http://alignapi.gforge.inria.fr/edoal.html</center>
 <hr />
 $Id$

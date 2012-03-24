@@ -38,13 +38,6 @@ public class Datatype { //implements Cloneable
     /** Holds the type */
     private String type;
 
-    public void accept( EDOALVisitor visitor) throws AlignmentException {
-        visitor.visit( this );
-    }
-    public TYPE accept( TypeCheckingVisitor visitor  ) throws AlignmentException {
-	return visitor.visit(this);
-    }
-
     /**
      * Constructs an object with the given type.
      * 
@@ -62,7 +55,14 @@ public class Datatype { //implements Cloneable
 	this.type = type;
     }
 
-    public String plainText() {
+    public void accept( EDOALVisitor visitor) throws AlignmentException {
+        visitor.visit( this );
+    }
+    public TYPE accept( TypeCheckingVisitor visitor  ) throws AlignmentException {
+	return visitor.visit(this);
+    }
+
+    public String getType() {
 	return type;
     }
 

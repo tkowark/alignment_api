@@ -154,7 +154,7 @@ public class EDOALExportTest {
 	writer.close();
 	String str1 = stream.toString();
 	//System.err.println(str1);
-	assertEquals( str1.length(), 11604 );
+	assertEquals( str1.length(), 11623 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})
@@ -220,7 +220,7 @@ public class EDOALExportTest {
 	assertEquals( render( toExport ), "<edoal:AttributeTypeRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
 	    //+ "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
-	    + "<edoal:datatype>integer-under-100</edoal:datatype>"
+	    + "<edoal:datatype><edoal:Datatype rdf:about=\"integer-under-100\"/></edoal:datatype>"
 		+ "</edoal:AttributeTypeRestriction>" );
 	toExport = new ClassOccurenceRestriction( new PropertyId(new URI("http://my.sister#age")), Comparator.GREATER, 18);
 	assertEquals( render( toExport ), "<edoal:AttributeOccurenceRestriction>"
@@ -304,7 +304,7 @@ public class EDOALExportTest {
 		      + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 		      + "</edoal:PropertyValueRestriction>" );
 	assertEquals( render( new PropertyTypeRestriction(new Datatype("int"))),
-		      "<edoal:PropertyTypeRestriction><edoal:datatype>int</edoal:datatype></edoal:PropertyTypeRestriction>" );
+		      "<edoal:PropertyTypeRestriction><edoal:datatype><edoal:Datatype rdf:about=\"int\"/></edoal:datatype></edoal:PropertyTypeRestriction>" );
     }
     
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})

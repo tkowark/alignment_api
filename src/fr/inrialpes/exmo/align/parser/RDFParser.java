@@ -422,7 +422,7 @@ public class RDFParser {
 	try {
 	    // parsing type
 	    Statement stmt = node.getProperty( (Property)SyntaxElement.TRDIR.resource );
-	    if ( stmt == null ) throw new AlignmentException( "Required edoal:type property in Transformation" );
+	    if ( stmt == null ) throw new AlignmentException( "Required "+SyntaxElement.TRDIR.print()+" property in Transformation" );
 	    String type = stmt.getLiteral().toString();
 	    // parsing entity1 and entity2 
 	    Resource entity1 = node.getProperty((Property)SyntaxElement.TRENT1.resource).getResource();
@@ -544,15 +544,9 @@ public class RDFParser {
 	    if ( rdfType.equals( SyntaxElement.TYPE_COND.resource ) ) {
 		// Check that pe is a Property / Relation
 		// ==> different treatment
-		// Datatype could also be defined as objets...? (like rdf:resource="")
-		stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
-		if ( stmt == null ) throw new AlignmentException( "Required edoal:datatype property" );
-		RDFNode nn = stmt.getObject();
-		if ( nn.isLiteral() ) {
-		    return new ClassTypeRestriction( pe, new Datatype( ((Literal)nn).getString() ) );
-		} else {
-		    throw new AlignmentException( "Bad edoal:datatype value" );
-		}
+		stmt = node.getProperty( (Property)SyntaxElement.EDATATYPE.resource );
+		if ( stmt == null ) throw new AlignmentException( "Required "+SyntaxElement.EDATATYPE.print()+" property" );
+		return new ClassTypeRestriction( pe, parseDatatype( stmt.getObject() ) );
 	    } else if ( rdfType.equals( SyntaxElement.DOMAIN_RESTRICTION.resource ) ) {
 		if ( (stmt = node.getProperty( (Property)SyntaxElement.TOCLASS.resource ) ) != null || (stmt = node.getProperty( (Property)SyntaxElement.ALL.resource ) ) != null ) {
 		    RDFNode nn = stmt.getObject();
@@ -569,7 +563,7 @@ public class RDFParser {
 		if ( stmt == null ) throw new AlignmentException( "Required edoal:comparator property" );
 		URI id = getNodeId( stmt.getResource() );
 		if ( id != null ) comp = Comparator.getComparator( id );
-		else throw new AlignmentException("edoal:comparator requires an URI");
+		else throw new AlignmentException("edoal:comparator requires a URI");
 		if ( rdfType.equals( SyntaxElement.OCCURENCE_COND.resource ) ) {
 		    stmt = node.getProperty( (Property)SyntaxElement.VALUE.resource );
 		    if ( stmt == null ) throw new AlignmentException( "Required edoal:value property" );
@@ -680,16 +674,9 @@ public class RDFParser {
 		throw new AlignmentException( "Incorrect class expression "+nn );
 	    } 
 	} else if ( rdfType.equals( SyntaxElement.PROPERTY_TYPE_COND.resource ) ) {
-	    // Datatype could also be defined as objets...? (like rdf:resource="")
-	    // Or classes? OF COURSE????
-	    stmt = node.getProperty( (Property)SyntaxElement.DATATYPE.resource );
-	    if ( stmt == null ) throw new AlignmentException( "Required edoal:datatype property" );
-	    RDFNode nn = stmt.getObject();
-	    if ( nn.isLiteral() ) {
-		return new PropertyTypeRestriction( new Datatype( ((Literal)nn).getString() ) );
-	    } else {
-		throw new AlignmentException( "Bad edoal:datatype value" );
-	    }
+	    stmt = node.getProperty( (Property)SyntaxElement.EDATATYPE.resource );
+	    if ( stmt == null ) throw new AlignmentException( "Required "+SyntaxElement.EDATATYPE.print()+" property" );
+	    return new PropertyTypeRestriction( parseDatatype( stmt.getObject() ) );
 	} else if ( rdfType.equals( SyntaxElement.PROPERTY_VALUE_COND.resource ) ) {
 	    // Find comparator
 	    stmt = node.getProperty( (Property)SyntaxElement.COMPARATOR.resource );
@@ -704,6 +691,20 @@ public class RDFParser {
 	} else {
 	    throw new AlignmentException("There is no pasrser for entity "+rdfType.getLocalName());
 	}
+    }
+
+    protected Datatype parseDatatype ( final RDFNode nn ) throws AlignmentException {
+	String uri = null;
+	if ( nn.isLiteral() ) { // Legacy
+	    System.err.println( "Warning: datatypes must be Datatype objects ("+((Literal)nn).getString()+")" );
+	    uri = ((Literal)nn).getString();
+	} else if ( nn.isResource() ) {
+	    if ( !((Resource)nn).getProperty(RDF.type).getResource().equals( SyntaxElement.DATATYPE.resource ) )
+		throw new AlignmentException( "datatype requires a "+SyntaxElement.DATATYPE.print()+" value" );
+	    uri = ((Resource)nn).getURI();
+	    // check URI
+	} else throw new AlignmentException( "Bad "+SyntaxElement.EDATATYPE.print()+" value" );
+	return new Datatype( uri );
     }
 
     protected RelationExpression parseRelation( final Resource node ) throws AlignmentException {

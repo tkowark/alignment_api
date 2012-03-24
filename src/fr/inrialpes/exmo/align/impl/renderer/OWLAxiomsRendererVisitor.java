@@ -870,7 +870,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
      * clauses
      */
     public void visit( final Datatype e ) {
-	indentedOutput("<owl:Datatype><owl:onDataType rdf:resource=\""+e.plainText()+"\"/></owl:Datatype>");
+	indentedOutput("<owl:Datatype><owl:onDataType rdf:resource=\""+e.getType()+"\"/></owl:Datatype>");
     }
 
 }

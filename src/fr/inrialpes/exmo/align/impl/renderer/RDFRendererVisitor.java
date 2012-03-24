@@ -690,9 +690,9 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( final Datatype e ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.DATATYPE.print(DEF)+">");
-	writer.print(e.plainText());
-	writer.print("</"+SyntaxElement.DATATYPE.print(DEF)+">");
+	indentedOutput("<"+SyntaxElement.EDATATYPE.print(DEF)+">");
+	writer.print("<"+SyntaxElement.DATATYPE.print(DEF)+" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+e.getType()+"\"/>");
+	writer.print("</"+SyntaxElement.EDATATYPE.print(DEF)+">");
     }
 	
 }

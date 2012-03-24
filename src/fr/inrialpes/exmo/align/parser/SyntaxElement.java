@@ -94,7 +94,8 @@ public enum SyntaxElement {
 	CLASS_EXPR(     Namespace.EDOAL, "Class", true),//ALIGNMENT
 	COMPARATOR(     Namespace.EDOAL, "comparator"),
 	COMPOSE(        Namespace.EDOAL, "compose", Constructor.COMP),
-	DATATYPE(       Namespace.EDOAL, "datatype"),
+	EDATATYPE(       Namespace.EDOAL, "datatype"),
+	DATATYPE(       Namespace.EDOAL, "Datatype"),
 	DOMAIN_RESTRICTION(Namespace.EDOAL, "AttributeDomainRestriction", true),
 	//ID(             Namespace.EDOAL, "Id", true), // Useless
 	INSTANCE_EXPR(  Namespace.EDOAL, "Instance", true),
@@ -125,7 +126,7 @@ public enum SyntaxElement {
 	TRENT1(         Namespace.EDOAL, "entity1"),
 	TRENT2(         Namespace.EDOAL, "entity2"),
 	TRANSF(         Namespace.EDOAL, "Transformation", true),
-	TRDIR(          Namespace.EDOAL, "type"),
+	TRDIR(          Namespace.EDOAL, "direction"),
 	TRANSFORMATION( Namespace.EDOAL, "transformation"),
 	TRANSITIVE(     Namespace.EDOAL, "transitive", Constructor.TRANSITIVE),
 	TYPE_COND(Namespace.EDOAL, "AttributeTypeRestriction", true), // undocumented
