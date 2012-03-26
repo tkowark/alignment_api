@@ -476,7 +476,7 @@ public class AServProtocolManager {
 	    }
 	    // Erase it from storage
 	    try {
-		alignmentCache.eraseAlignment( id );
+		alignmentCache.eraseAlignment( id, true );
 	    } catch ( Exception ex ) { ex.printStackTrace(); }// ignore
 	    // Should be a SuppressedAlignment
 	    return new AlignmentId(newId(),mess,myId,mess.getSender(),id,(Properties)null,
@@ -899,7 +899,9 @@ public class AServProtocolManager {
 
     public static boolean implementsInterface( String classname, Class tosubclass, boolean debug ) {
 	try {
-	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug" );
+	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") || 
+		 classname.equals("org.apache.log4j.net.ZeroConfSupport") 
+	    ) throw new ClassNotFoundException( "Classes breaking this work" );
 	    // JE: Here there is a bug that is that it is not possible
 	    // to have ALL interfaces with this function!!!
 	    // This is really stupid but that's life
@@ -917,9 +919,10 @@ public class AServProtocolManager {
 		if ( debug ) System.err.println("       I> "+interfaces[i] );
 	    }
 	    // Not one of our classes
+	} catch ( ExceptionInInitializerError eiie ) {
 	} catch ( NoClassDefFoundError ncdex ) {
-	} catch (ClassNotFoundException cnfex) {
-	} catch (UnsatisfiedLinkError ule) {
+	} catch ( ClassNotFoundException cnfex ) {
+	} catch ( UnsatisfiedLinkError ule ) {
 	    if ( debug ) System.err.println("   ******** "+classname);
 	}
 	return false;
