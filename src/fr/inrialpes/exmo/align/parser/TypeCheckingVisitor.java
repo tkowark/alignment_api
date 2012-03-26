@@ -34,30 +34,27 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
+
 import fr.inrialpes.exmo.align.impl.edoal.PathExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassExpression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.ClassConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.ClassRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassValueRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassOccurenceRestriction;
-import fr.inrialpes.exmo.align.impl.edoal.PropertyExpression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.PropertyRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyValueRestriction;
-import fr.inrialpes.exmo.align.impl.edoal.RelationExpression;
 import fr.inrialpes.exmo.align.impl.edoal.RelationId;
 import fr.inrialpes.exmo.align.impl.edoal.RelationConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.RelationRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
-import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 
 import fr.inrialpes.exmo.align.impl.edoal.Transformation;
@@ -66,9 +63,6 @@ import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
-
-import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 
 /**
  * Checks if an EDOALAlignment is well-typed
@@ -96,13 +90,14 @@ public class TypeCheckingVisitor {
 	nslist = new Hashtable<URI,TYPE>();
     }
 	
-    public TYPE visit( Visitable o ) throws AlignmentException {
+    /*
+      public TYPE visit( Visitable o ) throws AlignmentException {
 	throw new AlignmentException( "Cannot type check all" );
     }
 
     public TYPE visit( Expression o ) throws AlignmentException {
 	throw new AlignmentException("Cannot export abstract Expression: "+o );
-    }
+	}*/
 
     public TYPE visit( EDOALAlignment align ) throws AlignmentException {
 	alignment = align;
@@ -123,6 +118,10 @@ public class TypeCheckingVisitor {
 	    if ( !compatible( t1, t2 ) ) return TYPE.ERROR;
 	}
 	return TYPE.ANY;
+    }
+
+    public TYPE visit( Relation o ) throws AlignmentException {
+	throw new AlignmentException("This is not used yet and not implemented: "+o );
     }
 
     public boolean compatible( TYPE t1, TYPE t2 ) {
@@ -155,7 +154,7 @@ public class TypeCheckingVisitor {
 	if ( !compatible( tp2, TYPE.VALUE ) ) return raiseError( null, tp2, TYPE.VALUE );
 	return TYPE.ANY;
     }
-
+    /*
     public TYPE visit( final PathExpression p ) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch PathExpression "+p );
     }
@@ -163,7 +162,7 @@ public class TypeCheckingVisitor {
     public TYPE visit( final ClassExpression e ) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
-
+    */
     public TYPE visit( final ClassId e ) throws AlignmentException {
 	TYPE type = nslist.get( e.getURI() );
 	if ( type == null ) nslist.put( e.getURI(), TYPE.CLASS );
@@ -184,11 +183,11 @@ public class TypeCheckingVisitor {
 	if ( allright ) return TYPE.CLASS;
 	else return TYPE.ERROR;
     }
-    
+    /*
     public TYPE visit(final ClassRestriction e) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch ClassRestriction "+e );
     }
-
+    */
     public TYPE visit( final ClassValueRestriction c ) throws AlignmentException {
 	TYPE ptype = c.getRestrictionPath().accept( this );
 	TYPE tp = c.getValue().accept( this );
@@ -220,11 +219,11 @@ public class TypeCheckingVisitor {
 	     !compatible( ptype, TYPE.PROPERTY ) ) return raiseError( null, ptype, TYPE.RELATION );
 	return TYPE.CLASS;
     }
-    
+    /*
     public TYPE visit(final PropertyExpression e) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch PropertyExpression "+e );
     }
-	
+    */
     public TYPE visit(final PropertyId e) throws AlignmentException {
 	TYPE type = nslist.get( e.getURI() );
 	if ( type == null ) nslist.put( e.getURI(), TYPE.PROPERTY );
@@ -245,11 +244,11 @@ public class TypeCheckingVisitor {
 	if ( allright ) return TYPE.PROPERTY;
 	else return TYPE.ERROR;
     }
-    
+    /*
     public TYPE visit(final PropertyRestriction e) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch PropertyRestriction "+e );
     }
-	
+    */
     public TYPE visit(final PropertyValueRestriction c) throws AlignmentException {
 	//c.getComparator().getURI(); // do we test the operator?
 	TYPE type = c.getValue().accept( this );
@@ -268,11 +267,11 @@ public class TypeCheckingVisitor {
 	if ( !compatible( type, TYPE.DATATYPE ) ) return raiseError( null, type, TYPE.DATATYPE );
 	return TYPE.PROPERTY;
     }
-    
+    /*
     public TYPE visit( final RelationExpression e ) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch RelationExpression "+e );
     }
-	
+    */
     public TYPE visit( final RelationId e ) throws AlignmentException {
 	TYPE type = nslist.get( e.getURI() );
 	if ( type == null ) nslist.put( e.getURI(), TYPE.RELATION );
@@ -293,11 +292,11 @@ public class TypeCheckingVisitor {
 	if ( allright ) return TYPE.RELATION;
 	else return TYPE.ERROR;
     }
-    
+    /*
     public TYPE visit( final RelationRestriction e ) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch RelationRestriction "+e );
     }
-	
+    */
     public TYPE visit(final RelationCoDomainRestriction c) throws AlignmentException {
 	TYPE type = c.getCoDomain().accept( this );
 	if ( !compatible( type, TYPE.CLASS ) ) return raiseError( null, type, TYPE.CLASS );
@@ -309,10 +308,10 @@ public class TypeCheckingVisitor {
 	if ( !compatible( type, TYPE.CLASS ) ) return raiseError( null, type, TYPE.CLASS );
 	return TYPE.RELATION;
     }
-    
+    /*
     public TYPE visit( final InstanceExpression e ) throws AlignmentException {
 	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
-    }
+	}*/
 
     public TYPE visit( final InstanceId e ) throws AlignmentException {
 	TYPE type = nslist.get( e.getURI() );

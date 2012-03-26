@@ -24,37 +24,24 @@ import org.semanticweb.owl.align.AlignmentException;
 
 public interface EDOALVisitor {
 
-    //public void visit( Id o ) throws AlignmentException;
-    public void visit( PathExpression o ) throws AlignmentException;
-    public void visit( Expression o ) throws AlignmentException;
-    public void visit( ClassExpression o ) throws AlignmentException;
     public void visit( ClassId o ) throws AlignmentException;
     public void visit( ClassConstruction o ) throws AlignmentException;
-    public void visit( ClassRestriction o ) throws AlignmentException;
     public void visit( ClassTypeRestriction o ) throws AlignmentException;
     public void visit( ClassDomainRestriction o ) throws AlignmentException;
     public void visit( ClassValueRestriction o ) throws AlignmentException;
     public void visit( ClassOccurenceRestriction o ) throws AlignmentException;
-    public void visit( PropertyExpression o ) throws AlignmentException;
     public void visit( PropertyId o ) throws AlignmentException;
     public void visit( PropertyConstruction o ) throws AlignmentException;
-    public void visit( PropertyRestriction o ) throws AlignmentException;
     public void visit( PropertyDomainRestriction o ) throws AlignmentException;
     public void visit( PropertyTypeRestriction o ) throws AlignmentException;
     public void visit( PropertyValueRestriction o ) throws AlignmentException;
-    public void visit( RelationExpression o ) throws AlignmentException;
     public void visit( RelationId o ) throws AlignmentException;
     public void visit( RelationConstruction o ) throws AlignmentException;
-    public void visit( RelationRestriction o ) throws AlignmentException;
     public void visit( RelationDomainRestriction o ) throws AlignmentException;
     public void visit( RelationCoDomainRestriction o ) throws AlignmentException;
-    public void visit( InstanceExpression o ) throws AlignmentException;
     public void visit( InstanceId o ) throws AlignmentException;
 
     public void visit( Transformation o ) throws AlignmentException;
-    //public void visit( TransfService o ) throws AlignmentException;
-    //public void visit( ValueConstraint o ) throws AlignmentException;
-    public void visit( ValueExpression o ) throws AlignmentException;
     public void visit( Value o ) throws AlignmentException;
     public void visit( Apply o ) throws AlignmentException;
     public void visit( Datatype o ) throws AlignmentException;

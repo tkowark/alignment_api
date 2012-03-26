@@ -52,7 +52,6 @@ import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassExpression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.ClassConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.ClassRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassValueRestriction;
@@ -60,14 +59,12 @@ import fr.inrialpes.exmo.align.impl.edoal.ClassOccurenceRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyExpression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.PropertyRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyValueRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationExpression;
 import fr.inrialpes.exmo.align.impl.edoal.RelationId;
 import fr.inrialpes.exmo.align.impl.edoal.RelationConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.RelationRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
@@ -311,19 +308,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	rel.write( writer );
     };
 
-    
-    public void visit( Expression o ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch Expression "+o );
-    }
-
-    public void visit( final PathExpression p ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch PathExpression "+p );
-    }
-
-    public void visit( final ClassExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-    
+    // ********** EDOAL
 
     public void renderVariables( Expression expr ) {
 	if ( expr.getVariable() != null ) {
@@ -362,11 +347,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.CLASS_EXPR.print(DEF)+">");
     }
-    
-    public void visit(final ClassRestriction e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-    
+
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -460,10 +441,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.OCCURENCE_COND.print(DEF)+">");
     }
     
-    public void visit(final PropertyExpression e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-    
     public void visit(final PropertyId e) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_EXPR.print(DEF));
 	if ( e.getURI() != null ){
@@ -503,10 +480,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.PROPERTY_EXPR.print(DEF)+">");
     }
 
-    public void visit(final PropertyRestriction e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-    
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.PROPERTY_VALUE_COND.print(DEF));
 	if ( isPattern ) renderVariables( c );
@@ -551,10 +524,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.PROPERTY_TYPE_COND.print(DEF)+">");
     }
     
-    public void visit( final RelationExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-    
     public void visit( final RelationId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_EXPR.print(DEF));
 	if ( e.getURI() != null ) {
@@ -593,10 +562,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.RELATION_EXPR.print(DEF)+">");
     }
-    
-    public void visit( final RelationRestriction e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.RELATION_CODOMAIN_COND.print(DEF));
@@ -627,10 +592,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.RELATION_DOMAIN_COND.print(DEF)+">");
     }
-    
-    public void visit( final InstanceExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
-    }
 
     public void visit( final InstanceId e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.INSTANCE_EXPR.print(DEF));
@@ -642,10 +603,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	writer.print("/>");
     }
     
-    public void visit( final ValueExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-
     public void visit( final Value e ) throws AlignmentException {
 	indentedOutput("<"+SyntaxElement.LITERAL.print(DEF)+" ");
 	if ( e.getType() != null ) {

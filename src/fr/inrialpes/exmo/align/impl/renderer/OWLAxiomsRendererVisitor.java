@@ -50,7 +50,6 @@ import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassExpression;
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.ClassConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.ClassRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassValueRestriction;
@@ -58,14 +57,12 @@ import fr.inrialpes.exmo.align.impl.edoal.ClassOccurenceRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyExpression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.PropertyRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyTypeRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyValueRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationExpression;
 import fr.inrialpes.exmo.align.impl.edoal.RelationId;
 import fr.inrialpes.exmo.align.impl.edoal.RelationConstruction;
-import fr.inrialpes.exmo.align.impl.edoal.RelationRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
@@ -385,18 +382,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 
     // ******* EDOAL
 
-    public void visit( Expression o ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch generic Expression "+o );
-    }
-
-    public void visit( final PathExpression p ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch generic PathExpression "+p );
-    }
-
-    public void visit( final ClassExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-
     public void visit( final ClassId e ) throws AlignmentException {
 	if ( toProcess == null ) {
 	    indentedOutput("<owl:Class "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+e.getURI()+"\"/>");
@@ -457,10 +442,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 		indentedOutput("</owl:Class>");
 	    }
 	}
-    }
-
-    public void visit(final ClassRestriction e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
@@ -572,10 +553,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	indentedOutput("</owl:Restriction>");
     }
     
-    public void visit(final PropertyExpression e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
-	
     public void visit(final PropertyId e) throws AlignmentException {
 	if ( toProcess == null ) {
 	    indentedOutput("<owl:DatatypeProperty "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+e.getURI()+"\"/>");
@@ -628,10 +605,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	if ( toProcessNext != null ) { toProcessNext.accept( this ); writer.print(NL); }
 	decreaseIndent();
 	indentedOutput("</owl:DatatypePropety>");
-    }
-    
-    public void visit(final PropertyRestriction e) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     }
 	
     public void visit(final PropertyValueRestriction c) throws AlignmentException {
@@ -720,10 +693,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	decreaseIndent();
 	indentedOutput("</owl:DatatypeProperty>");
     }
-    
-    public void visit( final RelationExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
 	
     public void visit( final RelationId e ) throws AlignmentException {
 	if ( toProcess == null ) {
@@ -787,10 +756,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	decreaseIndent();
 	indentedOutput("</owl:ObjectProperty>");
     }
-    
-    public void visit( final RelationRestriction e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
-    }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
 	Relation toProcessNext = toProcess;
@@ -823,10 +788,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	decreaseIndent();
 	indentedOutput("</owl:ObjectProperty>");
     }
-    
-    public void visit( final InstanceExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot handle InstanceExpression "+e );
-    }
 
     public void visit( final InstanceId e ) throws AlignmentException {
 	if ( toProcess == null ) {
@@ -841,10 +802,6 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	    decreaseIndent();
 	    indentedOutput("</owl:Individual>");
 	}
-    }
-    
-    public void visit( final ValueExpression e ) throws AlignmentException {
-	throw new AlignmentException( "Cannot dispatch generic ValueExpression "+e );
     }
 
     // Unused: see ClassValueRestriction above
