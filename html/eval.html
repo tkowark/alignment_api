@@ -30,11 +30,11 @@ reports. Some examples are given below.
 <p>There is a command line utility
   (<tt>fr.inrialpes.exmo.align.cli.EvalAlign</tt>) allowing for taking
   advantage of evaluators. It is called in the following way:
-<div class="fragment">
+<div class="terminal">
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign file://result/align1.owl file://result/align2.owl 
 </div>
 For instance (<tt>$CWD</tt> is the current directory):
-<div class="fragment">
+<div class="terminal">
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/bibref.owl file://$CWD/aligns/EditDistName.owl
 </div>
 would yield:
@@ -59,7 +59,7 @@ See below for more graphical formats.
 
 <p>
 The option of <tt>EvalAlign</tt> are:
-<div class="fragment">
+<div class="terminal">
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign --help
 usage: EvalAlign [options] file1 file2
 options are:
@@ -121,7 +121,7 @@ batch <tt>GroupAlign</tt> command). Each subdirectory contains a reference align
 <p>
 Invoking <tt>GroupEval</tt> with the list of files to consider (-l argument) and the set of evaluation results to provide (-f argument with profm, for precision, recall, overall, fallout, f-measure as possible measures)
 returns:
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -l "refalign,matcher1,matcher2,matcher3" -f "pr" -c
 </div>
 </p>
@@ -230,7 +230,7 @@ $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -l "refali
 
 <p>
 <tt>GroupEval</tt> accepts the following arguments:
-<div class="fragment">
+<div class="terminal">
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval --help
 usage: GroupEval [options]
 options are:
@@ -262,7 +262,7 @@ could be done). These are:
 <p>
 There are also two classes able to plot the result of several matching systems. The first ploting function is <tt>GenPlot</tt>.
 It generates the precision/recall graphs as gnu-plot files and generates a Latex file corresponding to Figure~\ref{fig:prgraph}.
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GenPlot -l "refalign,edna,ASMOV..." -t tex -o prgraph.tex
 </div>
 </p>
@@ -274,7 +274,7 @@ $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GenPlot -l "refalign
 
 <p>
 <tt>GenPlot</tt> accepts the following arguments:
-<div class="fragment">
+<div class="terminal">
 $ java -cp /Java/alignapi/lib/procalign.jar fr.inrialpes.exmo.align.cli.GenPlot --help
 usage: GenPlot [options]
 options are:
@@ -285,12 +285,17 @@ options are:
 	--debug[=n] -d [n]		Report debug info at level n
 	--help -h			Print this message
 </div>
+The <tt>-t</tt> switch specifies the type output.
 The plots are provided for PGF LaTeX as gnuplot tables.
 The HTML plot uses the Google chart API.
 The CSV version should help importing in a spreadsheet.
+<p>
+The <tt>-e</tt> switch specifies the evaluator that is supposed to be
+used but currently has no effect.
+</p>
 </p>
 <p>
-The <tt>-e</tt> uses an extension of the <tt>GraphEvaluator</tt>
+The <tt>-g</tt> switch uses an extension of the <tt>GraphEvaluator</tt>
 abstract class, i.e., an evaluator which computes a list
 of <tt>Pair</tt> objects representing points on a plot. Such lists
 of pairs are used by the <tt>GenPlot</tt> command line utility. This
@@ -319,7 +324,7 @@ alignment, the value of the measure is computed.</dd>
 A simpler representation places each system in a plane so that their position corresponds to their distance from 0 precision and 0 recall. 
 This graphic representation is obtained through the <tt>GroupEval</tt>
 class by generating a Latex file corresponding in the following figure.
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -t triangle -l "refalign,matcher1,matcher2,..." > triangle.tex
 </div>
 </p>
