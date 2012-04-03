@@ -69,7 +69,7 @@ Other tutorials are <a href="../index.html">available</a>.</p>
 <h2>Preparation</h2>
 	
 <p>Just:
-<div class="fragment">
+<div class="terminal">
 $ cd tutorial4
 </div>
 </p>
@@ -95,18 +95,18 @@ how this could be achieved.
 	
 <p>For that purpose, you have to develop a program in Java. 
 We first define the CLASSPATH because a lot of external software is required
-<div class="fragment">
+<div class="terminal">
 $ setenv CLASSPATH ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet-core.jar:../../../lib/pellet/pellet-owlapiv3.jar:../../../lib/pellet/pellet-rules.jar:../../../lib/pellet/pellet-datatypes.jar:../../../lib/pellet/aterm-java-1.6.jar:../../../lib/pellet/pellet-query.jar:../../../lib/ontosim/ontosim.jar:../../../lib/pellet/pellet-el.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/xsdlib/relaxngDatatype.jar:../../../lib/xsdlib/xsdlib.jar:results
 </div>
 The list of jars is long, but at least it is explicit and you
 should be safe with this one.
 This programme can be compiled by:
-<div class="fragment">
+<div class="terminal">
 $ javac -d results Skeleton.java
 </div>
 </p>
 <p>This programme can be run by:
-<div class="fragment">
+<div class="terminal">
 $ java Skeleton
 </div>
 It provides no output for the moment.
@@ -138,7 +138,7 @@ and, if none is found, computes one.
 </div>
 <div class="explain" id="qu0">
 <p>After introducing the main variables:</p>
-<pre>
+<div class="java">
 String myId = "Test";
 Alignment al = null;
 URI uri1 = null;
@@ -152,32 +152,32 @@ try {
   uri1 = new URI( u1 );
   uri2 = new URI( u2 );
 } catch (URISyntaxException use) { use.printStackTrace(); }
-</pre>
+</div>
 </div>
 <div class="explain" id="qu1">
 <p>The programme will invoke the alignment server:</p>
-<pre>
+<div class="java">
 // (Sol1) Try to find an alignment between two ontologies from the server
 // ask for it
 String found = getFromURLString( RESTServ+"find?onto1="+u1+"&onto2="+u2, false );
-</pre>
+</div>
 <p>Retrieve the alignment itself:</p>
-<pre>
+<div class="java">
 // retrieve it
 // If there exists alignments, ask for the first one
 NodeList alset = extractFromResult( found, "//findResponse/alignmentList/alid[1]/text()", false );
-</pre>
+</div>
 <p>And parse it:</p>
-<pre>
+<div class="java">
 // parse it as an alignment
 AlignmentParser aparser = new AlignmentParser(0);
 Alignment alu = aparser.parseString( xmlString );
 al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
-</pre>
+</div>
 </div>
 <div class="explain" id="qu2">
 <p>Just create an instance of AlignmentProcess and call it:</p>
-<pre>
+<div class="java">
 // (Sol2) Match the ontologies with a local algorithm
 if ( al == null ){ // Unfortunatelly no alignment was available
   AlignmentProcess ap = new StringDistAlignment();
@@ -187,19 +187,19 @@ if ( al == null ){ // Unfortunatelly no alignment was available
   ap.align( (Alignment)null, params );
   al = ap;
 }
-</pre>
+</div>
 </div>
 <div class="explain" id="qu3"><p>Match on the server:</p>
-<pre>
+<div class="java">
 // (Sol3) Match the ontologies on the server
 if ( alset.getLength() == 0 ) {
   // call for matching
   String match = getFromURLString( RESTServ+"match?onto1="+u1+"&onto2="+u2+"&method="+method+"&pretty="+myId+"&action=Match", true );
 }
-</pre>
+</div>
 <p>The remainder is the same as in the first solution.</p>
 </div>
-<div class="logic">
+<div class="note">
 <p><b>More work:</b> You can also store localy computed alignments on
   the alignment server.</p>
 </div>
@@ -232,7 +232,7 @@ This can be done with the alignment API support.
 </div>
 <div class="explain" id="qu5">
 <p>In fact everything is done in one step:</p>
-<pre>
+<div class="java">
 // (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
 PrintWriter writer = null;
 File merged = new File( tempOntoFileName );
@@ -241,7 +241,7 @@ AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
 al.render(renderer);
 writer.flush();
 writer.close();
-</pre>
+</div>
 <p>You can look at the result in <a href="results/myresult.owl">results/myresult.owl</a>.</p>
 </div>
 <div class="explain" id="qu6"><p>Not ready yet</p>
@@ -284,15 +284,15 @@ which are not shipped with the Alignment API.
 </div>
 <div class="explain" id="qu7">
 <p>Prepare the system:</p>
-<pre>
+<div class="java">
 // (Sol1) Use SPARQL to answer queries (at the data level)
 InputStream in = new FileInputStream( merged );
 Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
 model.read( in, "file:"+tempOntoFileName );
 in.close();
-</pre>	
+</div>	
 <p>Query (please play by changing the query)</p>
-<pre>
+<div class="java">
 // Create a new query
 String queryString = 
 		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
@@ -309,42 +309,42 @@ String queryString =
 
 Query query = QueryFactory.create(queryString);
 
-</pre>	
+</div>	
 <p>Evaluation:</p>
-<pre>
+<div class="java">
 // Execute the query and obtain results
 QueryExecution qe = QueryExecutionFactory.create(query, model);
 ResultSet results = qe.execSelect();
 
 // Output query results	
 ResultSetFormatter.out(System.out, results, query);
-</pre>
+</div>
 </div>
 <div class="explain" id="qu8">
 <p>Create Reasoner instance and load the merged ontologies:</p>
-<pre>
+<div class="java">
 OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 // Load the ontology 
 OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
 OWLReasoner reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
 reasoner.prepareReasoner();
-</pre>
+</div>
 <p>Get the instances of "Estudiantes":</p>
-<pre>
+<div class="java">
 // get the instances of a class
 OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
 OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 Set&lt;OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
 System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
-</pre>
+</div>
 <p>Some subsumption tests:</p>
-<pre>
+<div class="java">
 testPelletSubClass( manager, reasoner, estud, person );
 testPelletSubClass( manager, reasoner, estud, student );
-</pre>
+</div>
 <p>Such that:</p>
-<pre>
+<div class="java">
 private String clname( OWLClassExpression cl ) {
   return cl.asOWLClass().getIRI().getFragment();
 }
@@ -357,18 +357,18 @@ public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner
     System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
   }
 }
-</pre>
+</div>
 </div>
 <div class="explain" id="qu9">
 <p>Load the two ontologies and the alignment in the IDDL reasoner:</p>
-<pre>
+<div class="java">
 	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
 	dreasoner.addOntology( uri1 );
 	dreasoner.addOntology( uri2 );
 	dreasoner.addAlignment( al );
-</pre>
+</div>
 <p>Test consistency and check if a particular correspondence is a consequence:</p>
-<pre>
+<div class="java">
 	if ( dreasoner.isConsistent() ) {
 	    System.out.println( "IDDL: the alignment network is consistent");
 	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
@@ -376,9 +376,9 @@ public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner
          } else {
 	    System.out.println( "IDDL: the alignment network is inconsistent");
 	}
-</pre>
+</div>
 <p>Such that:</p>
-<pre>
+<div class="java">
     public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLDescription d1, OWLDescription d2 ) {
 	Alignment al2 = new ObjectAlignment();
 	try {
@@ -392,7 +392,7 @@ public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner
 	    System.out.println( "IDDL: "+d1+" <= "+d2+" is not entailed" );
 	}
     }
-</pre>
+</div>
 </div>
 The results for these execution are, for SPARQL:
 <pre>

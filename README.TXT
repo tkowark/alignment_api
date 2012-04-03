@@ -108,7 +108,6 @@ README.TXT	this file
 README.AServ	instructions for setting up an Alignment Server
 LICENSE.TXT	the terms under which the software is licensed to you.
 build.xml	the Ant build file for compiling and testing
-build.properties property file for this
 classes/	directory for compiling the sources
 distrib/	some files for generating new jarfiles
 dtd/		contains the ontoalign DTDs (and schemas)
@@ -127,6 +126,8 @@ src/		Java sources of ontoalign
 		fr.inrialpes.exmo.align.cli: command line interface
 		fr.inrialpes.exmo.align.ling: WordNet-based implementation
 		fr.inrialpes.exmo.align.service: Alignment Service
+                fr.inrialpes.exmo.align.parser: Alignment format parsers
+                fr.inrialpes.exmo.align.gen: test generators
 		fr.inrialpes.exmo.ontowrap: Abstract ontology layer
 test/		Unit tests for testng
 tools/		Compile-time tools (testng, etc.)

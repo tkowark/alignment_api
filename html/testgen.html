@@ -26,7 +26,7 @@ order to generate tests.
 </p>
 <p>
 It can be invoked for generating only one test:
-<div class="fragment">
+<div class="terminal">
 $ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -u outputurl -o outputdir -Dparameter=value seedontology
 </div>
 such that:
@@ -37,7 +37,7 @@ such that:
 <li>-Dparameter=value are the parameters used for generating this tests (see <tt>Alterator</tt> section below).</li>
 </ul>
 For instance:
-<div class="fragment">
+<div class="terminal">
 $ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -u http://example.com/mynewtest -o mynewtest -DremoveClasses=.4 -DnoHierarchy=1. -DrenameProperties=1. biblio.owl
 </div>
 applies the modification of the following figure:
@@ -47,13 +47,13 @@ applies the modification of the following figure:
 </center>
 <p>
 It may also be used for generating a whole test set (see below) by:
-<div class="fragment">
+<div class="terminal">
 $ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -t testsetclass -u outputurl -o outputdir seedontology
 </div>
 In which, testsetclass is the class name of an implementation
 of <tt>TestSet</tt> (see below) to be used for generating a testset. 
 For instance:
-<div class="fragment">
+<div class="terminal">
 $ java -Xmx1200m -cp $JAVALIB/procalign.jar fr.inrialpes.exmo.align.cli.TestGen -t fr.inrialpes.exmo.align.gen.BenchmarkGenerator -u http://example.com/mynewtestset -o mynewtestset -Dcontinuous=1 biblio.owl
 </div>
 generates part of the initial <a href="http://oaei.ontologymatching.org">OAEI</a> benchmarks.
@@ -64,17 +64,17 @@ generates part of the initial <a href="http://oaei.ontologymatching.org">OAEI</a
 <p>
 The equivalent to the command line invokations may be obtained in Java
 by the simple:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 TestGenerator tg = new TestGenerator();
 tg.setDirPrefix( dir );
 tg.setURLPrefix( url );
 tg.modifyOntology( fileName, (Properties)null, testNumber, params );
-</pre></div>
+</div>
 for generating only one test, and
-<div class="owl" id="qu1"><pre>
+<div class="java">
 TestSet gb = new BenchmarkGenerator();
 gb.generate( params );
-</pre></div>
+</div>
 for generating a test set (here <tt>BenchmarkGenerator</tt>).
 </p>
 
@@ -154,36 +154,36 @@ The <tt>Alterator</tt> is created either:
 </ul>
 So a "virtual" constructor should be provided in which the alterator
 is created from a previous alterator:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public Alterator( Alterator om );
-</pre></div>
+</div>
 </p>
 <p>
 Once this has been done, it is possible to retrieve the namespace of
 the input ontology (which is the target of the previous alignment if
 an alterator has been used for creating the alignment):
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public String getNamespace();
-</pre></div>
+</div>
 and the namespace of the source ontology in the input alignment
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public String getBase();
-</pre></div>
+</div>
 </p>
 
 <h4>Modification</h4>
 
 <p>The <tt>modify</tt> method applies the alteration to the input:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public Alterator modify( Properties params );
-</pre></div>
+</div>
 The results are kept in internal structures which, in the case
 of <tt>BasicAlterator</tt> have the following accessors:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public Properties getProtoAlignment();
 public OntModel getProtoOntology();
 public ClassHierarchy getHierarchy();
-</pre></div>
+</div>
 </p>
 
 <h4>Relocation</h4>
@@ -193,20 +193,20 @@ It is often useful to relocate the results, i.e., to change their
 namespaces in both the ontologies and alignments to output. This is
 achieved with the following methods (the namespaces are those of the
 source and target ontologies respectively):
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public void relocateTest( String namespace1, String namespace2 );
 public void relocateTest( String namespace2 );
-</pre></div>
+</div>
 </p>
 
 <h4>Exporting the results</h4>
 
 <p>
 Finally, results can be obtained through the two following primitives:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public Alignment getAlignment();
 public OntModel getModifiedOntology();
-</pre></div>
+</div>
 </p>
 
 <h2>Test sets</h2>
@@ -259,19 +259,19 @@ achieved by having all tests generated from the init ontology).
 </p>
 <p>
 The only abstract method is:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 public abstract void initTestCases( Properties params );
-</pre></div>
+</div>
 It creates a structure comprising the test cases as a hierarchy with
 an initial test (which will bear the initial ontology):
-<div class="owl" id="qu1"><pre>
+<div class="java">
 TestCase initTests( String labelInitTest );
-</pre></div>
+</div>
 and other tests derived from the initial one through alterations:
-<div class="owl" id="qu1"><pre>
+<div class="java">
 void addTestChild( String labelParentTest, String labelNewTest, 
                            Properties alterationSpecification );
-</pre></div>
+</div>
 <tt>initTestCases</tt> is only used for creating this structure which
 will be later processed to generate a particular test set from a precise
 seed ontology and various modalities (in particular if each test will

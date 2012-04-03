@@ -38,7 +38,7 @@ For instance (<tt>$CWD</tt> is the current directory):
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/aligns/bibref.owl file://$CWD/aligns/EditDistName.owl
 </div>
 would yield:
-<div class="owl"><pre>
+<div class="xml">
 &lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
 &lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
@@ -51,7 +51,7 @@ would yield:
     &lt;result>1.34375&lt;/result>
   &lt;/map:output>
 &lt;/rdf:RDF>
-</pre></div>
+</div>
 The default format is the <a href="http://www.atl.external.lmco.com/projects/ontology/">format developed at Lockheed</a>
 extended with a few attributes, but any other format could have been generated. 
 See below for more graphical formats.

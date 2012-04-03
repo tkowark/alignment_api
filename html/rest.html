@@ -22,7 +22,7 @@ debug=true&amp;level=1.
 The result of these requests are provided in XML.
 In the sequel, we describe the various request types.
 They can be obtained by:
-<div class="fragment">
+<div class="terminal">
 $ curl -H "Content-Type: text/xml" &lt;URL&gt;
 </div>
 </p>
@@ -37,7 +37,7 @@ compulsory and may not be present in messages.
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listalignments</b> ?</p>
 <p>Parameters: none</p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;listalignmentsResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;alignmentList>
@@ -53,7 +53,7 @@ compulsory and may not be present in messages.
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listmethods</b> ?</p>
 <p>Parameters: none</p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;listmethodsResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;classList>
@@ -69,7 +69,7 @@ compulsory and may not be present in messages.
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listrenderers</b> ?</p>
 <p>Parameters: none</p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;listrenderersResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;classList>
@@ -85,7 +85,7 @@ compulsory and may not be present in messages.
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listservices</b> ?</p>
 <p>Parameters: none</p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;listservicesResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;classList>
@@ -101,7 +101,7 @@ compulsory and may not be present in messages.
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listevaluators</b> ?</p>
 <p>Parameters: none</p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;listevaluatorsResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     &lt;classList>
@@ -138,7 +138,7 @@ has returned an alignment.
 and value of parameter <i>n</i>.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;matchResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
@@ -156,7 +156,7 @@ and value of parameter <i>n</i>.
 </p>
 
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;findResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> messageId &lt;/in-reply-to>
@@ -179,7 +179,7 @@ and value of parameter <i>n</i>.
   by <a href="#listrenderers">listrenderers</a> request.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;retrieveResponse>
   &lt;result>
   Alignment in required format	
@@ -199,7 +199,7 @@ and value of parameter <i>n</i>.
 span, prop; default: hard).
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;trimResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
@@ -216,7 +216,7 @@ span, prop; default: hard).
 <br /><b>id:</b> the URI of the alignment to be inverted.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;invertResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
@@ -232,7 +232,7 @@ span, prop; default: hard).
 <br /><b>id:</b> the URI of the alignment to be stored.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;storeResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to>  MessageId &lt;/in-reply-to>
@@ -256,7 +256,7 @@ or
 <br /><b>pretty:</b> a string that will name the resulting alignment.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;loadResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
@@ -278,7 +278,7 @@ or
 <br /><b>id:</b> the URI of the alignment from which metadata is retrieved.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;metadataResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     Metadata in RDF
@@ -293,7 +293,7 @@ or
 <br /><b>id:</b> the URI of the alignment used for the translation.
 </p>
 <p>Result:<br />
-<div class="fragment">
+<div class="xml">
 &lt;translateResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
     Metadata in RDF
@@ -309,7 +309,7 @@ or
 to be matched.
 </p>
 <p>Result: the alignment in RDF/XML.
-<div class="fragment">
+<div class="xml">
 &lt;alignResponse>
     &lt;msgid> MessageId &lt;/msgid>
     &lt;in-reply-to>  MessageId &lt;/in-reply-to>
@@ -336,7 +336,7 @@ Form of requests:
 <pre>
 </pre>...
 and answers:
-<div class="fragment">
+<div class="xml">
 &lt;SOAP-ENV:Envelope
    xmlns='http://exmo.inrialpes.fr/align/service'
    xml:base='http://exmo.inrialpes.fr/align/service'

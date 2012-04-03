@@ -7,14 +7,17 @@
 </head>
 <body bgcolor="#ffffff">
 
-<center><h1>Alignment API: Declared extension labels</h1></center>
+<center><h1>Alignment API: Extension labels</h1></center>
 
 <p>The Alignment API provides the opportunity for applications to
-  attach additional information to the alignments and the
+  attach information which is not part of the format to alignments and
   correspondences (Cell). This extension mechanism is also used
   internally by the API for testing new techniques. We try to do our
   best for honouring these extensions: they are rendered and parsed in
   RDF/XML, they are stored in the Alignment Server database.</p>
+<p>The annotations always contain string values, but it is good
+  practice to declare if these values may be interpreted differently
+  from strings.</p>
 <p>In order to avoid conflicting use of the extension labels, it is
   strongly advised to package them in a particular XML namespace and
   to register them by us. Here is the list of currently known

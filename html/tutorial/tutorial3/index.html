@@ -79,11 +79,11 @@ First you must download the Alignment API and check that it works
 as indicated <a href="../index.html">here</a>.
 </p>
 <p>You will then go to the directory of this tutorial by doing:</p>
-<div class="fragment">
+<div class="terminal">
 $ cd tutorial3
 </div>
 <p>You can clean up previous trials by:</p>
-<div class="fragment">
+<div class="terminal">
 $ rm results/*
 </div>
 
@@ -97,7 +97,7 @@ to substitute it for <tt>MyMatcher</tt>.
 
 <p>
 <tt>MyMatcher</tt> can be compiled by:
-<div class="fragment">
+<div class="terminal">
 $ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar -d results MyMatcher.java
 </div>
 </p>
@@ -137,7 +137,7 @@ So, the first thing to do is to create a subclass
 of <tt>URIAlignment</tt> implementing <tt>AlignmentProcess</tt>.
 </p>
 
-<div class="fragment">
+<div class="java">
 package fr.inrialpes.exmo.align.impl; 
 
 import java.util.Properties;
@@ -173,7 +173,7 @@ the moment of its initialisation through the <tt>init()</tt>
 method. The coordinate of these ontologies have been stored in
 the <tt>Alignment</tt> structure. It can be retrieved as URIs in the
 following way:
-<div class="fragment">
+<div class="java">
   URI uri1 = getOntology1URI();
   URI uri2 = getOntology2URI();
 </div>
@@ -181,13 +181,13 @@ This provides the real URIs identifying the ontologies if they are
 available. But it may be preferable to use pointer to resources
 actually containing the ontologies. This is what the <tt>getFile</tt>
 methods do:
-<div class="fragment">
+<div class="java">
   URI url1 = getFile1();
   URI url2 = getFile2();
 </div>
 then, of course, if <tt>MyMatcher</tt> requires URIs, it is very
 simple to call it, like in:
-<div class="fragment">
+<div class="java">
   MyMatcher matcher = new MyMatcher();
   matcher.match( url1, url2 );
 </div>
@@ -204,7 +204,7 @@ Now that the matcher has been run, in order for the <tt>Alignment</tt>
 to be aware of its result, it is necessary to communicate it. If
 the <tt>Matcher</tt> class provide its resulting correspondences as an
 iterator, it is possible to "fill" the <tt>Alignment</tt> with:
-<div class="fragment">
+<div class="java">
   for ( Object[] c : matcher ){
     addAlignCell( (URI)c[0], (URI)c[1], (String)c[2], ((Double)c[3]).doubleValue() );
   } 
@@ -226,11 +226,11 @@ played with your new class.
 </p>
 <p>
 <tt>MyAlignment</tt> can be compiled by:
-<div class="fragment">
+<div class="terminal">
 $ javac -classpath .:../../../lib/align.jar:../../../lib/procalign.jar -d results MyAlignment.java
 </div>
 and can be used in:
-<div class="fragment">
+<div class="terminal">
 $ java -classpath .:../../../lib/ontowrap.jar:../../../lib/procalign.jar:results fr.inrialpes.exmo.align.cli.Procalign -i MyAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 </p>
@@ -278,7 +278,8 @@ However, it will require to reimplement other types of objects
 full <tt>Alignement</tt> interface.
 </p>
 
-<div class="logic"><p><b>Advanced:</b> You can develop a specialized matching algorithm by subclassing the Java programs provided in the Alignment <abbr>API</abbr> implementation (like DistanceAlignment).</p></div>
+<div class="note"><p><b>Advanced:</b> You can develop a specialized matching algorithm by subclassing the Java programs provided in the Alignment <abbr>API</abbr> implementation (like DistanceAlignment).</p></div>
+
 <!--h3>DistanceAlignment class template</h3>
 
 <p>
@@ -304,7 +305,7 @@ The Alignment format can be extended for introducing metadata in the
 alignments and correspondences. This is possible through the
 extensions of the Alignment API.
 Extensions in the Alignment API follows the API:
-<div class="fragment">
+<div class="java">
     public Collection<String[]> getExtensions();
     public String getExtension( String uri, String label );
     public void setExtension( String uri, String label, String value );
@@ -329,7 +330,9 @@ class.
 <h3>Packaging for evaluation in the SEALS platform</h3>
 
 <p>
-Not yet available.
+This is subject to change but you can find
+instruction <a href="http://oaei.ontologymatching.org/2011.5/seals-eval.html">here</a>.
+Check that these instructions are up-to-date.
 </p>
 
 <h3>Making the resulting class jar-launchable</h3>
@@ -338,7 +341,7 @@ Not yet available.
 In order to have this new class directly jar-launchable, it is sufficient to deliver it as a jar-file containing the new introduced classes plus a MANIFEST.MF file refering to all the necessary packages and launching <tt>Procalign</tt>:
 </p>
 
-<div class="fragment">
+<div class="java">
 Manifest-Version: 1.0
 Created-By: Jerome.Euzenat@inrialpes.fr
 Class-Path: align.jar ontowrap.jar procalign.jar mymatcher.jar
@@ -346,7 +349,7 @@ Main-Class: fr/inrialpes/exmo/align/cli/Procalign
 </div>
 
 The jar may then be launched by:
-<div class="fragment">
+<div class="terminal">
 $ java -jar lib/mymatcher.jar file://$CWD/rdf/onto1.owl  file://$CWD/rdf/onto2.owl -i my.domain.MyAlignment
 </div>
 

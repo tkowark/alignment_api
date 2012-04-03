@@ -62,11 +62,11 @@ the <tt>Ontology</tt> interface is the minimal one.
 
 <p>
 Switching implementations of the API is obtained through:
-<div class="fragment">
+<div class="java">
 OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
 </div>
 and then ontologies can be loaded through:
-<div class="fragment">
+<div class="java">
 Ontology o = OntologyFactory.getFactory().loadOntology(new URI(...));
 </div>
 There is a built-in caching mechanism which attempts at avoiding
@@ -255,7 +255,7 @@ change API) if this is not the case.
 </p>
 
 <p>Hence, for instance:
-<div class="fragment">
+<div class="java">
 if ( !onto.getCapabilities( OntologyFactory.GLOBAL, OntologyFactory.INHERITED, 0 ) ) {
     throw new AlignementException( onto+" : cannot provide both global and inherited answers");
 } else {

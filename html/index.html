@@ -78,7 +78,7 @@ which publish papers telling that their systems are good matchers; you
 cannot find such a paper about the Alignment API or one of its sample matcher).
 </p>
 
-<h2>Main resources</h2>
+<h2>Practical resources</h2>
 <p><dl>
 <dt><a href="http://gforge.inria.fr/frs/?group_id=117">Download
     page</a> and <a href="relnotes.html">Release notes</a></dt>
@@ -86,7 +86,11 @@ cannot find such a paper about the Alignment API or one of its sample matcher).
 <dt><a href="align.html">Install &amp; use</a></dt>
 <dd>Quick start with the API.</dd>
 <dt><a href="tutorial/">Tutorial</a></dt>
-<dd>Walk through the Alignment API features</dd>
+<dd>Using the Alignment API through <a href="tutorial/tutorial1/index.html">command
+    line</a>, <a href="tutorial/tutorial1/server.html">web
+    interface</a>, <a href="tutorial/tutorial2/index.html">Java
+    programming</a> and <a href="tutorial/tutorial4/index.html">advanced programming</a>.<br />
+<a href="tutorial/tutorial3/index.html">Extending the API</a> and offering <a href="file://localhost/Java/alignapi/html/tutorial/tutorial5/index.html">alignment server services</a>.</dd>
 <!--dt><a href="http://gforge.inria.fr/docman/index.php?group_id=117&amp;selected_doc_group_id=1812">Documentation</a></dt>
 <dd>Supposed to be a reference manual, but not fully complete.</dd-->
 <dt><a href="aserv.html">Alignment Server</a></dt>
@@ -96,15 +100,18 @@ cannot find such a paper about the Alignment API or one of its sample matcher).
 
 <h2>Technical documentations</h2>
 <p><dl>
-<dt><a href="rest.html">Web service interface for the Alignment server</a></dt>
-<dd>REST and SOAP specification of the web service interface</dd>
+<dt><a href="format.html">Alignment format</a> and 
+the <a href="edoal.html">Expressive and Declarative Ontology Alignment Language (EDOAL)</a></dt>
+<dd>How to express alignments that the API can input or output.</dd>
+<dt><a href="api.html">API structure</a>, <a href="builtin.html">our
+    implementation</a>, and its <a href="cli.html">command-line interface</a></dt>
+<dd>Getting around the API</dd>
+<dt><a href="server.html">Alignment server architecture</a> and <a href="rest.html">message specification</a> (REST and SOAP)</dt>
+<dd>Storing and sharing alignments</dd>
 <dt><a href="ontowrap.html">Wrapping ontology APIs</a></dt>
 <dd>The package contains an ontology API wrapper called ontowrap
   allowing for using the Alignment API with various ontology APIs
   (JENA, OWL API 1.0, 3.0, SKOS API and our SKOSLite API).</dd>
-<dt><a href="format.html">Alignment format</a> and 
-the <a href="edoal.html">Expressive and Declarative Ontology Alignment Language (EDOAL)</a></dt>
-<dd>How to express alignments that the API can input or output.</dd>
 <dt><a href="alignwn.html">Wordnet extension</a></dt>
 <dd>How to use wordnet within the API</dd>
 <dt><a href="labels.html">Registered annotations</a></dt>

@@ -63,11 +63,11 @@ as indicated <a href="../index.html">here</a>.</p>
 <p>You can <a href="../tutorial3/index.html"></a>modify the Alignment <abbr>API</abbr> and its implementation. In this tutorial, we will simply learn how to use it.</p>
 
 <p>You will then go to the directory of this tutorial by doing:</p>
-<div class="fragment">
+<div class="terminal">
 $ cd tutorial1
 </div>
 <p>You can clean up previous trials by:</p>
-<div class="fragment">
+<div class="terminal">
 $ rm results/*
 </div>
 
@@ -79,7 +79,7 @@ interpreter. In this example we use the <tt>tcsh</tt> syntax (which
 only affects the <tt>setenv</tt> command).</p>
 
 <!--p>Beside a Java interpreter, if one wants to generate the <abbr title="HyperText Markup Language">HTML</abbr> translations of the alignments, this can be done with the help of an <abbr title="XML Stylesheet Language Trasnformation">XSLT</abbr> 1.0 processor like <tt>xsltproc</tt>. Hence:</p>
-<div class="fragment">
+<div class="terminal">
 $ xsltproc ../form-align.xsl results/file.rdf > results/file.html
 </div>
 <p>generates <tt>results/file.html</tt> from the alignment file <tt>results/file.rdf</tt>.</p-->
@@ -111,12 +111,12 @@ between two bibliographic ontologies. They can be seen here:</p>
 <p>Let's try to match these two ontologies
 (<tt>$CWD</tt> is a variable that <a href="../index.html">has been
 set up</a> to the directory just above this one):</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 
 <p>The result is displayed on the standard output. Since the output is too long we send it to a file by using the <tt>-o</tt> switch:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/equal.rdf
 </div>
 
@@ -131,7 +131,7 @@ $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mi
 <p>Hence, it is possible to display the alignment
   in <abbr title="HyperText Markup Language">HTML</abbr> by using the
   adequate renderer:
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results/equal.html
 </div>
 and opening the <a href="results/equal.html">results/equal.html</a>
@@ -141,7 +141,7 @@ in a browser.
 <p>See the output in <a href="results/equal.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/equal.html"><abbr>HTML</abbr></a>.</p>
 <p>The result is expressed in the Alignment format. This format, in <abbr>RDF</abbr>/<abbr>XML</abbr>, is made of a header containing "metadata" about the alignment:
 </p>
-<div class="owl"><pre>
+<div class="align">
 &lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
 &lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -169,9 +169,9 @@ in a browser.
       &lt;/formalism>
     &lt;/Ontology>
   &lt;/onto2>
-</pre></div>
+</div>
 <p>and the corresponding set of correspondences:</p>
-<div class="owl"><pre>
+<div class="align">
   &lt;map&gt;
     &lt;Cell&gt;
       &lt;entity1 rdf:resource="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Article"/&gt;
@@ -180,9 +180,9 @@ in a browser.
       &lt;relation&gt;=&lt;/relation&gt;
     &lt;/Cell&gt;
   &lt;/map&gt;
-</pre></div>
+</div>
 <p>each correspondence is made of two references to the aligned entities, the relation holding between the entities (<tt>=</tt>) and a confidence measure (<tt>1.0</tt>) in this correspondence. Here, because the default method that has been used for aligning the ontologies is so simple (it only compares the labels of the entities and find that there is a correspondence if their labels are equal), the correspondences are always that simple. But it is too simple so we will use a more sophisticated method based on an edit distance:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/levenshtein.rdf
 </div>
 
@@ -200,15 +200,15 @@ $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.St
 <p>We can see that the correspondences now contain confidence factors different than <tt>1.0</tt>, they also match strings which are not the same and indeed far more correspondences are available.</p></div>
 
 <p>We do the same with another measure (smoaDistance):</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/SMOA.rdf
 </div>
-<div class="logic"><p><b>More work:</b> you can apply other available alignments classes. Look in the <a href="../../../src/fr/inrialpes/exmo/align/impl/method">../../../src/fr/inrialpes/exmo/align/impl/method</a> directory for more simple alignment methods. Also look in the <tt>StringDistances</tt> class the possible values for <tt>stringFunction</tt> (they are the names of methods).</p></div>
-<div class="logic"><p><b>Advanced:</b> You can also look at the
+<div class="note"><p><b>More work:</b> you can apply other available alignments classes. Look in the <a href="../../../src/fr/inrialpes/exmo/align/impl/method">../../../src/fr/inrialpes/exmo/align/impl/method</a> directory for more simple alignment methods. Also look in the <tt>StringDistances</tt> class the possible values for <tt>stringFunction</tt> (they are the names of methods).</p></div>
+<div class="note"><p><b>Advanced:</b> You can also look at the
     instructions for installing WordNet and its Java interface and use
     a WordNet based distance provided with the <abbr>API</abbr>
     implementation by ($WNDIR is the directory where wordnet 3.0 is installed):</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar:../../../lib/jwnl/jwnl.jar fr.inrialpes.exmo.align.cli.Procalign -Dwndict=$WNDIR -i fr.inrialpes.exmo.align.ling.JWNLAlignment file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -o results/jwnl.rdf
 </div>
 
@@ -217,7 +217,7 @@ $ java -cp ../../../lib/procalign.jar:../../../lib/jwnl/jwnl.jar fr.inrialpes.ex
 <h2>Manipulating</h2>
 	
 <p>As can be seen there are some correspondences that do not really make sense. Fortunately, they also have very low confidence values. It is thus interesting to use a threshold for eliminating these values. Let's try a threshold of <tt>.33</tt> over the alignment (with the <tt>-t</tt> switch):</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.33 -o results/levenshtein33.rdf
 </div>
 
@@ -231,31 +231,31 @@ $ java -jar ../../../lib/procalign.jar file://$CWD/myOnto.owl file://$CWD/edu.mi
 <div class="explain" id="qu4"><p>This operation has contributed eliminating a number of innacurate correspondences like Journal-Conference or Composite-Conference. However, there remains some unaccurate correspondences like Institution-InCollection and Published-UnPublished!</p></div>	
 
 <p>We can also apply this treatment to other methods available:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl -t 0.5 -o results/SMOA5.rdf
 </div>
 
 <p>See the output in <a href="results/SMOA5.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/SMOA5.html"><abbr>HTML</abbr></a> (if rendered as before).</p>
 
 <p><b>Other manipulations:</b> It is possible to invert an alignment with the following command:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i results/SMOA5.rdf -o results/AOMS5.rdf
 </div>
 <p>See the output in <a href="results/AOMS5.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/AOMS5.html"><abbr>HTML</abbr></a> (if rendered as before). The results is an alignment from the source to the target. Inverting alignment is only the exchange of the order of the elements in the alignment file. This can be useful when you have an alignment of <i>A</i> to <i>B</i>, an alignment from <i>C</i> to <i>B</i> and you want to go from <i>A</i> to <i>C</i>. The solution is then to invert the second alignment and to compose them.</p>
 
-<div class="logic"><p><b>More work:</b> There is another switch (<tt>-T</tt>) in Procalign that specifies the way a threshold is applied (hard|perc|prop|best|span) the default being "hard". The curious reader can apply these and see the difference in results. How they work is explained in the Alignment <abbr>API</abbr> documentation.</p></div>
+<div class="note"><p><b>More work:</b> There is another switch (<tt>-T</tt>) in Procalign that specifies the way a threshold is applied (hard|perc|prop|best|span) the default being "hard". The curious reader can apply these and see the difference in results. How they work is explained in the Alignment <abbr>API</abbr> documentation.</p></div>
 
-<div class="logic"><p><b>More work:</b> Try to play with the thresholds in order to find the best values for levenshteinDistance and smoaDistance.</p></div>
+<div class="note"><p><b>More work:</b> Try to play with the thresholds in order to find the best values for levenshteinDistance and smoaDistance.</p></div>
 	
 <h2>Output</h2>
 	
 <p>Once a good alignment has been found, only half of the work has been done. In order to actually use our result it is necessary to transform it into some processable format. For instance, if one wants to merge two OWL ontologies, the alignment can be changed into set of <acronym>OWL</acronym> "bridging" axioms. This is achieved by "rendering" the alignment in <acronym>OWL</acronym> (through the <tt>-r</tt> switch):</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 </div>
 
 <p>The result is a set of OWL assertions of the form:</p>
-<div class="owl"><pre>
+<div class="owl">
   &lt;owl:Class rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#Techreport"&gt;
     &lt;owl:equivalentClass rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#Techreport"/&gt;
   &lt;/owl:Class&gt;
@@ -263,14 +263,14 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter 
   &lt;owl:ObjectProperty rdf:about="http://alignapi.gforge.inria.fr/tutorial/myOnto.owl#copyright"&gt;
     &lt;owl:equivalentProperty rdf:resource="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#hasCopyright"/&gt;
   &lt;/owl:ObjectProperty&gt;
-</pre></div>
+</div>
 
 <p>If one wants to use the alignments only for infering on instances without actually merging the classes, she can generate SWRL rules:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
 </div>
 <p>which brings for the same assertions:</p>
-<div class="owl"><pre>
+<div class="swrl">
   &lt;ruleml:imp&gt;
     &lt;ruleml:_body&gt;
       &lt;swrl:classAtom&gt;
@@ -300,14 +300,14 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter 
       &lt;/swrl:datavaluedPropertyAtom&gt;
     &lt;/ruleml:_head&gt;
   &lt;/ruleml:imp&gt;
-</pre></div>
+</div>
 	
 <p>Exchanging data can also be achieved more simply through <abbr>XSLT</abbr> transformations which will transform the <acronym>OWL</acronym> instance files from one ontology to another:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results/SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results/SMOA5.xsl
 </div>
 <p>this transformation can be applied to the data of <a href="data.xml">data.xml</a>:</p>
-<div class="fragment">
+<div class="terminal">
 $ xsltproc results/SMOA5.xsl data.xml > results/data.xml
 </div>
 <p>for giving the <a href="results/data.xml">results/data.xml</a> file.</p>
@@ -317,12 +317,12 @@ $ xsltproc results/SMOA5.xsl data.xml > results/data.xml
 <p>We will evaluate alignments by comparing them to some reference alignment which is supposed to express what is expected from an alignment of these two ontologies. The reference alignment is <a href="refalign.rdf">refalign.rdf</a> (or <a href="results/refalign.html"><abbr>HTML</abbr></a>, if rendered as before).</p>
 
 <p>For evaluating we use another class than <tt>Procalign</tt>. It is called <tt>EvalAlign</tt> we should specify this to <tt>java</tt>. By default, it computes precision, recall and associated measures. It can be invoked this way:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/equal.rdf
 </div>
 
 <p>The first argument is always the reference alignment, the second one is the alignment to be evaluated. The result is given here:</p>
-<div class="owl"><pre>
+<div class="xml">
 &lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
 &lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
@@ -338,7 +338,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i f
     &lt;result>0.3541666666666667&lt;/result>
   &lt;/map:output>
 &lt;/rdf:RDF>
-</pre></div>
+</div>
 
 <p>Of course, since that method only match objects with the same name, it is accurate, yielding a high precision. However, it has poor recall.</p>
 
@@ -349,14 +349,14 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i f
 </div>
 <div class="explain" id="qu5"><p>Since it returns more correspondences by loosening the constraints for being a correspondence, it is expected that the recall will increase at the expense of precision.</p></div>
 <p>We can see the results of:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://$CWD/refalign.rdf file://$CWD/tutorial1/results/levenshtein33.rdf
 </div>
 <div class="button">
 	<input type="button" onclick="show('qu6')" value="Show result"/>
 	<input type="button" onclick="hide('qu6')" value="Hide result"/>
 </div>
-<div class="explain" id="qu6"><pre>
+<div class="explain" id="qu6"><div class="xml">
 &lt;?xml version='1.0' encoding='utf-8' standalone='yes'?>
 &lt;rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   xmlns:map='http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#'>
@@ -371,9 +371,9 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i f
     &lt;result>1.5416666666666665&lt;/result>
   &lt;/map:output>
 &lt;/rdf:RDF>
-</pre></div>
+</div></div>
 <p>It is possible to summarize these results by comparing them to each others. This can be achieved by the <tt>GroupEval</tt> class. This class can output several formats (by default html) and takes all the alignments in the subdirectories of the current directory. Here we only have the <tt>results</tt> directory:</p>
-<div class="fragment">
+<div class="terminal">
 $ cp ../refalign.rdf results
 $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -r refalign.rdf -l "refalign,equal,SMOA,SMOA5,levenshtein,levenshtein33" -c -f prm -o results/eval.html
 </div>
@@ -460,7 +460,7 @@ $ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -r r
 <p><small>n/a: result alignment not provided or not readable<br />
 NaN: division per zero, likely due to empty alignment.</small></p>
 	
-<!--div class="fragment">
+<!--div class="terminal">
 $ java -jar ../../../lib/Procalign.jar file://$CWD/rdf/edu.umbc.ebiquity.publication.owl file://$CWD/rdf/edu.mit.visus.bibtex.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -DprintMatrix=1 -o /dev/null > matrix.tex
 </div-->
 	

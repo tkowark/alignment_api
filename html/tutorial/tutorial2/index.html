@@ -55,11 +55,11 @@ div.logic {
 <h2>Starting point</h2>
 	
 <p>A skeleton of program using the Alignment <abbr>API</abbr> is <a href="Skeleton.java">Skeleton.java</a>. It can be compiled by invoking:</p>
-<div class="fragment">
+<div class="terminal">
 $ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar -d results Skeleton.java
 </div>
 <p>and run by:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -cp ../../../lib/Procalign.jar:results Skeleton file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl
 </div>
 
@@ -90,7 +90,7 @@ The matching method takes two arguments: an eventual alignment to
 improve on (which can be null) a set of parameters. So, the three
 lines below match ontologies <tt>onto1</tt> and <tt>onto2</tt> with
 the <tt>StringDistAlignment</tt> matcher:
-<div class="fragment">
+<div class="java">
   AlignmentProcess a = new StringDistAlignment();
   a.init ( onto1, onto2 );
   a.align( (Alignment)null, new BasicParameters() );
@@ -107,7 +107,7 @@ parameters corresponding to "smoaDistance" and "ngramDistance".
   <input type="button" onclick="hide('qu1')" value="Hide result"/>
 </div>
 <div class="explain" id="qu1">
-<pre>
+<div class="java">
   Properties params = new BasicParameters();
   // Run two different alignment methods (e.g., ngram distance and smoa)
   AlignmentProcess a1 = new StringDistAlignment();
@@ -119,7 +119,7 @@ parameters corresponding to "smoaDistance" and "ngramDistance".
   params = new BasicParameters();
   params.setProperty("stringFunction","ngramDistance");
   a2.align( (Alignment)null, params );
-</pre>
+</div>
 </div>
 
 <p>
@@ -155,7 +155,7 @@ corresondences in the resulting alignment.
   <input type="button" onclick="hide('qu2')" value="Hide result"/>
 </div>
 <div class="explain" id="qu2">
-<pre>
+<div class="java">
   // Clone a1
   System.err.println( a1.nbCells() );
   BasicAlignment a3 = (BasicAlignment)(a1.clone());
@@ -172,10 +172,10 @@ corresondences in the resulting alignment.
   // Trim above .5
   a4.cut( .5 );
   System.err.println( a4.nbCells() );
-</pre>
+</div>
 </div>
 
-<div class="logic"><p><b>More work:</b> You can consider the more
+<div class="note"><p><b>More work:</b> You can consider the more
     elaborate versions of <tt>cut()</tt> and compare the results.</p></div>
 
 
@@ -197,7 +197,7 @@ Below the provided code first creates a parser for loading the
 reference alignment, then creates an instance
 of <tt>PRecEvaluator</tt> for computing precision and recall between
 the alignment <tt>a1</tt> above with respects to the reference alignment.
-<div class="fragment">
+<div class="java">
   // Load the reference alignment
   AlignmentParser aparser = new AlignmentParser(0);
   Alignment reference = aparser.parse( new File( "../refalign.rdf" ).toURI() );
@@ -220,7 +220,7 @@ F-measure.
   <input type="button" onclick="hide('qu5')" value="Hide result"/>
 </div>
 <div class="explain" id="qu5">
-<pre>
+<div class="java">
   // Trim at various thresholds
   // Evaluate them against the references
   // and choose the one with the best F-Measure
@@ -239,7 +239,7 @@ F-measure.
       best = ((PRecEvaluator)evaluator).getFmeasure();
     }
   }
-</pre>
+</div>
 </div>
 
 <h2>Displaying an alignment</h2>
@@ -265,7 +265,7 @@ alignment selected at the previous exercise as a set of OWL axioms.
   <input type="button" onclick="hide('qu6')" value="Hide result"/>
 </div>
 <div class="explain" id="qu6">
-<pre>
+<div class="java">
   // Displays it as OWL Rules
   PrintWriter writer = new PrintWriter (
                         new BufferedWriter(
@@ -274,7 +274,7 @@ alignment selected at the previous exercise as a set of OWL axioms.
   result.render(renderer);
   writer.flush();
   writer.close();
-</pre>
+</div>
 </div>
 
 <h2>Putting these together</h2>
@@ -285,7 +285,7 @@ alignment selected at the previous exercise as a set of OWL axioms.
   <input type="button" onclick="hide('qu7')" value="Teacher is comming"/>
 </div>
 <div class="explain" id="qu7"><p>The main piece of code in Skeleton.java is replaced by:</p>
-<pre>
+<div class="java">
   // Run two different alignment methods (e.g., ngram distance and smoa)
   AlignmentProcess a1 = new StringDistAlignment();
   params.setProperty("stringFunction","smoaDistance");
@@ -333,12 +333,12 @@ alignment selected at the previous exercise as a set of OWL axioms.
   result.render(renderer);
   writer.flush();
   writer.close();
-</pre></div>
+</div></div>
 
 <p>
 This can be compiled and used through:
 </p>
-<div class="fragment">
+<div class="terminal">
 $ javac -classpath ../../../lib/align.jar:../../../lib/procalign.jar -d results MyApp.java
 $ java -cp ../../../lib/Procalign.jar:results MyApp file://$CWD/myOnto.owl file://$CWD/edu.mit.visus.bibtex.owl > results/MyApp.owl
 </div>
@@ -355,11 +355,11 @@ Threshold 1.0 : 0.5230769230769231 over 17 cells
 <p>
 <p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
 
-<div class="logic"><p><b>Advanced question:</b> Can you tell why the stored alignment does not seem to contain 69 cells? (Hint: try to render the alignments in RDF and see what happens)</p></div>
+<div class="note"><p><b>Advanced question:</b> Can you tell why the stored alignment does not seem to contain 69 cells? (Hint: try to render the alignments in RDF and see what happens)</p></div>
 	
-<div class="logic"><p><b>More work:</b> You can add a switch like the <tt>-i</tt> switch of <tt>Procalign</tt> so that the main class of the application can be passed at commant-line.</p></div>
+<div class="note"><p><b>More work:</b> You can add a switch like the <tt>-i</tt> switch of <tt>Procalign</tt> so that the main class of the application can be passed at commant-line.</p></div>
 
-<div class="logic"><p><b>Advanced:</b> What about writing an editor for the alignment <abbr>API</abbr>?</p></div>
+<div class="note"><p><b>Advanced:</b> What about writing an editor for the alignment <abbr>API</abbr>?</p></div>
 	
 <h2>Further exercises</h2>
 	

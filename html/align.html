@@ -4,33 +4,37 @@
 <!--style type="text/css">@import url(style.css);</style-->
 <link rel="stylesheet" type="text/css" href="base.css" />
 <link rel="stylesheet" type="text/css" href="style.css" />
+<link rel="stylesheet" type="text/css" href="print.css" media="print" />
 </head>
 <body bgcolor="#ffffff">
 
 <h1 class="titre">Quick start with the Alignment API in Java</h1>
 
-<p>An extensive presentation of the alignment API can be
-  found at <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>. We also have
-  an on-line <a href="tutorial">tutorial</a> on using it.</p>
+<p>
+This is the very basic for starting with the Alignment API and
+checking that everything should be fine. 
+Another quick start guide exists for the <a href="aserv.html">Alignment server</a>.
+We also have an on-line <a href="tutorial">tutorial</a> on using the
+Alignment API and more <a href="index.html">systematic documentation</a>.</p>
 
 <h2>Fetching the Alignment API and starting</h2>
 
 <h3>Requirements</h3>
 
-<p><b>For using</b> you will need <a href="http://java.sun.com">Java
-  runtime environment</a> (tested in 1.5). All other necessary
+<p><b>For using</b> you will need a <a href="http://java.sun.com">Java
+  runtime environment</a> (tested in 1.6). All other necessary
   libraries are available in the archive (see the list of <a href="lib.html">libraries</a>).</p>
 
 <h3>Fetching the ZIP'ed version</h3>
 
-<p>The simplest way to use alignapi is to get the last release
+<p>The simplest way to use the Alignment API is to get the lastest release
   zipfile from the site <a href="http://gforge.inria.fr/frs/?group_id=117">http://gforge.inria.fr/frs/?group_id=117</a>. It contains all the sources, compiled
 library, required libraries.</p>
 
 <h3>Running</h3>
 
 <p>Running the program is achieved through:
-<div class="fragment"><pre>
+<div class="terminal">
 $ java -jar lib/procalign.jar
 Two URIs required
 usage: Procalign [options] URI1 URI2
@@ -47,28 +51,26 @@ options are:
 	--help -h			Print this message
 
 Alignment API implementation 3.2 ($Id$)
-</pre></div>
-Congratutalations, you are done. We
-advise you to learn more by using the <a href="tutorial">tutorial</a>
-and the documentation.</p>
+</div>
+Congratulations, you are done. We
+invite you to learn more by using the <a href="tutorial">tutorial</a>
+and the <a href="index.html">documentation</a>.</p>
 
 <p>Details below are for developing with the Alignment API.</p>
 
-<h3>Bug reports</h3>
-
 <h2>Package content</h2>
 
-<p>Whatever your mode of getting ontolign you will get an alignapi
+<p>Whatever your mode of getting the Alignment API you will get an alignapi
   directory containing the following subdirectories:
 <ul compact="1">
-  <li>README.TXT	this file</li>
+  <li>README.TXT	instructions for starting with the Alignment API</li>
   <li>README.AServ	instructions for setting up an Alignment Server</li>
   <li>LICENSE.TXT	the terms under which the software is licensed to you.</li>
   <li>build.xml: ant file to compile and generate jar-files.</li>
   <li>dtd: the align.dtd and align.owl alignment specification;</li>
-  <li>lib: contains align.jar, alignwn.jar, procalign.jar, alignsvc.jar
+  <li>lib: contains align.jar, ontowrap.jar, procalign.jar, alignsvc.jar
 			 and other necessary jarfiles;</li>
-  <li>html: a few html presentation files</li>
+  <li>html: documentation</li>
   <li>html/tutorial: a tutorial on using the API</li>
   <li>distrib: contains a few files for building the distribution</li>
   <li>classes: the compiled classes (in the zip file, the classes are
@@ -76,13 +78,19 @@ and the documentation.</p>
   <li>examples: some examples of use of the API and the Server.</li>
   <li>javadoc: generated javadoc (in the zip file the doc are
   pregenerated);</li> 
+  <li>test: unit tests for testng;</li>
+  <li>tools: some tools that may be used for engineering the API;</li>
   <li>src: source classes:
     <ul compact="1">
       <li>org.semanticweb.owl.align: the API
+      <li>fr.inrialpes.exmo.ontowrap: ontology API wrappers</li>
       <li>fr.inrialpes.exmo.align.impl: basic implementation</li>
+      <li>fr.inrialpes.exmo.align.cli: command-line interface</li>
       <li>fr.inrialpes.exmo.align.util: utility wrapper functions</li>
       <li>fr.inrialpes.exmo.align.ling: WordNet-based implementation</li>
-      <li>fr.inrialpes.exmo.align.service: Alignment Service</li>
+      <li>fr.inrialpes.exmo.align.parser: Alignment format parsers</li>
+      <li>fr.inrialpes.exmo.align.service: Alignment Server</li>
+      <li>fr.inrialpes.exmo.align.gen: test generators</li>
 </ul></li>
 </ul>
 </p>
@@ -91,27 +99,45 @@ and the documentation.</p>
 
 <h3>Requirements</h3>
 
-<p><b>For extending</b> you will need Java compiler (tested in  <a href="http://java.sun.com">Java
-  standard edition</a> 1.5). Other libraries are included. It is also very usefull to have <a ref="http://ant.apache.org">Ant</a>.</p>
+<p><b>For extending</b> you will need a Java compiler (tested in  <a href="http://java.sun.com">Java
+  standard edition</a> 1.6). Other libraries are included. It is also very usefull to have <a ref="http://ant.apache.org">Ant</a>.</p>
 
 <h3>Compilation and use</h3>
 
 <p>Generating the jar-files corresponding to the Alignment API can
   be achieved by launching:
-<div class="fragment"><pre>
+<div class="terminal">
 $ ant jar
-</pre></div>
+</div>
 This recompiles the necessary files.</p>
 
 <p>Only compiling the necessary files is obtained by:
-<div class="fragment"><pre>
+<div class="terminal">
 $ ant compile
-</pre></div></p>
+</div></p>
 
 <p>Recompiling all files is achieved by:
-<div class="fragment"><pre>
+<div class="terminal">
 $ ant compileall
-</pre></div></p>
+</div></p>
+
+<p>Executing the tests:
+<div class="terminal">
+$ ant test
+</div></p>
+
+<p>Checking all java warnings and other static analysis tools:
+<div class="terminal">
+$ ant lint
+</div></p>
+
+<p>Clean up what has been generated:
+<div class="terminal">
+$ ant clean
+</div></p>
+
+<p>Other options may be obtained by <tt>ant usage</tt> or through
+  inspecting the <tt>build.xml</tt> file.</p>
 
 <h3>Typical development with the API</h3>
 
@@ -128,7 +154,7 @@ $ ant compileall
 </ul></p>
 
 <p>In theory, only the first aspect requires recompiling and modifying
-  the Alignment API code. However, it may be useful for others (for
+  the Alignment API code. However, it may be useful for other aspects (for
   instance for debugging).</p>
 
 <!--h3>Anonymous Subversion</h3>
@@ -180,89 +206,15 @@ $ cvs -d :ext:&lt;loginname&gt;@cvs-sop.inria.fr:/CVS/exmosoft --
 documentation. If you are familiar with CVS, the move is straightforward.)
 </p-->
 
-<h2>The alignment API</h2>
-<p>The OWL-API is extended with the
-  (<tt>org.semanticweb.owl.align</tt>) package. Which describes the
-  Alignment API. This API is, in turns, an "implementation" of the <a
-  href="format.html">Alignment format</a>.</p>
-<p>It is basically made of three interfaces:
-<dl compact="1">
-<dt><tt>Alignment</tt></dt><dd>Represents the alignment of two ontology by a
-    specific method. It contains a specification of the alignment and
-    a list of cells.</dd>
-<dt><tt>Cell</tt></dt><dd>Represents a couple of aligned entities together
-    with their confidence measure and alignement relation.</dd>
-<dt><tt>Relation</tt></dt><dd>Represents the specification of the relation
-    holding between two aligned entities.</dd>
-</dl>
-</p>
-<p>More information about the attributes of these classes can be
-  found in the <a href="format.html">format description</a>.</p>
-<p>Addtionnally, there is an <tt>AlignmentProcess</tt> interface which
-  contains a method for calling a particular alignment method (it is
-  a sub-interface of <tt>Alignment</tt>) and an <tt>AlignmentException</tt>.</p>
+<h3>Documentation</h3>
 
-<h2>Implementing and extending the API</h2>
-<p>A (default) impplementation of this API can be found in
-  the <tt>fr.inrialpes.exmo.align.impl</tt> package.</p>
-<p>Adding new alignments methods amounts to create a
-  new <tt>AlignmentProcess</tt> 
-  class implementing the interface. Generally, this can extend the
-  proposed <tt>fr.inrialpes.exmo.align.impl.BasicAlignment</tt>
-  class and implement  <tt>AlignmentProcess</tt>.</p>
-<p>The <tt>BasicAlignment</tt> has the good taste of defining the storage
-  sructures for ontologies and alignment specification as well as the
-  methods for dealing with alignment display. The only method it does
-  not implement is alignment itself. All methods can be refined (no
-  one is final).</p>
-<p>The <tt>NameEqAlignment</tt> class extends
-  the <tt>BasicAlignment</tt> by  aligning classes bearing the exact
-  same name for properties and classes).</p>
-<p>A more elaborate implementation is
-  the <tt>EditDistNameAlignment</tt> class which uses an edit
-  distance on class names. It thus have to build a matrix of distance
-  and to choose the alignment from the distance. It can be called by:
-<div class="fragment"><pre>
-$ java -jar lib/procalign.jar file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment
-&lt;?xml version='1.0' encoding='utf-8' standalone='no'?>
-&lt;rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
-         xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
-         xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'>
-&lt;Alignment>
-  &lt;xml>yes&lt;/xml>
-  &lt;level>0&lt;/level>
-  &lt;type>**&lt;/type>
-  &lt;method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment&lt;/method>
-  &lt;time>4&lt;/time>
-  &lt;onto1>
-    &lt;Ontology rdf:about="http://www.example.org/ontology1">
-      &lt;location>file:///Java/alignapi/examples/rdf/onto1.owl&lt;/location>
-      &lt;formalism>
-        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
-      &lt;/formalism>
-    &lt;/Ontology>
-  &lt;/onto1>
-  &lt;onto2>
-    &lt;Ontology rdf:about="http://www.example.org/ontology2">
-      &lt;location>file:///Java/alignapi/examples/rdf/onto2.owl&lt;/location>
-      &lt;formalism>
-        &lt;Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
-      &lt;/formalism>
-    &lt;/Ontology>
-  &lt;/onto2>
-  &lt;map>
-    &lt;Cell>
-      &lt;entity1 rdf:resource='http://www.example.org/ontology1#journalarticle'/>
-      &lt;entity2 rdf:resource='http://www.example.org/ontology2#journalarticle'/>
-      &lt;relation>=&lt;/relation>
-      &lt;measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0&lt;/measure>
-    &lt;/Cell>
-  &lt;/map>
-&lt;/Alignment>
-&lt;/rdf:RDF>
-</pre></div>
-</p>
+<p>
+Most documentation is available from <a href="index.html">here</a>.
+An exception is the <a href="../javadoc/index.html">javadoc</a> which
+is only available on your local machine. It can be recompiled by:
+<div class="terminal">
+$ ant javadoc
+</div></p>
 
 <address>
 <small>

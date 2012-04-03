@@ -63,7 +63,7 @@ from the release.
 <p>
 Setting up the server requires to create a database. This is achieved
 through the following instructions:
-<div class="fragment">
+<div class="terminal">
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
 $ /usr/local/mysql/bin/mysqladmin -u root password <mysqlpassword>
 $ /usr/local/mysql/bin/mysqladmin -u root -h localhost password <mysqlpassword>
@@ -81,11 +81,11 @@ Of course, it is advised to use different user, password and database name. This
 
 <p>
 Once this done, the server can be launched through command line by:
-<div class="fragment">
+<div class="terminal">
 $ java -jar lib/alignsvc.jar -H
 </div>
 for a minimal HTML server, or
-<div class="fragment">
+<div class="terminal">
 $ java -jar lib/alignsvc.jar -Ddbmsbase=MyDB -Dwndict=../WordNet-3.0/dict -H -W -d 4
 </div>
 for a more complete server with specific database, access to wordnet set, webservices and
@@ -234,6 +234,18 @@ An alignment can be stored definitely on the server, i.e., its
 database through the Store button of the main menu which triggers the
 following interface:
 <center><img src="server/store1.png" width="100%" /></center>
+</p>
+
+<h2>Comparing</h2>
+	
+<p>
+An alignment can be compared to another (reference) one through the
+Diff Evaluator class:
+<!--center><img src="server/eval1.png" /></center-->
+which returns three sets of correspondences (correct, incorrect and
+missing) :
+<!--center><img src="server/evalresult1.png" width="100%" /></center-->
+</p>
 </p>
 
 <h2>Evaluating</h2>

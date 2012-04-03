@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Alignment API: Server</title>
+<title>Alignment API: Server setup</title>
 <!--style type="text/css">@import url(style.css);</style-->
 <link rel="stylesheet" type="text/css" href="base.css" />
 <link rel="stylesheet" type="text/css" href="style.css" />
@@ -16,11 +16,14 @@
 <h2>Requirements</h2>
 
 <p>Using the alignment server requires an SQL database server.
-We see here, how to use mysql (http://dev.mysql.com/doc/refman).</p>
+We see here how to use mysql (http://dev.mysql.com/doc/refman), but
+  the server also works with Postgres.</p>
 
 <h2>Creating the MySQL database</h2>
 
-<div class="fragment"><pre>
+<p>
+In order to use the Alignment server, it is necessary to create its database. This can simply be done by the following shell instructions:
+<div class="terminal">
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
 $ /usr/local/mysql/bin/mysqladmin -u root password &lt;mysqlpassword><!--
 $ /usr/local/mysql/bin/mysqladmin -u root -h localhost password &lt;mysqlpassword>-->
@@ -28,26 +31,29 @@ $ /usr/local/mysql/bin/mysql -u root -p&lt;mysqlpassword>
 sql> CREATE DATABASE AServDB;
 sql> GRANT ALL PRIVILEGES ON AServDB.* TO adminAServ@localhost IDENTIFIED BY 'aaa345';
 sql> quit
-</pre></div>
+</div>
+The database schema will be created upon the first launch of the
+server.
+</p>
 <p>
 Of course, you are advised to use different user, password and
 database name. This can be achieved either:
 <ul>
-<li>by changing values of DBMSBASE, DBMSUSER and DBMSPASS in AlignmentServer and recompiling;</li>
+<li>by changing values of DBMSBASE, DBMSUSER and DBMSPASS in <tt>AlignmentServer.java</tt> and recompiling;</li>
 <li>by passing parameters dbmsbase, dbmsuser and dbmspass to
-  AlignmentServer.</li>
+  <tt>AlignmentServer</tt>.</li>
 </ul>
 </p>
 
 <p>Sample backup of the server content:
-<div class="fragment"><pre>
+<div class="terminal">
 $ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
-</pre></div>
+</div>
 And restoring:
-<div class="fragment"><pre>
+<div class="terminal">
 $ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
 sql> source toto.sql;
-</pre></div>
+</div>
 </p>
 
 <p>
@@ -57,19 +63,45 @@ should know how to do it.
 
 <h2>Launching the Alignment server</h2>
 
-<p>The next time it is sufficient that mysql is running... (with the database loaded)
-
-<div class="fragment"><pre>
+<p>
+The Alignment server requires that the corresponding database management system server be running. In our case, this can be achieved through:
+<div class="terminal">
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
-</pre></div>
-
-<div class="fragment"><pre>
+</div>
+Running the Alignment server is achieved through (use the corresponding options):
+<div class="terminal">
 $ java -jar lib/alignsvc.jar -H
-</pre></div>
-
+</div>
 The alignment server is then available through HTTP with:
-
+<center>
     	      http://localhost:8089/html/
+</center>
+</p>
+<p>
+The possible switches to the server launcher are:
+<div class="terminal">
+$ java -jar lib/alignsvc.jar -h
+usage: AlignmentService [options]
+options are:
+	--html[=port] -H[port]			Launch HTTP service
+	--jade[=port] -A[port]			Launch Agent service
+	--wsdl[=port] -W[port]			Launch Web service
+	--jxta[=port] -P[port]			Launch P2P service
+	--oyster -O			Register to Oyster directory
+	--serv=class -i class			Launch service corresponding to fully qualified classname
+	--output=filename -o filename	Redirect output to filename
+	--dbmshost=host -m host			Use DBMS host
+	--dbmsport=port -s port			Use DBMS port
+	--dbmsuser=name -u name			Use DBMS user name
+	--dbmspass=pwd -p pwd			Use DBMS password
+	--dbmsbase=name -b name			Use Database name
+	--dbms=name -B name			Use Database Management System
+	--debug[=n] -d[n]		Report debug info at level n
+	-Dparam=value			Set parameter
+	--help -h			Print this message
+
+Alignment server 4.3 (1709:1716M) ($Id$)
+</div>
 </p>
 
 <h2>Embedding more methods in the Alignment Server</h2>
@@ -82,12 +114,12 @@ The alignment server is then available through HTTP with:
   jarfile used to launch the server (typically alignsvc.jar) and to
   put these jarfiles in the same location as this last one.</p>
 <p>For instance:
-<div class="fragment"><pre>
+<div class="java">
 Manifest-Version: 1.0
 Created-By: your.MailAddress@example.org
 Class-Path: alignsvc.jar olgraph.jar procola.jar
 Main-Class: fr.inrialpes.exmo.align.service.AlignmentService
-</pre></div>
+</div>
 
 is the required MANIFEST file for embedding our OLA algorithm which
 requires two jarfiles: procola.jar and olgraph.jar.
@@ -105,14 +137,21 @@ for the firewalls to open these ports:
 <table>
 <th><td>default</td><td>option</td><td>open?</td></th>
 <tr><td>HTTP</td><td>8089</td><td>-H</td><td>Y</td></tr>
+<tr><td>MySQL</td><td>3306</td><td>--dbmsport</td><td>N (if on the same machine)</td></tr>
 <tr><td>Jade</td><td>8888</td><td>-A</td></tr>
 <tr><td>//</td><td>1099</td><td></td><td>? (RMI)</td></tr>
 <tr><td></td><td>7778</td><td></td><td>Y (MTP HTTP)</td></tr>
-<tr><td>WSDL</td><td>7777</td><td>-W</td></tr>
-<tr><td>JXTA</td><td>6666</td><td>-P</td></tr>
-<tr><td>MySQL</td><td>3306</td><td>--dbmsport</td><td>N (if on the same machine)</td></tr>
+<tr><td>WSDL</td><td>7777</td><td>-W</td><td>Y</td></tr>
+<tr><td>JXTA</td><td>6666</td><td>-P</td><td>Y</td></tr>
+<tr><td>Oyster</td><td>1099</td><td>-O</td><td>Y (RMI/Kaon2)</td></tr>
 </table>
 </center>
+</p>
+
+<p>
+Of course, the ports need only to be open if there is an access from
+the outside to the server with the corresponding plug-in. The only
+compulsory ports for the server is the MySQL one.
 </p>
 
 <address>

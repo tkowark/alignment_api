@@ -98,14 +98,14 @@ Javadoc).
   called <tt>javac</tt>.</p>
 
 <p>Download the last version of the Alignment <abbr>API</abbr> from <a href="http://gforge.inria.fr/frs/?group_id=117">http://gforge.inria.fr/frs/?group_id=117</a>. Unzip it and go to the created directory:</p>
-<div class="fragment">
+<div class="terminal">
 $ mkdir alignapi
 $ cd alignapi
 $ unzip align*.zip
 </div>
 
 <p>You can check that everything works by only typing:</p>
-<div class="fragment">
+<div class="terminal">
 $ java -jar lib/procalign.jar --help
 </div>
 <!--div class="button"><form><input type="button" value="Show
@@ -137,16 +137,16 @@ options are:
 <!--p>You can <a href="../align.html">modify the Alignment <abbr>API</abbr> and its implementation</a>. In this tutorial, we will simply learn how to use it.</p-->
 
 <p>You will then go to the tutorial directory by doing:</p>
-<div class="fragment">
+<div class="terminal">
 $ cd html/tutorial
 </div>
 <p>You can clean up previous trials by:</p>
-<div class="fragment">
+<div class="terminal">
 $ rm */results/*
 </div>
 
 <p>The goal of this tutorial is only to help you realize the possibilities of the Alignment <abbr>API</abbr> and implementation. It can be played by invoking each command line from the command-line interpreter. In this example we use the <tt>tcsh</tt> syntax but the main specific syntax is the first one:</p>
-<div class="fragment">
+<div class="terminal">
 $ setenv CWD `pwd`
 </div>
 <p>which puts in variable <tt>$CWD</tt> the name of the current directory.</p>
@@ -165,7 +165,7 @@ Now you can go back to any of the tutorials:
 </p>
 
 <!--p>Beside a Java interpreter, if one wants to generate the <abbr title="HyperText Markup Language">HTML</abbr> translations of the alignments, this can be done with the help of an <abbr title="XML Stylesheet Language Trasnformation">XSLT</abbr> 1.0 processor like <tt>xsltproc</tt>. Hence:</p>
-<div class="fragment">
+<div class="terminal">
 $ xsltproc ../form-align.xsl results/file.rdf > results/file.html
 </div>
 <p>generates <tt>results/file.html</tt> from the alignment file <tt>results/file.rdf</tt>.</p-->

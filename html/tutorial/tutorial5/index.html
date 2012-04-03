@@ -53,7 +53,7 @@ a web service, by extending a simple web service interface. </p>
 <p>There are many different methods for computing alignments. However, they
 always need at least two ontologies as input and provide an alignment as output. So, a minimal interface for providing an alignment should contain: </p>
 
-<div class="fragment">
+<div class="java">
 String align(URI onto1,URI onto2)
 </div>
 
@@ -68,7 +68,7 @@ The development of JAX-WS web services is based on a set of annotations. The <tt
 
 <p>Our minimal web service interface is defined as follow (<a href="AlignmentWS.java">AlignmentWS.java</a>):<p>
 
-<div class="fragment">
+<div class="java">
 package eu.sealsproject.omt.ws.matcher;
 
 import java.net.URI;
@@ -99,7 +99,7 @@ which takes as parameters the URIs of the two ontologies to be aligned and retur
 <tt>@WebService</tt> annotation in the implementation class (<a href="AlignmentWSImpl.java">AlignmentWSImpl.java</a>):
 
 
-<div class="fragment">
+<div class="java">
 package example.ws.matcher;
 
 import javax.jws.WebService;
@@ -121,7 +121,7 @@ The easiest way to do this is to implement the <a href="http://alignapi.gforge.i
 
 </p>
 
-<div class="fragment">
+<div class="java">
 package example.ws.matcher;
 
 import java.net.URI;
@@ -148,7 +148,7 @@ public class MyAlignment extends URIAlignment implements AlignmentProcess {
 
 <p>Then, it is simple to expose <tt>MyAlignment</tt> as a web service (<a href="MyAlignmentWS.java">MyAlignmentWS.java</a>):</p>
 
-<div class="fragment">
+<div class="java">
 package example.ws.matcher;
 
 import java.io.BufferedWriter;
@@ -204,9 +204,9 @@ public class MyAlignmentWS extends MyAlignment implements AlignmentWS {
 This is due the fact that the method <tt>align</tt> will be called several times 
 in a web service cycle life (for each test). If we do not remove the cells computed in a previous call, the previous cells will be included in the current result. </font></p>
 
-<p> Nothing more is needed. </p>
+<p>Nothing more is needed.</p>
 
-<p> You can download <a href="SBWriter.java">SBWriter.java</a>.</p>
+<p>You can download <a href="SBWriter.java">SBWriter.java</a>.</p>
 
 <h2>Publishing the web service</h2>
 
@@ -217,7 +217,7 @@ in a web service cycle life (for each test). If we do not remove the cells compu
 In the second case, the publisher can use the method <tt>publish</tt>
   to publish its address to the <tt>Endpoint</tt> (<a href="AlignmentWSPublisher.java">AlignmentWSPublisher.java</a>):
 
-<div class="fragment">
+<div class="java">
 package example.ws.matcher;
 
 import javax.xml.ws.Endpoint;
@@ -249,13 +249,13 @@ public class AlignmentWSPublisher {
 
 <p>To use the seals infrastructure you have to specify the class including its package specification (e.g. example.ws.matcher.AlignmentWSImpl or example.ws.matcher.MyAlignmentWS) and you have to specify the URL of the service endpoint (e.g. http://134.155.86.66:8080/matcherWS or http://134.155.86.66:8080/matcherWS?wsdl). </p>
 
-<p><b>Additional Note:</b> If you exactly follow these instructions to publish 
+<div class="note"><b>Additional Note:</b> If you exactly follow these instructions to publish 
 your wrapped matcher as a webservice, this will automatically generate a 
 WSDL file that contains all required information. However, you can use 
 also use another framework (e.g. axis) for publishing the webservice, 
 but than you have to ensure to use the namespace 
 &quot;http://matcher.ws.omt.sealsproject.eu/&quot; in the appropriate 
-way. Take a look at <a href="example.wsdl">this file</a> as an example.</p>
+way. Take a look at <a href="example.wsdl">this file</a> as an example.</div>
 
 
 <h2>Deploying the web service on a Tomcat</h2>
