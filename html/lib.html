@@ -11,9 +11,10 @@
 
 <p>The Alignment API uses a number of external libraries. These libraries
 are shipped (in the lib directory) with the Alignment API. Each
-subdirectory of the lib directory contains version.txt and license.txt
-files which indicates what version are embedded and what are its
-conditions of use.
+subdirectory of the lib directory
+  contains <a href="http://maven.apache.org/pom.html">Project Object
+    Models (POM)</a> which provide information about the version,
+  license and dependencies for these libraries.
 </p>
 <p>
 We provide here the list of these libraries together with the
@@ -38,7 +39,7 @@ Here is a picture of the various dependencies involved:
 <dl>
 <dt><a href="http://www.urbanophile.com/arenn/hacking/download.html">Gnu
     getopt</a> 1.0.13: getopt.jar
-    [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a>/<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>]</dt>
+    [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>Gnu library for parsing command line arguments. Required
   everywhere (included by OWL-API).</dd>
 <dt><a href="http://logging.apache.org/log4j">Apache Log4J</a> 1.2.15
@@ -46,7 +47,7 @@ Here is a picture of the various dependencies involved:
     Commons Logging</a> 1.1.1:
   log4j.jar commons-logging.jar
   [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]
- slf4j-api.jar (1.5.6) slf4j-log4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>]
+ slf4j-api.jar (1.5.6) slf4j-log4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>??]
 </dt>
 <dd>Required by OWL-API, jwnl, Jena for the last two ones... if someone
   could clear the mess with loggers in Java, you are welcome!</dd>
@@ -131,8 +132,7 @@ and this will compile again.
 <dd>This also requires MySQL to be installed. Required for alignsvc.</dd>
 <dt><a href="http://jetty.mortbay.org/">Jetty</a> 6.1.2rc5: jetty.jar
   jetty-util.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
-<dd>This also requires MySQL to be installed. Required for HTML and
-  web service part.</dd>
+<dd>Required for HTML and web service part.</dd>
 <dt><a href="http://jetty.mortbay.org/">Servlet API</a> 2.5:
   servlet-api.jar
   [<a href="https://cds.sun.com/is-bin/INTERSHOP.enfinity/WFS/CDS-CDS_Developer-Site/en_US/-/USD/ViewLicense-Start">Sun Binary Code License</a>]</dt>

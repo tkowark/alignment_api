@@ -641,6 +641,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = "<h1>Found alignments</h1>";
 		msg += displayAnswer( answer, params );
 	    }
+	} else if ( perf.equals("corresp") ) {
+	    Message answer = manager.findCorrespondences( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer, params );
+	    } else {
+		msg = "<h1>Found correspondences</h1>";
+		msg += displayAnswer( answer, params );
+	    }
 	} else if ( perf.equals("prmretrieve") ) {
 	    String sel = params.getProperty("id");
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
@@ -670,7 +678,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		// This should be returned in answer.getParameters()
 		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
 	    }
-	    // Metadata not done yet
+	// Metadata not done yet
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
 	    msg += "Alignment id:  <select name=\"id\">";
@@ -738,27 +746,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += answer.HTMLString().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 		msg += "</pre>";
 	    }
-	} else if ( perf.equals("prmmetadata") ) {
-	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
-	    msg += "Alignment id:  <select name=\"id\">";
-	    for( Alignment al: manager.alignments() ){
-		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		msg += "<option value=\""+id+"\">"+pid+"</option>";
-	    }
-	    msg += "</select><br /><input type=\"submit\" value=\"Get metadata\"/></form>";
-	} else if ( perf.equals("metadata") ) {
-	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    //System.err.println("Content: "+answer.getContent());
-	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
-	    } else {
-		// Depending on the type we should change the MIME type
-		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
-	    }
-	    // render
-	    // Alignment in HTML can be rendre or metadata+tuples
 	} else if ( perf.equals("prmeval") ) {
 	    msg ="<h1>Evaluate alignment</h1><form action=\"eval\">";
 	    msg += "Alignment to evaluate: ";

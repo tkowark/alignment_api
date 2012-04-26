@@ -7,9 +7,9 @@
 </head>
 <body bgcolor="#ffffff">
 
-<h1 style="text-align: center;">Web service interface for the Alignment server</h1>
+<h1>Web service interface for the Alignment server</h1>
 
-<h1>REST interface</h1>
+<h2>REST interface</h2>
 <p>
 The Alignment server provides a REST interface for accessing the
 functions available on the server. Each request is an URL starting
@@ -31,7 +31,7 @@ The <tt>msgid</tt> and <tt>in-reply-to</tt> elements are not
 compulsory and may not be present in messages.
 </p>
 
-<h2>listalignments<a name="listalignments"></a></h2>
+<h3>listalignments<a name="listalignments"></a></h3>
 
 <p>Gets the list of the alignments available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listalignments</b> ?</p>
@@ -48,7 +48,7 @@ compulsory and may not be present in messages.
 </div>
 </p>
 
-<h2>listmethods<a name="listmethods"></a></h2>
+<h3>listmethods<a name="listmethods"></a></h3>
 <p>Gets the list of matching methods available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listmethods</b> ?</p>
 <p>Parameters: none</p>
@@ -64,7 +64,7 @@ compulsory and may not be present in messages.
 </div>
 </p>
 
-<h2>listrenderers<a name="listrenderers"></a></h2>
+<h3>listrenderers<a name="listrenderers"></a></h3>
 <p>Gets the list of renderer methods available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listrenderers</b> ?</p>
 <p>Parameters: none</p>
@@ -80,7 +80,7 @@ compulsory and may not be present in messages.
 </div>
 </p>
 
-<h2>listservices<a name="listservices"></a></h2>
+<h3>listservices<a name="listservices"></a></h3>
 <p>Gets the list of communication services available (and running) on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listservices</b> ?</p>
 <p>Parameters: none</p>
@@ -96,7 +96,7 @@ compulsory and may not be present in messages.
 </div>
 </p>
 
-<h2>listevaluators<a name="listevaluators"></a></h2>
+<h3>listevaluators<a name="listevaluators"></a></h3>
 <p>Gets the list of evauators available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listevaluators</b> ?</p>
 <p>Parameters: none</p>
@@ -112,7 +112,7 @@ compulsory and may not be present in messages.
 </div>
 </p>
 
-<h2>match<a name="match"></a></h2>
+<h3>match<a name="match"></a></h3>
 <p>Matches two ontologies.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>match</b> ? <b>onto1</b> =
   &lt;URI&gt; &amp; <b>onto2</b> = &lt;URI&gt; &amp; method =
@@ -147,7 +147,7 @@ and value of parameter <i>n</i>.
 </div>
 </p>
 
-<h2>find<a name="find"></a></h2>
+<h3>find<a name="find"></a></h3>
 <p>Finds alignments related to one or two ontologies.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>find</b> ? <b>onto1</b>
   = &lt;URI&gt; &amp; <b>onto2</b> = &lt;URI&gt;</p>
@@ -168,7 +168,30 @@ and value of parameter <i>n</i>.
 </div>
 <p>
 
-<h2>retrieve<a name="retrieve"></a></h2>
+<h3>corresp<a name="corresp"></a></h3>
+<p>Finds the concepts corresponding to a concept in a particular alignment.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>corresp</b> ? <b>id</b>
+  = &lt;URI&gt; &amp; <b>entity</b> = &lt;URI&gt; &amp; strict = &lt;boolean&gt;</p>
+<p>Parameters:<br />
+ <b>id</b>  the URI of the alignment,<br />
+ <b>entity</b> the URI of of the entity, and<br />
+ <b>strict</b> a boolean (default: false) indicating (if present) that only equivalent entities are retrieved.
+</p>
+
+<p>Result:<br />
+<div class="xml">
+&lt;correspResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> messageId &lt;/in-reply-to>
+    &lt;entityList>
+        &lt;entity> URI &lt;/entity> 
+        ...
+    &lt;/entityList>
+&lt;/correspResponse>
+</div>
+<p>
+
+<h3>retrieve<a name="retrieve"></a></h3>
 <p>Retrieves an alignment in a specific format.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>retrieve</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>method</b> = &lt;classname&gt;</p>
@@ -188,7 +211,7 @@ and value of parameter <i>n</i>.
 </div>
 </p>
 
-<h2>trim<a name="trim"></a></h2>
+<h3>trim<a name="trim"></a></h3>
 <p>Trims an alignment with a threshhold.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>trim</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>threshold</b> = &lt;float&gt; &amp; type = &lt;label&gt; </p>
@@ -208,7 +231,7 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h2>invert<a name="invert"></a></h2>
+<h3>invert<a name="invert"></a></h3>
 <p>Inverts an alignment.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>invert</b> ? <b>id</b> =
   &lt;URI&gt; </p>
@@ -225,7 +248,7 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h2>store<a name="store"></a></h2>
+<h3>store<a name="store"></a></h3>
 <p>Stores an alignment on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>store</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
@@ -241,7 +264,7 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h2>load<a name="load"></a></h2>
+<h3>load<a name="load"></a></h3>
 <p>Uploads an alignment to the server.</p>
 <p>
 This function can work in two ways: either with a url parameter
@@ -265,13 +288,13 @@ or
 </div>
 </p>
 
-<h1>Unsupported features</h1>
+<h2>Unsupported features</h2>
 
 <p>These features may have been implemented and may become standard at
   some point. For the moment, they are not.
 </p>
 
-<h2>metadata<a name="metadata"></a></h2>
+<h3>metadata<a name="metadata"></a></h3>
 <p>Gets metadata of an alignment, i.e., avoid downloading all correspondences.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>metadata</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
@@ -286,7 +309,7 @@ or
 </div>
 </p>
 
-<h2>translate<a name="translate"></a></h2>
+<h3>translate<a name="translate"></a></h3>
 <p>Translates a message (resp. a query) with regard to an alignment.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
@@ -301,7 +324,7 @@ or
 </div>
 </p>
 
-<h2>align<a name="align"></a></h2>
+<h3>align<a name="align"></a></h3>
 <p>Matches two ontologies and directly returns the RDF rendering of the result.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>align</b> ? </p>
 <p>Parameters:
@@ -318,7 +341,7 @@ to be matched.
 </div>
 </p>
 
-<h1>Note about the SOAP interface</h1>
+<h2>Note about the SOAP interface</h2>
 
 <p>
 As of version 4.0 of the Alignment API, the SOAP and REST interface
@@ -350,7 +373,7 @@ and answers:
 </div>
 </p>
 
-<h2>wsdl<a name="wsdl"></a></h2>
+<h3>wsdl<a name="wsdl"></a></h3>
 
 <p>Gets the Web Service Description Language description of the SOAP interface.</p>
 <p>URL: <a href="http://aserv.inrialpes.fr/wsdl?">http://aserv.inrialpes.fr/ <b>wsdl</b> ?</a> </p>
@@ -358,7 +381,7 @@ and answers:
 <p>Result: WSDL file in XML
 </p>
 
-<h1>Changes introduced in version 4<a name="version4"></a></h1>
+<h2>Changes introduced in version 4<a name="version4"></a></h2>
 
 <ul>
 <li>The content of <tt>classList</tt> is now <tt>classname</tt>

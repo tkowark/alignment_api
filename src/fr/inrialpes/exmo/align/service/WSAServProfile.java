@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2011
+ * Copyright (C) INRIA, 2007-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -330,6 +330,15 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		msg += "      <result>\n" + answer.getContent() + "      </result>\n";
 	    }
 	    msg += "    </alignResponse>\n";
+	} else if ( method.equals("correspRequest") || method.equals("corresp") ) { // URI * URI * boolean * (newparameters) -> URI*
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "entity" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.findCorrespondences( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+	    }
+	    msg += "    <correspResponse"+svcNS+">\n"+answer.SOAPString()+"</correspResponse>\n";
 	} else if ( method.equals("findRequest") || method.equals("find") ) { // URI * URI -> List of URI
 	    if ( newparameters.getProperty( "onto1" ) == null && newparameters.getProperty( "onto2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);

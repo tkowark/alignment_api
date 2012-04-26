@@ -144,6 +144,11 @@ These tasks are summarised in the following table:
 Most of these services correspond to what is provided by any implementation of the Alignment API.
 The main principle of the Alignment API is that it can always be extended. In particular, it is possible to add new matching algorithms and mediator generators that will be accessible through the API. They will also be accessible through the Alignment servers. They can thus be extended to new needs without breaking the infrastructure. 
 </p>
+<p>
+A detailed presentation of how to access these functions is available
+for <a href="tutorial/tutorial1/server.html">HTML</a>
+and <a href="rest.html">REST and SOAP</a>.
+</p>
 
 <h2>Writing a protocol plug-in</h2>
 
@@ -178,7 +183,8 @@ Message
 |- Success
 |  |- AlignmentId              -> alignment id
 |  |- AlignmentIds             -> alignment ids
-|  |- OntologyURI              -> Ontology URI
+|  |- EntityList               -> entity URIs
+|  |- OntologyURI              -> ontology URI
 |  |- TranslatedMessage        -> translated message
 |  |- RenderedAlignment        -> rendering
 |  |- AlignmentMetadata        -> metadata

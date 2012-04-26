@@ -21,6 +21,13 @@
           </xsd:all>
 	</xsd:complexType>
       </xsd:element>
+      <xsd:element name="entityList">
+	<xsd:complexType>
+          <xsd:all>
+            <xsd:element name="entity" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded"/>
+          </xsd:all>
+	</xsd:complexType>
+      </xsd:element>
       <xsd:element name="classList">
 	<xsd:complexType>
           <xsd:all> <!-- classname as strings -->
@@ -102,6 +109,16 @@
    <wsdl:message name="metadataResponse">
       <wsdl:part name="metadata" type="xsd:string"/>
    </wsdl:message-->
+
+   <wsdl:message name="correspRequest">
+      <wsdl:part name="id" type="xsd:anyURI"/>
+      <wsdl:part name="entity" type="xsd:anyURI"/>
+      <wsdl:part name="strict" type="xsd:boolean"/>
+      <wsdl:part name="param" type="param"/> <!-- minOccurs="0" maxOccurs="unbounded" ?-->
+   </wsdl:message>
+   <wsdl:message name="correspResponse">
+     <wsdl:part name="entityList" type="entityList"/>
+   </wsdl:message>
 
    <wsdl:message name="retrieveRequest">
       <wsdl:part name="id" type="xsd:anyURI"/>

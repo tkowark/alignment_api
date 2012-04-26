@@ -28,10 +28,13 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
+import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
+
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.AlignmentId;
 import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
 import fr.inrialpes.exmo.align.service.msg.AlignmentMetadata;
+import fr.inrialpes.exmo.align.service.msg.EntityList;
 import fr.inrialpes.exmo.align.service.msg.EvalResult;
 import fr.inrialpes.exmo.align.service.msg.OntologyURI;
 import fr.inrialpes.exmo.align.service.msg.RenderedAlignment;
@@ -49,6 +52,7 @@ import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -337,15 +341,45 @@ public class AServProtocolManager {
 	return new AlignmentIds(newId(),mess,myId,mess.getSender(),msg,(Properties)null,prettys);
     }
 
+    public Message findCorrespondences( Message mess ) {
+	Properties params = mess.getParameters();
+	// Retrieve the alignment
+	Alignment al = null;
+	String id = params.getProperty("id");
+	try {
+	    al = alignmentCache.getAlignment( id );
+	} catch (Exception e) {
+	    return new UnknownAlignment(newId(),mess,myId,mess.getSender(),id,(Properties)null);
+	}
+	// Find matched
+	URI uri = null;
+	try {
+	    uri = new URI( params.getProperty("entity") );
+	} catch (Exception e) {
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Properties)null);
+	};
+	// Retrieve correspondences
+	String msg = "";
+	boolean strict = (params.getProperty("strict")!=null);
+	try {
+	    for ( Cell c : al.getAlignCells1( uri ) ) {
+		if ( !strict || c.getRelation() instanceof EquivRelation ) {
+		    msg += c.getObject2AsURI( al )+" ";
+		}
+	    }
+	} catch ( AlignmentException alex ) { // should never happen
+	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"Unexpected Alignment API Error",(Properties)null);
+	}
+	return new EntityList( newId(), mess, myId, mess.getSender(), msg, (Properties)null );
+    }
+
     // ABSOLUTELY NOT IMPLEMENTED
     // But look at existingAlignments
     // Implements: find
     // This may be useful when calling WATSON
     public Message find(Message mess){
-    //\prul{search-success}{a - request ( find (O, T) ) \rightarrow S}{O' \Leftarrow Match(O,T)\\S - inform (O') \rightarrow a}{reachable(O)\wedge Match(O,T)\not=\emptyset}
-
+    //\prul{search-success}{a --request ( find (O, T) )--> S}{O' <= Match(O,T); S --inform (O')--> a}{reachable(O) & Match(O,T)!=null}
     //\prul{search-void}{a - request ( find (O, T) ) \rightarrow S}{S - failure (nomatch) \rightarrow a}{reachable(O)\wedge Match(O,T)=\emptyset}
-
     //\prul{search-unreachable}{a - request ( find (O, T) ) \rightarrow S}{S - failure ( unreachable (O) ) \rightarrow a}{\neg reachable(O)}
 	return new OntologyURI(newId(),mess,myId,mess.getSender(),"dummy//",(Properties)null);
     }
