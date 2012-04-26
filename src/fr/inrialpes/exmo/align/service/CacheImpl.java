@@ -549,13 +549,13 @@ public class CacheImpl {
     /**
      * Non publicised class
      */
-    public void eraseAlignment( String id ) throws SQLException, AlignmentException {
-	Alignment alignment = getAlignment( id );
-	if ( alignment != null ) {
-	    unstoreAlignment( id, alignment );
-	    // Suppress it from the cache...
-	    unRecordAlignment( alignment );
-	}
+    public void eraseAlignment( String id, boolean eraseFromDB ) throws SQLException, AlignmentException {
+        Alignment alignment = getAlignment( id );
+        if ( alignment != null ) {
+            if ( eraseFromDB ) unstoreAlignment( id, alignment );
+            // Suppress it from the cache...
+            unRecordAlignment( alignment );
+        }
     }
 
     /**
