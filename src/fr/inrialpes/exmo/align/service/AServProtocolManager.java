@@ -362,9 +362,12 @@ public class AServProtocolManager {
 	String msg = "";
 	boolean strict = (params.getProperty("strict")!=null);
 	try {
-	    for ( Cell c : al.getAlignCells1( uri ) ) {
-		if ( !strict || c.getRelation() instanceof EquivRelation ) {
-		    msg += c.getObject2AsURI( al )+" ";
+	    Set<Cell> cells = al.getAlignCells1( uri );
+	    if ( cells != null ) {
+		for ( Cell c : cells ) {
+		    if ( !strict || c.getRelation() instanceof EquivRelation ) {
+			msg += c.getObject2AsURI( al )+" ";
+		    }
 		}
 	    }
 	} catch ( AlignmentException alex ) { // should never happen

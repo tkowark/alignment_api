@@ -23,12 +23,17 @@ The result of these requests are provided in XML.
 In the sequel, we describe the various request types.
 They can be obtained by:
 <div class="terminal">
-$ curl -H "Content-Type: text/xml" &lt;URL&gt;
+$ curl -H "Content-Type: text/xml" '&lt;URL&gt;'
 </div>
 </p>
 <p>
 The <tt>msgid</tt> and <tt>in-reply-to</tt> elements are not
 compulsory and may not be present in messages.
+</p>
+
+<p style="background-color: yellow;">
+Beware: URIs within the &lt;URL&gt; above should be URLEncoded.
+This is particularly true of '#' that do not pass through Java URL decoding.
 </p>
 
 <h3>listalignments<a name="listalignments"></a></h3>

@@ -152,8 +152,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// The handler deals with the request
 	// most of its work is to deal with large content sent in specific ways 
 	Handler handler = new AbstractHandler(){
-		public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) 
-		    throws IOException, ServletException {
+		public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch ) throws IOException, ServletException {
 		    String method = request.getMethod();
 		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
 		    // Should be decoded?
@@ -165,7 +164,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    // See below how it is done.
 		    Properties header = new Properties();
 		    Enumeration headerNames = request.getHeaderNames();
-		    while(headerNames.hasMoreElements()) {
+		    while( headerNames.hasMoreElements() ) {
 			String headerName = (String)headerNames.nextElement();
 			header.setProperty( headerName, request.getHeader(headerName) );
 		    }
@@ -199,13 +198,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
 			// Most likely Web service request (REST through POST)
 			int length = request.getContentLength();
-			char [] mess = new char[length+1];
-			try { 
-			    new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
-			} catch (Exception e) {
-			    e.printStackTrace(); // To clean up
+			if ( length > 0 ) {
+			    char [] mess = new char[length+1];
+			    try {
+				System.err.println("!!!!!"+length);
+				new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
+				System.err.println("?????");
+			    } catch (Exception e) {
+				e.printStackTrace(); // To clean up
+			    }
+			    params.setProperty( "content", new String( mess ) );
 			}
-			params.setProperty( "content", new String( mess ) );
 		    // File attached to SOAP messages
 		    } else if ( mimetype != null && mimetype.startsWith("application/octet-stream") ) {
          		File alignFile = new File(File.separator + "tmp" + File.separator + newId() +"XXX.rdf");
@@ -292,16 +295,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	Enumeration en = header.propertyNames();
 	while ( en.hasMoreElements()) {
 	    String value = (String)en.nextElement();
-	    //System.err.println( "  HDR: '" + value + "' = '" +
-	    //			header.getProperty( value ) + "'" );
 	}
-	/*
-	e = parms.propertyNames();
-	while ( e.hasMoreElements()) {
-	    String value = (String)e.nextElement();
-	    //System.err.println( "  PRM: '" + value + "' = '" +parms.getProperty( value ) + "'" );
-	}
-	*/
 
 	// Convert parms to parameters
 	Properties params = new Properties();
@@ -902,6 +896,7 @@ result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" valu
 	    if ( sep >= 0 ){
 		try {
 		    p.put( URLDecoder.decode( next.substring( 0, sep ), "iso-8859-1" ).trim(),
+			   // JE: URLDecoder allows for : and / but not #
 			   URLDecoder.decode( next.substring( sep+1 ), "iso-8859-1" ));
 		} catch (Exception e) {}; //never thrown
 	    }
