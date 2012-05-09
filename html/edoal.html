@@ -189,12 +189,6 @@ still <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#</tt>
 EDOAL's own namespace is <tt>http://ns.inria.org/edoal/1.0/</tt> (usual
 prefix: edoal).
 </p>
-<p>
-<b>NOTE: THIS IS TO BE FIXED</b>
-Comparators are taken from the W3C XPath functions
-recommendation: <tt>http://www.w3.org/2005/xpath-functions</tt> [<a href="http://www.w3.org/TR/xpath-functions">1</a>]
-(usual prefix: functions), which are also XML schema comparators.
-</p>
 
 <h3 id="ssec:alignment">Alignment format</h3>
 
@@ -367,7 +361,7 @@ Restrictions are defined by giving an <i>path expression</i> (relation or proper
 <div class="grammar">
 <u>classexpr</u> ::= &lt;Class rdf:about=" <u>URI</u> "/>
             | &lt;Class> <u>classconst</u> &lt;/Class>
-            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> &lt;value>&lt;Literal edoal:type="&xsd;Integer" edoal:string="INTEGER" />&lt;/value> &lt;/AttributeOccurenceRestriction>
+            | &lt;AttributeOccurenceRestriction> <u>onatt</u> <u>comp</u> &lt;value>&lt;Literal edoal:type="&xsd;integer" edoal:string="INTEGER" />&lt;/value> &lt;/AttributeOccurenceRestriction>
             | &lt;AttributeDomainRestriction> <u>onatt</u> <u>classrest</u> &lt;/AttributeDomainRestriction>
             | &lt;AttributeTypeRestriction> <u>onatt</u> <u>typerest</u> &lt;/AttributeTypeRestriction>
             | &lt;AttributeValueRestriction> <u>onatt</u> <u>comp</u> (&lt;value><u>instexpr</u>&lt;/value>|<u>val</u>) &lt;/AttributeValueRestriction>
@@ -387,10 +381,19 @@ Restrictions are defined by giving an <i>path expression</i> (relation or proper
 
 <u>type</u> ::= &lt;Datatype rdf:about=" <u>URI</u> " />
 
-<u>classrest</u> ::= &lt;all> <u>classexpr</u> &lt;/all> | &lt;exists> <u>classexpr</u> &lt;/exists> | &lt;class> <u>classexpre</u> &lt;/class>
+<u>classrest</u> ::= <!--&lt;all> <u>classexpr</u> &lt;/all> | &lt;exists> <u>classexpr</u> &lt;/exists> |--> &lt;class> <u>classexpr</u> &lt;/class>
 
 <u>comp</u> ::= &lt;comparator rdf:resource=" <u>URI</u> "/>
 </div>
+
+<p>
+Comparators have to be defined as specific URI, usually in the edoal
+namespace. They are currently described by: edoal:equals,
+edoal:lower-than, edoal:greater-than, the latter morally corresponding to the
+op:numeric-less-than and op:numeric-greater-than from
+the <a href="http://www.w3.org/TR/xquery-operators/">XQuery 1.0 and
+  XPath 2.0 Functions and Operators</a> recommendation.
+</p>
 
 <div class="rdfxmlDiv">
 Hence, a class expression may be an identified class:
@@ -426,7 +429,7 @@ Thanks to paths and restrictions, it is possible to restrict a correspondence to
               &lt;/compose>
             &lt;/Property>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;xsd;equals"/>
+          &lt;comparator rdf:resource="&amp;edoal;equals"/>
           &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
@@ -455,7 +458,7 @@ We can with this restriction build the correspondence between
               &lt;/compose>
             &lt;/Relation>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;xsd;equals"/>
+          &lt;comparator rdf:resource="&amp;edoal;equals"/>
           &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
         &lt;/Restriction>
       &lt;/attributeValueCondition>
@@ -543,7 +546,7 @@ ending by a property:
 <div class="rdfxml">
       &lt;PropertyTypeRestriction>
         &lt;datatype>
-          &lt;Datatype rdf:about="&amp;xsd;Integer" />
+          &lt;Datatype rdf:about="&amp;xsd;integer" />
         &lt;/datatype>
       &lt;/PropertyTypeRestriction>
 </div></div>
@@ -620,21 +623,24 @@ An example of occurrence restriction would be the wines produced in a region wit
 <div class="rdfxml">
 &lt;align:Cell>
   &lt;align:entity1>
-    &lt;Class rdf:about="&amp;wine;Wine">
-      &lt;attributeOccurrenceCondition>
-        &lt;Restriction>
-          &lt;onAttribute>
-            &lt;Relation>
-              &lt;compose rdf:parseType="Collection">
-                &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
-                &lt;Relation rdf:about="&amp;wine;adjacentRegion"/>
-              &lt;/compose>
-            &lt;/Relation>
-          &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;xsd;greater-than"/>
-          &lt;value edoal:type="&amp;xsd;int">0&lt;/value>
-        &lt;/Restriction>
-      &lt;/attributeOccurrenceCondition>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class rdf:about="&amp;wine;Wine">
+        &lt;attributeOccurrenceCondition>
+          &lt;Restriction>
+            &lt;onAttribute>
+              &lt;Relation>
+                &lt;compose rdf:parseType="Collection">
+                  &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
+                  &lt;Relation rdf:about="&amp;wine;adjacentRegion"/>
+                &lt;/compose>
+              &lt;/Relation>
+            &lt;/onAttribute>
+            &lt;comparator rdf:resource="&amp;edoal;greater-than"/>
+            &lt;value edoal:type="&amp;xsd;integer">0&lt;/value>
+          &lt;/Restriction>
+        &lt;/attributeOccurrenceCondition>
+      &lt;/and>
     &lt;/Class>
   &lt;/align:entity1>
   &lt;align:entity2>
@@ -655,16 +661,17 @@ uses a path to state that a locally grown wine is a wine whose owner (propri&eac
     &lt;Class rdf:about="&amp;wine;LocallyGrownWine"/>
   &lt;/align:entity1>
   &lt;align:entity2>
-    &lt;Class rdf:about="&amp;vin;Vin">
-      &lt;attributeValueCondition>
-        &lt;Restriction>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class rdf:about="&amp;vin;Vin">
+        &lt;AttributeValueRestriction>
           &lt;onAttribute>
             &lt;Relation rdf:about="&amp;vin;propri&eacute;taire"/>&lt;/first>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;xsd;equals"/>
+          &lt;comparator rdf:resource="&amp;edoal;equals"/>
           &lt;value>&lt;Relation rdf:about="&amp;vin;n&eacute;gotiant"/>&lt;/value>
-        &lt;/Restriction>
-      &lt;/attributeValueCondition>
+        &lt;/AttributeValueRestriction>
+      &lt;/and>
     &lt;/Class>
   &lt;/align:entity2>
   &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
@@ -702,10 +709,15 @@ They obey the following grammar:
 <u>val</u> ::= &lt;value> <u>value</u> &lt;/value> 
 
 <u>value</u> ::= &lt;Literal {edoal:type=" <u>URI</u> "} edoal:string=" <u>STRING</u> " /> 
+        | &lt;Literal {edoal:type=" <u>URI</u> "}> <u>STRING</u> &lt;/Literal> 
         | <u>instexpr</u>
         | <u>attrexpr</u> 
-        | &lt;Apply operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
+        | &lt;Apply edoal:operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
+<!-- JE: this is unfortunately ugly, otherwise, this is perfect REST--><!--
+        | &lt;Service edoal:operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>param</u>*&lt;/arguments> &lt;/Service>
 
+<u>param</u> ::= &lt;Parameter edoal:name=" <u>STRING</u> "> <u>val</u> &lt;/Parameter> 
+-->
 <u>instexpr</u> ::= &lt;Instance rdf:about=" <u>URI</u> "/>
 </div>
 </p>
@@ -716,8 +728,8 @@ They obey the following grammar:
 Literal values:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-    &lt;Literal edoal:type="&amp;xsd;Integer" edoal:string="123" />
-    &lt;Literal edoal:type="&amp;xsd;Integer">123&lt;/Literal>
+    &lt;Literal edoal:type="&amp;xsd;integer" edoal:string="123" />
+    &lt;Literal edoal:type="&amp;xsd;integer">123&lt;/Literal>
 </div></div>
 
 <p>
@@ -735,13 +747,13 @@ Application of an operator is not operational but may be expressed in
 the following way:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-      &lt;Apply operator="http://example.com/Whatever">
+      &lt;Apply edoal:operator="http://example.com/Whatever">
         &lt;arguments rdf:parseType="Collection">
-          &lt;Literal rdf:about="&amp;xsd;Integer">123&lt;/Literal>
+          &lt;Literal rdf:about="&amp;xsd;integer">123&lt;/Literal>
           &lt;Property>
             &lt;compose rdf:parseType="Collection">
-             &lt;edoal:Relation rdf:about="&amp;vin;hasTerroir" />
-             &lt;edoal:Property rdf:about="&amp;proton;localedIn" />
+             &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+             &lt;Property rdf:about="&amp;proton;localedIn" />
             &lt;/compose>
           &lt;/Property>
           &lt;Instance rdf:about="&vin;Bordelais" />
@@ -749,6 +761,15 @@ the following way:
       &lt;/Apply>
 </div></div>
 </p>
+
+<p>
+URIs to use as the operator attribute of Apply are not specified. It
+is however advised, when possible, to use operators from
+the <a href="http://www.w3.org/TR/xquery-operators/">XQuery 1.0 and
+  XPath 2.0 Functions and Operators</a> recommendation.
+(<tt>fn:</tt> prefix used for <tt>http://www.w3.org/2005/xpath-functions</tt>).
+</p>
+
 <h2 id="ssec:transf">Transformations</h2>
 
 <p>
@@ -759,9 +780,16 @@ not express constraints on the classes or properties, but constraints
 on instances that should match.
 </p>
 
-<div class="grammar">
-<u>transformation</u> ::=  &lt;Transformation operator=" <u>URI</u> " direction=" <u>STRING</u> ">
+<!-- JE: old stuff? -->
+<!--div class="grammar">
+<u>transformation</u> ::=  &lt;Transformation edoal:operator=" <u>URI</u> " edoal:direction=" <u>STRING</u> ">
                         &lt;arguments rdf:parseType="Collection"> <u>value</u>* &lt;/arguments> 
+                    &lt;/Transformation>
+</div-->
+<div class="grammar">
+<u>transformation</u> ::=  &lt;Transformation edoal:direction=" <u>STRING</u> ">
+                        &lt;entity1> <u>entity</u> &lt;/entity1> 
+                        &lt;entity2> <u>entity</u> &lt;/entity2> 
                     &lt;/Transformation>
 </div>
 
@@ -772,25 +800,25 @@ Transformations <!--are of two kinds, either XPath transformation functions can 
 The following correspondence shows an example of the use of data transformation:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-	&lt;edoal:transformation>
-	  &lt;edoal:Transformation edoal:direction="o-">
-	    &lt;edoal:entity1>
-	      &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
-	    &lt;/edoal:entity1>
-	    &lt;edoal:entity2>
-	      &lt;edoal:Apply edoal:operator="concat">
-		&lt;edoal:arguments rdf:parseType="Collection">
-		  &lt;edoal:Property rdf:about="vcard:firstname"/>
-		  &lt;edoal:Literal edoal:type="&amp;xsd;string" edoal:string=" "/>
+	&lt;transformation>
+	  &lt;Transformation edoal:direction="o-">
+	    &lt;entity1>
+	      &lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
+	    &lt;/entity1>
+	    &lt;entity2>
+	      &lt;Apply edoal:operator="concat">
+		&lt;arguments rdf:parseType="Collection">
+		  &lt;Property rdf:about="vcard:firstname"/>
+		  &lt;Literal edoal:type="&amp;xsd;string" edoal:string=" "/>
 		  &lt;!-- or even compute middle initial from middlename -->
-		  &lt;edoal:Property rdf:about="vcard:middleinitial"/>
-		  &lt;edoal:Literal edoal:string=". "/>
-		  &lt;edoal:Property rdf:about="vcard:lastname"/>
-		&lt;/edoal:arguments>
-	      &lt;/edoal:Apply>
-	    &lt;/edoal:entity2>
-	  &lt;/edoal:Transformation>
-	&lt;/edoal:transformation>
+		  &lt;Property rdf:about="vcard:middleinitial"/>
+		  &lt;Literal edoal:string=". "/>
+		  &lt;Property rdf:about="vcard:lastname"/>
+		&lt;/arguments>
+	      &lt;/Apply>
+	    &lt;/entity2>
+	  &lt;/Transformation>
+	&lt;/transformation>
 </div></div>
 
 
@@ -809,58 +837,58 @@ The following correspondence shows an example of the use of data transformation:
 <div class="rdfxml">
 &lt;align:Cell rdf:about="#cell1">
   &lt;align:entity1>
-    &lt;edoal:Class>
-      &lt;edoal:and rdf:parseType="Collection">
-        &lt;edoal:Class rdf:about="&O1;LED" />
-        &lt;edoal:AttributeValueRestriction>
-          &lt;edoal:onAttribute>
-            &lt;edoal:Relation rdf:about="&O1;hasColor" />
-          &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
-          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Blue"/>&lt;/edoal:value>
-        &lt;/edoal:AttributeValueRestriction>
-      &lt;/edoal:and>
-    &lt;/edoal:Class>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class rdf:about="&O1;LED" />
+        &lt;AttributeValueRestriction>
+          &lt;onAttribute>
+            &lt;Relation rdf:about="&O1;hasColor" />
+          &lt;/onAttribute>
+	  &lt;comparator rdf:resource="&amp;edoal;equals" />
+          &lt;value>&lt;Instance rdf:about="&O1;Blue"/>&lt;/value>
+        &lt;/AttributeValueRestriction>
+      &lt;/and>
+    &lt;/Class>
   &lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;BlueLED" />&lt;/align:entity2>
+  &lt;align:entity2>&lt;Class rdf:about="&O2;BlueLED" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
 &lt;/align:Cell>
 
 &lt;align:Cell rdf:about="#cell2">
   &lt;align:entity1>
-    &lt;edoal:Class>
-      &lt;edoal:and rdf:parseType="Collection">
-        &lt;edoal:Class rdf:about="&O1;LED" />
-        &lt;edoal:AttributeValueRestriction>
-          &lt;edoal:onAttribute>
-            &lt;edoal:Relation rdf:about="&O1;hasColor" />
-          &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
-          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Red"/>&lt;/edoal:value>
-        &lt;/edoal:AttributeValueRestriction>
-      &lt;/edoal:and>
-    &lt;/edoal:Class>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class rdf:about="&O1;LED" />
+        &lt;AttributeValueRestriction>
+          &lt;onAttribute>
+            &lt;Relation rdf:about="&O1;hasColor" />
+          &lt;/onAttribute>
+	  &lt;comparator rdf:resource="&amp;edoal;equals" />
+          &lt;value>&lt;Instance rdf:about="&O1;Red"/>&lt;/value>
+        &lt;/AttributeValueRestriction>
+      &lt;/and>
+    &lt;/Class>
   &lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;RedLED" />&lt;/align:entity2>
+  &lt;align:entity2>&lt;Class rdf:about="&O2;RedLED" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
 &lt;/align:Cell>
 
 &lt;align:Cell rdf:about="#cell3">
   &lt;align:entity1>
-    &lt;edoal:Class>
-      &lt;edoal:and rdf:parseType="Collection">
-        &lt;edoal:Class rdf:about="&O1;LED" />
-        &lt;edoal:AttributeValueRestriction>
-          &lt;edoal:onAttribute>
-            &lt;edoal:Relation rdf:about="&O1;hasColor" />
-          &lt;/edoal:onAttribute>
-	  &lt;edoal:comparator rdf:resource="&amp;xsd;equals" />
-          &lt;edoal:value>&lt;edoal:Instance rdf:about="&O1;Green"/>&lt;/edoal:value>
-        &lt;/edoal:AttributeValueRestriction>
-      &lt;/edoal:and>
-    &lt;/edoal:Class>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class rdf:about="&O1;LED" />
+        &lt;AttributeValueRestriction>
+          &lt;onAttribute>
+            &lt;Relation rdf:about="&O1;hasColor" />
+          &lt;/onAttribute>
+	  &lt;comparator rdf:resource="&amp;edoal;equals" />
+          &lt;value>&lt;Instance rdf:about="&O1;Green"/>&lt;/value>
+        &lt;/AttributeValueRestriction>
+      &lt;/and>
+    &lt;/Class>
   &lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;GreenLED" />&lt;/align:entity2>
+  &lt;align:entity2>&lt;Class rdf:about="&O2;GreenLED" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
 &lt;/align:Cell>
 </div>
@@ -923,46 +951,46 @@ O2:GreenLED a edoal:Class.
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
 &lt;align:Cell rdf:about="#cell">
-  &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;weight" />&lt;/align:entity2>
+  &lt;align:entity1>&lt;Property rdf:about="&O1;hasWeight" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;Property rdf:about="&O2;weight" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
-  &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:direction="o-">
-      &lt;edoal:entity1>
-	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
-      &lt;/edoal:entity1>
-      &lt;edoal:entity2>
-	&lt;edoal:Apply edoal:operator="&fn;safe-divide">
-	  &lt;edoal:arguments rdf:parseType="Collection">
-            &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
-            &lt;edoal:Literal edoal:type="&xsd;float" edoal:string="2.679229" />
-	  &lt;/edoal:arguments>
-	&lt;/edoal:Apply>
-      &lt;/edoal:entity2>
-    &lt;/edoal:Transformation>
-  &lt;/edoal:transformation>
+  &lt;transformation>
+    &lt;Transformation edoal:direction="o-">
+      &lt;entity1>
+	&lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
+      &lt;/entity1>
+      &lt;entity2>
+	&lt;Apply edoal:operator="&fn;safe-divide">
+	  &lt;arguments rdf:parseType="Collection">
+            &lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
+            &lt;Literal edoal:type="&xsd;float" edoal:string="2.679229" />
+	  &lt;/arguments>
+	&lt;/Apply>
+      &lt;/entity2>
+    &lt;/Transformation>
+  &lt;/transformation>
 &lt;/align:Cell>
 </div>
 <p />
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
 &lt;align:Cell rdf:about="#cell">
-  &lt;align:entity1>&lt;edoal:Class rdf:about="&O1;Person" />&lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Class rdf:about="&O2;Patient" />&lt;/align:entity2>
+  &lt;align:entity1>&lt;Class rdf:about="&O1;Person" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;Class rdf:about="&O2;Patient" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
-  &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:direction="o-">
-      &lt;edoal:entity1>&lt;edoal:Property rdf:about="&O1;hasWeight" />&lt;/edoal:entity1>
-      &lt;edoal:entity2>
-	&lt;edoal:Apply edoal:operator="&fn;safe-divide">
-	  &lt;edoal:arguments rdf:parseType="Collection">
-            &lt;edoal:Property rdf:about="&O2;weight" />
-            &lt;edoal:Literal edoal:type="&xsd;float" edoal:string="2.679229" />
-	  &lt;/edoal:arguments>
-	&lt;/edoal:Apply>
-      &lt;/edoal:entity2>
-    &lt;/edoal:Transformation>
-  &lt;/edoal:transformation>
+  &lt;transformation>
+    &lt;Transformation edoal:direction="o-">
+      &lt;entity1>&lt;Property rdf:about="&O1;hasWeight" />&lt;/entity1>
+      &lt;entity2>
+	&lt;Apply edoal:operator="&fn;safe-divide">
+	  &lt;arguments rdf:parseType="Collection">
+            &lt;Property rdf:about="&O2;weight" />
+            &lt;Literal edoal:type="&xsd;float" edoal:string="2.679229" />
+	  &lt;/arguments>
+	&lt;/Apply>
+      &lt;/entity2>
+    &lt;/Transformation>
+  &lt;/transformation>
 &lt;/align:Cell>
 </div>
 </div>
@@ -997,25 +1025,25 @@ O2:weight a edoal:Property.
 <div class="rdfxmlDiv"><div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
 &lt;align:Cell>
-  &lt;align:entity1>&lt;edoal:Property rdf:about="&O1;price" />&lt;/align:entity1>
-  &lt;align:entity2>&lt;edoal:Property rdf:about="&O2;hasPrice" />&lt;/align:entity2>
+  &lt;align:entity1>&lt;Property rdf:about="&O1;price" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;Property rdf:about="&O2;hasPrice" />&lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
-  &lt;edoal:transformation>
-    &lt;edoal:Transformation edoal:direction="o-">
-      &lt;edoal:entity1>
-	&lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
-      &lt;/edoal:entity1>
-      &lt;edoal:entity2>
-	&lt;edoal:Apply edoal:operator="http://www.google.com/finance/converter">
-	  &lt;edoal:arguments rdf:parseType="Collection">
-            &lt;edoal:Property>&lt;edoal:compose rdf:parseType="Collection"/>&lt;/edoal:Property>
-            &lt;edoal:Literal edoal:value="EUR" />
-            &lt;edoal:Literal edoal:value="CNY" />
-	  &lt;/edoal:arguments>
-	&lt;/edoal:Apply>
-      &lt;/edoal:entity2>
-    &lt;/edoal:Transformation>
-  &lt;/edoal:transformation>
+  &lt;transformation>
+    &lt;Transformation edoal:direction="o-">
+      &lt;entity1>
+	&lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
+      &lt;/entity1>
+      &lt;entity2>
+	&lt;Apply edoal:operator="http://www.google.com/finance/converter">
+	  &lt;arguments rdf:parseType="Collection">
+            &lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
+            &lt;Literal edoal:value="EUR" />
+            &lt;Literal edoal:value="CNY" />
+	  &lt;/arguments>
+	&lt;/Apply>
+      &lt;/entity2>
+    &lt;/Transformation>
+  &lt;/transformation>
 &lt;/align:Cell>
 </div>
 </div>
@@ -1057,24 +1085,24 @@ This pattern thus captures all correspondences between two classes, the scope of
 <div class="rdfxml">
 &lt;align:Cell rdf:about="#Cell1">
   &lt;align:entity1>
-    &lt;edoal:Class>
-      &lt;edoal:and rdf:parseType="Collection">
-        &lt;edoal:Class edoal:var="#var1" />
-        &lt;edoal:AttributeTypeRestriction>
-          &lt;edoal:onAttribute>
-            &lt;edoal:PropertyDomainRestriction edoal:var="#var3">
-              &lt;edoal:class>
-                &lt;edoal:Class edoal:var="#var1" />
-              &lt;/edoal:class>
-            &lt;/edoal:PropertyDomainRestriction>
-          &lt;/edoal:onAttribute>
-          &lt;edoal:datatype>&lt;edoal:Datatype rdf:about="&xsd;integer" />&lt;/edoal:datatype>
-        &lt;/edoal:AttributeTypeRestriction>
-      &lt;/edoal:and>
-    &lt;/edoal:Class>
+    &lt;Class>
+      &lt;and rdf:parseType="Collection">
+        &lt;Class edoal:var="#var1" />
+        &lt;AttributeTypeRestriction>
+          &lt;onAttribute>
+            &lt;PropertyDomainRestriction edoal:var="#var3">
+              &lt;class>
+                &lt;Class edoal:var="#var1" />
+              &lt;/class>
+            &lt;/PropertyDomainRestriction>
+          &lt;/onAttribute>
+          &lt;datatype>&lt;Datatype rdf:about="&xsd;integer" />&lt;/datatype>
+        &lt;/AttributeTypeRestriction>
+      &lt;/and>
+    &lt;/Class>
   &lt;/align:entity1>
   &lt;align:entity2>
-    &lt;edoal:Class edoal:var="#var2" />
+    &lt;Class edoal:var="#var2" />
   &lt;/align:entity2>
   &lt;align:relation>=&lt;/align:relation>
 &lt;/align:Cell>
