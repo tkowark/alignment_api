@@ -69,7 +69,7 @@ public class RendererTest {
 	AlignmentParser aparser = new AlignmentParser( 0 );
         assertNotNull( aparser );
         aparser.initAlignment( null );
-        alignment = aparser.parse( "test/output/bibref2.rdf" );
+        alignment = aparser.parse( "file:test/output/bibref2.rdf" );
         assertNotNull( alignment );
 	assertEquals( alignment.nbCells(), 32);
 	oalignment = ObjectAlignment.toObjectAlignment( (URIAlignment)alignment );

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2011
+ * Copyright (C) INRIA, 2003-2005, 2007-2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -310,11 +310,11 @@ public class XMLParser extends DefaultHandler {
 	    } else if (pName.equals( SyntaxElement.FORMALISM.name )) {
 		if ( atts.getValue( SyntaxElement.URI.name ) != null )
 		    try {
-			curronto.setFormURI( new URI(atts.getValue("uri")) );
+			curronto.setFormURI( new URI(atts.getValue( SyntaxElement.URI.name )) );
 		    } catch ( URISyntaxException e ) {
-			throw new SAXException("Malformed URI"+atts.getValue("uri"), e );
+			throw new SAXException("Malformed URI"+atts.getValue( SyntaxElement.URI.name ), e );
 		    };
-		if ( atts.getValue("name") != null )
+		if ( atts.getValue( SyntaxElement.NAME.name ) != null )
 		    curronto.setFormalism( atts.getValue( SyntaxElement.NAME.name ) );
 	    } else if (pName.equals( SyntaxElement.FORMATT.name )) {
 	    } else if (pName.equals( SyntaxElement.LOCATION.name )) {
@@ -371,38 +371,30 @@ public class XMLParser extends DefaultHandler {
 
     /**
      * Put the content in a variable
-     */
     public void characters(char ch[], int start, int length) {
 	content = new String( ch, start, length );
 	if(debugMode > 2) 
 	    System.err.println("content XMLParser : " + content);
     }
-
-    /*
-    // Patch proposed by Sabine Massmann
-    // If to be integrated, then put it in the proper place
-    // There is no reasons to test for Double in characters
-   public void characters(char ch[], int start, int length) {
-       String oldContent = "" + content;
-       content = new String( ch, start, length );
-       if ( content != null && !content.equals("\n") 
-	    && !content.startsWith("\n ") 
-	    //	    && oldContent.contains(".")
-	    && oldContent.indexOf('.',0) != -1
-	    ){
-	   oldContent = oldContent.concat(content);
-	   try {
-	       double test = Double.parseDouble(oldContent);
-	       content = oldContent;
-	   } catch (NumberFormatException e) {
-	       // TODO Auto-generated catch block
-	       // e.printStackTrace();
-	   }
-       }
-       if(debugMode > 2)
-	   System.err.println("content XMLParser : " + content);
-   }
     */
+
+    /* From a patch proposed by Sabine Massmann
+     * Get around some nasty double parsing bug. Sometimes it parses
+     * 6.925955630686735E-4 as
+     * content XMLParser : 6.925955630686735
+     * content XMLParser : E-4
+     */
+    public void characters( char ch[], int start, int length ) {
+	String newContent = new String( ch, start, length );
+	if ( content != null && content.indexOf('.',0) != -1 // a float
+	     && newContent != null && !newContent.startsWith("\n ") 
+	     ) {
+	    content += newContent;
+	} else {
+	    content = newContent; 
+	}
+	if ( debugMode > 2 ) System.err.println("content XMLParser : " + content);
+    }
 
     /** 
      * Called by the XML parser at the end of an element.
@@ -440,7 +432,11 @@ public class XMLParser extends DefaultHandler {
 		    } else if ( measure == null || relation == null ){
 			cell = alignment.addAlignCell( cl1, cl2);
 		    } else {
-			cell = alignment.addAlignCell( cl1, cl2, relation, Double.parseDouble(measure) );}
+			// This test must be revised for more generic confidence (which should then be strings)
+			double conf = Double.parseDouble( measure );
+			if ( conf > 1. || conf < 0. )
+			    throw new SAXException( "Bad confidence value : "+conf+" (should belong to [0. 1.])" );
+			cell = alignment.addAlignCell( cl1, cl2, relation, conf );}
 		    if ( id != null ) cell.setId( id );
 		    if ( sem != null ) cell.setSemantics( sem );
 		    if ( extensions != null ) ((BasicCell)cell).setExtensions( extensions );
@@ -493,7 +489,7 @@ public class XMLParser extends DefaultHandler {
 		    //if ( content.equals("no") )
 		    //	{ throw new SAXException("Cannot parse non XML alignments"); }
 		} else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
-		    parseLevel = alignLevel; // restore level²<
+		    parseLevel = alignLevel; // restore level<
 		    alignLevel = -1;
 		} else {
 		    if ( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" ) ) namespaceURI = Namespace.ALIGNMENT.uri;
@@ -523,6 +519,7 @@ public class XMLParser extends DefaultHandler {
 		extensions.setExtension( namespaceURI, pName, content );
 	    } else if (  !embedded ) throw new SAXException("[XMLParser] Unknown namespace : "+namespaceURI);
 	}
+	content = null; // JE2012: set it for the character patch
 	parseLevel--;
     } //end endElement
     

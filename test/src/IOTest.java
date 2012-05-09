@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
@@ -108,6 +109,15 @@ public class IOTest {
 	assertNotNull( alignment );
 	assertTrue( alignment instanceof URIAlignment );
 	assertEquals( alignment.nbCells(), 2 );
+	double min = 1.;
+	double max = 0.;
+	for ( Cell c : alignment ) {
+	    double v = c.getStrength();
+	    if ( v < min ) min = v;
+	    if ( v > max ) max = v;
+	}
+	assertEquals( min, 0.4666666666666667 );
+	assertEquals( max, 1. );
     }
 
     @Test(groups = { "full", "io", "raw" }, dependsOnMethods = {"loadSOAPStringErrorTest"})
