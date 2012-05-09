@@ -4,6 +4,8 @@
 <!ENTITY wine "http://www.w3.org/TR/2003/CR-owl-guide-20030818/wine#">
 <!ENTITY vin "http://ontology.deri.org/vin#">
 <!ENTITY proton "http://proton.semanticweb.org/">
+<!ENTITY edoal "http://ns.inria.org/edoal/1.0/#">
+<!ENTITY fn "http://www.w3.org/2005/xpath-functions">
 ]>
 
 <!-- JE2010: With the "#" in the end, this is parsed (by the RDF parser...)
@@ -158,7 +160,7 @@
 		    </edoal:or>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;lower-than"/>
+		<edoal:comparator rdf:resource="&edoal;lower-than"/>
   		<edoal:value>12</edoal:value>
 	      </edoal:AttributeOccurenceRestriction>	  
 	      <edoal:Class rdf:about="&wine;Bordeaux7"/>
@@ -178,7 +180,7 @@
 		    </edoal:compose>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Instance rdf:about="&vin;Aquitaine"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:AttributeOccurenceRestriction> 
@@ -190,7 +192,7 @@
 		    </edoal:and>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;greater-than"/>
+		<edoal:comparator rdf:resource="&edoal;greater-than"/>
   		<edoal:value>4</edoal:value>
 	      </edoal:AttributeOccurenceRestriction>	  
 	    </edoal:and>
@@ -259,7 +261,7 @@
 		    </edoal:compose>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Instance rdf:about="&wine;Bordelais"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:AttributeValueRestriction> 
@@ -271,7 +273,7 @@
 		    </edoal:compose>
 		  </edoal:Property>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Literal edoal:type="&xsd;int" edoal:string="33"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:AttributeValueRestriction> 
@@ -283,7 +285,7 @@
 		    </edoal:or>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Relation rdf:about="&wine;location"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:Class rdf:about="&wine;Bordeaux7"/>
@@ -303,7 +305,7 @@
 		    </edoal:compose>
 		  </edoal:Property>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Property rdf:about="&vin;matrid"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	      <edoal:AttributeValueRestriction> 
@@ -315,7 +317,7 @@
 		    </edoal:and>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value>
 		  <edoal:Apply edoal:operator="http://example.org/mydummyoperation/">
 		    <edoal:arguments rdf:parseType="Collection">
@@ -665,7 +667,7 @@
 		    </edoal:compose>
 		  </edoal:Relation>
 		</edoal:onAttribute>
-		<edoal:comparator rdf:resource="&xsd;equals"/>
+		<edoal:comparator rdf:resource="&edoal;equals"/>
   		<edoal:value><edoal:Instance rdf:about="&vin;Aquitaine"/></edoal:value>
 	      </edoal:AttributeValueRestriction>	  
 	    </edoal:and>
@@ -713,7 +715,7 @@
 	      <edoal:Property><edoal:compose rdf:parseType="Collection"/></edoal:Property>
 	    </edoal:entity1>
 	    <edoal:entity2>
-	      <edoal:Apply edoal:operator="concat">
+	      <edoal:Apply edoal:operator="&fn;concat">
 		<edoal:arguments rdf:parseType="Collection">
 		  <edoal:Property rdf:about="vcard:firstname"/>
 		  <edoal:Literal edoal:type="&xsd;string" edoal:string=" "/>
