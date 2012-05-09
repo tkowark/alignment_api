@@ -119,7 +119,7 @@ java -cp ../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter wine2
 	// This tests the round triping
 	assertEquals( wine2.length(), stream.toString().length() );
 	// This provides an absolute value
-	assertEquals( wine2.length(), 4671 );
+	assertEquals( wine2.length(), 4669 );
 	// This does not work because (at least) the order of correspondences is never the same...
 	//assertEquals( wine2, stream.toString() );
     }

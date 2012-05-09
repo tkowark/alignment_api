@@ -213,19 +213,19 @@ public class EDOALExportTest {
 	toExport = new ClassValueRestriction(new PropertyId(new URI("http://my.sister#age")),Comparator.GREATER,new Value("18"));
 	assertEquals( render( toExport ), "<edoal:AttributeValueRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
-	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#greater-than\"/>"
+	    + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#greater-than\"/>"
 	    + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 			  + "</edoal:AttributeValueRestriction>" );
 	toExport = new ClassTypeRestriction( new PropertyId(new URI("http://my.sister#age")), new Datatype("integer-under-100"));
 	assertEquals( render( toExport ), "<edoal:AttributeTypeRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
-	    //+ "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
+	    //+ "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#equals\"/>"
 	    + "<edoal:datatype><edoal:Datatype rdf:about=\"integer-under-100\"/></edoal:datatype>"
 		+ "</edoal:AttributeTypeRestriction>" );
 	toExport = new ClassOccurenceRestriction( new PropertyId(new URI("http://my.sister#age")), Comparator.GREATER, 18);
 	assertEquals( render( toExport ), "<edoal:AttributeOccurenceRestriction>"
 	    + "<edoal:onAttribute><edoal:Property rdf:about=\"http://my.sister#age\"/></edoal:onAttribute>"
-	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#greater-than\"/>"
+	    + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#greater-than\"/>"
 	    + "<edoal:value>18</edoal:value>"
 		      + "</edoal:AttributeOccurenceRestriction>" );
     }
@@ -286,7 +286,7 @@ public class EDOALExportTest {
 	    + "<edoal:onAttribute>"
 	    + "<edoal:Property rdf:about=\"http://vinum#age\"/>"
 	    + "</edoal:onAttribute>"
-	    + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#greater-than\"/>"
+	    + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#greater-than\"/>"
 	    + "<edoal:value><edoal:Literal edoal:string=\"20\"/></edoal:value>"
 	    + "</edoal:AttributeValueRestriction>"
 	    + "</edoal:or>"+ "</edoal:Class>" );
@@ -300,7 +300,7 @@ public class EDOALExportTest {
 		      + "</edoal:class></edoal:PropertyDomainRestriction>" );
 	assertEquals( render( new PropertyValueRestriction( Comparator.EQUAL, new Value("18"))),
 		      "<edoal:PropertyValueRestriction>"
-		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
+		      + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#equals\"/>"
 		      + "<edoal:value><edoal:Literal edoal:string=\"18\"/></edoal:value>"
 		      + "</edoal:PropertyValueRestriction>" );
 	assertEquals( render( new PropertyTypeRestriction(new Datatype("int"))),
@@ -331,7 +331,7 @@ public class EDOALExportTest {
 		      + "<edoal:Property rdf:about=\"http://mein/super/property1\"/>"
 		      + "</edoal:or></edoal:Property>"
 		      + "<edoal:PropertyValueRestriction>"
-		      + "<edoal:comparator rdf:resource=\"http://www.w3.org/2001/XMLSchema#equals\"/>"
+		      + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#equals\"/>"
 		      + "<edoal:value><edoal:Literal edoal:string=\"5\"/></edoal:value></edoal:PropertyValueRestriction>"
 		      + "</edoal:and></edoal:Property>");
 	toExport = new PropertyConstruction( Constructor.NOT, Collections.singleton((PathExpression)new PropertyId(new URI("http://mein/super/property"))));

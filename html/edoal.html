@@ -221,7 +221,7 @@ exemplified in the code below.
     &lt;align:Ontology rdf:about="http://www.example.org/ontology1">
       &lt;align:location>file:examples/rdf/onto1.owl&lt;/align:location>
       &lt;align:formalism>
-        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#" />
       &lt;/align:formalism>
     &lt;/align:Ontology>
   &lt;/align:onto1>
@@ -229,7 +229,7 @@ exemplified in the code below.
     &lt;align:Ontology rdf:about="http://www.example.org/ontology2">
       &lt;align:location>file:examples/rdf/onto2.owl&lt;/location>
       &lt;align:formalism>
-        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+        &lt;align:Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#" />
       &lt;/align:formalism>
     &lt;/align:Ontology>
   &lt;/align:onto2>
@@ -399,7 +399,7 @@ the <a href="http://www.w3.org/TR/xquery-operators/">XQuery 1.0 and
 Hence, a class expression may be an identified class:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-    &lt;Class rdf:about="&amp;wine;WineFlavor"/>
+    &lt;Class rdf:about="&amp;wine;WineFlavor" />
 </div></div>
 <div class="rdfxmlDiv">
 a disjunction or class expressions:
@@ -407,9 +407,9 @@ a disjunction or class expressions:
 <div class="rdfxml">
     &lt;Class>
       &lt;or rdf:parseType="Collection">
-        &lt;Class rdf:about="&amp;vin;Acidite"/>
-        &lt;Class rdf:about="&amp;vin;Astreingence"/>
-        &lt;Class rdf:about="&amp;vin;Amertume"/>
+        &lt;Class rdf:about="&amp;vin;Acidite" />
+        &lt;Class rdf:about="&amp;vin;Astreingence" />
+        &lt;Class rdf:about="&amp;vin;Amertume" />
       &lt;/Collection>&lt;/or>
     &lt;/Class>
 </div></div>
@@ -419,17 +419,17 @@ Thanks to paths and restrictions, it is possible to restrict a correspondence to
 <div class="rdfxml">
     &lt;Class>
       &lt;and rdf:parseType="Collection">
-        &lt;Class rdf:about="&amp;vin;Wine"/>
+        &lt;Class rdf:about="&amp;vin;Wine" />
         &lt;AttributeValueRestriction>
           &lt;onAttribute>
             &lt;Property>
               &lt;compose rdf:parseType="Collection">
-                &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
-                &lt;Property rdf:about="&amp;proton;name"/>
+                &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+                &lt;Property rdf:about="&amp;proton;name" />
               &lt;/compose>
             &lt;/Property>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;edoal;equals"/>
+          &lt;comparator rdf:resource="&amp;edoal;equals" />
           &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
@@ -453,12 +453,12 @@ We can with this restriction build the correspondence between
           &lt;onAttribute>
             &lt;Relation>
               &lt;compose rdf:parseType="Collection">
-                &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
-                &lt;Relation rdf:about="&amp;proton;LocatedIn"/>
+                &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+                &lt;Relation rdf:about="&amp;proton;LocatedIn" />
               &lt;/compose>
             &lt;/Relation>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;edoal;equals"/>
+          &lt;comparator rdf:resource="&amp;edoal;equals" />
           &lt;value edoal:type="&amp;xsd;string">Acquitaine&lt;/value>
         &lt;/Restriction>
       &lt;/attributeValueCondition>
@@ -515,7 +515,7 @@ a restriction. There are three classes of property restrictions:
 As previously properties can be identified by its URI:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-    &lt;Property rdf:about="&amp;wine;hasVintageYear"/>
+    &lt;Property rdf:about="&amp;wine;hasVintageYear" />
 </div></div>
 <div class="rdfxmlDiv">
 As previously properties can be assembled by boolean connectors:
@@ -523,8 +523,8 @@ As previously properties can be assembled by boolean connectors:
 <div class="rdfxml">
     &lt;Property>
       &lt;and rdf:parseType="Collection">
-        &lt;Property rdf:about="&amp;vin;propri&eacute;taire"/>
-        &lt;Property rdf:about="&amp;vin;n&eacute;gociant"/>
+        &lt;Property rdf:about="&amp;vin;propri&eacute;taire" />
+        &lt;Property rdf:about="&amp;vin;n&eacute;gociant" />
       &lt;/and>
     &lt;/Property>
 </div></div>
@@ -535,8 +535,8 @@ ending by a property:
 <div class="rdfxml">
     &lt;Property>
       &lt;compose rdf:parseType="Collection">
-        &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
-        &lt;Property rdf:about="&amp;proton;name"/>
+        &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+        &lt;Property rdf:about="&amp;proton;name" />
       &lt;/compose>
     &lt;/Property>
 </div></div>
@@ -631,12 +631,12 @@ An example of occurrence restriction would be the wines produced in a region wit
             &lt;onAttribute>
               &lt;Relation>
                 &lt;compose rdf:parseType="Collection">
-                  &lt;Relation rdf:about="&amp;vin;hasTerroir"/>
-                  &lt;Relation rdf:about="&amp;wine;adjacentRegion"/>
+                  &lt;Relation rdf:about="&amp;vin;hasTerroir" />
+                  &lt;Relation rdf:about="&amp;wine;adjacentRegion" />
                 &lt;/compose>
               &lt;/Relation>
             &lt;/onAttribute>
-            &lt;comparator rdf:resource="&amp;edoal;greater-than"/>
+            &lt;comparator rdf:resource="&amp;edoal;greater-than" />
             &lt;value edoal:type="&amp;xsd;integer">0&lt;/value>
           &lt;/Restriction>
         &lt;/attributeOccurrenceCondition>
@@ -658,7 +658,7 @@ uses a path to state that a locally grown wine is a wine whose owner (propri&eac
 <div class="rdfxml">
 &lt;align:Cell>
   &lt;align:entity1>
-    &lt;Class rdf:about="&amp;wine;LocallyGrownWine"/>
+    &lt;Class rdf:about="&amp;wine;LocallyGrownWine" />
   &lt;/align:entity1>
   &lt;align:entity2>
     &lt;Class>
@@ -666,10 +666,10 @@ uses a path to state that a locally grown wine is a wine whose owner (propri&eac
         &lt;Class rdf:about="&amp;vin;Vin">
         &lt;AttributeValueRestriction>
           &lt;onAttribute>
-            &lt;Relation rdf:about="&amp;vin;propri&eacute;taire"/>&lt;/first>
+            &lt;Relation rdf:about="&amp;vin;propri&eacute;taire" />&lt;/first>
           &lt;/onAttribute>
-          &lt;comparator rdf:resource="&amp;edoal;equals"/>
-          &lt;value>&lt;Relation rdf:about="&amp;vin;n&eacute;gotiant"/>&lt;/value>
+          &lt;comparator rdf:resource="&amp;edoal;equals" />
+          &lt;value>&lt;Relation rdf:about="&amp;vin;n&eacute;gotiant" />&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
     &lt;/Class>
@@ -709,8 +709,7 @@ They obey the following grammar:
 <u>val</u> ::= &lt;value> <u>value</u> &lt;/value> 
 
 <u>value</u> ::= &lt;Literal {edoal:type=" <u>URI</u> "} edoal:string=" <u>STRING</u> " /> 
-        | &lt;Literal {edoal:type=" <u>URI</u> "}> <u>STRING</u> &lt;/Literal> 
-        | <u>instexpr</u>
+<!--        | &lt;Literal {edoal:type=" <u>URI</u> "}> <u>STRING</u> &lt;/Literal> -->        | <u>instexpr</u>
         | <u>attrexpr</u> 
         | &lt;Apply edoal:operator=" <u>URI</u> "> &lt;arguments rdf:parseType="Collection"><u>value</u>*&lt;/arguments> &lt;/Apply>
 <!-- JE: this is unfortunately ugly, otherwise, this is perfect REST--><!--
@@ -729,7 +728,7 @@ Literal values:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
     &lt;Literal edoal:type="&amp;xsd;integer" edoal:string="123" />
-    &lt;Literal edoal:type="&amp;xsd;integer">123&lt;/Literal>
+<!--    &lt;Literal edoal:type="&amp;xsd;integer">123&lt;/Literal>-->
 </div></div>
 
 <p>
@@ -739,6 +738,7 @@ Instances are always single entities refering to an individual
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
     &lt;Instance rdf:about="&amp;vin;hasTerroir" />
+
 </div></div>
 </p>
 <p>
@@ -749,7 +749,7 @@ the following way:
 <div class="rdfxml">
       &lt;Apply edoal:operator="http://example.com/Whatever">
         &lt;arguments rdf:parseType="Collection">
-          &lt;Literal rdf:about="&amp;xsd;integer">123&lt;/Literal>
+          &lt;Literal rdf:about="&amp;xsd;integer" edoal:string="123" />
           &lt;Property>
             &lt;compose rdf:parseType="Collection">
              &lt;Relation rdf:about="&amp;vin;hasTerroir" />
@@ -808,12 +808,12 @@ The following correspondence shows an example of the use of data transformation:
 	    &lt;entity2>
 	      &lt;Apply edoal:operator="concat">
 		&lt;arguments rdf:parseType="Collection">
-		  &lt;Property rdf:about="vcard:firstname"/>
-		  &lt;Literal edoal:type="&amp;xsd;string" edoal:string=" "/>
+		  &lt;Property rdf:about="vcard:firstname" />
+		  &lt;Literal edoal:type="&amp;xsd;string" edoal:string=" " />
 		  &lt;!-- or even compute middle initial from middlename -->
-		  &lt;Property rdf:about="vcard:middleinitial"/>
-		  &lt;Literal edoal:string=". "/>
-		  &lt;Property rdf:about="vcard:lastname"/>
+		  &lt;Property rdf:about="vcard:middleinitial" />
+		  &lt;Literal edoal:string=". " />
+		  &lt;Property rdf:about="vcard:lastname" />
 		&lt;/arguments>
 	      &lt;/Apply>
 	    &lt;/entity2>
@@ -845,7 +845,7 @@ The following correspondence shows an example of the use of data transformation:
             &lt;Relation rdf:about="&O1;hasColor" />
           &lt;/onAttribute>
 	  &lt;comparator rdf:resource="&amp;edoal;equals" />
-          &lt;value>&lt;Instance rdf:about="&O1;Blue"/>&lt;/value>
+          &lt;value>&lt;Instance rdf:about="&O1;Blue" />&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
     &lt;/Class>
@@ -864,7 +864,7 @@ The following correspondence shows an example of the use of data transformation:
             &lt;Relation rdf:about="&O1;hasColor" />
           &lt;/onAttribute>
 	  &lt;comparator rdf:resource="&amp;edoal;equals" />
-          &lt;value>&lt;Instance rdf:about="&O1;Red"/>&lt;/value>
+          &lt;value>&lt;Instance rdf:about="&O1;Red" />&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
     &lt;/Class>
@@ -883,7 +883,7 @@ The following correspondence shows an example of the use of data transformation:
             &lt;Relation rdf:about="&O1;hasColor" />
           &lt;/onAttribute>
 	  &lt;comparator rdf:resource="&amp;edoal;equals" />
-          &lt;value>&lt;Instance rdf:about="&O1;Green"/>&lt;/value>
+          &lt;value>&lt;Instance rdf:about="&O1;Green" />&lt;/value>
         &lt;/AttributeValueRestriction>
       &lt;/and>
     &lt;/Class>
@@ -1037,8 +1037,8 @@ O2:weight a edoal:Property.
 	&lt;Apply edoal:operator="http://www.google.com/finance/converter">
 	  &lt;arguments rdf:parseType="Collection">
             &lt;Property>&lt;compose rdf:parseType="Collection"/>&lt;/Property>
-            &lt;Literal edoal:value="EUR" />
-            &lt;Literal edoal:value="CNY" />
+            &lt;Literal edoal:string="EUR" />
+            &lt;Literal edoal:string="CNY" />
 	  &lt;/arguments>
 	&lt;/Apply>
       &lt;/entity2>
@@ -1158,7 +1158,7 @@ for a more complete description of the EDOAL Pattern language.
 <div class="grammar">
 variable ::= &lt;Variable>
               &lt;var_id>string&lt;/var_id>
-              &lt;var_binding rdf:resource="uri"/>
+              &lt;var_binding rdf:resource="uri" />
              &lt;/Variable>
 </div-->
 

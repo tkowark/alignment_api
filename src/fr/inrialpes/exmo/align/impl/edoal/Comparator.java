@@ -31,9 +31,9 @@ public class Comparator {
 
     // This replaces the Comparator class
     // SHOULD CERTAINLY BE AN ENUM
-    public static Comparator EQUAL = initComparator( Namespace.XSD.prefix+"equals", 0 );
-    public static Comparator LOWER = initComparator( Namespace.XSD.prefix+"lower-than", -1 );
-    public static Comparator GREATER = initComparator( Namespace.XSD.prefix+"greater-than", 1 );
+    public static Comparator EQUAL = initComparator( Namespace.EDOAL.prefix+"equals", 0 );
+    public static Comparator LOWER = initComparator( Namespace.EDOAL.prefix+"lower-than", -1 );
+    public static Comparator GREATER = initComparator( Namespace.EDOAL.prefix+"greater-than", 1 );
 
     public static Comparator getComparator( URI u ) {
 	if ( u.equals( EQUAL.getURI() ) ) {
