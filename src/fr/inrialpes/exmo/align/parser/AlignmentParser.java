@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -143,7 +143,7 @@ public class AlignmentParser {
 		    RDFParser rparser = new RDFParser( debugMode );
 		    alignment = callParser( rparser, o );
 		} else {
-		    throw new AlignmentException( "Cannot parse "+o, e );
+		    throw new AlignmentException( "Cannot parse "+o+" (use debug>0 for more info)", e );
 		}
 	    } catch ( Exception ex ) {
 		// JE: should contain both ex and e
@@ -161,7 +161,7 @@ public class AlignmentParser {
 	if ( o instanceof String ) return p.parse( new ByteArrayInputStream( ((String)o).getBytes() ) );
 	if ( o instanceof Reader ) return p.parse((Reader)o);
 	if ( o instanceof InputStream ) return p.parse((InputStream)o);
-	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
+	throw new AlignmentException( "AlignmentParser: XMLParser cannot parse :"+o );
     }
 
     private Alignment callParser( RDFParser p, Object o ) throws AlignmentException {
@@ -169,7 +169,7 @@ public class AlignmentParser {
 	if ( o instanceof String ) return p.parse( new ByteArrayInputStream( ((String)o).getBytes() ) );
 	if ( o instanceof Reader ) return p.parse((Reader)o);
 	if ( o instanceof InputStream ) return p.parse((InputStream)o);
-	throw new AlignmentException( "AlignmentParser: cannot parse :"+o );
+	throw new AlignmentException( "AlignmentParser: RDFParser cannot parse :"+o );
     }
 
     /** 
