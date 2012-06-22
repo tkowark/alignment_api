@@ -64,6 +64,8 @@ with a warning:
 
 <h2>Current SVN trunk version</h2>
 
+<!--h2>Version 4.5 (17xx): ??/??/2012 - Al pesto</h2-->
+
 <!--h2>Version 4.4 (17xx): ??/??/2012 - ?????????</h2-->
 
 <p><ul compact="1">
@@ -71,18 +73,22 @@ with a warning:
   use <tt>java.lang.Properties</tt> instead; <tt>BasicParameters</tt>
   is not used anymore in the API (impl)</tt>
 <li><tt>BasicAlignment.getXNamespaces()</tt> returns <tt>Properties</tt> (impl)</li>
-<li>Finally simplified visitor patterns (impl/edoal/renderer)</li>
+<li>Simplified visitor patterns (impl/edoal/renderer)</li>
+<li><span style="color: red;">Use</span> edoal prefix instead of xsd for comparators (edoal)</li>
 <li>Integrated <tt>owl:propertyChain</tt> in OWL rendering (edoal)</li>
-<li>Corrected bug with <tt>owl:inverseOf</tt> in OWL rendering (edoal)</li>
 <!--li>Upgraded to <span style="color: green">OWL API ??</span>,
    <span style="color: green">Xerces 2.10</span>,
    <span style="color: green">log4j 1.2.16</span>,
    <span style="color: green">slf4j 1.6.4</span> (lib)</li-->
+<li>Added <tt>JSONRendererVisitor</tt> (impl)</li>
 <li>Added <tt>corresp</tt> primitive (server)</li>
 <li>Added <tt>EDOALAlignment.toEDOALAlignment()</tt> (edoal)</li>
 <li>Simplified <tt>TestGen</tt> options (cli)</li>
 <li>Fixed server initialisation error with new log4j (server)</li>
+<li>Fixed a float parsing bug in <tt>XMLParser</tt> (parser)</li>
+<li>Corrected bug with <tt>owl:inverseOf</tt> in OWL rendering (edoal)</li>
 <li>All documentation has now been revised in html and is not in the (outdated) manuals (html)</li>
+<li>Replaced version.txt and license.txt by pom.xml (lib)</li>
 </ul></p>
 
 <h2>Version 4.3 (1690): 22/02/2012 - Zimt</h2>
