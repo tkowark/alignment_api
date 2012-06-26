@@ -48,7 +48,7 @@ public class Annotation {
     }
     
     public int hashCode() {
-	return value.hashCode();
+	return value==null?0:value.hashCode();
     }
     
     public boolean equals(Object o) {
