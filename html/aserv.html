@@ -45,17 +45,6 @@ database name. This can be achieved either:
 </ul>
 </p>
 
-<p>Sample backup of the server content:
-<div class="terminal">
-$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
-</div>
-And restoring:
-<div class="terminal">
-$ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
-sql> source toto.sql;
-</div>
-</p>
-
 <p>
 It is also possible to use Postgres instead of MySQL, but then you
 should know how to do it.
@@ -152,6 +141,20 @@ for the firewalls to open these ports:
 Of course, the ports need only to be open if there is an access from
 the outside to the server with the corresponding plug-in. The only
 compulsory ports for the server is the MySQL one.
+</p>
+
+<h2>Setting up a back-up for your database</h2>
+
+
+<p>Sample backup of the server content:
+<div class="terminal">
+$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
+</div>
+And restoring:
+<div class="terminal">
+$ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
+sql> source toto.sql;
+</div>
 </p>
 
 <address>
