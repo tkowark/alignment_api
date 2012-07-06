@@ -1,7 +1,6 @@
-2.2
+xsdlib 20090415 (2003)
+relaxngDatatype 20090415 (2001)
 
-Note: This library whihc was originally released at April 2003 is not available 
-as a standalon library anymore. See the Web archieves of the page where this 
-library was downloaded from:
+BSD License
+From msv.java.net
 
-http://web.archive.org/web/20040417184321/wwws.sun.com/software/xml/developers/xsdlib2/index.html
