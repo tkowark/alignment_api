@@ -34,7 +34,7 @@
     </echo>
   </target>
 
-  <target name="bind">
+  <target name="bind" description="Set variables">
     <property file="../build.properties"/>
     <!-- This should now be handled by GForge -->
     <property name="tooldir"  value="tools" />
@@ -48,7 +48,7 @@
     <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar align.jar ontowrap.jar procalign.jar"/>
   </target>
 
-  <target name="versionnumber" depends="init">
+  <target name="versionnumber" depends="init" description="Establishes the version number">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
     <property name="version.minor" value="3"/>
@@ -73,12 +73,12 @@
     <filter token="VERS" value="${version}"/>
   </target>
 
-  <target name="upgrade">
+  <target name="upgrade" description="Upgrade local dependencies">
     <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim" filtering="false"/>
   </target>
 
   <!-- tested -->
-  <target name="compile" depends="init">
+  <target name="compile" depends="init" description="Incrementally compile source files">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
@@ -89,7 +89,7 @@
   </target>
 
   <!-- tested -->
-  <target name="compileall" depends="versionnumber">
+  <target name="compileall" depends="versionnumber" description="Recompile all source files and create jar">
     <echo message="Erasing..."/>
     <delete>
       <fileset dir="." includes="classes/**/*.class"/>
@@ -102,7 +102,7 @@
   </target>
 
   <!-- tested -->
-  <target name="lint" depends="init">
+  <target name="lint" depends="init" description="Check sources for warnings">
     <echo message="Setting property..."/>
     <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
     <!--property name="javacargs" value="-Xlint:cast" /-->
@@ -110,7 +110,7 @@
     <antcall target="compileall"/>
   </target>
 
-  <!--target name="analyse" depends="jar">
+  <!--target name="analyse" depends="jar" description="Perform static analysis of code">
     // Use Checkstyle
     <taskdef resource="checkstyletask.properties"
              classpath="${tooldir}/checkstyle/checkstyle-all-5.0.jar"/>
@@ -144,8 +144,8 @@
   <!-- cover: emma seems really difficult
   <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
 
-  <!-- tested -->
-  <target name="jar" depends="compile">
+  <!-- tested: should be modularised -->
+  <target name="jar" depends="compile" description="Create jar archives">
     <echo message="Jarchiving..."/>
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
     <delete file="lib/align.jar"/>
@@ -165,6 +165,14 @@
       <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <copy file="distrib/align.pom" toFile="lib/align.pom">
+      <filterset>
+       <filter token="VERS" value="${version}"/>
+       <filter token="DATE" value="${date}"/>
+       <filter token="REV" value="${svn.rev}"/>
+       <filter token="COPYYEAR" value="${copyyear}"/>
+      </filterset>
+    </copy>
     <delete file="lib/ontowrap.jar"/>
     <jar jarfile="lib/ontowrap.jar">
       <manifest>
@@ -183,6 +191,14 @@
       <fileset dir="classes" includes="LICENSE.TXT"/>
       <fileset dir="src" includes="fr/inrialpes/exmo/ontowrap/**/*.rdf"/>
     </jar>
+    <copy file="distrib/ontowrap.pom" toFile="lib/ontowrap.pom">
+      <filterset>
+       <filter token="VERS" value="${version}"/>
+       <filter token="DATE" value="${date}"/>
+       <filter token="REV" value="${svn.rev}"/>
+       <filter token="COPYYEAR" value="${copyyear}"/>
+      </filterset>
+    </copy>
     <delete file="lib/procalign.jar"/>
     <jar jarfile="lib/procalign.jar">
       <manifest>
@@ -208,6 +224,14 @@
       <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <copy file="distrib/procalign.pom" toFile="lib/procalign.pom">
+      <filterset>
+       <filter token="VERS" value="${version}"/>
+       <filter token="DATE" value="${date}"/>
+       <filter token="REV" value="${svn.rev}"/>
+       <filter token="COPYYEAR" value="${copyyear}"/>
+      </filterset>
+    </copy>
     <delete file="lib/alignsvc.jar"/>
     <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
     <jar jarfile="lib/alignsvc.jar">
@@ -230,10 +254,18 @@
       <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
       <fileset dir="classes" includes="LICENSE.TXT"/>
     </jar>
+    <copy file="distrib/alignsvc.pom" toFile="lib/alignsvc.pom">
+      <filterset>
+       <filter token="VERS" value="${version}"/>
+       <filter token="DATE" value="${date}"/>
+       <filter token="REV" value="${svn.rev}"/>
+       <filter token="COPYYEAR" value="${copyyear}"/>
+      </filterset>
+    </copy>
   </target>
 
   <!-- tested -->
-  <target name="cleanjar" depends="init">
+  <target name="cleanjar" depends="init" description="Delete jar archives">
     <echo message="Erasing..."/>
     <delete file="lib/align.jar"/>
     <delete file="lib/ontowrap.jar"/>
@@ -258,7 +290,7 @@
   </target>
 
   <!-- tested -->
-  <target name="test" depends="init">
+  <target name="test" depends="init" description="Unit test code">
     <echo message="Testing..."/>
     <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
 
@@ -283,7 +315,7 @@
   </target>
 
   <!-- tested -->
-  <target name="cleantest" depends="init">
+  <target name="cleantest" depends="init" description="Clean up test directory">
     <echo message="Cleaning tests..."/>
     <delete>
       <fileset dir="test/classes" includes="**/*.class"/>
@@ -294,7 +326,7 @@
   </target>
 
   <!-- tested -->
-  <target name="javadoc" depends="versionnumber">
+  <target name="javadoc" depends="versionnumber" description="Generate java documentation">
    <echo message="Javadocing... ${version}"/>
    <javadoc
       destdir="javadoc"
@@ -322,7 +354,7 @@
   </target>
 
   <!-- tested -->
-  <target name="release" depends="versionnumber">
+  <target name="release" depends="versionnumber" description="Release a new version of the API">
     <echo message="Releasing version ${version} (${svn.revision})" />
     <!--echo message="Are you sure that everything is OK (update/ci/compile/lint)?"/-->
     <copy file="distrib/LICENSE.TXT" tofile="LICENSE.TXT" filtering="true"/>
@@ -337,7 +369,7 @@
   </target>
 
   <!-- tested -->
-  <target name="zip" depends="init">
+  <target name="zip" depends="init" description="Generate zip file containing a release">
     <echo message="Ziping..."/>
     <antcall target="clean"/>
     <!-- Unfortunately commit is not functional -->
@@ -432,7 +464,7 @@
   </target>
 
   <!-- tested -->
-  <target name="clean">
+  <target name="clean" description="Clean up the whole directory">
     <echo message="Cleaning..."/>
     <antcall target="cleantest"/>
     <ant dir="plugins/neon" target="clean" />
