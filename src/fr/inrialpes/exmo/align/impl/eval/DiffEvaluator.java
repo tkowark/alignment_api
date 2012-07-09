@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -174,7 +174,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 
     public void printAsCells ( String what, Set<Cell> set, PrintWriter writer ) {
 	writer.println("  <"+what+" rdf:parseType=\"Collection\">");
-	for ( Cell c : truepositive ){
+	for ( Cell c : set ){
 	    try {
 		writer.println("    <Cell>");
 		writer.println("      <entity1 rdf:resource=\""+c.getObject1AsURI()+"\">");
