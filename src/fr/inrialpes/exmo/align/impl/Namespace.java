@@ -1,10 +1,10 @@
 /*
  * $Id$
  *
-* Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Copyright (C) 2005 Digital Enterprise Research Insitute (DERI) Galway
+ * Copyright (C) 2006 Digital Enterprise Research Institute (DERI) Innsbruck
  * Sourceforge version 1.2 - 2008 - then NamespaceDefs.java
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,10 +32,6 @@ import java.util.Map;
 // else than an enum class.
 
 public enum Namespace {
-    // JE: added align as shortcut
-    // JE: But latter suppressed because, "" may be used for default namespace
-    // JE2009: I one use print(DEF), then it is not needed...
-	//ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align"),
     ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align", true),
 	ALIGNSVC("http://exmo.inrialpes.fr/align/service","alignsvc",true),
 	EDOAL("http://ns.inria.org/edoal/1.0/", "edoal", true),
@@ -45,6 +41,7 @@ public enum Namespace {
 	XSD("http://www.w3.org/2001/XMLSchema", "xsd", true),
 	XSI("http://www.w3.org/1999/XMLSchema-instance", "xsi", false),
 	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false),
+	NONE("", "fake", false),
 	ATLMAP("http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#", "map", false);
 
 	public final String uri;

@@ -126,7 +126,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    String prefix = ext[0];
 	    String name = ext[1];
 	    String tag = nslist.get(prefix);
-	    //if ( tag.equals("align") ) { tag = name; }
 	    if ( prefix.equals( Namespace.ALIGNMENT.uri ) ) { tag = name; }
 	    else {
 		if ( tag == null ) {
@@ -612,9 +611,9 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 	
     public void visit( final Apply e ) throws AlignmentException {
-	indentedOutput("<"+SyntaxElement.APPLY.print(DEF)+" "+SyntaxElement.OPERATOR.print(DEF)+"=\""+e.getOperation()+"\">"+NL);
+	indentedOutputln("<"+SyntaxElement.APPLY.print(DEF)+" "+SyntaxElement.OPERATOR.print(DEF)+"=\""+e.getOperation()+"\">");
 	increaseIndent();
-	indentedOutput("<"+SyntaxElement.ARGUMENTS.print(DEF)+" "+SyntaxElement.RDF_PARSETYPE.print(DEF)+"=\"Collection\">"+NL);
+	indentedOutputln("<"+SyntaxElement.ARGUMENTS.print(DEF)+" "+SyntaxElement.RDF_PARSETYPE.print(DEF)+"=\"Collection\">");
 	increaseIndent();
 	for ( final ValueExpression ve : e.getArguments() ) {
 	    writer.print(linePrefix);
@@ -622,7 +621,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    writer.print(NL);
 	}
 	decreaseIndent();
-	indentedOutput("</"+SyntaxElement.ARGUMENTS.print(DEF)+">"+NL);
+	indentedOutputln("</"+SyntaxElement.ARGUMENTS.print(DEF)+">");
 	decreaseIndent();
 	indentedOutput("</"+SyntaxElement.APPLY.print(DEF)+">");
     }
