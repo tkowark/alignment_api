@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010-2011
+ * Copyright (C) INRIA, 2008, 2010-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -50,6 +50,11 @@ public abstract class OntologyFactory {
 
     protected static Hashtable<String,OntologyFactory> instances = null;
 
+    /*
+     * Changing this variable, is preferably made by the:
+     * setDefaultFactory( )
+     * below
+     */
     private static String API_NAME="fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory";
 
     public static Set<String> getFactories( URI formalism ) {
