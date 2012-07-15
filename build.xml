@@ -144,124 +144,116 @@
   <!-- cover: emma seems really difficult
   <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
 
-  <!-- tested: should be modularised -->
+  <!-- tested -->
   <target name="jar" depends="compile" description="Create jar archives">
     <echo message="Jarchiving..."/>
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
-    <delete file="lib/align.jar"/>
-    <jar jarfile="lib/align.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${date}"/>
-	<attribute name="Specification-Title" value="Alignment API"/>
-	<attribute name="Specification-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Name" value="Alignment API"/>
-	<attribute name="Bundle-SymbolicName" value="alignapi"/>
-	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
-	<attribute name="Bundle-Date" value="${date}"/>
-	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	<attribute name="Export-package" value="org.semanticweb.owl.align"/>
-      </manifest>
-      <fileset dir="classes" includes="org/semanticweb/owl/align/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <copy file="distrib/align.pom" toFile="lib/align.pom">
-      <filterset>
-       <filter token="VERS" value="${version}"/>
-       <filter token="DATE" value="${date}"/>
-       <filter token="REV" value="${svn.rev}"/>
-       <filter token="COPYYEAR" value="${copyyear}"/>
-      </filterset>
-    </copy>
-    <delete file="lib/ontowrap.jar"/>
-    <jar jarfile="lib/ontowrap.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${date}"/>
-	<attribute name="Specification-Title" value="Ontology wrapper"/>
-	<attribute name="Specification-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Name" value="OntoWrap"/>
-	<attribute name="Bundle-SymbolicName" value="ontowrap"/>
-	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
-	<attribute name="Bundle-Date" value="${date}"/>
-	<attribute name="Bundle-License" value="GNU Lesser Public License 2.1 or above"/>
-	<attribute name="Export-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"/>
-      </manifest>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/ontowrap/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-      <fileset dir="src" includes="fr/inrialpes/exmo/ontowrap/**/*.rdf"/>
-    </jar>
-    <copy file="distrib/ontowrap.pom" toFile="lib/ontowrap.pom">
-      <filterset>
-       <filter token="VERS" value="${version}"/>
-       <filter token="DATE" value="${date}"/>
-       <filter token="REV" value="${svn.rev}"/>
-       <filter token="COPYYEAR" value="${copyyear}"/>
-      </filterset>
-    </copy>
-    <delete file="lib/procalign.jar"/>
-    <jar jarfile="lib/procalign.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${date}"/>
-        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.cli.Procalign"/>
-        <attribute name="Class-Path" value="${jarclasspath}"/>
-	<attribute name="Implementation-Title" value="Alignment API implementation"/>
-	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
-	<attribute name="Bundle-Name" value="Alignment API implementation"/>
-	<attribute name="Bundle-SymbolicName" value="procalign"/>
-	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
-	<attribute name="Bundle-Date" value="${date}"/>
-	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	<attribute name="Export-package" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen"/>
-	<attribute name="Import-package" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"/>
-      </manifest>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/impl/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/parser/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/util/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/cli/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/gen/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/ling/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <copy file="distrib/procalign.pom" toFile="lib/procalign.pom">
-      <filterset>
-       <filter token="VERS" value="${version}"/>
-       <filter token="DATE" value="${date}"/>
-       <filter token="REV" value="${svn.rev}"/>
-       <filter token="COPYYEAR" value="${copyyear}"/>
-      </filterset>
-    </copy>
-    <delete file="lib/alignsvc.jar"/>
+
+    <!-- align.jar -->
+    <fileset id="alignset" dir="classes">
+      <include name="org/semanticweb/owl/align/*.class"/>
+    </fileset>
+    <antcall target="onejar">
+      <param name="group" value="org.semanticweb.owl" />
+      <param name="file" value="align" />
+      <param name="desc" value="Alignment API" />
+      <param name="main" value="" />
+      <param name="pack" value="org.semanticweb.owl.align" />
+      <param name="impt" value="" />
+      <param name="path" value="" />
+      <reference refid="alignset" torefid="content" />
+    </antcall>
+
+    <!-- ontowrap.jar -->
+    <copy file="src/fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf" tofile="classes/fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf" />
+    <fileset id="wrapset" dir="classes">
+      <include name="fr/inrialpes/exmo/ontowrap/**/*.class" />
+      <include name="fr/inrialpes/exmo/ontowrap/**/*.rdf"/>
+    </fileset>
+    <antcall target="onejar">
+      <param name="group" value="fr.inrialpes.exmo" />
+      <param name="file" value="ontowrap" />
+      <param name="desc" value="Ontology wrapper" />
+      <param name="impt" value="" />
+      <param name="pack" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util" />
+      <param name="impt" value="" />
+      <param name="path" value="" />
+      <reference refid="wrapset" torefid="content" />
+    </antcall>
+
+    <!-- procalign.jar -->
+    <fileset id="procset" dir="classes">
+      <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/parser/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/util/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/cli/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/gen/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/ling/**/*.class"/>
+    </fileset>
+    <antcall target="onejar">
+      <param name="group" value="fr.inrialpes.exmo.align" />
+      <param name="file" value="procalign" />
+      <param name="desc" value="Alignment API implementation" />
+      <param name="main" value="fr.inrialpes.exmo.align.cli.Procalign" />
+      <param name="pack" value="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen" />
+      <param name="impt" value="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align" />
+      <param name="path" value="${jarclasspath}"/>
+      <reference refid="procset" torefid="content" />
+    </antcall>
+
+    <!-- alignsvc.jar -->
+    <fileset id="servset" dir="classes">
+      <include name="fr/inrialpes/exmo/align/service/**/*.class"/>
+      <include name="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
+      <include name="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
+    </fileset>
     <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
-    <jar jarfile="lib/alignsvc.jar">
-      <manifest>
-	<attribute name="Built-Date" value="${date}"/>
-        <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
-        <attribute name="Class-Path" value="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"/>
-	<attribute name="Implementation-Title" value="Alignment server"/>
-	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
-	<attribute name="Bundle-Name" value="Alignment server"/>
-	<attribute name="Bundle-SymbolicName" value="alignsvc"/>
-	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
-	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
-	<attribute name="Bundle-Date" value="${date}"/>
- 	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	<attribute name="Export-package" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"/>
-      </manifest>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.class"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
-      <fileset dir="classes" includes="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
-      <fileset dir="classes" includes="LICENSE.TXT"/>
-    </jar>
-    <copy file="distrib/alignsvc.pom" toFile="lib/alignsvc.pom">
+    <antcall target="onejar">
+      <param name="group" value="fr.inrialpes.exmo.align" />
+      <param name="file" value="alignsvc" />
+      <param name="desc" value="Alignment server" />
+      <param name="main" value="fr.inrialpes.exmo.align.service.AlignmentService" />
+      <param name="pack" value="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology" />
+      <param name="path" value="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar" />
+      <reference refid="servset" torefid="content" />
+    </antcall>
+  </target>
+
+  <target name="onejar" description="Create jar archives">
+    <echo message="Jarchiving..."/>
+    <delete file="lib/${file}.jar"/>
+    <!-- it may even be easier to generate the pom -->
+    <copy file="distrib/${file}.pom" toFile="lib/${file}.pom">
       <filterset>
+       <filter token="GROUPID" value="${group}"/>
+       <filter token="ARTID" value="${file}"/>
        <filter token="VERS" value="${version}"/>
        <filter token="DATE" value="${date}"/>
        <filter token="REV" value="${svn.rev}"/>
        <filter token="COPYYEAR" value="${copyyear}"/>
       </filterset>
     </copy>
+    <jar jarfile="lib/${file}.jar">
+      <manifest>
+	<attribute name="Built-Date" value="${date}"/>
+        <attribute name="Main-Class" value="${main}"/>
+        <attribute name="Class-Path" value="${path}"/>
+	<attribute name="Specification-Title" value="${desc}"/>
+	<attribute name="Specification-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Name" value="${desc}"/>
+	<attribute name="Bundle-SymbolicName" value="${file}"/>
+	<attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	<attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
+	<attribute name="Bundle-Date" value="${date}"/>
+	<attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
+	<attribute name="Export-package" value="${pack}"/>
+	<attribute name="Import-package" value="${impt}"/>
+      </manifest>
+      <!-- This should be achieved with a metainf tag, but not working -->
+      <zipfileset file="classes/LICENSE.TXT" fullpath="META-INF/LICENSE.TXT" />
+      <zipfileset file="lib/${file}.pom" fullpath="META-INF/maven/${group}/${file}/pom.xml" />
+      <fileset refid="content" />
+    </jar>
   </target>
 
   <!-- tested -->
@@ -288,6 +280,22 @@
       </manifest>
     </jar>
   </target>
+<!-- JE: May also be done this way... bundles all the necessary jars...
+<jar destfile="build/main/checksites.jar">
+    <fileset dir="build/main/classes"/>
+    <restrict>
+     <name name="**/*.class"/>
+     <archives>
+       <zips>
+         <fileset dir="lib/main" includes="**/*.jar"/>
+       </zips>
+     </archives>
+    </restrict>
+    <manifest>
+      <attribute name="Main-Class"
+            value="com.acme.checksites.Main"/>
+    </manifest>
+  </jar-->
 
   <!-- tested -->
   <target name="test" depends="init" description="Unit test code">
