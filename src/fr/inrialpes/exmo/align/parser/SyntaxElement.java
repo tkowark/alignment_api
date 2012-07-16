@@ -94,7 +94,7 @@ public enum SyntaxElement {
 	CLASS_EXPR(     Namespace.EDOAL, "Class", true),//ALIGNMENT
 	COMPARATOR(     Namespace.EDOAL, "comparator"),
 	COMPOSE(        Namespace.EDOAL, "compose", Constructor.COMP),
-	EDATATYPE(       Namespace.EDOAL, "datatype"),
+	EDATATYPE(      Namespace.EDOAL, "datatype"),
 	DATATYPE(       Namespace.EDOAL, "Datatype"),
 	DOMAIN_RESTRICTION(Namespace.EDOAL, "AttributeDomainRestriction", true),
 	//ID(             Namespace.EDOAL, "Id", true), // Useless
