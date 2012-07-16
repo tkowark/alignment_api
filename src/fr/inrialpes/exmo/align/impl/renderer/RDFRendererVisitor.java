@@ -99,7 +99,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	
     public RDFRendererVisitor( PrintWriter writer ){
 	super( writer );
-	//NL = System.getProperty("line.separator");
     }
 
     public void init( Properties p ) {
