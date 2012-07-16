@@ -5,7 +5,6 @@
 <!ENTITY vin "http://ontology.deri.org/vin#">
 <!ENTITY proton "http://proton.semanticweb.org/">
 <!ENTITY edoal "http://ns.inria.org/edoal/1.0/#">
-<!ENTITY fn "http://www.w3.org/2005/xpath-functions">
 ]>
 
 <rdf:RDF xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment#" 
@@ -325,7 +324,7 @@
       <Cell rdf:about="MappingRule_prop_rest">
 	<entity1>
 	  <edoal:PropertyValueRestriction> 
-	    <edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
+	    <edoal:comparator rdf:resource="&edoal;equals"/>
   	    <edoal:value><edoal:Literal edoal:string="Bordeaux"/></edoal:value>
 	  </edoal:PropertyValueRestriction>
 	</entity1>
@@ -417,7 +416,7 @@
 	      <edoal:Property><edoal:compose rdf:parseType="Collection"/></edoal:Property>
 	    </edoal:entity1>
 	    <edoal:entity2>
-	      <edoal:Apply edoal:operator="&fn;concat">
+	      <edoal:Apply edoal:operator="&edoal;concat">
 		<edoal:arguments rdf:parseType="Collection">
 		  <edoal:Property rdf:about="vcard:firstname"/>
 		  <edoal:Literal edoal:string=" "/>
