@@ -32,6 +32,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -155,6 +156,26 @@ public class EDOALExportTest {
 	String str1 = stream.toString();
 	//System.err.println(str1);
 	assertEquals( str1.length(), 11623 );
+    }
+
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"testOWLRendering0"})
+    public void testJSONRendering() throws Exception {
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	aparser.initAlignment( null );
+	Alignment alignment = aparser.parse( "file:examples/omwg/total.xml" );
+	assertNotNull( alignment );
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new JSONRendererVisitor( writer );
+	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	String str1 = stream.toString();
+	//System.err.println(str1);
+	assertEquals( str1.length(), 36106 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})

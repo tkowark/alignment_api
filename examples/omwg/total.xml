@@ -590,9 +590,9 @@
 	      <edoal:PropertyDomainRestriction> 
   		<edoal:class><edoal:Class rdf:about="&wine;Bordeaux1"/></edoal:class>
 	      </edoal:PropertyDomainRestriction>	  
-	      <!--edoal:PropertyTypeRestriction> 
-  		<edoal:type><edoal:Datatype rdf:about="&wine;Bordeaux2"/></edoal:type>
-	      </edoal:PropertyTypeRestriction-->
+	      <edoal:PropertyTypeRestriction> 
+  		<edoal:datatype><edoal:Datatype rdf:about="&edoal;MyTypett"/></edoal:datatype>
+	      </edoal:PropertyTypeRestriction>
 	      <edoal:PropertyValueRestriction> 
 		<edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
   		<edoal:value><edoal:Literal edoal:string="Bordeaux"/></edoal:value>
@@ -612,11 +612,12 @@
 		    </edoal:and>
 		  </edoal:Class>
                 </edoal:class>
-	      </edoal:PropertyDomainRestriction>	  
-	      <!--edoal:PropertyValueRestriction> 
-		  <edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
+	      </edoal:PropertyDomainRestriction>
+	      <!-- not fixed -->
+	      <edoal:PropertyValueRestriction> 
+		<edoal:comparator rdf:resource="http://www.w3.org/2001/XMLSchema#equals"/>
   		<edoal:value><edoal:Apply edoal:operator="http://example.org/gensym"/></edoal:value>
-	      </edoal:PropertyValueRestriction-->
+	      </edoal:PropertyValueRestriction>
 	    </edoal:and>
 	  </edoal:Property>
         </entity2>

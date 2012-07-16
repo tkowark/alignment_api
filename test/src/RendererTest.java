@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2011
+ * Copyright (C) INRIA, 2009-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,6 +36,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.COWLMappingRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor;
+import fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.SEKTMappingRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.SKOSRendererVisitor;
@@ -207,6 +208,20 @@ public class RendererTest {
 	writer.close();
 	//System.err.println( stream.toString() );
 	assertTrue( valueSimilarTo( stream.toString().length(), 13589 ), "Rendered differently: expected "+13589+" but was "+stream.toString().length() );
+    }
+
+    @Test(groups = { "full", "impl", "raw" })
+    public void JSONrenderer() throws Exception {
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new JSONRendererVisitor( writer );
+	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	//System.err.println( stream.toString() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 8414 ), "Rendered differently: expected "+8414+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
