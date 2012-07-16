@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -111,6 +112,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	MIME_PLAINTEXT = "text/plain",
 	MIME_HTML = "text/html",
 	MIME_XML = "text/xml",
+	MIME_JSON = "application/json",
 	MIME_DEFAULT_BINARY = "application/octet-stream";
 
     public static final int MAX_FILE_SIZE = 10000;
@@ -264,9 +266,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	localId = 0;
     }
 
-    /**
-     * Je//: should certainly do more than that!
-     */
     public void close(){
 	if ( wsmanager != null ) wsmanager.close();
 	if ( server != null ) {
@@ -368,7 +367,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
-	    + "<center><a href=\"/html/\">Access</a></center>"
+	    + "<center><a href=\"html/\">Access</a></center>"
 	    + "(C) INRIA, 2006-2012<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
 	    + "</center>";
@@ -475,8 +474,40 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// REST get
 	String msg = "";
 	if ( perf.equals("listalignments") ) {
-	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
-	    for ( Alignment al : manager.alignments() ) {
+	    String uri1 = params.getProperty("uri1");
+	    String uri2 = params.getProperty("uri2");
+	    // Add two onto checklist
+	    msg = "<h1>Available alignments</h1><form action=\"listalignments\">";
+	    /*
+	    msg += "Onto1:  <select name=\"uri1\"><option value=\"all\" selected=\"1\">all</option>";
+	    for ( Alignment al : manager.alignments() ) { // onto
+		// I NEED TO GET THE ONTOLOGIES THERE...
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		params.setProperty("id", id);
+		if ( manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
+		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		    msg += "<option value=\""+id+"\">"+pid+"</option>";
+		}
+	    }
+	    msg += "</select>";
+	    msg += "Onto2:  <select name=\"uri2\"><option value=\"all\" selected=\"1\">all</option>";
+	    for ( Alignment al : manager.alignments() ) { // onto
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		params.setProperty("id", id);
+		if ( manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
+		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		    msg += "<option value=\""+id+"\">"+pid+"</option>";
+		}
+	    }
+	    msg += "</select>";
+	    msg += "&nbsp;<input type=\"submit\" value=\"Update\"/></form><ul compact=\"1\">";
+	    if ( uri1 != null && uri1.equals("all") ) uri1 = null;
+	    if ( uri2 != null && uri2.equals("all") ) uri2 = null;
+	    //To be implemented
+	    */
+	    for ( Alignment al : manager.alignments( uri1, uri2 ) ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
