@@ -81,6 +81,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
@@ -188,6 +189,17 @@ public class AServProtocolManager {
     }
     */
     public Collection<Alignment> alignments() {
+	return alignmentCache.alignments();
+    }
+
+    public Collection<Alignment> alignments( String uri1, String uri2 ) {
+	if ( uri1 != null || uri2 != null ) {
+	    try {
+		URI u1 = (uri1==null)?null:new URI( uri1 );
+		URI u2 = (uri2==null)?null:new URI( uri2 );
+		return alignmentCache.alignments( u1, u2 );
+	    } catch ( URISyntaxException usex ) {} // 
+	}
 	return alignmentCache.alignments();
     }
 
@@ -359,8 +371,9 @@ public class AServProtocolManager {
 	    return new ErrorMsg(newId(),mess,myId,mess.getSender(),"MalformedURI problem",(Properties)null);
 	};
 	// Retrieve correspondences
-	String msg = "";
-	boolean strict = (params.getProperty("strict")!=null);
+	String msg = params.getProperty("strict");
+	boolean strict = ( msg != null && !msg.equals("0") && !msg.equals("false") && !msg.equals("no") );
+	msg = "";
 	try {
 	    Set<Cell> cells = al.getAlignCells1( uri );
 	    if ( cells != null ) {
