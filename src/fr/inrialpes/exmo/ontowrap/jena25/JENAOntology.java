@@ -93,8 +93,8 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 		    Literal l =obj.as(Literal.class);
 		    annots.add(new Annotation(l.getLexicalForm(),l.getLanguage()));
 		}
-		else if (obj.isResource()) {
-			getEntityAnnotations(obj, annots);
+		else if (obj.isResource() && !obj.equals(st.getSubject())) {
+		    getEntityAnnotations(obj, annots);
 		 }
 	    }
 	}
