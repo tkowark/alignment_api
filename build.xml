@@ -51,7 +51,7 @@
   <target name="versionnumber" depends="init" description="Establishes the version number">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
-    <property name="version.minor" value="3"/>
+    <property name="version.minor" value="4"/>
     <property name="copyyear" value="2003-2012"/>
     <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
