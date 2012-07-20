@@ -62,7 +62,13 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 	return onto.getOntResource(u.toString());
     }
     
-    public void getEntityAnnotations( Object o, Set<String> annots, String lang) throws OntowrapException {
+    @Deprecated
+    protected void getEntityAnnotations( Object o, Set<String> annots, String lang) throws OntowrapException {
+	getEntityAnnotations(o,annots,lang, new HashSet<Object>());
+    }
+    
+    
+    protected void getEntityAnnotations( Object o, Set<String> annots, String lang, Set<Object> entitiesTraversed) throws OntowrapException {
 	StmtIterator stmtIt = onto.listStatements((Resource)o,null,(RDFNode)null);
 	while (stmtIt.hasNext()) {
 	    Statement st = stmtIt.next();
@@ -75,14 +81,20 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 			annots.add(l.getLexicalForm());
 		    }
 		}
-		else if (obj.isResource()) {
-			getEntityAnnotations(obj, annots, lang);
+		else if (obj.isResource() && !entitiesTraversed.contains(st.getSubject())) {
+		    entitiesTraversed.add(st.getSubject());
+		    getEntityAnnotations(obj, annots, lang, entitiesTraversed);
 		}
 	    }
 	}
     }
     
-    public void getEntityAnnotations( Object o, Set<Annotation> annots) throws OntowrapException {
+    @Deprecated
+    protected void getEntityAnnotations( Object o, Set<Annotation> annots) throws OntowrapException {
+	getEntityAnnotations(o,annots,new HashSet<Object>());
+    }
+    
+    protected void getEntityAnnotations( Object o, Set<Annotation> annots, Set<Object> entitiesTraversed) throws OntowrapException {
 	StmtIterator stmtIt = onto.listStatements((Resource)o,null,(RDFNode)null);
 	while (stmtIt.hasNext()) {
 	    Statement st = stmtIt.next();
@@ -93,8 +105,9 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 		    Literal l =obj.as(Literal.class);
 		    annots.add(new Annotation(l.getLexicalForm(),l.getLanguage()));
 		}
-		else if (obj.isResource() && !obj.equals(st.getSubject())) {
-		    getEntityAnnotations(obj, annots);
+		else if (obj.isResource() && !entitiesTraversed.contains(st.getSubject())) {
+		    entitiesTraversed.add(st.getSubject());
+		    getEntityAnnotations(obj, annots,entitiesTraversed);
 		 }
 	    }
 	}
@@ -102,19 +115,19 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 
     public Set<String> getEntityAnnotations(Object o) throws OntowrapException {
 	Set<String> annots = new HashSet<String>();
-	getEntityAnnotations(o,annots,null);
+	getEntityAnnotations(o,annots,null, new HashSet<Object>());
 	return annots;
     }
     
     public Set<Annotation> getEntityAnnotationsL(Object o) throws OntowrapException {
 	Set<Annotation> annots = new HashSet<Annotation>();
-	getEntityAnnotations(o,annots);
+	getEntityAnnotations(o,annots,new HashSet<Object>());
 	return annots;
     }
 
     public Set<String> getEntityAnnotations( Object o, String lang ) throws OntowrapException {
 	Set<String> annots = new HashSet<String>();
-	getEntityAnnotations(o,annots,lang);
+	getEntityAnnotations(o,annots,lang,new HashSet<Object>());
 	return annots;
     }
     
