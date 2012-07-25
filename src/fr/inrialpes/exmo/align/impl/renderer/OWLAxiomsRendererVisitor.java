@@ -164,7 +164,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	    URI u1;
 	    try {
 		Relation rel = cell.getRelation();
-		if ( rel instanceof SubsumedRelation || rel instanceof HasInstanceRelation ){
+		if ( rel instanceof SubsumeRelation || rel instanceof HasInstanceRelation ){
 		    u1 = onto2.getEntityURI( ob2 );
 		} else {
 		    u1 = onto1.getEntityURI( ob1 );
