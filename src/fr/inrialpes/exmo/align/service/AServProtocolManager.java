@@ -192,15 +192,12 @@ public class AServProtocolManager {
 	return alignmentCache.alignments();
     }
 
-    public Collection<Alignment> alignments( String uri1, String uri2 ) {
-	if ( uri1 != null || uri2 != null ) {
-	    try {
-		URI u1 = (uri1==null)?null:new URI( uri1 );
-		URI u2 = (uri2==null)?null:new URI( uri2 );
-		return alignmentCache.alignments( u1, u2 );
-	    } catch ( URISyntaxException usex ) {} // 
-	}
-	return alignmentCache.alignments();
+    public Collection<URI> ontologies() {
+	return alignmentCache.ontologies();
+    }
+
+    public Collection<Alignment> alignments( URI uri1, URI uri2 ) {
+	return alignmentCache.alignments( uri1, uri2 );
     }
 
     public String query( String query ){

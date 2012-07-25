@@ -192,7 +192,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
     /**
      * HTTP protocol implementation
      * each call of the protocol is a direct URL
-     * and the answer is through the resulting page (RDF? SOAP? HTTP?)
+     * and the answer is through the resulting page (RDF? SOAP? HTTP? JSON?)
      * Not implemented yet
      * but reserved if appears useful
      */

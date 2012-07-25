@@ -191,22 +191,28 @@ public class CacheImpl {
 	return alignmentTable.values();
     }
 
+    protected Collection<URI> ontologies() {
+	return ontologyTable.keySet();
+    }
+
     protected Collection<Alignment> alignments( URI u1, URI u2 ) {
 	Collection<Alignment> results = new HashSet<Alignment>();
 	if ( u1 != null ) {
 	    for ( Alignment al : ontologyTable.get( u1 ) ) {
 		try {
-		    if ( al.getOntology1URI().equals( u1 ) ) {
-			if ( u2 == null ) results.add( al );
-			else if ( al.getOntology2URI().equals( u2 ) ) results.add( al );
-		    }
+		//    if ( al.getOntology1URI().equals( u1 ) ) {
+		if ( u2 == null ) results.add( al );
+		else if ( al.getOntology2URI().equals( u2 ) 
+			  || al.getOntology1URI().equals( u2 )) results.add( al );
+		//    }
 		} catch (AlignmentException alex) {} // ignore
 	    }
 	} else if ( u2 != null ) {
 	    for ( Alignment al : ontologyTable.get( u2 ) ) {
-		try {
-		    if ( al.getOntology2URI().equals( u2 ) ) results.add( al );
-		} catch (AlignmentException alex) {} // ignore
+		//try {
+		//    if ( al.getOntology2URI().equals( u2 ) ) 
+		results.add( al );
+		//} catch (AlignmentException alex) {} // ignore
 	    }
 	} else { results = alignmentTable.values(); }
 	return results;

@@ -53,6 +53,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.net.URLEncoder;
@@ -474,40 +476,47 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// REST get
 	String msg = "";
 	if ( perf.equals("listalignments") ) {
-	    String uri1 = params.getProperty("uri1");
-	    String uri2 = params.getProperty("uri2");
+	    URI uri1 = null;	
+	    String u1 = params.getProperty("uri1");
+	    try {
+		if ( u1 != null && !u1.equals("all") ) uri1 = new URI( u1 );
+	    } catch ( URISyntaxException usex ) {}; // take all
+	    URI uri2 = null;
+	    String u2 = params.getProperty("uri2");
+	    try {
+		if ( u2 != null && !u2.equals("all") ) uri2 = new URI( u2 );
+	    } catch ( URISyntaxException usex ) {}; // take all
 	    // Add two onto checklist
+	    Collection<URI> ontologies = manager.ontologies();
 	    msg = "<h1>Available alignments</h1><form action=\"listalignments\">";
-	    /*
-	    msg += "Onto1:  <select name=\"uri1\"><option value=\"all\" selected=\"1\">all</option>";
-	    for ( Alignment al : manager.alignments() ) { // onto
-		// I NEED TO GET THE ONTOLOGIES THERE...
-		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-		params.setProperty("id", id);
-		if ( manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
-		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		    msg += "<option value=\""+id+"\">"+pid+"</option>";
-		}
+	    msg += "Onto1:  <select name=\"uri1\"><option value=\"all\"";
+	    if ( uri1 == null ) msg += " selected=\"1\"";
+	    msg += ">all</option>";
+	    for ( URI ont : ontologies ) {
+		msg += "<option";
+		if ( ont.equals( uri1 ) ) msg += " selected =\"1\"";
+		msg += " value=\""+ont+"\">"+ont+"</option>"; //simplify
 	    }
 	    msg += "</select>";
-	    msg += "Onto2:  <select name=\"uri2\"><option value=\"all\" selected=\"1\">all</option>";
-	    for ( Alignment al : manager.alignments() ) { // onto
-		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-		params.setProperty("id", id);
-		if ( manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
-		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		    msg += "<option value=\""+id+"\">"+pid+"</option>";
-		}
+	    msg += "Onto2:  <select name=\"uri2\"><option value=\"all\"";
+	    if ( uri2 == null ) msg += " selected=\"1\"";
+	    msg += ">all</option>";
+	    for ( URI ont : ontologies ) { 
+		msg += "<option";
+		if ( ont.equals( uri2 ) ) msg += " selected =\"1\"";
+		msg += " value=\""+ont+"\">"+ont+"</option>"; //simplify
 	    }
 	    msg += "</select>";
-	    msg += "&nbsp;<input type=\"submit\" value=\"Update\"/></form><ul compact=\"1\">";
-	    if ( uri1 != null && uri1.equals("all") ) uri1 = null;
-	    if ( uri2 != null && uri2.equals("all") ) uri2 = null;
-	    //To be implemented
-	    */
-	    for ( Alignment al : manager.alignments( uri1, uri2 ) ) {
+	    msg += "&nbsp;<input type=\"submit\" value=\"Restrict\"/></form><ul compact=\"1\">";
+	    // would be better as a JavaScript which updates
+	    Collection<Alignment> alignments = null;
+	    if ( uri1 == null && uri2 == null ) {
+		alignments = manager.alignments();
+	    } else {
+		alignments = manager.alignments( uri1, uri2 );
+	    }
+
+	    for ( Alignment al : alignments ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
