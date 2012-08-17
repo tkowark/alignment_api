@@ -268,7 +268,7 @@ public class ParserPrinter {
 	System.out.println("\t--threshold=threshold -t threshold\t\tTrim the alugnment with regard to threshold");
 	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\t\tMethod to use for triming");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.out.println("\t--outputDir=dirName -c dirName\tSplit the output in a directory");
+	System.out.println("\t--outputDir=dirName -c dirName\tSplit the output in a directory (SPARQL)");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 	System.err.print("\n"+ParserPrinter.class.getPackage().getImplementationTitle()+" "+ParserPrinter.class.getPackage().getImplementationVersion());
 	System.err.println(" ($Id$)\n");
