@@ -35,6 +35,9 @@ import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -76,7 +79,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 $Id$
 </pre>
 
-@author Jérôme Euzenat
+@author Jï¿½rï¿½me Euzenat
     */
 
 public class ParserPrinter {
@@ -90,6 +93,7 @@ public class ParserPrinter {
 	Alignment result = null;
 	String initName = null;
 	String filename = null;
+	String dirName = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
 	LongOpt[] longopts = new LongOpt[10];
@@ -110,8 +114,9 @@ public class ParserPrinter {
 	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
 	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
 	longopts[8] = new LongOpt("embedded", LongOpt.NO_ARGUMENT, null, 'e');
+	longopts[9] = new LongOpt("dirName", LongOpt.REQUIRED_ARGUMENT, null, 'c');
 	
-	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:", longopts);
+	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:c:", longopts);
 	int c;
 	String arg;
 
@@ -130,6 +135,9 @@ public class ParserPrinter {
 		/* Write warnings to stdout rather than stderr */
 		filename = g.getOptarg();
 		break;
+	    case 'c':
+	    dirName = g.getOptarg();
+	    break;
 	    case 'r':
 		/* Use the given class for rendernig */
 		rendererClass = g.getOptarg();
@@ -194,9 +202,15 @@ public class ParserPrinter {
 	    if (filename == null) {
 		//writer = (PrintStream) System.out;
 		stream = System.out;
-	    } else {
+	    }
+	    else {
 		//writer = new PrintStream(new FileOutputStream(filename));
 		stream = new FileOutputStream(filename);
+	    }
+	    if (dirName != null) {
+	    	 File f = new File(dirName);
+             f.mkdir();
+	    	System.setProperty("user.dir", dirName);
 	    }
 	    writer = new PrintWriter (
 			  new BufferedWriter(
@@ -237,7 +251,7 @@ public class ParserPrinter {
 	    } finally {
 		writer.flush();
 		writer.close();
-	    }
+	    }	    
 	    
 	} catch (Exception ex) {
 	    ex.printStackTrace();
@@ -256,6 +270,7 @@ public class ParserPrinter {
 	System.out.println("\t--threshold=threshold -t threshold\t\tTrim the alugnment with regard to threshold");
 	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\t\tMethod to use for triming");
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
+	System.out.println("\t--outputDir=dirName -c dirName\tOutput the queris in directory");
 	System.out.println("\t--help -h\t\t\tPrint this message");
 	System.err.print("\n"+ParserPrinter.class.getPackage().getImplementationTitle()+" "+ParserPrinter.class.getPackage().getImplementationVersion());
 	System.err.println(" ($Id$)\n");
