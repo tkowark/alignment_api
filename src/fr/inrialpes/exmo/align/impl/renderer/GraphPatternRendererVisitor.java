@@ -179,7 +179,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public void createQueryFiles(String query) {
     	BufferedWriter out = null;
     	try {
-			FileWriter writer1 = new FileWriter(new File("").getAbsolutePath()+"query"+ number +".rq");
+			FileWriter writer1 = new FileWriter(new File("").getAbsolutePath()+"/query"+ number +".rq");
 			out = new BufferedWriter(writer1);
 			number++;
 			out.write(query);
@@ -1023,13 +1023,15 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
 
     public void visit( final Value e ) throws AlignmentException {
-    	String str = e.getType().toString();
-    	int index;
-    	if (str.contains("#"))
-    		index = str.lastIndexOf("#");
-    	else
-    		index = str.lastIndexOf("/");
-    	uriType = str.substring(0, index+1);
+    	if (e.getType() != null) {
+	    	String str = e.getType().toString();
+	    	int index;
+	    	if (str.contains("#"))
+	    		index = str.lastIndexOf("#");
+	    	else
+	    		index = str.lastIndexOf("/");
+	    	uriType = str.substring(0, index+1);
+    	}
     	value = e.getValue();
     }
 	

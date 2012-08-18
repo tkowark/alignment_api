@@ -209,6 +209,7 @@ public class ParserPrinter {
 	    	 File f = new File(dirName);
              f.mkdir();
 	    	System.setProperty("user.dir", dirName);
+	    	System.setProperty("Split", "true");
 	    }
 	    writer = new PrintWriter (
 			  new BufferedWriter(

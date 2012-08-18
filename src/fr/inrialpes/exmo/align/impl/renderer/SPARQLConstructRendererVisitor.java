@@ -1,30 +1,18 @@
 package fr.inrialpes.exmo.align.impl.renderer;
 
-
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import java.io.PrintWriter;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-
-
-import fr.inrialpes.exmo.align.impl.Annotations;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.parser.SyntaxElement;
-import fr.inrialpes.exmo.align.impl.edoal.Expression;
-import fr.inrialpes.exmo.ontowrap.Ontology;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
 
 public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
 
@@ -33,9 +21,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     Cell cell = null;
     Hashtable<String,String> nslist = null;
 	boolean embedded = false;
-	
-	private static Namespace DEF = Namespace.ALIGNMENT;
-	
+		
 	private List<String> listBGP1;
 	private List<String> listBGP2;
 	 
@@ -105,8 +91,10 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 				query += "WHERE {"+NL;
 				query += listBGP2.get(listBGP2.size()-1)+NL;    	    		
 				query += "}"+NL;
-				indentedOutputln(query);
-	    		createQueryFiles(query);
+				if(System.getProperty("Split")=="true")
+	    			createQueryFiles(query);
+	    		else
+	    			indentedOutputln(query);
 			}
 			query="";
     		
@@ -124,8 +112,10 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 				query += "WHERE {"+NL;
 				query += listBGP1.get(listBGP1.size()-1)+NL;    	    		
 				query += "}"+NL;
-				indentedOutputln(query);
-	    		createQueryFiles(query);
+				if(System.getProperty("Split")=="true")
+	    			createQueryFiles(query);
+	    		else
+	    			indentedOutputln(query);
 			}    		   	       		    	
     	}
     
