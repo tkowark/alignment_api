@@ -1,37 +1,18 @@
 package fr.inrialpes.exmo.align.impl.renderer;
 
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import java.io.PrintWriter;
-
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-
-
-import fr.inrialpes.exmo.align.impl.Annotations;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.Namespace;
-import fr.inrialpes.exmo.align.parser.SyntaxElement;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
-import fr.inrialpes.exmo.align.impl.edoal.Expression;
-import fr.inrialpes.exmo.align.impl.edoal.Transformation;
-import fr.inrialpes.exmo.ontowrap.Ontology;
-
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
 
 public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
 
@@ -93,10 +74,12 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	    		}
 	    		query += "SELECT ?s WHERE {"+NL;
 	    		query += listBGP1.get(listBGP1.size()-1)+NL;
-	    		query += "}"+NL;
-	    		indentedOutputln(query);
-	    		createQueryFiles(query);
-	    		
+	    		query += "}"+NL;	    		
+	    		if(System.getProperty("Split")=="true")
+	    			createQueryFiles(query);
+	    		else
+	    			indentedOutputln(query);
+		    			    		
 	    		query="";
 	    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
 	    		    String k = (String)e.nextElement();
@@ -105,8 +88,10 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	    		query += "SELECT ?s WHERE {"+NL;
 	    		query += listBGP2.get(listBGP2.size()-1)+NL;
 	    		query += "}"+NL;
-	    		indentedOutputln(query);
-	    		createQueryFiles(query);
+	    		if(System.getProperty("Split")=="true")
+	    			createQueryFiles(query);
+	    		else
+	    			indentedOutputln(query);
     	   }
     
 	}
