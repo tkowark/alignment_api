@@ -97,7 +97,8 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     private Constructor op = null;    
       
-    private String numberPath = "";
+    private Integer nbCardinality = null;
+    private String opOccurence = "";
     
     private static int numberNs;
 	private static int number = 1;
@@ -351,10 +352,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	if ( e instanceof ClassValueRestriction ) visit( (ClassValueRestriction)e );
 		else if ( e instanceof ClassTypeRestriction )  visit( (ClassTypeRestriction)e );
 		else if ( e instanceof ClassDomainRestriction )  visit( (ClassDomainRestriction)e );
-		else if ( e instanceof ClassOccurenceRestriction ) {			
-			visit( (ClassOccurenceRestriction)e );
-			numberPath = "";
-		}
+		else if ( e instanceof ClassOccurenceRestriction ) visit( (ClassOccurenceRestriction)e );
 		else throw new AlignmentException( "Cannot dispatch ClassExpression "+e );
     	objectsRestriction.clear();
     }
@@ -442,16 +440,33 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     // DONE+TESTED
     public void visit( final ClassOccurenceRestriction c ) throws AlignmentException {
-		if(c.getComparator().getURI().equals( Comparator.EQUAL.getURI()))
-			numberPath = "{" + c.getOccurence() + "}";
-		if(c.getComparator().getURI().equals( Comparator.GREATER.getURI()))
-			numberPath = "{" + c.getOccurence() + ",}";
-		if(c.getComparator().getURI().equals( Comparator.LOWER.getURI()))
-			numberPath = "{," + c.getOccurence() + "}";
+		if(c.getComparator().getURI().equals( Comparator.EQUAL.getURI())) {
+			nbCardinality = c.getOccurence();
+			opOccurence = "=";
+		}
+		if(c.getComparator().getURI().equals( Comparator.GREATER.getURI())) {
+			nbCardinality = c.getOccurence();
+			opOccurence = ">";
+		}
+		if(c.getComparator().getURI().equals( Comparator.LOWER.getURI())) {
+			nbCardinality = c.getOccurence();
+			opOccurence = "<";
+		}
 		
 		visit( c.getRestrictionPath() );	
+		Iterator<String> listObj = objectsRestriction.iterator();
+		if (op == Constructor.COMP) {			
+			strBGP += "FILTER(COUNT(" + listObj.next() + ")" + opOccurence + nbCardinality + ")" +NL;		    
+		}
+		else{
+			while ( listObj.hasNext() ) {
+				strBGP += "FILTER(COUNT(" + listObj.next() + ")" + opOccurence + nbCardinality + ")" +NL;	
+			}
+		}
 		if(stackBGP.size() > 0)
     		stackBGP.remove(stackBGP.size()-1);
+		nbCardinality = null;
+		opOccurence = "";
     }
     
     // DONE
@@ -734,10 +749,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     		}
 			strBGP += sub + " " + shortCut + ":"+ tag + "";
 			String str = sub + " " + shortCut + ":"+ tag + "";
-		    if(!numberPath.isEmpty()){
-				strBGP += numberPath;
-				str += numberPath;
-		    }
+		    
 		    if (op == Constructor.TRANSITIVE){
 		    	strBGP += "*";
 		    	str += "*";
