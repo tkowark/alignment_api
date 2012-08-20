@@ -28,7 +28,10 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.ontowrap.Ontology;
+
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 
 import java.net.URI;
@@ -48,6 +51,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     private boolean ignoreerrors = false;
     private boolean blanks = false;
     private boolean weakens = false;
+    private String threshold = "";
+    private String limit = "";
+    private Random rand;
 	
     private static Namespace DEF = Namespace.ALIGNMENT;
 	
@@ -74,10 +80,17 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 	    weakens = true;
 	if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
 	    ignoreerrors = true;
+	if ( p.getProperty( "silkthreshold" ) != null && !p.getProperty( "silkthreshold" ).equals("") ) {
+	    threshold = " threshold=\""+p.getProperty( "silkthreshold" )+"\"";
+	}
+	if ( p.getProperty( "silklimit" ) != null && !p.getProperty( "silklimit" ).equals("") ) {
+	    limit = " limit=\""+p.getProperty( "silklimit" )+"\"";
+	}
 	if ( p.getProperty( "indent" ) != null )
 	    INDENT = p.getProperty( "indent" );
 	if ( p.getProperty( "newline" ) != null )
 	    NL = p.getProperty( "newline" );
+	rand = new Random( System.currentTimeMillis() );
     }
 
     public void visit(Alignment align) throws AlignmentException {
@@ -108,7 +121,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	}
     	if ( embedded == false ) {
     	    writer.print("<?xml version='1.0' encoding='utf-8");
-    	    writer.print("' standalone='no'?>"+NL);
+    	    writer.print("' standalone='no'?>"+NL+NL);
     	}
     	indentedOutputln("<SILK>");
 	increaseIndent();
@@ -125,6 +138,17 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	indentedOutputln("</Prefixes>"+NL);
     	indentedOutputln("<DataSources>");
 	increaseIndent();
+	indentedOutputln("<!-- These may have to be edited to proper data sources -->");
+	if ( align instanceof BasicAlignment ) {
+	    printOntology( ((BasicAlignment)align).getOntologyObject1(), "source" );
+	} else {
+	    printBasicOntology( align.getOntology1URI(), align.getFile1(), "source" );
+	}
+	if ( align instanceof BasicAlignment ) {
+	    printOntology( ((BasicAlignment)align).getOntologyObject2(), "target" );
+	} else {
+	    printBasicOntology( align.getOntology2URI(), align.getFile2(), "target" );
+	}
 	decreaseIndent();
     	indentedOutputln("</DataSources>"+NL);
     	indentedOutputln("<Interlinks>");
@@ -134,19 +158,34 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	indentedOutputln("</Interlinks>");
     	decreaseIndent();
     	writer.print("</SILK>"+NL);
-    }	
-	
-    public void visit(Cell cell) throws AlignmentException {
+    }
+
+    private void printBasicOntology ( URI u, URI f, String function ) {
+	indentedOutput("<DataSource id=\""+function+"\" type=\"file\">"+NL);
+	increaseIndent();
+	if ( f != null ) {
+	    indentedOutputln("<Param name=\"file\" value=\""+f+"\" />");
+	} else {
+	    indentedOutputln("<Param name=\"file\" value=\""+u+"\" />");
+	}
+	indentedOutputln("<Param name=\"format\" value=\"RDF/XML\" />");
+	decreaseIndent();
+    	indentedOutputln("</DataSource>");
+    }
+
+    public void printOntology( Ontology onto, String function ) {
+	URI u = onto.getURI();
+	URI f = onto.getFile();
+	printBasicOntology( u, f, function );
+    }
+
+    public void visit( Cell cell ) throws AlignmentException {
     	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
     	// default behaviour
     	this.cell = cell;      	
 
-	// JE: must be improved because this is an URI
-	String id = cell.getId();
-	if ( id == null || id.equals("") ){
-	    Random rand = new Random(System.currentTimeMillis());
-	    id = "RandomId"+Math.abs(rand.nextInt(1000));
-	}
+	// JE: cannot use Cell id because it is an URI and not an id
+	String id = "RandomId"+Math.abs( rand.nextInt(100000) );
     	
     	URI u1 = cell.getObject1AsURI(alignment);
     	URI u2 = cell.getObject2AsURI(alignment);
@@ -171,35 +210,49 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		tempList = new ArrayList<String>(getCondition());
 		listCond2 = new ArrayList<String>(tempList);
 	    	
-		// JE: The link id should be either the cell id or a gensym
 		indentedOutputln("<Interlink id=\""+id+"\">");
 		increaseIndent();
 		indentedOutputln("<LinkType>owl:sameAs</LinkType>");
-		indentedOutputln("<SourceDataSet datasource=\"\"" + " var=\"s\">");
+		indentedOutputln("<SourceDataSet dataSource=\"source\"" + " var=\"s\">");
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
-		
+		increaseIndent();
 		indentedOutput(listBGP1.get(listBGP1.size()-1));
-	    	
+		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
 		indentedOutputln("</SourceDataSet>");
-		
-		indentedOutputln("<TargetDataSet datasource=\"\"" + " var=\"x\">");
+
+		indentedOutputln("<TargetDataSet dataSource=\"target\"" + " var=\"x\">");
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
-
+		increaseIndent();
 		indentedOutput(listBGP2.get(listBGP2.size()-1));
-	    		
+		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
-		indentedOutputln("</TargetDataSet>"+NL);
+		indentedOutputln("</TargetDataSet>");
 
+		// This should certainly be specified in the EDOAL
 		indentedOutputln("<LinkageRule>");
 		increaseIndent();
+		indentedOutputln("<Compare metric=\"levenshtein\" threshold=\".5\">");
+		increaseIndent();
+		indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
+		increaseIndent();
+		indentedOutputln("<Input path=\"?s\" />");
+		decreaseIndent();
+		indentedOutputln("</TransformInput>");
+		indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
+		increaseIndent();
+		indentedOutputln("<Input path=\"?x\" />");
+		decreaseIndent();
+		indentedOutputln("</TransformInput>");
+		decreaseIndent();
+		indentedOutputln("</Compare>");
 		decreaseIndent();
 		indentedOutputln("</LinkageRule>");
-		indentedOutputln("<Filter />");
+		indentedOutputln("<Filter"+threshold+limit+" />");
 		indentedOutputln("<Outputs>");	    		
 		increaseIndent();
 		indentedOutputln("<Output type=\"file\">");
