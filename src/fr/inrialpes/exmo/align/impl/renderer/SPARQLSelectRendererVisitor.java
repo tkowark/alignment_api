@@ -1,3 +1,23 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) INRIA, 2012
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
 package fr.inrialpes.exmo.align.impl.renderer;
 
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
@@ -20,10 +40,12 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
-	boolean embedded = false;
+    boolean embedded = false;
+    boolean split = false;
+    String splitdir = "";
 	
-	private List<String> listBGP1;
-	private List<String> listBGP2;
+    private List<String> listBGP1;
+    private List<String> listBGP2;
 
     private List<String> listCond1;
     private List<String> listCond2;
@@ -33,8 +55,11 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	}   
 
 	public void init(Properties p) {
-		if ( p.getProperty( "embedded" ) != null 
-			     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
+		if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
+		    embedded = true;
+		split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
+		if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
+		    splitdir = p.getProperty( "dir" )+"/";
 		if ( p.getProperty( "indent" ) != null )
 			INDENT = p.getProperty( "indent" );
 		if ( p.getProperty( "newline" ) != null )
@@ -58,12 +83,12 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     	if ( ( u1 != null && u2 != null)
     	     || alignment.getLevel().startsWith("2EDOAL") ){
     	    	resetVariables("s", "o");
-	    		((Expression)(cell.getObject1())).accept( this );
+		((Expression)(cell.getObject1())).accept( this );
 	    		
-	    		listBGP1 = new ArrayList<String>(getBGP());
-	    		listCond1 = new ArrayList<String>(getCondition());
+		listBGP1 = new ArrayList<String>(getBGP());
+		listCond1 = new ArrayList<String>(getCondition());
 	    	
-	    		resetVariables("s", "o");	    		
+		resetVariables("s", "o");	    		
 	    		((Expression)(cell.getObject2())).accept( this );
 	    		listBGP2 = new ArrayList<String>(getBGP());
 	    		listCond2 = new ArrayList<String>(getCondition());	    	
@@ -75,11 +100,11 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	    		query += "SELECT ?s WHERE {"+NL;
 	    		query += listBGP1.get(listBGP1.size()-1)+NL;
 	    		query += "}"+NL;	    		
-	    		if(System.getProperty("Split")=="true")
-	    			createQueryFiles(query);
-	    		else
-	    			indentedOutputln(query);
-		    			    		
+	    		if ( split ) {
+			    createQueryFile( splitdir, query );
+	    		} else {
+			    indentedOutputln(query);
+			}	    		
 	    		query="";
 	    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
 	    		    String k = (String)e.nextElement();
@@ -88,10 +113,11 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	    		query += "SELECT ?s WHERE {"+NL;
 	    		query += listBGP2.get(listBGP2.size()-1)+NL;
 	    		query += "}"+NL;
-	    		if(System.getProperty("Split")=="true")
-	    			createQueryFiles(query);
-	    		else
+	    		if ( split ) {
+			    createQueryFile( splitdir, query );
+	    		} else {
 	    			indentedOutputln(query);
+			}
     	   }
     
 	}

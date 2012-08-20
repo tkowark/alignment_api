@@ -1,5 +1,7 @@
 /*
- * Copyright (C) INRIA, 2003-2010, 2012
+ * $Id$
+ *
+ * Copyright (C) INRIA, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -76,6 +78,8 @@ import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
  * @author 
  * @version
  */
+
+// JE: create a string... problem with increment.
 
 public abstract class GraphPatternRendererVisitor extends IndentedRendererVisitor implements EDOALVisitor {
 
@@ -177,19 +181,18 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	return "ns" + numberNs++;
     }
     
-    public void createQueryFiles(String query) {
+    public void createQueryFile( String dir, String query ) {
     	BufferedWriter out = null;
     	try {
-			FileWriter writer1 = new FileWriter(new File("").getAbsolutePath()+"/query"+ number +".rq");
-			out = new BufferedWriter(writer1);
-			number++;
-			out.write(query);
-		
-    		if (out != null) // there was at least one file
-    		     out.close();
-			} catch(IOException ioe) {
-				System.err.println(ioe);
-		}
+	    FileWriter writer = new FileWriter( dir+"query"+number +".rq" );
+	    out = new BufferedWriter( writer );
+	    number++;
+	    out.write(query);
+	    if ( out != null ) // there was at least one file
+		out.close();
+	} catch(IOException ioe) {
+	    System.err.println(ioe);
+	}
     }
 
     public void visit( Expression o ) throws AlignmentException {

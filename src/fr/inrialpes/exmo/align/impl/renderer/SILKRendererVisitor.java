@@ -41,11 +41,13 @@ import java.util.Random;
 
 public class SILKRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
 
-
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
-    boolean embedded = false;
+    private boolean embedded = false;
+    private boolean ignoreerrors = false;
+    private boolean blanks = false;
+    private boolean weakens = false;
 	
     private static Namespace DEF = Namespace.ALIGNMENT;
 	
@@ -63,9 +65,15 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 	super(writer);
     }
 
-    public void init(Properties p) {
-	if ( p.getProperty( "embedded" ) != null 
-	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
+    public void init( Properties p ) {
+	if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
+	    embedded = true;
+	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
+	    blanks = true;
+	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
+	    weakens = true;
+	if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
+	    ignoreerrors = true;
 	if ( p.getProperty( "indent" ) != null )
 	    INDENT = p.getProperty( "indent" );
 	if ( p.getProperty( "newline" ) != null )

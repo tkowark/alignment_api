@@ -26,14 +26,7 @@ package fr.inrialpes.exmo.align.cli;
 import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
-
-import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.AlignmentException;
-
-import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.impl.ObjectAlignment;
-import fr.inrialpes.exmo.align.impl.URIAlignment;
+import java.util.Properties;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -47,6 +40,13 @@ import org.xml.sax.SAXException;
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
+import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentVisitor;
+import org.semanticweb.owl.align.AlignmentException;
+
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A really simple utility that loads and alignment and prints it.
@@ -77,7 +77,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 $Id$
 </pre>
 
-@author J�r�me Euzenat
     */
 
 public class ParserPrinter {
@@ -94,7 +93,7 @@ public class ParserPrinter {
 	String dirName = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
-	LongOpt[] longopts = new LongOpt[10];
+	LongOpt[] longopts = new LongOpt[11];
 	int debug = 0;
 	String rendererClass = null;
 	String parserClass = null;
@@ -102,6 +101,7 @@ public class ParserPrinter {
 	boolean embedded = false;	
 	double threshold = 0;
 	String cutMethod = "hard";
+	Properties params = new Properties();
 
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -113,8 +113,10 @@ public class ParserPrinter {
 	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
 	longopts[8] = new LongOpt("embedded", LongOpt.NO_ARGUMENT, null, 'e');
 	longopts[9] = new LongOpt("dirName", LongOpt.REQUIRED_ARGUMENT, null, 'c');
+	// Is there a way for that in LongOpt ???
+	longopts[10] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	
-	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:c:", longopts);
+	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:c:D:", longopts);
 	int c;
 	String arg;
 
@@ -134,8 +136,8 @@ public class ParserPrinter {
 		filename = g.getOptarg();
 		break;
 	    case 'c':
-	    dirName = g.getOptarg();
-	    break;
+		dirName = g.getOptarg();
+		break;
 	    case 'r':
 		/* Use the given class for rendernig */
 		rendererClass = g.getOptarg();
@@ -157,6 +159,19 @@ public class ParserPrinter {
 		arg = g.getOptarg();
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
+		break;
+	    case 'D' :
+		/* Parameter definition */
+		arg = g.getOptarg();
+		int index = arg.indexOf('=');
+		if ( index != -1 ) {
+		    params.setProperty( arg.substring( 0, index), 
+					 arg.substring(index+1));
+		} else {
+		    System.err.println("Bad parameter syntax: "+g);
+		    usage();
+		    System.exit(0);
+		}
 		break;
 	    }
 	}
@@ -182,8 +197,7 @@ public class ParserPrinter {
 		    Object[] mparams = { (Object)debug };
 		    java.lang.reflect.Constructor[] parserConstructors =
 			Class.forName(parserClass).getConstructors();
-		    aparser =
-			(AlignmentParser) parserConstructors[0].newInstance(mparams);
+		    aparser = (AlignmentParser) parserConstructors[0].newInstance(mparams);
 		} catch (Exception ex) {
 		    System.err.println("Cannot create parser " + 
 				       parserClass + "\n" + ex.getMessage() );
@@ -205,11 +219,11 @@ public class ParserPrinter {
 		//writer = new PrintStream(new FileOutputStream(filename));
 		stream = new FileOutputStream(filename);
 	    }
-	    if (dirName != null) {
+	    if ( dirName != null ) {
 	    	 File f = new File(dirName);
-             f.mkdir();
-	    	System.setProperty("user.dir", dirName);
-	    	System.setProperty("Split", "true");
+		 f.mkdir();
+		 params.setProperty( "dir", dirName );
+		 params.setProperty( "split", "true" );
 	    }
 	    writer = new PrintWriter (
 			  new BufferedWriter(
@@ -236,6 +250,9 @@ public class ParserPrinter {
 		    return;
 		}
 	    }
+
+	    renderer.init( params );
+
 	    // Render the alignment
 	    try {
 		result.render( renderer );
@@ -271,6 +288,7 @@ public class ParserPrinter {
 	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
 	System.out.println("\t--outputDir=dirName -c dirName\tSplit the output in a directory (SPARQL)");
 	System.out.println("\t--help -h\t\t\tPrint this message");
+	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.print("\n"+ParserPrinter.class.getPackage().getImplementationTitle()+" "+ParserPrinter.class.getPackage().getImplementationVersion());
 	System.err.println(" ($Id$)\n");
 
