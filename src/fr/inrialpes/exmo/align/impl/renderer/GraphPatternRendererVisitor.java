@@ -21,7 +21,6 @@
 package fr.inrialpes.exmo.align.impl.renderer;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -86,6 +85,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
+    protected boolean ignoreerrors = false;
+    protected static boolean blanks = false;
+    protected boolean weakens = false;
     
     private String instance = null;
     private String value = "";
@@ -129,7 +131,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public static void resetVariablesName(String s, String o) {
     	count = 1;
     	sub = "?" + s;
-    	obj = "?" + o + count;
+    	if ( blanks ) {
+    		obj = "_:" + o + count;
+    	}
+    	else {
+    		obj = "?" + o + count;
+    	}
     }   
     
     public void resetVariables(String s, String o) {
@@ -389,7 +396,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		valueRestriction = null;
 		obj = temp;
 		if(op == Constructor.AND){		
-			obj = "?o" + ++count;
+			if ( blanks ) {
+	    		obj = "_:o" + ++count;
+	    	}
+	    	else {
+	    		obj = "?o" + ++count;
+	    	} 
 		}
 		
     }
@@ -589,10 +601,17 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    size--;
 			    if(size != 0){
 			    	sub = obj;
-			    	if(size == 1 && valueRestriction != null)
+			    	if( size == 1 && valueRestriction != null ) {
 			    		obj = "\"" + valueRestriction.toString() + "\"";
-			    	else
-			    		obj = "?o" + ++count;			    	
+			    	}
+			    	else {
+			    		if ( blanks ) {
+				    		obj = "_:o" + ++count;
+				    	}
+				    	else {
+				    		obj = "?o" + ++count;
+				    	}
+			    	}
 			    }
 			}
 			objectsRestriction.add(obj);
@@ -614,7 +633,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    size--;	    
 			    objectsRestriction.add(obj);
 			    if(size != 0 && valueRestriction == null){
-			    	obj = "?o" + ++count;			    	
+			    	if ( blanks ) {
+			    		obj = "_:o" + ++count;
+			    	}
+			    	else {
+			    		obj = "?o" + ++count;
+			    	}		    	
 			    }
 			}		
 		}
@@ -626,7 +650,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    	}
 		}
 		op = null;
-		obj = "?o" + ++count;
+		if ( blanks ) {
+    		obj = "_:o" + ++count;
+    	}
+    	else {
+    		obj = "?o" + ++count;
+    	}
     }
     
     // DONE
@@ -861,8 +890,13 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    	if(size == 1 && valueRestriction != null)
 			    		obj = valueRestriction.toString();
 			    	else {
-			    		obj = "?o" + ++count;
-			    		objectsRestriction.add(obj);
+			    		if ( blanks ) {
+				    		obj = "_:o" + ++count;
+				    	}
+				    	else {
+				    		obj = "?o" + ++count;
+				    		objectsRestriction.add(obj);
+				    	}			    		
 			    	}
 			    					    	
 			    }			    
@@ -952,7 +986,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    size--;
 			    objectsRestriction.add(obj);
 			    if(size != 0 && valueRestriction == null){
-			    	obj = "?o" + ++count;			    	
+			    	if ( blanks ) {
+			    		obj = "_:o" + ++count;
+			    	}
+			    	else {
+			    		obj = "?o" + ++count;
+			    	}			    	
 			    }
 			}		
 		}
@@ -965,7 +1004,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    	}
 		}
 		op = null;
-		obj = "?o" + ++count;
+		if ( blanks ) {
+    		obj = "_:o" + ++count;
+    	}
+    	else {
+    		obj = "?o" + ++count;
+    	}
     }
     
     // DONE
@@ -1065,7 +1109,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     		index = e.getType().lastIndexOf("#");
     	else
     		index = e.getType().lastIndexOf("/");
-    	datatype = e.getType().substring(0, index+1);
+    	datatype = e.getType().substring(index+1);
     }
 
 }

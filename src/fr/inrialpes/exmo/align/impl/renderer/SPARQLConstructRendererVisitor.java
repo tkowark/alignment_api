@@ -62,6 +62,12 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 	public void init(Properties p) {
 	    if ( p.getProperty( "embedded" ) != null 
 		 && !p.getProperty( "embedded" ).equals("") ) embedded = true;
+	    if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
+		    blanks = true;
+		if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
+		    weakens = true;
+		if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
+		    ignoreerrors = true;
 	    split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
 	    if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
 		splitdir = p.getProperty( "dir" )+"/";
@@ -110,11 +116,10 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 		    }
 		    query += "CONSTRUCT {"+NL;
-		    query += listBGP1.get(listBGP1.size()-1)+NL;
-		    
+		    query += listBGP1.get(listBGP1.size()-1);		    
 		    query += "}"+NL;
 		    query += "WHERE {"+NL;
-		    query += listBGP2.get(listBGP2.size()-1)+NL;    	    		
+		    query += listBGP2.get(listBGP2.size()-1);    	    		
 		    query += "}"+NL;
 		    if( split ) {
 			createQueryFile( splitdir, query );
@@ -125,7 +130,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		query="";
     		
 		/*
-    		if(!listBGP2.get(listBGP2.size()-1).contains("UNION") &&
+    	if(!listBGP2.get(listBGP2.size()-1).contains("UNION") &&
 		   !listBGP2.get(listBGP2.size()-1).contains("FILTER") &&
 		   !listBGP2.get(listBGP2.size()-1).contains("MINUS")){
 		    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {

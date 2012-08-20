@@ -57,6 +57,12 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	public void init(Properties p) {
 		if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
 		    embedded = true;
+		if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
+		    blanks = true;
+		if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
+		    weakens = true;
+		if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
+		    ignoreerrors = true;
 		split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
 		if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
 		    splitdir = p.getProperty( "dir" )+"/";
@@ -89,37 +95,36 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 		listCond1 = new ArrayList<String>(getCondition());
 	    	
 		resetVariables("s", "o");	    		
-	    		((Expression)(cell.getObject2())).accept( this );
-	    		listBGP2 = new ArrayList<String>(getBGP());
-	    		listCond2 = new ArrayList<String>(getCondition());	    	
+		((Expression)(cell.getObject2())).accept( this );
+		listBGP2 = new ArrayList<String>(getBGP());
+		listCond2 = new ArrayList<String>(getCondition());	    	
 	    		
-	    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
-	    		    String k = (String)e.nextElement();
-	    		    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-	    		}
-	    		query += "SELECT ?s WHERE {"+NL;
-	    		query += listBGP1.get(listBGP1.size()-1)+NL;
-	    		query += "}"+NL;	    		
-	    		if ( split ) {
-			    createQueryFile( splitdir, query );
-	    		} else {
-			    indentedOutputln(query);
-			}	    		
-	    		query="";
-	    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
-	    		    String k = (String)e.nextElement();
-	    		    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-	    		}
-	    		query += "SELECT ?s WHERE {"+NL;
-	    		query += listBGP2.get(listBGP2.size()-1)+NL;
-	    		query += "}"+NL;
-	    		if ( split ) {
-			    createQueryFile( splitdir, query );
-	    		} else {
-	    			indentedOutputln(query);
-			}
-    	   }
-    
+		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+   		    String k = (String)e.nextElement();
+	   		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+		}
+		query += "SELECT ?s WHERE {"+NL;
+		query += listBGP1.get(listBGP1.size()-1);
+		query += "}"+NL;	    		
+		if ( split ) {
+			createQueryFile( splitdir, query );
+		} else {
+			indentedOutputln(query);
+		}	    		
+	    query="";
+	    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    	    String k = (String)e.nextElement();
+    	    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+	    }
+	    query += "SELECT ?s WHERE {"+NL;
+	    query += listBGP2.get(listBGP2.size()-1);
+	    query += "}"+NL;
+	    if ( split ) {
+		    createQueryFile( splitdir, query );
+	    } else {
+	    	indentedOutputln(query);
+		}
+    	}    
 	}
 
 	public void visit( Relation rel ) throws AlignmentException {
