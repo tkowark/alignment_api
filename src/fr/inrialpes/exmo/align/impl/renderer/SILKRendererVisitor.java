@@ -255,10 +255,15 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		indentedOutputln("<Filter"+threshold+limit+" />");
 		indentedOutputln("<Outputs>");	    		
 		increaseIndent();
-		indentedOutputln("<Output type=\"file\">");
+		indentedOutputln("<Output minConfidence=\".7\" type=\"file\">");
 		increaseIndent();
-		// JE: The file name should be in function of the link-id
-		indentedOutputln("<Param name=\"file\" value=\""+id+".nt\"/>");
+		indentedOutputln("<Param name=\"file\" value=\""+id+"-accepted.nt\"/>");
+		indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
+		decreaseIndent();
+		indentedOutputln("</Output>");
+		indentedOutputln("<Output maxConfidence=\".7\" minConfidence=\".2\" type=\"file\">");
+		increaseIndent();
+		indentedOutputln("<Param name=\"file\" value=\""+id+"-tocheck.nt\"/>");
 		indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
 		decreaseIndent();
 		indentedOutputln("</Output>");
