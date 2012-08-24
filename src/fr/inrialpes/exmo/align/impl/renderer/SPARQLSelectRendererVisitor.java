@@ -28,10 +28,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Properties;
 
 public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
@@ -43,12 +41,8 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     boolean embedded = false;
     boolean split = false;
     String splitdir = "";
-	
-    private List<String> listBGP1;
-    private List<String> listBGP2;
-
-    private List<String> listCond1;
-    private List<String> listCond2;
+    private String GP1;
+    private String GP2;
     
 	public SPARQLSelectRendererVisitor(PrintWriter writer) {
 		super(writer);
@@ -88,28 +82,23 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     	URI u2 = cell.getObject2AsURI(alignment);
     	if ( ( u1 != null && u2 != null)
     	     || alignment.getLevel().startsWith("2EDOAL") ){
-    	    	resetVariables("s", "o");
+    	resetVariables("s", "o");
 		((Expression)(cell.getObject1())).accept( this );
-	    		
-		listBGP1 = new ArrayList<String>(getBGP());
-		listCond1 = new ArrayList<String>(getCondition());
-	    	
-		resetVariables("s", "o");	    		
+	 	GP1 = getGP();
+	 	resetVariables("s", "o");
 		((Expression)(cell.getObject2())).accept( this );
-		listBGP2 = new ArrayList<String>(getBGP());
-		listCond2 = new ArrayList<String>(getCondition());	    	
-	    		
+	 	GP2 = getGP();
 		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
    		    String k = (String)e.nextElement();
 	   		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 		}
 		query += "SELECT ?s WHERE {"+NL;
-		query += listBGP1.get(listBGP1.size()-1);
+		query += GP1;
 		query += "}"+NL;	    		
 		if ( split ) {
 			createQueryFile( splitdir, query );
 		} else {
-			indentedOutputln(query);
+			writer.println(query);
 		}	    		
 	    query="";
 	    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
@@ -117,12 +106,12 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     	    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 	    }
 	    query += "SELECT ?s WHERE {"+NL;
-	    query += listBGP2.get(listBGP2.size()-1);
+	    query += GP2;
 	    query += "}"+NL;
 	    if ( split ) {
 		    createQueryFile( splitdir, query );
 	    } else {
-	    	indentedOutputln(query);
+	    	writer.println(query);
 		}
     	}    
 	}

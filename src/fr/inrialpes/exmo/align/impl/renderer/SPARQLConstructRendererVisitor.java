@@ -28,10 +28,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Properties;
 
 public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
@@ -44,11 +42,8 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     boolean split = false;
     String splitdir = "";
 		
-    private List<String> listBGP1;
-    private List<String> listBGP2;
-	 
-    private List<String> listCond1;
-    private List<String> listCond2;
+    private String GP1;
+    private String GP2;
     
 	public SPARQLConstructRendererVisitor(PrintWriter writer) {
 		super(writer);
@@ -100,55 +95,50 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	        	    	
 	    	resetVariables("s", "o");
     		((Expression)(cell.getObject1())).accept( this );
-    		listBGP1 = new ArrayList<String>(getBGP());
-    		listCond1 = new ArrayList<String>(getCondition());
-    			    			    		
+    		GP1 = getGP();
     		resetVariables("s", "o");	    		
     		((Expression)(cell.getObject2())).accept( this );
-    		listBGP2 = new ArrayList<String>(getBGP());
-    		listCond2 = new ArrayList<String>(getCondition());
+    		GP2 = getGP();
     		
-		if(!listBGP1.get(listBGP1.size()-1).contains("UNION") &&
-		   !listBGP1.get(listBGP1.size()-1).contains("FILTER") &&
-		   !listBGP1.get(listBGP1.size()-1).contains("MINUS")){
+		if(!GP1.contains("UNION") && !GP1.contains("FILTER") && !GP1.contains("MINUS")){
 		    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
 			String k = (String)e.nextElement();
 			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 		    }
 		    query += "CONSTRUCT {"+NL;
-		    query += listBGP1.get(listBGP1.size()-1);		    
+		    query += GP1;		    
 		    query += "}"+NL;
+		    
 		    query += "WHERE {"+NL;
-		    query += listBGP2.get(listBGP2.size()-1);    	    		
+		    query += GP2;    	    		
 		    query += "}"+NL;
 		    if( split ) {
 			createQueryFile( splitdir, query );
 		    } else {
-			indentedOutputln(query);
+		    	writer.println(query);
 		    }
 		}
 		query="";
     		
 		/*
-    	if(!listBGP2.get(listBGP2.size()-1).contains("UNION") &&
-		   !listBGP2.get(listBGP2.size()-1).contains("FILTER") &&
-		   !listBGP2.get(listBGP2.size()-1).contains("MINUS")){
+    	if(!GP2.contains("UNION") && !GP2.contains("FILTER") && !GP2.contains("MINUS")){
 		    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
 			String k = (String)e.nextElement();
 			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 		    }
 		    query += "CONSTRUCT {"+NL;
-		    query += listBGP2.get(listBGP2.size()-1)+NL;
+		    query += GP2;		    
+		    query += "}"+NL;
 		    
-		    query += "}"+NL;
 		    query += "WHERE {"+NL;
-		    query += listBGP1.get(listBGP1.size()-1)+NL;    	    		
+		    query += GP1;    	    		
 		    query += "}"+NL;
-		    if(System.getProperty("Split")=="true")
-			createQueryFile(query);
-		    else
-			indentedOutputln(query);
-		}    		   
+		    if( split ) {
+			createQueryFile( splitdir, query );
+		    } else {
+			writer.println(query);
+		    }
+		}
 		*/	       		    	
     	}
 	}

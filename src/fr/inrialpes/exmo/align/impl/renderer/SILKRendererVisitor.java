@@ -35,10 +35,8 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
@@ -48,20 +46,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     Cell cell = null;
     Hashtable<String,String> nslist = null;
     private boolean embedded = false;
-    private boolean ignoreerrors = false;
-    private boolean blanks = false;
-    private boolean weakens = false;
     private String threshold = "";
     private String limit = "";
     private Random rand;
-	
-    private static Namespace DEF = Namespace.ALIGNMENT;
-	
-    private List<String> listBGP1;
-    private List<String> listBGP2;
-	 
-    private List<String> listCond1;
-    private List<String> listCond2;
     
     public SILKRendererVisitor(PrintWriter writer) {
 	super(writer);
@@ -190,26 +177,8 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	URI u1 = cell.getObject1AsURI(alignment);
     	URI u2 = cell.getObject2AsURI(alignment);
     	if ( ( u1 != null && u2 != null)
-    	     || alignment.getLevel().startsWith("2EDOAL") ){ //expensive test
-    	    
-	    // JE: why this test?
-    	    if ( alignment.getLevel().startsWith("2EDOAL") ) {
-    	    	
-    	    	resetVariables("s", "o");
-		((Expression)(cell.getObject1())).accept( this );
-	    		
-		List<String> tempList = new ArrayList<String>(getBGP());
-		listBGP1 = new ArrayList<String>(tempList);
-		tempList = new ArrayList<String>(getCondition());
-		listCond1 = new ArrayList<String>(tempList);
-	    	
-		resetVariables("x", "y");	    		
-		((Expression)(cell.getObject2())).accept( this );
-		tempList = new ArrayList<String>(getBGP());
-		listBGP2 = new ArrayList<String>(tempList);
-		tempList = new ArrayList<String>(getCondition());
-		listCond2 = new ArrayList<String>(tempList);
-	    	
+    	     || alignment.getLevel().startsWith("2EDOAL") ){ //expensive test    		   		
+		
 		indentedOutputln("<Interlink id=\""+id+"\">");
 		increaseIndent();
 		indentedOutputln("<LinkType>owl:sameAs</LinkType>");
@@ -217,7 +186,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
 		increaseIndent();
-		indentedOutput(listBGP1.get(listBGP1.size()-1));
+		resetVariables("s", "o");
+		((Expression)(cell.getObject1())).accept( this );
+		indentedOutput(getGP());
 		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
@@ -227,7 +198,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
 		increaseIndent();
-		indentedOutput(listBGP2.get(listBGP2.size()-1));
+		resetVariables("x", "y");	    		
+		((Expression)(cell.getObject2())).accept( this );
+		indentedOutput(getGP());
 		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
@@ -270,9 +243,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		decreaseIndent();
 		indentedOutputln("</Outputs>");
 		decreaseIndent();
-		indentedOutputln("</Interlink>"+NL);
-
-    	    }    		    		
+		indentedOutputln("</Interlink>"+NL);		    		
     	}
     }
 
