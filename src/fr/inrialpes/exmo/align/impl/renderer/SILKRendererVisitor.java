@@ -53,10 +53,6 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     public SILKRendererVisitor(PrintWriter writer) {
 	super(writer);
     }   
-	
-    public SILKRendererVisitor(PrintWriter writer, String sub, String pred, String obj) {
-	super(writer);
-    }
 
     public void init( Properties p ) {
 	if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
