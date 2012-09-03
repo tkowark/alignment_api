@@ -25,11 +25,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -83,30 +84,18 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private String value = "";
     private String uriType = null;
     private String datatype = "";
-    private Object valueRestriction = null;
-
-    private Stack<String> stackBGP = new Stack<String>();
-    private Stack<String> stackOR = new Stack<String>();
-    private Stack<Constructor> stackOp = new Stack<Constructor>();
-        
+    private Object valueRestriction = null;        
     private static int flagRestriction;
-
-    private Constructor op = null;    
-      
+    private Constructor op = null;          
     private Integer nbCardinality = null;
-    private String opOccurence = "";
-    
+    private String opOccurence = "";    
     private static int numberNs;
-	private static int number = 1;
-	
+	private static int number = 1;	
     private static String sub = ""; 
     private static String obj = "";
     private String strBGP = "";
-    private String strBGP_Or = "";
-    protected Hashtable<String,String> listBGP = new Hashtable<String,String>();
- 
-    private String condition = "";
- 
+    private String strBGP_Weaken = "";
+    protected List<String> listBGP = new ArrayList<String>();
     private Set<String> subjectsRestriction = new HashSet<String>();
     private Set<String> objectsRestriction = new HashSet<String>();
     protected Hashtable<String,String> prefixList = new Hashtable<String,String>();
@@ -120,21 +109,14 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public static void resetVariablesName( String s, String o ) {
     	count = 1;
     	sub = "?" + s;
-    	if ( blanks ) {
-    		obj = "_:" + o + count;
-    	}
-    	else {
-    		obj = "?" + o + count;
-    	}
+    	obj = "?" + o + count;    	
     }   
     
     public void resetVariables( String s, String o ) {
     	resetVariablesName(s, o);
     	strBGP = "";
-		strBGP_Or = "";
-		condition = "";
+		strBGP_Weaken = "";
 		listBGP.clear();
-		stackBGP.clear();
 		objectsRestriction.clear();
 		flagRestriction = 0;
     }
@@ -143,7 +125,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	return strBGP;
     }
     
-    public Hashtable<String,String> getBGP() {
+    public List<String> getBGP() {
     	return listBGP;
     }
     
@@ -190,127 +172,68 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     		String prefix = getPrefixDomain(e.getURI());
     		String tag = getPrefixName(e.getURI());
     		String shortCut;
-    		if( !prefixList.containsKey(prefix) ){
+    		prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
+    		if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
     			shortCut = getNamespace();
     			prefixList.put( prefix, shortCut );
     		}
     		else {
     			shortCut = prefixList.get( prefix );
     		}
-    		//if (flagRestriction == 1){
-				//strBGP += "?p rdfs:domain " + shortCut + ":"+ tag + " ." + NL;			
-				//strBGP_Or += "?p rdfs:domain " + shortCut + ":"+ tag + " ." + NL;
-    			//stackBGP.push(strBGP_Or);
-    			//return;
-    		//}
+
 			if ( !subjectsRestriction.isEmpty() ) {
 				Iterator<String> listSub = subjectsRestriction.iterator();
 				while ( listSub.hasNext() ) {
 					String str = listSub.next();
-					strBGP += str + " a " + shortCut + ":"+ tag + " ." + NL;			
-					strBGP_Or += str + " a " + shortCut + ":"+ tag + " ." + NL;
-				}
-				if ( stackBGP.size() > 0 ) {
-					stackBGP.remove( stackBGP.size()-1 );
-					stackBGP.push( strBGP_Or );
+					strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
+					strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
 				}
 				subjectsRestriction.clear();
 			}
 			else {
-				strBGP += sub + " a " + shortCut + ":"+ tag + " ." + NL;			
-				if ( op != Constructor.NOT ) {
-					Stack<String> tempStack = new Stack<String>();
-					if ( stackBGP.empty() ){
-						strBGP_Or = sub + " a " + shortCut + ":"+ tag + " ." + NL;
-						tempStack.push( strBGP_Or );
-					}
-					else {
-						while ( !stackBGP.empty() ) {
-							strBGP_Or = stackBGP.pop();
-							strBGP_Or += sub + " a " + shortCut + ":"+ tag + " ." + NL;
-							tempStack.push( strBGP_Or );
-						}						
-					}
-					while ( !tempStack.empty() ){
-						stackBGP.push( tempStack.pop() );
-					}				
-				}
+				strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+				strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
 			}
     	}
     }
 
-    public void visit( final ClassConstruction e ) throws AlignmentException {		
-    	String str = "";
-    	
+    public void visit( final ClassConstruction e ) throws AlignmentException {    	
     	op = e.getOperator();
-		if (op == Constructor.OR) {
-			str = "";
-			int size = e.getComponents().size();
-			Stack<String> tempStack = new Stack<String>();
-			
-			while( !stackBGP.empty() ) {
-		    	tempStack.push(stackBGP.pop());		    	
-		    }
+		if (op == Constructor.OR) {			
+			int size = e.getComponents().size();			
 			for ( final ClassExpression ce : e.getComponents() ) {
 			    strBGP += "{" + NL;
-			    if( op != null ) {
-					stackOp.push( op );
-				}
-			    stackBGP.clear();
-			    if( !tempStack.empty() ) {
-			    	for( int i=0; i<tempStack.size(); i++ ) {
-			    		stackBGP.push( tempStack.get(i) );			    		
-			    	}
-			    }
-			    ce.accept( this );
-			    if(!stackOp.empty()) {
-					op = stackOp.pop();
-				}
-			    if( op == Constructor.NOT ) {
-			    	stackBGP.clear();			    
-			    }
-			    while ( !stackBGP.empty() ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );
-		    	}
-							    
+			    strBGP_Weaken += "{" + NL;
+			    ce.accept( this );			    			    
 			    size--;
-			    if( size != 0 )
+			    if( size != 0 ) {
 			    	strBGP += "}" + " UNION " + NL;
-			    else
+			    	strBGP_Weaken += "}" + " UNION " + NL;
+			    }
+			    else {
 			    	strBGP += "}" + NL;
+			    	strBGP_Weaken += "}" + NL;
+			    }
 			}			
-			
 		}
-		else if ( op == Constructor.NOT ) {
-			str = "";
-			for ( final ClassExpression ce : e.getComponents() ) {
-			    str = "FILTER (NOT EXISTS {" + NL;
-			    strBGP += "FILTER (NOT EXISTS {" + NL;
-			    if( op != null ) {
-					stackOp.push( op );
-				}
-			    ce.accept( this );			    
-			    if( !stackOp.empty() )
-					op = stackOp.pop();
-			    str += "})" + NL;
-			    strBGP += "})" + NL;
-			    condition = str;
-			    while ( !stackBGP.empty() ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}				
-			}			
+		else if ( op == Constructor.NOT ) {			
+		    strBGP += "FILTER (NOT EXISTS {" + NL;
+		    strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
+			for ( final ClassExpression ce : e.getComponents() ) {			    
+			    ce.accept( this );				
+			}
+		    strBGP += "})" + NL;
+		    strBGP_Weaken += "})" + NL;
 		}
 		else {			
-			for ( final ClassExpression ce : e.getComponents() ) {
-			    if( op != null ) {
-					stackOp.push( op );
-				}			    
+			for ( final ClassExpression ce : e.getComponents() ) {			    			    
 			    ce.accept( this );
-			    if( !stackOp.empty() )
-					op = stackOp.pop();			    
+			    if ( !strBGP_Weaken.equals("") ) {
+			    	listBGP.add(strBGP_Weaken);
+			    	strBGP_Weaken = "";
+			    }
 			}
 		}
-		condition = "";
     }
 
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
@@ -352,21 +275,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 				}
 			}
 			strBGP += str;
-			condition = str;
-			if ( !stackOR.empty() ) {
-				while ( !stackOR.empty() ) {	    		
-		    		listBGP.put( stackOR.pop(), condition );	    		
-		    	}
-			}
-			else {
-				while ( !stackBGP.empty() ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}
-			}
+			strBGP_Weaken += str;
 		}
 		valueRestriction = null;
-		inClassRestriction = false;
-		condition = "";
+		inClassRestriction = false;		
 		obj = temp;
 		if( op == Constructor.AND ){		
 			if ( blanks ) {
@@ -400,17 +312,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			str += ")" + NL;
 			
 			strBGP += str;
-			condition = str;
-			if ( !stackOR.empty() ) {
-				while ( !stackOR.empty() ) {	    		
-		    		listBGP.put( stackOR.pop(), condition );	    		
-		    	}
-			}
-			else {
-				while ( !stackBGP.empty() ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}
-			}
+			strBGP_Weaken += str;
 		}
 		objectsRestriction.clear();
     }
@@ -423,17 +325,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	while ( listObj.hasNext() ) {
 			subjectsRestriction.add(listObj.next());			
 		}
-    	c.getDomain().accept( this );
-    	if ( !stackOR.empty() ) {
-			while ( !stackOR.empty() ) {	    		
-	    		listBGP.put( stackOR.pop(), condition );	    		
-	    	}
-		}
-		else {
-			while ( !stackBGP.empty() ) {	    		
-	    		listBGP.put( stackBGP.pop(), condition );	    		
-	    	}
-		}
+    	c.getDomain().accept( this );    	
     	objectsRestriction.clear();
     }
 
@@ -470,22 +362,11 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			}			
 			
 			strBGP += str;
-			condition = str;
-			if ( !stackOR.empty() ) {
-				while ( !stackOR.empty() ) {	    		
-		    		listBGP.put( stackOR.pop(), condition );	    		
-		    	}
-			}
-			else {
-				while ( !stackBGP.empty() ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}
-			}
+			strBGP_Weaken += str;
 		}
 		nbCardinality = null;
 		opOccurence = "";
 		inClassRestriction = false;
-		condition = "";
     }
     
     public void visit( final PropertyId e ) throws AlignmentException {
@@ -493,7 +374,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     		String prefix = getPrefixDomain( e.getURI() );
     		String tag = getPrefixName( e.getURI() );
     		String shortCut;
-    		if( !prefixList.containsKey( prefix ) ){
+    		if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
     			shortCut = getNamespace();
     			prefixList.put( prefix, shortCut );
     		}
@@ -507,105 +388,58 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 				objectsRestriction.add(obj);
     		
 		    strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-		    if ( op != Constructor.NOT ) {
-				Stack<String> tempStack = new Stack<String>();
-				if ( stackBGP.isEmpty() ) {
-					strBGP_Or = sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-					tempStack.push( strBGP_Or );
-				}
-				else {
-					while ( !stackBGP.isEmpty() ){
-						strBGP_Or = stackBGP.pop();
-						strBGP_Or += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-						tempStack.push( strBGP_Or );
-					}						
-				}
-				while ( !tempStack.isEmpty() ){
-					stackBGP.push( tempStack.pop() );
-				}
-			}
+		    strBGP_Weaken += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
     		obj = temp;    		
 		}
     }
 
     public void visit( final PropertyConstruction e ) throws AlignmentException {
     	op = e.getOperator();
-    	String str = "";
 		if ( op == Constructor.OR ){	
 			int size = e.getComponents().size();
-			Stack<String> tempStack = new Stack<String>();
-			while ( !stackBGP.empty() ) {
-		    	tempStack.push( stackBGP.pop() );		    	
-		    }
 			if ( valueRestriction != null && !inClassRestriction )
 				obj = "\"" + valueRestriction.toString() + "\"";
 			for ( final PathExpression re : e.getComponents() ) {
 			    strBGP += "{" +NL;
-			    if ( op != null ) {
-					stackOp.push(op);
-				}
-			    stackBGP.clear();
-			    if ( !tempStack.empty() ) {
-			    	for( int i=0; i<tempStack.size(); i++ )
-			    		stackBGP.push( tempStack.get(i) );
-			    }
+			    strBGP_Weaken += "{" +NL;
 			    re.accept( this );
-			    if ( op == Constructor.NOT )
-			    	stackBGP.clear();
-			    if( !stackOp.isEmpty() )
-					op = stackOp.pop();
-		    
-			    while ( !stackBGP.empty() ) {
-			    	if ( flagRestriction == 0 )
-			    		listBGP.put( stackBGP.pop(), condition );
-			    	else
-			    		stackOR.push( stackBGP.pop() );
-		    	}
 			    size--;
-			    if( size != 0 )
-			    	strBGP += "}" + " UNION " + NL;			    
-			    else
+			    if( size != 0 ){
+			    	strBGP += "}" + " UNION " + NL;
+			    	strBGP_Weaken += "}" + " UNION " + NL;
+			    }
+			    else {
 			    	strBGP += "}" +NL;
+			    	strBGP_Weaken += "}" +NL;
+			    }
 			}		    
 			objectsRestriction.add( obj );
 		}
-		else if ( op == Constructor.NOT ) {	
-			for ( final PathExpression re : e.getComponents() ) {
-				str = "FILTER (NOT EXISTS {" + NL;
-			    strBGP += "FILTER (NOT EXISTS {" + NL;
-			    if( op != null ) {
-					stackOp.push( op );
-				}
+		else if ( op == Constructor.NOT ) {
+			strBGP += "FILTER (NOT EXISTS {" + NL;
+			strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
+			for ( final PathExpression re : e.getComponents() ) {				
 			    re.accept( this );			    
-			    if( !stackOp.empty() )
-					op = stackOp.pop();
-			    str += "})" + NL;
-			    strBGP += "})" + NL;
-			    condition = str;
-			    while ( !stackBGP.empty() && flagRestriction == 0 ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}
-			}			
+			}
+			strBGP += "})" + NL;
+			strBGP_Weaken += "})" + NL;
 		}
 		else if ( op == Constructor.COMP ){			
 			int size = e.getComponents().size();
 			String tempSub = sub;			
-			
-			for ( final PathExpression re : e.getComponents() ) {
-			    if ( op != null ) {
-					stackOp.push(op);
-				}
+			if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+	    		obj = "_:o" + ++count;
+	    	}
+			for ( final PathExpression re : e.getComponents() ) {			    
 			    re.accept( this );
-			    if ( !stackOp.isEmpty() )
-					op = stackOp.pop();
 			    size--;
 			    if ( size != 0 ) {
 			    	sub = obj;
 			    	if( size == 1 && valueRestriction != null && !inClassRestriction ) {
 			    		obj = "\"" + valueRestriction.toString() + "\"";
 			    	}
-			    	else {
-			    		if ( blanks ) {
+			    	else {			    		
+			    		if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
 				    		obj = "_:o" + ++count;
 				    	}
 				    	else {
@@ -617,90 +451,57 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			objectsRestriction.add( obj );
 			sub = tempSub;
 		}		
-		else {
-			
+		else {			
 			int size = e.getComponents().size();
 			if ( valueRestriction != null && !inClassRestriction )
 				obj = "\"" + valueRestriction.toString() + "\"";
-			for ( final PathExpression re : e.getComponents() ) {
-			    			 
-			    if ( op != null ) {
-					stackOp.push( op );
-				}
+			for ( final PathExpression re : e.getComponents() ) {			  
 			    re.accept( this );
-			    if(!stackOp.isEmpty())
-					op = stackOp.pop();
 			    size--;	    
 			    objectsRestriction.add( obj );
 			    if( size != 0 && valueRestriction == null ){
-			    	if ( blanks ) {
-			    		obj = "_:o" + ++count;
-			    	}
-			    	else {
-			    		obj = "?o" + ++count;
-			    	}		    	
+			    	obj = "?o" + ++count;			    			    	
 			    }
 			}		
 		}
-		
-		if ( blanks ) {
-    		obj = "_:o" + ++count;
-    	}
-    	else {
-    		obj = "?o" + ++count;
-    	}
+		obj = "?o" + ++count;    	
     }
 
     public void visit( final PropertyValueRestriction c ) throws AlignmentException {
     	String str = "";
+    	value = "";
+    	uriType = "";
+    	flagRestriction = 1;
+		c.getValue().accept( this );
+		flagRestriction = 0;
+		if ( uriType.equals("") ) {
+			uriType = "string";
+		}
     	if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
-    		strBGP += sub + " ?p ";
-    		strBGP_Or = sub + " ?p ";
-    		c.getValue().accept( this );
-    		strBGP += "\"" + value + "\" ." + NL;
-    		strBGP_Or += "\"" + value + "\" ." + NL;    		    		
+    		str = "FILTER (xsd:" + uriType + "(" + obj + ") = ";    		
     	}
     	else if ( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {    		
-    		strBGP += sub + " ?p " + obj + " ." + NL;
-    		strBGP_Or = sub + " ?p " + obj + " ." + NL;
-			
-    		str = "FILTER (xsd:" + uriType + "(" + obj + ") > ";
-    		flagRestriction = 1;
-    		c.getValue().accept( this );
-    		flagRestriction = 0;
-			str += "\"" + value + "\")" + NL;			
+    		str = "FILTER (xsd:" + uriType + "(" + obj + ") > ";			
     	}
-    	else if ( c.getComparator().getURI().equals( Comparator.LOWER.getURI() ) ) {    		
-    		strBGP += sub + " ?p " + obj + " ." + NL;    		
-    		strBGP_Or = sub + " ?p " + obj + " ." + NL;
-			
+    	else {    		
     		str = "FILTER (xsd:" + uriType + "(" + obj + ") < ";
-    		flagRestriction = 1;
-    		c.getValue().accept( this );
-    		flagRestriction = 0;
-			str += "\"" + value + "\")" + NL;
     	}
-    	
+    	str += "\"" + value + "\")" + NL;
+		
 		strBGP += str;
-    	stackBGP.push(strBGP_Or);
-    	//else throw new AlignmentException( "Cannot dispatch Comparator "+c );
+		strBGP_Weaken += str;
+    	value = "";
+    	uriType = "";
     }
 
     public void visit( final PropertyDomainRestriction c ) throws AlignmentException {
     	flagRestriction = 1;
-		strBGP += sub + " ?p " + obj + " ." + NL;    		
-		strBGP_Or = sub + " ?p " + obj + " ." + NL;		
-
-		c.getDomain().accept( this );
-    	
-    	flagRestriction = 0;
-	
+		c.getDomain().accept( this );    	
+    	flagRestriction = 0;	
     }
 
     public void visit( final PropertyTypeRestriction c ) throws AlignmentException {
-    	
-    	String str = "FILTER (datatype(" + objectsRestriction + ") = ";
-		
+    	String str = "";		
 		if ( !objectsRestriction.isEmpty() ) {
 			Iterator<String> listObj = objectsRestriction.iterator();
 			int size = objectsRestriction.size();
@@ -714,9 +515,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 				visit( c.getType() );
 				str += "xsd:" + datatype;
 			}
-			str += ")" + NL;
-			
+			str += ")" + NL;			
 			strBGP += str;
+			strBGP_Weaken += str;
 		}
 		objectsRestriction.clear();
     }
@@ -726,7 +527,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			String prefix = getPrefixDomain(e.getURI());
     		String tag = getPrefixName(e.getURI());
     		String shortCut;
-    		if ( !prefixList.containsKey(prefix) ) {
+    		if ( !prefixList.containsKey(prefix) && !prefix.equals("") ) {
     			shortCut = getNamespace();
     			prefixList.put( prefix, shortCut );
     		}
@@ -734,11 +535,11 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     			shortCut = prefixList.get( prefix );
     		}
 			strBGP += sub + " " + shortCut + ":"+ tag + "";
-			String str = sub + " " + shortCut + ":"+ tag + "";
+			strBGP_Weaken += sub + " " + shortCut + ":"+ tag + "";
 		    
-		    if ( op == Constructor.TRANSITIVE ) {
+		    if ( op == Constructor.TRANSITIVE && flagRestriction == 1 ) {
 		    	strBGP += "*";
-		    	str += "*";
+		    	strBGP_Weaken += "*";
 		    }
 		    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )			    
 					obj = valueRestriction.toString();
@@ -746,103 +547,51 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 					objectsRestriction.add(obj);
 	    	
 		    strBGP += " " + obj + " ." + NL;
-		    str += " " + obj + " ." + NL;
-		    
-		    if ( op != Constructor.NOT ) {
-				Stack<String> tempStack = new Stack<String>();
-				if ( stackBGP.isEmpty() ){
-					strBGP_Or = str;
-					tempStack.push(strBGP_Or);
-				}
-				else {
-					while (!stackBGP.isEmpty()){
-						strBGP_Or = stackBGP.pop();
-						strBGP_Or += str;
-						tempStack.push( strBGP_Or );
-					}						
-				}
-				while ( !tempStack.isEmpty() ) {
-					stackBGP.push( tempStack.pop() );
-				}
-			}
+		    strBGP_Weaken += " " + obj + " ." + NL;		    
 		}
     }
 
     public void visit( final RelationConstruction e ) throws AlignmentException {
-		String str = "";
 		op = e.getOperator();
-
 		if ( op == Constructor.OR )  {	
-			int size = e.getComponents().size();
-			Stack<String> tempStack = new Stack<String>();
-			while ( !stackBGP.empty() ) {
-		    	tempStack.push(stackBGP.pop());		    	
-		    }
+			int size = e.getComponents().size();			
 			if ( valueRestriction != null && !inClassRestriction )
 				obj = valueRestriction.toString();
 			String temp = obj;
-			for ( final PathExpression re : e.getComponents() ) {
-			    writer.print(linePrefix);
+			for ( final PathExpression re : e.getComponents() ) {			    
 			    strBGP += "{" + NL;
-			    if ( op != null ) {
-					stackOp.push( op );
-				}
-			    stackBGP.clear();
-			    if(!tempStack.empty()){
-			    	for(int i=0; i<tempStack.size(); i++)
-			    		stackBGP.push(tempStack.get(i));
-			    }
+			    strBGP_Weaken += "{" + NL;
 			    re.accept( this );
-			    if ( op == Constructor.NOT ) {
-			    	stackBGP.clear();
-			    }
-			    if ( !stackOp.isEmpty() )
-					op = stackOp.pop();
-			    
-			    while ( !stackBGP.empty() ) {
-			    	if ( flagRestriction == 0 )
-			    		listBGP.put( stackBGP.pop(), condition );
-			    	else
-			    		stackOR.push( stackBGP.pop() );	    		
-		    	}
 			    obj = temp;
 			    size--;
-			    if ( size != 0 )
+			    if ( size != 0 ) {
 			    	strBGP += "}" + "UNION " + NL;
-			    else
+			    	strBGP_Weaken += "}" + "UNION " + NL;
+			    }
+			    else {
 			    	strBGP += "}" + NL;
-			}
-			
+			    	strBGP_Weaken += "}" + NL;
+			    }
+			}			
 			objectsRestriction.add( obj );
 		}
 		else if ( op == Constructor.NOT ) {		
-			for ( final PathExpression re : e.getComponents() ) {
-				str = "FILTER (NOT EXISTS {" + NL;
-			    strBGP += "FILTER (NOT EXISTS {" + NL;
-			    if( op != null ) {
-					stackOp.push( op );
-				}
+			strBGP += "FILTER (NOT EXISTS {" + NL;
+			strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
+			for ( final PathExpression re : e.getComponents() ) {				
 			    re.accept( this );			    
-			    if( !stackOp.empty() )
-					op = stackOp.pop();
-			    str += "})" + NL;
-			    strBGP += "})" + NL;
-			    condition = str;
-			    while ( !stackBGP.empty() && flagRestriction == 0 ) {	    		
-		    		listBGP.put( stackBGP.pop(), condition );	    		
-		    	}
-			}			
+			}
+			strBGP += "})" + NL;
+			strBGP_Weaken += "})" + NL;
 		}
 		else if ( op == Constructor.COMP ) {
 			int size = e.getComponents().size();
-			String temp = sub;
-			for ( final PathExpression re : e.getComponents() ) {			   
-			    if ( op != null ) {
-					stackOp.push( op );
-				}
+			String temp = sub;	
+			if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+	    		obj = "_:o" + ++count;
+	    	}
+			for ( final PathExpression re : e.getComponents() ) {			    
 			    re.accept( this );
-			    if( !stackOp.isEmpty() )
-					op = stackOp.pop();
 			    size--;
 			    if( size != 0 ) {
 			    	sub = obj;
@@ -850,16 +599,15 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    		obj = valueRestriction.toString();
 			    	}
 			    	else {
-			    		if ( blanks ) {
+			    		if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
 				    		obj = "_:o" + ++count;
 				    	}
 				    	else {
 				    		obj = "?o" + ++count;				    		
 				    	}
 			    		objectsRestriction.add( obj );
-			    	}
-			    					    	
-			    }			    
+			    	}			    					    	
+			    } 
 			}			
 			sub = temp;
 		}
@@ -869,115 +617,66 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    String temp = sub;
 			    sub = obj;
 			    obj = temp;
-			    if( op != null ) {
-					stackOp.push( op );
-				}
 			    re.accept( this );
-			    if ( !stackOp.isEmpty() )
-					op = stackOp.pop();
 			    sub = tempSub;
 			}
 		}
 		else if ( op == Constructor.SYMMETRIC ) {
 			String tempSub = sub;
 			for ( final PathExpression re : e.getComponents() ) {
-			    strBGP += "{" + NL;
-			    if ( op != null ) {
-					stackOp.push(op);
-				}
+			    strBGP += "{" + NL;			    
 			    re.accept( this );
-			    if( !stackOp.isEmpty() )
-					op = stackOp.pop();
 			    objectsRestriction.add( obj );
 			    String temp = sub;
 			    sub = obj;
 			    obj = temp;
-			    strBGP += "} UNION {" + NL;
-			    if( op != null ) {
-					stackOp.push(op);
-				}
+			    strBGP += "} UNION {" + NL;			    
 			    re.accept( this );
-			    if(!stackOp.isEmpty())
-					op = stackOp.pop();
 			    objectsRestriction.add( obj );
-			    strBGP +="}" + NL;
-			    
+			    strBGP +="}" + NL;			    
 			}
 			sub = tempSub;
 		}
 		else if (op == Constructor.TRANSITIVE){						
 			for ( final PathExpression re : e.getComponents() ) {			    
-			    if(op != null){
-					stackOp.push(op);
-				}
-			    re.accept( this );
-			    if(!stackOp.isEmpty())
-					op = stackOp.pop();
+			    flagRestriction = 1;
+				re.accept( this );
+				flagRestriction = 0;
 			}
 		}
-		else if ( op == Constructor.REFLEXIVE ) {						
-			String strObj = obj;
-			for ( final PathExpression re : e.getComponents() ) {			    		    
-			    if ( op != null ) {
-					stackOp.push( op );
-				}
-			    obj = sub;
-			    re.accept( this );
-			    obj = strObj;
-			    if(!stackOp.isEmpty())
-					op = stackOp.pop();
+		else if ( op == Constructor.REFLEXIVE ) {			
+			for ( final PathExpression re : e.getComponents() ) {			    
+			    strBGP += "{" + NL;
+				re.accept( this );
+			    strBGP += "} UNION {" + NL + "FILTER(" + sub + "=" + obj + ")" + NL + "}";
 			}
 		}
-		else {
-			
+		else {			
 			int size = e.getComponents().size();
 			if ( valueRestriction != null && !inClassRestriction )
 				obj = valueRestriction.toString();
-			for ( final PathExpression re : e.getComponents() ) {
-						 
-			    if ( op != null ) {
-					stackOp.push( op );
-				}
+			for ( final PathExpression re : e.getComponents() ) {			    
 			    re.accept( this );
-			    if ( !stackOp.isEmpty() )
-					op = stackOp.pop();
 			    size--;
 			    objectsRestriction.add( obj );
 			    if ( size != 0 && valueRestriction == null ) {
-			    	if ( blanks ) {
-			    		obj = "_:o" + ++count;
-			    	}
-			    	else {
-			    		obj = "?o" + ++count;
-			    	}			    	
+			    	obj = "?o" + ++count;			    			    	
 			    }
 			}		
 		}
-		
-		if ( blanks ) {
-    		obj = "_:o" + ++count;
-    	}
-    	else {
-    		obj = "?o" + ++count;
-    	}
+		obj = "?o" + ++count;    	
     }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
+    	sub = obj;
     	flagRestriction = 1;		
-    	
-    	c.getCoDomain().accept( this );
-    	
+    	c.getCoDomain().accept( this );    	
     	flagRestriction = 0;
     }
 
     public void visit(final RelationDomainRestriction c) throws AlignmentException {
-
     	flagRestriction = 1;
-		
-		strBGP += sub + " ?p " + obj + " ." + NL;    		
-		
 		c.getDomain().accept( this );
-    	
     	flagRestriction = 0;
     }
 

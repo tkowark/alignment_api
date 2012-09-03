@@ -28,8 +28,11 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
@@ -44,15 +47,12 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		
     private String GP1;
     private String GP2;
+    private List<String> listGP1 = new ArrayList<String>();
+    private List<String> listGP2 = new ArrayList<String>();
     
 	public SPARQLConstructRendererVisitor(PrintWriter writer) {
 		super(writer);
 	}   
-	
-	public SPARQLConstructRendererVisitor(PrintWriter writer, String sub, String pred, String obj) {
-		super(writer);
-		
-	}
 
 	public void init(Properties p) {
 	    if ( p.getProperty( "embedded" ) != null 
@@ -88,6 +88,9 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	// default behaviour
     	this.cell = cell;      	
     	String query="";
+    	String query_IgnoreErrors="";
+    	String query_weaken="";
+    	String tmp="";
     	URI u1 = cell.getObject1AsURI(alignment);
     	URI u2 = cell.getObject2AsURI(alignment);
     	if ( ( u1 != null && u2 != null)
@@ -95,51 +98,147 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	        	    	
 	    	resetVariables("s", "o");
     		((Expression)(cell.getObject1())).accept( this );
-    		GP1 = getGP();
+    		GP1 = getGP();    		
+    		listGP1 = new ArrayList<String>(getBGP());    		
     		resetVariables("s", "o");	    		
     		((Expression)(cell.getObject2())).accept( this );
     		GP2 = getGP();
-    		
-		if(!GP1.contains("UNION") && !GP1.contains("FILTER") && !GP1.contains("MINUS")){
-		    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
-			String k = (String)e.nextElement();
-			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-		    }
-		    query += "CONSTRUCT {"+NL;
-		    query += GP1;		    
-		    query += "}"+NL;
-		    
-		    query += "WHERE {"+NL;
-		    query += GP2;    	    		
-		    query += "}"+NL;
-		    if( split ) {
-			createQueryFile( splitdir, query );
-		    } else {
-		    	writer.println(query);
-		    }
-		}
-		query="";
-    		
+    		listGP2 = new ArrayList<String>(getBGP());
+    		    		
+    		if( !GP1.contains("UNION") && !GP1.contains("FILTER") ){
+    			for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+        			String k = (String)e.nextElement();
+        			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+        		}
+    			query += "CONSTRUCT {"+NL;
+			    query += GP1;		    
+			    query += "}"+NL;		    
+			    query += "WHERE {"+NL;
+			    query += GP2;    	    		
+			    query += "}"+NL;
+			    query_weaken = query;
+    		} else {    			
+    			Iterator<String> list = listGP1.iterator();
+    			while ( list.hasNext() ) {
+    				String str = list.next();
+    				if ( !str.contains("UNION") && !str.contains("FILTER") ) {
+    					tmp += str;
+    				}
+    			}
+    			if ( !tmp.equals("") ) {
+    				for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    	    			String k = (String)e.nextElement();
+    	    			query_weaken += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+    	    		}
+    				query_weaken += "CONSTRUCT {"+NL;
+    				query_weaken += tmp;		    
+    				query_weaken += "}"+NL;		    
+    				query_weaken += "WHERE {"+NL;
+    				query_weaken += GP2;    	    		
+    				query_weaken += "}"+NL;
+    			}
+    		}
+    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    			String k = (String)e.nextElement();    		
+    			query_IgnoreErrors += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;    		
+    		}
+		    query_IgnoreErrors += "CONSTRUCT {"+NL;
+		    query_IgnoreErrors += GP1;		    
+		    query_IgnoreErrors += "}"+NL;		    
+		    query_IgnoreErrors += "WHERE {"+NL;
+		    query_IgnoreErrors += GP2;    	    		
+		    query_IgnoreErrors += "}"+NL;		    
+		
+			if( split ) {
+				if ( ignoreerrors ) {
+					createQueryFile( splitdir, query_IgnoreErrors );
+				}
+				else if ( weakens ) {
+					createQueryFile( splitdir, query_weaken );
+				}
+				else {
+					createQueryFile( splitdir, query );
+				}
+			} else {
+				if ( ignoreerrors ) {
+					writer.println( query_IgnoreErrors );
+				}
+				else if ( weakens ) {
+					writer.println( query_weaken );
+				}
+				else {
+					writer.println( query );
+				}			   	
+			}
+			query="";
+    		tmp = "";
 		/*
-    	if(!GP2.contains("UNION") && !GP2.contains("FILTER") && !GP2.contains("MINUS")){
-		    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
-			String k = (String)e.nextElement();
-			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-		    }
-		    query += "CONSTRUCT {"+NL;
-		    query += GP2;		    
-		    query += "}"+NL;
-		    
-		    query += "WHERE {"+NL;
-		    query += GP1;    	    		
-		    query += "}"+NL;
-		    if( split ) {
-			createQueryFile( splitdir, query );
-		    } else {
-			writer.println(query);
-		    }
-		}
-		*/	       		    	
+    	if( !GP2.contains("UNION") && !GP2.contains("FILTER") ){
+    			for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+        			String k = (String)e.nextElement();
+        			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+        		}
+    			query += "CONSTRUCT {"+NL;
+			    query += GP2;		    
+			    query += "}"+NL;		    
+			    query += "WHERE {"+NL;
+			    query += GP1;    	    		
+			    query += "}"+NL;
+			    query_weaken = query;
+    		} else {    			
+    			Iterator<String> list = listGP2.iterator();
+    			while ( list.hasNext() ) {
+    				String str = list.next();
+    				if ( !str.contains("UNION") && !str.contains("FILTER") ) {
+    					tmp += str;
+    				}
+    			}
+    			if ( !tmp.equals("") ) {
+    				for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    	    			String k = (String)e.nextElement();
+    	    			query_weaken += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+    	    		}
+    				query_weaken += "CONSTRUCT {"+NL;
+    				query_weaken += tmp;		    
+    				query_weaken += "}"+NL;		    
+    				query_weaken += "WHERE {"+NL;
+    				query_weaken += GP1;    	    		
+    				query_weaken += "}"+NL;
+    			}
+    		}
+    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    			String k = (String)e.nextElement();    		
+    			query_IgnoreErrors += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;    		
+    		}
+		    query_IgnoreErrors += "CONSTRUCT {"+NL;
+		    query_IgnoreErrors += GP2;		    
+		    query_IgnoreErrors += "}"+NL;		    
+		    query_IgnoreErrors += "WHERE {"+NL;
+		    query_IgnoreErrors += GP1;    	    		
+		    query_IgnoreErrors += "}"+NL;		    
+		
+			if( split ) {
+				if ( ignoreerrors ) {
+					createQueryFile( splitdir, query_IgnoreErrors );
+				}
+				else if ( weakens ) {
+					createQueryFile( splitdir, query_weaken );
+				}
+				else {
+					createQueryFile( splitdir, query );
+				}
+			} else {
+				if ( ignoreerrors ) {
+					writer.println( query_IgnoreErrors );
+				}
+				else if ( weakens ) {
+					writer.println( query_weaken );
+				}
+				else {
+					writer.println( query );
+				}			   	
+			}
+			*/	       		    	
     	}
 	}
 
