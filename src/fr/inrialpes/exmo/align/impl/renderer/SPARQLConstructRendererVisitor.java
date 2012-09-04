@@ -20,7 +20,10 @@
 
 package fr.inrialpes.exmo.align.impl.renderer;
 
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
+
 import java.io.PrintWriter;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -44,7 +47,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     boolean embedded = false;
     boolean split = false;
     String splitdir = "";
-		
+	private String content_Corese = "";
     private String GP1;
     private String GP2;
     private List<String> listGP1 = new ArrayList<String>();
@@ -63,6 +66,8 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		    weakens = true;
 		if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
 		    ignoreerrors = true;
+		if ( p.getProperty( "corese" ) != null && !p.getProperty( "corese" ).equals("") ) 
+			corese = true;
 	    split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
 	    if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
 		splitdir = p.getProperty( "dir" )+"/";
@@ -73,13 +78,26 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 	}
 
 	public void visit(Alignment align) throws AlignmentException {
-
     	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
-
     	alignment = align;    	
-    	
+    	content_Corese = "";
+    	content_Corese += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NL;
+    	content_Corese += "<!DOCTYPE rdf:RDF [" + NL;
+    	content_Corese += "<!ENTITY rdf \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" + NL;
+    	content_Corese += "<!ENTITY rdfs \"http://www.w3.org/2000/01/rdf-schema#\">" + NL;
+    	content_Corese += "<!ENTITY rul \"http://ns.inria.fr/edelweiss/2011/rule#\">" + NL;
+    	content_Corese += "]>" + NL;
+    	content_Corese += "<rdf:RDF xmlns:rdfs=\"&rdfs;\" xmlns:rdf=\"&rdf;\" xmlns = \'&rul;\' >" + NL + NL + NL;
     	for( Cell c : align ){ c.accept( this ); };
-    	
+    	content_Corese += "</rdf:RDF>" + NL;
+    	if ( corese ) {
+	    	if( split ) {			
+				createQueryFile( splitdir, content_Corese );
+	    	}
+			else {
+				writer.println( content_Corese );
+			}    	
+    	}
 	}	
 
 	public void visit(Cell cell) throws AlignmentException {
@@ -117,6 +135,13 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 			    query += GP2;    	    		
 			    query += "}"+NL;
 			    query_weaken = query;
+			    content_Corese += "<rule>" + NL;
+			    content_Corese += "<body>" + NL;
+			    content_Corese += "<![CDATA[" + NL;
+			    content_Corese += query;
+			    content_Corese += "]]>" + NL;
+			    content_Corese += "</body>" + NL;
+			    content_Corese += "</rule>" + NL + NL;
     		} else {    			
     			Iterator<String> list = listGP1.iterator();
     			while ( list.hasNext() ) {
@@ -126,7 +151,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     				}
     			}
     			if ( !tmp.equals("") ) {
-    				for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    				for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
     	    			String k = (String)e.nextElement();
     	    			query_weaken += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
     	    		}
@@ -138,7 +163,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     				query_weaken += "}"+NL;
     			}
     		}
-    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    		for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
     			String k = (String)e.nextElement();    		
     			query_IgnoreErrors += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;    		
     		}
@@ -148,7 +173,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		    query_IgnoreErrors += "WHERE {"+NL;
 		    query_IgnoreErrors += GP2;    	    		
 		    query_IgnoreErrors += "}"+NL;		    
-		
+		    if ( corese ) return;
 			if( split ) {
 				if ( ignoreerrors ) {
 					createQueryFile( splitdir, query_IgnoreErrors );
@@ -194,7 +219,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     				}
     			}
     			if ( !tmp.equals("") ) {
-    				for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    				for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
     	    			String k = (String)e.nextElement();
     	    			query_weaken += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
     	    		}
@@ -206,7 +231,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     				query_weaken += "}"+NL;
     			}
     		}
-    		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    		for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
     			String k = (String)e.nextElement();    		
     			query_IgnoreErrors += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;    		
     		}

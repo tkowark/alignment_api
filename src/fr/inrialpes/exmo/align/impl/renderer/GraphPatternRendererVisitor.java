@@ -79,6 +79,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     protected boolean ignoreerrors = false;
     protected static boolean blanks = false;
     protected boolean weakens = false;
+    protected boolean corese = false;
     private boolean inClassRestriction = false;
     private String instance = null;
     private String value = "";
@@ -474,7 +475,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	flagRestriction = 1;
 		c.getValue().accept( this );
 		flagRestriction = 0;
-		if ( uriType.equals("") ) {
+		if ( uriType != null && uriType.equals("") ) {
 			uriType = "string";
 		}
     	if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
