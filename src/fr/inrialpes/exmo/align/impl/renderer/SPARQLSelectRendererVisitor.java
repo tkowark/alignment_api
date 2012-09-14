@@ -88,7 +88,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	 	resetVariables("s", "o");
 		((Expression)(cell.getObject2())).accept( this );
 	 	GP2 = getGP();
-		for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+		for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
    		    String k = (String)e.nextElement();
 	   		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 		}
@@ -101,7 +101,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 			writer.println(query);
 		}	    		
 	    query="";
-	    for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+	    for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
     	    String k = (String)e.nextElement();
     	    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 	    }

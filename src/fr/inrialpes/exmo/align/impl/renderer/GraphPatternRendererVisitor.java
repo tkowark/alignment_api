@@ -60,6 +60,7 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationId;
 import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
+import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 
 /**
@@ -294,6 +295,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public void visit( final ClassTypeRestriction c ) throws AlignmentException {	
     	String str = "";
     	datatype = "";
+    	inClassRestriction = true;
     	flagRestriction = 1;
     	c.getRestrictionPath().accept( this );
     	flagRestriction = 0;
@@ -316,9 +318,11 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			strBGP_Weaken += str;
 		}
 		objectsRestriction.clear();
+		inClassRestriction = false;
     }
 
     public void visit( final ClassDomainRestriction c ) throws AlignmentException {					
+    	inClassRestriction = true;
     	flagRestriction = 1;
     	c.getRestrictionPath().accept( this );
     	flagRestriction = 0;
@@ -328,6 +332,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		}
     	c.getDomain().accept( this );    	
     	objectsRestriction.clear();
+    	inClassRestriction = false;
     }
 
     public void visit( final ClassOccurenceRestriction c ) throws AlignmentException {
@@ -463,6 +468,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    if( size != 0 && valueRestriction == null ){
 			    	obj = "?o" + ++count;			    			    	
 			    }
+			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
+			    	listBGP.add(strBGP_Weaken);
+			    	strBGP_Weaken = "";
+			    }
 			}		
 		}
 		obj = "?o" + ++count;    	
@@ -475,10 +484,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	flagRestriction = 1;
 		c.getValue().accept( this );
 		flagRestriction = 0;
-		if ( uriType != null && uriType.equals("") ) {
-			uriType = "string";
-		}
-    	if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
+  		if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
     		str = "FILTER (xsd:" + uriType + "(" + obj + ") = ";    		
     	}
     	else if ( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {    		
@@ -544,7 +550,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		    }
 		    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )			    
 					obj = valueRestriction.toString();
-		    if ( flagRestriction == 1 && inClassRestriction )
+		    if ( flagRestriction == 1 && inClassRestriction && op != Constructor.COMP )
 					objectsRestriction.add(obj);
 	    	
 		    strBGP += " " + obj + " ." + NL;
@@ -663,6 +669,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    if ( size != 0 && valueRestriction == null ) {
 			    	obj = "?o" + ++count;			    			    	
 			    }
+			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
+			    	listBGP.add(strBGP_Weaken);
+			    	strBGP_Weaken = "";
+			    }
 			}		
 		}
 		obj = "?o" + ++count;    	
@@ -711,6 +721,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    	uriType = str.substring( index+1 );
     	}
     	value = e.getValue();
+    	if ( uriType != null && uriType.equals("") ) {
+    		uriType = "string";
+    	}
+    	
     }
 	
     public void visit( final Apply e ) throws AlignmentException {}

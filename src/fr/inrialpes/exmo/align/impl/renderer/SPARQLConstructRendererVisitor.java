@@ -37,6 +37,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
 
@@ -124,7 +125,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     		listGP2 = new ArrayList<String>(getBGP());
     		    		
     		if( !GP1.contains("UNION") && !GP1.contains("FILTER") ){
-    			for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    			for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
         			String k = (String)e.nextElement();
         			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
         		}
@@ -196,10 +197,12 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 				}			   	
 			}
 			query="";
+			query_weaken = "";
+			query_IgnoreErrors = "";
     		tmp = "";
-		/*
+		
     	if( !GP2.contains("UNION") && !GP2.contains("FILTER") ){
-    			for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
+    			for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
         			String k = (String)e.nextElement();
         			query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
         		}
@@ -210,6 +213,13 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 			    query += GP1;    	    		
 			    query += "}"+NL;
 			    query_weaken = query;
+			    content_Corese += "<rule>" + NL;
+			    content_Corese += "<body>" + NL;
+			    content_Corese += "<![CDATA[" + NL;
+			    content_Corese += query;
+			    content_Corese += "]]>" + NL;
+			    content_Corese += "</body>" + NL;
+			    content_Corese += "</rule>" + NL + NL;
     		} else {    			
     			Iterator<String> list = listGP2.iterator();
     			while ( list.hasNext() ) {
@@ -241,7 +251,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		    query_IgnoreErrors += "WHERE {"+NL;
 		    query_IgnoreErrors += GP1;    	    		
 		    query_IgnoreErrors += "}"+NL;		    
-		
+		    if ( corese ) return;
 			if( split ) {
 				if ( ignoreerrors ) {
 					createQueryFile( splitdir, query_IgnoreErrors );
@@ -263,7 +273,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 					writer.println( query );
 				}			   	
 			}
-			*/	       		    	
+			    		    	
     	}
 	}
 
