@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,7 +36,17 @@ public class RenameProperties extends RenameThings {
 	String p = params.getProperty( ParametersIds.RENAME_PROPERTIES );
 	if ( p == null ) return null;
 	float percentage = Float.parseFloat( p );
-	modifiedModel = renameResource ( true, false, percentage, true, false, false, 0);
+	boolean synonym = false;
+	boolean translate = false;
+	boolean random = true;
+	String method = params.getProperty( ParametersIds.RENAME_METHOD );
+	if ( method != null ) {
+	    random = false;
+	    if ( method.equals( ParametersIds.RENAME_SYNONYM ) ) synonym = true;
+	    else if ( method.equals( ParametersIds.RENAME_TRANSLATE ) ) translate = true;
+	    else random = true;
+	}
+	modifiedModel = renameResource ( true, false, percentage, random, translate, synonym, 0);
 	return this; // useless
     };
 

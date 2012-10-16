@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011-2012, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -41,5 +41,9 @@ public class ParametersIds {
     public static String REMOVE_RESTRICTIONS= "removeRestrictions";             //removes restrictions
     public static String REMOVE_INDIVIDUALS = "removeIndividuals";              //removes individuals
     public static String NO_HIERARCHY       = "noHierarchy";                    //no hierarchy
+    public static String RENAME_METHOD      = "renameMethod";                    //no hierarchy
+    public static String RENAME_SYNONYM     = "synonym";                    //no hierarchy
+    public static String RENAME_TRANSLATE   = "translate";                    //no hierarchy
+    public static String RENAME_RANDOM      = "random";                    //no hierarchy
 }
 
