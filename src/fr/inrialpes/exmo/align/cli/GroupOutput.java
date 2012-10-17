@@ -247,13 +247,19 @@ public class GroupOutput {
     public double iterateTests( String algo, int[] tests ){
 	File dir = (new File(System.getProperty("user.dir")));
 	double result = 0.0;
+	int nbtests = 0;
 	for ( int i=0; i<tests.length; i++ ){//size() or length
 	    if ( debug > 1 ) System.err.println("    tests: "+tests[i]);
 	    String prefix = dir.toURI().toString()+"/"+tests[i]+"/";
 	    try {
 		PRecEvaluator evaluator = (PRecEvaluator)eval( prefix+"refalign.rdf", prefix+algo+".rdf");
 		result = result + evaluator.getFmeasure();
-	    } catch (AlignmentException aex ) { aex.printStackTrace(); }
+		nbtests++; // Only the tests that succeed
+	    } catch ( AlignmentException aex ) { // simple error message
+		if ( aex.getCause() != null ) 
+		    System.err.println( aex.getCause().getMessage() );
+		else System.err.println( aex );
+	    }
 	}
 	// Unload the ontologies.
 	try {
@@ -261,8 +267,7 @@ public class GroupOutput {
 	} catch ( OntowrapException owex ) { // only report
 	    owex.printStackTrace();
 	}
-
-	return result/(double)tests.length;
+	return result/(double)nbtests;
     }
 
     public Evaluator eval( String alignName1, String alignName2 ) throws AlignmentException {
