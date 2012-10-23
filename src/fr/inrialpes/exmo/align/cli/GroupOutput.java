@@ -72,6 +72,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
  *  -c --color
  *  -v --value
  *  -e --labels
+ *  -m --measure
  *  -d debug --debug=level
  *  -l list of compared algorithms
  *  -t output --type=output: xml/tex/html/ascii
@@ -85,12 +86,42 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
  * requested (<CODE>-o</CODE> flags), then output will be written to
  *  <CODE>output</CODE> if present, stdout by default. In case of the Latex output, there are numerous files generated (regardless the <CODE>-o</CODE> flag).
  *
+ *
  * <pre>
  * $Id$
  * </pre>
  *
  * @author Jérôme Euzenat
  */
+
+/*
+Generating Spider/Radar view in TikZ is very easy.
+The code below works.
+But it is less informative than the above presentation.
+
+\begin{tikzpicture}
+
+% JE: experiment to draw radar/spider plots in TikZ
+% n= number of dimensions (here 5)
+% w=radius if the graph (here 2)
+% p=number of isovalue lines (here 2)
+
+% grid 
+% (for i=1 to n do \draw[black!50] (0,0) -- (i*360/n:w);
+\draw[black!50] (0,0) -- (0:2) node {instances};
+\draw[black!50] (0,0) -- (72:2) node {properties};
+\draw[black!50] (0,0) -- (144:2) node {label};
+\draw[black!50] (0,0) -- (216:2) node {hierarchy};
+\draw[black!50] (0,0) -- (288:2);
+% (for i=1 to p do \draw[black!50] (0,0) -- (i*360/n:w/i);
+\draw[black!50] (0:2) -- (72:2) -- (144:2) -- (216:2) -- (288:2) -- (360:2);
+\draw[black!50] (0:1) -- (72:1) -- (144:1) -- (216:1) -- (288:1) -- (360:1);
+
+% any curve can be displayed in the same way
+\draw (0:1) -- (72:1.22) -- (144:1.56) -- (216:.78) -- (288:.6) -- (360:1);
+
+\end{tikzpicture} 
+*/
 
 public class GroupOutput {
 
@@ -120,6 +151,7 @@ public class GroupOutput {
     boolean labels = false;
     boolean value = false;
     int debug = 0;
+    int measure = 0;
     PrintWriter output = null;
 
     public static void main(String[] args) {
@@ -128,7 +160,7 @@ public class GroupOutput {
     }
 
     public void run(String[] args) throws Exception {
-	LongOpt[] longopts = new LongOpt[9];
+	LongOpt[] longopts = new LongOpt[10];
 
  	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
@@ -138,8 +170,9 @@ public class GroupOutput {
 	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
 	longopts[7] = new LongOpt("value", LongOpt.NO_ARGUMENT, null, 'v');
 	longopts[8] = new LongOpt("labels", LongOpt.NO_ARGUMENT, null, 'e');
+	longopts[9] = new LongOpt("measure", LongOpt.REQUIRED_ARGUMENT, null, 'm');
 
-	Getopt g = new Getopt("", args, "hveo:c::d::l:t:", longopts);
+	Getopt g = new Getopt("", args, "hveo:c::d::l:t:m:", longopts);
 	int c;
 	String arg;
 
@@ -172,6 +205,13 @@ public class GroupOutput {
 	    case 'l' :
 		/* List of filename */
 		fileNames = g.getOptarg();
+		break;
+	    case 'm' :
+		/* measure to be used */
+		String s = g.getOptarg();
+		if ( s.equals("p") ) measure = 1;
+		else if ( s.equals("r") ) measure = 2;
+		else if ( s.equals("o") ) measure = 3;
 		break;
 	    case 'd' :
 		/* Debug level  */
@@ -253,7 +293,7 @@ public class GroupOutput {
 	    String prefix = dir.toURI().toString()+"/"+tests[i]+"/";
 	    try {
 		PRecEvaluator evaluator = (PRecEvaluator)eval( prefix+"refalign.rdf", prefix+algo+".rdf");
-		result = result + evaluator.getFmeasure();
+		result += getMeasure( evaluator );
 		nbtests++; // Only the tests that succeed
 	    } catch ( AlignmentException aex ) { // simple error message
 		if ( aex.getCause() != null ) 
@@ -367,6 +407,13 @@ public class GroupOutput {
 	     }
 	}
 	return result;
+    }
+
+    public double getMeasure( PRecEvaluator evaluator ) {
+	if ( measure == 1 ) return evaluator.getPrecision();
+	if ( measure == 2 ) return evaluator.getRecall();
+	if ( measure == 3 ) return evaluator.getOverall();
+	return evaluator.getFmeasure();
     }
 
     public String colorFormat(double f){
