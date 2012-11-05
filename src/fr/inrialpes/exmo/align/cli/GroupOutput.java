@@ -424,9 +424,11 @@ public class GroupOutput {
     public void usage() {
 	System.out.println("usage: GenPlot [options]");
 	System.out.println("options are:");
-	System.out.println("\t--type=tsv|tex|(html|xml) -t tsv|tex|(html|xml)\tSpecifies the output format");
+	System.out.println("\t--values -v\tSpecifies if the values should be displayed");
+	System.out.println("\t--label -e\tSpecifies if the labels should be displayed");
+	System.out.println("\t--measure=[prf] -c [prf]\tThe measure to display [F-measure]");
+	System.out.println("\t--color=color -c color\tSpecifies the color to use [blue]");
 	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
-	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
 	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.out.println("\t--help -h\t\t\tPrint this message");
     }
