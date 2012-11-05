@@ -335,6 +335,33 @@ $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupEval -t triangl
   better.</b>
 </center>
 
+<p>
+The display below synthesises the results of a matchers by aggregating
+in one cell a group of tests in which the ontologies to compare share
+a common set of characteristics (namely that the same set of features
+has been altered). 
+Each diamond shaped cell corresponds to the
+availability of some features in the test (l=label and comments,
+p=properties, i=instances, h=hierarchy).
+Each cell is presented with a color representing the
+average of the F-measure in each of these tests. The darker the cell,
+the better the algorithm. These diagrams are topologically correct,
+i.e., if a cell touches another cell on one side, they differ from
+only one 'feature', but not complete, i.e., it is not possible to
+present all these connections in a planar way.
+This graphic representation is obtained through the <tt>GroupOutput</tt>
+class by generating a Latex file corresponding in the following figure.
+<div class="terminal">
+$ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GroupOutput -v -c -m f -l "refalign,matcher1,matcher2,..." > losanges.tex
+</div>
+</p>
+
+<center>
+<img src="img/losanges.png" /><br />
+<b>Matcher performance display by <tt>GroupOutput</tt> on a grid preserving as much as possible
+the topology of tests.</b>
+</center>
+
 <h2>Implementing and extending the API</h2>
 
 <p>

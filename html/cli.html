@@ -13,17 +13,20 @@
 The implementation offers various command line tools available in
 the <tt>fr.inrialpes.exmo.align.cli</tt> package:
 <dl>
-<dt>ParserPrinter</dt><dd></dd>
+<dt>Procalign</dt><dd>Runs a matcher on a pair of ontologies</dd>
+<dt>ParserPrinter</dt><dd>Parses and alignment and displays it in
+    various formats.</dd>
 <!--dt>DiffAlign</dt><dd>TODO</dd-->
-<dt>Procalign</dt><dd></dd>
-<dt>EvalAlign</dt><dd></dd>
-<dt>TestGen</dt><dd></dd>
-<dt>GroupAlign</dt><dd></dd>
-<dt>GroupEval</dt><dd></dd>
-<dt>ExtGroupEval</dt><dd></dd>
-<dt>WGroupEval</dt><dd></dd>
-<dt>GroupOutput</dt><dd></dd>
-<dt>GenPlot</dt><dd></dd>
+<dt>EvalAlign</dt><dd>Evaluates and alignment with respect to a
+    reference alignment.</dd>
+<dt>TestGen</dt><dd>Generates tests for evaluating matchers.</dd>
+<dt>GroupAlign</dt><dd>Runs a matcher against several different test cases.</dd>
+<dt>GroupEval</dt><dd>Evaluates several matcher results in several different test cases.</dd>
+<dt>ExtGroupEval</dt><dd>Same as above with extended evaluators</dd>
+<dt>WGroupEval</dt><dd>Same as above with weighted evaluators.</dd>
+<dt>GenPlot</dt><dd>Generates various pliots from matcher resulst
+    (ROC curves or precision/recall graphs).</dd>
+<dt>GroupOutput</dt><dd>Generates other representations of matcher results.</dd>
 </dl>
 </p>
 <p>
@@ -38,8 +41,7 @@ These command line operations usually share switch conventions:
 <p>
 Another such utility (<tt>ParserPrinter</tt>) allows to read an
 alignment, to manipulate it and to output it without processing
-the <tt>align</tt> method. Other utilities dealing with evaluation are
-presented in <a href="eval.html">the evaluation page</a>.
+the <tt>align</tt> method.
 </p>
 
 <h2>Matching</h2>
@@ -113,8 +115,8 @@ in the <a href="testgen.html">test generation page</a>.
 
 <p>
 Tools for evaluating (<tt>EvalAlign</tt>) and batch evaluating
-alignments  (<tt>GroupEval</tt>) and displaying
-results (<tt>GenPlot</tt>) are described in the <a href="eval.html">evaluation page</a>.
+alignments  (<tt>GroupEval</tt>, <tt>ExtGroupEval</tt>, <tt>WGroupEval</tt>) and displaying
+results (<tt>GenPlot</tt>, <tt>GroupOutput</tt>) are described in the <a href="eval.html">evaluation page</a>.
 </p>
 
 <address>
