@@ -511,7 +511,7 @@ public class GroupEval {
 			writer.println("</td>");
 		    }
 		} else {
-		    writer.println("<td>n/a</td><td>n/a</td>");
+		    for ( int i = 0 ; i < fsize; i++) writer.println("<td>n/a</td>");
 		}
 	    }
 	    writer.println("</tr>");
