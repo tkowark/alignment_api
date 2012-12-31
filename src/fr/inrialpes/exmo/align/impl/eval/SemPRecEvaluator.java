@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2011
+ * Copyright (C) INRIA, 2009-2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -101,36 +101,38 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	reasoner.addOntology( align1.getOntology1URI() );
 	reasoner.addOntology( align1.getOntology2URI() );
 	reasoner.addAlignment( align1 );
-	// What to do if not consistent?
-	reasoner.isConsistent();
-
-	for ( Cell c2 : align2 ) {
-	    // create alignment
-	    Alignment al = new ObjectAlignment();
-	    al.init( align2.getOntology1URI(), align2.getOntology2URI() );
-	    // add the cell
-	    al.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
-	    if ( reasoner.isEntailed( al ) ) nbfoundentailed++;
+	if ( !reasoner.isConsistent() ) { // everything is entailed
+	    nbfoundentailed = align2.nbCells();
+	} else {
+	    for ( Cell c2 : align2 ) {
+		// create alignment
+		Alignment al = new ObjectAlignment();
+		al.init( align2.getOntology1URI(), align2.getOntology2URI() );
+		// add the cell
+		al.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
+		if ( reasoner.isEntailed( al ) ) nbfoundentailed++;
+	    }
 	}
 
 	reasoner = new IDDLReasoner( semantics );
 	reasoner.addOntology( align2.getOntology1URI() );
 	reasoner.addOntology( align2.getOntology2URI() );
 	reasoner.addAlignment( align2 );
-	// What to do if not consistent?
-	reasoner.isConsistent();
-
-	for ( Cell c1 : align1 ) {
-	    // create alignment
-	    Alignment al = new ObjectAlignment();
-	    al.init( align2.getOntology1URI(), align2.getOntology2URI() );
-	    // add the cell (too bad, addCell is not in the interface)
-	    al.addAlignCell( c1.getObject1(), c1.getObject2(), c1.getRelation().getRelation(), 1. );
-	    if ( reasoner.isEntailed( al ) ) nbexpectedentailed++;
+	if ( !reasoner.isConsistent() ) { // everything is entailed
+	    nbexpectedentailed = align1.nbCells();
+	} else {
+	    for ( Cell c1 : align1 ) {
+		// create alignment
+		Alignment al = new ObjectAlignment();
+		al.init( align2.getOntology1URI(), align2.getOntology2URI() );
+		// add the cell (too bad, addCell is not in the interface)
+		al.addAlignCell( c1.getObject1(), c1.getObject2(), c1.getRelation().getRelation(), 1. );
+		if ( reasoner.isEntailed( al ) ) nbexpectedentailed++;
+	    }
 	}
 
-	precision = (double) nbfoundentailed / (double) nbfound;
-	recall = (double) nbexpectedentailed / (double) nbexpected;
+	precision = (double)nbfoundentailed / (double)nbfound;
+	recall = (double)nbexpectedentailed / (double)nbexpected;
 	return computeDerived();
     }
 
@@ -143,7 +145,5 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	results.setProperty( "nbfoundentailed", Integer.toString( nbfoundentailed ) );
 	return results;
     }
-
-
 }
 
