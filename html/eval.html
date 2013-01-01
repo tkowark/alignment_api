@@ -85,7 +85,7 @@ alignments and evaluates the second with respect to the first one (reference).
 There are already some implementations available in the Alignment API implementation:
 <dl>
 <dt><tt>PRecEvaluator</tt></dt><dd> implements a classical precision/recall/fallout evaluation as well as the
-derived measures introduced in \cite{do2002a}. Precision is the
+derived measures introduced in [Do2002a]. Precision is the
 ratio between true positive and all aligned objects; Recall is the ratio between the true positive and all
 the correspondences that should have been found. It also provides
     derived measures (F-measure, overall, noise, etc.).</dd>
@@ -108,7 +108,20 @@ The result is here split between the kinds of entity considered (Class/Property/
     computing precision and recall). It is used by the <a href="aserv.html">Alignment server</a></dd>
 </dl>
 </p>
-
+<p>
+<span style="color: red;">Requirements</span>
+<ul>
+<li><b><tt>ExtPRecEvaluator</tt></b> requires that the two alignments be <tt>ObjectAlignment</tt>.
+This can be achived, if possible, by invoking <div class="terminal">al = ObjectAlignment.toObjectAlignment( myAlignment );</div> and
+  that the OWL-API or JENA (shipped with the Alignment API) be in
+  your classpath.</li>
+<li><b><tt>SemPRecEvaluator</tt></b> <i>in addition</i> requires to have an
+  OWL reasoner in the classpath. In our case, it uses both IDDL and HermiT
+  (shipped with the alignment API).</li>
+</ul>
+The class path requirements apply to all command-line primitive below
+as well as the Alignment server.
+</p>
 
 <h2>Batch evaluation</h2>
 
