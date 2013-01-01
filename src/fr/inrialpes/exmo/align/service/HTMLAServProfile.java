@@ -205,9 +205,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			if ( length > 0 ) {
 			    char [] mess = new char[length+1];
 			    try {
-				//System.err.println("!!!!!"+length);
 				new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
-				//System.err.println("?????");
 			    } catch (Exception e) {
 				e.printStackTrace(); // To clean up
 			    }
