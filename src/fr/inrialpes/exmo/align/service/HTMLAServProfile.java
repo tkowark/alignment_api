@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2012
+ * Copyright (C) INRIA, 2006-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -115,6 +115,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	MIME_HTML = "text/html",
 	MIME_XML = "text/xml",
 	MIME_JSON = "application/json",
+	MIME_RDFXML = "application/rdf+xml",
 	MIME_DEFAULT_BINARY = "application/octet-stream";
 
     public static final int MAX_FILE_SIZE = 10000;
@@ -330,6 +331,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
 	    return adminAnswer( uri, uri.substring(start), header, params );
+	// Returns RDF or HTML depending on the header
+	} else if ( oper.equals( "alid" ) ){
+	    String accept = header.getProperty( "Accept" );
+	    if ( accept == null ) accept = header.getProperty( "accept" );
+	    if ( accept != null && accept.contains( "rdf+xml" ) ) {
+		return returnAlignment( uri, true );
+	    } else {
+		return returnAlignment( uri, false );
+	    }
 	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
@@ -354,9 +364,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    return new Response( HTTP_OK, MIME_XML, "<SystemErrorMsg>No service launched</SystemErrorMsg>" );
 		}
 	    }
-	    // This already seems RESTful
-	} else if ( oper.equals( "alid" ) ){
-	    return returnAlignment( uri );
 	} else if ( oper.equals( "wsdl" ) ){
 	    return wsdlAnswer(uri, uri.substring(start), header, params);
 	} else {
@@ -368,7 +375,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"html/\">Access</a></center>"
-	    + "(C) INRIA, 2006-2012<br />"
+	    + "(C) INRIA, 2006-2013<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
 	    + "</center>";
     }
@@ -453,15 +460,25 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     /**
      * Returns the alignment in RDF/XML
      */
-    public Response returnAlignment( String uri ) {
+    public Response returnAlignment( String uri, boolean rdf ) {
 	Properties params = new Properties();
 	params.setProperty("id", manager.serverURL()+uri);
-	params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	if ( answer instanceof ErrorMsg ) {
-	    return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
+	if ( rdf ) {
+	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
+	    } else {
+		return new Response( HTTP_OK, MIME_XML, answer.getContent() );
+	    }
 	} else {
-	    return new Response( HTTP_OK, MIME_XML, answer.getContent() );
+	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
+	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    if ( answer instanceof ErrorMsg ) {
+		return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
+	    } else {
+		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+	    }
 	}
     }
 
