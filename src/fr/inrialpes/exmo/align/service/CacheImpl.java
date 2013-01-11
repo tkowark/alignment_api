@@ -75,7 +75,7 @@ public class CacheImpl {
     // Only Date/random should be stored.
     String idprefix = null;
 
-    final int VERSION = 420; // Version of the API to be stored in the database
+    final int VERSION = 442; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -1076,7 +1076,7 @@ public class CacheImpl {
 		    renameColumn(st,"alignment","owlontology1","ontology1", "VARCHAR(255)");
 		    renameColumn(st,"alignment","owlontology2","ontology2", "VARCHAR(255)");
 		}
-		if ( version < 410 ) {
+		if ( version < 441 ) {
 		    System.err.println("Upgrading to version 4.1");
 		    // [JE2012:ONTO]
 		    st.executeUpdate("CREATE TABLE ontology (id VARCHAR(255), uri VARCHAR(255), source BOOLEAN, file VARCHAR(255), formname VARCHAR(50), formuri VARCHAR(255), primary key (id, source))");
@@ -1089,21 +1089,7 @@ public class CacheImpl {
 		    	st2.executeUpdate("INSERT INTO ontology (id, uri, source, file) VALUES ('"+rse.getString("id")+"','"+rse.getString("uri2")+"','0','"+rse.getString("file2")+"')");
 		    }
 		}
-		if ( version < 430 ) {
-		    System.err.println("Upgrading to version 4.2");
-		    // [JE2012:ID][JE2013:this works]
-		    // Add new column in server table
-		    //st.executeUpdate("ALTER TABLE server ADD prefix VARCHAR(50);");
-		    //st.executeUpdate("UPDATE server SET prefix='"+idprefix+"'");
-		    // Reset id in Alignment to suffix
-		    // TODO...
-		}
-		if ( version < 440 ) {
-		    System.err.println("Upgrading to version 4.3");
-		    // [JE2012:DEPEND][JE2013:this works]
-		    //st.executeUpdate("CREATE TABLE dependencies (id VARCHAR(255), dependsOn VARCHAR(255))");
-		}
-		if ( version < 420 ) {
+		if ( version < 442 ) {
 		    System.err.println("Upgrading to version 4.4");
 		    // [JE2012:ONTO]
 		    st.executeUpdate("ALTER TABLE alignment DROP ontology1");  
@@ -1112,6 +1098,20 @@ public class CacheImpl {
 		    st.executeUpdate("ALTER TABLE alignment DROP uri2");  
 		    st.executeUpdate("ALTER TABLE alignment DROP file1");  
 		    st.executeUpdate("ALTER TABLE alignment DROP file2");  
+		}
+		if ( version < 443 ) {
+		    System.err.println("Upgrading to version 4.2");
+		    // [JE2012:ID][JE2013:this works]
+		    // Add new column in server table
+		    //st.executeUpdate("ALTER TABLE server ADD prefix VARCHAR(50);");
+		    //st.executeUpdate("UPDATE server SET prefix='"+idprefix+"'");
+		    // Reset id in Alignment to suffix
+		    // TODO...
+		}
+		if ( version < 444 ) {
+		    System.err.println("Upgrading to version 4.3");
+		    // [JE2012:DEPEND][JE2013:this works]
+		    //st.executeUpdate("CREATE TABLE dependencies (id VARCHAR(255), dependsOn VARCHAR(255))");
 		}
 		// ALTER version
 		// [JE2013: better alter it everywere]
