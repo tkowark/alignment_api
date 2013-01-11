@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011
+ * Copyright (C) INRIA, 2006-2009, 2011, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -46,7 +46,8 @@ public class AlignmentIds extends Success {
 	    result = "Alignment Ids: <ul>";
 	    for ( int i = id.length-1; i >= 0; i-- ){
 		//System.err.println("id["+i+"]"+id[i]);
-		result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
+		//result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
+		result += "<li><a href=\""+id[i]+"\">";
 		result += id[i];
 		String pp = null;
 		if ( pid != null ) {

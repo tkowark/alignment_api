@@ -535,7 +535,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
+		//msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a></li>";
+		msg += "<li><a href=\""+id+"\">"+pid+"</a></li>";
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("manalignments") ){ // Manage ailignments
@@ -544,7 +545,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 		String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a> "+al.nbCells()+" <a href=\"../html/errrazze?id="+id+"\">DEL</a></li>";
+		//msg += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id+"\">"+pid+"</a> "+al.nbCells()+" <a href=\"../html/errrazze?id="+id+"\">DEL</a></li>";
+		msg += "<li><a href=\""+id+"\">"+pid+"</a> "+al.nbCells()+" <a href=\"../html/errrazze?id="+id+"\">DEL</a></li>";
 	    }
 	    msg += "</ul>";
 	} else if ( perf.equals("errrazze") ){ // Suppress an alignment
