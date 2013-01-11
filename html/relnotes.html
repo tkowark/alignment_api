@@ -37,16 +37,19 @@ The development of 4 versions continues.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Implement <tt>ontowrap</tt> support in database store (server [4.5])</li>
+
 <li>Make URIs dependent on a urlprefix (server [4.5])</li>
 <li>Provide several URIs for the same alignment (server [4.5])</li>
-<li>Add a <tt>dependsOn</tt> alignment property (api [4.6])</li>
-<li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking,
-  cell ingestion) (impl [4.6])</li>
+
 <li>Implement database store for EDOAL (server [4.6])</li>
+<li>Add simple "harder" test generator (gen [4.6])</li>
+<li>Add simple "hidden" test generator (gen [4.6])</li>
+<li>Add a <tt>dependsOn</tt> alignment property (api [4.6])</li>
+<li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking, cell ingestion) (impl [4.6])</li>
+
 <li>Add a JSON interface (server)</li>
-<li>Integrate tests from generator</li>
-<li>Integrate some basic reasoning.</li>
+<li>Integrate tests from generator (test)</li>
+<li>Integrate some basic reasoning (impl).</li>
 <li>Complete tutorial4 with distributed reasoning.</li>
 <li>Genericize evaluators in <tt>GraphEvaluator</tt> and <tt>GenPlot</tt> (eval)</li>
 <li>Implementation of a provenance metadata tag (server/impl)</li>
@@ -74,11 +77,17 @@ with a warning:
 <!--h2>Version 4.6 (1xxx): ??/??/2012 - Da lec'h all</h2-->
 <!--h2>Version 4.5 (17xx): ??/??/2012 - Metro</h2-->
 <p><ul compact="1">
-<!--li>Upgraded to <span style="color: green"></span> (lib)</li-->
+<li>Upgraded to <span style="color: green">OWL API</span> to 3.4.2 (lib)</li>
+<li>Upgraded to <span style="color: green">IDDL</span> to 1.4 (lib)</li>
+<li>Replaced Pellet by <span style="color: green">HermiT</span> as default reasonner (lib)</li>
+<li>Added <tt>ontowrap</tt> support in database store (server)</li>
 <li>Added several EDOAL-SPARQL renderers (impl)</li>
 <li>Added alignment selection per ontologies in list alignment interface (server)</li>
+<li>Implemented transactions in database store (server)</li>
 <li>Fixed a (non manifested) bug in cache management (server)</li>
+<li>Fixed a bug in displaying evaluation tables (cli)</li>
 <li>Fixed a bug with subsumption statements in <tt>OWLAxiomsRendererVisitor</tt> (impl)</li>
+<li>Simplified <tt>SemPRecEvaluator</tt> when an ontology is inconsistent (impl)</li>
 </ul></p>
 
 <h2>Version 4.4 (1754): 17/07/2012 - Casa Cirilo</h2>
