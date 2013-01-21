@@ -31,10 +31,7 @@
     <onto1>
       <Ontology rdf:about="&wine;">
       <formalism>
-	<Formalism>
-	 <uri>http://www.w3.org/TR/owl-guide/</uri>
-	 <name>owl</name>
-	</Formalism>
+	<Formalism name="OWL1.0" uri="http://www.w3.org/2002/07/owl#"/>
       </formalism>
       </Ontology>
     </onto1> 
