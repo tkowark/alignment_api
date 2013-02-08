@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008, 2010-2012
+ * Copyright (C) INRIA, 2003-2008, 2010-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
-*/
 package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
@@ -28,6 +26,8 @@ import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
+import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 //Imported JAVA classes
 import java.io.IOException;
@@ -98,10 +98,10 @@ public class EvalAlign {
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	//longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
+	longopts[3] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	longopts[4] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
 	
-	Getopt g = new Getopt("", args, "ho:d::i:", longopts);
+	Getopt g = new Getopt("", args, "ho:d::i:D:", longopts);
 	int c;
 	String arg;
 
@@ -123,6 +123,19 @@ public class EvalAlign {
 		arg = g.getOptarg();
 		if ( arg != null ) debug = Integer.parseInt(arg.trim());
 		else debug = 4;
+		break;
+	    case 'D' :
+		/* Parameter definition */
+		arg = g.getOptarg();
+		int index = arg.indexOf('=');
+		if ( index != -1 ) {
+		    params.setProperty( arg.substring( 0, index), 
+					 arg.substring(index+1));
+		} else {
+		    System.err.println("Bad parameter syntax: "+g);
+		    usage();
+		    System.exit(0);
+		}
 		break;
 	    }
 	}
@@ -154,9 +167,12 @@ public class EvalAlign {
 	    if ( debug > 0 ) System.err.println(" Alignment structure2 parsed");
 	} catch ( Exception ex ) { ex.printStackTrace(); }
 
+	boolean totry = true;
 	try {
-	    // Create evaluator object
+	while ( totry ) {
+	    totry = false;
 	    if ( classname != null ) {
+		// Create evaluator object
 		try {
 		    Object [] mparams = {(Object)align1, (Object)align2};
 		    Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
@@ -180,8 +196,22 @@ public class EvalAlign {
 	    } else { eval = new PRecEvaluator( align1, align2 ); };
 
 	    // Compare
-	    eval.eval(params) ;
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	    try {
+		eval.eval(params) ;
+	    } catch ( AlignmentException aex ) {
+		if ( align1 instanceof ObjectAlignment ) {
+		    throw aex;
+		} else {
+		    try {
+			align1 = ObjectAlignment.toObjectAlignment( (URIAlignment)align1 );
+			align2 = ObjectAlignment.toObjectAlignment( (URIAlignment)align2 );
+			totry = true;
+		    } catch ( AlignmentException aaex ) { throw aex; }
+		}
+	    }
+	}
+	} catch ( Exception ex ) { ex.printStackTrace(); }
+
 	
 	// Set output file
 	try {
@@ -211,6 +241,7 @@ public class EvalAlign {
 	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
 	System.err.println("\t--impl=className -i classname\t\tUse the given evaluator implementation.");
 	System.err.println("\t--output=filename -o filename\tOutput the result in filename");
+	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
 	System.err.print("\n"+EvalAlign.class.getPackage().getImplementationTitle()+" "+EvalAlign.class.getPackage().getImplementationVersion());
 	System.err.println(" ($Id$)\n");
