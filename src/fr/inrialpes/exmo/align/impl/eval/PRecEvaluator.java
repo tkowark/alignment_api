@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2011
+ * Copyright (C) INRIA, 2004-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,8 +44,7 @@ import java.net.URI;
  * This function implements Precision/Recall. The first alignment
  * is thus the expected one.
  *
- * NOTE: This measure does not take relations nor confidences into account
- * For relation, this will wait for algebra based relations
+ * Basic relation sensitivity has been implemented
  *
  * @author Jerome Euzenat
  * @version $Id$ 
@@ -60,6 +59,8 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     protected double overall = 0.;
 
     protected double fmeasure = 0.;
+
+    protected boolean relsensitive = false;
 
     protected long time = 0;
 
@@ -109,6 +110,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     public double eval( Properties params ) throws AlignmentException {
 	init();
 	nbfound = align2.nbCells();
+	if ( params.getProperty("relations") != null ) relsensitive = true;
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
@@ -117,7 +119,8 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	    if( s2 != null ){
 		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
-		    if ( uri1.equals( uri2 ) ) {
+		    if ( uri1.equals( uri2 )
+			 && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
 			nbcorrect++;
 			break;
 		    }
