@@ -25,23 +25,23 @@
     <dc:date>2010/10/10</dc:date>
     <method>manual</method>
     <purpose>example</purpose>
-    <rdf:comment>This is a transformation of total.xml which can be transformed in OWL</rdf:comment>
+    <rdfs:comment>This is a transformation of total.xml which can be transformed in OWL</rdfs:comment>
     <level>2EDOAL</level>
     <type>**</type>    
     <onto1>
       <Ontology rdf:about="&wine;">
-      <formalism>
-	<Formalism name="OWL1.0" uri="http://www.w3.org/2002/07/owl#"/>
-      </formalism>
+	<formalism>
+	  <Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
+	</formalism>
       </Ontology>
     </onto1> 
     <onto2>
       <Ontology rdf:about="&vin;">
-      <location>http://www.scharffe.fr/ontologies/OntologieDuVin.wsml</location>
-      <formalism>
-	<Formalism align:uri="http://www.wsmo.org/wsml/wsml-syntax/wsml-dl"
-		   align:name="wsml" />
-      </formalism>
+	<location>http://www.scharffe.fr/ontologies/OntologieDuVin.wsml</location>
+	<formalism>
+	  <Formalism align:uri="http://www.wsmo.org/wsml/wsml-syntax/wsml-dl"
+		     align:name="wsml" />
+	</formalism>
       </Ontology>
     </onto2>
 

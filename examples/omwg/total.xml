@@ -32,7 +32,7 @@
     <onto1>
       <Ontology rdf:about="&wine;">
       <formalism>
-	<Formalism name="OWL1.0" uri="http://www.w3.org/2002/07/owl#"/>
+	<Formalism align:name="OWL1.0" align:uri="http://www.w3.org/2002/07/owl#"/>
       </formalism>
       </Ontology>
     </onto1> 
