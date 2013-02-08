@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2010, 2012
+ * Copyright (C) INRIA, 2004-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -212,16 +212,18 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	    for ( Cell c2 : align2 ) {
 		int val1 = 0; // the similatity between the o1 objects
 		int val2 = 0; // the similarity between the o2 objects
-		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
+		if ( onto1.getEntityURI( c1.getObject1() ).equals( onto1.getEntityURI(c2.getObject1()) ) ){
 		    val1 = 0;
 		} else {
-		    val1 = Math.abs( relativePosition( c1.getObject2(), c2.getObject2(), onto2 ) );
+		    val1 = Math.abs( relativePosition( c1.getObject1(), c2.getObject1(), onto1 ) );
+		    //System.err.println( c1.getObject1()+" -- "+c2.getObject1()+" = "+val1 );
 		    if ( val1 == 0 ) continue;
 		}
-		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
+		if ( onto2.getEntityURI( c1.getObject2() ).equals( onto2.getEntityURI(c2.getObject2()) ) ){
 		    val2 = 0;
 		} else {
-		    val2 = Math.abs( relativePosition( c1.getObject1(), c2.getObject1(), onto1 ) );
+		    val2 = Math.abs( relativePosition( c1.getObject2(), c2.getObject2(), onto2 ) );
+		    //System.err.println( c1.getObject2()+" -- "+c2.getObject2()+" = "+val2 );
 		    if ( val2 == 0 ) continue;
 		}
 		double val = Math.pow( symALPHA, val1 + val2 );
@@ -250,7 +252,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
 		    val = 1.;
 		} else {
-		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    val1 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
 		    if ( val1 == 0 ) {
 			continue;
 		    } if ( val1 > 0 ) {
@@ -262,7 +264,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
 		    // val remains val
 		} else {
-		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    val2 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
 		    if ( val2 == 0 ) {
 			continue;
 		    } if ( val2 > 0 ) {
@@ -296,7 +298,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
 		    val = 1.;
 		} else {
-		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    val1 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
 		    if ( val1 == 0 ) {
 			continue;
 		    } if ( val1 > 0 ) {
@@ -308,7 +310,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
 		    // val remains val
 		} else {
-		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    val2 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
 		    if ( val2 == 0 ) {
 			continue;
 		    } if ( val2 > 0 ) { // This is the inverse from o1 because queries flow from o1 to o2
@@ -340,7 +342,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto1.getEntityURI( c1.getObject1() ).equals(onto1.getEntityURI(c2.getObject1())) ){
 		    val = 1.;
 		} else {
-		    val1 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
+		    val1 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
 		    if ( val1 == 0 ) {
 			continue;
 		    } if ( val1 > 0 ) {
@@ -352,7 +354,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if ( onto2.getEntityURI(c1.getObject2()).equals(onto2.getEntityURI(c2.getObject2())) ){
 		    // val remains val
 		} else {
-		    val2 = relativePosition( c1.getObject1(), c2.getObject1(), onto1 );
+		    val2 = relativePosition( c1.getObject2(), c2.getObject2(), onto2 );
 		    if ( val2 == 0 ) {
 			continue;
 		    } if ( val2 > 0 ) { // This is the inverse from o1 because queries flow from o1 to o2

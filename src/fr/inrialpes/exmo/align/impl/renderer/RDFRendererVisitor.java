@@ -41,7 +41,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectCell;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
-import fr.inrialpes.exmo.ontowrap.Ontology; //?
+import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
