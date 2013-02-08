@@ -48,10 +48,9 @@ import java.net.URI;
  * These are the measures corresponding to [Ehrig&Euzenat2005].
  * The implementation is based on that of PRecEvaluator.
  *
- * This currently (4.1) implements all three mesures with the following 
+ * This currently (4.4) implements all three mesures with the following 
  * changes:
- * - relations are not taken into account
- *   (see when there is an algebra of relation with degree of overlap)
+ * - relations have been implemented by generalising Table 2, 5 and 7
  * - functions are parameterised by symALPHA, editALPHA, editBETA, oriented
  * - the distance in the three is measured by param/(d+param) or param^d
  * In the first case (for param=.5): 1, .5, .25, .16, .125
@@ -103,6 +102,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     private double orientRecsimilarity = 0;
 
     private boolean withConfidence = true;
+    private boolean relsensitive = false;
 
     /** Creation **/
     public ExtPREvaluator(Alignment align1, Alignment align2) throws AlignmentException {
@@ -140,6 +140,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
 	if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
+	if ( params.getProperty( "relations" ) != null ) relsensitive = true;
 	// Better to transform them instead...
 	if ( !( align1 instanceof ObjectAlignment ) || !( align2 instanceof ObjectAlignment ) )
 	    throw new AlignmentException( "ExtPREvaluation: requires ObjectAlignments" );
@@ -159,7 +160,8 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		if( s2 != null ){
 		    for( Cell c2 : s2 ){
 			URI uri2 = onto2.getEntityURI( c2.getObject2() );	
-			if ( uri1.equals( uri2 ) ) {
+			if ( uri1.equals( uri2 )
+			     && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
 			    symsimilarity += 1.;
 			    effsimilarity += 1.;
 			    orientPrecsimilarity += 1.;
@@ -229,7 +231,14 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		double val = Math.pow( symALPHA, val1 + val2 );
 		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
 		//System.err.println( "               => "+symALPHA+"^"+val1+"+"+val2+" * "+(1. - Math.abs( c1.getStrength() - c2.getStrength() ))+"  =  "+val );
-		// Here the measure should also take into account relations
+		if ( relsensitive && !c1.getRelation().equals( c2.getRelation() ) ) {
+		    if ( ( c1.getRelation().getRelation().equals("=") &&
+			   ( c2.getRelation().getRelation().equals("<") || c2.getRelation().getRelation().equals(">") ))
+			 || ( c2.getRelation().getRelation().equals("=") &&
+			      ( c1.getRelation().getRelation().equals("<") || c1.getRelation().getRelation().equals(">") )) ) {
+			val = val/2;
+		    } else { val = 0.; }
+		}
 		if ( val > sim ) sim = val;
 	    }
 	} catch( OntowrapException aex ) { return 0;
@@ -275,7 +284,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		}
 		if ( c1.getStrength() != 0. && c2.getStrength() != 0. ) { // Definition 9
 		    // Here the measure should also take into account relations
-		    // Easy: if they are different, then val = val/2;
+		    if ( relsensitive && !c1.getRelation().equals( c2.getRelation() ) ) val = val/2;
 		    if ( val > sim ) sim = val;
 		}
 	    }
@@ -290,6 +299,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      */
     protected double computePrecisionOrientedSimilarity( Cell c1, Alignment s2 ){
 	double sim = 0; // the similarity between the pair of elements
+	double relsim = 0.;// the similarity between the relations
 	try {
 	    for ( Cell c2 : align2 ) {
 		int val1 = 0; // the similatity between the o1 objects
@@ -321,6 +331,14 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		}
 		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
 		// Here the measure should also take into account relations
+		if ( relsensitive && !c1.getRelation().equals( c2.getRelation() ) ) {
+		    if ( ( c1.getRelation().getRelation().equals("=") && c2.getRelation().getRelation().equals(">") )
+			 || ( c2.getRelation().getRelation().equals("=") && c1.getRelation().getRelation().equals(">") ) ) {
+		    } else if ( ( c1.getRelation().getRelation().equals("=") && c2.getRelation().getRelation().equals("<") )
+				|| ( c2.getRelation().getRelation().equals("=") && c1.getRelation().getRelation().equals("<") ) ) {
+			val = val/2;
+		    } else { val = 0.; }
+		}
 		if ( val > sim ) sim = val;
 	    }
 	} catch( OntowrapException aex ) { return 0;
@@ -334,6 +352,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      */
     protected double computeRecallOrientedSimilarity( Cell c1, Alignment s2 ){
 	double sim = 0; // the similarity between the pair of elements
+	double relsim = 0.;// the similarity between the relations
 	try {
 	    for ( Cell c2 : align2 ) {
 		int val1 = 0; // the similatity between the o1 objects
@@ -365,6 +384,14 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		}
 		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
 		// Here the measure should also take into account relations
+		if ( relsensitive && !c1.getRelation().equals( c2.getRelation() ) ) {
+		    if ( ( c1.getRelation().getRelation().equals("=") && c2.getRelation().getRelation().equals("<") )
+			 || ( c2.getRelation().getRelation().equals("=") && c1.getRelation().getRelation().equals("<") ) ) {
+		    } else if ( ( c1.getRelation().getRelation().equals("=") && c2.getRelation().getRelation().equals(">") )
+				|| ( c2.getRelation().getRelation().equals("=") && c1.getRelation().getRelation().equals(">") ) ) {
+			val = val/2;
+		    } else { val = 0.; }
+		}
 		if ( val > sim ) sim = val;
 	    }
 	} catch( OntowrapException aex ) { return 0;
