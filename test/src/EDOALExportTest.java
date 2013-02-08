@@ -175,7 +175,7 @@ public class EDOALExportTest {
 	writer.close();
 	String str1 = stream.toString();
 	//System.err.println(str1);
-	assertEquals( str1.length(), 36095 );
+	assertEquals( str1.length(), 36097 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"setUp"})

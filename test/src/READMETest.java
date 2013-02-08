@@ -329,12 +329,12 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	writer.flush();
 	writer.close();
 	// These figures must be checked at least onece!
-	assertEquals( eval.getPrecision(), 0.3181818181818182 );
-	assertEquals( eval.getRecall(), 0.3939393939393939 );
-	assertEquals( eval.getNoise(), 1.0 );
+	assertEquals( eval.getPrecision(), 0.7619047619047619 ); //0.3181818181818182
+	assertEquals( eval.getRecall(), 1.0 );//0.3939393939393939
+	assertEquals( eval.getNoise(), 0.23809523809523814 );//1.0
 	//assertEquals( eval.getFallout(), 1.0 );
-	assertEquals( eval.getFmeasure(), 0.3520309477756286 );
-	assertEquals( eval.getOverall(), -0.4502164502164502 );
+	assertEquals( eval.getFmeasure(), 0.8648648648648648 );//0.3520309477756286
+	assertEquals( eval.getOverall(), 0.6875 );//-0.4502164502164502
 	//assertEquals( eval.getResult(), 1.34375 );
     }
 
