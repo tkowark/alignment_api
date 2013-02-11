@@ -81,8 +81,7 @@ public class ObjectAlignment extends BasicAlignment {
 
     public void loadInit( Alignment al ) throws AlignmentException {
 	if ( al instanceof URIAlignment ) {
-	    try { init = toObjectAlignment( (URIAlignment)al ); }
-	    catch (SAXException e) { e.printStackTrace(); }
+	    init = toObjectAlignment( (URIAlignment)al );
 	} else if ( al instanceof ObjectAlignment ) {
 	    init = (ObjectAlignment)al;
 	}
@@ -134,7 +133,7 @@ public class ObjectAlignment extends BasicAlignment {
 	return align;
     }
 
-    public static ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException, SAXException {
+    public static ObjectAlignment toObjectAlignment( URIAlignment al ) throws AlignmentException {
 	ObjectAlignment alignment = new ObjectAlignment();
 	try {
 	    alignment.init( al.getFile1(), al.getFile2() );

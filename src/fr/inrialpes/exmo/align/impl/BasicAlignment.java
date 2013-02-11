@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011
+ * Copyright (C) INRIA, 2003-2011, 2013
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -229,7 +229,7 @@ public class BasicAlignment implements Alignment {
     };
 
     public String getXNamespace( String label ) {
-	return (String)namespaces.getProperty( label );
+	return namespaces.getProperty( label );
     };
 
     public Enumeration<Cell> getElements() {

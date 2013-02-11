@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,7 +34,6 @@ import java.util.Properties;
 
 public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
 
-
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
@@ -44,37 +43,36 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     private String GP1;
     private String GP2;
     
-	public SPARQLSelectRendererVisitor(PrintWriter writer) {
-		super(writer);
-	}   
+    public SPARQLSelectRendererVisitor(PrintWriter writer) {
+	super(writer);
+    }   
 
-	public void init(Properties p) {
-		if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
-		    embedded = true;
-		if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
-		    blanks = true;
-		if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
-		    weakens = true;
-		if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
-		    ignoreerrors = true;
-		split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
-		if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
-		    splitdir = p.getProperty( "dir" )+"/";
-		if ( p.getProperty( "indent" ) != null )
-			INDENT = p.getProperty( "indent" );
-		if ( p.getProperty( "newline" ) != null )
-		    NL = p.getProperty( "newline" );
-	}
+    public void init(Properties p) {
+	if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
+	    embedded = true;
+	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
+	    blanks = true;
+	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
+	    weakens = true;
+	if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
+	    ignoreerrors = true;
+	split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
+	if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
+	    splitdir = p.getProperty( "dir" )+"/";
+	if ( p.getProperty( "indent" ) != null )
+	    INDENT = p.getProperty( "indent" );
+	if ( p.getProperty( "newline" ) != null )
+	    NL = p.getProperty( "newline" );
+    }
 
-	public void visit(Alignment align) throws AlignmentException {
-		if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
-		alignment = align;		
-		for( Cell c : align ){ c.accept( this ); };    	
-	}	
+    public void visit(Alignment align) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
+	alignment = align;		
+	for( Cell c : align ){ c.accept( this ); };    	
+    }	
 
-	public void visit(Cell cell) throws AlignmentException {
-		
-    	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
+    public void visit(Cell cell) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
     	String query = "";
     	this.cell = cell;    	
     	
@@ -82,44 +80,43 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     	URI u2 = cell.getObject2AsURI(alignment);
     	if ( ( u1 != null && u2 != null)
     	     || alignment.getLevel().startsWith("2EDOAL") ){
-    	resetVariables("s", "o");
-		((Expression)(cell.getObject1())).accept( this );
-	 	GP1 = getGP();
-	 	resetVariables("s", "o");
-		((Expression)(cell.getObject2())).accept( this );
-	 	GP2 = getGP();
-		for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
-   		    String k = (String)e.nextElement();
-	   		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-		}
-		query += "SELECT ?s WHERE {"+NL;
-		query += GP1;
-		query += "}"+NL;	    		
-		if ( split ) {
-			createQueryFile( splitdir, query );
-		} else {
-			writer.println(query);
-		}	    		
+	    resetVariables("s", "o");
+	    ((Expression)(cell.getObject1())).accept( this );
+	    GP1 = getGP();
+	    resetVariables("s", "o");
+	    ((Expression)(cell.getObject2())).accept( this );
+	    GP2 = getGP();
+	    for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
+		String k = e.nextElement();
+		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+	    }
+	    query += "SELECT ?s WHERE {"+NL;
+	    query += GP1;
+	    query += "}"+NL;	    		
+	    if ( split ) {
+		createQueryFile( splitdir, query );
+	    } else {
+		writer.println(query);
+	    }	    		
 	    query="";
 	    for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
-    	    String k = (String)e.nextElement();
-    	    query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+		String k = e.nextElement();
+		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
 	    }
 	    query += "SELECT ?s WHERE {"+NL;
 	    query += GP2;
 	    query += "}"+NL;
 	    if ( split ) {
-		    createQueryFile( splitdir, query );
+		createQueryFile( splitdir, query );
 	    } else {
 	    	writer.println(query);
-		}
+	    }
     	}    
-	}
-
-	public void visit( Relation rel ) throws AlignmentException {
-		if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
-		// default behaviour
-		// rel.write( writer );
     }
-	
+    
+    public void visit( Relation rel ) throws AlignmentException {
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
+	// rel.write( writer );
+    }
 }
