@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2012
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -131,8 +131,8 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	    if ( c instanceof OWLLiteral ) {
 		if ( lang == null || ((OWLLiteral)c).hasLang(lang) ) {
 		    if ( type == null ||
-			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getURI()) && p.isLabel() ) ||
-			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getURI()) && p.isComment() ) )
+			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getIRI().toURI()) && p.isLabel() ) ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getIRI().toURI()) && p.isComment() ) )
 			annotations.add( ((OWLLiteral)c).getLiteral() );
 		}
 	    }
@@ -148,8 +148,8 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	    OWLAnnotationProperty p = annot.getProperty();
 	    if ( c instanceof OWLLiteral ) {
 		    if ( type == null ||
-			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getURI()) && p.isLabel() ) ||
-			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getURI()) && p.isComment() ) )
+			 ( type.equals(OWLRDFVocabulary.RDFS_LABEL.getIRI().toURI()) && p.isLabel() ) ||
+			 ( type.equals(OWLRDFVocabulary.RDFS_COMMENT.getIRI().toURI()) && p.isComment() ) )
 			annotations.add( new Annotation(((OWLLiteral)c).getLiteral(),  ((OWLLiteral)c).getLang()));
 		}
 	}
@@ -170,11 +170,11 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 
     public Set<String> getEntityComments(Object o, String lang)
 	    throws OntowrapException {
-	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getURI(), lang);
+	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getIRI().toURI(), lang);
     }
 
     public Set<String> getEntityComments(Object o) throws OntowrapException {
-	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getURI(), null);
+	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_COMMENT.getIRI().toURI(), null);
     }
 
     public String getEntityName( Object o ) throws OntowrapException {
@@ -192,11 +192,11 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
     }
 
     public Set<String> getEntityNames(Object o, String lang) throws OntowrapException {
-	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), lang);
+	return getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getIRI().toURI(), lang);
     }
 
     public Set<String> getEntityNames(Object o) throws OntowrapException {
-	Set<String> result = getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getURI(), null);
+	Set<String> result = getEntityAnnotations(o, OWLRDFVocabulary.RDFS_LABEL.getIRI().toURI(), null);
 	if ( result == null ) {
 	    String label = getEntityName( o );
 	    if ( label != null ) {

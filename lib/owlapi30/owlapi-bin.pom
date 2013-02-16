@@ -3,7 +3,7 @@
 
   <groupId>org.semanticweb</groupId>
   <artifactId>owlapi</artifactId>
-  <version>3.0.0</version>
+  <version>3.4.2</version>
   <name>OWL API</name>
   <description>API and implementation for OWL</description>
   <licenses>

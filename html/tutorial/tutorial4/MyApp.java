@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2013
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -31,13 +31,10 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 // Alignment API implementation classes
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
-import fr.inrialpes.exmo.align.util.NullStream;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 // Jena
@@ -63,12 +60,12 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
-// Pellet
-import com.clarkparsia.pellet.owlapiv3.PelletReasoner;
+// HermiT
+import org.semanticweb.HermiT.Reasoner;
 
 // IDDL
-import fr.inrialpes.exmo.iddl.IDDLReasoner;
-import fr.inrialpes.exmo.iddl.conf.Semantics;
+import fr.paris8.iut.info.iddl.IDDLReasoner;
+import fr.paris8.iut.info.iddl.conf.Semantics;
 
 // SAX standard classes
 import org.xml.sax.SAXException;
@@ -97,15 +94,12 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.FileInputStream;
-import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.File;
@@ -137,8 +131,7 @@ public class MyApp {
 	String u1 = "file:ontology1.owl";
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-	String tempOntoFileName = "results/myresult.owl";
-	Properties params = new BasicParameters();
+	Properties params = new Properties();
 	try {
 	    uri1 = new URI( u1 );
 	    uri2 = new URI( u2 );
@@ -190,8 +183,6 @@ public class MyApp {
 		AlignmentParser aparser = new AlignmentParser(0);
 		Alignment alu = aparser.parseString( xmlString );
 		al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
-	    } catch (SAXException saxe) { 
-		saxe.printStackTrace(); 
 	    } catch (AlignmentException ae) { 
 		ae.printStackTrace();
 	    }
@@ -222,8 +213,10 @@ public class MyApp {
 
 	// (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
 	PrintWriter writer = null;
-	File merged = new File( tempOntoFileName );
+	File merged = null;
 	try {
+	    merged = File.createTempFile( "MyApp-results",".owl");
+	    merged.deleteOnExit();
 	    writer = new PrintWriter ( new FileWriter( merged, false ), true );
 	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
 	    al.render(renderer);
@@ -239,6 +232,7 @@ public class MyApp {
 		writer.close();
 	    }
 	}
+	// If merged is empty then destroy the file + exit
 
 	// (Sol2) import the data from one ontology into the other
 
@@ -251,7 +245,7 @@ public class MyApp {
 	    in = new FileInputStream( merged );
 	    //OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
 	    Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-	    model.read( in, "file:"+tempOntoFileName );
+	    model.read( in, "file:"+merged.getPath() );
 	    in.close();
 	
 	    // Create a new query
@@ -287,29 +281,51 @@ public class MyApp {
 	    if ( qe != null ) qe.close();
 	}
 
-	// (Sol2) Use Pellet to answer queries (at the ontology level)
+	// (Sol2) Use the OWLReasoner to answer queries (at the ontology level)
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	OWLReasoner reasoner = null;
 
 	// Load the ontology 
 	try {
-	    OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
-	    reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
-	    reasoner.prepareReasoner();
-	} catch (OWLOntologyCreationException ooce) { 
+	    OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
+	    reasoner = new Reasoner( ontology );
+	} catch (OWLOntologyCreationException ooce) {
 	    ooce.printStackTrace(); 
 	}
 
+	if ( reasoner.isConsistent() ) {
+	    System.err.println( "The aligned ontologies are consistent" );
+	} else {
+	    System.err.println( "The aligned ontologies are inconsistent" );
+	}
 	// get the instances of a class
 	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
 	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-	System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
+	System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students "+clname(estud));
 
-	testPelletSubClass( manager, reasoner, estud, person );
-	testPelletSubClass( manager, reasoner, estud, student );
+	testOWLReasonerSubClass( manager, reasoner, estud, person );
+	testOWLReasonerSubClass( manager, reasoner, estud, student );
 
+	// (Sol3) reasoning with distributed semantics (IDDL)
+	// test consistency of aligned ontologies
+	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
+	dreasoner.addOntology( uri1 );
+	dreasoner.addOntology( uri2 );
+	// Apparently, here, it has correctly loaded ontologies
+	dreasoner.addAlignment( al );
+	// Apparently, here, it bugs (print and error instead of raising it)
+	// becasu it cannot find stuff related by URIs (same below)
+	if ( dreasoner.isConsistent() ) {
+	    System.out.println( "IDDL: the alignment network is consistent");
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
+	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
+         } else {
+	    System.out.println( "IDDL: the alignment network is inconsistent");
+	}
+
+	/* ORIGINAL IDDL... IDEAL
 	// (Sol3) reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
 	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
@@ -322,19 +338,20 @@ public class MyApp {
 	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
          } else {
 	    System.out.println( "IDDL: the alignment network is inconsistent");
-	}
+	    }
+	*/
     }
 
     private String clname( OWLClassExpression cl ) {
 	return cl.asOWLClass().getIRI().getFragment();
     }
 
-    public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
+    public void testOWLReasonerSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
 	OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
 	if ( reasoner.isEntailed( axiom ) ) {
-	    System.out.println( "Pellet(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
+	    System.out.println( "OWLReasoner(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
 	} else {
-	    System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
+	    System.out.println( "OWLReasoner(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
 	}
     }
 

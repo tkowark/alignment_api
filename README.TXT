@@ -1,10 +1,10 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      23/02/2012, version 4.3                        #
+#                      01/01/2013, version 4.4                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
-Copyright (C) 2003-2012 INRIA.
+Copyright (C) 2003-2013 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
@@ -78,7 +78,7 @@ $ java -jar lib/procalign.jar file://$CWD/examples/rdf/edu.umbc.ebiquity.publica
 Using with JWNL (Wordnet)
 -------------------------
 
-- Wordnet 2.0 (or 3.0) should be installed its directory to be put in $WNDIR
+- Wordnet 3.0 should be installed its directory to be put in $WNDIR
 - jwnl.jar commons-logging.jar must be in lib.
 (file_properties.xml need not anymore to be in current directory)
 

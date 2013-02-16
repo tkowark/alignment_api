@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2013
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -31,13 +31,10 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 // Alignment API implementation classes
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
-import fr.inrialpes.exmo.align.util.NullStream;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 // Jena
@@ -63,12 +60,12 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
-// Pellet
-import com.clarkparsia.pellet.owlapiv3.PelletReasoner;
+// HermiT
+import org.semanticweb.HermiT.Reasoner;
 
 // IDDL
-import fr.inrialpes.exmo.iddl.IDDLReasoner;
-import fr.inrialpes.exmo.iddl.conf.Semantics;
+import fr.paris8.iut.info.iddl.IDDLReasoner;
+import fr.paris8.iut.info.iddl.conf.Semantics;
 
 // SAX standard classes
 import org.xml.sax.SAXException;
@@ -97,15 +94,12 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.FileInputStream;
-import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.File;
@@ -139,7 +133,7 @@ public class Skeleton {
 	String u2 = "file:ontology2.owl";
 	String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 	String tempOntoFileName = "results/myresult.owl";
-	Properties params = new BasicParameters();
+	Properties params = new Properties();
 	try {
 	    uri1 = new URI( u1 );
 	    uri2 = new URI( u2 );

@@ -62,9 +62,9 @@ related APIs.
 </p>
 <p>
 Other tutorials are <a href="../index.html">available</a>.</p>
-<p  style="border-top: 2px solid #AAAAAA;"><small>This tutorial has
-    been designed for the Alignment API version 4.0. It is currently
-    incomplete due to the upgrade of Pellet to version 2.1 and IDDL.</small></p>
+<p  style="border-top: 2px solid #AAAAAA;">
+<small>This tutorial has been initially designed for the Alignment API 4.0 using Jena, Pellet and IDDL. 
+It has been reengineered in the Alignment API 4.5 to use Jena, HermiT and IDDL 1.4.</small></p>
 	
 <h2>Preparation</h2>
 	
@@ -92,11 +92,11 @@ in order to view participants from boths ontologies under the other
 ontology. This is not a difficult task, the goal here is only to show
 how this could be achieved.
 </p>
-	
+
 <p>For that purpose, you have to develop a program in Java. 
 We first define the CLASSPATH because a lot of external software is required
 <div class="terminal">
-$ setenv CLASSPATH ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/pellet/pellet-core.jar:../../../lib/pellet/pellet-owlapiv3.jar:../../../lib/pellet/pellet-rules.jar:../../../lib/pellet/pellet-datatypes.jar:../../../lib/pellet/aterm-java-1.6.jar:../../../lib/pellet/pellet-query.jar:../../../lib/ontosim/ontosim.jar:../../../lib/pellet/pellet-el.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/xsdlib/relaxngDatatype.jar:../../../lib/xsdlib/xsdlib.jar:results
+$ setenv CLASSPATH ../../../lib/align.jar:../../../lib/procalign.jar:../../../lib/jena/jena.jar:../../../lib/jena/arq.jar:../../../lib/iddl/iddl.jar:../../../lib/hermit/HermiT.jar:../../../lib/ontosim/ontosim.jar:../../../lib/log4j/commons-logging.jar:../../../lib/log4j/log4j.jar:../../../lib/xerces/xercesImpl.jar:../../../lib/jena/iri.jar:../../../lib/jena/icu4j_3_4.jar:../../../lib/jena/concurrent.jar:../../../lib/xsdlib/relaxngDatatype.jar:../../../lib/xsdlib/xsdlib.jar:results
 </div>
 The list of jars is long, but at least it is explicit and you
 should be safe with this one.
@@ -255,7 +255,7 @@ writer.close();
 This can be done in three ways:
 <ul>
 <li>using SPARQL</li>
-<li>using a reasonner such as Pellet to answer these queries against
+<li>using an OWLReasoner such as HermiT to answer these queries against
   the merged ontologies.</li>
 <li>using a "distributed" reasoner, in our case IDDL, to answer these
   queries against non merged aligned ontologies.</li>
@@ -266,14 +266,6 @@ In case you go for SPARQL please, take care of the inference regime
 and observe what are the differences in this case. You can of course
 run various queries and start by running them in one of the initial
 ontologies instead of the merged one.
-</p>
-<p>
-For using Pellet, which is not bundled with the Alignment API, it will be necessary
-to <a href="http://clarkparsia.com/pellet/download">download
-it</a>  and add in
-the classpath the corresponding aterm-java-1.6.jar, pellet-core.jar, pellet-rules.jar,
-pellet-datatypes.jar, pellet-jena.jar, pellet-query.jar, pellet-owlapiv3.jar and pellet-el.jar jar-files
-which are not shipped with the Alignment API.
 </p>
 </p>
 <div class="button">
@@ -326,8 +318,7 @@ ResultSetFormatter.out(System.out, results, query);
 OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 // Load the ontology 
 OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
-OWLReasoner reasoner = new PelletReasoner( ontology, org.semanticweb.owlapi.reasoner.BufferingMode.NON_BUFFERING );
-reasoner.prepareReasoner();
+OWLReasoner reasoner = new Reasoner( ontology );
 </div>
 <p>Get the instances of "Estudiantes":</p>
 <div class="java">
@@ -336,12 +327,12 @@ OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://al
 OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 Set&lt;OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-System.err.println("Pellet(Merged): There are "+instances.size()+" students "+clname(estud));
+System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students "+clname(estud));
 </div>
 <p>Some subsumption tests:</p>
 <div class="java">
-testPelletSubClass( manager, reasoner, estud, person );
-testPelletSubClass( manager, reasoner, estud, student );
+testOWLReasonerSubClass( manager, reasoner, estud, person );
+testOWLReasonerSubClass( manager, reasoner, estud, student );
 </div>
 <p>Such that:</p>
 <div class="java">
@@ -349,12 +340,12 @@ private String clname( OWLClassExpression cl ) {
   return cl.asOWLClass().getIRI().getFragment();
 }
 
-public void testPelletSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
+public void testOWLReasonerSubClass( OWLOntologyManager manager, OWLReasoner reasoner, OWLClassExpression d1, OWLClassExpression d2 ) {
   OWLAxiom axiom = manager.getOWLDataFactory().getOWLSubClassOfAxiom( d1, d2 );
   if ( reasoner.isEntailed( axiom ) ) {
-    System.out.println( "Pellet(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
+    System.out.println( "OWLReasoner(Merged): "+clname(d1)+" is subclass of "+clname(d2) );
   } else {
-    System.out.println( "Pellet(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
+    System.out.println( "OWLReasoner(Merged): "+clname(d1)+" is not necessarily subclass of "+clname(d2) );
   }
 }
 </div>
@@ -404,11 +395,11 @@ The results for these execution are, for SPARQL:
 | "McCoy" | "Tyner" | "University of Soupaloignon" | "Dr Nanni Girasole"              |
 ...
 </pre>
-for Pellet:
+for OWLReasoner:
 <pre>
-Pellet(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante
-Pellet(Merged): Estudiante is not necessarily subclass of Person
-Pellet(Merged): Estudiante is subclass of Student
+OWLReasoner(Merged): There are 47 students http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante
+OWLReasoner(Merged): Estudiante is not necessarily subclass of Person
+OWLReasoner(Merged): Estudiante is subclass of Student
 </pre>
 and for IDDL:
 <pre>

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011
+ * Copyright (C) INRIA, 2008-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,6 +36,7 @@ import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
 import fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator;
+import fr.inrialpes.exmo.align.impl.eval.WeightedPREvaluator;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -251,12 +252,11 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	assertEquals( eval.getPrecision(), 0.7619047619047619);//7272727272727273 );
+	assertEquals( eval.getPrecision(), 0.7619047619047619);
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getNoise(), 0.23809523809523814);//2727272727272727 );
-	assertEquals( eval.getFmeasure(), 0.8648648648648648);//8421052631578948 );
-	assertEquals( eval.getOverall(), 0.6875);//625 );
-	//assertEquals( eval.getResult(), 1.34375 );
+	assertEquals( eval.getNoise(), 0.23809523809523814);
+	assertEquals( eval.getFmeasure(), 0.8648648648648648);
+	assertEquals( eval.getOverall(), 0.6875);
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest8"})
@@ -283,7 +283,6 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	assertEquals( eval.getNoise(), 0.);
 	assertEquals( eval.getFmeasure(), 0.);
 	assertEquals( eval.getOverall(), 0.);
-	//assertEquals( eval.getResult(), 0. );
     }
 
     @Test(expectedExceptions = AlignmentException.class, groups = {"full", "impl", "raw" }, dependsOnMethods = {"routineEvalTest"})
@@ -304,9 +303,8 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	eval.getFallout(); //4.2: Deprecated raises an error
     }
 
-
     @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"})
-    public void specificEvalTest() throws Exception {
+    public void semanticEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
 	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
@@ -328,14 +326,15 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	// These figures must be checked at least onece!
-	assertEquals( eval.getPrecision(), 0.7619047619047619 ); //0.3181818181818182
-	assertEquals( eval.getRecall(), 1.0 );//0.3939393939393939
-	assertEquals( eval.getNoise(), 0.23809523809523814 );//1.0
-	//assertEquals( eval.getFallout(), 1.0 );
-	assertEquals( eval.getFmeasure(), 0.8648648648648648 );//0.3520309477756286
-	assertEquals( eval.getOverall(), 0.6875 );//-0.4502164502164502
-	//assertEquals( eval.getResult(), 1.34375 );
+	// These figures are different than those of classical PR
+	// only because some correspondences cannot be transcribed
+	// author<->hasAuthor/editor<->hasEditor/firstAuthor/hasAuthor
+	// because Object/DataProperties
+	assertEquals( eval.getPrecision(), 0.6904761904761905 );
+	assertEquals( eval.getRecall(), 0.90625 );
+	assertEquals( eval.getNoise(), 0.30952380952380953 );
+	assertEquals( eval.getFmeasure(), 0.7837837837837837 );
+	assertEquals( eval.getOverall(), 0.5 );
     }
 
     @Test(groups = { "full", "impl", "raw" })
