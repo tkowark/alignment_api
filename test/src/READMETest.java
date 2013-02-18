@@ -337,6 +337,37 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	assertEquals( eval.getOverall(), 0.5 );
     }
 
+
+    @Test(groups = { "full", "impl" }, dependsOnMethods = {"routineEvalTest"})
+    public void weightedEvalTest() throws Exception {
+	AlignmentParser aparser1 = new AlignmentParser( 0 );
+	assertNotNull( aparser1 );
+	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	assertNotNull( align1 );
+	aparser1.initAlignment( null );
+	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	assertNotNull( align2 );
+	Properties params = new Properties();
+	assertNotNull( params );
+	WeightedPREvaluator eval = new WeightedPREvaluator( align1, align2 );
+	assertNotNull( eval );
+	eval.eval( params ) ;
+
+	// This only output the result to check that this is possible
+	OutputStream stream = new NullStream();
+	PrintWriter writer = new PrintWriter (
+				  new BufferedWriter(
+					new OutputStreamWriter( stream, "UTF-8" )), true);
+	eval.write( writer );
+	writer.flush();
+	writer.close();
+	assertEquals( eval.getPrecision(), 0.8732495020298934 );
+	assertEquals( eval.getRecall(), 1.0 );
+	assertEquals( eval.getNoise(), 0.12675049797010662 );
+	assertEquals( eval.getFmeasure(), 0.9323365639052582 );
+	assertEquals( eval.getOverall(), 0.8548519092476188 );
+    }
+
     @Test(groups = { "full", "impl", "raw" })
     public void routineMatrixTest() throws Exception {
 	/*

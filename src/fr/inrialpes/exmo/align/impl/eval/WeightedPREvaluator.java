@@ -68,7 +68,9 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 
     protected double nbfound = 0.;
 
-    protected double nbcorrect = 0.; // nb of cells correctly identified
+    protected double nbcorrect1 = 0.; // nb of cells of reference correctly identified
+
+    protected double nbcorrect2 = 0.; // nb of cells of alignment correctly identified
 
     /** Creation
      * Initiate Evaluator for precision and recall
@@ -89,7 +91,8 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	time = 0;
 	nbexpected = 0.;
 	nbfound = 0.;
-	nbcorrect = 0.;
+	nbcorrect1 = 0.;
+	nbcorrect2 = 0.;
 	result = 1.;
     }
 
@@ -109,32 +112,53 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
      */
     public double eval( Properties params ) throws AlignmentException {
 	init();
-	for ( Cell c2 : align2 ) nbfound += c2.getStrength();
+	//for ( Cell c2 : align2 ) nbfound += c2.getStrength();
 	if ( params.getProperty("relations") != null ) relsensitive = true;
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
 	    nbexpected += c1.getStrength();
 	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
+	    double diff = -1.0;
 	    if( s2 != null ){
 		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
 		    if ( uri1.equals( uri2 )
 			 && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
-			double diff = c1.getStrength() - c2.getStrength();
-			nbcorrect += 1. - ((diff>0.)?diff:-diff);
+			diff = c1.getStrength() - c2.getStrength();
+			nbcorrect1 += ((diff>0.)?diff:-diff); //1. -
 			break;
 		    }
 		}
 	    }
+	    if ( diff == -1.0 ) nbcorrect1 += c1.getStrength(); // the c1 not found
 	}
+	for ( Cell c2 : align2 ) {
+	    URI uri2 = c2.getObject2AsURI();
+	    nbfound += c2.getStrength();
+	    Set<Cell> s1 = align1.getAlignCells1( c2.getObject1() );
+	    double diff = -1.0;
+	    if( s1 != null ){
+		for( Cell c1 : s1 ) {
+		    URI uri1 = c1.getObject2AsURI();	
+		    if ( uri2.equals( uri1 )
+			 && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
+			diff = c1.getStrength() - c2.getStrength();
+			nbcorrect2 += ((diff>0.)?diff:-diff); //1. -
+			break;
+		    }
+		}
+	    }
+	    if ( diff == -1.0 ) nbcorrect2 += c2.getStrength(); // the c2 not found
+	}
+
 	// What is the definition if:
 	// nbfound is 0 (p is 1., r is 0)
 	// nbexpected is 0 [=> nbcorrect is 0] (r=1, p=0)
 	// precision+recall is 0 [= nbcorrect is 0]
 	// precision is 0 [= nbcorrect is 0]
-	if ( nbfound != 0 ) precision = nbcorrect / nbfound;
-	if ( nbexpected != 0 ) recall = nbcorrect / nbexpected;
+	if ( nbfound != 0. ) precision = 1. - (nbcorrect2 / nbfound);
+	if ( nbexpected != 0. ) recall = 1. - (nbcorrect1 / nbexpected);
 	return computeDerived();
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
@@ -216,7 +240,7 @@ return result;
 	results.setProperty( "fmeasure", Double.toString( fmeasure ) );
 	results.setProperty( "nbexpected", Double.toString( nbexpected ) );
 	results.setProperty( "nbfound", Double.toString( nbfound ) );
-	results.setProperty( "true positive", Double.toString( nbcorrect ) );
+	results.setProperty( "true positive", Double.toString( nbcorrect1 ) );
 	if ( time != 0 ) results.setProperty( "time", Long.toString( time ) );
 	return results;
     }
@@ -230,7 +254,10 @@ return result;
     public double getFmeasure() { return fmeasure; }
     public double getExpected() { return nbexpected; }
     public double getFound() { return nbfound; }
-    public double getCorrect() { return nbcorrect; }
+    // JE 2013: does not fit in WGroupEval anymore
+    public double getCorrect() { return nbcorrect1; }
+    public double getCorrect1() { return nbcorrect1; }
+    public double getCorrect2() { return nbcorrect2; }
     public long getTime() { return time; }
 }
 
