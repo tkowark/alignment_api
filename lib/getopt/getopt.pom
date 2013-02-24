@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>gnu.getopt</groupId>
-  <artifactId>getopt</artifactId>
+  <artifactId>java-getopt</artifactId>
   <version>1.0.13</version>
   <name></name>
   <description> (Version 2006)</description>
