@@ -6,9 +6,9 @@
     <version>1.7.2</version>
   </parent>
   <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-api</artifactId>
+  <artifactId>jcl-over-slf4j</artifactId>
   <packaging>jar</packaging>
-  <name>SLF4J API Module</name>
+  <name>Java Commons Logging over SLF4J Module</name>
   <!-- Copyright (c) 2004-2011 QOS.ch -->
   <licenses>
     <license>
@@ -17,7 +17,7 @@
     </license>
   </licenses>
   <url>http://www.slf4j.org</url>
-  <description>The slf4j API</description>
+  <description>Implements the Java Commons Logging on top of SLF4J</description>
   <dependencies />
 
 </project>
