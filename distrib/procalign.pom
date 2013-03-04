@@ -31,14 +31,14 @@
       <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999</name>
       <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
     </license>
-    <licence>
+    <license>
       <name>CeCILL-C Licence française de logiciel libre</name>
       <url>http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.txt</url>
     </license>
   </licenses>
   <packaging>jar</packaging>
 
-  <dependencies>
+  <!--dependencies>
     <dependency>
       <groupId>org.semanticweb.owl</groupId>
       <artifactId>align</artifactId>
@@ -50,7 +50,7 @@
       <artifactId>ontowrap</artifactId>
       <version>@VERS@</version>
     </dependency>
-  <dependencies>
+  <dependencies-->
 
   <developers>
     <developer>

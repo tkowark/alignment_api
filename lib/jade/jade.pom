@@ -3,7 +3,7 @@
 
   <groupId>jade</groupId>
   <artifactId>jade</artifactId>
-  <version>3.3</version> <!-- or is it 3.7 ?-->
+  <version>3.3</version>
   <name>Java Agent Development Environment (JADE)</name>
   <description></description>
   <licenses>
@@ -24,6 +24,6 @@
       <artifactId></artifactId>
       <version></version>
     </dependency>
-  </dependencies>
+  </dependencies-->
 
 </project>

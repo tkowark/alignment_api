@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!-- $Id$ -->
 
-<project name="align" default="compile" basedir=".">
+<project name="align" default="compile" basedir="."
+	 xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <!-- this is useful but introduces, Xlint:path warnings -->
   <path id="classpath">
     <fileset dir="./lib">
       <include name="**/*.jar"/>
+      <!-- several useless (and may be harmful) things at the moment -->
+      <exclude name="seals/seals-omt-client.jar" />
+      <exclude name="log4j/slf4j-log4j.jar" />
     </fileset>
   </path>
-    
+
   <!-- tested -->
   <target name="usage" depends="versionnumber">
     <echo>ant _target_ _options_
@@ -25,6 +29,7 @@
       zip: creates a new zip file
       javadoc: generates documentation
       release: releases a new version
+      mavenize: creates a maven local repository
       cover: check test coverage
       analyse: perform static analysis
       svnbranch: copy the version under svn
@@ -45,7 +50,7 @@
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar log4j/slf4j-log4j.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/HermiT.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/commons-logging.jar log4j/log4j.jar log4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/HermiT.jar align.jar ontowrap.jar procalign.jar"/>
   </target>
 
   <target name="versionnumber" depends="init" description="Establishes the version number">
@@ -110,17 +115,17 @@
     <antcall target="compileall"/>
   </target>
 
-  <!--target name="analyse" depends="jar" description="Perform static analysis of code">
-    // Use Checkstyle
+  <target name="analyse" depends="jar" description="Perform static analysis of code">
+    <!-- Checkstyle
     <taskdef resource="checkstyletask.properties"
-             classpath="${tooldir}/checkstyle/checkstyle-all-5.0.jar"/>
-    // I must have a checks.xml
-    <checkstyle config="docs/sun_checks.xml">
+             classpath="${tooldir}/checkstyle/checkstyle-all-5.0.jar"/-->
+    <!-- // I must have a checks.xml -->
+    <!--checkstyle config="docs/sun_checks.xml">
       <fileset dir="src" includes="**/*.java"/>
       // let see if we can put a css
       <formatter type="xml" toFile="test/html/checkstyle.xml"/>
-    </checkstyle>
-    // Use FindBugs
+    </checkstyle-->
+    <!-- FindBugs
     <taskdef name="findbugs" classpath="${tooldir}/findbugs/findbugs-ant.jar" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
     <findbugs home="test/html/"
 	      output="xml"
@@ -128,8 +133,8 @@
       //<auxClasspath path="${basedir}/lib/Regex.jar" />
       <sourcePath path="src" />
       <class location="lib/align.jar" />
-    </findbugs>
-    // Use PMD
+    </findbugs-->
+    <!-- Use PMD
     <taskdef name="pmd" classpath="${tooldir}/pmd/pmd-ant.jar" classname="net.sourceforge.pmd.ant.PMDTask"/>
     <pmd shortFilenames="true">
       <ruleset>rulesets/favorites.xml</ruleset>
@@ -138,11 +143,15 @@
       <fileset dir="/usr/local/j2sdk1.4.1_01/src/">
 	<include name="java/lang/*.java"/>
       </fileset>
-    </pmd>
-  </target-->
-
-  <!-- cover: emma seems really difficult
-  <taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
+    </pmd-->
+    <!-- tattletale: very long -->
+    <taskdef name="tattletale-report"
+             classname="org.jboss.tattletale.ant.ReportTask"
+             classpath="${tooldir}/tattletale/tattletale-ant.jar:${tooldir}/tattletale/tattletale.jar:${tooldir}/tattletale/javassist.jar"/>
+    <tattletale-report source="lib" destination="tattletale"/>
+    <!-- Emma (coverage) seems really difficult -->
+    <!--taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
+  </target>
 
   <macrodef name="onejar" description="utility macro for JAR packaging">
     <attribute name="group" description="Maven group ID" />
@@ -156,7 +165,7 @@
     <sequential>
       <delete file="lib/@{file}.jar"/>
       <!-- it may even be easier to generate the pom -->
-      <copy file="distrib/@{file}.pom" toFile="lib/@{file}.pom">
+      <copy file="distrib/@{file}.pom" toFile="lib/@{file}.pom" overwrite="true">
 	<filterset>
 	  <filter token="GROUPID" value="@{group}"/>
 	  <filter token="ARTID" value="@{file}"/>
@@ -464,6 +473,70 @@
       <arg value='"Release ${version}"' />
       <classpath refid="classpath"/>
     </java>
+  </target>
+
+  <!-- tested -->
+  <macrodef name="onepom" description="utility macro for maven exporting">
+    <attribute name="file" description="Artifact name" />
+    <sequential>
+      <artifact:install file="lib/@{file}.jar">
+	<pom file="lib/@{file}.pom" />
+	<localRepository path="mvn-repo" />
+      </artifact:install>
+    </sequential>
+  </macrodef>
+
+  <!-- tested -->
+  <target name="mavenize" depends="init" description="Creates a Maven local repositry">
+    <echo message="Mavenizing..."/>
+    <path id="maven-ant-tasks.classpath" path="${tooldir}/maven/maven-ant-tasks-2.1.3.jar" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath" />
+    <delete dir="mvn-repo"/>
+    <mkdir dir="mvn-repo"/>
+    <!-- should be far better to iterate on -->
+    <!--fileset dir="lib" includes="**/*.pom"/-->
+    <onepom file="getopt/getopt" />
+    <onepom file="google-translate/google-api-translate-java" />
+    <onepom file="google-translate/json" />
+    <onepom file="hermit/hermit" />
+    <onepom file="iddl/iddl" />
+    <onepom file="jade/jade-http" />
+    <onepom file="jade/iiop" />
+    <onepom file="jade/jade" />
+    <onepom file="jdbc/mysql-connector-java" />
+    <onepom file="jdbc/postgresql-jdbc4" />
+    <onepom file="jena/arq" />
+    <onepom file="jena/icu4j" />
+    <onepom file="jena/iri" />
+    <onepom file="jena/jena" />
+    <onepom file="jetty/jetty-util" />
+    <onepom file="jetty/jetty" />
+    <onepom file="jwnl/jwnl" />
+    <onepom file="log4j/commons-logging" />
+    <onepom file="log4j/log4j" />
+    <onepom file="log4j/slf4j-api" />
+    <onepom file="lucene/lucene-core" />
+    <onepom file="ontosim/ontosim" />
+    <onepom file="owlapi10/api" />
+    <onepom file="owlapi10/impl" />
+    <onepom file="owlapi10/io" />
+    <onepom file="owlapi10/rdfapi" />
+    <onepom file="owlapi10/rdfparser" />
+    <onepom file="owlapi30/owlapi-bin" />
+    <onepom file="oyster/oyster" />
+    <onepom file="servlet/servlet-api" />
+    <onepom file="skosapi/skosapi" />
+    <onepom file="xerces/resolver" />
+    <onepom file="xerces/xercesImpl" />
+    <onepom file="xerces/xml-apis" />
+    <onepom file="xsdlib/relaxngDatatype" />
+    <onepom file="xsdlib/xsdlib" />
+    <onepom file="align" />
+    <onepom file="ontowrap" />
+    <onepom file="procalign" />
+    <onepom file="alignsvc" />
   </target>
 
   <!-- tested -->
