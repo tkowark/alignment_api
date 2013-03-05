@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2012
+ * Copyright (C) INRIA, 2009-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -87,7 +87,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 10417 ), "Rendered differently: expected "+10417+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 11563 ), "Rendered differently: expected "+11563+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
     }
@@ -102,7 +102,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 5553 ), "Rendered differently: expected "+5553+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6705 ), "Rendered differently: expected "+6705+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
 	stream = new ByteArrayOutputStream();
@@ -114,7 +114,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 5498 ), "Rendered differently: expected "+5498+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6650 ), "Rendered differently: expected "+6650+" but was "+stream.toString().length() );
 	params.setProperty( "pre2008", "1");
 	stream = new ByteArrayOutputStream(); 
 	writer = new PrintWriter (
@@ -125,7 +125,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 5407 ), "Rendered differently: expected "+5407+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6559 ), "Rendered differently: expected "+6559+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -139,7 +139,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 5830 ), "Rendered differently: expected "+5830+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6868 ), "Rendered differently: expected "+6868+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -153,7 +153,7 @@ public class RendererTest {
 	oalignment.render( renderer ); // test error with alignment
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 4820 ), "Rendered differently: expected "+4820+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 5966 ), "Rendered differently: expected "+5966+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -166,7 +166,7 @@ public class RendererTest {
 	oalignment.render( renderer ); // test error with alignment
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 16141 ), "Rendered differently: expected "+16141+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 17293 ), "Rendered differently: expected "+17293+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -179,7 +179,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 6133 ), "Rendered differently: expected "+6133+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6164 ), "Rendered differently: expected "+6164+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -193,7 +193,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 11492 ), "Rendered differently: expected "+11492+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 12638 ), "Rendered differently: expected "+12638+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -207,7 +207,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 13589 ), "Rendered differently: expected "+13589+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 15881 ), "Rendered differently: expected "+15881+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -221,7 +221,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 8414 ), "Rendered differently: expected "+8414+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 9560 ), "Rendered differently: expected "+9560+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -234,7 +234,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 770 ), "Rendered differently: expected "+770+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 764 ), "Rendered differently: expected "+764+" but was "+stream.toString().length() );
     }
 
 

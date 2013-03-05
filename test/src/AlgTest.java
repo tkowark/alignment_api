@@ -141,6 +141,6 @@ public class AlgTest {
 	new NameAndPropertyAlignment().init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
 	assertEquals( al.getOntology1(), alignment1.getOntology1() );
 	assertEquals( al.getOntology2(), align2.getOntology2() );
-	assertEquals( al.nbCells(), 5/*4*/ );
+	assertEquals( al.nbCells(), 4/*4*/ );
     }
 }

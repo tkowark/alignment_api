@@ -10,7 +10,11 @@
 	<!ENTITY bibtex		"http://purl.org/net/nknouf/ns/bibtex#">
 	<!ENTITY dcterms 	"http://purl.org/dc/terms/">
     <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
-	
+
+<!--
+    xmlns="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#"
+    xml:base="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl#"
+-->	
 <rdf:RDF
     xmlns:units		="&units;"
     xmlns:foaf		="http://xmlns.com/foaf/0.1/"
@@ -22,6 +26,8 @@
     xmlns:dc		="&dc;"
     xmlns:dcterms	="&dcterms;"
     xmlns:dctype	="&dctype;"
+    xmlns="&bibtex;"
+    xml:base="&bibtex;"
     xmlns:bibtex	="&bibtex;">
   	
 <owl:Ontology rdf:about="">
