@@ -495,8 +495,14 @@
              classpathref="maven-ant-tasks.classpath" />
     <delete dir="mvn-repo"/>
     <mkdir dir="mvn-repo"/>
-    <!-- should be far better to iterate on -->
-    <!--fileset dir="lib" includes="**/*.pom"/-->
+    <!-- This would require ant-contrib -->
+    <!--for param="file">
+      <path>
+	<fileset dir="lib" includes="**/*.pom"/>
+      </path>
+      <echo message="@{file}" />
+      <onepom file="@{file}" />
+    </for-->
     <onepom file="getopt/getopt" />
     <onepom file="google-translate/google-api-translate-java" />
     <onepom file="google-translate/json" />
@@ -514,9 +520,9 @@
     <onepom file="jetty/jetty-util" />
     <onepom file="jetty/jetty" />
     <onepom file="jwnl/jwnl" />
-    <onepom file="log4j/commons-logging" />
     <onepom file="log4j/log4j" />
     <onepom file="log4j/slf4j-api" />
+    <onepom file="log4j/jcl-over-slf4j" />
     <onepom file="lucene/lucene-core" />
     <onepom file="ontosim/ontosim" />
     <onepom file="owlapi10/api" />
