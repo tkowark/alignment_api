@@ -238,8 +238,8 @@
 
   <owl:Class rdf:ID="Deliverable">
     <rdfs:subClassOf rdf:resource="#Informal" />
-    <rdfs:label xml:lang="en">Conference</rdfs:label>
-    <rdfs:comment xml:lang="en">TROUVER UNE DESCRIPTION POUR CA.</rdfs:comment>
+    <rdfs:label xml:lang="en">Deliverable</rdfs:label>
+    <rdfs:comment xml:lang="en">A document written as an output of a contract.</rdfs:comment>
   </owl:Class>
 
   <owl:Class rdf:ID="Part">
@@ -258,12 +258,14 @@
 	<owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
       </owl:Restriction>
     </rdfs:subClassOf>
-    <rdfs:subClassOf>
+    <!-- JE 2013: This constraint has been neutralised because HermiT does not accept
+    such constraints on TransitiveProperties -->
+    <!--rdfs:subClassOf>
       <owl:Restriction>
 	<owl:onProperty rdf:resource="#isPartOf" />
 	<owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
       </owl:Restriction>
-    </rdfs:subClassOf>
+    </rdfs:subClassOf-->
   </owl:Class>
 
   <owl:Class rdf:ID="BookPart">
