@@ -10,8 +10,8 @@
       <include name="**/*.jar"/>
       <!-- several useless (and may be harmful) things at the moment -->
       <exclude name="seals/seals-omt-client.jar" />
-      <!--exclude name="log4j/logback-core-1.0.9.jar" />
-      <exclude name="log4j/logback-classic-1.0.9.jar" /-->
+      <!--exclude name="slf4j/logback-core-1.0.9.jar" />
+      <exclude name="slf4j/logback-classic-1.0.9.jar" /-->
     </fileset>
   </path>
 
@@ -47,11 +47,13 @@
     <property name="libdir"  value="lib" />
     <property name="classpath"  value="classes"/>
     <property name="tempdir"  value="/tmp"/>
+    <!-- when using logback -->
+    <property name="logback.configurationFile"  value="logback.xml"/>
   </target>
 
   <!-- tested -->
   <target name="init" depends="bind">
-    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar log4j/jcl-over-slf4j.jar log4j/log4j-over-slf4j.jar log4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/HermiT.jar align.jar ontowrap.jar procalign.jar"/>
+    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/HermiT.jar align.jar ontowrap.jar procalign.jar"/>
   </target>
 
   <target name="versionnumber" depends="init" description="Establishes the version number">
@@ -314,12 +316,15 @@
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
     <!-- ling requires WordNet and takes ages initialising it -->
     <testng groups="full"
-	    sourcedir="test/src"
-	    outputDir="test/html"  verbose="1"
+	    outputDir="test/html" verbose="1"
 	    haltOnFailure="false" failureProperty="failed">
+      <!-- if ones uses logback -->
+      <propertyset>
+	<propertyref name="logback.configurationFile"/>
+      </propertyset>
       <classpath>
-        <path refid="classpath"/>
-        <pathelement location="test/classes"/>
+	<path refid="classpath"/>
+	<pathelement location="test/classes"/>
       </classpath>
       <!--xmlfileset dir="${test14.dir}" includes="testng.xml"/-->
       <classfileset dir="test" includes="classes/**/*.class"/>
@@ -521,9 +526,9 @@
     <onepom file="jetty/jetty-util" />
     <onepom file="jetty/jetty" />
     <onepom file="jwnl/jwnl" />
-    <onepom file="log4j/slf4j-api" />
-    <onepom file="log4j/jcl-over-slf4j" />
-    <onepom file="log4j/log4j-over-slf4j" />
+    <onepom file="slf4j/slf4j-api" />
+    <onepom file="slf4j/jcl-over-slf4j" />
+    <onepom file="slf4j/log4j-over-slf4j" />
     <onepom file="lucene/lucene-core" />
     <onepom file="ontosim/ontosim" />
     <onepom file="owlapi10/api" />
