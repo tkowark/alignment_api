@@ -44,15 +44,10 @@ This is a simplified view: <a href="img/dependencies.png">click here
     [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>Gnu library for parsing command line arguments. Required
   everywhere (included by OWL-API).</dd>
-<dt><a href="http://logging.apache.org/log4j">Apache Log4J</a> 1.2.15
-  &amp; <a href="http://jakarta.apache.org/commons/logging/">Jakarta
-    Commons Logging</a> 1.1.1:
-  log4j.jar commons-logging.jar
-  [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]
- slf4j-api.jar (1.5.6) slf4j-log4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>??]
+<dt><a href="http://www.slf4j.org/">SLF4J</a> 1.7.2:
+ slf4j-api.jar log4j-over-slf4j.jar jcl-over-slf4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>]
 </dt>
-<dd>Required by OWL-API, jwnl, Jena for the last two ones... if someone
-  could clear the mess with loggers in Java, you are welcome!</dd>
+<dd>At last some clean-up in the Java logging realm.</dd>
 </dl>
 
 <h3>Required for using EDOAL</h3>
