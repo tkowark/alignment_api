@@ -1,7 +1,7 @@
 /*
  * $Id: IDDLOntologyNetwork.java 987 2009-05-27 13:48:33Z euzenat $
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,8 +35,9 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.LogicOntologyNetwork;
 
-import fr.inrialpes.exmo.iddl.IDDLReasoner;
-import fr.inrialpes.exmo.iddl.conf.Semantics;
+import fr.paris8.iut.info.iddl.IDDLReasoner;
+import fr.paris8.iut.info.iddl.IDDLException;
+import fr.paris8.iut.info.iddl.conf.Semantics;
 
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.
@@ -69,11 +70,7 @@ public class IDDLOntologyNetwork extends BasicOntologyNetwork implements LogicOn
     public void setSemantics( String s ){
 	semantics = s;
 	if ( reasoner != null ) {
-	    if ( semantics.equals( "DL" ) ) {
-		reasoner.setSemantics( Semantics.DL );
-	    } else {
-		reasoner.setSemantics( Semantics.IDDL );
-	    }
+	    reasoner.setSemantics( Semantics.valueOf( s ) );
 	}
     };
     public String getSemantics(){
@@ -83,9 +80,14 @@ public class IDDLOntologyNetwork extends BasicOntologyNetwork implements LogicOn
 	init();
 	return reasoner.isConsistent();
     }; 
-    public boolean isEntailed( Alignment al ){
+    public boolean isEntailed( Alignment al ) {
 	init();
-	return reasoner.isEntailed( al );
+	try {
+	    return reasoner.isEntailed( al );
+	} catch ( IDDLException idex ) {
+	    idex.printStackTrace();
+	    return false;
+	}
     };
 
 }

@@ -107,6 +107,7 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     /** Creation **/
     public ExtPREvaluator(Alignment align1, Alignment align2) throws AlignmentException {
 	super(align1, align2);
+	convertToObjectAlignments( align1, align2 );
     }
 
     public void setConfidence( boolean b ) { withConfidence = b; }
@@ -141,9 +142,6 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
     public double eval( Properties params, Object cache ) throws AlignmentException {
 	if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
 	if ( params.getProperty( "relations" ) != null ) relsensitive = true;
-	// Better to transform them instead...
-	if ( !( align1 instanceof ObjectAlignment ) || !( align2 instanceof ObjectAlignment ) )
-	    throw new AlignmentException( "ExtPREvaluation: requires ObjectAlignments" );
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject1();
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject2();
 	if ( !( o1 instanceof HeavyLoadedOntology ) || !( o2 instanceof HeavyLoadedOntology ) )

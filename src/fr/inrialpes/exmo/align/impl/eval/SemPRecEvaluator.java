@@ -40,10 +40,12 @@ import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
-//import fr.paris8.iut.info.iddl.IDDLReasoner;
-//import fr.paris8.iut.info.iddl.conf.Semantics;
+// ---- IDDL
+import fr.paris8.iut.info.iddl.IDDLReasoner;
+import fr.paris8.iut.info.iddl.IDDLException;
+import fr.paris8.iut.info.iddl.conf.Semantics;
 
-// HermiT implementation
+// ----  HermiT Implementation
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -64,6 +66,9 @@ import org.semanticweb.owlapi.reasoner.BufferingMode;
 
 import org.semanticweb.HermiT.Reasoner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -75,6 +80,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.Thread;
 import java.lang.Runnable;
+import java.lang.IllegalArgumentException;
 
 import java.util.Properties;
 import java.util.Enumeration;
@@ -94,10 +100,12 @@ import java.net.URI;
 
 public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
+    final Logger logger = LoggerFactory.getLogger( SemPRecEvaluator.class );
     private int nbfoundentailed = 0; // nb of returned cells entailed by the reference alignment
     private int nbexpectedentailed = 0; // nb of reference cells entailed by returned alignment
 
-    //private Semantics semantics = Semantics.DL; // the semantics used for interpreting alignments
+    private Semantics semantics = null; // the semantics used for interpreting alignments
+    // null means that we use the reduced semantics with HermiT, otherwise, this is an IDDL semantics
 
     /** Creation
      * Initiate Evaluator for precision and recall
@@ -105,31 +113,20 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      * @param align2 : the alignment to evaluate
      **/
     public SemPRecEvaluator( Alignment al1, Alignment al2) throws AlignmentException {
-	super(((BasicAlignment)al1).toURIAlignment(), ((BasicAlignment)al2).toURIAlignment());
-	try {
-	    if ( al1 instanceof ObjectAlignment ) {
-		align1 = al1;
-	    } else {
-		align1 = ObjectAlignment.toObjectAlignment((URIAlignment)align1);
-	    }
-	    if ( al2 instanceof ObjectAlignment ) {
-		align2 = al2;
-	    } else {
-		align2 = ObjectAlignment.toObjectAlignment((URIAlignment)align2);
-	    }
-	} catch ( AlignmentException aex ) {
-	    throw new AlignmentException( "SemPRecEvaluator can only work on ObjectAlignments", aex );
-	}
+	super( al1, al2 );
+	logger.info( "Created one SemPREvaluator" );
+	convertToObjectAlignments( al1, al2 );
     }
 
-    public void init( Object sem ){
+    public void init( Properties params ){
 	super.init(); // ??
 	nbexpectedentailed = 0;
 	nbfoundentailed = 0;
-	// Better use Properties
-	//if ( sem instanceof Semantics ) {
-	//    semantics = (Semantics)sem;
-	//}
+	// Set the semantics to be used
+	String sem = params.getProperty( "semantics" );
+	if ( sem != null ) {
+	    semantics = Semantics.valueOf( sem );
+	}
     }
 
     /**
@@ -146,10 +143,10 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      *
      * In the implementation |B|=nbfound, |A|=nbexpected and |A inter B|=nbcorrect.
      * 
-     * This takes semantivs as a parameter which should be a litteral of fr.paris8.iut.info.iddl.conf.Semantics
+     * This takes semantics as a parameter which should be a litteral of fr.paris8.iut.info.iddl.conf.Semantics
      */
     public double eval( Properties params ) throws AlignmentException {
-	init( params.getProperty( "semantics" ) );
+	init( params );
 	nbfound = align2.nbCells();
 	nbexpected = align1.nbCells();
 
@@ -172,37 +169,47 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
     }
 
     public int nbEntailedCorrespondences( ObjectAlignment al1, ObjectAlignment al2 ) throws AlignmentException {
-	//System.err.println( "Computing correctness" );
-	//IDDLReasoner reasoner = new IDDLReasoner( semantics );
-	//loadOntology( reasoner, ((BasicAlignment)al1).getOntologyObject1() );
-	//loadOntology( reasoner, ((BasicAlignment)al1).getOntologyObject2() );
-	//reasoner.addAlignment( al1 );
-	loadPipedAlignedOntologies( al1 );
+	logger.debug( "Computing entailment (semantics: {})", semantics );
+	if ( semantics != null ) { // IDDL
+	    IDDLReasoner iddlreasoner = new IDDLReasoner( semantics );
+	    loadOntology( iddlreasoner, ((BasicAlignment)al1).getOntologyObject1() );
+	    loadOntology( iddlreasoner, ((BasicAlignment)al1).getOntologyObject2() );
+	    iddlreasoner.addAlignment( al1 ); 
+	    reasoner = iddlreasoner;
+	} else { // Hermit
+	    loadPipedAlignedOntologies( al1 );
+	}
 	if ( !reasoner.isConsistent() ) return al2.nbCells(); // everything is entailed
-	//System.err.println( al1+" is consistent" );
+	logger.debug( "{} is consistent", al1 );
 	int entailed = 0;
 	for ( Cell c2 : al2 ) {
-	    // create alignment
-	    //Alignment al = new ObjectAlignment();
-	    //al.init( align2.getOntology1URI(), align2.getOntology2URI() );
-	    // add the cell
-	    //al.addAlignCell( c2.getObject1(), c2.getObject2(), c2.getRelation().getRelation(), 1. );
-	    //System.err.println( c2.getObject1()+" "+c2.getRelation().getRelation()+" "+c2.getObject2() );
-	    //if ( reasoner.isEntailed( al ) ) {
-	    try {
-		if ( reasoner.isEntailed( correspToAxiom( al2, (ObjectCell)c2 ) ) ) {
-		    //System.err.println( "      --> entailed" );
-		    entailed++;
+	    logger.trace( c2.getObject1()+" {} {}", c2.getRelation().getRelation(), c2.getObject2() );
+	    if ( semantics != null ) { // IDDL
+		try {
+		    if ( ((IDDLReasoner)reasoner).isEntailed( al2, c2 ) ) { 
+			logger.trace( "      --> entailed" );
+			entailed++;
+		    }
+		} catch (IDDLException idex) { // counted as non entailed
+		    logger.warn( "Cannot be translated." );
 		}
-	    } catch ( AlignmentException aex ) { // type mismatch -> 0
-		//System.err.println( "Cannot be translated." );
+	    } else { // Hermit
+		try {
+		    if ( reasoner.isEntailed( correspToAxiom( al2, (ObjectCell)c2 ) ) ) {
+			logger.trace( "      --> entailed" );
+			entailed++;
+		    }
+		} catch ( AlignmentException aex ) { // type mismatch -> 0
+		    logger.warn( "Cannot be translated." );
+		}
 	    }
 	}
 	return entailed;
     }
 
     /**
-     * It would be useful to do better since we have the two ontologies here
+     * It would be useful to directly use the Ontologies since they are already loaded
+     * Two implementation of Alignment loading: one with intermediate file and one without.
      */
     protected OWLOntologyManager manager = null;
     protected OWLReasoner reasoner = null;
@@ -213,37 +220,42 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
     public void loadPipedAlignedOntologies( final ObjectAlignment align ) throws AlignmentException {
 	PipedInputStream in = new PipedInputStream();
 	try {
-	final PipedOutputStream out = new PipedOutputStream(in);
-	    new Thread(
-		       new Runnable(){
-			   public void run() {
-			       PrintWriter writer;
-			       try {
-				   writer = new PrintWriter (
-								     new BufferedWriter(
-											new OutputStreamWriter( out, "UTF-8" )), true);
-			       } catch ( Exception ex ) {
-				   return; //throw new AlignmentException( "Cannot load alignments because of I/O errors" );
-			       }
-			       OWLAxiomsRendererVisitor renderer = new OWLAxiomsRendererVisitor( writer );
-			       renderer.init( new Properties() );
-			       // Generate the ontology as OWL Axioms
-			       try {
-				   align.render( renderer );
-			       } catch ( AlignmentException aex ) {
-				   return;
-			       } finally {
-				   writer.flush();
-				   writer.close();
-			       }	    
+	    final PipedOutputStream out = new PipedOutputStream(in);
+	    Thread myThread = new Thread(
+		  new Runnable(){
+		    public void run() {
+		       PrintWriter writer = null;
+		       try {
+			   writer = new PrintWriter (
+					     new BufferedWriter(
+						new OutputStreamWriter( out, "UTF-8" )), true);
+			   OWLAxiomsRendererVisitor renderer = new OWLAxiomsRendererVisitor( writer );
+			   renderer.init( new Properties() );
+			   // Generate the ontology as OWL Axioms
+			   align.render( renderer );
+		       } catch ( Exception ex ) {
+			   // No way to handle this exception???
+			   // At worse, the other end will raise an exception
+			   logger.error( "Cannot render alignment to OWL", ex );
+		       } finally {
+			   if ( writer != null ) {
+			       writer.flush();
+			       writer.close();
 			   }
-		       }
-		       ).start();
-	} catch ( Exception ex ) {};//java.io.UnsupportedEncodingException
+		       }	    
+		    }
+		  }
+					 );
+	    myThread.start();
+	} catch ( UnsupportedEncodingException ueex ) {
+	    throw new AlignmentException( "Cannot render alignment to OWL", ueex );
+	} catch ( IOException ioex ) { 
+	    throw new AlignmentException( "Cannot render alignment to OWL", ioex );
+	}
 
 	manager = OWLManager.createOWLOntologyManager();
-	//System.err.println( al.getOntology1URI()+" ----> "+al.getFile1() );
-	//System.err.println( al.getOntology2URI()+" ----> "+al.getFile2() );
+	logger.debug( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
+	logger.debug( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology1URI() ), 
 						  IRI.create( align.getFile1() ) ) );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
@@ -255,7 +267,9 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	    OWLOntology ontology = manager.loadOntologyFromOntologyDocument( in );
 	    reasoner = new Reasoner( ontology );
 	} catch ( OWLOntologyCreationException ooce ) { 
-	    ooce.printStackTrace(); 
+	    throw new AlignmentException( "Hermit : Cannot load alignment", ooce );
+	} catch ( IllegalArgumentException ilex ) {
+	    throw new AlignmentException( "Hermit : Cannot load alignment", ilex );
 	}
     }
 
@@ -271,14 +285,12 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	    merged.deleteOnExit();
 	    writer = new PrintWriter ( new FileWriter( merged, false ), true );
 	    OWLAxiomsRendererVisitor renderer = new OWLAxiomsRendererVisitor(writer);
-	    //renderer.init( new Properties() );
-	    align.render(renderer);
-	} catch (UnsupportedEncodingException uee) {
-	    uee.printStackTrace();
-	} catch (AlignmentException ae) {
-	    ae.printStackTrace();
-	} catch (IOException ioe) { 
-	    ioe.printStackTrace();
+	    renderer.init( new Properties() );
+	    align.render( renderer );
+	} catch (UnsupportedEncodingException ueex) {
+	    throw new AlignmentException( "Cannot render alignment to OWL", ueex );
+	} catch (IOException ioex) { 
+	    throw new AlignmentException( "Cannot render alignment to OWL", ioex );
 	} finally {
 	    if ( writer != null ) {
 		writer.flush();
@@ -288,17 +300,21 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
 	// Load the ontology 
 	manager = OWLManager.createOWLOntologyManager();
+	logger.debug( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
+	logger.debug( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
+	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology1URI() ), 
+						  IRI.create( align.getFile1() ) ) );
+	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
+						  IRI.create( align.getFile2() ) ) );
 	try {
-	    manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology1URI() ), 
-						      IRI.create( align.getFile1() ) ) );
-	    manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
-						      IRI.create( align.getFile2() ) ) );
 	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile1() ) );
 	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile2() ) );
 	    OWLOntology ontology = manager.loadOntologyFromOntologyDocument( merged );
 	    reasoner = new Reasoner( ontology );
-	} catch (OWLOntologyCreationException ooce) {
-	    ooce.printStackTrace(); 
+	} catch ( OWLOntologyCreationException ooce ) {
+	    throw new AlignmentException( "Hermit : Cannot load alignment", ooce );
+	} catch ( IllegalArgumentException ilex ) {
+	    throw new AlignmentException( "Hermit : Cannot load alignment", ilex );
 	}
     }
 
@@ -375,23 +391,13 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	throw new AlignmentException( "Cannot convert correspondence "+corresp );
     }
 
-    // This method can be suppressed
-    public boolean isConsistent( OWLReasoner reasoner ) {
-	return reasoner.isConsistent();
+    // load ontology for the IDDLReasoner
+    public void loadOntology( IDDLReasoner reasoner, Object onto ) {
+    	Ontology oo = (Ontology)onto;
+    	URI f = oo.getFile();
+    	if ( f == null ) f = oo.getURI();
+    	reasoner.addOntology( f );
     }
-
-    // This method can be suppressed
-    public boolean isEntailed( OWLAxiom axiom ) {
-	return reasoner.isEntailed( axiom );
-    }
-
-    //public void loadOntology( IDDLReasoner reasoner, Object onto ) {
-    //	System.err.println( reasoner +" -- "+onto );
-    //	Ontology oo = (Ontology)onto;
-    //	URI f = oo.getFile();
-    //	if ( f == null ) f = oo.getURI();
-    //	reasoner.addOntology( f );
-    //}
 
 }
 

@@ -62,9 +62,7 @@ public class SymMeanEvaluator extends BasicEvaluator implements Evaluator {
     /** Creation **/
     public SymMeanEvaluator( Alignment align1, Alignment align2 ) throws AlignmentException {
 	super(align1,align2);
-	if ( !( align1 instanceof ObjectAlignment ) ||
-	     !( align2 instanceof ObjectAlignment ) )
-	    throw new AlignmentException( "Alignments should be ObjectAlignments, try to " );
+	convertToObjectAlignments( align1, align2 );
     }
 
     public double eval( Properties params ) throws AlignmentException {
@@ -78,6 +76,7 @@ public class SymMeanEvaluator extends BasicEvaluator implements Evaluator {
 	classScore = 0.;
 	propScore = 0.;
 	indScore = 0.;
+	// This seems to be correct
 	LoadedOntology onto1 = (LoadedOntology)((ObjectAlignment)align1).getOntologyObject1();
 	LoadedOntology onto2 = (LoadedOntology)((ObjectAlignment)align2).getOntologyObject1();
 	
