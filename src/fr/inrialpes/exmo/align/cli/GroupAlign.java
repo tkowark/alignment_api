@@ -54,8 +54,6 @@ import org.xml.sax.SAXException;
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
 
-import org.apache.log4j.BasicConfigurator;
-
 /** A batch class for an OWL ontology alignment processing.
     It aligns all the ontology pairs denoted 
     under subdirectory of the current directory.
@@ -255,7 +253,6 @@ public class GroupAlign {
 	//System.err.println("Here it is "+prefix+" (end by /?)");
 
 	try {
-	    BasicConfigurator.configure();
 	    if ( !source.equalsIgnoreCase("onto1.rdf") 
 		 && !target.equalsIgnoreCase("onto1.rdf") ) {
 		uri1 = new URI(prefix+source);

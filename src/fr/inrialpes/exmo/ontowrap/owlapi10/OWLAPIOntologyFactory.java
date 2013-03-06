@@ -1,7 +1,7 @@
 /*
  * $Id: OWLAPIOntologyFactory.java 842 2008-09-19 20:41:29Z euzenat $
  *
- * Copyright (C) INRIA, 2008, 2010
+ * Copyright (C) INRIA, 2008, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,9 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
 import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.OWLOntology;
@@ -91,10 +88,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 		       "org.semanticweb.owl.impl.model.OWLConnectionImpl");
 	try {
 	    connection = OWLManager.getOWLConnection(parameters);
-	    Level lev = Logger.getLogger("org.semanticweb.owl").getLevel();
-	    Logger.getLogger("org.semanticweb.owl").setLevel(Level.ERROR);
 	    OWLOntology ontology = connection.loadOntologyPhysical(uri);
-	    Logger.getLogger("org.semanticweb.owl").setLevel(lev);
 	    onto = new OWLAPIOntology();
 	    // It may be possible to fill this as final in OWLAPIOntology...
 	    onto.setFormalism( formalismId );

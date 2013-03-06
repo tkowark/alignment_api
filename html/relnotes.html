@@ -39,9 +39,6 @@ The development of 4 versions continues.
 <p><ul compact="1">
 
 <li>Adding <tt>ontowrap</tt> support in database store (server)</li>
-<li>Adding Silk renderer (impl)</li>
-<li>Modifying evaluators needing <tt>ObjectAlignment</tt> to convert them (impl)</li>
-<li>All evaluators work in server (server)</li>
 <li>Make URIs dependent on a urlprefix (server [4.6])</li>
 <li>Provide several URIs for the same alignment (server [4.6])</li>
 <li>Adopt, overall, slf4j (impl/server [4.6])</li>
@@ -84,22 +81,25 @@ with a warning:
 <!--h2>Version 4.6 (1xxx): ??/??/201X - Da lec'h all</h2-->
 <!--h2>Version 4.5 (18xx): ??/03/2013 - Building 16</h2-->
 <p><ul compact="1">
-<li>Upgraded to <span style="color: green">IDDL</span> to 1.4 (lib)</li>
-<li>Upgraded to <span style="color: green">OWL API</span> to 3.4.2 (lib)</li>
-<li>Replaced Pellet by <span style="color: green">HermiT</span> as default reasonner (lib)</li>
 <li>Added several EDOAL-SPARQL renderers (impl)</li>
 <li>Added alignment selection per ontologies in list alignment interface (server)</li>
 <li>Added relation sensitiveness to evaluators (impl)</li>
-<li>Implemented transactions in database store (server)</li>
 <li>Added generation of local <a href="maven.html">maven repository</a> in build.xml</li>
-<li>Bug in weighted (can be more than 1.) (impl)</li>
+<li>Implemented transactions in database store (server)</li>
+<li>Modified evaluators needing <tt>ObjectAlignment</tt> to convert them on the fly (impl)</li>
+<li>Evaluators report better errors on the server (server)</li>
+<li>Fixed a bug in <tt>WeightedPREvaluator</tt> (can be more than 1.) (impl)</li>
 <li>Fixed strong bug in the implementation of relaxed precision and recall (impl)</li>
 <li>Fixed a (non manifested) bug in cache management (server)</li>
 <li>Fixed a bug in displaying evaluation tables (cli)</li>
 <li>Fixed a bug with subsumption statements in <tt>OWLAxiomsRendererVisitor</tt> (impl)</li>
 <li>Simplified and rewritten <tt>SemPRecEvaluator</tt> (impl)</li>
-<li>Fixed all issues but IDDL in tutorial4 (impl)</li>
-<li>Suppressed inclusion of slf4j-log4j (impl)</li>
+<li>Fixed all issues but IDDL in <a href="tutorial/tutorial4/index.html">tutorial4</a> (impl)</li>
+<li>Upgraded to <span style="color: green">IDDL</span> to 1.4 (lib)</li>
+<li>Upgraded to <span style="color: green">OWL API</span> to 3.4.2 (lib)</li>
+<li>Upgraded to <span style="color: green">SLF4J</span> to 1.7.2; suppressed slf4j-log4j (lib)</li>
+<li>Replaced Pellet by <span style="color: green">HermiT</span> as default reasonner (lib)</li>
+<li>Replaced Commons-Logging and Log4j by jcl-over-slf4j and log4j-over-slf4j (lib)</li>
 </ul></p>
 
 <a name="4.4"></a><h2>Version 4.4 (1754): 17/07/2012 - Casa Cirilo</h2>

@@ -9,6 +9,11 @@
   <artifactId>jcl-over-slf4j</artifactId>
   <packaging>jar</packaging>
   <name>Java Commons Logging over SLF4J Module</name>
+  <organization>
+    <name>QOS.ch</name>
+    <url>http://www.qos.ch</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
   <!-- Copyright (c) 2004-2011 QOS.ch -->
   <licenses>
     <license>

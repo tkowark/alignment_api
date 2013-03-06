@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011
+ * Copyright (C) INRIA, 2003-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,9 +27,6 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.Collection;
 import java.net.URI;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
 import org.xml.sax.SAXException;
 
@@ -164,6 +161,9 @@ public class ObjectAlignment extends BasicAlignment {
 		} catch ( NullPointerException npe ) {
 		    throw new AlignmentException( "Cannot dereference entity "+c.getObject2AsURI( alignment ), npe );
 		}
+		//System.err.println( obj1+"  "+obj2+"  "+c.getRelation()+"  "+c.getStrength() );
+		if ( obj1 == null ) throw new AlignmentException( "Cannot dereference entity "+c.getObject1AsURI( alignment ) );
+		if ( obj2 == null ) throw new AlignmentException( "Cannot dereference entity "+c.getObject2AsURI( alignment ) );
 		Cell newc = alignment.addAlignCell( c.getId(), obj1, obj2,
 						    c.getRelation(), c.getStrength() );
 		Collection<String[]> exts = c.getExtensions();

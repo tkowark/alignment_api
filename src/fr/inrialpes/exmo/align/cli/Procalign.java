@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2003 The University of Manchester
  * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, 2010-2012 INRIA
+ * Copyright (C) 2003-2008, 2010-2013 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -48,8 +48,6 @@ import java.lang.Integer;
 import java.lang.Long;
 
 import org.xml.sax.SAXException;
-
-import org.apache.log4j.BasicConfigurator;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -199,8 +197,6 @@ public class Procalign {
 	}
 
 	try {
-	    BasicConfigurator.configure();
-
 	    URI uri1 = null;
 	    URI uri2 = null;
 
