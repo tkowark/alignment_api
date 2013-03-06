@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-//package test.com.acme.dona.dep;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -135,10 +134,9 @@ public class AlgTest {
 	assertEquals( alignment1.nbCells(), 38 );
 	assertEquals( align2.nbCells(), 10 );
 
-	// JE: big problem here:
-	// Apparently the compose destroys the loaded alignment!
 	Alignment al = alignment1.compose( align2 );
-	new NameAndPropertyAlignment().init( new URI("file:examples/rdf/edu.umbc.ebiquity.publication.owl"), new URI("file:examples/rdf/edu.mit.visus.bibtex.owl"));
+	assertEquals( alignment1.nbCells(), 38 );
+	assertEquals( align2.nbCells(), 10 );
 	assertEquals( al.getOntology1(), alignment1.getOntology1() );
 	assertEquals( al.getOntology2(), align2.getOntology2() );
 	assertEquals( al.nbCells(), 4/*4*/ );

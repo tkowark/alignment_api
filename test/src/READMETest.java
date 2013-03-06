@@ -337,6 +337,41 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	assertEquals( eval.getOverall(), 0.5 );
     }
 
+    @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"}, expectedExceptions = fr.paris8.iut.info.iddl.IDDLRuntimeException.class)
+    public void semanticIDDLEvalTest() throws Exception {
+	AlignmentParser aparser1 = new AlignmentParser( 0 );
+	assertNotNull( aparser1 );
+	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	assertNotNull( align1 );
+	aparser1.initAlignment( null );
+	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	assertNotNull( align2 );
+	SemPRecEvaluator eval = new SemPRecEvaluator( align1, align2 );
+	assertNotNull( eval );
+	Properties params = new Properties();
+	params.setProperty( "semantics", "DL" );
+	assertNotNull( params );
+	eval.eval( params ) ;
+
+	// This only output the result to check that this is possible
+	OutputStream stream = new NullStream();
+	PrintWriter writer = new PrintWriter (
+				  new BufferedWriter(
+					new OutputStreamWriter( stream, "UTF-8" )), true);
+	eval.write( writer );
+	writer.flush();
+	writer.close();
+	// These figures are different than those of classical PR
+	// only because some correspondences cannot be transcribed
+	// author<->hasAuthor/editor<->hasEditor/firstAuthor/hasAuthor
+	// because Object/DataProperties
+	assertEquals( eval.getPrecision(), 0.6904761904761905 );
+	assertEquals( eval.getRecall(), 0.90625 );
+	assertEquals( eval.getNoise(), 0.30952380952380953 );
+	assertEquals( eval.getFmeasure(), 0.7837837837837837 );
+	assertEquals( eval.getOverall(), 0.5 );
+    }
+
 
     @Test(groups = { "full", "impl" }, dependsOnMethods = {"routineEvalTest"})
     public void weightedEvalTest() throws Exception {
