@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011-2012
+ * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -257,13 +257,7 @@ public class ParserPrinter {
 	    try {
 		result.render( renderer );
 	    } catch ( AlignmentException aex ) {
-		try {
-		    result = ObjectAlignment.toObjectAlignment( (URIAlignment)result );
-		    result.render( renderer );
-		} catch ( Exception aex2 ) {
-		    // Throw the initial one
-		    throw aex;
-		}
+		throw aex;
 	    } finally {
 		writer.flush();
 		writer.close();

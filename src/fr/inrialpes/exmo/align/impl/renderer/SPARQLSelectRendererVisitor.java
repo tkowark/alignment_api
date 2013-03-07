@@ -20,13 +20,17 @@
 
 package fr.inrialpes.exmo.align.impl.renderer;
 
-import fr.inrialpes.exmo.align.impl.edoal.Expression;
-import java.io.PrintWriter;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
+
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -65,21 +69,28 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 	    NL = p.getProperty( "newline" );
     }
 
-    public void visit(Alignment align) throws AlignmentException {
+    public void visit( Alignment align ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
-	alignment = align;		
+	if ( align instanceof EDOALAlignment ) {
+	    alignment = align;
+	} else {
+	    try {
+		alignment = EDOALAlignment.toEDOALAlignment( (BasicAlignment)align );
+	    } catch ( AlignmentException alex ) {
+		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
+	    }
+	}
 	for( Cell c : align ){ c.accept( this ); };    	
     }	
 
-    public void visit(Cell cell) throws AlignmentException {
+    public void visit( Cell cell ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
     	String query = "";
     	this.cell = cell;    	
     	
     	URI u1 = cell.getObject1AsURI(alignment);
     	URI u2 = cell.getObject2AsURI(alignment);
-    	if ( ( u1 != null && u2 != null)
-    	     || alignment.getLevel().startsWith("2EDOAL") ){
+    	if ( ( u1 != null && u2 != null) || alignment.getLevel().startsWith("2EDOAL") ) {
 	    resetVariables("s", "o");
 	    ((Expression)(cell.getObject1())).accept( this );
 	    GP1 = getGP();

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,6 +33,7 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
@@ -64,9 +65,15 @@ public class SEKTMappingRendererVisitor extends GenericReflectiveVisitor impleme
     public void visit( Alignment align ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
 	// default behaviour
-	if ( !(align instanceof ObjectAlignment) )
-	    throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement()");
-	alignment = align;
+	if ( align instanceof ObjectAlignment ) {
+	    alignment = align;
+	} else {
+	    try {
+		alignment = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+	    } catch ( AlignmentException alex ) {
+		throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
+	    }
+	}
 	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
 	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
 	writer.print("MappingDocument(<\""+"\">\n");

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2012
+ * Copyright (C) INRIA, 2003-2004, 2007-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +35,7 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.Extensions;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.rel.*;
 
@@ -107,14 +108,20 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     public void visit( Alignment align ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
 	// default behaviour
-	alignment = align;
-	if ( align instanceof ObjectAlignment ){
+	if ( align instanceof ObjectAlignment ) {
+	    alignment = align;
 	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
 	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
 	} else if ( align instanceof EDOALAlignment ) {
 	    edoal = true;
 	} else {
-	    throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Turn them into ObjectAlignment, by toObjectAlignement() or use EDOALAlignment");
+	    try {
+		alignment = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
+		onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
+		onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	    } catch ( AlignmentException alex ) {
+		throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
+	    }
 	}
 	writer.print("<rdf:RDF"+NL);
 	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\""+NL);

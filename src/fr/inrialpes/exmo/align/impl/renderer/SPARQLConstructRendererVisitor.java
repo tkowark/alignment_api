@@ -20,16 +20,19 @@
 
 package fr.inrialpes.exmo.align.impl.renderer;
 
-import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
-import fr.inrialpes.exmo.align.impl.edoal.Expression;
-import fr.inrialpes.exmo.align.impl.edoal.Transformation;
-
-import java.io.PrintWriter;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
+
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
+
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -77,9 +80,17 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 	    NL = p.getProperty( "newline" );
     }
     
-    public void visit(Alignment align) throws AlignmentException {
+    public void visit( Alignment align ) throws AlignmentException {
     	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
-    	alignment = align;    	
+	if ( align instanceof EDOALAlignment ) {
+	    alignment = align;
+	} else {
+	    try {
+		alignment = EDOALAlignment.toEDOALAlignment( (BasicAlignment)align );
+	    } catch ( AlignmentException alex ) {
+		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
+	    }
+	}
     	content_Corese = "";
     	content_Corese += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NL;
     	content_Corese += "<!DOCTYPE rdf:RDF [" + NL;
@@ -99,7 +110,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	}
     }	
     
-    public void visit(Cell cell) throws AlignmentException {
+    public void visit( Cell cell ) throws AlignmentException {
     	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
     	// default behaviour
     	this.cell = cell;      	
