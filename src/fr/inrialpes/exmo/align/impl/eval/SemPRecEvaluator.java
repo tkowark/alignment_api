@@ -86,6 +86,7 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.ArrayList;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -100,7 +101,7 @@ import java.net.URI;
 
 public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
-    final Logger logger = LoggerFactory.getLogger( SemPRecEvaluator.class );
+    final static Logger logger = LoggerFactory.getLogger( SemPRecEvaluator.class );
     private int nbfoundentailed = 0; // nb of returned cells entailed by the reference alignment
     private int nbexpectedentailed = 0; // nb of reference cells entailed by returned alignment
 
@@ -114,7 +115,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      **/
     public SemPRecEvaluator( Alignment al1, Alignment al2) throws AlignmentException {
 	super( al1, al2 );
-	logger.info( "Created one SemPREvaluator" );
+	logger.info( "Created a SemPREvaluator" );
 	convertToObjectAlignments( al1, al2 );
     }
 
@@ -169,13 +170,17 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
     }
 
     public int nbEntailedCorrespondences( ObjectAlignment al1, ObjectAlignment al2 ) throws AlignmentException {
-	logger.debug( "Computing entailment (semantics: {})", semantics );
+	logger.trace( "Computing entailment (semantics: {})", semantics );
 	if ( semantics != null ) { // IDDL
-	    IDDLReasoner iddlreasoner = new IDDLReasoner( semantics );
-	    loadOntology( iddlreasoner, ((BasicAlignment)al1).getOntologyObject1() );
-	    loadOntology( iddlreasoner, ((BasicAlignment)al1).getOntologyObject2() );
-	    iddlreasoner.addAlignment( al1 ); 
-	    reasoner = iddlreasoner;
+	    ArrayList<Alignment> allist = new ArrayList<Alignment>();
+	    allist.add( al1 );
+	    try {
+		IDDLReasoner iddlreasoner = new IDDLReasoner( allist );
+		iddlreasoner.setSemantics( semantics );
+		reasoner = iddlreasoner;
+	    } catch ( IDDLException idex ) {
+		throw new AlignmentException( "Cannot create IDDLReasoner", idex );
+	    }
 	} else { // Hermit
 	    loadPipedAlignedOntologies( al1 );
 	}
@@ -254,8 +259,8 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	}
 
 	manager = OWLManager.createOWLOntologyManager();
-	logger.debug( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
-	logger.debug( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
+	//logger.trace( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
+	//logger.trace( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology1URI() ), 
 						  IRI.create( align.getFile1() ) ) );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
@@ -300,8 +305,8 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
 	// Load the ontology 
 	manager = OWLManager.createOWLOntologyManager();
-	logger.debug( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
-	logger.debug( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
+	//logger.trace( "{} ----> {}", align.getOntology1URI(), align.getFile1() );
+	//logger.trace( "{} ----> {}", align.getOntology2URI(), align.getFile2() );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology1URI() ), 
 						  IRI.create( align.getFile1() ) ) );
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
@@ -392,12 +397,13 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
     }
 
     // load ontology for the IDDLReasoner
+    /*
     public void loadOntology( IDDLReasoner reasoner, Object onto ) {
     	Ontology oo = (Ontology)onto;
     	URI f = oo.getFile();
     	if ( f == null ) f = oo.getURI();
     	reasoner.addOntology( f );
-    }
+	}*/
 
 }
 

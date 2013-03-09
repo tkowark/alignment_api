@@ -3,8 +3,8 @@
 
   <groupId>fr.paris8.iut.info.iddl</groupId>
   <artifactId>iddl</artifactId>
-  <version>1.4d</version>
-  <!-- Unreleased version of 2013-03-01 -->
+  <version>1.4e</version>
+  <!-- Unreleased version of 2013-03-06 -->
   <name>Integrated Distributed Description Logic</name>
   <description>A Resonner for Integrated Distributed Description Logic</description>
   <licenses>

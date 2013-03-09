@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009
+ * Copyright (C) INRIA, 2009, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -39,8 +39,8 @@ public interface LogicOntologyNetwork extends OntologyNetwork {
 
     public void setSemantics( String s );
     public String getSemantics();
-    public boolean isConsistent(); 
-    public boolean isEntailed( Alignment al );
-    //public boolean isEntailed( URI ontology, Object axiom );
+    public boolean isConsistent() throws AlignmentException; 
+    public boolean isEntailed( Alignment al ) throws AlignmentException;
+    //public boolean isEntailed( URI ontology, Object axiom ) throws AlignmentException;
 
 }

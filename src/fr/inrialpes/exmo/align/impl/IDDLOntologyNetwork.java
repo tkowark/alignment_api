@@ -25,6 +25,7 @@ import java.lang.Iterable;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.net.URI;
@@ -49,21 +50,24 @@ import fr.paris8.iut.info.iddl.conf.Semantics;
 public class IDDLOntologyNetwork extends BasicOntologyNetwork implements LogicOntologyNetwork {
 
     IDDLReasoner reasoner = null;
-    String semantics = "";
+    String semantics = "DL";
 
-    protected void init(){
+    protected void init() throws AlignmentException {
+	//for( URI u : getOntologies() ){
+	//	reasoner.addOntology( u );
+	//}
+	ArrayList<Alignment> allist = new ArrayList<Alignment>();
+	for( Alignment al : alignments ){
+	    //reasoner.addAlignment( al );
+	    allist.add( al );
+	}
 	if ( reasoner == null ){
-	    if ( semantics.equals("DL") ) {
-		reasoner = new IDDLReasoner( Semantics.DL );
-	    } else {
-		reasoner = new IDDLReasoner( Semantics.IDDL );
+	    try {
+		reasoner = new IDDLReasoner( allist );
+	    } catch ( IDDLException iddlex ) {
+		throw new AlignmentException( "Cannot initialise IDDLReasoner", iddlex );
 	    }
-	    for( URI u : getOntologies() ){
-		reasoner.addOntology( u );
-	    }
-	    for( Alignment al : alignments ){
-		reasoner.addAlignment( al );
-	    }
+	    setSemantics( semantics );
 	}
     }
 
@@ -76,17 +80,16 @@ public class IDDLOntologyNetwork extends BasicOntologyNetwork implements LogicOn
     public String getSemantics(){
 	return semantics;
     };
-    public boolean isConsistent(){
+    public boolean isConsistent() throws AlignmentException {
 	init();
 	return reasoner.isConsistent();
     }; 
-    public boolean isEntailed( Alignment al ) {
+    public boolean isEntailed( Alignment al ) throws AlignmentException {
 	init();
 	try {
 	    return reasoner.isEntailed( al );
 	} catch ( IDDLException idex ) {
-	    idex.printStackTrace();
-	    return false;
+	    throw new AlignmentException( "Cannot test entailment", idex );
 	}
     };
 

@@ -337,7 +337,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	assertEquals( eval.getOverall(), 0.5 );
     }
 
-    @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"}, expectedExceptions = fr.paris8.iut.info.iddl.IDDLRuntimeException.class)
+    @Test(groups = { "full", "sem" }, dependsOnMethods = {"routineEvalTest"}, expectedExceptions = org.semanticweb.owl.align.AlignmentException.class)
     public void semanticIDDLEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
