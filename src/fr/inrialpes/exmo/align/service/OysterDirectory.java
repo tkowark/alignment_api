@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2011
+ * Copyright (C) INRIA, 2007-2011, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -38,8 +38,11 @@ import org.neon_toolkit.omv.api.core.OMVOntology;
 import org.neon_toolkit.omv.api.extensions.mapping.OMVMapping;
 import org.neon_toolkit.omv.api.extensions.mapping.OMVMappingMethod;
 
-public class OysterDirectory implements Directory {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class OysterDirectory implements Directory {
+    final static Logger logger = LoggerFactory.getLogger( OysterDirectory.class );
 
     private Oyster2Connection oyster2Conn = null;
 
@@ -50,10 +53,10 @@ public class OysterDirectory implements Directory {
      * - the declaration of the current service
      */
     public void open( Properties p ) throws AServException {
-	System.err.println("Attempt to connect to Oyster" );
+	logger.debug("Attempt to connect to Oyster" );
 	//oyster2Conn = Oyster2Manager.newConnection("new store","lib/kaon2.jar","totokaon","");
 	oyster2Conn = Oyster2Manager.newConnection(false);
-	System.err.println("Successfully connectered to "+ oyster2Conn );
+	logger.info("Successfully connectered to "+ oyster2Conn );
     }
 
     /**
@@ -103,6 +106,6 @@ public class OysterDirectory implements Directory {
      */
     public void close() throws AServException {
 	Oyster2Manager.closeConnection();
-	System.err.println("Successfully unconnected to Oyster");
+	logger.info("Successfully disconnected to Oyster");
     }
 }

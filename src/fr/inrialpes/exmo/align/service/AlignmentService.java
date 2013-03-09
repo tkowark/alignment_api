@@ -93,7 +93,9 @@ public class AlignmentService {
 
     public static void main(String[] args) {
 	try { new AlignmentService().run( args ); }
-	catch ( Exception ex ) { ex.printStackTrace(); };
+	catch ( Exception ex ) {
+	    logger.error( "FATAL error", ex );
+	};
     }
     
     public void run(String[] args) throws Exception {
@@ -176,8 +178,8 @@ public class AlignmentService {
 	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try { serv.close(); }
 	    catch ( AServException ex ) {
-		System.err.println("Cannot close "+serv);
-		ex.printStackTrace();
+		logger.debug("Cannot close {}", serv);
+		logger.trace("IGNORED Exception", ex );
 	    }
 	}
 	
@@ -262,8 +264,8 @@ public class AlignmentService {
 		try {
 		    services.put( arg, (AlignmentServiceProfile)loadInstance( arg ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create service for "+arg);
-		    ex.printStackTrace();
+		    logger.warn( "Cannot create service for {}", arg );
+		    logger.trace( "IGNORED Exception", ex );
 		}
 		break;
 	    case 'H' :
@@ -278,8 +280,7 @@ public class AlignmentService {
 		try {
 		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create service for HTMLAServProfile");
-		    ex.printStackTrace();
+		    logger.warn( "Cannot create service for HTMLAServProfile", ex );
 		}
 		break;
 	    case 'A' :
@@ -293,8 +294,7 @@ public class AlignmentService {
 		try {
 		    services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile" ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create service for JadeFIPAAServProfile");
-		    ex.printStackTrace();
+		    logger.warn("Cannot create service for JadeFIPAAServProfile", ex);
 		}
 		break;
 	    case 'W' :
@@ -312,8 +312,7 @@ public class AlignmentService {
 		try {
 		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create service for Web services");
-		    ex.printStackTrace();
+		    logger.warn("Cannot create service for Web services", ex);
 		}
 		break;
 	    case 'P' :
@@ -340,8 +339,7 @@ public class AlignmentService {
 		try {
 		    directories.put( "fr.inrialpes.exmo.align.service.OysterDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.OysterDirectory" ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create directory for Oyster");
-		    ex.printStackTrace();
+		    logger.warn("Cannot create directory for Oyster", ex);
 		}
 		break;
 	    case 'U' :
@@ -355,8 +353,7 @@ public class AlignmentService {
 		try {
 		    directories.put( "fr.inrialpes.exmo.align.service.UDDIDirectory", (Directory)loadInstance( "fr.inrialpes.exmo.align.service.UDDIDirectory" ) );
 		} catch (Exception ex) {
-		    System.err.println("Cannot create directory for UDDI");
-		    ex.printStackTrace();
+		    logger.warn("Cannot create directory for UDDI", ex);
 		}
 		break;
 	    case 'm' :
@@ -392,7 +389,7 @@ public class AlignmentService {
 		    params.setProperty( arg.substring( 0, index), 
 					 arg.substring(index+1));
 		} else {
-		    System.err.println("Bad parameter syntax: "+g);
+		    logger.warn("Bad parameter syntax: "+g);
 		    usage();
 		    System.exit(0);
 		    

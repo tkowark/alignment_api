@@ -1,6 +1,6 @@
 #######################################################################
 #		Alignment Server launch instructions                  #
-#                      23/02/2012, version 4.3                        #
+#                      30/03/2013, version 4.5                        #
 #######################################################################
 
 Using the alignment server requires an SQL database server.
@@ -89,6 +89,8 @@ The alignment server is then available through HTTP with:
 
     	      http://localhost:8089/html/
 
-(hint: use -d)
+For debugging, using logback, do:
+$ java -cp lib/slf4j/logback-core-1.0.9.jar:lib/slf4j/logback-classic-1.0.9.jar:lib/alignsvc.jar -Dlogback.configurationFile=logback.xml fr.inrialpes.exmo.align.service.AlignmentService -Dwndict=../WordNet-3.0/dict -H
+
 
 

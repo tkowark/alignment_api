@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2007-2009
+ * Copyright (C) INRIA, 2007-2009, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,8 +29,12 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DBServiceImpl implements DBService{
+public class DBServiceImpl implements DBService {
+    final static Logger logger = LoggerFactory.getLogger( DBServiceImpl.class );
+
     int id = 0;
     Connection conn = null;
     static String IPAddress = "localhost";
@@ -94,7 +98,7 @@ public class DBServiceImpl implements DBService{
 	try {
 	    conn.close();
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.debug( "IGNORED Closing exception", ex );
 	}
     }
     

@@ -127,7 +127,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	     "</"+Namespace.SOAP_ENV.shortCut+":Envelope>\n";
 	 byte[] byteMess = message.getBytes();
 
-	 //System.err.println("SOAP for sending=" + message);
+	 //logger.trace("SOAP for sending={}", message);
 
 	 // Connect with the web service (in parameter)
 	 HttpURLConnection httpConn = null;
@@ -162,8 +162,8 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 // Parse the result in this alignment
 	 try {
 	     
-             //System.err.println("  response code =" + httpConn.getResponseCode() );
-             //System.err.println("  response mess =" + httpConn.getResponseMessage() );
+             //logger.trace("  response code ={}", httpConn.getResponseCode() );
+             //logger.trace("  response mess ={}", httpConn.getResponseMessage() );
 	     //InputStream  inSt = httpConn.getInputStream(); 
  	     //InputStreamReader isr = new InputStreamReader( inSt );
 	     //BufferedReader in = new BufferedReader(isr);
