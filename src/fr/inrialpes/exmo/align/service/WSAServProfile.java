@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2012
+ * Copyright (C) INRIA, 2007-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -68,6 +68,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * WSAServProfile: a SOAP and REST over HTTP provile for the Alignment server
  * It uses the HTTP server of HTTPAServProfile
@@ -80,10 +83,10 @@ import org.xml.sax.SAXException;
  */
 
 public class WSAServProfile implements AlignmentServiceProfile {
+    final static Logger logger = LoggerFactory.getLogger( WSAServProfile.class );
 
     private int tcpPort;
     private String tcpHost;
-    private int debug = 0;
     private AServProtocolManager manager;
     private static String wsdlSpec = "";
 
@@ -159,7 +162,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 				// in particular it does not deal with section'ed MANISFESTs
 				Attributes mainAttributes = jar.getManifest().getMainAttributes();
 				String path = mainAttributes.getValue( Name.CLASS_PATH );
-				if ( debug > 0 ) System.err.println("  >CP> "+path);
+				logger.debug("  >CP> "+path);
 				if ( path != null && !path.equals("") ) {
 				    // JE: Not sure where to find the other Jars:
 				    // in the path or at the local place?
@@ -167,7 +170,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 				}
 			    }
 			} catch (NullPointerException nullexp) { //Raised by JarFile
-			    System.err.println("Warning "+file+" unavailable");
+			    logger.warn( "IGNORED Warning {} unavailable", file );
 			}
 		    }
 		}
@@ -177,7 +180,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} catch (IOException ioex) {
-	    ioex.printStackTrace();
+	    logger.debug( "IGNORED Exception", ioex );
 	}
     }
 
@@ -224,10 +227,10 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		try {
 		    domMessage = BUILDER.parse( new ByteArrayInputStream( message.getBytes()) );
 		} catch  ( IOException ioex ) {
-		    ioex.printStackTrace();
+		    logger.debug( "IGNORED Exception", ioex );
 		    answer = new NonConformParameters(0,(Message)null,myId,"Cannot Parse SOAP message",message,(Properties)null);
 		} catch  ( SAXException saxex ) {
-		    saxex.printStackTrace();
+		    logger.debug( "IGNORED Exception", saxex );
 		    answer = new NonConformParameters(0,(Message)null,myId,"Cannot Parse SOAP message",message,(Properties)null);
 		}
 		newparameters = getParameters( domMessage );
@@ -442,9 +445,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	} catch (XPathExpressionException e) {
-	  System.err.println( "[getParameters] XPath exception: should not occur");
+	  logger.warn( "[getParameters] XPath exception: should not occur");
 	} catch (NullPointerException e) {
-	  System.err.println( "[getParameters] NullPointerException: should not occur");
+	  logger.warn( "[getParameters] NullPointerException: should not occur");
 	}
 	return params;
     }

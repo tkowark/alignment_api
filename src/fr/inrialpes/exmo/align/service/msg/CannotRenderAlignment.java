@@ -31,7 +31,7 @@ public class CannotRenderAlignment extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){
-	return "Cannot render alignment "+content+": turn it to an ObjectAlignment with ObjectAlignement.toOkbjectAlignement( al )";
+	return "Cannot render alignment "+content;
     }
     public String RESTString(){
 	return "<CannotRenderAlignment>"+content+"</CannotRenderAlignment>";

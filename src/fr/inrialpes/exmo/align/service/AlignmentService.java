@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2010
+ * Copyright (C) INRIA, 2006-2009, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,9 @@ import fr.inrialpes.exmo.queryprocessor.Result;
 import fr.inrialpes.exmo.queryprocessor.Type;
 
 import fr.inrialpes.exmo.align.util.NullStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gnu.getopt.LongOpt;
 import gnu.getopt.Getopt;
@@ -50,7 +53,6 @@ import java.lang.reflect.InvocationTargetException;
     <pre>
         --load=filename -l filename     Load previous image
 	--params=filename -p filename   Read the parameters in file
-        --debug[=n] -d [n]              Report debug info at level n,
         --help -h                       Print this message
     </pre>
 
@@ -58,9 +60,10 @@ import java.lang.reflect.InvocationTargetException;
 $Id$
 </pre>
 
- * @author Jï¿½rï¿½me Euzenat
+ * @author Jérôme Euzenat
  */
 public class AlignmentService {
+    final static Logger logger = LoggerFactory.getLogger( AlignmentService.class );
 
     public String //DBMS Parameters
 	DBHOST = "localhost",
@@ -79,7 +82,6 @@ public class AlignmentService {
     public static final String //IP Strings
 	HOST = "localhost";
 
-    private int debug = 0;
     private String filename = null;
     private String outfile = null;
     private String paramfile = null;
@@ -102,11 +104,8 @@ public class AlignmentService {
 	if ( outfile != null ) {
 	    // This redirects error outout to log file given by -o
 	    System.setErr( new PrintStream( outfile ) );
-	} else if ( debug <= 0 ){
-	    // This cancels all writing on the error output (default)
-	    System.setErr( new PrintStream( new NullStream() ) );
-	}
-	if ( debug > 0 ) System.err.println("Parameter parsed");
+	} 
+	logger.debug("Parameter parsed");
 
 	// Shut down hook
 	Runtime.getRuntime().addShutdownHook(new Thread(){
@@ -114,45 +113,45 @@ public class AlignmentService {
 
 	// Connect database
 	if( DBMS.equals("postgres") ) {
-	    if ( debug > 0 ) System.err.println("postgres driver");
+	    logger.debug("postgres driver");
 	    DBPORT = "5432";
 	    connection = new DBServiceImpl( "org.postgresql.Driver" ,  "jdbc:postgresql", DBPORT );
 	} else {
-	    if ( debug > 0 ) System.err.println("mysql driver");
+	    logger.debug("mysql driver");
 	    DBPORT = "3306";
 	    connection = new DBServiceImpl( "com.mysql.jdbc.Driver" ,  "jdbc:mysql", DBPORT );
 	}	
 	
 	connection.init();
 	connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
-	if ( debug > 0 ) System.err.println("Database connected");
+	logger.debug("Database connected");
 
 	// Create a AServProtocolManager
 	manager = new AServProtocolManager( directories );
 	manager.init( connection, params );
-	if ( debug > 0 ) System.err.println("Manager created");
+	logger.debug("Manager created");
 
 	// Launch services
 	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try {
 		serv.init( params, manager );
-		if ( debug > 0 ) System.err.println(serv+" launched on http://"+params.getProperty( "host" )+":"+params.getProperty( "http" )+"/html/");
+		Object[] mm = {serv, params.getProperty( "host" ), params.getProperty( "http" )  };
+		logger.info("{} launched on http://{}:{}/html/", mm);
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't start "+serv+" server on http://"+params.getProperty( "host" )+":"+params.getProperty( "http" )+"/html/:\n");
-		// Ideally remove the service
-		ex.printStackTrace();
+		Object[] mm = {serv, params.getProperty( "host" ), params.getProperty( "http" )  };
+		logger.warn("Cannot start {} server on http://{}:{}/html/", mm);
 	    }
 	}
 	// Register to directories
 	for ( Directory dir : directories.values() ) {
 	    try {
 		dir.open( params );
-		if ( debug > 0 ) System.err.println(dir+" connected.");
+		logger.debug("{} connected.", dir);
 	    } catch ( AServException ex ) {
-		System.err.println( "Couldn't connect to "+dir+" directory");
+		logger.warn( "Cannot connect to {} directory", dir );
+		logger.debug( "IGNORED Connection exception", ex );
 		// JE: this has to be done
 		//directories.remove( name, dir );
-		ex.printStackTrace();
 	    }
 	}
 
@@ -164,13 +163,13 @@ public class AlignmentService {
     }
 
     protected void close(){
-	if (debug > 0 ) System.err.println("Shuting down server");
+	logger.debug("Shuting down server");
 	// [Directory]: unregister to directories
 	for ( Directory dir : directories.values() ) {
 	    try { dir.close(); }
 	    catch ( AServException ex ) {
-		System.err.println("Cannot unregister to "+dir);
-		ex.printStackTrace();
+		logger.warn("Cannot unregister from {}", dir);
+		logger.debug("IGNORED", ex);
 	    }
 	}
 	// Close services
@@ -185,7 +184,7 @@ public class AlignmentService {
 	// Shut down database connection
 	manager.close();
 	connection.close();
-	if ( debug > 0 ) System.err.println("Database connection closed");
+	logger.debug("Database connection closed");
 	System.err.close();
     }
 
@@ -252,10 +251,10 @@ public class AlignmentService {
 		filename = g.getOptarg();
 		break;
 	    case 'd' :
-		/* Debug level  */
+		/* DEPRECATED: Debug level  */
 		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt( arg.trim() );
-		else debug = 4;
+		System.err.println( "WARNING: debug argument is deprecated, use logging" );
+		System.err.println( "See http://alignapi.gforge.inria.fr/logging.html" );
 		break;
 	    case 'i' :
 		/* external service */
@@ -402,19 +401,6 @@ public class AlignmentService {
 	    }
 	}
 	
-	if (debug > 0) {
-	    params.setProperty( "debug", Integer.toString( debug ) );
-	} else if ( params.getProperty( "debug" ) != null ) {
-	    debug = Integer.parseInt( params.getProperty( "debug" ) );
-	}
-
-	// We add (for debugging purposes) the command lines as arguments
-	String argline = "";
-	for ( int i = args.length - 1; i >= 0; i-- ) {
-	    argline = args[i]+" "+argline;
-	}
-	params.setProperty( "argline", argline );
-
 	return params;
     }
 
@@ -441,7 +427,6 @@ public class AlignmentService {
 	System.err.println("\t--dbmspass=pwd -p pwd\t\t\tUse DBMS password");
 	System.err.println("\t--dbmsbase=name -b name\t\t\tUse Database name");
 	System.err.println("\t--dbms=name -B name\t\t\tUse Database Management System");
-	System.err.println("\t--debug[=n] -d[n]\t\tReport debug info at level n");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
 

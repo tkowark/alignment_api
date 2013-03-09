@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011
+ * Copyright (C) INRIA, 2008-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -63,6 +63,9 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
  /**
   * This is an AlignmentProcess which perform matching by connecting
   * to an AlignmentServer and retrieving or computing an alignment.
@@ -74,6 +77,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
   */
 
 public class WSAlignment extends URIAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( WSAlignment.class );
 
      private URL SOAPUrl = null;
      /**
@@ -209,7 +213,9 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	align.setExtension( Namespace.ALIGNMENT.uri, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
 	try {
 	    align.ingest( this );
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	} catch (AlignmentException ex) { 
+	    logger.debug( "IGNORED Exception", ex );
+	}
 	return align;
     }
 

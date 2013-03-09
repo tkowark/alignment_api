@@ -77,16 +77,19 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.Request;
 import org.mortbay.servlet.MultiPartFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
  * It embeds an HTTP server.
  */
 
 public class HTMLAServProfile implements AlignmentServiceProfile {
+    final static Logger logger = LoggerFactory.getLogger( HTMLAServProfile.class );
 
     private int tcpPort;
     private String tcpHost;
-    private int debug = 0;
     private Server server;
     private AServProtocolManager manager;
     private WSAServProfile wsmanager;
@@ -140,7 +143,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    Thread t = new Thread( new Runnable() {
 		    public void run() {
 			try { while( true ) new HTTPSession( ss.accept());
-			} catch ( IOException ioe ) { ioe.printStackTrace(); }
+			} catch ( IOException ioe ) { logger.debug( "IGNORED Exception", ioe ); }
 		    }
 		});
 	    t.setDaemon( true );
@@ -207,8 +210,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			    char [] mess = new char[length+1];
 			    try {
 				new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
-			    } catch (Exception e) {
-				e.printStackTrace(); // To clean up
+			    } catch ( Exception e ) {
+				logger.debug( "IGNORED Exception", e );
 			    }
 			    params.setProperty( "content", new String( mess ) );
 			}
@@ -271,7 +274,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	if ( wsmanager != null ) wsmanager.close();
 	if ( server != null ) {
 	    try { server.stop(); }
-            catch (Exception e) { e.printStackTrace(); }
+            catch (Exception e) { logger.debug( "IGNORED Exception on close", e ); }
 	}
     }
     
@@ -291,7 +294,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * @return HTTP response, see class Response for details
      */
     public Response serve( String uri, String method, Properties header, Properties parms ) {
-	if ( debug >= 1 ) System.err.println( method + " '" + uri + "' " );
+	logger.debug( "{} '{}'", method, uri );
 	Enumeration en = header.propertyNames();
 	while ( en.hasMoreElements()) {
 	    String value = (String)en.nextElement();
@@ -300,7 +303,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// Convert parms to parameters
 	Properties params = new Properties();
 	for ( String key : parms.stringPropertyNames() ) {
-	    if ( debug > 1 ) System.err.println( "  PRM: '" + key + "' = '" +parms.getProperty( key ) + "'" );
+	    //logger.trace( "  PRM: '{}' = '{}'", key, parms.getProperty( key ) );
 	    if ( key.startsWith( "paramn" ) ){
 		params.setProperty( parms.getProperty( key ),
 				     parms.getProperty( "paramv"+key.substring( 6 ) ) );
@@ -385,7 +388,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Allows some limited administration of the server through HTTP
      */
     public Response adminAnswer( String uri, String perf, Properties header, Properties params ) {
-	if ( debug > 0 ) System.err.println("ADMIN["+perf+"]");
+	logger.debug( "ADMIN[{}]", perf);
 	String msg = "";
         if ( perf.equals("listmethods") ){
 	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
@@ -487,7 +490,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * uses the protocol but offers user-targeted interaction
      */
     public Response htmlAnswer( String uri, String perf, Properties header, Properties params ) {
-	//System.err.println("HTML["+perf+"]");
+	//logger.trace("HTML[{}]", perf );
 	// REST get
 	String msg = "";
 	if ( perf.equals("listalignments") ) {
@@ -746,7 +749,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    else
 		params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
 	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    //System.err.println("Content: "+answer.getContent());
+	    //logger.trace( "Content: {}", answer.getContent() );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {

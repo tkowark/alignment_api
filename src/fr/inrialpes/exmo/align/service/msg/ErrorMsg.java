@@ -32,7 +32,15 @@ public class ErrorMsg extends Message {
 	super( surr, rep, from, to, cont, param );
     }
     public String HTMLString(){
-	return "Generic error: "+content;
+	String message = "Generic error: "+content;
+	if ( parameters != null ) {
+	    message += "<ul>";
+	    for ( String key : parameters.stringPropertyNames()) {
+		message += "<li>"+key+" = "+parameters.getProperty( key )+"</li>";
+	    }
+	    message += "/<ul>";
+	}
+	return message;
     }
     public String RESTString(){
 	return "<error>" + content + "</error>";
