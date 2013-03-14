@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010, 2012
+ * Copyright (C) INRIA, 2006-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -96,9 +96,15 @@ public class HTMLMetadataRendererVisitor extends GenericReflectiveVisitor implem
 	    String k = (String)e.nextElement();
 	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
-	//writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
-	writer.print("<h1>Alignment metadata</h1>\n");
-	writer.print("<h1></h1>\n");
+	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
+	String alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	String pid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	if ( alid == null ) alid = "Anonymous alignment";
+	if ( pid == null ) {
+	    writer.print("<h1>"+alid+"</h1>\n");
+	} else {
+	    writer.print("<h1>"+alid+" ("+pid+")</h1>\n");
+	}
 	writer.print("<div typeof=\"align:Alignment\">\n");
 	writer.print("<table border=\"0\">\n");
 	writer.print("<tr><td>onto1</td><td><div rel=\"align:onto1\"><div typeof=\"align:Ontology\" about=\""+align.getOntology1URI()+"\">");
