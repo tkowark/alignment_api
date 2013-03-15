@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -66,8 +66,6 @@ import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 /**
  * Translate correspondences into Graph Patterns
  *
- * @author 
- * @version
  */
 
 // JE: create a string... problem with increment.

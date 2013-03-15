@@ -110,8 +110,8 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 
     /** Creation
      * Initiate Evaluator for precision and recall
-     * @param align1 : the reference alignment
-     * @param align2 : the alignment to evaluate
+     * @param al1 : the reference alignment
+     * @param al2 : the alignment to evaluate
      **/
     public SemPRecEvaluator( Alignment al1, Alignment al2) throws AlignmentException {
 	super( al1, al2 );
@@ -175,9 +175,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	    ArrayList<Alignment> allist = new ArrayList<Alignment>();
 	    allist.add( al1 );
 	    try {
-		IDDLReasoner iddlreasoner = new IDDLReasoner( allist );
-		iddlreasoner.setSemantics( semantics );
-		reasoner = iddlreasoner;
+		reasoner = new IDDLReasoner( allist, semantics );
 	    } catch ( IDDLException idex ) {
 		throw new AlignmentException( "Cannot create IDDLReasoner", idex );
 	    }
@@ -395,15 +393,6 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	}
 	throw new AlignmentException( "Cannot convert correspondence "+corresp );
     }
-
-    // load ontology for the IDDLReasoner
-    /*
-    public void loadOntology( IDDLReasoner reasoner, Object onto ) {
-    	Ontology oo = (Ontology)onto;
-    	URI f = oo.getFile();
-    	if ( f == null ) f = oo.getURI();
-    	reasoner.addOntology( f );
-	}*/
 
 }
 
