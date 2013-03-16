@@ -16,8 +16,8 @@
 
   <groupId>fr.inrialpes.exmo.align</groupId>
   <artifactId>alignsvc</artifactId>
-  <version>4.3</version>
-  <!-- Rev 1732:1734M 15/07/2012 -->
+  <version>4.4</version>
+  <!-- Rev 1832:1833M 16/03/2013 -->
   <name>Alignment server</name>
   <description>A server for storing and sharing ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -25,37 +25,37 @@
     <name>INRIA Exmo team</name>
     <url>http://exmo.inrialpes.fr</url>
   </organization>
-  <!-- (C) INRIA, 2003-2012 -->
+  <!-- (C) INRIA, 2003-2013 -->
   <licenses>
     <license>
       <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999</name>
       <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
     </license>
-    <licence>
+    <license>
       <name>CeCILL-C Licence française de logiciel libre</name>
       <url>http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.txt</url>
     </license>
   </licenses>
   <packaging>jar</packaging>
 
-  <dependencies>
+  <!--dependencies>
     <dependency>
       <groupId>org.semanticweb.owl</groupId>
       <artifactId>align</artifactId>
-      <version>4.3</version>
+      <version>4.4</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo</groupId>
       <artifactId>ontowrap</artifactId>
-      <version>4.3</version>
+      <version>4.4</version>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo.impl</groupId>
       <artifactId>procalign</artifactId>
-      <version>4.3</version>
+      <version>4.4</version>
     </dependency>
-  <dependencies>
+  <dependencies-->
 
   <developers>
     <developer>
