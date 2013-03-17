@@ -54,18 +54,18 @@ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.Stri
 
 java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -t 0.5 file://%CWD%/myOnto.owl file://%CWD%/edu.mit.visus.bibtex.owl -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\SMOA5.html
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i results\SMOA5.rdf -o results\AOMS5.rdf
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i file:results\SMOA5.rdf -o results\AOMS5.rdf
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\AOMS5.html
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i file:results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\AOMS5.html
 
 rem #####################
 rem # Outputing
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results\SMOA5.xsl
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:results\SMOA5.rdf -r fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor -o results\SMOA5.xsl
 
 xsltproc results\SMOA5.xsl data.xml > results\data.xml
 
@@ -73,7 +73,7 @@ xsltproc results\SMOA5.xsl data.xml > results\data.xml
 rem #####################
 rem # Evaluating
 
-java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter refalign.rdf -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\refalign.html
+java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:refalign.rdf -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -o results\refalign.html
 
 java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.PRecEvaluator file://%CWD%/refalign.rdf file://%CWD%/tutorial1/results/equal.rdf
 
