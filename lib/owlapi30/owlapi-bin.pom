@@ -14,4 +14,11 @@
   </licenses>
 
   <url>http://owlapi.sourceforge.org/</url>
+  <!--dependencies>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies-->
 </project>

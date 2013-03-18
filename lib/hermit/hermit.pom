@@ -21,4 +21,22 @@
     <downloadUrl></downloadUrl>
   </distributionManagement>
 
+  <!--dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>gnu.getopt</groupId>
+      <artifactId>java-getopt</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+  </dependencies-->
 </project>

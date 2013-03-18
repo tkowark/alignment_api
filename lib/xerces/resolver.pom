@@ -14,5 +14,11 @@
   </licenses>
 
   <url>http://xerces.apache.org/</url>
+  <!--dependencies>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+  </dependencies-->
 
 </project>

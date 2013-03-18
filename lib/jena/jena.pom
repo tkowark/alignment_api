@@ -20,5 +20,23 @@
   </distributionManagement>
 
   <!-- There is a decent pom in the Jar-file -->
+  <!--dependencies>
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>xerces</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-iri</artifactId>
+    </dependency>
+  </dependencies-->
 
 </project>

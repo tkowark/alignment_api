@@ -15,4 +15,48 @@
 
   <url>http://ontosim.gforge.inria.fr</url>
 
+  <!--dependencies>
+    <dependency>
+      <groupId>org.semanticweb.owl</groupId>
+      <artifactId>align</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo.align</groupId>
+      <artifactId>procalign</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>gnu.getopt</groupId>
+      <artifactId>java-getopt</artifactId>
+    </dependency>
+    <dependency>
+      <comment>why??</comment>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.didion</groupId>
+      <artifactId>jwnl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo</groupId>
+      <artifactId>ontowrap</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies-->
 </project>

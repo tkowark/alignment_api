@@ -15,13 +15,16 @@
   <url>http://jade.tilab.com/</url>
   <!--distributionManagement>
     <downloadUrl></downloadUrl>
-  </distributionManagement>
+  </distributionManagement-->
 
-  <dependencies>
+  <!--dependencies>
     <dependency>
-      <groupId></groupId>
-      <artifactId></artifactId>
-      <version></version>
+      <groupId>jade</groupId>
+      <artifactId>jade</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
     </dependency>
   </dependencies-->
 

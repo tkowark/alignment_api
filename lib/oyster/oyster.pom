@@ -15,5 +15,12 @@
   </licenses>
 
   <url>http://oyster2.sourceforge.net/</url>
+  <!--dependencies>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies-->
 
 </project>

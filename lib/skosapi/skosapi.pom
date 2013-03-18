@@ -14,5 +14,11 @@
   </licenses>
 
   <url>http://skosapi.sourceforge.net</url>
+  <!--dependencies>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+    </dependency>
+  </dependencies-->
 
 </project>

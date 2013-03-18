@@ -49,6 +49,50 @@
       <groupId>fr.inrialpes.exmo</groupId>
       <artifactId>ontowrap</artifactId>
       <version>@VERS@</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>gnu.getopt</groupId>
+      <artifactId>java-getopt</artifactId>
+    </dependency>
+    <dependency>
+      <comment>why??</comment>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb.HermiT</groupId>
+      <artifactId>HermiT</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.paris8.iut.info.iddl</groupId>
+      <artifactId>iddl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo</groupId>
+      <artifactId>ontosim</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.api</groupId>
+      <artifactId>google-api-translate-java</artifactId>
+      <scope>compile</scope>
     </dependency>
   <dependencies-->
 

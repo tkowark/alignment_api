@@ -14,13 +14,20 @@
   <url></url>
   <!--distributionManagement>
     <downloadUrl></downloadUrl>
-  </distributionManagement>
+  </distributionManagement-->
 
-  <dependencies>
+  <!--dependencies>
     <dependency>
-      <groupId></groupId>
-      <artifactId></artifactId>
-      <version></version>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
   </dependencies-->
 

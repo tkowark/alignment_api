@@ -20,9 +20,8 @@
 
   <dependencies>
     <dependency>
-      <groupId></groupId>
-      <artifactId></artifactId>
-      <version></version>
+      <groupId>jade</groupId>
+      <artifactId>jade</artifactId>
     </dependency>
   </dependencies-->
 

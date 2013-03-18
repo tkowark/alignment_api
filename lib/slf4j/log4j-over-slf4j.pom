@@ -23,6 +23,11 @@
   </licenses>
   <url>http://www.slf4j.org</url>
   <description>Implements the Java Commons Logging on top of SLF4J</description>
-  <dependencies />
+  <!--dependencies>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+  </dependencies-->
 
 </project>

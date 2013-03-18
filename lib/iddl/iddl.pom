@@ -19,9 +19,36 @@
   <!-- alignapi owlapi, clairement -->
   <!--dependencies>
     <dependency>
-      <groupId></groupId>
-      <artifactId></artifactId>
-      <version></version>
+      <groupId>org.semanticweb.owl</groupId>
+      <artifactId>align</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo.align</groupId>
+      <artifactId>procalign</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo</groupId>
+      <artifactId>ontowrap</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb.HermiT</groupId>
+      <artifactId>HermiT</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
     </dependency>
   </dependencies-->
 

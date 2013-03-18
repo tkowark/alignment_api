@@ -17,7 +17,7 @@
   <groupId>fr.inrialpes.exmo</groupId>
   <artifactId>ontowrap</artifactId>
   <version>4.4</version>
-  <!-- Rev 1832:1833M 16/03/2013 -->
+  <!-- Rev 1835M 17/03/2013 -->
   <name>Ontology wrapping API</name>
   <description>An ontology wrapping API and library.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -38,7 +38,32 @@
   </licenses>
   <packaging>jar</packaging>
 
-  <!-- add dependencies to Ontology APIs -->
+  <!--dependencies>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>skos</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+  <dependencies-->
 
   <developers>
     <developer>

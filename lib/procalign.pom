@@ -17,7 +17,7 @@
   <groupId>fr.inrialpes.exmo.align</groupId>
   <artifactId>procalign</artifactId>
   <version>4.4</version>
-  <!-- Rev 1832:1833M 16/03/2013 -->
+  <!-- Rev 1835M 17/03/2013 -->
   <name>Reference implementation of the Alignment API</name>
   <description>Implementation of the Alignment API for manipulating ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -49,6 +49,50 @@
       <groupId>fr.inrialpes.exmo</groupId>
       <artifactId>ontowrap</artifactId>
       <version>4.4</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>gnu.getopt</groupId>
+      <artifactId>java-getopt</artifactId>
+    </dependency>
+    <dependency>
+      <comment>why??</comment>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb.HermiT</groupId>
+      <artifactId>HermiT</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.paris8.iut.info.iddl</groupId>
+      <artifactId>iddl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fr.inrialpes.exmo</groupId>
+      <artifactId>ontosim</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.api</groupId>
+      <artifactId>google-api-translate-java</artifactId>
+      <scope>compile</scope>
     </dependency>
   <dependencies-->
 

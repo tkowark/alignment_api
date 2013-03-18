@@ -19,5 +19,15 @@
   </distributionManagement>
 
   <!-- There is a decent pom in the Jar-file -->
+  <!--dependencies>
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xml</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+  </dependencies-->
 
 </project>

@@ -16,14 +16,6 @@
   <url>http://jade.tilab.com/</url>
   <!--distributionManagement>
     <downloadUrl></downloadUrl>
-  </distributionManagement>
-
-  <dependencies>
-    <dependency>
-      <groupId></groupId>
-      <artifactId></artifactId>
-      <version></version>
-    </dependency>
-  </dependencies-->
+  </distributionManagement-->
 
 </project>

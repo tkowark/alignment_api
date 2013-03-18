@@ -38,7 +38,32 @@
   </licenses>
   <packaging>jar</packaging>
 
-  <!-- add dependencies to Ontology APIs -->
+  <!--dependencies>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>owlapi</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.semanticweb</groupId>
+      <artifactId>skos</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+  <dependencies-->
 
   <developers>
     <developer>

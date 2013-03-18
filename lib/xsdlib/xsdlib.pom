@@ -19,7 +19,11 @@
     <dependency>
       <groupId>org.relaxng</groupId>
       <artifactId>datatype</artifactId>
-      <version>20090415</version>
+      <!--version>20090415</version-->
+    </dependency>
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>xerces</artifactId>
     </dependency>
   </dependencies>
 

@@ -18,13 +18,13 @@
     <downloadUrl></downloadUrl>
   </distributionManagement-->
 
-  <dependencies>
+  <!--dependencies>
     <dependency>  
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20090211</version>
     </dependency>
-  </dependencies>
+  </dependencies-->
   <build>
     <plugins>
       <plugin>
