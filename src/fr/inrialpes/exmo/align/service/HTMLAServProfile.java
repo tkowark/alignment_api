@@ -256,7 +256,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// Common part
 	try { server.start(); }
 	catch (Exception e) {
-	    throw new AServException ( "Cannot launch HTTP Server" , e );
+	    throw new AServException( "Cannot launch HTTP Server" , e );
 	}
 	//server.join();
 
@@ -266,7 +266,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( wsmanager != null ) wsmanager.init( params, manager );
 	}
 	myId = "LocalHTMLInterface";
-	serverId = manager.serverURL()+"/html/";
+	serverId = manager.serverURL();
+	logger.info( "Launched on {}/html/", serverId );
 	localId = 0;
     }
 
@@ -295,10 +296,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      */
     public Response serve( String uri, String method, Properties header, Properties parms ) {
 	logger.debug( "{} '{}'", method, uri );
-	Enumeration en = header.propertyNames();
-	while ( en.hasMoreElements()) {
-	    String value = (String)en.nextElement();
-	}
 
 	// Convert parms to parameters
 	Properties params = new Properties();
@@ -334,15 +331,19 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
 	    return adminAnswer( uri, uri.substring(start), header, params );
-	// Returns RDF or HTML depending on the header
-	} else if ( oper.equals( "alid" ) ){
+	} else if ( oper.equals( "alid" ) ){ // Asks for an alignment by URI
+	    // depending on the header
 	    String accept = header.getProperty( "Accept" );
 	    if ( accept == null ) accept = header.getProperty( "accept" );
-	    if ( accept != null && accept.contains( "rdf+xml" ) ) {
-		return returnAlignment( uri, true );
-	    } else {
-		return returnAlignment( uri, false );
+	    //logger.trace( "Accept header: {}", accept );
+	    if ( accept != null && !accept.contains("html") ) { // Should I check for the exact MIME_TYPE?
+		if ( accept.contains( "rdf+xml" ) || accept.contains( "xml" ) ) {
+		    return returnAlignment( uri, MIME_RDFXML, "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+		} else if ( accept.contains( "json" ) ) {
+		    return returnAlignment( uri, MIME_JSON, "fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" );
+		}
 	    }
+	    return returnAlignment( uri, MIME_HTML, "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
 	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
@@ -388,7 +389,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * Allows some limited administration of the server through HTTP
      */
     public Response adminAnswer( String uri, String perf, Properties header, Properties params ) {
-	logger.debug( "ADMIN[{}]", perf);
+	//logger.trace( "ADMIN[{}]", perf);
 	String msg = "";
         if ( perf.equals("listmethods") ){
 	    msg = "<h1>Embedded classes</h1>\n<h2>Methods</h2><ul compact=\"1\">";
@@ -461,27 +462,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     }
 
     /**
-     * Returns the alignment in RDF/XML
+     * Returns the alignment in negociated format
      */
-    public Response returnAlignment( String uri, boolean rdf ) {
+    public Response returnAlignment( String uri, String mime, String method ) {
 	Properties params = new Properties();
-	params.setProperty("id", manager.serverURL()+uri);
-	if ( rdf ) {
-	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    if ( answer instanceof ErrorMsg ) {
-		return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
-	    } else {
-		return new Response( HTTP_OK, MIME_XML, answer.getContent() );
-	    }
+	params.setProperty( "id", manager.serverURL()+uri );
+	params.setProperty( "method", method );
+	logger.trace( "Bloody URI : {}", manager.serverURL()+uri);
+	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	if ( answer instanceof ErrorMsg ) {
+	    return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
 	} else {
-	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
-	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	    if ( answer instanceof ErrorMsg ) {
-		return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
-	    } else {
-		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
-	    }
+	    return new Response( HTTP_OK, mime, answer.getContent() );
 	}
     }
 
@@ -498,12 +490,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String u1 = params.getProperty("uri1");
 	    try {
 		if ( u1 != null && !u1.equals("all") ) uri1 = new URI( u1 );
-	    } catch ( URISyntaxException usex ) {}; // take all
+	    } catch ( URISyntaxException usex ) {
+		logger.debug( "IGNORED Invalid URI parameter", usex );
+	    };
 	    URI uri2 = null;
 	    String u2 = params.getProperty("uri2");
 	    try {
 		if ( u2 != null && !u2.equals("all") ) uri2 = new URI( u2 );
-	    } catch ( URISyntaxException usex ) {}; // take all
+	    } catch ( URISyntaxException usex ) {
+		logger.debug( "IGNORED Invalid URI parameter", usex );
+	    };
 	    // Add two onto checklist
 	    Collection<URI> ontologies = manager.ontologies();
 	    msg = "<h1>Available alignments</h1><form action=\"listalignments\">";

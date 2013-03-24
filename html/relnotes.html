@@ -37,18 +37,14 @@ The development of 4 versions continues.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-
-<li>Adding <tt>ontowrap</tt> support in database store (server)</li>
-<li>Make URIs dependent on a urlprefix (server [4.6])</li>
-<li>Provide several URIs for the same alignment (server [4.6])</li>
-<li>Adopt, overall, slf4j (impl/server [4.6])</li>
-<li>Implement database store for EDOAL (server [4.6])</li>
-<li>Add simple "harder" test generator (gen [4.6])</li>
-<li>Add simple "hidden" test generator (gen [4.6])</li>
-<li>Add a <tt>dependsOn</tt> alignment property (api [4.6])</li>
-<li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking, cell ingestion) (impl [4.6])</li>
-<li>Use the OWLReasoner interface and HermiT for adding inference to Ontowrap (ontowrap [4.6])</li>
-
+<li>Provide several URIs for the same alignment (server)</li>
+<li>Adopt, overall, slf4j (impl/server)</li>
+<li>Implement database store for EDOAL (server)</li>
+<li>Add simple "harder" test generator (gen)</li>
+<li>Add simple "hidden" test generator (gen)</li>
+<li>Add a <tt>dependsOn</tt> alignment property (api)</li>
+<li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking, cell ingestion) (impl)</li>
+<li>Use the OWLReasoner interface and HermiT for adding inference to Ontowrap (ontowrap)</li>
 <li>Add a JSON interface (server)</li>
 <li>Integrate tests from generator (test)</li>
 <li>Integrate some basic reasoning (impl).</li>
@@ -75,13 +71,15 @@ with a warning:
 
 <h2>Current SVN trunk version</h2>
 
-<!--h2>Version 4.9 (1xxx): ??/??/201X - Metro</h2-->
-<!--h2>Version 4.8 (1xxx): ??/??/201x - Al pesto</h2-->
+<!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
+<!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
 <!--h2>Version 4.7 (1xxx): ??/??/201x - Letraset</h2-->
 <!--h2>Version 4.6 (1xxx): ??/??/201X - Da lec'h all</h2-->
 <!--h2>Version 4.5 (18xx): ??/03/2013 - Building 16</h2-->
 <p><ul compact="1">
 <li>Added several EDOAL-SPARQL renderers (impl)</li>
+<li>Added <tt>ontowrap</tt> support in database store (server)</li>
+<li>Made Alignment URIs independent from URL prefix (server)</li>
 <li>Added alignment selection per ontologies in list alignment interface (server)</li>
 <li>Added relation sensitiveness to evaluators (impl)</li>
 <li>Added generation of local <a href="maven.html">maven repository</a> in build.xml</li>
@@ -96,6 +94,7 @@ with a warning:
 <li>Fixed a bug with subsumption statements in <tt>OWLAxiomsRendererVisitor</tt> (impl)</li>
 <li>Simplified and rewritten <tt>SemPRecEvaluator</tt> (impl)</li>
 <li>Fixed all issues but IDDL in <a href="tutorial/tutorial4/index.html">tutorial4</a> (impl)</li>
+<li>Fixed display bug in <tt>HTMLMetadataRenderer</tt> (impl)</li>
 <li>Upgraded to <span style="color: green">IDDL</span> to 1.4 (lib)</li>
 <li>Upgraded to <span style="color: green">OWL API</span> to 3.4.2 (lib)</li>
 <li>Upgraded to <span style="color: green">SLF4J</span> to 1.7.2; suppressed slf4j-log4j (lib)</li>

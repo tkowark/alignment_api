@@ -122,7 +122,7 @@ public class AlignmentService {
 	    logger.debug("mysql driver");
 	    DBPORT = "3306";
 	    connection = new DBServiceImpl( "com.mysql.jdbc.Driver" ,  "jdbc:mysql", DBPORT );
-	}	
+	}
 	
 	connection.init();
 	connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
@@ -137,11 +137,8 @@ public class AlignmentService {
 	for ( AlignmentServiceProfile serv : services.values() ) {
 	    try {
 		serv.init( params, manager );
-		Object[] mm = {serv, params.getProperty( "host" ), params.getProperty( "http" )  };
-		logger.info("{} launched on http://{}:{}/html/", mm);
-	    } catch ( AServException ex ) {
-		Object[] mm = {serv, params.getProperty( "host" ), params.getProperty( "http" )  };
-		logger.warn("Cannot start {} server on http://{}:{}/html/", mm);
+	    } catch ( AServException ex ) { // This should rather be the job of the caller
+		logger.warn( "Cannot start {} server on {}:{}", serv, params.getProperty( "host" ), params.getProperty( "http" ) );
 	    }
 	}
 	// Register to directories
@@ -209,12 +206,13 @@ public class AlignmentService {
 
 	// Read parameters
 
-	LongOpt[] longopts = new LongOpt[19];
+	LongOpt[] longopts = new LongOpt[20];
 	// General parameters
 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
 	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
 	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
 	longopts[3] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'l');
+	// Is there a way for that in LongOpt ???
 	longopts[4] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
 	// Service parameters
 	longopts[5] = new LongOpt("html", LongOpt.OPTIONAL_ARGUMENT, null, 'H');
@@ -232,9 +230,9 @@ public class AlignmentService {
 	longopts[16] = new LongOpt("dbms", LongOpt.REQUIRED_ARGUMENT, null, 'B');
 	longopts[17] = new LongOpt("host", LongOpt.REQUIRED_ARGUMENT, null, 'S');
 	longopts[18] = new LongOpt("serv", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-	// Is there a way for that in LongOpt ???
+	longopts[19] = new LongOpt("uriprefix", LongOpt.REQUIRED_ARGUMENT, null, 'f');
 
-	Getopt g = new Getopt("", args, "ho:S:l:d::D:H::A::W::P::O::U::m:s:u:p:b:B:i:", longopts);
+	Getopt g = new Getopt("", args, "ho:S:l:f:d::D:H::A::W::P::O::U::m:s:u:p:b:B:i:", longopts);
 	int c;
 	String arg;
 
@@ -268,6 +266,10 @@ public class AlignmentService {
 		    logger.trace( "IGNORED Exception", ex );
 		}
 		break;
+ 	    case 'f' :
+ 		/* Parameter definition */
+ 		params.setProperty( "prefix", g.getOptarg() );
+ 		break;
 	    case 'H' :
 		/* HTTP Server + port */
 		arg = g.getOptarg();
@@ -424,6 +426,7 @@ public class AlignmentService {
 	System.err.println("\t--dbmspass=pwd -p pwd\t\t\tUse DBMS password");
 	System.err.println("\t--dbmsbase=name -b name\t\t\tUse Database name");
 	System.err.println("\t--dbms=name -B name\t\t\tUse Database Management System");
+	System.err.println("\t--uriprefix=uri -f uri\t\t\tSet alignment URIs with this prefix");
 	System.err.println("\t-Dparam=value\t\t\tSet parameter");
 	System.err.println("\t--help -h\t\t\tPrint this message");
 
