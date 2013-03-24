@@ -51,16 +51,11 @@
     <property name="logback.configurationFile"  value="logback.xml"/>
   </target>
 
-  <!-- tested -->
-  <target name="init" depends="bind">
-    <property name="jarclasspath" value="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/HermiT.jar align.jar ontowrap.jar procalign.jar"/>
-  </target>
-
-  <target name="versionnumber" depends="init" description="Establishes the version number">
+  <target name="versionnumber" depends="bind" description="Establishes the version number">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
     <property name="version.minor" value="4"/>
-    <property name="copyyear" value="2003-2012"/>
+    <property name="copyyear" value="2003-2013"/>
     <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
     <condition property="svn.revision" value="${svn.rev}" else="nosvn">
@@ -86,7 +81,7 @@
   </target>
 
   <!-- tested -->
-  <target name="compile" depends="init" description="Incrementally compile source files">
+  <target name="compile" depends="bind" description="Incrementally compile source files">
     <echo message="Compiling..."/>
     <property name="javacargs" value="-deprecation" />
     <mkdir dir="classes"/>
@@ -110,7 +105,7 @@
   </target>
 
   <!-- tested -->
-  <target name="lint" depends="init" description="Check sources for warnings">
+  <target name="lint" depends="bind" description="Check sources for warnings">
     <echo message="Setting property..."/>
     <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
     <!--property name="javacargs" value="-Xlint:cast" /-->
@@ -203,7 +198,7 @@
   </macrodef>
 
   <!-- tested -->
-  <target name="jar" depends="compile" description="Create jar archives">
+  <target name="jar" depends="compile,versionnumber" description="Create jar archives">
     <echo message="Jarchiving..."/>
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
 
@@ -226,6 +221,7 @@
     <onejar file="ontowrap"
       group="fr.inrialpes.exmo"
       desc="Ontology wrapper"
+      path="jena/arq.jar jena/icu4j.jar 	jena/iri.jar 	jena/jena.jar 	skosapi/skosapi.jar owlapi10/api.jar owlapi10/impl.jar owlapi10/io.jar owlapi10/rdfapi.jar owlapi10/rdfparser.jar owlapi3/owlapi-bin.jar"
       pack="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"
       contentid="wrapset" />
 
@@ -244,7 +240,7 @@
       main="fr.inrialpes.exmo.align.cli.Procalign"
       pack="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen"
       impt="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"
-      path="${jarclasspath}"
+      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar"
       contentid="procset" />
 
     <!-- alignsvc.jar -->
@@ -264,7 +260,7 @@
   </target>
 
   <!-- tested -->
-  <target name="cleanjar" depends="init" description="Delete jar archives">
+  <target name="cleanjar" depends="bind" description="Delete jar archives">
     <echo message="Erasing..."/>
     <delete file="lib/align.jar"/>
     <delete file="lib/ontowrap.jar"/>
@@ -273,7 +269,7 @@
   </target>
 
   <!-- tested -->
-  <target name="aserv" depends="init">
+  <target name="aserv" depends="bind">
     <echo message="Setting property..."/>
     <jar jarfile="lib/aserv.jar">
       <manifest>
@@ -281,7 +277,8 @@
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs, add here -->
 	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jaroyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
-        <attribute name="Class-Path" value="alignsvc.jar ontosim.jar"/>
+	<!-- others should be there naturally -->
+        <attribute name="Class-Path" value="alignsvc.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
 	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
       </manifest>
@@ -305,7 +302,7 @@
   </jar-->
 
   <!-- tested -->
-  <target name="test" depends="init" description="Unit test code">
+  <target name="test" depends="bind" description="Unit test code">
     <echo message="Testing..."/>
     <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
 
@@ -333,7 +330,7 @@
   </target>
 
   <!-- tested -->
-  <target name="cleantest" depends="init" description="Clean up test directory">
+  <target name="cleantest" depends="bind" description="Clean up test directory">
     <echo message="Cleaning tests..."/>
     <delete>
       <fileset dir="test/classes" includes="**/*.class"/>
@@ -387,7 +384,7 @@
   </target>
 
   <!-- tested -->
-  <target name="zip" depends="init" description="Generate zip file containing a release">
+  <target name="zip" depends="bind" description="Generate zip file containing a release">
     <echo message="Ziping..."/>
     <antcall target="clean"/>
     <!-- Unfortunately commit is not functional -->
@@ -435,7 +432,7 @@
   </target>
 
   <!-- This is for testing purposes, but has been found to work -->
-  <target name="status" depends="init">
+  <target name="status" depends="bind">
     <java classname="org.tmatesoft.svn.cli.SVN" dir="." fork="true">
       <arg value="status" />
       <classpath refid="classpath"/>
@@ -443,7 +440,7 @@
   </target>
 
   <!-- not tested yet -->
-  <target name="update" depends="init">
+  <target name="update" depends="bind">
     <java classname="org.tmatesoft.svn.cli.SVN" dir="." fork="true"
          failonerror="true">
       <sysproperty key="javasvn.ssh2.key" 
@@ -493,7 +490,7 @@
   </macrodef>
 
   <!-- tested -->
-  <target name="mavenize" depends="init" description="Creates a Maven local repositry">
+  <target name="mavenize" depends="bind" description="Creates a Maven local repositry">
     <echo message="Mavenizing..."/>
     <path id="maven-ant-tasks.classpath" path="${tooldir}/maven/maven-ant-tasks-2.1.3.jar" />
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
