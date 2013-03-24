@@ -47,7 +47,7 @@ public class SuppressHierarchy extends BasicAlterator {
     };
 
     // This suppress attach all classes of a level to the level above
-    // JE: why not directly attach all classes to Thing (or the root) and set childs to all these classes but root to null?
+    // JE: why not directly attach all classes to Thing (or the root) and set childs to all these classes but root to null? (JE2012: corrected)
     public void noHierarchy ( int level ) {
         if ( level == 1 ) return;
         ArrayList<OntClass> levelClasses = new ArrayList<OntClass>();		//the list of classes from that level
@@ -62,8 +62,9 @@ public class SuppressHierarchy extends BasicAlterator {
             OntClass parentClass = parentLevelClasses.get( i );                 //parent class
             //all the classes are subclasses of owl: Thing
 	    OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
-            if ( superClass != null ) {                                                    //if ( !parentClass.getURI().equals( "Thing" ) ) {
-               childClass.addSuperClass( superClass );
+            //if ( superClass != null ) childClass.addSuperClass( superClass );
+	    if ( !parentClass.getURI().equals( "Thing" ) ) {
+		childClass.removeSuperClass( parentClass );
             }
 	    parentClass.removeSubClass( childClass );
         }

@@ -146,7 +146,6 @@ URI uri2 = null;
 String u1 = "file:ontology1.owl";
 String u2 = "file:ontology2.owl";
 String method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-String tempOntoFileName = "results/myresult.owl";
 Properties params = new BasicParameters();
 try {
   uri1 = new URI( u1 );
@@ -234,9 +233,8 @@ This can be done with the alignment API support.
 <p>In fact everything is done in one step:</p>
 <div class="java">
 // (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
-PrintWriter writer = null;
-File merged = new File( tempOntoFileName );
-writer = new PrintWriter ( new FileWriter( merged, false ), true );
+File merged = File.createTempFile( "MyApp-results",".owl");
+PrintWriter writer = new PrintWriter ( new FileWriter( merged, false ), true );
 AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
 al.render(renderer);
 writer.flush();
@@ -280,7 +278,7 @@ ontologies instead of the merged one.
 // (Sol1) Use SPARQL to answer queries (at the data level)
 InputStream in = new FileInputStream( merged );
 Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-model.read( in, "file:"+tempOntoFileName );
+model.read( in, "file:"+merged.getPath() );
 in.close();
 </div>	
 <p>Query (please play by changing the query)</p>
@@ -317,7 +315,7 @@ ResultSetFormatter.out(System.out, results, query);
 <div class="java">
 OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 // Load the ontology 
-OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+tempOntoFileName ) );
+OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
 OWLReasoner reasoner = new Reasoner( ontology );
 </div>
 <p>Get the instances of "Estudiantes":</p>

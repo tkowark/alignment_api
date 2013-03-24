@@ -113,14 +113,14 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      * @param al1 : the reference alignment
      * @param al2 : the alignment to evaluate
      **/
-    public SemPRecEvaluator( Alignment al1, Alignment al2) throws AlignmentException {
+    public SemPRecEvaluator( Alignment al1, Alignment al2 ) throws AlignmentException {
 	super( al1, al2 );
-	logger.info( "Created a SemPREvaluator" );
+	logger.debug( "Created a SemPREvaluator" );
 	convertToObjectAlignments( al1, al2 );
     }
 
     public void init( Properties params ){
-	super.init(); // ??
+	super.init();
 	nbexpectedentailed = 0;
 	nbfoundentailed = 0;
 	// Set the semantics to be used

@@ -312,6 +312,7 @@ public abstract class BasicAlterator implements Alterator {
     }
 
     //check if the removed class appears as AllValueFrom or SomeValueFrom in a restriction
+    // JE2012: This should be replaced by all parentclasses
     @SuppressWarnings("unchecked")
     public void checkClassesRestrictions ( OntClass childClass, OntClass parentClass )  {
 	String uri = childClass.getURI();
