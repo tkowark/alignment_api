@@ -21,7 +21,7 @@ Alignment API and more <a href="index.html">systematic documentation</a>.</p>
 
 <h3>Requirements</h3>
 
-<p><b>For using</b> you will need a <a href="http://java.sun.com">Java
+<p><b>For using</b> you will need a <a href="http://www.oracle.com/technetwork/java/index.html">Java
   runtime environment</a> (tested in 1.6). All other necessary
   libraries are available in the archive (see the list of <a href="lib.html">libraries</a>).</p>
 
@@ -95,12 +95,80 @@ and the <a href="index.html">documentation</a>.</p>
 </ul>
 </p>
 
+<h2>Logging</h2>
+
+<p>
+Since version 4.5 (and fully in version 4.6), the alignment API uses extensively <a href="http://slf4j.org">SLF4J</a>.
+We invite the interested reader to read their documentation which is
+very clear (contrary to many logging explainations).
+</p>
+<p>
+Following best practices in this domain, the Alignment API does not
+ship with any SLF4J implementation. It is up to the user to <a href="http://slf4j.org/manual.html">select the
+implementation</a> (s)he likes the most and put it in the classpath.
+</p>
+<p>
+This means that, when launched without a looging implementation, this will return:
+<div class="terminal">
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator file:test/output/bibref2.rdf file:test/output/bibref.rdf
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+...
+resulting output
+</div>
+When adding some logger implementation in the classpath,
+e.g., <a href="http://logback.qos.ch/">logback</a>, it will return:
+<div class="terminal">
+$ java -cp lib/slf4j/logback-core-1.0.9.jar:lib/slf4j/logback-classic-1.0.9.jar:lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator file:test/output/bibref2.rdf file:test/output/bibref.rdf
+13:24:09.191 [main] INFO  f.i.e.a.impl.eval.SemPRecEvaluator - Created one SemPREvaluator
+13:24:09.601 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - Computing entailment (semantics: null)
+13:24:09.606 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - http://ebiquity.umbc.edu/v2.1/ontology/publication.owl#publication ----> file:///Java/alignapi/examples/rdf/edu.umbc.ebiquity.publication.owl
+13:24:09.607 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - http://purl.org/net/nknouf/ns/bibtex ----> file:///Java/alignapi/examples/rdf/edu.mit.visus.bibtex.owl
+13:24:10.770 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - fr.inrialpes.exmo.align.impl.ObjectAlignment@847a8f3 is consistent
+13:24:10.792 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:24:10.924 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:24:10.931 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:24:10.931 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:24:10.942 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - Computing entailment (semantics: null)
+13:24:10.957 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - http://ebiquity.umbc.edu/v2.1/ontology/publication.owl#publication ----> file:///Java/alignapi/examples/rdf/edu.umbc.ebiquity.publication.owl
+13:24:10.958 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - http://purl.org/net/nknouf/ns/bibtex ----> file:///Java/alignapi/examples/rdf/edu.mit.visus.bibtex.owl
+13:24:11.228 [main] DEBUG f.i.e.a.impl.eval.SemPRecEvaluator - fr.inrialpes.exmo.align.impl.ObjectAlignment@7371b4ca is consistent
+13:24:11.303 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+...
+resulting output
+</div>
+and when configuring the implementation for using a different format, it
+will do:
+<div class="terminal">
+$ java -cp lib/slf4j/logback-core-1.0.9.jar:lib/slf4j/logback-classic-1.0.9.jar:lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -Dlogback.configurationFile=logback.xml -i fr.inrialpes.exmo.align.impl.eval.SemPRecEvaluator file:test/output/bibref2.rdf file:test/output/bibref.rdf
+13:32:19.711 [main] INFO  f.i.e.a.impl.eval.SemPRecEvaluator - Created one SemPREvaluator
+13:32:21.232 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.400 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.409 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.410 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.785 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.796 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.797 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+13:32:21.797 [main] WARN  f.i.e.a.impl.eval.SemPRecEvaluator - Cannot be translated.
+...
+resulting output
+</div>
+</p>
+<p>
+Such an approach to dealing with logging events should provide full
+satisfaction to users as it provides to us.
+</p>
+
 <h2>Developing with the Alignement API</h2>
 
 <h3>Requirements</h3>
 
-<p><b>For extending</b> you will need a Java compiler (tested in  <a href="http://java.sun.com">Java
-  standard edition</a> 1.6). Other libraries are included. It is also very usefull to have <a ref="http://ant.apache.org">Ant</a>.</p>
+<p><b>For extending</b> you will need a Java compiler (tested in  <a href="http://www.oracle.com/technetwork/java/index.html">Java standard edition</a> 1.6). Other libraries are included.
+It is also very usefull to have <a ref="http://ant.apache.org">Ant</a>. 
+The Alignment API is not officially published in <a href="maven.html">Maven repositories</a>
+due to various hassles required by doing this. If you want to help, you are welcome.
+</p>
 
 <h3>Compilation and use</h3>
 
