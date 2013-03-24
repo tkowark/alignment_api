@@ -65,6 +65,7 @@ import org.semanticweb.HermiT.Reasoner;
 
 // IDDL
 import fr.paris8.iut.info.iddl.IDDLReasoner;
+import fr.paris8.iut.info.iddl.IDDLException;
 import fr.paris8.iut.info.iddl.conf.Semantics;
 
 // SAX standard classes
@@ -90,6 +91,7 @@ import javax.xml.xpath.XPathConstants;
 
 // Java standard classes
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -120,10 +122,14 @@ public class MyApp {
     String RESTServ = "http://aserv.inrialpes.fr/rest/";
 
     public static void main( String[] args ) {
-	new MyApp().run( args );
+	try {
+	    new MyApp().run( args );
+	} catch ( Exception ex ) {
+	    ex.printStackTrace();
+	}
     }
 
-    public void run( String[] args ) {
+    public void run( String[] args ) throws IDDLException {
 	String myId = "Test";
 	Alignment al = null;
 	URI uri1 = null;
@@ -303,20 +309,17 @@ public class MyApp {
 	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
 	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
 	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-	System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students "+clname(estud));
+	System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students ("+clname(estud)+")");
 
 	testOWLReasonerSubClass( manager, reasoner, estud, person );
 	testOWLReasonerSubClass( manager, reasoner, estud, student );
 
 	// (Sol3) reasoning with distributed semantics (IDDL)
 	// test consistency of aligned ontologies
-	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
-	dreasoner.addOntology( uri1 );
-	dreasoner.addOntology( uri2 );
-	// Apparently, here, it has correctly loaded ontologies
-	dreasoner.addAlignment( al );
-	// Apparently, here, it bugs (print and error instead of raising it)
-	// becasu it cannot find stuff related by URIs (same below)
+	ArrayList<Alignment> allist = new ArrayList<Alignment>();
+	allist.add( al );
+	IDDLReasoner dreasoner = new IDDLReasoner( allist, Semantics.DL );
+	// Try Semantics.IDDL instead!
 	if ( dreasoner.isConsistent() ) {
 	    System.out.println( "IDDL: the alignment network is consistent");
 	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
@@ -324,22 +327,6 @@ public class MyApp {
          } else {
 	    System.out.println( "IDDL: the alignment network is inconsistent");
 	}
-
-	/* ORIGINAL IDDL... IDEAL
-	// (Sol3) reasoning with distributed semantics (IDDL)
-	// test consistency of aligned ontologies
-	IDDLReasoner dreasoner = new IDDLReasoner( Semantics.DL );
-	dreasoner.addOntology( uri1 );
-	dreasoner.addOntology( uri2 );
-	dreasoner.addAlignment( al );
-	if ( dreasoner.isConsistent() ) {
-	    System.out.println( "IDDL: the alignment network is consistent");
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
-         } else {
-	    System.out.println( "IDDL: the alignment network is inconsistent");
-	    }
-	*/
     }
 
     private String clname( OWLClassExpression cl ) {
@@ -355,7 +342,7 @@ public class MyApp {
 	}
     }
 
-    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLClassExpression d1, OWLClassExpression d2 ) {
+    public void testIDDLSubClass( IDDLReasoner dreasoner, URI onto1, URI onto2, OWLClassExpression d1, OWLClassExpression d2 ) throws IDDLException {
 	Alignment al2 = new ObjectAlignment();
 	try {
 	    al2.init( onto1, onto2 );
