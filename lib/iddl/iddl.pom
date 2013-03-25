@@ -3,10 +3,10 @@
 
   <groupId>fr.paris8.iut.info.iddl</groupId>
   <artifactId>iddl</artifactId>
-  <version>1.4e</version>
+  <version>1.5</version>
   <!-- Unreleased version of 2013-03-06 -->
   <name>Integrated Distributed Description Logic</name>
-  <description>A Resonner for Integrated Distributed Description Logic</description>
+  <description>A Resonner for Integrated Distributed Description Logic (now also called DRAOn)</description>
   <licenses>
     <license>
       <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999</name>
