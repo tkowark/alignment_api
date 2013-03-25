@@ -312,7 +312,7 @@
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
     <!-- ling requires WordNet and takes ages initialising it -->
-    <testng groups="full"
+    <testng groups="raw"
 	    outputDir="test/html" verbose="1"
 	    haltOnFailure="false" failureProperty="failed">
       <!-- if ones uses logback -->

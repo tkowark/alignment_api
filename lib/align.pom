@@ -16,8 +16,8 @@
 
   <groupId>org.semanticweb.owl</groupId>
   <artifactId>align</artifactId>
-  <version>4.4</version>
-  <!-- Rev 1835:1844M 25/03/2013 -->
+  <version>4.5</version>
+  <!-- Rev 1846M 25/03/2013 -->
   <name>The Alignment API</name>
   <description>The Alignment API is an API for manipulating ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>
