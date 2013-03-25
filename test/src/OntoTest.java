@@ -165,6 +165,7 @@ public class OntoTest {
     }
 
     @Test(groups = { "full", "onto", "raw" }, dependsOnMethods = {"loadedTest"})
+    @SuppressWarnings("unchecked") // see below
     public void heavyLoadedTest() throws Exception {
 	// load ontologies
 	OntologyFactory.setDefaultFactory("fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory");
@@ -232,6 +233,7 @@ public class OntoTest {
 	// Specific HeavyLoadedTests
 	assertEquals( onto.getSubProperties( o, OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ).size(), 0 );
 	assertEquals( onto.getSuperProperties( o, OntologyFactory.LOCAL, OntologyFactory.ASSERTED, OntologyFactory.NAMED ).size(), 0 );
+	// a simple Set would suppress the warning but I like to understand
 	Set<Object> scl = onto.getRange( o, OntologyFactory.ASSERTED );
 	assertEquals( scl.size(), 1 );
 	Object o2 = onto.getEntity( new URI( "http://ebiquity.umbc.edu/v2.1/ontology/person.owl#Person" ) );

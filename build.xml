@@ -305,9 +305,9 @@
   <target name="test" depends="bind" description="Unit test code">
     <echo message="Testing..."/>
     <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
-
     <javac srcdir="test/src" includeantruntime="false" destdir="test/classes" debug="on"
 	   classpath="tools/testng/testng.jar" encoding="iso8859-15">
+      <!--compilerarg value="-Xlint:all"/-->
       <classpath refid="classpath"/>
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
