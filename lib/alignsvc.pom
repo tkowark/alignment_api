@@ -17,7 +17,7 @@
   <groupId>fr.inrialpes.exmo.align</groupId>
   <artifactId>alignsvc</artifactId>
   <version>4.4</version>
-  <!-- Rev 1835M 17/03/2013 -->
+  <!-- Rev 1835:1844M 25/03/2013 -->
   <name>Alignment server</name>
   <description>A server for storing and sharing ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>

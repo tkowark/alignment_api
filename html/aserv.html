@@ -11,7 +11,7 @@
 
 <p>An extensive presentation of the alignment API can be
   found at <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>. We also have
-  an on-line <a href="tutorial/tutorial1/server/">tutorial</a> on using it.</p>
+  an on-line <a href="tutorial/tutorial1/server.html">tutorial</a> on using it.</p>
 
 <h2>Requirements</h2>
 
@@ -70,7 +70,6 @@ The alignment server is then available through HTTP with:
 The possible switches to the server launcher are:
 <div class="terminal">
 $ java -jar lib/alignsvc.jar -h
-usage: AlignmentService [options]
 options are:
 	--html[=port] -H[port]			Launch HTTP service
 	--jade[=port] -A[port]			Launch Agent service
@@ -85,11 +84,11 @@ options are:
 	--dbmspass=pwd -p pwd			Use DBMS password
 	--dbmsbase=name -b name			Use Database name
 	--dbms=name -B name			Use Database Management System
-	--debug[=n] -d[n]		Report debug info at level n
+	--uriprefix=uri -f uri			Set alignment URIs with this prefix
 	-Dparam=value			Set parameter
 	--help -h			Print this message
 
-Alignment server 4.3 (1709:1716M) ($Id$)
+Alignment server 4.4 (1835M) ($Id$)
 </div>
 </p>
 

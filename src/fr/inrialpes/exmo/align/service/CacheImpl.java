@@ -76,10 +76,9 @@ public class CacheImpl {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    // [JE2013:ID]
     String idprefix = null;
 
-    final int VERSION = 444; // Version of the API to be stored in the database
+    final int VERSION = 450; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -90,8 +89,8 @@ public class CacheImpl {
 	    ALTERd level size to 25
             ADDED cell_id as keys?
        450: ADDED ontology database / reduced alignment database
-	    ADDED prefix in server [JE2013:ID][JE2013:ID2] I want to have only the suffix to be stored as ID
-            ADDED dependency database (no action) [JE2013:DEPEND1]
+	    ADDED prefix in server
+            ADDED dependency database (no action)
      */
 
     DBService service = null;
@@ -104,14 +103,12 @@ public class CacheImpl {
     static private final String SVCNS = Namespace.ALIGNSVC.getUriPrefix();
     static private final String CACHED = "cached";
     static private final String STORED = "stored";
-    // [JE2013:ID]
     static private final String ALID = "alid/";
     static private final String OURI1 = "ouri1";
     static private final String OURI2 = "ouri2";
 	
     //**********************************************************************
 
-    // [JE2013:ID*done*]
     public CacheImpl( DBService serv ) {
 	service = serv;
 	try {
@@ -123,7 +120,6 @@ public class CacheImpl {
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
     }
 
-    // [JE2013:ID*done*]
     public void reset() throws SQLException {
 	alignmentTable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
@@ -135,12 +131,10 @@ public class CacheImpl {
      * loads the alignment descriptions from the database and put them in the
      * alignmentTable hashtable
      */
-    // [JE2013:ID*done*]
     public void init( Properties p, String prefix ) throws SQLException, AlignmentException {
 	logger.debug( "Initializing Database cache" );
 	port = p.getProperty("http"); // bad idea
 	host = p.getProperty("host");
-	// [JE2013:ID]
 	idprefix = prefix;
 	Statement st = createStatement();
 	// test if a database is here, otherwise create it
@@ -150,7 +144,6 @@ public class CacheImpl {
 	} else {
 	    updateDatabase(); // in case it is necessary to upgrade
 	}
-	// [JE2013:ID]
 	String pref = p.getProperty("prefix");
 	if ( pref == null || pref.equals("") ) {
 	    rs = st.executeQuery( "SELECT prefix FROM server WHERE port='port'" );
@@ -165,7 +158,6 @@ public class CacheImpl {
 	loadAlignments( true );
     }
 
-    // [JE2013:ID*done*]
     public void close() throws SQLException  {
 	Statement st = createStatement();
 	// unregister by the database
@@ -174,7 +166,6 @@ public class CacheImpl {
 	conn.close();
     }
 
-    // [JE2013:ID*done*]
     public Statement createStatement() throws SQLException {
 	conn = service.getConnection();
 	return conn.createStatement();
@@ -187,7 +178,6 @@ public class CacheImpl {
      * alignmentTable hashtable
      * index them under the ontology URIs
      */
-    // [JE2013:ID*done*]
     private void loadAlignments( boolean force ) throws SQLException {
 	logger.debug( "Loading alignments..." );
 	String id = null;
@@ -207,29 +197,24 @@ public class CacheImpl {
 	    for( int i = 0; i < idInfo.size(); i ++ ) {
 		id = idInfo.get(i);
 		alignment = retrieveDescription( id );
-		// [JE2013:ID2]
 		recordAlignment( recoverAlignmentUri( id ), alignment, true );
 	    }							
 	}
 	st.close();
     }
 
-    // [JE2013:ID*done*]
     protected Enumeration<Alignment> listAlignments() {
 	return alignmentTable.elements();
     }
 
-    // [JE2013:ID*done*]
     protected Collection<Alignment> alignments() {
 	return alignmentTable.values();
     }
 
-    // [JE2013:ID*done*]
     protected Collection<URI> ontologies() {
 	return ontologyTable.keySet();
     }
 
-    // [JE2013:ID*done*]
     protected Collection<Alignment> alignments( URI u1, URI u2 ) {
 	Collection<Alignment> results = new HashSet<Alignment>();
 	if ( u1 != null ) {
@@ -252,7 +237,6 @@ public class CacheImpl {
 	return results;
     }
 
-    // [JE2013:ID*done*]
     protected void flushCache() {// throws AlignmentException
 	for ( Alignment al : alignmentTable.values() ){
 	    if ( al.getExtension(SVCNS, CACHED ) != null && 
@@ -266,7 +250,6 @@ public class CacheImpl {
      * loads the description of alignments from the database and set them
      * in an alignment object
      */
-    // [JE2013:ID*done*]
     protected Alignment retrieveDescription( String id ){
 	ResultSet rs;
 	String tag;
@@ -274,7 +257,6 @@ public class CacheImpl {
 
 	logger.debug( "Loading alignment {}", id );
 	URIAlignment result = new URIAlignment();
-	// [JE2013: Interestingly, the alignment does not know its id or uri]
 	Statement st = null;
 	try {
 	    st = createStatement();
@@ -309,7 +291,7 @@ public class CacheImpl {
 		}
 	    }
 
-	    // Get dependencies if necessary [JE2013:DEPEND1]
+	    // Get dependencies if necessary
 
 	    // Get extension metadata
 	    rs = st.executeQuery( "SELECT * FROM extension WHERE id = '" + id + "'" );
@@ -340,7 +322,6 @@ public class CacheImpl {
      * && result.getExtension(STORED) != "") {
 
      */
-    // [JE2003:ID*done*][JE2013:cellid*done*]
     protected Alignment retrieveAlignment( String uri, Alignment alignment ) throws SQLException, AlignmentException, URISyntaxException {
 	String id = stripAlignmentUri( uri );
 	URI ent1 = null, ent2 = null;
@@ -360,7 +341,7 @@ public class CacheImpl {
 	    String cid = rs.getString( "cell_id" );
 	    if ( cid != null && !cid.equals("") ) {
 		if ( !cid.startsWith("##") ) {
-		    cell.setId( cid ); //[JE2013:cellid*done*]
+		    cell.setId( cid );
 		}
 		ResultSet rse2 = st2.executeQuery("SELECT * FROM extension WHERE id = '" + cid + "'");
 		while ( rse2.next() ){
@@ -386,7 +367,6 @@ public class CacheImpl {
      * 	( result.getExtension(CACHED) != ""
      *  && obviously result.getExtension(STORED) != ""
      */
-    // [JE2003:ID*done*]
     protected void flushAlignment( Alignment alignment ) {// throws AlignmentException
 	//alignment.removeAllCells();
 	// reset
@@ -397,19 +377,16 @@ public class CacheImpl {
     // DEALING WITH URIs
 
     // Public because this is now used by AServProtocolManager
-    // [JE2013:ID*done*]
     public String generateAlignmentUri() {
 	// Generate an id based on a URI prefix + Date + random number
 	return recoverAlignmentUri( generateId() );
     }
     
-    // [JE2013:ID*done*]
     public String recoverAlignmentUri( String id ) {
 	// Recreate Alignment URI from its id
 	return idprefix + "/" + ALID + id;
     }
     
-    // [JE2013:ID*done*]
     public String stripAlignmentUri( String alid ) {
 	return alid.substring( alid.indexOf( ALID )+5 );
     }
@@ -430,18 +407,15 @@ public class CacheImpl {
      * At alignment load-from-db time, get the id and all the 
      */
 
-    // [JE2003:ID*done*]
     private String generateCellId() {
 	return "##"+generateId();
     }
     
-    // [JE2003:ID*done*]
     private String generateId() {
 	// Generate an id based on Date + random number
 	return new Date().getTime() + "/" + randomNum();
     }
     
-    // [JE2003:ID*done*]
     private int randomNum() {
 	Random rand = new Random(System.currentTimeMillis());
 	return Math.abs(rand.nextInt(1000)); 
@@ -454,7 +428,6 @@ public class CacheImpl {
      * This is more difficult because we return the alignment we have 
      * disreagarding if it is complete o only metadata
      */
-    // [JE2003:ID*done*]
     public Alignment getMetadata( String uri ) throws AlignmentException {
 	Alignment result = alignmentTable.get( uri );
 	if ( result == null )
@@ -465,7 +438,6 @@ public class CacheImpl {
     /**
      * retrieve full alignment from id (and cache it)
      */
-    // [JE2003:ID*done*]
     public Alignment getAlignment( String uri ) throws AlignmentException, SQLException {
 	Alignment result = null;
 	try {
@@ -493,7 +465,6 @@ public class CacheImpl {
 	return result;
     }
 	
-    // [JE2003:ID*done*]
     public Set<Alignment> getAlignments( URI uri ) {
 	return ontologyTable.get( uri );
     }
@@ -502,7 +473,6 @@ public class CacheImpl {
      * returns the alignments between two ontologies
      * if one of the ontologies is null, then return them all
      */
-    // [JE2003:ID*done*]
     public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
 	Set<Alignment> result;
 	Set<Alignment> potential = new HashSet<Alignment>();
@@ -541,9 +511,7 @@ public class CacheImpl {
     /**
      * records newly created alignment
      */
-    // [JE2013:ID*done*]
     public String recordNewAlignment( Alignment alignment, boolean force ) {
-	//[JE2013:ID2]
 	try { return recordNewAlignment( generateAlignmentUri(), alignment, force );
 	} catch (AlignmentException ae) { return (String)null; }
     }
@@ -551,7 +519,6 @@ public class CacheImpl {
     /**
      * records alignment identified by id
      */
-    // [JE2013:ID*done*]
     public String recordNewAlignment( String uri, Alignment al, boolean force ) throws AlignmentException {
 	Alignment alignment = al;
  
@@ -569,11 +536,9 @@ public class CacheImpl {
     /**
      * records alignment identified by id
      */
-    // [JE2013:ID*done*]
     public String recordAlignment( String uri, Alignment alignment, boolean force ) {
 	// record the Alignment at the corresponding Uri in tables!
 	alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, uri );
-	// [JE2013:ID2] alignment.setExtension( SVCNS, ALID, id );
 
 	// Store it
 	try {
@@ -604,7 +569,6 @@ public class CacheImpl {
     /**
      * suppresses the record for an alignment
      */
-    // [JE2013:ID*done*]
     public void unRecordAlignment( Alignment alignment ) {
 	String id = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	try {
@@ -629,7 +593,6 @@ public class CacheImpl {
      * This function is used here for protecting everything to be entered in
      * the database
      */
-    // [JE2013:ID*done*] 
     public String quote( String s ) {
 	if ( s == null ) return "NULL";
 	String result = "'";
@@ -647,7 +610,6 @@ public class CacheImpl {
 	return result + new String( chars, j, i-j ) + "'";
     }
 
-    // [JE2013:ID*done*] 
     public boolean isAlignmentStored( Alignment alignment ) {
 	return ( alignment.getExtension( SVCNS, STORED ) != null &&
 		 !alignment.getExtension( SVCNS, STORED ).equals("") );
@@ -657,7 +619,6 @@ public class CacheImpl {
     /**
      * Non publicised class
      */
-    // [JE2013:ID*done*]
     public void eraseAlignment( String uri, boolean eraseFromDB ) throws SQLException, AlignmentException {
         Alignment alignment = getAlignment( uri );
         if ( alignment != null ) {
@@ -670,7 +631,6 @@ public class CacheImpl {
     /**
      * Non publicised class
      */
-    // [JE2013:ID*done*]
     public void unstoreAlignment( String uri ) throws SQLException, AlignmentException {
 	Alignment alignment = getAlignment( uri );
 	if ( alignment != null ) {
@@ -678,7 +638,6 @@ public class CacheImpl {
 	}
     }
 
-    // [JE2013:ID*done*][JE2003:cellid*done*]
     public void unstoreAlignment( String uri, Alignment alignment ) throws SQLException, AlignmentException {
 	Statement st = createStatement();
 	String id = stripAlignmentUri( uri );
@@ -695,7 +654,6 @@ public class CacheImpl {
 	    st.executeUpdate("DELETE FROM cell WHERE id='"+id+"'");
 	    st.executeUpdate("DELETE FROM extension WHERE id='"+id+"'");
 	    st.executeUpdate("DELETE FROM ontology WHERE id='"+id+"'");
-	    // [JE2013:DEPEND1*done*]
 	    st.executeUpdate("DELETE FROM dependency WHERE id='"+id+"'");
 	    st.executeUpdate("DELETE FROM alignment WHERE id='"+id+"'");
 	    alignment.setExtension( SVCNS, STORED, (String)null);
@@ -709,7 +667,6 @@ public class CacheImpl {
 	}
     }
 
-    // [JE2013:ID*done*][JE2013:cellid*done*]
     public void storeAlignment( String uri ) throws AlignmentException, SQLException {
 	String query = null;
 	BasicAlignment alignment = (BasicAlignment)getAlignment( uri );
@@ -742,7 +699,7 @@ public class CacheImpl {
 				alignment.getFile2(), 
 				alignment.getOntologyObject2() );
 		
-		// [JE2013:DEPEND1] store dependencies
+		// store dependencies
 		
 		for ( String[] ext : alignment.getExtensions() ) {
 		    String turi = ext[0];
@@ -757,14 +714,14 @@ public class CacheImpl {
 		for( Cell c : alignment ) {
 		    String cellid = null;
 		    if ( c.getObject1() != null && c.getObject2() != null ){
-			cellid = c.getId(); //[JE2013:cellid*done*] -This is the regular...
+			cellid = c.getId();
 			if ( cellid != null ){
 			    if ( cellid.startsWith("#") ) {
 				cellid = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) + cellid;
 			    }
 			} else if ( c.getExtensions() != null ) {
 			    // JE: In case of extensions create an ID
-			    cellid = generateCellId(); //[JE2013:cellid*done*] -setinternal, YES SO easy
+			    cellid = generateCellId();
 			}
 			else cellid = "";
 			String uri1 = c.getObject1AsURI(alignment).toString();
@@ -808,7 +765,6 @@ public class CacheImpl {
     }
 
     // Do not add transaction here: this is handled by caller
-    // [JE2013:ID*done*]
     public void	recordOntology( Statement st, String id, boolean source, URI uri, URI file, Ontology onto ) throws SQLException {
 	String sfile = "";
 	String suri = "";
@@ -831,12 +787,10 @@ public class CacheImpl {
 
     //**********************************************************************
     // CACHE MANAGEMENT (Not implemented yet)
-    // [JE2013:ID*done*]
     public void resetCacheStamp( Alignment result ){
 	result.setExtension(SVCNS, CACHED, new Date().toString() );
     }
 
-    // [JE2013:ID*done*]
     public void cleanUpCache() {
 	// for each alignment in the table
 	// set currentDate = Date();
@@ -878,7 +832,7 @@ public class CacheImpl {
       formuri varchar(255)
       );
 
-      # dependencies info [JE2013:DEPEND1*done*]
+      # dependencies info
 
       create table dependency (
       id varchar(255), 
@@ -906,7 +860,6 @@ public class CacheImpl {
 
     */
 
-    // [JE2013:ID*done*]
     public void initDatabase() throws SQLException {
 	logger.info( "Initialising database" );
 	Statement st = createStatement();
@@ -915,11 +868,9 @@ public class CacheImpl {
 	    // Create tables
 	    st.executeUpdate("CREATE TABLE alignment (id VARCHAR(100), type VARCHAR(5), level VARCHAR(25), primary key (id))");
 	    st.executeUpdate("CREATE TABLE ontology (id VARCHAR(255), source BOOLEAN, uri VARCHAR(255), formname VARCHAR(50), formuri VARCHAR(255), file VARCHAR(255), primary key (id, source))");
-	    //[JE2013:DEPEND1*done*]
 	    st.executeUpdate("CREATE TABLE dependency (id VARCHAR(255), dependsOn VARCHAR(255))");
 	    st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255))");
 	    st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
-	    //[JE2013:ID1]
 	    st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), prefix VARCHAR (50), edit BOOLEAN, version VARCHAR(5))");
 	    st.close();
 
@@ -934,7 +885,6 @@ public class CacheImpl {
 	}
     }
 
-    // [JE2013:ID*done*]
     public void resetDatabase( boolean force ) throws SQLException, AlignmentException {
 	Statement st = createStatement();
 	try {
@@ -953,7 +903,6 @@ public class CacheImpl {
 	    st.executeUpdate("DROP TABLE IF EXISTS server");
 	    st.executeUpdate("DROP TABLE IF EXISTS alignment");
 	    st.executeUpdate("DROP TABLE IF EXISTS ontology");
-	    // [JE2013:DEPEND1*done*]
 	    st.executeUpdate("DROP TABLE IF EXISTS dependency");
 	    st.executeUpdate("DROP TABLE IF EXISTS cell");
 	    st.executeUpdate("DROP TABLE IF EXISTS extension");
@@ -972,16 +921,13 @@ public class CacheImpl {
 	}
     }
     
-    // [JE2013:ID*done*]
     private void registerServer( String host, String port, Boolean writeable, String prefix ) throws SQLException {
 	// Register *THIS* server, etc. characteristics (incl. version name)
-	//[JE2013:ID]
 	PreparedStatement pst = conn.prepareStatement("INSERT INTO server (host, port, edit, version, prefix) VALUES (?,?,?,?,?)");
 	pst.setString(1,host);
 	pst.setString(2,port);
 	pst.setBoolean(3,writeable);
 	pst.setString(4,VERSION+"");
-	//[JE2013:ID]
 	pst.setString(5,idprefix);
 	pst.executeUpdate();
 	pst.close();
@@ -991,7 +937,6 @@ public class CacheImpl {
      * A dummy method, since it exists just ALTER TABLE ... DROP and ALTER TABLE ... ADD in SQL Language.
      * each dbms has its own language for manipulating table columns....
      */
-    // [JE2013:ID*done*]
     public void renameColumn(Statement st, String tableName, String oldName, String newName, String newType) throws SQLException { 
 	try {
 	    conn.setAutoCommit( false );
@@ -1011,7 +956,6 @@ public class CacheImpl {
     * Another dummy method, since it exists just ALTER TABLE ... DROP and ALTER TABLE ... ADD in SQL Language.
     * each dbms has its own language for manipulating table columns....     
     */
-    // [JE2013:ID*done*]
     public void changeColumnType(Statement st, String tableName, String columnName, String newType) throws SQLException { 
 	try {
 	    conn.setAutoCommit( false );
@@ -1088,10 +1032,10 @@ public class CacheImpl {
 		    renameColumn(st,"alignment","owlontology1","ontology1", "VARCHAR(255)");
 		    renameColumn(st,"alignment","owlontology2","ontology2", "VARCHAR(255)");
 		}
-		if ( version < 441 ) { // [JE2013:ID] ***** MAKE ALL 450 *****
-		    logger.info("Upgrading to version 4.1");
+		if ( version < 450 ) {
+		    logger.info("Upgrading to version 4.5");
+		    logger.info("Creating Ontology table");
 		    st.executeUpdate("CREATE TABLE ontology (id VARCHAR(255), uri VARCHAR(255), source BOOLEAN, file VARCHAR(255), formname VARCHAR(50), formuri VARCHAR(255), primary key (id, source))");
-		    // Move all the data from ontologies in ontology table
 		    ResultSet rse = st.executeQuery("SELECT * FROM alignment");
 		    while ( rse.next() ){
 			Statement st2 = createStatement();
@@ -1099,25 +1043,17 @@ public class CacheImpl {
 		    	st2.executeUpdate("INSERT INTO ontology (id, uri, source, file) VALUES ('"+rse.getString("id")+"','"+rse.getString("uri1")+"','1','"+rse.getString("file1")+"')");
 		    	st2.executeUpdate("INSERT INTO ontology (id, uri, source, file) VALUES ('"+rse.getString("id")+"','"+rse.getString("uri2")+"','0','"+rse.getString("file2")+"')");
 		    }
-		}
-		if ( version < 442 ) {
-		    logger.info("Upgrading to version 4.2");
+		    logger.info("Cleaning up Alignment table");
 		    st.executeUpdate("ALTER TABLE alignment DROP ontology1");  
 		    st.executeUpdate("ALTER TABLE alignment DROP ontology2");  
 		    st.executeUpdate("ALTER TABLE alignment DROP uri1");  
 		    st.executeUpdate("ALTER TABLE alignment DROP uri2");  
 		    st.executeUpdate("ALTER TABLE alignment DROP file1");  
 		    st.executeUpdate("ALTER TABLE alignment DROP file2");  
-		}
-		if ( version < 443 ) {
-		    logger.info("Upgrading to version 4.3");
-		    // [JE2013:ID]
-		    // Add new column in server table
-		    logger.debug("Altering server");
+		    logger.debug("Altering server table");
 		    st.executeUpdate("ALTER TABLE server ADD prefix VARCHAR(50);");
 		    st.executeUpdate("UPDATE server SET prefix='"+idprefix+"'");
-		    logger.debug("Server updated with prefix");
-		    // [JE2013:ID] THE REAL THING
+		    logger.debug("Updating server with prefix");
 		    Statement stmt = null;
 		    try { // In all alignment
 			conn.setAutoCommit( false );
@@ -1137,7 +1073,6 @@ public class CacheImpl {
 			    // In all ontology
 			    st.executeUpdate("UPDATE ontology SET id='"+newid+"' WHERE id='"+oldid+"'" );
 			}
-			// [JE2013:cellid]
 			// Now, for each cell, with an id,
 			// either recast the id ... or not
 			conn.commit();
@@ -1147,17 +1082,11 @@ public class CacheImpl {
 			if ( stmt != null ) { stmt.close(); }
 			conn.setAutoCommit( true );
 		    }
-		}
-		if ( version < 444 ) {
-		    logger.info("Upgrading to version 4.4");
-		    // [JE2013:DEPEND1*done*]
+		    logger.info("Creating dependency table");
 		    st.executeUpdate("CREATE TABLE dependency (id VARCHAR(255), dependsOn VARCHAR(255))");
-		}
-		if ( version < 445 ) {
-		    logger.info("Upgrading to version 4.5");
-		    // Fixing legacy errors
+		    logger.info("Fixing legacy errors in cached/stored");
 		    st.executeUpdate( "UPDATE extension SET val=( SELECT e2.val FROM extension e2 WHERE e2.tag='cached' AND e2.id=extension.id ) WHERE tag='stored' AND val=''" );
-		    // We should also implement a clean up (suppress all tarting with http://)
+		    // We should also implement a clean up (suppress all starting with http://)
 		}
 		// ALTER version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"'");
