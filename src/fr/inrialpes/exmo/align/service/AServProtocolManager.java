@@ -30,6 +30,8 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
 import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
 
+import fr.inrialpes.exmo.align.service.osgi.Service;
+
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.AlignmentId;
 import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
@@ -108,7 +110,7 @@ import java.util.zip.ZipEntry;
  * For these reasons we still need a parser of OWL files here.
  */
 
-public class AServProtocolManager {
+public class AServProtocolManager implements Service {
     final static Logger logger = LoggerFactory.getLogger( AServProtocolManager.class );
 
     CacheImpl alignmentCache = null;
