@@ -53,10 +53,10 @@ This is a simplified view: <a href="img/dependencies.png">click here
 <h3>Required for using EDOAL</h3>
 
 <dl>
-<dt><a href="http://jena.sourceforge.net/">Jena</a> 2.6.2:
-  jena.jar icu4j.jar iri.jar arq.jar [<a href="http://www.opensource.org/licenses/bsd-license.php">BSD*</a>]</dt>
+<dt><a href="http://jena.sourceforge.net/">Jena</a> 2.7.0-incubating:
+  jena.jar icu4j.jar iri.jar arq.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache</a>]</dt>
 <dd>Provides the RDF parser.</dd>
-<dt><a href="http://xerces.apache.org">Xerces</a> 2.9.1: xercesImpl.jar resolver.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+<dt><a href="http://xerces.apache.org">Xerces</a> 2.10.0: xercesImpl.jar resolver.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
 <dd>Required by Jena for parsing international characters.</dd-->
 </dl>
 
@@ -86,7 +86,7 @@ In addition to OntoSim, JWNLAlignment requires JWNL.
 <dt><a href="http://iddl.gforge.inria.fr">DRAOn</a> (or IDDL) 1.5: iddl.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires HermiT.</dd>
 <dt><a href="http://www.hermit-reasoner.com/">HermiT</a> 1.3.6:
-   [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-3.0.html">LGPL</a>]</dt>
+  hermit.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-3.0.html">LGPL</a>]</dt>
 <dd>Provides OWL Reasoning. It requires the OWL API.</dd>
 </dl>
 
@@ -99,7 +99,7 @@ delete the subdirectories <tt>src/fr/inrialpes/exmo/ontowrap/xxxx</tt>
 and this will compile again.
 </p>
 <dl>
-<dt><a href="http://owlapi.sourceforge.org">OWL API</a> 3.0:
+<dt><a href="http://owlapi.sourceforge.org">OWL API</a> 3.4.2:
   owlapi-bin.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>Provides parsing and API to OWL entities. Used by
   OWLAPIAlignments. api.jar is required for compiling, the others are
@@ -149,6 +149,13 @@ and this will compile again.
 <h3>Required for the P2P/JXTA plug-in</h3>
 
 <dl>
+</dl>
+
+<h3>Required for the OSGI plug-in</h3>
+
+<dl>
+<dt><a href="http://www.osgi.org/">OSGi core framework </a> 5.0.0: osgi-core.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+<dd>Required by alignsvc (OSGi version).</dd>
 </dl>
 
 <dl>

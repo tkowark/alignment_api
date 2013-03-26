@@ -15,9 +15,9 @@
   </licenses>
  
   <url></url>
-  <distributionManagement>
+  <!--distributionManagement>
     <downloadUrl></downloadUrl>
-  </distributionManagement>
+  </distributionManagement-->
 
   <!-- There is a decent pom in the Jar-file -->
   <!--dependencies>

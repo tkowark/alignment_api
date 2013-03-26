@@ -155,11 +155,10 @@
     <attribute name="group" description="Maven group ID" />
     <attribute name="file" description="Artifact name" />
     <attribute name="desc" description="Description" />
-    <attribute name="main" description="Main class to call" default=""/>
-    <attribute name="pack" description="Exported packages" />
-    <attribute name="impt" description="Imported packages" default="" />
+    <attribute name="main" description="Main class to call" default="" />
     <attribute name="path" description="Class path" default="" />
-    <attribute name="contentid" description="The fileset Id of the files to include" />
+    <element name="files" description="The fileset Id of the files to include" />
+    <element name="extramanifest" description="The part of included manifest" optional="yes"/>  
     <sequential>
       <delete file="lib/@{file}.jar"/>
       <!-- it may even be easier to generate the pom -->
@@ -180,19 +179,12 @@
           <attribute name="Class-Path" value="@{path}"/>
 	  <attribute name="Implementation-Title" value="@{desc}"/>
 	  <attribute name="Implementation-Version" value="${version} (${svn.rev})"/>
-	  <attribute name="Bundle-Name" value="@{desc}"/>
-	  <attribute name="Bundle-SymbolicName" value="@{file}"/>
-	  <attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
-	  <attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
-	  <attribute name="Bundle-Date" value="${date}"/>
-	  <attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
-	  <attribute name="Export-package" value="@{pack}"/>
-	  <attribute name="Import-package" value="@{impt}"/>
 	</manifest>
+	<extramanifest />
 	<!-- This should be achieved with a metainf tag, but not working -->
 	<zipfileset file="classes/LICENSE.TXT" fullpath="META-INF/LICENSE.TXT" />
 	<zipfileset file="lib/@{file}.pom" fullpath="META-INF/maven/@{group}/@{file}/pom.xml" />
-	<fileset refid="@{contentid}" />
+	<files />
       </jar>
     </sequential>
   </macrodef>
@@ -203,60 +195,77 @@
     <copy file="distrib/LICENSE.TXT" tofile="classes/LICENSE.TXT" filtering="true"/>
 
     <!-- align.jar -->
-    <fileset id="alignset" dir="classes">
-      <include name="org/semanticweb/owl/align/*.class"/>
-    </fileset>
     <onejar file="align"
       group="org.semanticweb.owl"
-      desc="Alignment API"
-      pack="org.semanticweb.owl.align"
-      contentid="alignset" />
+      desc="Alignment API">
+      <files>
+	<fileset dir="classes">
+	  <include name="org/semanticweb/owl/align/*.class"/>
+	</fileset>
+      </files>
+    </onejar>
 
     <!-- ontowrap.jar -->
     <copy file="src/fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf" tofile="classes/fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf" />
-    <fileset id="wrapset" dir="classes">
-      <include name="fr/inrialpes/exmo/ontowrap/**/*.class" />
-      <include name="fr/inrialpes/exmo/ontowrap/**/*.rdf"/>
-    </fileset>
     <onejar file="ontowrap"
       group="fr.inrialpes.exmo"
       desc="Ontology wrapper"
-      path="jena/arq.jar jena/icu4j.jar 	jena/iri.jar 	jena/jena.jar 	skosapi/skosapi.jar owlapi10/api.jar owlapi10/impl.jar owlapi10/io.jar owlapi10/rdfapi.jar owlapi10/rdfparser.jar owlapi3/owlapi-bin.jar"
-      pack="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util"
-      contentid="wrapset" />
+      path="jena/arq.jar jena/icu4j.jar jena/iri.jar jena/jena.jar skosapi/skosapi.jar owlapi10/api.jar owlapi10/impl.jar owlapi10/io.jar owlapi10/rdfapi.jar owlapi10/rdfparser.jar owlapi3/owlapi-bin.jar">
+      <files>
+	<fileset dir="classes">
+	  <include name="fr/inrialpes/exmo/ontowrap/**/*.class" />
+	  <include name="fr/inrialpes/exmo/ontowrap/**/*.rdf"/>
+	</fileset>
+      </files>
+    </onejar>
 
     <!-- procalign.jar -->
-    <fileset id="procset" dir="classes">
-      <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/parser/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/util/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/cli/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/gen/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/ling/**/*.class"/>
-    </fileset>
     <onejar file="procalign"
       group="fr.inrialpes.exmo.align"
       desc="Alignment API implementation"
       main="fr.inrialpes.exmo.align.cli.Procalign"
-      pack="fr.inrialpes.exmo.align.impl,fr.inrialpes.exmo.align.impl.edoal,fr.inrialpes.exmo.align.impl.eval,fr.inrialpes.exmo.align.impl.method,fr.inrialpes.exmo.align.impl.rel,fr.inrialpes.exmo.align.impl.renderer,fr.inrialpes.exmo.align.ling,fr.inrialpes.exmo.align.parser,fr.inrialpes.exmo.align.util,fr.inrialpes.exmo.align.cli,fr.inrialpes.exmo.align.gen"
-      impt="fr.inrialpes.exmo.ontowrap,fr.inrialpes.exmo.ontowrap.jena25,fr.inrialpes.exmo.ontowrap.owlapi10,fr.inrialpes.exmo.ontowrap.owlapi30,fr.inrialpes.exmo.ontowrap.util,org.semanticweb.owl.align"
-      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar"
-      contentid="procset" />
+      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
+      <files>
+	<fileset dir="classes">
+	  <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/parser/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/util/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/cli/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/gen/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/ling/**/*.class"/>
+	</fileset>
+      </files>
+    </onejar>
 
     <!-- alignsvc.jar -->
     <copy file="src/fr/inrialpes/exmo/align/service/aserv.wsdl" tofile="classes/fr/inrialpes/exmo/align/service/aserv.wsdl" filtering="false"/>
-    <fileset id="servset" dir="classes">
-      <include name="fr/inrialpes/exmo/align/service/**/*.class"/>
-      <include name="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
-      <include name="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
-    </fileset>
     <onejar file="alignsvc"
       group="fr.inrialpes.exmo.align"
       desc="Alignment server"
       main="fr.inrialpes.exmo.align.service.AlignmentService"
-      pack="fr.inrialpes.exmo.align.queryprocessor,fr.inrialpes.exmo.align.service,fr.inrialpes.exmo.align.service.jade,fr.inrialpes.exmo.align.service.jade.messageontology"
-      path="procalign.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar"
-      contentid="servset" />
+      path="procalign.jar osgi/osgi-core.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar">
+      <files>
+	<fileset dir="classes">
+	  <include name="fr/inrialpes/exmo/align/service/**/*.class"/>
+	  <include name="fr/inrialpes/exmo/align/service/**/*.wsdl"/>
+	  <include name="fr/inrialpes/exmo/queryprocessor/**/*.class"/>
+	</fileset>
+      </files>
+      <extramanifest>
+	<!-- This is all for OSGI -->
+	<manifest>
+	  <attribute name="Bundle-Name" value="Alignment server"/>
+	  <attribute name="Bundle-SymbolicName" value="alignsvc"/>
+	  <attribute name="Bundle-Version" value="${version} (${svn.rev})"/>
+	  <attribute name="Bundle-Copyright" value="INRIA, ${copyyear}"/>
+	  <attribute name="Bundle-Date" value="${date}"/>
+	  <attribute name="Bundle-License" value="GNU Lesser General Public License 2.1 or above"/>
+	  <attribute name="Bundle-Activator" value="fr.inrialpes.exmo.align.service.osgi.OSGIAServProfile"/>
+	  <attribute name="Export-package" value="fr.inrialpes.exmo.align.service"/>
+	  <attribute name="Import-package" value="org.osgi.framework"/>
+	</manifest>
+      </extramanifest>
+    </onejar>
   </target>
 
   <!-- tested -->
@@ -312,7 +321,7 @@
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
     <!-- ling requires WordNet and takes ages initialising it -->
-    <testng groups="raw"
+    <testng groups="full"
 	    outputDir="test/html" verbose="1"
 	    haltOnFailure="false" failureProperty="failed">
       <!-- if ones uses logback -->
@@ -528,6 +537,7 @@
     <onepom file="slf4j/log4j-over-slf4j" />
     <onepom file="lucene/lucene-core" />
     <onepom file="ontosim/ontosim" />
+    <onepom file="osgi/osgi-core" />
     <onepom file="owlapi10/api" />
     <onepom file="owlapi10/impl" />
     <onepom file="owlapi10/io" />
