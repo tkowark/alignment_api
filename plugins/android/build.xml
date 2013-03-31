@@ -10,10 +10,7 @@
     <file name="jena/icu4j.jar"/>
     <file name="jena/iri.jar"/>
     <file name="jena/jena.jar"/>
-    <file name="log4j/commons-logging.jar"/>
-    <file name="log4j/log4j.jar"/>
-    <file name="log4j/slf4j-api.jar"/>
-    <file name="log4j/slf4j-log4j.jar"/>
+    <file name="slf4j/slf4j-api.jar"/>
     <file name="xerces/resolver.jar"/>
     <file name="xerces/xercesImpl.jar"/>            <!-- redundancy in the two following -->
     <file name="xsdlib/xsdlib.jar"/>
