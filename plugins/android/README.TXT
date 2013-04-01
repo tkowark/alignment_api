@@ -1,9 +1,9 @@
 #######################################################################
 #                     Alignment API micro edition                     #
-#                      13/05/2011, version 4.2                        #
+#                      29/03/2013, version 4.5                        #
 #######################################################################
 
-Copyright (C) 2011 INRIA.
+Copyright (C) 2011, 2013 INRIA.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License
@@ -31,7 +31,7 @@ microalign.jar = Alignment API + implementation + parser
 	       - evaluation - matchers - server - util
 
 Only the libraries related to Jena are used:
-Jena (+ icu4j and iri), log4j, xerces (+resolver) and xsdlib (+relaxngDatatype).
+Jena (+ icu4j and iri), slf4j, xerces (+resolver) and xsdlib (+relaxngDatatype).
 
 OTHER PROFILES
 --------------
