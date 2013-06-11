@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010
+ * Copyright (C) INRIA, 2006-2010, 2012
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -32,7 +32,6 @@ import org.semanticweb.owl.align.Evaluator;
 
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.BasicParameters;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
@@ -65,7 +64,7 @@ public class MyApp {
     public static void main( String[] args ) {
 	URI onto1 = null;
 	URI onto2 = null;
-	Properties params = new BasicParameters();
+	Properties params = new Properties();
 	int question = 1;
 
 	try {
@@ -86,7 +85,7 @@ public class MyApp {
 	    a1.align( (Alignment)null, params );
 	    AlignmentProcess a2 = new StringDistAlignment();
 	    a2.init ( onto1, onto2 );
-	    params = new BasicParameters();
+	    params = new Properties();
 	    params.setProperty("stringFunction","ngramDistance");
 	    a2.align( (Alignment)null, params );
 
@@ -121,7 +120,7 @@ public class MyApp {
 		
 		double best = 0.;
 		Alignment result = null;
-		Properties p = new BasicParameters();
+		Properties p = new Properties();
 		for ( int i = 0; i <= 10 ; i += 2 ){
 		    a1.cut( ((double)i)/10 );
 		    // This operation must be repeated because the modifications in a1
