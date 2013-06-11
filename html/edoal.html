@@ -187,7 +187,7 @@ still <tt>http://knowledgeweb.semanticweb.org/heterogeneity/alignment#</tt>
 </p>
 <p>
 EDOAL's own namespace is <tt>http://ns.inria.org/edoal/1.0/</tt> (usual
-prefix: edoal).
+prefix: edoal). EDOAL vocabulary is dereferenceable (see <a href="#deref">below</a>).
 </p>
 
 <h3 id="ssec:alignment">Alignment format</h3>
@@ -410,7 +410,7 @@ a disjunction or class expressions:
         &lt;Class rdf:about="&amp;vin;Acidite" />
         &lt;Class rdf:about="&amp;vin;Astreingence" />
         &lt;Class rdf:about="&amp;vin;Amertume" />
-      &lt;/Collection>&lt;/or>
+      &lt;/or>
     &lt;/Class>
 </div></div>
 <div class="rdfxmlDiv">
@@ -1192,6 +1192,353 @@ and <a href="http://www.robertnyman.com">Robert Nyman</a> for the
 syntax toggling scripts borrowed from the OWL Recommendation web page.
 <a href="http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/">http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/</a>.
 </p> 
+
+<h2><a name="deref">Dereferenceable vocabulary (Please: XHTML+RDFa)</a></h2>
+
+<p>
+Due to popular demand, here is the derefenceable version of the RDF
+vocabulary used in the format.
+</p>
+<p>
+Beware, that EDOAL has been designed as
+a format and an API rather than a generic RDF vocabulary. A natural
+ontology would be closer to the API but would give a more verbose
+EDOAL format. The EDOAL format is in RDF and compact. In consequence,
+not any RDF graph using the EDOAL vocabulary is a well-defined EDOAL
+alignment. In particular, RDF can express incomplete knowledge while
+the EDOAL API requires complete knowledge of the alignment.
+</p>
+
+<div class="vocab">
+<h3>Class: <a name="Value">Value</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Value">http://ns.inria.org/edoal/1.0/#Value</a></dd>
+<dt>subclasses</dt><dd><a href="#Literal">Literal</a>, <a href="#Instance">Instance</a>, <a href="#Attribute">Attribute</a>, <a href="#Apply">Apply</a>, </dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Literal">Literal</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Literal">http://ns.inria.org/edoal/1.0/#Literal</a></dd>
+<dt>superclasses</dt><dd><a href="#Value">Value</a></dd>
+<dt>properties</dt><dd><a href="#type">type</a>, <a href="#string">string</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="type">type</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#type">http://ns.inria.org/edoal/1.0/#type</a></dd>
+<dt>domain</dt><dd><a href="#Literal">Literal</a></dd>
+<dt>range</dt><dd><a href="#Datatype">Datatype</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="string">string</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#string">http://ns.inria.org/edoal/1.0/#string</a></dd>
+<dt>domain</dt><dd><a href="#Literal">Literal</a></dd>
+<dt>range</dt><dd>String</dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Apply">Apply</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Apply">http://ns.inria.org/edoal/1.0/#Apply</a></dd>
+<dt>superclasses</dt><dd><a href="#Value">Value</a></dd>
+<dt>properties</dt><dd><a href="#operator">operator</a>, <a href="#arguments">arguments</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="operator">operator</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#operator">http://ns.inria.org/edoal/1.0/#operator</a></dd>
+<dt>domain</dt><dd><a href="#Apply">Apply</a></dd>
+<dt>range</dt><dd><a href="#Operator">Operator</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="arguments">arguments</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#arguments">http://ns.inria.org/edoal/1.0/#argument</a></dd>
+<dt>domain</dt><dd><a href="#Apply">Apply</a></dd>
+<dt>range</dt><dd>Sequence(<a href="#Value">Value</a>)</dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Datatype">Datatype</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Datatype">http://ns.inria.org/edoal/1.0/#Datatype</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Class">Class</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Class">http://ns.inria.org/edoal/1.0/#Class</a></dd>
+<dt>properties</dt><dd><a href="#and">and</a>, <a href="#or">or</a>, <a href="#not">not</a></dd>
+<dt>subclasses</dt><dd><a href="#AttributeRestriction">AttributeRestriction</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="AttributeRestriction">AttributeRestriction</a></h3>
+<p>This is an abstract class, never instantiated in the wilde.</p>
+<dl>
+<dt>URI</dt><dd><a href="#AttributeRestriction">http://ns.inria.org/edoal/1.0/#AttributeRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#Class">Class</a></dd>
+<dt>properties</dt><dd><a href="#onAttribute">onAttribute</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="AttributeOccurenceRestriction">AttributeOccurenceRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#AttributeOccurenceRestriction">http://ns.inria.org/edoal/1.0/#AttributeOccurenceRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#AttributeRestriction">AttributeRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#onAttribute">onAttribute</a>), <a href="#comparator">comparator</a>, <a href="#value">value</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="AttributeDomainRestriction">AttributeDomainRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#AttributeDomainRestriction">http://ns.inria.org/edoal/1.0/#AttributeDomainRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#AttributeRestriction">AttributeRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#onAttribute">onAttribute</a>), <a href="#class">class</a>, <a href="#all">all</a>, <a href="#exists">exists</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="AttributeTypeRestriction">AttributeTypeRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#AttributeTypeRestriction">http://ns.inria.org/edoal/1.0/#AttributeTypeRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#AttributeRestriction">AttributeRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#onAttribute">onAttribute</a>), <a href="#datatype">datatype</a>, </dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="AttributeValueRestriction">AttributeValueRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#AttributeValueRestriction">http://ns.inria.org/edoal/1.0/#AttributeValueRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#AttributeRestriction">AttributeRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#onAttribute">onAttribute</a>), <a href="#comparator">comparator</a>, <a href="#value">value</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="onAttribute">onAttribute</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#onAttribute">http://ns.inria.org/edoal/1.0/#onAttribute</a></dd>
+<dt>domain</dt><dd><a href="#ClassRestriction">ClassRestriction</a></dd>
+<dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="class">class</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#class">http://ns.inria.org/edoal/1.0/#class</a></dd>
+<dt>domain</dt><dd><a href="#AttributeClassRestriction">AttributeClassRestriction</a>, <a href="#PropertyDomainRestriction">PropertyDomainRestriction</a>, <a href="#RelationDomainRestriction">RelationDomainRestriction</a>, <a href="#RelationCoDomainRestriction">RelationCoDomainRestriction</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="all">all</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#all">http://ns.inria.org/edoal/1.0/#all</a></dd>
+<dt>domain</dt><dd><a href="#AttributeClassRestriction">AttributeClassRestriction</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="exists">exists</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#exists">http://ns.inria.org/edoal/1.0/#exists</a></dd>
+<dt>domain</dt><dd><a href="#AttributeClassRestriction">AttributeClassRestriction</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="datatype">datatype</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#datatype">http://ns.inria.org/edoal/1.0/#datatype</a></dd>
+<dt>domain</dt><dd><a href="#AttributeTypeRestriction">AttributeTypeRestriction</a>, <a href="#PropertyTypeRestriction">PropertyTypeRestriction</a></dd>
+<dt>range</dt><dd><a href="#Datatype">Datatype</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="comparator">comparator</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#comparator">http://ns.inria.org/edoal/1.0/#comparator</a></dd>
+<dt>domain</dt><dd><a href="#AttributeValueRestriction">AttributeValueRestriction</a>, <a href="#AttributeOccurenceRestriction">AttributeOccurenceRestriction</a>, <a href="#PropertyValueRestriction">PropertyValueRestriction</a></dd>
+<dt>range</dt><dd><a href="#Comparator">Comparator</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="value">value</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#value">http://ns.inria.org/edoal/1.0/#value</a></dd>
+<dt>domain</dt><dd><a href="#AttributeValueRestriction">AttributeValueRestriction</a>, <a href="#AttributeOccurenceRestriction">AttributeOccurenceRestriction</a>, <a href="#PropertyValueRestriction">PropertyValueRestriction</a></dd>
+<dt>range</dt><dd><a href="#Value">Value</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="and">and</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#and">http://ns.inria.org/edoal/1.0/#and</a></dd>
+<dt>domain</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="or">or</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#or">http://ns.inria.org/edoal/1.0/#or</a></dd>
+<dt>domain</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="not">not</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#not">http://ns.inria.org/edoal/1.0/#not</a></dd>
+<dt>domain</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Class">Class</a>, <a href="#Property">Property</a>, <a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="compose">compose</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#compose">http://ns.inria.org/edoal/1.0/#compose</a></dd>
+<dt>domain</dt><dd><a href="#Attribute">Attribute</a></dd>
+<dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="inverse">inverse</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#inverse">http://ns.inria.org/edoal/1.0/#inverse</a></dd>
+<dt>domain</dt><dd><a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="reflexive">reflexive</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#reflexive">http://ns.inria.org/edoal/1.0/#reflexive</a></dd>
+<dt>domain</dt><dd><a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="transitive">transitive</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#transitive">http://ns.inria.org/edoal/1.0/#transitive</a></dd>
+<dt>domain</dt><dd><a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Property: <a name="symmetric">symmetric</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#symmetric">http://ns.inria.org/edoal/1.0/#symmetric</a></dd>
+<dt>domain</dt><dd><a href="#Relation">Relation</a></dd>
+<dt>range</dt><dd><a href="#Relation">Relation</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Attribute">Attribute</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Attribute">http://ns.inria.org/edoal/1.0/#Attribute</a></dd>
+<dt>superclasses</dt><dd><a href="#Value">Value</a></dd>
+<dt>properties</dt><dd><a href="#and">and</a>, <a href="#or">or</a>, <a href="#not">not</a>, <a href="#compose">compose</a></dd>
+<dt>subclasses</dt><dd><a href="#Relation">Relation</a>, <a href="#Property">Property</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Property">Property</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Property">http://ns.inria.org/edoal/1.0/#Property</a>, </dd>
+<dt>superclasses</dt><dd><a href="#Attribute">Attribute</a></dd>
+<dt>properties</dt><dd>(<a href="#and">and</a>, <a href="#or">or</a>, <a href="#not">not</a>, <a href="#compose">compose</a>)</dd>
+<dt>subclasses</dt><dd><a href="#PropertyDomainRestriction">PropertyDomainRestriction</a>, <a href="#PropertyTypeRestriction">PropertyTypeRestriction</a>, <a href="#PropertyValueRestriction">PropertyValueRestriction</a></dd>
+<dt>see also</dt><dd><a href="#ssec:properties">the property section</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="PropertyDomainRestriction">PropertyDomainRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#PropertyDomainRestriction">http://ns.inria.org/edoal/1.0/#PropertyDomainRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#Property">Property</a></dd>
+<dt>properties</dt><dd><a href="#class">class</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="PropertyTypeRestriction">PropertyTypeRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#PropertyTypeRestriction">http://ns.inria.org/edoal/1.0/#PropertyTypeRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#Property">Property</a></dd>
+<dt>properties</dt><dd><a href="#datatype">datatype</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="PropertyValueRestriction">PropertyValueRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#PropertyValueRestriction">http://ns.inria.org/edoal/1.0/#PropertyValueRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#Property">Property</a></dd>
+<dt>properties</dt><dd><a href="#comparator">comparator</a>, <a href="#value">value</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Relation">Relation</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#RelationExpression">http://ns.inria.org/edoal/1.0/#RelationExpression</a></dd>
+<dt>superclasses</dt><dd><a href="#Attribute">Attribute</a></dd>
+<dt>properties</dt><dd>(<a href="#and">and</a>, <a href="#or">or</a>, <a href="#not">not</a>, <a href="#compose">compose</a>), <a href="#inverse">inverse</a>, <a href="#reflexive">reflexive</a>, <a href="#symmetric">symmetric</a>, <a href="#transitive">transitive</a></dd>
+<dt>subclasses</dt><dd><a href="#RelationRestriction">RelationRestriction</a></dd>
+<dt>see also</dt><dd><a href="#ssec:relations">Relation section</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="RelationRestriction">RelationRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#RelationRestriction">http://ns.inria.org/edoal/1.0/#RelationRestriction</a></dd>
+<dt>superclasses</dt><dd><a href="#Relation">Relation</a></dd>
+<dt>properties</dt><dd><a href="#class">class</a></dd>
+<dt>subclasses</dt><dd><a href="#RelationCoDomainRestriction">RelationCoDomainRestriction</a>, <a href="#RelationCoDomainRestriction">RelationCoDomainRestriction</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="RelationCoDomainRestriction">RelationCoDomainRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#RelationCoDomainRestriction">http://ns.inria.org/edoal/1.0/#RelationCoDomainRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#class">class</a>)</dd>
+<dt>superclasses</dt><dd><a href="#RelationRestriction">RelationRestriction</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="RelationDomainRestriction">RelationDomainRestriction</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#RelationDomainRestriction">http://ns.inria.org/edoal/1.0/#RelationDomainRestriction</a></dd>
+<dt>properties</dt><dd>(<a href="#class">class</a>)</dd>
+<dt>superclasses</dt><dd><a href="#RelationRestriction">RelationRestriction</a></dd>
+</dl></div>
+
+<div class="vocab">
+<h3>Class: <a name="Instance">Instance</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Instance">http://ns.inria.org/edoal/1.0/#Instance</a></dd>
+<dt>superclasses</dt><dd><a href="#Value">Value</a></dd>
+<dt>see also</dt><dd><a href="#ssec:instances">Instance section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Class: <a name="Comparator">Comparator</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Comparator">http://ns.inria.org/edoal/1.0/#Comparator</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+Transformation
+TransfService implements <i>Clonable</i>
+<a href="sec:patterns">Variable</a>
+</pre></div>
+
 
 <address>
 <small>

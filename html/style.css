@@ -63,6 +63,16 @@ div.logic, div.note {
   padding: 2px;
 }
 
+/* For dereferenceable vocabulary description */
+
+/* use tab-like headers for syntax examples */
+div.vocab {
+  border: 1px dashed #2F6FAB;
+  padding-left: 6px;
+  margin-bottom: 6px;
+  margin-top: 6px;
+}
+
 /* For grammar */
 
 /* use tab-like headers for syntax examples */
