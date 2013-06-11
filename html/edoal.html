@@ -91,8 +91,8 @@ function primerOnLoad() {
 </script>
 </head>
 <body>
-[<a href="format.html">Alignment format</a>]
-[<a href="./">API</a>]
+[<a href="http://alignapi.gforge.inria.fr/format.html">Alignment format</a>]
+[<a href="http://alignapi.gforge.inria.fr/">API</a>]
 
 
 <h1 class="titre">EDOAL: Expressive and Declarative Ontology Alignment Language</h1>
@@ -104,7 +104,7 @@ correspondences between the entities of different ontologies. Unlike
 other formats, the alignment vocabulary allows to represent complex
 correspondences allowing to precisely describe the relation between
 the entities. The alignment vocabulary extends
-the <a href="format.html">alignment format</a>.</p> 
+the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a>.</p> 
 
 <!--dl>
  <dt><a href="#sec:purpose">Purpose</a></dt>
@@ -128,7 +128,7 @@ the <a href="format.html">alignment format</a>.</p>
 </pre>
 </div-->
 
-<p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
+<p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
 
 <p>This format can be used for cases where expressing equivalence or subsumption between terms is not sufficient, when more precise relations need to be expressed. While term equivalence or subsumption might be enough for exchanging documents, more precise relations are needed to exchange and integrate data.</p>    
 
@@ -177,7 +177,7 @@ The diagram below shows the vocabulary classes ???
 </p-->
 
 <p>
-While <i>Alignment</i> and <i>Cell</i> are described by the <a href="format.html">alignment format</a>, we will focus here on the remaining classes.</p>
+While <i>Alignment</i> and <i>Cell</i> are described by the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a>, we will focus here on the remaining classes.</p>
 
 <h3 id="ssec:namespaces">Namespaces</h3>
 <p>
@@ -236,7 +236,7 @@ exemplified in the code below.
 ...
 </div></div>
 
-<p>Details on each property are available on the <a href="format.html">alignment format</a> page.</p>
+<p>Details on each property are available on the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a> page.</p>
 
 <p>An alignment contains a set of correspondences (<tt>Cell</tt>s). 
 Each cell can be linked to an alignment using the <tt>map</tt> property.
@@ -1162,42 +1162,11 @@ variable ::= &lt;Variable>
              &lt;/Variable>
 </div-->
 
-<h2>History</h2>
-
-<p>
-This language has been first designed by Fran&ccedil;ois Scharffe as
-the SEKT Mapping language.
-It then became the <a href="http://www.omwg.org/TR/d7/rdf-xml-syntax/">OMWG Ontology Mapping language</a> developed under the
-Sourceforge mappingapi project
-(<a href="http://sourceforge.net/projects/mediation/">http://sourceforge.net/projects/mediation/</a>). This
-language was further described by Fran&ccedil;ois Scharffe,
-J&eacute;r&ocirc;me Euzenat and Antoine Zimmermann
-in <a href="ftp://ftp.inrialpes.fr/pub/exmo/reports/kweb-2210.pdf">Knowledge
-web deliverable 2.2.10</a>, in particular through the semantics of
-the language. Its implementation was also reengineered as an extension
-of the <a href="format.html">alignment format</a> so that it could be
-manipulated through the Alignment API tools (starting version 3.1).
-</p>
-<p>
-It has now been redesigned and reimplemented under the name of
-EDOAL. It is a plain component of the Alignment API and is maintained
-together with it.
-</p>
-
-<h2>Thanks</h2>
-
-<p>
-Thanks to <a href="http://www.snook.ca/jonathan">Jonathan Snook</a>
-and <a href="http://www.robertnyman.com">Robert Nyman</a> for the
-syntax toggling scripts borrowed from the OWL Recommendation web page.
-<a href="http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/">http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/</a>.
-</p> 
-
 <h2><a name="deref">Dereferenceable vocabulary (Please: XHTML+RDFa)</a></h2>
 
 <p>
 Due to popular demand, here is the derefenceable version of the RDF
-vocabulary used in the format.
+vocabulary used in the format. Official URI is <a href="http://ns.inria.org/edoal/1.0/">http://ns.inria.org/edoal/1.0/</a>.
 </p>
 <p>
 Beware, that EDOAL has been designed as
@@ -1211,6 +1180,7 @@ the EDOAL API requires complete knowledge of the alignment.
 
 <div class="vocab">
 <h3>Class: <a name="Value">Value</a></h3>
+<p>This is an abstract class, never instantiated in the format.</p>
 <dl>
 <dt>URI</dt><dd><a href="#Value">http://ns.inria.org/edoal/1.0/#Value</a></dd>
 <dt>subclasses</dt><dd><a href="#Literal">Literal</a>, <a href="#Instance">Instance</a>, <a href="#Attribute">Attribute</a>, <a href="#Apply">Apply</a>, </dd>
@@ -1280,7 +1250,7 @@ the EDOAL API requires complete knowledge of the alignment.
 
 <div class="vocab">
 <h3>Class: <a name="AttributeRestriction">AttributeRestriction</a></h3>
-<p>This is an abstract class, never instantiated in the wilde.</p>
+<p>This is an abstract class, never instantiated in the format.</p>
 <dl>
 <dt>URI</dt><dd><a href="#AttributeRestriction">http://ns.inria.org/edoal/1.0/#AttributeRestriction</a></dd>
 <dt>superclasses</dt><dd><a href="#Class">Class</a></dd>
@@ -1441,6 +1411,7 @@ the EDOAL API requires complete knowledge of the alignment.
 
 <div class="vocab">
 <h3>Class: <a name="Attribute">Attribute</a></h3>
+<p>This is an abstract class, never instantiated in the format.</p>
 <dl>
 <dt>URI</dt><dd><a href="#Attribute">http://ns.inria.org/edoal/1.0/#Attribute</a></dd>
 <dt>superclasses</dt><dd><a href="#Value">Value</a></dd>
@@ -1534,10 +1505,48 @@ the EDOAL API requires complete knowledge of the alignment.
 </div>
 
 <div class="vocab">
+<h3>Class: <a name="Operator">Operator</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Operator">http://ns.inria.org/edoal/1.0/#Operator</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
 Transformation
 TransfService implements <i>Clonable</i>
 <a href="sec:patterns">Variable</a>
 </pre></div>
+
+<h2>History</h2>
+
+<p>
+This language has been first designed by Fran&ccedil;ois Scharffe as
+the SEKT Mapping language.
+It then became the <a href="http://www.omwg.org/TR/d7/rdf-xml-syntax/">OMWG Ontology Mapping language</a> developed under the
+Sourceforge mappingapi project
+(<a href="http://sourceforge.net/projects/mediation/">http://sourceforge.net/projects/mediation/</a>). This
+language was further described by Fran&ccedil;ois Scharffe,
+J&eacute;r&ocirc;me Euzenat and Antoine Zimmermann
+in <a href="ftp://ftp.inrialpes.fr/pub/exmo/reports/kweb-2210.pdf">Knowledge
+web deliverable 2.2.10</a>, in particular through the semantics of
+the language. Its implementation was also reengineered as an extension
+of the <a href="format.html">alignment format</a> so that it could be
+manipulated through the Alignment API tools (starting version 3.1).
+</p>
+<p>
+It has now been redesigned and reimplemented under the name of
+EDOAL. It is a plain component of the Alignment API and is maintained
+together with it.
+</p>
+
+<h2>Thanks</h2>
+
+<p>
+Thanks to <a href="http://www.snook.ca/jonathan">Jonathan Snook</a>
+and <a href="http://www.robertnyman.com">Robert Nyman</a> for the
+syntax toggling scripts borrowed from the OWL Recommendation web page.
+<a href="http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/">http://www.robertnyman.com/2005/11/07/the-ultimate-getelementsbyclassname/</a>.
+</p> 
 
 
 <address>
