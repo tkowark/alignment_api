@@ -37,6 +37,7 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -83,8 +84,17 @@ public class EDOALAlignment extends BasicAlignment {
 	    throw new AlignmentException("The source and target ontologies must not be null");
 	if ( (onto1 instanceof Ontology && onto2 instanceof Ontology) ){
 	    super.init( onto1, onto2 );
-	} else {
-	    throw new AlignmentException("arguments must be LoadedOntology");
+	} 
+	else if ((onto1 instanceof URI && onto2 instanceof URI)) {
+	    OntologyFactory fact = OntologyFactory.getFactory();
+	    try {
+		super.init(fact.loadOntology((URI) onto1), fact.loadOntology((URI) onto2));
+	    } catch (OntowrapException e) {
+		throw new AlignmentException("Could not load ontologies",e);
+	    }
+	}
+	else {
+	    throw new AlignmentException("arguments must be LoadedOntology or deferencable URIs");
 	};
     }
 
