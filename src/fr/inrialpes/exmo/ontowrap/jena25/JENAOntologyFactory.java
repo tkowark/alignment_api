@@ -91,8 +91,10 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    try {
 		onto.setURI(new URI(m.listOntologies().next().getURI()));
 	    } catch (NoSuchElementException nse) {
-		onto.setURI(new URI(m.getNsPrefixURI("")));
-		//onto.setFile(uri);
+		if (m.getNsPrefixURI("")!=null)
+		    onto.setURI(new URI(m.getNsPrefixURI("")));
+		else 
+		    onto.setURI(uri);
 	    }
 	    //onto.setURI(new URI(m.listOntologies()getOntology(null).getURI()));
 	    onto.setOntology(m);
