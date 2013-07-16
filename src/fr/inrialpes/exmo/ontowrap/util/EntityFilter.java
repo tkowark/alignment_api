@@ -29,6 +29,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 public class EntityFilter<T> extends FilteredSet<T> {
     private String ontoURI=null;
     private LoadedOntology<?> onto=null;
+    
     public EntityFilter(Set<T> s, LoadedOntology<?> onto) {
 	super(s);
 	ontoURI = onto.getURI().toString().replaceFirst("#.*", "");

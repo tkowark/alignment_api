@@ -57,7 +57,7 @@ public class SKOSOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSThesaurus newOntology( Object ontology ) throws OntowrapException {
+    public SKOSThesaurus newOntology( Object ontology , boolean onlyLocalEntities) throws OntowrapException {
 	if ( ontology instanceof SKOSDataset ) {
 	    SKOSThesaurus onto = null;
 	    onto = new SKOSThesaurus();
@@ -76,7 +76,7 @@ public class SKOSOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSThesaurus loadOntology( URI uri ) throws OntowrapException {
+    public SKOSThesaurus loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException {
 	//System.err.println(" Loading "+uri );
 	SKOSThesaurus onto = null;
 	onto = cache.getOntologyFromURI( uri );

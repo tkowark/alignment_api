@@ -48,9 +48,9 @@ public class JENAOntologyFactory extends OntologyFactory {
 	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
     }
 
-    public JENAOntology newOntology( Object ontology ) throws OntowrapException {
+    public JENAOntology newOntology( Object ontology , boolean onlyLocalEntities ) throws OntowrapException {
 	if ( ontology instanceof OntModel ) {
-	    JENAOntology onto = new JENAOntology();
+	    JENAOntology onto = new JENAOntology(onlyLocalEntities);
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( (OntModel)ontology );
@@ -70,12 +70,14 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    }
 	    cache.recordOntology( onto.getURI(), onto );
 	    return onto;
+
 	} else {
 	    throw new OntowrapException( "Argument is not an OntModel: "+ontology );
 	}
+
     }
 
-    public JENAOntology loadOntology( URI uri ) throws OntowrapException {
+    public JENAOntology loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException {
 	JENAOntology onto = null;
 	onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
@@ -84,7 +86,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	try {
 	    OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM, null );
 	    m.read(uri.toString());
-	    onto = new JENAOntology();
+	    onto = new JENAOntology(onlyLocalEntities);
 	    onto.setFile(uri);
 	    // to be checked : why several ontologies in a model ???
 	    // If no URI can be extracted from ontology, then we use the physical URI

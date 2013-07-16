@@ -55,8 +55,15 @@ import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
 public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoadedOntology<OntModel>{
 
+    private boolean onlyLocalEntities=true;
     // JE: this is not very Java 1.5...
     // This is because of the version of Jena we use apparently
+    
+    
+
+    public JENAOntology(boolean onlyLocalEntities) {
+	this.onlyLocalEntities=onlyLocalEntities;
+    }
 
     public Object getEntity(URI u) throws OntowrapException {
 	return onto.getOntResource(u.toString());
@@ -205,13 +212,22 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
 	    }
 	};
     }*/
+    
+    private <K> Set<K> getFilteredOrNot(Set<K> s) {
+	if (onlyLocalEntities)
+	    return new EntityFilter<K>(s,this);
+	else 
+	    return s;
+    }
 
     public Set<OntClass> getClasses() {
-	return new EntityFilter<OntClass>(onto.listNamedClasses().toSet(),this);
+	
+	    return getFilteredOrNot(onto.listNamedClasses().toSet());
+	
     }
 
     public Set<DatatypeProperty> getDataProperties() {
-	return new EntityFilter<DatatypeProperty>(onto.listDatatypeProperties().toSet(),this);
+	return getFilteredOrNot(onto.listDatatypeProperties().toSet());
 	//return getEntitySet(onto.listDatatypeProperties());
     }
 
@@ -222,22 +238,21 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
     
     
     public Set<OntResource> getEntities() {
-	return new EntityFilter<OntResource>((onto.listAllOntProperties().mapWith( mapProperty )
+	return getFilteredOrNot((onto.listAllOntProperties().mapWith( mapProperty )
 		    .andThen(onto.listNamedClasses().mapWith( mapClass ))
-		    .andThen(onto.listIndividuals().mapWith( mapInd )).toSet()),
-		    this);
+		    .andThen(onto.listIndividuals().mapWith( mapInd )).toSet()));
     }
 
     public Set<Individual> getIndividuals() {
-	return new EntityFilter<Individual>(onto.listIndividuals().toSet(),this);
+	return getFilteredOrNot(onto.listIndividuals().toSet());
     }
 
     public Set<ObjectProperty> getObjectProperties() {
-	return new EntityFilter<ObjectProperty>(onto.listObjectProperties().toSet(),this);
+	return getFilteredOrNot(onto.listObjectProperties().toSet());
     }
 
     public Set<OntProperty> getProperties() {
-	return new EntityFilter<OntProperty>(onto.listAllOntProperties().toSet(),this);
+	return getFilteredOrNot(onto.listAllOntProperties().toSet());
 	/*return getEntitySet( onto.listAllOntProperties().filterDrop( new Filter () {
 		public boolean accept( Object o ) { return (o instanceof AnnotationProperty); }
 	    }) );*/
@@ -308,7 +323,10 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
     public Set<OntProperty> getDataProperties(Object c, int local, int asserted, int named) {
 	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this) {
 	    protected boolean isFiltered(OntProperty obj) {
-		return super.isFiltered(obj) && !obj.isDatatypeProperty();
+		if (JENAOntology.this.onlyLocalEntities)
+		    return super.isFiltered(obj) && !obj.isDatatypeProperty();
+		else 
+		    return !obj.isDatatypeProperty();
 	    }
 	    
 	};
@@ -329,12 +347,15 @@ public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoaded
     public Set<OntProperty> getObjectProperties(Object c, int local, int asserted, int named) {
 	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this) {
 	    protected boolean isFiltered( OntProperty obj ) {
-		return super.isFiltered(obj) && !obj.isObjectProperty();
+		if (JENAOntology.this.onlyLocalEntities)
+		    return super.isFiltered(obj) && !obj.isObjectProperty();
+		else
+		    return !obj.isObjectProperty();
 	    }  
 	};
     }
     public Set<OntProperty> getProperties(Object c, int local, int asserted, int named) {
-	return new EntityFilter<OntProperty>( ((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet(),this);
+	return getFilteredOrNot(((OntClass) c).listDeclaredProperties(asserted==OntologyFactory.DIRECT).toSet());
     }
 
     public Set<? extends OntResource> getRange(Object p, int asserted) {

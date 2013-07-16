@@ -144,13 +144,27 @@ public abstract class OntologyFactory {
      * Encapsulate an ontology already in the environment
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology newOntology( Object onto ) throws OntowrapException;
+    public abstract LoadedOntology newOntology( Object onto , boolean onlyLocalEntities ) throws OntowrapException;
+    
+    public  LoadedOntology newOntology( Object onto ) throws OntowrapException {
+	return newOntology(onto,false);
+    }
+    
+    
 
     /**
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology loadOntology( URI uri ) throws OntowrapException;
+    public LoadedOntology loadOntology( URI uri ) throws OntowrapException {
+	return loadOntology(uri,true);
+    }
+    
+    /**
+     * Load an ontology, cache enabled
+     * These methods should rather be in a LoadableOntologyFactory
+     */
+    public abstract LoadedOntology loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException;
 
     /**
      * Load an ontology, cache enabled if true, disabled otherwise

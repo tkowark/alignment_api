@@ -50,7 +50,7 @@ public class SKOSLiteOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSLiteThesaurus loadOntology(URI uri) throws OntowrapException {
+    public SKOSLiteThesaurus loadOntology(URI uri, boolean onlyLocalEntities) throws OntowrapException {
 	SKOSLiteThesaurus onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
 	onto = cache.getOntology( uri );
@@ -66,7 +66,7 @@ public class SKOSLiteOntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public SKOSLiteThesaurus newOntology(Object m) throws OntowrapException {
+    public SKOSLiteThesaurus newOntology(Object m, boolean onlyLocalEntities) throws OntowrapException {
 	if ( m instanceof Model ) {
 	    SKOSLiteThesaurus onto = new SKOSLiteThesaurus((Model) m);
 	    onto.setFormalism( formalismId );

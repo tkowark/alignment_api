@@ -58,9 +58,9 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public OWLAPI3Ontology newOntology( Object ontology ) throws OntowrapException {
+    public OWLAPI3Ontology newOntology( Object ontology , boolean onlyLocalEntities) throws OntowrapException {
 	if ( ontology instanceof OWLOntology ) {
-	    OWLAPI3Ontology onto = new OWLAPI3Ontology();
+	    OWLAPI3Ontology onto = new OWLAPI3Ontology(onlyLocalEntities);
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( (OWLOntology)ontology );
@@ -74,7 +74,7 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public HeavyLoadedOntology loadOntology( URI uri ) throws OntowrapException {
+    public HeavyLoadedOntology loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException {
 	OWLAPI3Ontology onto = null;
 	//System.err.println( " Loading ontology "+uri );
 	// Cache seems to be implemented in API 3.0 anyway
@@ -108,7 +108,7 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	    oocex.printStackTrace();
 	    throw new OntowrapException("Cannot load " + uri, oocex );
 	}
-	onto = new OWLAPI3Ontology();
+	onto = new OWLAPI3Ontology(onlyLocalEntities);
 	onto.setFormalism( formalismId );
 	onto.setFormURI( formalismUri );
 	onto.setOntology( ontology );

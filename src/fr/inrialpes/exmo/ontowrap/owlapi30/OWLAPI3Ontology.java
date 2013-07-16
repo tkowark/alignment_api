@@ -62,25 +62,40 @@ import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
 public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements HeavyLoadedOntology<OWLOntology> {
     
-    public OWLAPI3Ontology() {
+    private boolean onlyLocalEntities=true;
+    public OWLAPI3Ontology(boolean onlyLocalEntities) {
+	this.onlyLocalEntities=onlyLocalEntities;
     }
 
+    private <K> Set<K> getFilteredOrNot(Set<K> s) {
+	if (onlyLocalEntities)
+	    return new EntityFilter<K>(s,this);
+	else 
+	    return s;
+    }
+    
     public Set<? extends Object> getClasses() {
 	//return onto.getReferencedClasses();
 	//return onto.getClassesInSignature();
-	return new EntityFilter<OWLClass>(onto.getClassesInSignature(),this);
+	return getFilteredOrNot(onto.getClassesInSignature());
     }
 
     public Set<? extends Object> getDataProperties() {
-	return new EntityFilter<OWLDataProperty>(onto.getDataPropertiesInSignature(),this);
+	return getFilteredOrNot(onto.getDataPropertiesInSignature());
 	//return onto.getDataPropertiesInSignature();
     }
+    
+    
+    
 
     public Set<? extends Object> getEntities() {
 	//return onto.getSignature();
 	return new EntityFilter<OWLEntity>(onto.getSignature(),this) {
 	    protected final boolean isFiltered(OWLEntity obj) {
-		return super.isFiltered(obj) || obj instanceof OWLAnnotationProperty || obj instanceof OWLDatatype;
+		if (onlyLocalEntities)
+		    return super.isFiltered(obj) || obj instanceof OWLAnnotationProperty || obj instanceof OWLDatatype;
+		else
+		    return obj instanceof OWLAnnotationProperty || obj instanceof OWLDatatype;
 	    }  
 	};
     }
@@ -219,19 +234,23 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 
     public Set<? extends Object> getIndividuals() {
 	//return onto.getIndividualsInSignature();
-	return new EntityFilter<OWLNamedIndividual>(onto.getIndividualsInSignature(),this);
+	return getFilteredOrNot(onto.getIndividualsInSignature());
     }
 
     public Set<? extends Object> getObjectProperties() {
 	//System.err.println ( "ONTO: "+onto );
 	//return onto.getObjectPropertiesInSignature();
-	return new EntityFilter<OWLObjectProperty>(onto.getObjectPropertiesInSignature(),this);
+	return getFilteredOrNot(onto.getObjectPropertiesInSignature());
     }
 
     public Set<? extends Object> getProperties() {
 	return new EntityFilter<OWLEntity>(onto.getSignature(),this) {
 	    protected final boolean isFiltered(OWLEntity obj) {
-		return super.isFiltered(obj) || !(obj instanceof OWLObjectProperty || obj instanceof OWLDataProperty);
+		if (onlyLocalEntities)
+		    return super.isFiltered(obj) || !(obj instanceof OWLObjectProperty || obj instanceof OWLDataProperty);
+		else {
+		    return !(obj instanceof OWLObjectProperty || obj instanceof OWLDataProperty);
+		}
 	    }  
 	};
 	

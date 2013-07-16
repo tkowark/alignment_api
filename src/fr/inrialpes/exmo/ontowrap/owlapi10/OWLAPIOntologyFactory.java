@@ -56,7 +56,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	cache.clear();
     }
 
-    public OWLAPIOntology newOntology( Object ontology ) throws OntowrapException {
+    public OWLAPIOntology newOntology( Object ontology, boolean onlyLocalEntities ) throws OntowrapException {
 	if ( ontology instanceof OWLOntology ) {
 	    OWLAPIOntology onto = new OWLAPIOntology();
 	    onto.setFormalism( formalismId );
@@ -76,7 +76,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	}
     }
 
-    public OWLAPIOntology loadOntology( URI uri ) throws OntowrapException {
+    public OWLAPIOntology loadOntology( URI uri, boolean onlyLocalEntities) throws OntowrapException {
 	OWLAPIOntology onto = null;
 	onto = cache.getOntologyFromURI( uri );
 	if ( onto != null ) return onto;
