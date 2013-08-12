@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010, 2012
+ * Copyright (C) INRIA, 2008-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -61,10 +64,15 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
 public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements HeavyLoadedOntology<OWLOntology> {
+    final static Logger logger = LoggerFactory.getLogger( OWLAPI3Ontology.class );
     
-    private boolean onlyLocalEntities=true;
-    public OWLAPI3Ontology(boolean onlyLocalEntities) {
-	this.onlyLocalEntities=onlyLocalEntities;
+    private boolean onlyLocalEntities = true;
+
+    // default is true
+    public OWLAPI3Ontology() {}
+
+    public OWLAPI3Ontology( boolean onlyLocalEntities ) {
+	this.onlyLocalEntities = onlyLocalEntities;
     }
 
     private <K> Set<K> getFilteredOrNot(Set<K> s) {
@@ -128,10 +136,10 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 		}
 	    }
 	    else if (c instanceof IRI) {
-		//System.out.println(c.getClass()+ " : "+c);
+		// logger.trace( "{} : {}", c.getClass(), c );
 		IRI i = (IRI) c;
 		 OWLAnnotationProperty 	ann = OWLManager.getOWLDataFactory().getOWLAnnotationProperty(i);
-		 System.out.println(ann);
+		 logger.trace( ann.toString() );
 	    }
 	}
 	return annotations;
@@ -238,7 +246,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
     }
 
     public Set<? extends Object> getObjectProperties() {
-	//System.err.println ( "ONTO: "+onto );
+	// logger.trace( "ONTO: {}", onto );
 	//return onto.getObjectPropertiesInSignature();
 	return getFilteredOrNot(onto.getObjectPropertiesInSignature());
     }
