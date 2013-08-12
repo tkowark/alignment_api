@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.3 -- 2007
- * Copyright (C) INRIA, 2009-2012
+ * Copyright (C) INRIA, 2009-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +35,7 @@ import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -151,6 +152,30 @@ public class EDOALExportTest {
 	*/
 	AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
 	alignment.render( renderer );
+	writer.flush();
+	writer.close();
+	String str1 = stream.toString();
+	//System.err.println(str1);
+	assertEquals( str1.length(), 11623 );
+    }
+
+    // Use an alignment converted from URI
+    // This should be make working
+    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"testOWLRendering0"})
+    public void testOWLRendering2() throws Exception {
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	aparser.initAlignment( null );
+	Alignment alignment = aparser.parse( "file:examples/rdf/newsample.rdf" );
+	assertNotNull( alignment );
+	EDOALAlignment edoal = EDOALAlignment.toEDOALAlignment( (URIAlignment)alignment );
+	assertEquals( alignment.nbCells(), edoal.nbCells() );
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			      new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
+	edoal.render( renderer );
 	writer.flush();
 	writer.close();
 	String str1 = stream.toString();
