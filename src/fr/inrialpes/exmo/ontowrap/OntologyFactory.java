@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010-2012
+ * Copyright (C) INRIA, 2008, 2010-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,9 +28,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class OntologyFactory {
+    final static Logger logger = LoggerFactory.getLogger( OntologyFactory.class );
 
     public static final int ANY = 0;
     public static final int DIRECT = 1;
@@ -82,7 +86,7 @@ public abstract class OntologyFactory {
 		skos.add( "fr.inrialpes.exmo.ontowrap.skosapi.SKOSOntologyFactory" );
 
 	    } catch ( URISyntaxException uriex ) {
-		uriex.printStackTrace(); // should never occur
+		logger.debug( "IGNORED (should never happen)", uriex );
 	    }
 	}
 	return factories.get( formalism );
@@ -111,16 +115,16 @@ public abstract class OntologyFactory {
 	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor(cparams);
 	    Object[] mparams = {};
 	    of = (OntologyFactory)ofConstructor.newInstance(mparams);
-	} catch (ClassNotFoundException cnfex ) {
-	    cnfex.printStackTrace(); // better raise errors
-	} catch (NoSuchMethodException nsmex) {
-	    nsmex.printStackTrace();
-	} catch (InstantiationException ieex) {
-	    ieex.printStackTrace();
-	} catch (IllegalAccessException iaex) {
-	    iaex.printStackTrace();
-	} catch (InvocationTargetException itex) {
-	    itex.printStackTrace();
+	} catch ( ClassNotFoundException cnfex ) {
+	    logger.debug( "IGNORED Exception", cnfex ); // better raise errors
+	} catch ( NoSuchMethodException nsmex ) {
+	    logger.debug( "IGNORED Exception", nsmex );
+	} catch ( InstantiationException ieex ) {
+	    logger.debug( "IGNORED Exception", ieex );
+	} catch ( IllegalAccessException iaex ) {
+	    logger.debug( "IGNORED Exception", iaex );
+	} catch ( InvocationTargetException itex ) {
+	    logger.debug( "IGNORED Exception", itex );
 	}
 	instances.put( apiName, of );
 	return of;
@@ -147,24 +151,39 @@ public abstract class OntologyFactory {
     public abstract LoadedOntology newOntology( Object onto , boolean onlyLocalEntities ) throws OntowrapException;
     
     public  LoadedOntology newOntology( Object onto ) throws OntowrapException {
-	return newOntology(onto,false);
+	return newOntology( onto, false );
     }
-    
-    
 
     /**
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
     public LoadedOntology loadOntology( URI uri ) throws OntowrapException {
-	return loadOntology(uri,true);
+	// logger.trace( "loading URI: {}", uri );
+	return loadOntology( uri, true );
+    }
+    
+    /*
+     * Loads and ontology which is not loaded yet
+     */
+    public LoadedOntology loadOntology( Ontology onto ) throws OntowrapException {
+	// logger.trace( "loading Ontology: {}", onto );
+	try { // Try with URI
+	    return loadOntology( onto.getURI() );
+	} catch ( Exception ex ) {
+	    try { // Try with file
+		return loadOntology( onto.getFile() );
+	    } catch ( Exception ex2 ) {
+		throw new OntowrapException( "Cannot load ontology "+onto );
+	    }
+	}
     }
     
     /**
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException;
+    public abstract LoadedOntology loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException;
 
     /**
      * Load an ontology, cache enabled if true, disabled otherwise
