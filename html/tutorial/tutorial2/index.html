@@ -303,7 +303,6 @@ alignment selected at the previous exercise as a set of OWL axioms.
   // Load the reference alignment
   AlignmentParser aparser = new AlignmentParser(0);
   // Changed by Angel for Windows
-  //Alignment reference = aparser.parse( "file://"+(new File ( "../refalign.rdf" ) . getAbsolutePath()) );
   Alignment reference = aparser.parse( new File( "../refalign.rdf" ).toURI() );
 
   // Trim at various thresholds
