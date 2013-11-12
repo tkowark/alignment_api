@@ -239,7 +239,7 @@ $ java -jar ../../../lib/procalign.jar -i fr.inrialpes.exmo.align.impl.method.St
 
 <p><b>Other manipulations:</b> It is possible to invert an alignment with the following command:</p>
 <div class="terminal">
-$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:results/SMOA5.rdf -o results/AOMS5.rdf
+$ java -cp ../../../lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter -i file:results/SMOA5.rdf -o results/AOMS5.rdf
 </div>
 <p>See the output in <a href="results/AOMS5.rdf"><abbr>RDF</abbr>/<abbr>XML</abbr></a> or <a href="results/AOMS5.html"><abbr>HTML</abbr></a> (if rendered as before). The results is an alignment from the source to the target. Inverting alignment is only the exchange of the order of the elements in the alignment file. This can be useful when you have an alignment of <i>A</i> to <i>B</i>, an alignment from <i>C</i> to <i>B</i> and you want to go from <i>A</i> to <i>C</i>. The solution is then to invert the second alignment and to compose them.</p>
 
