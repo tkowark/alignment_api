@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011, 2013
+ * Copyright (C) INRIA, 2008-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -396,11 +396,11 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	eval.write( writer );
 	writer.flush();
 	writer.close();
-	assertEquals( eval.getPrecision(), 0.8732495020298934 );
+	assertEquals( eval.getPrecision(), 0.9140795712224283 );
 	assertEquals( eval.getRecall(), 1.0 );
-	assertEquals( eval.getNoise(), 0.12675049797010662 );
-	assertEquals( eval.getFmeasure(), 0.9323365639052582 );
-	assertEquals( eval.getOverall(), 0.8548519092476188 );
+	assertEquals( eval.getNoise(), 0.08592042877757167 );
+	assertEquals( eval.getFmeasure(), 0.9551113600137854 );
+	assertEquals( eval.getOverall(), 0.9060033376933831 );
     }
 
     @Test(groups = { "full", "impl", "raw" })

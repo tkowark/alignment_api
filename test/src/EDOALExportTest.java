@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.3 -- 2007
- * Copyright (C) INRIA, 2009-2013
+ * Copyright (C) INRIA, 2009-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -180,7 +180,7 @@ public class EDOALExportTest {
 	writer.close();
 	String str1 = stream.toString();
 	//System.err.println(str1);
-	assertEquals( str1.length(), 1372 );
+	assertEquals( str1.length(), 1315 );
     }
 
     @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods = {"testOWLRendering0"})

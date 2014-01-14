@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2013
+ * Copyright (C) INRIA, 2003-2004, 2007-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -118,6 +118,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
 	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
 	} else if ( align instanceof EDOALAlignment ) {
+	    alignment = align;
 	    edoal = true;
 	} else {
 	    try {

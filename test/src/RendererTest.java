@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2013
+ * Copyright (C) INRIA, 2009-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -139,7 +139,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 6868 ), "Rendered differently: expected "+6868+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 6818 ), "Rendered differently: expected "+6818+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -166,7 +166,8 @@ public class RendererTest {
 	oalignment.render( renderer ); // test error with alignment
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 33811 ), "Rendered differently: expected "+33811+" but was "+stream.toString().length() );
+	//System.err.println( stream.toString() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 33716 ), "Rendered differently: expected "+33716+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -193,7 +194,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 12638 ), "Rendered differently: expected "+12638+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 12588 ), "Rendered differently: expected "+12588+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
