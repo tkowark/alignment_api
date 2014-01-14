@@ -4,7 +4,7 @@
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Copyright (C) 2005 Digital Enterprise Research Insitute (DERI) Galway
  * Sourceforge version 1.6 - 2008 - then OmwgElement
- * Copyright (C) INRIA, 2008-2010, 2012
+ * Copyright (C) INRIA, 2008-2010, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -211,14 +211,18 @@ public enum SyntaxElement {
      * @throws NullPointerException
      *             if the string is null
      */
-    public static SyntaxElement getElementByName(final String s) {
-	if (s == null) {
-	    throw new NullPointerException("The string must not be null");
-	}
+    public static SyntaxElement getElementByName( final String s ) {
+	if ( s == null ) throw new NullPointerException("The string must not be null");
 	for ( SyntaxElement e : SyntaxElement.values() ) {
-	    if ( s.equals( e.getName() ) ) {
-		return e;
-	    }
+	    if ( s.equals( e.getName() ) ) return e;
+	}
+	return null;
+    }
+    
+    public static SyntaxElement getSyntaxElement( final Namespace ns, final String s ) {
+	if ( s == null ) throw new NullPointerException("The string must not be null");
+	for ( SyntaxElement e : SyntaxElement.values() ) {
+	    if ( ns == e.getNamespace() && s.equals( e.getName() ) ) return e;
 	}
 	return null;
     }

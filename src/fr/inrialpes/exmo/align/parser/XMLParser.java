@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2013
+ * Copyright (C) INRIA, 2003-2005, 2007-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -330,9 +330,6 @@ public class XMLParser extends DefaultHandler {
 		curronto = onto1;
 	    } else if (pName.equals("uri2")) { // Legacy
 	    } else if (pName.equals("uri1")) { // Legacy
-	    } else if (pName.equals( SyntaxElement.TYPE.name )) {
-	    } else if (pName.equals( SyntaxElement.LEVEL.name )) {
-	    } else if (pName.equals( SyntaxElement.XML.name )) {
 	    } else if (pName.equals( SyntaxElement.ALIGNMENT.name )) {
 		alignLevel = parseLevel;
 		parseLevel = 2; // for embeded (RDF is usually 1)
@@ -344,7 +341,9 @@ public class XMLParser extends DefaultHandler {
 		    alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, about );
 		};
 	    } else {
-		logger.warn( "Unknown element name : {}", pName );
+		// This should avoid all the stuff before
+		if ( SyntaxElement.getSyntaxElement( Namespace.ALIGNMENT, pName ) == null )
+		    logger.warn( "Unknown element name : {}", pName );
 	    };
 	} else if ( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
