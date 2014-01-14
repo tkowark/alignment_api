@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.align.impl.aggr;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
@@ -54,6 +57,7 @@ import fr.inrialpes.exmo.align.impl.BasicAlignment;
  */
 
 public class ConsensusAggregator extends BasicAlignment {
+    final static Logger logger = LoggerFactory.getLogger( ConsensusAggregator.class );
 
     int nbAlignments = 0;
     Hashtable<Cell, CountCell> count;
@@ -144,7 +148,7 @@ public class ConsensusAggregator extends BasicAlignment {
 		}
 	    }
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.debug( "IGNORED Exception", ex );
 	}
 	return null;
     }

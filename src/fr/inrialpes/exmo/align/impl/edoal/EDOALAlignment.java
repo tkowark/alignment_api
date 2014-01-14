@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.6 - 2008 - was OMWGAlignment
- * Copyright (C) INRIA, 2007-2012
+ * Copyright (C) INRIA, 2007-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,12 +29,16 @@ import java.util.Collection;
 import java.util.Set;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
+import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
@@ -56,6 +60,7 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
  * 
  */
 public class EDOALAlignment extends BasicAlignment {
+    final static Logger logger = LoggerFactory.getLogger( EDOALAlignment.class );
 
     /*
      * An eventual initial alignment
@@ -82,20 +87,13 @@ public class EDOALAlignment extends BasicAlignment {
     public void init( Object onto1, Object onto2 ) throws AlignmentException {
     	if ( (onto1 == null) || (onto2 == null) )
 	    throw new AlignmentException("The source and target ontologies must not be null");
-	if ( (onto1 instanceof Ontology && onto2 instanceof Ontology) ){
-	    super.init( onto1, onto2 );
-	} 
-	else if ((onto1 instanceof URI && onto2 instanceof URI)) {
-	    OntologyFactory fact = OntologyFactory.getFactory();
-	    try {
-		super.init(fact.loadOntology((URI) onto1), fact.loadOntology((URI) onto2));
-	    } catch (OntowrapException e) {
-		throw new AlignmentException("Could not load ontologies",e);
-	    }
-	}
-	else {
-	    throw new AlignmentException("arguments must be LoadedOntology or deferencable URIs");
-	};
+	Ontology o1 = null;
+	if ( onto1 instanceof Ontology ) o1 = (Ontology)onto1;
+	else o1 = loadOntology( (URI)onto1 );
+	Ontology o2 = null;
+	if ( onto2 instanceof Ontology ) o2 = (Ontology)onto2;
+	else o2 = loadOntology( (URI)onto2 );
+	super.init( o1, o2 );
     }
 
     public void loadInit( Alignment al ) throws AlignmentException {
@@ -259,30 +257,61 @@ public class EDOALAlignment extends BasicAlignment {
     // It would be better to implement this for ObjectAlignment
     // and to use return toEDOALAlignment( ObjectAlignment.toObjectAlignment( al ) );
     // for URIAlignment
+    //
+    // Basic -> URI
+    //       -> Object
+    //       -> EDOAL
+    public static LoadedOntology loadOntology( URI onto ) throws AlignmentException {
+	if ( onto == null ) throw new AlignmentException("The source and target ontologies must not be null");
+	try {
+	    OntologyFactory fact = OntologyFactory.getFactory();
+	    return fact.loadOntology( onto );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot load ontologies", owex );
+	}
+    }
+    public static LoadedOntology loadOntology( Ontology onto ) throws AlignmentException {
+	if ( onto == null ) throw new AlignmentException("The source and target ontologies must not be null");
+	if ( onto instanceof LoadedOntology ) return (LoadedOntology)onto;
+	try {
+	    OntologyFactory fact = OntologyFactory.getFactory();
+	    return fact.loadOntology( onto );
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Cannot load ontologies", owex );
+	}
+    }
+
     public static EDOALAlignment toEDOALAlignment( URIAlignment al ) throws AlignmentException {
 	return toEDOALAlignment( (BasicAlignment)al );
     }
     public static EDOALAlignment toEDOALAlignment( ObjectAlignment al ) throws AlignmentException {
-	return toEDOALAlignment( (BasicAlignment)al );
+	logger.debug( "Converting ObjectAlignment to EDOALAlignment" );
+	EDOALAlignment alignment = new EDOALAlignment();
+	// They are obviously loaded
+	alignment.init( al.getOntologyObject1(), al.getOntologyObject2() );
+	alignment.convertToEDOAL( al );
+	return alignment;
     }
     public static EDOALAlignment toEDOALAlignment( BasicAlignment al ) throws AlignmentException {
+	logger.debug( "Converting BasicAlignment to EDOALAlignment" );
 	EDOALAlignment alignment = new EDOALAlignment();
-	try {
-	    alignment.init( al.getFile1(), al.getFile2() );
-	} catch ( AlignmentException aex ) {
-	    try { // Really a friendly fallback
-		alignment.init( al.getOntology1URI(), al.getOntology2URI() );
-	    } catch ( AlignmentException xx ) {
-		throw aex;
-	    }
-	}
-	alignment.setType( al.getType() );
-	alignment.setExtensions( al.convertExtension( "EDOALConverted", "fr.inrialpes.exmo.align.edoal.EDOALAlignment#toEDOAL" ) );
-	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
-	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
+	LoadedOntology onto1 = loadOntology( al.getOntologyObject1() );
+	LoadedOntology onto2 = loadOntology( al.getOntologyObject2() );
+	alignment.init( onto1, onto2 );
+	alignment.convertToEDOAL( al );
+	return alignment;
+    }
+    /**
+     * The EDOALAlignment has LoadedOntologies as ontologies
+     */
+    public void convertToEDOAL( BasicAlignment al ) throws AlignmentException {
+	setType( al.getType() );
+	setExtensions( al.convertExtension( "toEDOAL", "fr.inrialpes.exmo.align.edoal.EDOALAlignment#toEDOAL" ) );
+	LoadedOntology<Object> o1 = (LoadedOntology<Object>)getOntologyObject1(); // [W:unchecked]
+	LoadedOntology<Object> o2 = (LoadedOntology<Object>)getOntologyObject2(); // [W:unchecked]
 	for ( Cell c : al ) {
 	    try {
-		Cell newc = alignment.addAlignCell( c.getId(), 
+		Cell newc = addAlignCell( c.getId(), 
 			       createEDOALExpression( o1, c.getObject1AsURI( al ) ),
 			       createEDOALExpression( o2, c.getObject2AsURI( al ) ),
 			       c.getRelation(), 
@@ -294,12 +323,11 @@ public class EDOALAlignment extends BasicAlignment {
 		    }
 		}
 	    } catch ( AlignmentException aex ) {
-		aex.printStackTrace(); // continue to concert the rest
+		logger.debug( "IGNORED Exception (continue importing)", aex );
 	    } catch ( OntowrapException owex ) {
 		throw new AlignmentException( "Cannot dereference entity", owex );
 	    }
 	}
-	return alignment;
     }
 
     private static Id createEDOALExpression( LoadedOntology<Object> o, URI u ) throws OntowrapException, AlignmentException {
@@ -312,7 +340,7 @@ public class EDOALAlignment extends BasicAlignment {
 	    return new RelationId( u );
 	} else if ( o.isIndividual( e ) ) {
 	    return new InstanceId( u );
-	} else throw new AlignmentException( "Cannot interpret URI" );
+	} else throw new AlignmentException( "Cannot interpret URI "+u );
     }
 
 
@@ -335,7 +363,9 @@ public class EDOALAlignment extends BasicAlignment {
 	align.setExtensions( convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
 	try {
 	    align.ingest( this );
-	} catch (AlignmentException ex) { ex.printStackTrace(); }
+	} catch (AlignmentException ex) { 
+	    logger.debug( "IGNORED Exception", ex );
+	}
 	return align;
     }
 

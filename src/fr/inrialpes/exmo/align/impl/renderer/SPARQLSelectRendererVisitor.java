@@ -80,7 +80,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
 	    }
 	}
-	for( Cell c : align ){ c.accept( this ); };    	
+	for( Cell c : alignment ){ c.accept( this ); };    	
     }	
 
     public void visit( Cell cell ) throws AlignmentException {

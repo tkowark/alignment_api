@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -39,6 +39,9 @@ import java.util.Vector;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Compute the precision recall graph on 11 points
  *
@@ -65,6 +68,7 @@ import java.net.URI;
  */
 
 public class PRGraphEvaluator extends GraphEvaluator {
+    final static Logger logger = LoggerFactory.getLogger( PRGraphEvaluator.class );
 
     private int STEP = 10;
 
@@ -105,7 +109,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	int nbcorrect = 0;
 	int nbfound = 0;
 	int increment = (STEP*nbexpected)/100; // 2010 should be computed with the total expected (in negrapheval)
-	//System.err.println(" INCREMENT SET "+increment );
+	//logger.trace(" INCREMENT SET {}", increment );
 	int next = 0;
 	points.add( new Pair( 0., 1. ) ); // [R=0%]
 	next += increment;
@@ -148,7 +152,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	int nbfound = 0;
 	int increment = (STEP*nbexpected)/100; // 2010 should be computed with the total expected (in negrapheval)
 	Vector<Pair> inflexion = new Vector<Pair>();
-	//System.err.println(" INCREMENT SET "+increment );
+	//logger.trace(" INCREMENT SET {}", increment );
 	int next = 0;
 	// Collect the points that change recall
 	// (the other provide lower precision from the same recall and are not considered)
@@ -181,7 +185,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 	// It works backward in the vector,
 	//  (in the same spirit as before, the maximum value so far -best- is retained)
 	int j = inflexion.size()-1; // index in recall-ordered vector of points
-	//System.err.println( "Inflexion: "+j);
+	//logger.trace( "Inflexion: {}", j);
 	int i = STEP; // index of the current recall interval
 	double level = (double)i/STEP; // max level of that interval
 	double best = 0.; // best value found for that interval
@@ -199,7 +203,7 @@ public class PRGraphEvaluator extends GraphEvaluator {
 
 	for( i = 0; i <= STEP; i++ ) {
 	    // JE: better with j/10
-	    //System.err.println( "  prec at "+j+" : "+precisions[j] );
+	    //logger.trace( "  prec at {} : {}", j, precisions[j] );
 	    points.add( new Pair( ((double)i)/10, precisions[i] ) );
 	}
 

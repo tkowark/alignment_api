@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010
+ * Copyright (C) INRIA, 2008-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.ontowrap.skoslite;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hp.hpl.jena.rdf.model.Model;
 
 import fr.inrialpes.exmo.ontowrap.OntologyCache;
@@ -30,6 +33,7 @@ import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class SKOSLiteOntologyFactory extends OntologyFactory {
+    final static Logger logger = LoggerFactory.getLogger( SKOSLiteOntologyFactory.class );
 
     private URI formalismUri;
     private final static String formalismId = "SKOS1.0";
@@ -39,8 +43,7 @@ public class SKOSLiteOntologyFactory extends OntologyFactory {
 	try {
 	    formalismUri = new URI("http://www.w3.org/2004/02/skos/core#");
 	} catch (URISyntaxException e) {
-	    
-	    e.printStackTrace();
+	    logger.trace( "IGNORED: should never been raised", e );
 	}
     }
    

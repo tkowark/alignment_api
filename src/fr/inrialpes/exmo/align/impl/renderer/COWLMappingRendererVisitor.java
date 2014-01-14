@@ -93,7 +93,7 @@ public class COWLMappingRendererVisitor extends GenericReflectiveVisitor impleme
 	writer.print("    <cowl:targetOntology>\n");
 	writer.print("      <owl:Ontology rdf:about=\""+onto2.getURI()+"\"/>\n");
 	writer.print("    </cowl:targetOntology>\n");
-	for( Cell c : align ){
+	for( Cell c : alignment ){
 	    c.accept( this );
 	} //end for
 	writer.print("  </cowl:Mapping>\n");

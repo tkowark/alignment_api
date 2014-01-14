@@ -18,14 +18,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
-*/
 package fr.inrialpes.exmo.align.cli;
 
-//Imported JAVA classes
 import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 
 import java.io.File;
@@ -37,8 +35,13 @@ import java.io.OutputStreamWriter;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -64,7 +67,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
         --inverse -i              Inverse first and second ontology
 	--threshold=threshold -t threshold      Trim the alugnment with regard to threshold
 	--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span      Method to use for triming
-        --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --help -h                       Print this message
     </pre>
@@ -79,7 +81,19 @@ $Id$
 
     */
 
-public class ParserPrinter {
+public class ParserPrinter extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( ParserPrinter.class );
+
+    public ParserPrinter() {
+	super();
+	options.addOption( "i", "inverse", false, "Inverse first and second ontology" );
+	options.addOption( "e", "embedded", false, "Read the alignment as embedded in a XML file" );
+	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for rendering" ).withArgName("CLASS").create( 'r' ) );
+	options.addOption( OptionBuilder.withLongOpt( "parser" ).hasArg().withDescription( "Use the given CLASS for parsing" ).withArgName("CLASS").create( 'p' ) );
+	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
+	options.addOption( OptionBuilder.withLongOpt( "cutmethod" ).hasArg().withDescription( "Method to use for triming (hard|perc|prop|best|span)" ).withArgName("METHOD").create( 'T' ) );
+	options.addOption( OptionBuilder.withLongOpt( "outputDir" ).hasArg().withDescription( "Split the output in a DIRectory (SPARQL)" ).withArgName("DIR").create( 'w' ) );
+    }
 
     public static void main(String[] args) {
 	try { new ParserPrinter().run( args ); }
@@ -89,118 +103,57 @@ public class ParserPrinter {
     public void run(String[] args) throws Exception {
 	Alignment result = null;
 	String initName = null;
-	String filename = null;
 	String dirName = null;
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
-	LongOpt[] longopts = new LongOpt[11];
-	int debug = 0;
 	String rendererClass = null;
 	String parserClass = null;
 	boolean inverse = false;	
 	boolean embedded = false;	
 	double threshold = 0;
 	String cutMethod = "hard";
-	Properties params = new Properties();
 
-	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[4] = new LongOpt("parser", LongOpt.REQUIRED_ARGUMENT, null, 'p');
-	longopts[5] = new LongOpt("inverse", LongOpt.NO_ARGUMENT, null, 'i');
-	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
-	longopts[8] = new LongOpt("embedded", LongOpt.NO_ARGUMENT, null, 'e');
-	longopts[9] = new LongOpt("dirName", LongOpt.REQUIRED_ARGUMENT, null, 'c');
-	// Is there a way for that in LongOpt ???
-	longopts[10] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-	
-	Getopt g = new Getopt("", args, "ehio:t:T:d::r:p:c:D:", longopts);
-	int c;
-	String arg;
+	try { 
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
 
-	while ((c = g.getopt()) != -1) {
-	    switch(c) {
-	    case 'h':
+	    // Here deal with command specific arguments	    
+	    if ( line.hasOption( 'i' ) ) inverse = true;
+	    if ( line.hasOption( 'e' ) ) embedded = true;
+	    if ( line.hasOption( 'c' ) ) dirName = line.getOptionValue( 'c' );
+	    if ( line.hasOption( 'r' ) ) rendererClass = line.getOptionValue( 'r' );
+	    if ( line.hasOption( 'p' ) ) parserClass = line.getOptionValue( 'p' );
+	    if ( line.hasOption( 't' ) ) threshold = Double.parseDouble(line.getOptionValue( 't' ));
+	    if ( line.hasOption( 'T' ) ) cutMethod = line.getOptionValue( 'T' );
+	    String[] argList = line.getArgs();
+	    if ( argList.length > 0 ) {
+		initName = argList[0];
+	    } else {
+		logger.error("Require the alignement filename");
 		usage();
-		return;
-	    case 'i':
-		inverse = true;
-		break;
-	    case 'e':
-		embedded = true;
-		break;
-	    case 'o':
-		/* Write warnings to stdout rather than stderr */
-		filename = g.getOptarg();
-		break;
-	    case 'c':
-		dirName = g.getOptarg();
-		break;
-	    case 'r':
-		/* Use the given class for rendernig */
-		rendererClass = g.getOptarg();
-		break;
-	    case 'p':
-		/* Use the given class for rendernig */
-		parserClass = g.getOptarg();
-		break;
-	    case 't' :
-		/* Threshold */
-		threshold = Double.parseDouble(g.getOptarg());
-		break;
-	    case 'T' :
-		/* Cut method */
-		cutMethod = g.getOptarg();
-		break;
-	    case 'd':
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'D' :
-		/* Parameter definition */
-		arg = g.getOptarg();
-		int index = arg.indexOf('=');
-		if ( index != -1 ) {
-		    params.setProperty( arg.substring( 0, index), 
-					 arg.substring(index+1));
-		} else {
-		    System.err.println("Bad parameter syntax: "+g);
-		    usage();
-		    System.exit(0);
-		}
-		break;
+		System.exit(-1);
 	    }
-	}
-	
-	int i = g.getOptind();
-	
-	if (args.length > i ) {
-	    initName = args[i];
-	} else {
-	    System.out.println("Require the alignement filename");
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
 	    usage();
-	    return;
+	    System.exit(-1);
 	}
 
-	if ( debug > 1 ) System.err.println(" Filename"+initName);
+	//logger.trace("Filename: {}", initName);
 
 	try {
 	    // Create parser
 	    AlignmentParser aparser = null;
-	    if ( parserClass == null ) aparser = new AlignmentParser( debug );
+	    if ( parserClass == null ) aparser = new AlignmentParser();
 	    else {
 		try {
-		    Object[] mparams = { (Object)debug };
-		    java.lang.reflect.Constructor[] parserConstructors =
-			Class.forName(parserClass).getConstructors();
-		    aparser = (AlignmentParser) parserConstructors[0].newInstance(mparams);
+		    Class[] cparams = {};
+		    java.lang.reflect.Constructor parserConstructor =
+			Class.forName(parserClass).getConstructor(cparams);
+		    Object[] mparams = {};
+		    aparser = (AlignmentParser) parserConstructor.newInstance(mparams);
 		} catch (Exception ex) {
-		    System.err.println("Cannot create parser " + 
-				       parserClass + "\n" + ex.getMessage() );
+		    logger.error("Cannot create parser {}", parserClass );
 		    usage();
 		    return;
 		}
@@ -208,22 +161,21 @@ public class ParserPrinter {
 
 	    aparser.setEmbedded( embedded );
 	    result = aparser.parse( initName );
-	    if ( debug > 0 ) System.err.println(" Alignment structure parsed");
+	    logger.debug(" Alignment structure parsed");
 	    // Set output file
 	    OutputStream stream;
-	    if (filename == null) {
+	    if ( outputfilename == null ) {
 		//writer = (PrintStream) System.out;
 		stream = System.out;
-	    }
-	    else {
-		//writer = new PrintStream(new FileOutputStream(filename));
-		stream = new FileOutputStream(filename);
+	    } else {
+		//writer = new PrintStream(new FileOutputStream(outputfilename));
+		stream = new FileOutputStream( outputfilename );
 	    }
 	    if ( dirName != null ) {
 	    	 File f = new File(dirName);
 		 f.mkdir();
-		 params.setProperty( "dir", dirName );
-		 params.setProperty( "split", "true" );
+		 parameters.setProperty( "dir", dirName );
+		 parameters.setProperty( "split", "true" );
 	    }
 	    writer = new PrintWriter (
 			  new BufferedWriter(
@@ -239,19 +191,19 @@ public class ParserPrinter {
 	    else {
 		try {
 		    Object[] mparams = {(Object) writer };
+		    // JE: Not terrible: use the right constructor
 		    java.lang.reflect.Constructor[] rendererConstructors =
 			Class.forName(rendererClass).getConstructors();
 		    renderer =
 			(AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
 		} catch (Exception ex) {
-		    System.err.println("Cannot create renderer " + 
-				       rendererClass + "\n" + ex.getMessage() );
+		    logger.error( "Cannot create renderer {}", rendererClass );
 		    usage();
 		    return;
 		}
 	    }
 
-	    renderer.init( params );
+	    renderer.init( parameters );
 
 	    // Render the alignment
 	    try {
@@ -264,27 +216,11 @@ public class ParserPrinter {
 	    }	    
 	    
 	} catch (Exception ex) {
-	    ex.printStackTrace();
+	    logger.debug( "IGNORED Exception", ex );
 	}
     }
 
     public void usage() {
-	System.out.println("usage: ParserPrinter [options] URI");
-	System.out.println("options are:");
-	//System.out.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level ,");
-	System.out.println("\t--renderer=className -r\t\tUse the given class for output.");
-	System.out.println("\t--parser=className -p\t\tUse the given class for input.");
-	System.out.println("\t--embedded -e\t\tRead the alignment as embedded in XML file");
-	System.out.println("\t--inverse -i\t\tInverse first and second ontology");
-	System.out.println("\t--threshold=threshold -t threshold\t\tTrim the alugnment with regard to threshold");
-	System.out.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\t\tMethod to use for triming");
-	System.out.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.out.println("\t--outputDir=dirName -c dirName\tSplit the output in a directory (SPARQL)");
-	System.out.println("\t--help -h\t\t\tPrint this message");
-	System.err.println("\t-Dparam=value\t\t\tSet parameter");
-	System.err.print("\n"+ParserPrinter.class.getPackage().getImplementationTitle()+" "+ParserPrinter.class.getPackage().getImplementationVersion());
-	System.err.println(" ($Id$)\n");
-
+	usage( "java "+this.getClass().getName()+" [options] alignfile\nParse the given <alignfile> and prints it" );
     }
 }

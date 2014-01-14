@@ -1,7 +1,7 @@
 /*
  * $Id: OWLAPIAnnotIt.java 896 2008-11-25 14:45:46Z jdavid $
  *
- * Copyright (C) INRIA, 2007-2008, 2010
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.ontowrap.owlapi10;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.model.OWLAnnotationInstance;
 import org.semanticweb.owl.model.OWLDataValue;
 import org.semanticweb.owl.model.OWLEntity;
@@ -36,6 +39,7 @@ import org.semanticweb.owl.model.OWLOntology;
  *
  */
 public class OWLAPIAnnotIt implements Iterator<String> {
+    final static Logger logger = LoggerFactory.getLogger( OWLAPIAnnotIt.class );
 
 	/*private OWLOntology o;
 	private OWLEntity e;*/
@@ -80,7 +84,7 @@ public class OWLAPIAnnotIt implements Iterator<String> {
             			}
         		}
         	    } catch (OWLException e) {
-        		e.printStackTrace();
+        		logger.debug( "IGNORED Exception", e );
         		currentElem=null;
         	    }
 	    }

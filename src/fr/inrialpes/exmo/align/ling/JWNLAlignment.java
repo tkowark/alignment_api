@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,12 +32,17 @@ import org.semanticweb.owl.align.AlignmentException;
 import java.util.Properties;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This Class uses JWNLDistances to align two ontologies.
  * @version $Id$
  */
 
 public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( JWNLAlignment.class );
+
     final static String WNVERS = "3.0";
 
     final static int BASICSYNDIST = 0;
@@ -93,7 +98,7 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	    return measure( pr1, pr2 );
 	}
 	public double individualMeasure( Object id1, Object id2 ) throws Exception {
-	    if ( debug > 4 ) System.err.println( "ID:"+id1+" -- "+id2);
+	    //logger.trace( "ID: {} -- {}", id1, id2 );
 	    return measure( id1, id2 );
 	}
     }

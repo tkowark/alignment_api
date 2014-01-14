@@ -28,6 +28,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.model.OWLException;
 import org.semanticweb.owl.model.OWLOntology;
 import org.semanticweb.owl.util.OWLConnection;
@@ -40,6 +43,7 @@ import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class OWLAPIOntologyFactory extends OntologyFactory {
+    final static Logger logger = LoggerFactory.getLogger( OWLAPIOntologyFactory.class );
 
     private static URI formalismUri = null;
     private static String formalismId = "OWL1.0";
@@ -49,7 +53,9 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 	cache = new OntologyCache<OWLAPIOntology>();
 	try {
 	    formalismUri = new URI("http://www.w3.org/2002/07/owl#");
-	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
+	} catch (URISyntaxException ex) { 
+	    logger.debug( "IGNORED should never happen", ex ); 
+	}
     };
 
     public void clearCache() throws OntowrapException {
@@ -67,7 +73,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 		onto.setURI( ((OWLOntology)ontology).getLogicalURI() );
 	    } catch (OWLException e) {
 		// Better put in the OntowrapException of loaded
-		e.printStackTrace();
+		logger.debug( "IGNORED (ontology without URI)", e );
 	    }
 	    //cache.recordOntology( uri, onto );
 	    return onto;
@@ -99,7 +105,7 @@ public class OWLAPIOntologyFactory extends OntologyFactory {
 		onto.setURI( ontology.getLogicalURI() );
 	    } catch (OWLException e) {
 		// Better put in the OntowrapException of loaded
-		e.printStackTrace();
+		logger.debug( "IGNORED Exception", e );
 	    }
 	    cache.recordOntology( uri, onto );
 	    return onto;

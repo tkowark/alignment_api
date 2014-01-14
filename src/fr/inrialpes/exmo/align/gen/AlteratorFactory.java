@@ -1,7 +1,7 @@
 /**
  * $Id$
  *
- * Copyright (C) INRIA, 2011
+ * Copyright (C) INRIA, 2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,10 +23,13 @@ package fr.inrialpes.exmo.align.gen;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class AlteratorFactory {
+    final static Logger logger = LoggerFactory.getLogger( AlteratorFactory.class );
 
     // The parameter Ids should be here
     //public static final int ANY = 0;
@@ -35,7 +38,7 @@ public class AlteratorFactory {
     private static Map<String,String> alterators = null;
 
     public static Alterator newInstance( String id, Alterator om ) {
-	//System.err.println( ">>>>>>>> "+id );
+	//logger.trace( ">>>>>>>> {}", id );
 	if ( alterators == null ) init();
 	String classname = alterators.get( id );
 	Alterator alt = null;
@@ -48,15 +51,15 @@ public class AlteratorFactory {
 		Object[] mparams = { om };
 		alt = (Alterator)altConstructor.newInstance(mparams);
 	    } catch (ClassNotFoundException cnfex ) {
-		cnfex.printStackTrace(); // better raise errors
+		logger.debug( "IGNORED Exception", cnfex ); // better raise errors
 	    } catch (NoSuchMethodException nsmex) {
-		nsmex.printStackTrace();
+		logger.debug( "IGNORED Exception", nsmex );
 	    } catch (InstantiationException ieex) {
-		ieex.printStackTrace();
+		logger.debug( "IGNORED Exception", ieex );
 	    } catch (IllegalAccessException iaex) {
-		iaex.printStackTrace();
+		logger.debug( "IGNORED Exception", iaex );
 	    } catch (InvocationTargetException itex) {
-		itex.printStackTrace();
+		logger.debug( "IGNORED Exception", itex );
 	    }
 	}
 	return alt;
@@ -151,7 +154,7 @@ public class AlteratorFactory {
 	/*
         for( String key : params.stringPropertyNames() ) {
             String value = params.getProperty(key);
-	    //if ( debug ) System.out.println( "[" +key + "] => [" + value + "]");
+	    //logger.trace( "[{}] = [{}]", key, value );
 	    modifier.modifyOntology( key, value );					//modify the ontology according to it
         }
 	*/

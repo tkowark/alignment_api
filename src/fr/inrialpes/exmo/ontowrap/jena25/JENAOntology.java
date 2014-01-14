@@ -55,11 +55,11 @@ import fr.inrialpes.exmo.ontowrap.util.EntityFilter;
 
 public class JENAOntology extends BasicOntology<OntModel> implements HeavyLoadedOntology<OntModel>{
 
-    private boolean onlyLocalEntities=true;
+    private boolean onlyLocalEntities = true;
     // JE: this is not very Java 1.5...
     // This is because of the version of Jena we use apparently
     
-    
+    public JENAOntology() {} // default is true
 
     public JENAOntology(boolean onlyLocalEntities) {
 	this.onlyLocalEntities=onlyLocalEntities;

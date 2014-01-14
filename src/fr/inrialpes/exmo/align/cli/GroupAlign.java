@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003 The University of Manchester
- * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2008, 2010-2013 INRIA
+ * Copyright (C) 2003-2008, 2010-2014 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +20,6 @@
  * USA.
  */
 
-/* This program evaluates the results of several ontology aligners in a row.
-*/
 package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
@@ -38,7 +34,6 @@ import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -51,8 +46,14 @@ import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 /** A batch class for an OWL ontology alignment processing.
     It aligns all the ontology pairs denoted 
@@ -69,31 +70,36 @@ import gnu.getopt.Getopt;
 	--name=filename -n filename output results in filename.rdf
 	--impl=className -i classname           Use the given alignment implementation.
 	--renderer=className -r className       Specifies the alignment renderer
-	--debug=level -d level
    </pre>
 
 <pre>
 $Id$
 </pre>
+*/
 
-@author Sean K. Bechhofer
-@author Jérôme Euzenat
-    */
+public class GroupAlign extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( GroupAlign.class );
 
-public class GroupAlign {
-
-    Properties params = null;
-    String filename = "align";
-    String paramfile = null;
     String urlprefix = null;
     String source = "onto1.rdf";
     String target = "onto.rdf";
     URI uri1 = null;
     String initName = null;
-    int debug = 0;
     String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
     String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
     String ontoDir = null;
+
+    public GroupAlign() {
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use an initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
+	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for rendering" ).withArgName("CLASS").create( 'r' ) );
+	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given Alignment implementation" ).withArgName("CLASS").create( 'i' ) );
+	options.addOption( OptionBuilder.withLongOpt( "name" ).hasArg().withDescription( "Use the given URI as common source ontology" ).withArgName("URI").create( 'n' ) );
+	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "URI prefix of the target" ).withArgName("URI").create( 'u' ) );
+	options.addOption( OptionBuilder.withLongOpt( "source" ).hasArg().withDescription( "Source ontology FILEname (default "+source+")" ).withArgName("FILE").create( 's' ) );
+	options.addOption( OptionBuilder.withLongOpt( "target" ).hasArg().withDescription( "Target ontology FILEname (default "+target+")" ).withArgName("FILE").create( 't' ) );
+	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
+    }
 
     public static void main(String[] args) {
 	try { new GroupAlign().run( args ); }
@@ -102,109 +108,32 @@ public class GroupAlign {
 
     public void run(String[] args) throws Exception {
 
-	LongOpt[] longopts = new LongOpt[13];
-	params = new Properties();
+	try { 
+	    outputfilename = "align";
 
-	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-	longopts[6] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
-	longopts[7] = new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, 'n');
-	longopts[8] = new LongOpt("prefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	longopts[9] = new LongOpt("source", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[10] = new LongOpt("target", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	// Is there a way for that in LongOpt ???
-	longopts[11] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-	longopts[12] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
 
-	Getopt g = new Getopt("", args, "ho:a:d::n:u:r:i:s:t:p:D:w:", longopts);
-	int c;
-	String arg;
+	    // Here deal with command specific arguments
 
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h' :
-		usage();
-		return;
-	    case 'o' :
-		/* Write output in given filename */
-		filename = g.getOptarg();
-		break;
-	    case 'n' :
-		arg = g.getOptarg();
-		/* Use common ontology to compare */
-		if(arg!=null){
-		    try { uri1 = new URI(g.getOptarg());
-		    } catch (Exception e) { e.printStackTrace(); }
+	    if ( line.hasOption( 'n' ) ) {
+		try { uri1 = new URI( line.getOptionValue('n') );
+		} catch ( Exception e ) { 
+		    logger.debug( "IGNORED Exception (cannot create source URI)", e );
 		}
-		else{uri1 = null;}
-		break;
-	    case 'p' :
-		/* Read parameters from filename */
-		paramfile = g.getOptarg();
-		params.loadFromXML( new FileInputStream( paramfile ) );
-		break;
-	    case 'r' :
-		/* Use the given class for rendering */
-		rendererClass = g.getOptarg();
-		break;
-	    case 'i' :
-		/* Use the given class for the alignment */
-		alignmentClassName = g.getOptarg();
-		break;
-	    case 'a' :
-		/* Use the given file as a partial alignment */
-		initName = g.getOptarg();
-		break;
-	    case 'u' :
-		/* Use the given url prefix for fetching the ontologies */
-		urlprefix = g.getOptarg();
-		break;
-	    case 's' :
-		/* Use the given filename for source ontology */
-		source = g.getOptarg();
-		break;
-	    case 't' :
-		/* Use the given filename for target ontology */
-		target = g.getOptarg();
-		break;
-	    case 'D' :
-		/* Parameter definition */
-		arg = g.getOptarg();
-		int index = arg.indexOf('=');
-		if ( index != -1 ) {
-		    params.setProperty( arg.substring( 0, index), 
-					 arg.substring(index+1));
-		} else {
-		    System.err.println("Bad parameter syntax: "+g);
-		    usage();
-		    System.exit(0);
-		}
-		break;
-	    case 'd' :
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'w' :
-		/* Use the given ontology directory */
-	    arg = g.getOptarg();
-	    if ( arg != null ) ontoDir = g.getOptarg();
-	    else ontoDir = null;
-		break;
 	    }
+	    if ( line.hasOption( 'r' ) ) rendererClass = line.getOptionValue( 'r' );
+	    if ( line.hasOption( 'i' ) ) alignmentClassName = line.getOptionValue( 'i' );
+	    if ( line.hasOption( 'a' ) ) initName = line.getOptionValue( 'a' );
+	    if ( line.hasOption( 'u' ) ) urlprefix = line.getOptionValue( 'u' );
+	    if ( line.hasOption( 's' ) ) source = line.getOptionValue( 's' );
+	    if ( line.hasOption( 't' ) ) target = line.getOptionValue( 't' );
+	    if ( line.hasOption( 'w' ) ) ontoDir = line.getOptionValue( 'w' );
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
+	    usage();
+	    System.exit(-1);
 	}
-
-	//int i = g.getOptind();
-
-	if (debug == 0 && params.getProperty("debug") != null) {
-	    debug = Integer.parseInt(params.getProperty("debug"));
-	}
-	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	iterateDirectories();
     }
@@ -219,14 +148,14 @@ public class GroupAlign {
 			subdir = (new File(ontoDir)).listFiles();
 		}
 	} catch ( Exception e ) {
-	    System.err.println("Cannot stat dir "+ e.getMessage());
+	    logger.error( "Cannot stat dir", e );
 	    usage();
 	}
 	int size = subdir.length;
 	for ( int i=0 ; i < size; i++ ) {
 	    if( subdir[i].isDirectory() ) {
 		// Align
-		if ( debug > 0 ) System.err.println("Directory: "+subdir[i]);
+		//logger.trace("Directory: {}", subdir[i]);
 		align( subdir[i] );
 	    }
 	}
@@ -250,56 +179,56 @@ public class GroupAlign {
 	    // file://localhost/localpath
 	    // Apparently should be file:///c:/localpath
 	}
-	//System.err.println("Here it is "+prefix+" (end by /?)");
+	//logger.trace{}("Here it is {} (end by /?)", prefix );
 
 	try {
 	    if ( !source.equalsIgnoreCase("onto1.rdf") 
 		 && !target.equalsIgnoreCase("onto1.rdf") ) {
-		uri1 = new URI(prefix+source);
-	    } else if ( uri1 == null ) uri1 = new URI(prefix+source);
-	    URI uri2 = new URI(prefix+target);
+		uri1 = new URI( prefix+source );
+	    } else if ( uri1 == null ) uri1 = new URI( prefix+source );
+	    URI uri2 = new URI( prefix+target );
 
-	    if (debug > 1) System.err.println(" Handler set");
-	    if (debug > 1) System.err.println(" URI1: "+uri1);
-	    if (debug > 1) System.err.println(" URI2: "+uri2);
+	    //logger.trace(" Handler set");
+	    //logger.trace(" URI1: {}", uri1);
+	    //logger.trace(" URI2: {}", uri2);
 	    
 	    try {
-		if (initName != null) {
-		    AlignmentParser aparser = new AlignmentParser(debug-1);
-		    init = aparser.parse( initName );
+		if ( initName != null ) {
+		    AlignmentParser aparser = new AlignmentParser();
+		    init = aparser.parse( prefix+initName );
 		    uri1 = init.getFile1();
 		    uri2 = init.getFile2();
-		    if (debug > 1) System.err.println(" Init parsed");
+		    logger.debug(" Init parsed");
 		}
 
 		// Create alignment object
 		Object[] mparams = {};
 		Class[] cparams = {};
-		Class<?> alignmentClass = Class.forName(alignmentClassName);
+		Class<?> alignmentClass = Class.forName( alignmentClassName );
 		java.lang.reflect.Constructor alignmentConstructor =
 		    alignmentClass.getConstructor(cparams);
-		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+		result = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 		result.init( uri1, uri2 );
 	    } catch (Exception ex) {
-		System.err.println("Cannot create alignment "+ alignmentClassName+ "\n"+ ex.getMessage());
+		logger.debug( "Cannot create alignment {}", alignmentClassName );
 		throw ex;
 	    }
 
-	    if (debug > 1) System.err.println(" Alignment structure created");
+	    logger.debug(" Alignment structure created");
 
 	    // Compute alignment
 	    long time = System.currentTimeMillis();
-	    result.align(init, params); // add opts
+	    result.align( init, parameters );
 	    long newTime = System.currentTimeMillis();
 	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 	    
-	    if (debug > 1) System.err.println(" Alignment performed");
+	    logger.debug(" Alignment performed");
 	    
 	    // Set output file
 	    writer = new PrintWriter (
                          new BufferedWriter(
                              new OutputStreamWriter( 
-                                 new FileOutputStream(dir+File.separator+filename+".rdf"), "UTF-8" )), true);
+                                 new FileOutputStream(dir+File.separator+outputfilename), "UTF-8" )), true);
 	    AlignmentVisitor renderer = null;
 
 	    try {
@@ -309,41 +238,30 @@ public class GroupAlign {
 		    Class.forName(rendererClass).getConstructor(cparams);
 		renderer = (AlignmentVisitor)rendererConstructor.newInstance(mparams);
 	    } catch (Exception ex) {
-		System.err.println("Cannot create renderer "+rendererClass+"\n"+ ex.getMessage());
+		logger.debug( "Cannot create renderer {}", rendererClass );
 		throw ex;
 	    }
 
-	    if (debug > 1) System.err.println(" Outputing result to "+dir+File.separator+filename+".rdf");
+	    logger.debug(" Outputing result to {}/{}", dir, outputfilename );
+
 	    // Output
 	    result.render( renderer);
 
-	    if (debug > 1) System.err.println(" Done..."+renderer+"\n");
-	} catch (Exception ex) { 
-	    if ( debug > 1 ) ex.printStackTrace(); 
+	    logger.debug(" Done...{}", renderer );
+	} catch (Exception ex) {
+	    logger.debug( "IGNORED Exception", ex );
 	} finally {
 	    // JE: This instruction is very important
 	    if ( writer != null ) writer.close();
 	    // Unload the ontologies
-	    try { OntologyFactory.clear(); } catch (Exception e) {};
+	    try { OntologyFactory.clear(); 
+	    } catch (Exception e) {
+		logger.debug( "IGNORED Exception on close", e );
+	    };
 	}
     }
 
     public void usage() {
-	System.err.println("usage: GroupAlign [options]");
-	System.err.println("options are:");
-	System.err.println("\t--name=uri -n uri\t\tUse the given uri to compare with.");
-	System.err.println("\t--source=filename -s filename Source filename (default onto1.rdf)");
-	System.err.println("\t--target=filename -t filename Target filename (default onto.rdf)");
-	System.err.println("\t--prefix=uriprefix -u uriprefix URI prefix of the target");
-	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename.rdf");
-	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.err.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
-	System.err.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
-	System.err.println("\t-Dparam=value\t\t\tSet parameter");
-	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.err.println("\t--help -h\t\t\tPrint this message");
-	System.err.print("\n"+GroupAlign.class.getPackage().getImplementationTitle()+" "+GroupAlign.class.getPackage().getImplementationVersion());
-	System.err.println(" ($Id$)\n");
+	usage( "java "+this.getClass().getName()+" [options]\nMatches pairs of ontologies in subdirectories" );
     }
 }

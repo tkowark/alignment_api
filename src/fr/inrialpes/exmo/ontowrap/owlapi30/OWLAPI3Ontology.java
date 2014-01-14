@@ -93,9 +93,6 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	//return onto.getDataPropertiesInSignature();
     }
     
-    
-    
-
     public Set<? extends Object> getEntities() {
 	//return onto.getSignature();
 	return new EntityFilter<OWLEntity>(onto.getSignature(),this) {

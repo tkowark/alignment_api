@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,10 +28,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 public class RemoveClassLevel extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( RemoveClassLevel.class );
 
     public RemoveClassLevel( Alterator om ) {
 	initModel( om );
@@ -42,7 +46,7 @@ public class RemoveClassLevel extends BasicAlterator {
 	if ( p == null ) return null;
 	int level = Integer.parseInt( p );
         HashMap<String, String> uris = new HashMap<String, String>();
-        //if ( debug ) System.err.println( "Level " + level );
+        //logger.trace( "Level {}", level );
         buildClassHierarchy();							//build the class hierarchy if necessary
 	for ( OntClass cl : classHierarchy.getClassesFromLevel( modifiedModel, level ) ) {                                //remove the classes from the hierarchy
             String parentURI = removeClass( cl );

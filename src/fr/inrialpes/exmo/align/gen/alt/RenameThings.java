@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -52,6 +52,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
@@ -59,6 +62,7 @@ import fr.inrialpes.exmo.align.gen.ParametersIds;
  * This is only an abstract class gathering the renaming routines
  */
 public abstract class RenameThings extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( RenameThings.class );
 
     // -------------------------
     // Label replacement
@@ -203,7 +207,7 @@ public abstract class RenameThings extends BasicAlterator {
         renamedClasses = nbClasses - notRenamedClasses.size();                  //the number of renamed classes
         toBeRenamed = Math.round(percentage*nbClasses) - renamedClasses;             // -renamedClasses -> for Benchmark
 
-	//System.err.println( "NbClasses = "+nbClasses+ " YetToRename = "+notRenamedClasses.size()+" I will rename = "+toBeRenamed );
+	//logger.trace( "NbClasses = {}; YetToRename = {}; I will rename = {};", nbClasses, notRenamedClasses.size(), toBeRenamed );
 
 	// toBeRenamed is negative when classes have been added to the model
 	if ( toBeRenamed < 0 ) toBeRenamed = 0;
@@ -451,7 +455,7 @@ public abstract class RenameThings extends BasicAlterator {
         try {
             translatedText = Translate.execute(source, Language.ENGLISH, Language.FRENCH);
         } catch (Exception e) {
-            System.err.println( "Exception " + e.getMessage() );
+	    logger.debug( "IGNORED Exception", e );
         }
         return removeSpaces ( translatedText );
     }
@@ -486,7 +490,7 @@ public abstract class RenameThings extends BasicAlterator {
         */
 
     public String parseString (String str, boolean activeTranslateString, boolean activeSynonym) {
-        // if ( debug ) System.err.println ( "str = [" + str + "]" );
+        // logger.trace( "str = [{}]", str );
         char [] parsed = str.toCharArray();
         String newString = "";
 

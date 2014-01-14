@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2007-2009, 2013
+ * Copyright (C) INRIA, 2007-2009, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -81,7 +81,8 @@ public class DBServiceImpl implements DBService {
     public void connect(String IPAddress, String port, String user, String password, String database ) throws SQLException {
 	dbpass = password;
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, password);
-	}
+    }
+
     //with "dbpass" given by "connect"
     public Connection reconnect() throws SQLException {
 	conn = DriverManager.getConnection(driverPrefix+"://"+IPAddress+":"+port+"/"+database, user, dbpass);
@@ -96,7 +97,7 @@ public class DBServiceImpl implements DBService {
 
     public void close() {
 	try {
-	    conn.close();
+	    if ( conn != null ) conn.close();
 	} catch (Exception ex) {
 	    logger.debug( "IGNORED Closing exception", ex );
 	}

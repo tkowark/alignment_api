@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010, 2012
+ * Copyright (C) INRIA, 2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -39,16 +39,25 @@ import java.util.HashSet;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Evaluate proximity between two alignments.
  * This function implements Precision/Recall/Fallout. The first alignment
  * is thus the expected one.
  *
+ * @author: Cassia Trojahn dos Santos
  * @version $Id$ 
+ *
+ * Possible improvements: 
+ * (1) make it work with EDOAL
+ * (2) write a tool that is able to pair falsenegative and falsepositive (this has been returned instead of ...)
+ *
  */
 
 public class DiffEvaluator extends BasicEvaluator implements Evaluator {
+    final static Logger logger = LoggerFactory.getLogger( DiffEvaluator.class );
 
     Set<Cell> truepositive;
     Set<Cell> falsenegative;
@@ -103,7 +112,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 		}
 	    }
 	} catch (Exception e) {
-	    e.printStackTrace(); 
+	    logger.debug( "IGNORED Exception", e );
 	}
 	
 	// False negative
@@ -133,7 +142,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 		}
 	    }
 	} catch (Exception e) {
-	    e.printStackTrace(); 
+	    logger.debug( "IGNORED Exception", e );
 	}
     }
 
@@ -167,7 +176,7 @@ public class DiffEvaluator extends BasicEvaluator implements Evaluator {
 	    }
 	    result += "</dd>\n";
 	} catch (AlignmentException e) {
-	    e.printStackTrace(); 
+	    logger.debug( "IGNORED Exception", e );
 	}
 	return result;  
     }

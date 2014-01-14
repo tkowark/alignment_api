@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,10 +23,14 @@ package fr.inrialpes.exmo.ontowrap.util;
 import java.net.URI;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class EntityFilter<T> extends FilteredSet<T> {
+    final static Logger logger = LoggerFactory.getLogger( EntityFilter.class );
     private String ontoURI=null;
     private LoadedOntology<?> onto=null;
     
@@ -43,11 +47,11 @@ public class EntityFilter<T> extends FilteredSet<T> {
     protected boolean isFiltered(T obj) {
 	try {
 	    URI entURI=onto.getEntityURI(obj);
-	    //System.out.println(entURI +" - "+ontoURI);
+	    //logger.trace( "{} - {}", entURI, ontoURI);
 	    return (entURI.getAuthority()!=null) && (entURI==null || ontoURI.equals(entURI.toString()) || !entURI.toString().startsWith(ontoURI));
 	}
 	catch (OntowrapException e) {
-	   // e.printStackTrace();
+	   logger.debug( "IGNORED: Entity is filtered", e );
 	}
 	return true;
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2008-2010, 2012
+ * Copyright (C) INRIA, 2004-2005, 2008-2010, 2012-2014
  * Copyright (C) University of Montréal, 2004
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,9 @@ import java.util.Collection;
 import java.util.Properties;
 import java.io.PrintStream;
 import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -63,8 +66,9 @@ import org.semanticweb.owl.align.Parameters;
   * @version $Id$ 
  */
 
-//@Deprecated
+@Deprecated
 public class BasicParameters extends Properties implements Parameters, Cloneable {
+    final static Logger logger = LoggerFactory.getLogger( BasicParameters.class );
  
     static final long serialVersionUID = 400L;
 
@@ -153,13 +157,13 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 		String paramValue = paramContent.item(0).getNodeValue().trim();
 		p.setParameter(paramName, paramValue); 
 	    }
-	} catch (SAXParseException err) {
-	    System.err.println("** Parsing error: ["+ err.getLineNumber()+"]: "+err.getSystemId()); 
-	    System.err.println(" " + err.getMessage());
-	} catch (SAXException e) {
-	    Exception x = e.getException();
-	    ((x == null) ? e : x).printStackTrace();
-	} catch (Throwable t) {	t.printStackTrace(); }
+	} catch ( SAXParseException err ) {
+	    logger.debug( "IGNORED SAX Parsing exception", err );
+	} catch ( SAXException e ) {
+	    logger.debug( "IGNORED SAX exception", e );
+	} catch ( Throwable t ) {
+	    logger.debug( "IGNORED Exception", t );
+	}
 
 	return p;
     }

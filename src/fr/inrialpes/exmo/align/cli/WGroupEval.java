@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003 The University of Manchester
- * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2012, INRIA
+ * Copyright (C) 2003-2014, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -47,8 +45,14 @@ import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -64,7 +68,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     <pre>
     -o filename --output=filename
     -f format = prfot (precision/recall/f-measure/overall/time) --format=prfot
-    -d debug --debug=level
     -r filename --reference=filename
     -s algo/measure
     -l list of compared algorithms
@@ -82,24 +85,36 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 $Id$
 </pre>
 
-@author Sean K. Bechhofer
-@author Jérôme Euzenat
-    */
+*/
 
-public class WGroupEval {
+public class WGroupEval extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( WGroupEval.class );
 
-    Properties params = null;
-    String filename = null;
     String reference = "refalign.rdf";
     String format = "pr";
     int fsize = 2;
     String type = "html";
     boolean embedded = false;
     String dominant = "s";
-    Vector<String> listAlgo = null;
-    int debug = 0;
+    String[] listAlgo = null;
+    int size = 0;
     String color = null;
     String ontoDir = null;
+
+    public WGroupEval() {
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
+	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
+	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Used (weighted) MEASures and order (precision/recall/f-measure/overall/time)  (default: "+format+")" ).withArgName("MEAS (prfot)").create( 'f' ) );
+	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
+	//options.addOption( OptionBuilder.withLongOpt( "sup" ).hasArg().withDescription( "Specifies if dominant columns are algorithms or measure" ).withArgName("algo").create( 's' ) );
+	options.addOption( OptionBuilder.withLongOpt( "reference" ).hasArg().withDescription( "Name of the reference alignment FILE (default: "+reference+")" ).withArgName("FILE").create( 'r' ) );
+	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to evaluate" ).withArgName("DIR").create( 'w' ) );
+	// .setRequired( true )
+	Option opt = options.getOption( "list" );
+	if ( opt != null ) opt.setRequired( true );
+    }
+
 
     public static void main(String[] args) {
 	try { new WGroupEval().run( args ); }
@@ -107,82 +122,27 @@ public class WGroupEval {
     }
 
     public void run(String[] args) throws Exception {
-	String listFile = "";
-	LongOpt[] longopts = new LongOpt[10];
 
- 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("format", LongOpt.REQUIRED_ARGUMENT, null, 'f');
-	longopts[3] = new LongOpt("type", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[5] = new LongOpt("sup", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
-	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
-	longopts[8] = new LongOpt("reference", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[9] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
+	try { 
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:w:c::", longopts);
-	int c;
-	String arg;
-
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h' :
-		usage();
-		return;
-	    case 'o' :
-		/* Write output here */
-		filename = g.getOptarg();
-		break;
-	    case 'r' :
-		/* File name for the reference alignment */
-		reference = g.getOptarg();
-		break;
-	    case 'f' :
-		/* Sequence of results to print */
-		format = g.getOptarg();
-		break;
-	    case 't' :
-		/* Type of output (tex/html/xml/ascii) */
-		type = g.getOptarg();
-		break;
-	    case 's' :
-		/* Print per type or per algo */
-		dominant = g.getOptarg();
-		break;
-	    case 'c' :
-		/* Print colored lines */
-		arg = g.getOptarg();
-		if ( arg != null )  {
-		    color = arg.trim();
-		} else color = "lightblue";
-		break;
-	    case 'l' :
-		/* List of filename */
-		listFile = g.getOptarg();
-		break;
-	    case 'd' :
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'w' :
-		/* Use the given ontology directory */
-	    arg = g.getOptarg();
-	    if ( arg != null ) ontoDir = g.getOptarg();
-	    else ontoDir = null;
-		break;
+	    // Here deal with command specific arguments
+	    if ( line.hasOption( 'f' ) ) format = line.getOptionValue( 'f' );
+	    if ( line.hasOption( 'r' ) ) reference = line.getOptionValue( 'r' );
+	    if ( line.hasOption( 's' ) ) dominant = line.getOptionValue( 's' );
+	    if ( line.hasOption( 't' ) ) type = line.getOptionValue( 't' );
+	    if ( line.hasOption( 'c' ) ) color = line.getOptionValue( 'c', "lightblue" );
+	    if ( line.hasOption( 'l' ) ) {
+		listAlgo = line.getOptionValues( 'l' );
+		size = listAlgo.length;
 	    }
+	    if ( line.hasOption( 'w' ) ) ontoDir = line.getOptionValue( 'w' );
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
+	    usage();
+	    System.exit( -1 );
 	}
-
-	listAlgo = new Vector<String>();
-	for ( String s : listFile.split(",") ) {
-	    listAlgo.add( s );	    
-	}
-
-	params = new Properties();
-	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	print( iterateDirectories() );
     }
@@ -197,8 +157,9 @@ public class WGroupEval {
 		    subdir = (new File(ontoDir)).listFiles();
 		}
 	} catch (Exception e) {
-	    System.err.println("Cannot stat dir "+ e.getMessage());
+	    logger.error("Cannot stat dir ", e);
 	    usage();
+	    System.exit(-1);
 	}
 	int size = subdir.length;
         Arrays.sort(subdir);
@@ -206,7 +167,7 @@ public class WGroupEval {
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
-		if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
+		//logger.trace("Entering directory {}", subdir[j]);
 		// eval the alignments in a subdirectory
 		// store the result
 		Vector vect = iterateAlignments( subdir[j] );
@@ -231,7 +192,7 @@ public class WGroupEval {
 	    // call eval
 	    // store the result in a record
 	    // return the record.
-	    if ( debug > 2) System.err.println("  Considering result "+i);
+	    //logger.trace("  Considering result {}", i);
 	    Evaluator evaluator = eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
@@ -239,8 +200,8 @@ public class WGroupEval {
 	// Unload the ontologies.
 	try {
 	    OntologyFactory.clear();
-	} catch ( OntowrapException owex ) { // only report
-	    owex.printStackTrace();
+	} catch ( OntowrapException owex ) {
+	    logger.debug( "IGNORED Exception", owex );
 	}
 
 	if ( ok == true ) return result;
@@ -250,57 +211,69 @@ public class WGroupEval {
     public Evaluator eval( String alignName1, String alignName2 ) {
 	Evaluator eval = null;
 	try {
-	    int nextdebug;
-	    if ( debug < 2 ) nextdebug = 0;
-	    else nextdebug = debug - 2;
 	    // Load alignments
-	    AlignmentParser aparser = new AlignmentParser( nextdebug );
+	    AlignmentParser aparser = new AlignmentParser();
 	    Alignment align1 = aparser.parse( alignName1 );
-	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
+	    //logger.trace(" Alignment structure1 parsed");
 	    aparser.initAlignment( null );
 	    Alignment align2 = aparser.parse( alignName2 );
-	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
+	    //logger.trace(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new WeightedPREvaluator( align1, align2 );
 	    // Compare
-	    params.setProperty( "debug", Integer.toString( nextdebug ) );
-	    eval.eval( params ) ;
+	    eval.eval( parameters ) ;
 	} catch (Exception ex) {
-	    if ( debug > 1 ) {
-		ex.printStackTrace();
-	    } else {
-		System.err.println("WGroupEval: "+ex);
-		System.err.println(alignName1+ " - "+alignName2 );
-	    }
+	    logger.debug( "IGNORED Exception", ex );
 	};
 	return eval;
     }
 
     /**
+     * The writer used to print the result
+     */
+    PrintStream writer = null;
+
+    /**
      * This does not only print the results but compute the average as well
      */
     public void print( Vector<Vector> result ) {
-	if ( type.equals("html") ) printHTML( result );
-	else if ( type.equals("tex") ) printLATEX( result );
-	else if ( type.equals("triangle") ) printTRIANGLE( result );
+	PrintStream writer = null;
+	try {
+	    if ( outputfilename == null ) {
+		writer = System.out;
+	    } else {
+		writer = new PrintStream( new FileOutputStream( outputfilename ) );
+	    }
+
+	    if ( type.equals("html") ) printHTML( result, writer );
+	    else if ( type.equals("tex") ) printLATEX( result, writer );
+	    else if ( type.equals("triangle") ) printTRIANGLE( result, writer );
+	} catch (Exception ex) {
+	    logger.debug( "IGNORED Exception", ex );
+	} finally {
+	    writer.close();
+	}
     }
 
-    public void printTRIANGLE( Vector<Vector> result ) {
+    public void printTRIANGLE( Vector<Vector> result, PrintStream writer ) {
 	// variables for computing iterative harmonic means
 	double expected = 0.; // expected so far
 	double foundVect[]; // found so far
-	double correctVect[]; // correct so far
+	double correctFoundVect[]; // correct so far
+	double correctExpVect[]; // correct so far
 	long timeVect[]; // time so far
-	foundVect = new double[ listAlgo.size() ];
-	correctVect = new double[ listAlgo.size() ];
-	timeVect = new long[ listAlgo.size() ];
-	for( int k = listAlgo.size()-1; k >= 0; k-- ) {
+	foundVect = new double[ size ];
+	correctFoundVect = new double[ size ];
+	correctExpVect = new double[ size ];
+	timeVect = new long[ size ];
+	for( int k = size-1; k >= 0; k-- ) {
 	    foundVect[k] = 0.;
-	    correctVect[k] = 0.;
+	    correctFoundVect[k] = 0.;
+	    correctExpVect[k] = 0.;
 	    timeVect[k] = 0;
 	}
 	for ( Vector test : result ) {
-	    int nexpected = -1;
+	    double newexpected = -1.;
 	    Enumeration f = test.elements();
 	    // Too bad the first element must be skipped
 	    f.nextElement();
@@ -308,56 +281,59 @@ public class WGroupEval {
 		WeightedPREvaluator eval = (WeightedPREvaluator)f.nextElement();
 		if ( eval != null ){
 		    // iterative H-means computation
-		    if ( nexpected == -1 ){
-			nexpected = 0;
-			expected += eval.getExpected();
+		    if ( newexpected == -1. ){
+			newexpected = eval.getExpected();
+			expected += newexpected;
 		    }
 		    foundVect[k] += eval.getFound();
-		    correctVect[k] += eval.getCorrect();
+		    correctFoundVect[k] += eval.getCorrectFound();
+		    correctExpVect[k] += eval.getCorrectExpected();
 		    timeVect[k] += eval.getTime();
+		} else {
+		    correctExpVect[k] += newexpected;
 		}
 	    }
 	}
-	System.out.println("\\documentclass[11pt]{book}");
-	System.out.println();
-	System.out.println("\\usepackage{pgf}");
-	System.out.println("\\usepackage{tikz}");
-	System.out.println();
-	System.out.println("\\begin{document}");
-	System.out.println("\\date{today}");
-	System.out.println("");
-	System.out.println("\n%% Plot generated by GenPlot of alignapi");
-	System.out.println("\\begin{tikzpicture}[cap=round]");
-	System.out.println("% Draw grid");
-	System.out.println("\\draw[step=1cm,very thin,color=gray] (-0.2,-0.2) grid (10.0,9.0);");
-	System.out.println("\\draw[|-|] (-0,0) -- (10,0);");
-	System.out.println("%\\draw[dashed,very thin] (0,0) -- (5,8.66) -- (10,0);");
-	System.out.println("\\draw[dashed,very thin] (10,0) arc (0:60:10cm);");
-	System.out.println("\\draw[dashed,very thin] (0,0) arc (180:120:10cm);");
+	writer.println("\\documentclass[11pt]{book}");
+	writer.println();
+	writer.println("\\usepackage{pgf}");
+	writer.println("\\usepackage{tikz}");
+	writer.println();
+	writer.println("\\begin{document}");
+	writer.println("\\date{today}");
+	writer.println("");
+	writer.println("\n%% Plot generated by GenPlot of alignapi");
+	writer.println("\\begin{tikzpicture}[cap=round]");
+	writer.println("% Draw grid");
+	writer.println("\\draw[step=1cm,very thin,color=gray] (-0.2,-0.2) grid (10.0,9.0);");
+	writer.println("\\draw[|-|] (-0,0) -- (10,0);");
+	writer.println("%\\draw[dashed,very thin] (0,0) -- (5,8.66) -- (10,0);");
+	writer.println("\\draw[dashed,very thin] (10,0) arc (0:60:10cm);");
+	writer.println("\\draw[dashed,very thin] (0,0) arc (180:120:10cm);");
 
-	System.out.println("\\draw (0,-0.3) node {$recall$}; ");
-	System.out.println("\\draw (10,-0.3) node {$precision$}; ");
-	//System.out.println("\\draw (0,-0.3) node {0.}; ");
-	//System.out.println("\\draw (10,-0.3) node {1.}; ");
-	System.out.println("% Plots");
+	writer.println("\\draw (0,-0.3) node {$recall$}; ");
+	writer.println("\\draw (10,-0.3) node {$precision$}; ");
+	//writer.println("\\draw (0,-0.3) node {0.}; ");
+	//writer.println("\\draw (10,-0.3) node {1.}; ");
+	writer.println("% Plots");
 	int k = 0;
 	for ( String m: listAlgo ) {
-	    double precision = correctVect[k]/foundVect[k];
-	    double recall = correctVect[k]/expected;
+	    double precision = 1. - correctFoundVect[k]/foundVect[k];
+	    double recall = 1. - correctExpVect[k]/expected;
 	    double prec2 = precision*precision;
 	    double a = ((prec2-(recall*recall)+1)/2);
 	    double b = java.lang.Math.sqrt( prec2 - (a*a) );
 	    a = a*10; b = b*10; //for printing scale 10.
-	    System.out.println("\\draw plot[mark=+,] coordinates {("+a+","+b+")};");
-	    System.out.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+m+"};");
+	    writer.println("\\draw plot[mark=+,] coordinates {("+a+","+b+")};");
+	    writer.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+m+"};");
 	    k++;
 	}
-	System.out.println("\\end{tikzpicture}");
-	System.out.println();
-	System.out.println("\\end{document}");
+	writer.println("\\end{tikzpicture}");
+	writer.println();
+	writer.println("\\end{document}");
     }
 
-    public void printLATEX( Vector result ) {
+    public void printLATEX( Vector result, PrintStream writer ) {
     }
 
     /* A few comments on how and why computing "weighted harmonic means"
@@ -406,182 +382,162 @@ and
 
 which the program does...
     */
-    public void printHTML( Vector<Vector> result ) {
+    public void printHTML( Vector<Vector> result, PrintStream writer ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
-	int correctVect[]; // correct so far
+	int correctFoundVect[]; // correct so far
+	int correctExpVect[]; // correct so far
 	long timeVect[]; // time so far
-	PrintStream writer = null;
 	fsize = format.length();
 	// JE: the writer should be put out
 	// JE: the h-means computation should be put out as well
-	try {
-	    // Print result
-	    if ( filename == null ) {
-		writer = System.out;
+	Formatter formatter = new Formatter( writer );
+
+	// Print the header
+	if ( embedded != true ) writer.println("<html><head></head><body>");
+	writer.println("<table border='2' frame='sides' rules='groups'>");
+	writer.println("<colgroup align='center' />");
+	// for each algo <td spancol='2'>name</td>
+	for ( String m : listAlgo ) {
+	    writer.println("<colgroup align='center' span='"+fsize+"' />");
+	}
+	// For each file do a
+	writer.println("<thead valign='top'><tr><th>algo</th>");
+	// for each algo <td spancol='2'>name</td>
+	for ( String m : listAlgo ) {
+	    writer.println("<th colspan='"+fsize+"'>"+m+"</th>");
+	}
+	writer.println("</tr></thead><tbody><tr><td>test</td>");
+	// for each algo <td>Prec.</td><td>Rec.</td>
+	for ( String m : listAlgo ) {
+	    for ( int i = 0; i < fsize; i++){
+		writer.print("<td>");
+		if ( format.charAt(i) == 'p' ) {
+		    writer.print("Prec.");
+		} else if ( format.charAt(i) == 'f' ) {
+		    writer.print("FMeas.");
+		} else if ( format.charAt(i) == 'o' ) {
+		    writer.print("Over.");
+		} else if ( format.charAt(i) == 't' ) {
+		    writer.print("Time");
+		} else if ( format.charAt(i) == 'r' ) {
+		    writer.print("Rec.");
+		}
+		writer.println("</td>");
+	    }
+	    //writer.println("<td>Prec.</td><td>Rec.</td>");
+	}
+	writer.println("</tr></tbody><tbody>");
+	foundVect = new int[ size ];
+	correctFoundVect = new int[ size ];
+	correctExpVect = new int[ size ];
+	timeVect = new long[ size ];
+	for( int k = size-1; k >= 0; k-- ) {
+	    foundVect[k] = 0;
+	    correctFoundVect[k] = 0;
+	    correctExpVect[k] = 0;
+	    timeVect[k] = 0;
+	}
+	// </tr>
+	// For each directory <tr>
+	boolean colored = false;
+	for ( Vector test : result ) {
+	    double newexpected = -1.;
+	    if ( colored == true && color != null ){
+		colored = false;
+		writer.println("<tr bgcolor=\""+color+"\">");
 	    } else {
-		writer = new PrintStream(new FileOutputStream( filename ));
-	    }
-	    Formatter formatter = new Formatter(writer);
-
-	    // Print the header
-	    if ( embedded != true ) writer.println("<html><head></head><body>");
-	    writer.println("<table border='2' frame='sides' rules='groups'>");
-	    writer.println("<colgroup align='center' />");
-	    // for each algo <td spancol='2'>name</td>
-	    for ( String m : listAlgo ) {
-		writer.println("<colgroup align='center' span='"+fsize+"' />");
-	    }
-	    // For each file do a
-	    writer.println("<thead valign='top'><tr><th>algo</th>");
-	    // for each algo <td spancol='2'>name</td>
-	    for ( String m : listAlgo ) {
-		writer.println("<th colspan='"+fsize+"'>"+m+"</th>");
-	    }
-	    writer.println("</tr></thead><tbody><tr><td>test</td>");
-	    // for each algo <td>Prec.</td><td>Rec.</td>
-	    for ( String m : listAlgo ) {
-		for ( int i = 0; i < fsize; i++){
-		    writer.print("<td>");
-		    if ( format.charAt(i) == 'p' ) {
-			writer.print("Prec.");
-		    } else if ( format.charAt(i) == 'f' ) {
-			writer.print("FMeas.");
-		    } else if ( format.charAt(i) == 'o' ) {
-			writer.print("Over.");
-		    } else if ( format.charAt(i) == 't' ) {
-			writer.print("Time");
-		    } else if ( format.charAt(i) == 'r' ) {
-			writer.print("Rec.");
+		colored = true;
+		writer.println("<tr>");
+	    };
+	    // Print the directory <td>bla</td>
+	    writer.println("<td>"+(String)test.get(0)+"</td>");
+	    // For each record print the values <td>bla</td>
+	    Enumeration f = test.elements();
+	    f.nextElement();
+	    for( int k = 0 ; f.hasMoreElements() ; k++) {
+		WeightedPREvaluator eval = (WeightedPREvaluator)f.nextElement();
+		if ( eval != null ) {
+		    // iterative H-means computation
+		    if ( newexpected == -1. ){
+			newexpected = eval.getExpected();
+			expected += newexpected;
 		    }
-		    writer.println("</td>");
-		}
-		//writer.println("<td>Prec.</td><td>Rec.</td>");
-	    }
-	    writer.println("</tr></tbody><tbody>");
-	    foundVect = new int[ listAlgo.size() ];
-	    correctVect = new int[ listAlgo.size() ];
-	    timeVect = new long[ listAlgo.size() ];
-	    for( int k = listAlgo.size()-1; k >= 0; k-- ) {
-		foundVect[k] = 0;
-		correctVect[k] = 0;
-		timeVect[k] = 0;
-	    }
-	    // </tr>
-	    // For each directory <tr>
-	    boolean colored = false;
-	    for ( Vector test : result ) {
-		int nexpected = -1;
-		if ( colored == true && color != null ){
-		    colored = false;
-		    writer.println("<tr bgcolor=\""+color+"\">");
-		} else {
-		    colored = true;
-		    writer.println("<tr>");
-		};
-		// Print the directory <td>bla</td>
-		writer.println("<td>"+(String)test.get(0)+"</td>");
-		// For each record print the values <td>bla</td>
-		Enumeration f = test.elements();
-		f.nextElement();
-		for( int k = 0 ; f.hasMoreElements() ; k++) {
-		    WeightedPREvaluator eval = (WeightedPREvaluator)f.nextElement();
-		    if ( eval != null ){
-			// iterative H-means computation
-			if ( nexpected == -1 ){
-			    expected += eval.getExpected();
-			    nexpected = 0;
-			}
-			foundVect[k] += eval.getFound();
-			correctVect[k] += eval.getCorrect();
-			timeVect[k] += eval.getTime();
-
-			for ( int i = 0 ; i < fsize; i++){
-			    writer.print("<td>");
-			    if ( format.charAt(i) == 'p' ) {
-				formatter.format("%1.2f", eval.getPrecision());
-			    } else if ( format.charAt(i) == 'f' ) {
-				formatter.format("%1.2f", eval.getFmeasure());
-			    } else if ( format.charAt(i) == 'o' ) {
-				formatter.format("%1.2f", eval.getOverall());
-			    } else if ( format.charAt(i) == 't' ) {
-				if ( eval.getTime() == 0 ){
-				    writer.print("-");
-				} else {
-				    formatter.format("%1.2f", eval.getTime());
-				}
-			    } else if ( format.charAt(i) == 'r' ) {
-				formatter.format("%1.2f", eval.getRecall());
+		    foundVect[k] += eval.getFound();
+		    correctFoundVect[k] += eval.getCorrectFound();
+		    correctExpVect[k] += eval.getCorrectExpected();
+		    timeVect[k] += eval.getTime();
+		    
+		    for ( int i = 0 ; i < fsize; i++){
+			writer.print("<td>");
+			if ( format.charAt(i) == 'p' ) {
+			    formatter.format("%1.2f", eval.getPrecision());
+			} else if ( format.charAt(i) == 'f' ) {
+			    formatter.format("%1.2f", eval.getFmeasure());
+			} else if ( format.charAt(i) == 'o' ) {
+			    formatter.format("%1.2f", eval.getOverall());
+			} else if ( format.charAt(i) == 't' ) {
+			    if ( eval.getTime() == 0 ){
+				writer.print("-");
+			    } else {
+				formatter.format("%1.2f", eval.getTime());
 			    }
-			    writer.println("</td>");
+			} else if ( format.charAt(i) == 'r' ) {
+			    formatter.format("%1.2f", eval.getRecall());
 			}
-		    } else {
-			writer.println("<td>n/a</td><td>n/a</td>");
+			writer.println("</td>");
 		    }
+		} else { // JE 2013: will break if the previous tests are all NULL
+		    correctExpVect[k] += newexpected;
+		    // Nothing needs to be incremented for precision
+		    for ( int i = 0 ; i < fsize; i++) writer.print("<td>n/a</td>");
+		    writer.println();
 		}
-		writer.println("</tr>");
-	    }
-	    writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
-	    // Here we are computing a sheer average.
-	    // While in the column results we print NaN when the returned
-	    // alignment is empty,
-	    // here we use the real values, i.e., add 0 to both correctVect and
-	    // foundVect, so this is OK for computing the average.
-	    int k = 0;
-	    // ???
-	    for ( String m : listAlgo ) {
-		double precision = (double)correctVect[k]/foundVect[k];
-		double recall = (double)correctVect[k]/expected;
-		for ( int i = 0 ; i < fsize; i++){
-		    writer.print("<td>");
-		    if ( format.charAt(i) == 'p' ) {
-			formatter.format("%1.2f", precision);
-		    } else if ( format.charAt(i) == 'f' ) {
-			formatter.format("%1.2f", 2 * precision * recall / (precision + recall));
-		    } else if ( format.charAt(i) == 'o' ) {
-			formatter.format("%1.2f", recall * (2 - (1 / precision)));
-		    } else if ( format.charAt(i) == 't' ) {
-			if ( timeVect[k] == 0 ){
-			    writer.print("-");
-			} else {
-			    formatter.format("%1.2f", timeVect[k]);
-			}
-		    } else if ( format.charAt(i) == 'r' ) {
-			formatter.format("%1.2f", recall);
-		    }
-		    writer.println("</td>");
-		};
-		k++;
 	    }
 	    writer.println("</tr>");
-	    writer.println("</tbody></table>");
-	    writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
-	    writer.println("NaN: division per zero, likely due to empty alignment.</small></p>");
-	    if ( embedded != true ) writer.println("</body></html>");
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	} finally {
-	    writer.close();
 	}
-    }
+	writer.print("<tr bgcolor=\"yellow\"><td>H-mean</td>");
+	// Here we are computing a sheer average.
+	// While in the column results we print NaN when the returned
+	// alignment is empty,
+	// here we use the real values, i.e., add 0 to both correctVect and
+	// foundVect, so this is OK for computing the average.
+	int k = 0;
+	// ???
+	for ( String m : listAlgo ) {
+	    double precision = 1. - (double)correctFoundVect[k]/foundVect[k];
+	    double recall = 1. - (double)correctExpVect[k]/expected;
+	    for ( int i = 0 ; i < fsize; i++){
+		writer.print("<td>");
+		if ( format.charAt(i) == 'p' ) {
+		    formatter.format("%1.2f", precision);
+		} else if ( format.charAt(i) == 'f' ) {
+		    formatter.format("%1.2f", 2 * precision * recall / (precision + recall));
+		} else if ( format.charAt(i) == 'o' ) {
+		    formatter.format("%1.2f", recall * (2 - (1 / precision)));
+		} else if ( format.charAt(i) == 't' ) {
+		    if ( timeVect[k] == 0 ){
+			writer.print("-");
+		    } else {
+			formatter.format("%1.2f", timeVect[k]);
+		    }
+		} else if ( format.charAt(i) == 'r' ) {
+		    formatter.format("%1.2f", recall);
+		}
+		writer.println("</td>");
+	    };
+	    k++;
+	}
+	writer.println("</tr>");
+	writer.println("</tbody></table>");
+	writer.println("<p><small>n/a: result alignment not provided or not readable<br />");
+	writer.println("NaN: division per zero, likely due to empty alignment.</small></p>");
+	if ( embedded != true ) writer.println("</body></html>");
+	}
 
     public void usage() {
-	System.out.println("usage: WGroupEval [options]");
-	System.out.println("options are:");
-	System.out.println("\t--format=prfot -f prfot\tSpecifies the output order (precision/recall/f-measure/overall/time)");
-	// Apparently not implemented
-	//System.out.println("\t--sup=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
-	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");
-	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
-
-	System.out.println("\t--type=html|xml|tex|ascii|triangle -t html|xml|tex|ascii\tSpecifies the output format");
-	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
-	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.out.println("\t--help -h\t\t\tPrint this message");
-	System.err.print("\n"+WGroupEval.class.getPackage().getImplementationTitle()+" "+WGroupEval.class.getPackage().getImplementationVersion());
-	System.err.println(" ($Id$)\n");
+	usage( "java "+this.getClass().getName()+" [options]\nEvaluates (with weighted measures) in parallel several matching results on several tests in subdirectories" );
     }
 }
 

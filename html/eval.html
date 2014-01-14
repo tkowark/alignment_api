@@ -60,15 +60,20 @@ See below for more graphical formats.
 <p>
 The option of <tt>EvalAlign</tt> are:
 <div class="terminal">
-$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign --help
-usage: EvalAlign [options] file1 file2
-options are:
-	--debug[=n] -d [n]		Report debug info at level n
-	--impl=className -i classname		Use the given Evaluator implementation.
-	--output=filename -o filename	Output the result in filename
-	--help -h			Print this message
+$ java -cp lib/procalign.jar fr.inrialpeS.exmo.align.cli.EvalAlign --help
+usage: java fr.inrialpes.exmo.align.cli.EvalAlign [options] alignURI alignURI
+            Evaluate two alignments identified by &lt;alignURI>
 
-Alignment API implementation 4.3 (1698M) ($Id$)
+Options:
+ -D &lt;NAME=VALUE>          Use value for given property
+ -d,--debug &lt;LEVEL>       debug argument is deprecated, use logging instead
+                          See http://alignapi.gforge.inria.fr/logging.html
+ -h,--help                Print this page
+ -i,--impl &lt;CLASS>        Use the given CLASS for evaluator
+ -o,--output &lt;FILENAME>   Send output to FILENAME
+ -P,--params &lt;FILE>       Read parameters from FILE
+
+Alignment API implementation 4.5 (1864M)
 </div>
 The <tt>-i</tt> switch enables changing the evaluator to be used (by
 default, <tt>PRecEvaluator</tt> is used).
@@ -289,14 +294,25 @@ $ java -cp ../lib/procalign.jar fr.inrialpes.exmo.align.cli.GenPlot -l "refalign
 <tt>GenPlot</tt> accepts the following arguments:
 <div class="terminal">
 $ java -cp /Java/alignapi/lib/procalign.jar fr.inrialpes.exmo.align.cli.GenPlot --help
-usage: GenPlot [options]
-options are:
-	--type=tsv|tex|html(|xml) -t tsv|tex|html(|xml)	Specifies the output format
-	--graph=class -g class	Specifies the class of Evaluator to be used
-	--evaluator=class -e class	Specifies the class of GraphEvaluator (plotter) to be used
-	--list=algo1,...,algon -l algo1,...,algon	Sequence of the filenames to consider
-	--debug[=n] -d [n]		Report debug info at level n
-	--help -h			Print this message
+usage: java fr.inrialpes.exmo.align.cli.GenPlot [options]
+            Generate a graphic presentation of evaluation results
+
+Options:
+ -D &lt;NAME=VALUE>                  Use value for given property
+ -d,--debug &lt;LEVEL>               debug argument is deprecated, use logging
+                                  instead
+                                  See
+                                  http://alignapi.gforge.inria.fr/logging.html
+ -e,--evaluator &lt;CLASS>           Use CLASS as evaluation plotter
+ -g,--grapher &lt;CLASS>             Use CLASS as graph generator
+ -h,--help                        Print this page
+ -l,--list &lt;FILE>                 Consider this list of FILEs for inclusion in
+                                  the results
+ -o,--output &lt;FILENAME>           Send output to FILENAME
+ -P,--params &lt;FILE>               Read parameters from FILE
+ -t,--type &lt;tsv|tex|html(|xml)>   Output in the specified FORMAT (values
+
+Alignment API implementation 4.5 (1864M)
 </div>
 The <tt>-t</tt> switch specifies the type output.
 The plots are provided for PGF LaTeX as gnuplot tables.

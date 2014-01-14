@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -33,12 +33,16 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 import org.semanticweb.owl.align.Alignment;
 
 public class EmptyModification extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( EmptyModification.class );
 
     protected boolean relocateSource = false;
 
@@ -51,7 +55,7 @@ public class EmptyModification extends BasicAlterator {
     // Clearly here setDebug, setNamespace are important
 
     public Alterator modify( Properties params ) {
-	//System.err.println( "********************************************************************************************" );
+	//logger.trace( "NEW MODIFICATION ------------------------------------" );
 	relocateSource = ( params.getProperty( "copy101" ) != null );
 
 	if ( alignment == null ) {

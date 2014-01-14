@@ -177,7 +177,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
                 
 		//}
  
-	     AlignmentParser parser = new AlignmentParser( 0 );
+	     AlignmentParser parser = new AlignmentParser();
 	     parser.initAlignment( this );
 	     parser.setEmbedded( true );
 	     parser.parse( httpConn.getInputStream() );

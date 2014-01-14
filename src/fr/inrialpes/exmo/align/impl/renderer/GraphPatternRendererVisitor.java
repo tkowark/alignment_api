@@ -32,6 +32,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
@@ -71,6 +74,7 @@ import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 // JE: create a string... problem with increment.
 
 public abstract class GraphPatternRendererVisitor extends IndentedRendererVisitor implements EDOALVisitor {
+    final static Logger logger = LoggerFactory.getLogger( GraphPatternRendererVisitor.class );
 
     Alignment alignment = null;
     Cell cell = null;
@@ -163,7 +167,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    if ( out != null ) // there was at least one file
 		out.close();
 	} catch(IOException ioe) {
-	    System.err.println( ioe );
+	    logger.debug( "IGNORED Exception", ioe );
 	}
     }
 

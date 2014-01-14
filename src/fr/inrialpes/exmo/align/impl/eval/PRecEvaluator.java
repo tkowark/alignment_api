@@ -38,6 +38,8 @@ import java.util.Set;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Evaluate proximity between two alignments.
@@ -51,6 +53,7 @@ import java.net.URI;
  */
 
 public class PRecEvaluator extends BasicEvaluator implements Evaluator {
+    final static Logger logger = LoggerFactory.getLogger( PRecEvaluator.class );
 
     protected double precision = 1.;
 
@@ -148,7 +151,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	} else { result = 0.; }
 	String timeExt = align2.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
-	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
+	//logger.trace(">>>> {} : {} : {}", nbcorrect, nbfound, nbexpected);
 	return (result);
     }
 
@@ -162,7 +165,9 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	try {
 	    result += "    <dt>input1</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input1\" href=\""+align1.getOntology1URI()+"\">"+align1.getOntology1URI()+"</dd>";
 	    result += "    <dt>input2</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input2\" href=\""+align1.getOntology2URI()+"\">"+align1.getOntology2URI()+"</dd>";
-	} catch (AlignmentException e) { e.printStackTrace(); };
+	} catch (AlignmentException e) { 
+	    logger.debug( "IGNORED Exception", e ); 
+	};
 	// Other missing items (easy to get)
 	// result += "    <"+Namespace.ATLMAP.shortCut+":falseNegative>");
 	// result += "    <"+Namespace.ATLMAP.shortCut+":falsePositive>");

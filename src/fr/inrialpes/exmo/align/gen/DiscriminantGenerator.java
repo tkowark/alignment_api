@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2012, INRIA
+ * Copyright (C) 2012-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,9 @@ package fr.inrialpes.exmo.align.gen;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class serves as an example for systematically generating the
  * alteration space at a particular resolution.
@@ -38,10 +41,10 @@ import java.util.Properties;
  * All this could be achieved by using the parameters which could be Alterator/Step
  */
 public class DiscriminantGenerator extends TestSet {
+    final static Logger logger = LoggerFactory.getLogger( DiscriminantGenerator.class );
 
     public void initTestCases( Properties params ) {
 	// Process params
-	debug = ( params.getProperty( "debug" ) != null );
 
 	// JE: ugly 
 	secondOntoFile = params.getProperty( "outdir" )+"/000/onto.rdf";
@@ -52,10 +55,10 @@ public class DiscriminantGenerator extends TestSet {
 	try {
 	    if ( stepval != null && !stepval.equals("") ) STEP = Integer.parseInt( stepval );
 	} catch ( Exception ex ) {
-	    ex.printStackTrace(); // continue with the default
+	    logger.debug( "IGNORED Exception (continue with defaults)", ex );
 	}
 	final float INCR = 1.0f/(STEP-1);
-	if ( debug ) System.err.println( " STEP: "+STEP+" / INCR: "+INCR );
+	//logger.trace( " STEP: {} / INCR: {}", STEP, INCR );
 
         /* Test 000 Generate the initial situation */
 	initTests( "000" );

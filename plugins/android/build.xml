@@ -70,6 +70,7 @@
     <condition property="tempdir" value="${tempdir}" else="/tmp">
       <isset property="tempdit"/>
     </condition>
+    <!-- two first jars seem useless -->
     <property name="jarclasspath" value="slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jena/jena.jar jena/iri.jar jena/icu4j.jar xerces/xercesImpl.jar xerces/resolver.jar align.jar microalign.jar"/>
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>

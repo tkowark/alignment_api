@@ -349,6 +349,27 @@ a test set altering regularly one or several dimensions (each one
 represented by an alterator).
 </p>
 
+<h4>Definitely harder benchmarks</h4>
+
+<p>
+Benchmark is a test set were a seed ontology is altered and any test
+has to match the seed ontology with the altered ontology. However, we can also ask
+to match two differently altered ontologies. Since altered ontologies
+come from the same seed ontology and the generateed alignments are
+equivalence alignment, the reference alignment can be generated
+automatically. Indeed, if benchmark test <i>X</i> generates
+alignment <i>A<sub>X</sub></i> and test <i>Y</i> generates
+alignment <i>A<sub>Y</sub></i>, then for the task of matching
+ontology <i>o<sub>X</sub></i> to ontology <i>o<sub>Y</sub></i>, the
+reference alignment will be:
+<center>
+<i>A<sub>X-Y</sub></i> = <i>A<sub>X</sub></i><sup>-1</sup> o <i>A<sub>Y</sub></i>
+</center>
+The two operations (<sup>-1</sup> and o) being part of the Alignment
+API, this is easy to generate.
+</p>
+<p>Not available yet.</p>
+
 <h4>Hidden ontology generator</h4>
 
 <p>Not available yet.</p>

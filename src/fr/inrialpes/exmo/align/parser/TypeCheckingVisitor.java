@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010-2012
+ * Copyright (C) INRIA, 2010-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.align.parser;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -73,6 +76,7 @@ import fr.inrialpes.exmo.align.impl.edoal.Comparator;
  */
 
 public class TypeCheckingVisitor {
+    final static Logger logger = LoggerFactory.getLogger( TypeCheckingVisitor.class );
 
     public enum TYPE { CLASS, PROPERTY, RELATION, INSTANCE, VALUE, DATATYPE, ANY, ERROR };
 
@@ -352,7 +356,7 @@ public class TypeCheckingVisitor {
 	
     public TYPE raiseError( final URI u, TYPE expT, TYPE foundT ) {
 	error = true;
-	if ( print ) System.err.println( "Incorrectly typed expression "+u+": Type "+foundT+" ("+expT+" expected)");
+	if ( print ) logger.error( "Incorrectly typed expression {}: Type {} ({} expected)", u, foundT, expT );
 	return TYPE.ERROR;
     }
 

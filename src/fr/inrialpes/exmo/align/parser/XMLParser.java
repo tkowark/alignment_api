@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2012
+ * Copyright (C) INRIA, 2003-2005, 2007-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -43,6 +43,9 @@ import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
@@ -60,7 +63,7 @@ import fr.inrialpes.exmo.align.impl.Extensions;
 /**
  * This class allows the creation of a parser for an Alignment file.
  * The class is called by:
- * AlignmentParser parser = new AlignmentParser( debugLevel );
+ * AlignmentParser parser = new AlignmentParser();
  * Alignment alignment = parser.parse( input );
  * input can be a URI as a String, an InputStream
  * This new version (January 2004) parses the alignment description in
@@ -69,12 +72,8 @@ import fr.inrialpes.exmo.align.impl.Extensions;
  */
 
 public class XMLParser extends DefaultHandler {
+    final static Logger logger = LoggerFactory.getLogger( XMLParser.class );
 
-    /**
-     * level of debug/warning information
-     */
-    protected int debugMode = 0;
-    
     /**
      * a URI to a process
      */
@@ -171,22 +170,22 @@ public class XMLParser extends DefaultHandler {
      * Creates an XML Parser.
      */
     public XMLParser() throws ParserConfigurationException, SAXException {
-	this(0);
+	this(false);
     }
 
     /** 
      * Creates an XML Parser.
-     * @param debugMode The value of the debug mode
+     * @param validate 0 if non validating, more otherwise
+     * This should become a boolean
      */
-    public XMLParser( int debugMode ) throws ParserConfigurationException, SAXException {
-	this.debugMode = debugMode;
+    public XMLParser( int validate ) throws ParserConfigurationException, SAXException {
+	this( (validate > 0) );
+    }
+
+    public XMLParser( boolean validate ) throws ParserConfigurationException, SAXException {
 	SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-	if (debugMode > 0) {
-	    parserFactory.setValidating(true);
-	} else {
-	    parserFactory.setValidating(false);
-	}
-	parserFactory.setNamespaceAware(true);
+	parserFactory.setValidating( validate );
+	parserFactory.setNamespaceAware( true );
 	parser = parserFactory.newSAXParser();
     }
 
@@ -264,7 +263,7 @@ public class XMLParser extends DefaultHandler {
    * @param atts 					The attributes name of the current element 
    */
     public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
-	if(debugMode > 2) System.err.println("startElement XMLParser : " + pName);
+	logger.debug( "startElement XMLParser : {}", pName );
 	parseLevel++;
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
@@ -272,16 +271,14 @@ public class XMLParser extends DefaultHandler {
 	    } else if (pName.equals( SyntaxElement.SEMANTICS.name )) {
 	    } else if (pName.equals( SyntaxElement.MEASURE.name )) {
 	    } else if (pName.equals( SyntaxElement.ENTITY2.name )) {
-		if(debugMode > 2) 
-		    System.err.println(" resource = " + atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
+		//logger.trace( " resource = {}", atts.getValue(SyntaxElement.RDF_RESOURCE.print()) );
 		try {
 		    cl2 = new URI( atts.getValue(SyntaxElement.RDF_RESOURCE.print()) );
 		} catch (URISyntaxException e) {
 		    throw new SAXException("Malformed URI: "+atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		}
 	    } else if (pName.equals( SyntaxElement.ENTITY1.name )) {
-		if(debugMode > 2) 
-		    System.err.println(" resource = " + atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
+		//logger.trace(" resource = {}", atts.getValue(SyntaxElement.RDF_RESOURCE.print()));
 		try {
 		    cl1 = new URI( atts.getValue( SyntaxElement.RDF_RESOURCE.print() ) );
 		} catch (URISyntaxException e) {
@@ -347,7 +344,7 @@ public class XMLParser extends DefaultHandler {
 		    alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, about );
 		};
 	    } else {
-		if ( debugMode > 0 ) System.err.println("[XMLParser] Unknown element name : "+pName);
+		logger.warn( "Unknown element name : {}", pName );
 	    };
 	} else if ( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
@@ -373,8 +370,7 @@ public class XMLParser extends DefaultHandler {
      * Put the content in a variable
     public void characters(char ch[], int start, int length) {
 	content = new String( ch, start, length );
-	if(debugMode > 2) 
-	    System.err.println("content XMLParser : " + content);
+	//logger.trace( "content XMLParser : {}", content );
     }
     */
 
@@ -393,7 +389,7 @@ public class XMLParser extends DefaultHandler {
 	} else {
 	    content = newContent; 
 	}
-	if ( debugMode > 2 ) System.err.println("content XMLParser : " + content);
+	logger.debug( "content XMLParser : {}", content );
     }
 
     /** 
@@ -404,8 +400,7 @@ public class XMLParser extends DefaultHandler {
      * @param qName					The name of the current element 
      */
     public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
-	if(debugMode > 2) 
-	    System.err.println("endElement XMLParser : " + pName);
+	logger.debug( "endElement XMLParser : {}", pName );
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    try {
@@ -418,17 +413,15 @@ public class XMLParser extends DefaultHandler {
 		} else if (pName.equals( SyntaxElement.ENTITY2.name )) {
 		} else if (pName.equals( SyntaxElement.ENTITY1.name )) {
 		} else if (pName.equals( SyntaxElement.CELL.name )) {
-		    if(debugMode > 1) {
-			System.err.print(" " + cl1);
-			System.err.print(" " + cl2);
-			System.err.print(" " + relation);
-			System.err.println(" " + Double.parseDouble(measure));
-		    }
+		    //logger.trace( " {}", cl1 );
+		    //logger.trace( " {}", cl2 );
+		    //logger.trace( " {}", relation);
+		    //logger.trace( " {}", Double.parseDouble(measure));
 		    if ( cl1 == null || cl2 == null ) {
 			// Maybe we could just print this out and fail in the end.
 			//throw new SAXException( "Missing entity "+cl1+" "+cl2 );
 			// The cell is void
-			System.err.println("Warning (cell voided), missing entity "+cl1+" "+cl2 );
+			logger.warn( "(cell voided), missing entity {} {}", cl1, cl2 );
 		    } else if ( measure == null || relation == null ){
 			cell = alignment.addAlignCell( cl1, cl2);
 		    } else {
@@ -497,8 +490,8 @@ public class XMLParser extends DefaultHandler {
 			alignment.setExtension( namespaceURI, pName, content );
 		    } else if ( parseLevel == 5 ) {
 			extensions.setExtension( namespaceURI, pName, content );
-		    } else //if ( debugMode > 0 )
-			System.err.println("[XMLParser("+parseLevel+")] Unknown element name : "+pName);
+		    } else 
+			logger.warn( "("+parseLevel+") Unknown element name : {}", pName );
 		    //throw new SAXException("[XMLParser] Unknown element name : "+pName);
 		};
 	    } catch ( AlignmentException e ) { throw new SAXException("[XMLParser] Exception raised", e); };

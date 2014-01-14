@@ -1,10 +1,10 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      01/01/2013, version 4.4                        #
+#                      11/01/2014, version 4.5                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
-Copyright (C) 2003-2013 INRIA.
+Copyright (C) 2003-2014 INRIA.
 Copyright (C) 2004-2005 Université de Montréal.
 Copyright (C) 2005 CNR Pisa.
 Copyright (C) 2005 Konstantinos A. Nedas.
@@ -91,15 +91,15 @@ LAST RELEASE
 
 The last release is available from: http://gforge.inria.fr/frs/?group_id=117
 
+DOCUMENTATION
+-------------
+
+The documentation can be found online at http://alignapi.gforge.inria.fr
+
 SOURCE REPOSITORY
 -----------------
 
 See http://gforge.inria.fr/scm/?group_id=117 for SVN Access.
-
-DOCUMENTATION
--------------
-
-The documentation can be found on http://gforge.inria.fr/docman/?group_id=117
 
 FILES
 -----

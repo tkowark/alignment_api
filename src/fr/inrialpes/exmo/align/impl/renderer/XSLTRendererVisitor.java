@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012
+ * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,7 +78,7 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
 	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
 	}
-	for( Cell c : align ){
+	for( Cell c : alignment ){
 	    collectURIs( c );
 	}
 	alignment = align;
@@ -98,7 +98,7 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 	}
 	writer.print("\n");
 
-	for ( Enumeration e = align.getElements() ; e.hasMoreElements(); ){
+	for ( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
 	    Cell c = (Cell)e.nextElement();
 	    c.accept( this );
 	}
@@ -136,8 +136,8 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 		throw new AlignmentException( "Cannot find entity URI", owex );
 	    }
 	} else {
-	    entity1URI = cell.getObject1AsURI(alignment);
-	    entity2URI = cell.getObject2AsURI(alignment);
+	    entity1URI = cell.getObject1AsURI( alignment );
+	    entity2URI = cell.getObject2AsURI( alignment );
 	}
 	if ( entity1URI != null ) {
 	    String ns1 = entity1URI.getScheme()+":"+entity1URI.getSchemeSpecificPart()+"#";
@@ -163,8 +163,8 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 		throw new AlignmentException( "Cannot find entity URI", owex );
 	    }
 	} else {
-	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI(alignment))+"\">");
-	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI(alignment))+"\">");
+	    writer.println("  <xsl:template match=\""+namespacify(cell.getObject1AsURI( alignment ))+"\">");
+	    writer.println("    <xsl:element name=\""+namespacify(cell.getObject2AsURI( alignment ))+"\">");
 	}
 	writer.println("      <xsl:apply-templates select=\"*|@*|text()\"/>");
 	writer.println("    </xsl:element>");

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -49,6 +49,9 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //Jena API classes
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -61,6 +64,8 @@ import fr.inrialpes.exmo.align.gen.alt.EmptyModification;
 import java.util.Properties;
 
 public class TestGenerator {
+    final static Logger logger = LoggerFactory.getLogger( TestGenerator.class );
+
     private String urlprefix = "http://example.com/"; // Prefix (before testnumber) of test URL
     private String dirprefix = "";                    // Prefix (idem) of directory
     private String ontoname = "onto.rdf";             // name of ontology to generate
@@ -69,7 +74,6 @@ public class TestGenerator {
     private OntModel modifiedOntology;                                             //modified ontology
     private Alignment resultAlignment;                                                //the reference alignment
     private Alterator modifier = null;                                   //the modifier
-    private boolean debug = false;
 
     public TestGenerator() {}
 
@@ -81,8 +85,6 @@ public class TestGenerator {
     public void setOntoFilename( String o ) { ontoname = o; }
 
     public void setAlignFilename( String a ) { alignname = a; }
-
-    public void setDebug( boolean d ) { debug = d; }
 
     //returns the modified ontology
     public OntModel getModifiedOntology() { return modifiedOntology; }
@@ -191,7 +193,7 @@ public class TestGenerator {
      * Generate a test from an ontology
      */
     public Properties modifyOntology( String file, Properties al, String dirName, Properties params) {
-	if ( debug ) System.err.println( "Source: "+file+" Target "+dirName );
+	logger.trace( "Source: {};  Target {}", file, dirName );
 	//set the TestGenerator ontology
 	OntModel onto = loadOntology( file );
 	Alterator modifier = generate( onto, params, al );
@@ -209,13 +211,10 @@ public class TestGenerator {
     // ******************************************************* GENERATOR
     //generate the alingnment
     public Alterator generate( OntModel onto, Properties params, Properties initalign ) {
-        if ( debug ) {
-	    System.err.println( "[-------------------------------------------------]" );
-	    System.err.println( urlprefix+" / "+dirprefix+" / "+ontoname+" / "+alignname );
-	}
+        logger.debug( "[-------------------------------------------------]" );
+	logger.debug( "{} / {} / {} / {}", urlprefix, dirprefix, ontoname, alignname );
 	// Load the ontology
 	Alterator modifier = new EmptyModification( onto );
-	((EmptyModification)modifier).setDebug( debug );
 	// Initialize the reference alignment
         if ( initalign != null ) ((EmptyModification)modifier).initializeAlignment( initalign );
 	modifier.modify( params );

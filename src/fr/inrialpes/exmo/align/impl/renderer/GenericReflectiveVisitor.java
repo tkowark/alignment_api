@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.align.impl.renderer;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.AlignmentException;
 
 /**
@@ -34,6 +37,7 @@ import org.semanticweb.owl.align.AlignmentException;
  * and Relation may be extended.
  */
 public class GenericReflectiveVisitor {
+    final static Logger logger = LoggerFactory.getLogger( GenericReflectiveVisitor.class );
 
     /**
      * Finds the visit(X) method corresponding to the object class (subclass of a root class)
@@ -54,7 +58,7 @@ public class GenericReflectiveVisitor {
 	    }
 	}
 	if ( m == null ) {//newc == Object.class ) {
-	    // System.out.println( "Searching for interfaces" );
+	    // logger.trace( "Searching for interfaces" );
 	    Class[] interfaces = c.getInterfaces();
 	    for ( int i=0; i < interfaces.length; i++ ) {
 		if ( interfaces[i] != root ) {
@@ -83,12 +87,12 @@ public class GenericReflectiveVisitor {
 		method.invoke( visitor, new Object[] {o} );
 		return true;
 	    } catch ( IllegalAccessException iaex ) {
-		iaex.printStackTrace();
+		logger.debug( "IGNORED Exception", iaex );
 	    } catch ( InvocationTargetException itex ) { 
 		if ( itex.getCause() instanceof AlignmentException ) {
 		    throw (AlignmentException)itex.getCause();
 		} else {
-		    itex.printStackTrace();
+		    logger.debug( "IGNORED Exception", itex );
 		}
 	    }
 	}

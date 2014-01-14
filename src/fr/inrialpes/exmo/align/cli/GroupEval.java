@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003 The University of Manchester
- * Copyright (C) 2003 The University of Karlsruhe
- * Copyright (C) 2003-2012, INRIA
+ * Copyright (C) 2003-2014, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -48,8 +46,14 @@ import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -65,7 +69,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     <pre>
     -o filename --output=filename
     -f format = prfot (precision/recall/f-measure/overall/time) --format=prfot
-    -d debug --debug=level
     -r filename --reference=filename
     -s algo/measure
     -l list of compared algorithms
@@ -83,24 +86,36 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 $Id$
 </pre>
 
-@author Sean K. Bechhofer
-@author Jérôme Euzenat
     */
 
-public class GroupEval {
+public class GroupEval extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( GroupEval.class );
 
-    Properties params = null;
-    String filename = null;
     String reference = "refalign.rdf";
     String format = "pr";
     int fsize = 2;
     String type = "html";
     boolean embedded = false;
     String dominant = "s";
-    Vector<String> listAlgo = null;
-    int debug = 0;
+    String[] listAlgo = null;
+    int size = 0;
     String color = null;
     String ontoDir = null;
+
+    public GroupEval() {
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
+	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
+	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Used MEASures and order (precision/recall/f-measure/overall/time)  (default: "+format+")" ).withArgName("MEAS").create( 'f' ) );
+	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
+	//options.addOption( OptionBuilder.withLongOpt( "sup" ).hasArg().withDescription( "Specifies if dominant columns are algorithms or measure" ).withArgName("algo").create( 's' ) );
+	options.addOption( OptionBuilder.withLongOpt( "reference" ).hasArg().withDescription( "Name of the reference alignment FILE (default: "+reference+")" ).withArgName("FILE").create( 'r' ) );
+	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to evaluate" ).withArgName("DIR").create( 'w' ) );
+	// .setRequired( true )
+	Option opt = options.getOption( "list" );
+	if ( opt != null ) opt.setRequired( true );
+    }
+
 
     public static void main(String[] args) {
 	try { new GroupEval().run( args ); }
@@ -108,82 +123,27 @@ public class GroupEval {
     }
 
     public void run(String[] args) throws Exception {
-	String listFile = "";
-	LongOpt[] longopts = new LongOpt[10];
 
- 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("format", LongOpt.REQUIRED_ARGUMENT, null, 'f');
-	longopts[3] = new LongOpt("type", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[5] = new LongOpt("sup", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[6] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
-	longopts[7] = new LongOpt("color", LongOpt.OPTIONAL_ARGUMENT, null, 'c');
-	longopts[8] = new LongOpt("reference", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[9] = new LongOpt("directory", LongOpt.REQUIRED_ARGUMENT, null, 'w');
+	try { 
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
 
-	Getopt g = new Getopt("", args, "ho:a:d::l:f:t:r:w:c::", longopts);
-	int c;
-	String arg;
-
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h' :
-		usage();
-		return;
-	    case 'o' :
-		/* Write output here */
-		filename = g.getOptarg();
-		break;
-	    case 'r' :
-		/* File name for the reference alignment */
-		reference = g.getOptarg();
-		break;
-	    case 'f' :
-		/* Sequence of results to print */
-		format = g.getOptarg();
-		break;
-	    case 't' :
-		/* Type of output (tex/html/xml/ascii) */
-		type = g.getOptarg();
-		break;
-	    case 's' :
-		/* Print per type or per algo */
-		dominant = g.getOptarg();
-		break;
-	    case 'c' :
-		/* Print colored lines */
-		arg = g.getOptarg();
-		if ( arg != null )  {
-		    color = arg.trim();
-		} else color = "lightblue";
-		break;
-	    case 'l' :
-		/* List of filename */
-		listFile = g.getOptarg();
-		break;
-	    case 'd' :
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'w' :
-		/* Use the given ontology directory */
-	    arg = g.getOptarg();
-	    if ( arg != null ) ontoDir = g.getOptarg();
-	    else ontoDir = null;
-		break;
+	    // Here deal with command specific arguments
+	    if ( line.hasOption( 'f' ) ) format = line.getOptionValue( 'f' );
+	    if ( line.hasOption( 'r' ) ) reference = line.getOptionValue( 'r' );
+	    if ( line.hasOption( 's' ) ) dominant = line.getOptionValue( 's' );
+	    if ( line.hasOption( 't' ) ) type = line.getOptionValue( 't' );
+	    if ( line.hasOption( 'c' ) ) color = line.getOptionValue( 'c', "lightblue" );
+	    if ( line.hasOption( 'l' ) ) {
+		listAlgo = line.getOptionValues( 'l' );
+		size = listAlgo.length;
 	    }
+	    if ( line.hasOption( 'w' ) ) ontoDir = line.getOptionValue( 'w' );
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
+	    usage();
+	    System.exit( -1 );
 	}
-
-	listAlgo = new Vector<String>();
-	for ( String s : listFile.split(",") ) {
-	    listAlgo.add( s );	    
-	}
-
-	params = new Properties();
-	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	print( iterateDirectories() );
     }
@@ -192,13 +152,13 @@ public class GroupEval {
 	Vector<Vector> result = null;
 	File [] subdir = null;
 	try {
-		if (ontoDir == null) {
-		    subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
-		} else {
-		    subdir = (new File(ontoDir)).listFiles();
-		}
-	} catch (Exception e) {
-	    System.err.println("Cannot stat dir "+ e.getMessage());
+	    if (ontoDir == null) {
+		subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+	    } else {
+		subdir = (new File(ontoDir)).listFiles();
+	    }
+	} catch ( Exception e ) {
+	    logger.error( "Cannot stat dir ", e );
 	    usage();
 	}
 	int size = subdir.length;
@@ -207,7 +167,7 @@ public class GroupEval {
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
-		if ( debug > 0 ) System.err.println("\nEntering directory "+subdir[j]);
+		//logger.trace( "Entering directory {}", subdir[j] );
 		// eval the alignments in a subdirectory
 		// store the result
 		Vector vect = iterateAlignments( subdir[j] );
@@ -232,7 +192,7 @@ public class GroupEval {
 	    // call eval
 	    // store the result in a record
 	    // return the record.
-	    if ( debug > 2) System.err.println("  Considering result "+i);
+	    //logger.trace( "  Considering result {}", i );
 	    Evaluator evaluator = eval( prefix+reference, prefix+m+".rdf");
 	    if ( evaluator != null ) ok = true;
 	    result.add( i, evaluator );
@@ -240,8 +200,8 @@ public class GroupEval {
 	// Unload the ontologies.
 	try {
 	    OntologyFactory.clear();
-	} catch ( OntowrapException owex ) { // only report
-	    owex.printStackTrace();
+	} catch ( OntowrapException owex ) {
+	    logger.debug( "IGNORED Exception", owex );
 	}
 
 	if ( ok == true ) return result;
@@ -251,28 +211,19 @@ public class GroupEval {
     public Evaluator eval( String alignName1, String alignName2 ) {
 	Evaluator eval = null;
 	try {
-	    int nextdebug;
-	    if ( debug < 2 ) nextdebug = 0;
-	    else nextdebug = debug - 2;
 	    // Load alignments
-	    AlignmentParser aparser = new AlignmentParser( nextdebug );
+	    AlignmentParser aparser = new AlignmentParser();
 	    Alignment align1 = aparser.parse( alignName1 );
-	    if ( debug > 2 ) System.err.println(" Alignment structure1 parsed");
+	    //logger.trace(" Alignment structure1 parsed");
 	    aparser.initAlignment( null );
 	    Alignment align2 = aparser.parse( alignName2 );
-	    if ( debug > 2 ) System.err.println(" Alignment structure2 parsed");
+	    //logger.trace(" Alignment structure2 parsed");
 	    // Create evaluator object
 	    eval = new PRecEvaluator( align1, align2 );
 	    // Compare
-	    params.setProperty( "debug", Integer.toString( nextdebug ) );
-	    eval.eval( params ) ;
+	    eval.eval( parameters ) ;
 	} catch (Exception ex) {
-	    if ( debug > 1 ) {
-		ex.printStackTrace();
-	    } else {
-		System.err.println("GroupEval: "+ex);
-		System.err.println(alignName1+ " - "+alignName2 );
-	    }
+	    logger.debug( "IGNORED Exception", ex );
 	};
 	return eval;
     }
@@ -283,16 +234,16 @@ public class GroupEval {
     public void print( Vector<Vector> result ) {
 	PrintStream writer = null;
 	try {
-	    if ( filename == null ) {
+	    if ( outputfilename == null ) {
 		writer = System.out;
 	    } else {
-		writer = new PrintStream(new FileOutputStream( filename ));
+		writer = new PrintStream( new FileOutputStream( outputfilename ) );
 	    }
 	    if ( type.equals("html") ) printHTML( result, writer );
 	    else if ( type.equals("tex") ) printLATEX( result, writer );
 	    else if ( type.equals("triangle") ) printTRIANGLE( result, writer );
 	} catch ( FileNotFoundException fnfex) {
-	    fnfex.printStackTrace();
+	    logger.error( "Cannot open file", fnfex );
 	} finally {
 	    writer.close();
 	}
@@ -309,10 +260,10 @@ public class GroupEval {
 	int foundVect[]; // found so far
 	int correctVect[]; // correct so far
 	long timeVect[]; // time so far
-	foundVect = new int[ listAlgo.size() ];
-	correctVect = new int[ listAlgo.size() ];
-	timeVect = new long[ listAlgo.size() ];
-	for( int k = listAlgo.size()-1; k >= 0; k-- ) {
+	foundVect = new int[ size ];
+	correctVect = new int[ size ];
+	timeVect = new long[ size ];
+	for( int k = size-1; k >= 0; k-- ) {
 	    foundVect[k] = 0;
 	    correctVect[k] = 0;
 	    timeVect[k] = 0;
@@ -399,9 +350,11 @@ public class GroupEval {
 	    double prec2 = precision*precision;
 	    double a = ((prec2-(recall*recall)+1)/2);
 	    double b = java.lang.Math.sqrt( prec2 - (a*a) );
-	    a = a*10; b = b*10; //for printing scale 10.
-	    writer.println("\\draw plot[mark=+,] coordinates {("+a+","+b+")};");
-	    writer.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+m+"};");
+	    if ( b == b ) { // Test if b is not NaN! Otherwise, no square root: the point is out of the triangle
+		a = a*10; b = b*10; //for printing scale 10.
+		writer.println("\\draw plot[mark=+,] coordinates {("+a+","+b+")};");
+		writer.println("\\draw ("+(a+.01)+","+(b+.01)+") node[anchor=south west] {"+m+"};");
+	    }
 	    k++;
 	}
 	writer.println("\\end{tikzpicture}");
@@ -454,10 +407,10 @@ public class GroupEval {
 	    //writer.println("<td>Prec.</td><td>Rec.</td>");
 	}
 	writer.println("</tr></tbody><tbody>");
-	foundVect = new int[ listAlgo.size() ];
-	correctVect = new int[ listAlgo.size() ];
-	timeVect = new long[ listAlgo.size() ];
-	for( int k = listAlgo.size()-1; k >= 0; k-- ) {
+	foundVect = new int[ size ];
+	correctVect = new int[ size ];
+	timeVect = new long[ size ];
+	for( int k = size-1; k >= 0; k-- ) {
 	    foundVect[k] = 0;
 	    correctVect[k] = 0;
 	    timeVect[k] = 0;
@@ -508,10 +461,10 @@ public class GroupEval {
 			} else if ( format.charAt(i) == 'r' ) {
 			    formatter.format("%1.2f", eval.getRecall());
 			}
-			writer.println("</td>");
+			writer.print("</td>");
 		    }
 		} else {
-		    for ( int i = 0 ; i < fsize; i++) writer.println("<td>n/a</td>");
+		    for ( int i = 0 ; i < fsize; i++) writer.print("<td>n/a</td>");
 		}
 	    }
 	    writer.println("</tr>");
@@ -575,7 +528,7 @@ public class GroupEval {
 	writer.println("\\setlength{\\tabcolsep}{3pt} % May be changed");
 	writer.println("\\begin{table}");
 	writer.print("\\begin{tabular}{|l||");
-	for ( int i = listAlgo.size(); i > 0; i-- ) {
+	for ( int i = size; i > 0; i-- ) {
 	    for ( int j = fsize; j > 0; j-- ) writer.print("c");
 	    writer.print("|");
 	}
@@ -607,10 +560,10 @@ public class GroupEval {
 	    }
 	}
 	writer.println(" \\\\ \\hline");
-	foundVect = new int[ listAlgo.size() ];
-	correctVect = new int[ listAlgo.size() ];
-	timeVect = new long[ listAlgo.size() ];
-	for( int k = listAlgo.size()-1; k >= 0; k-- ) {
+	foundVect = new int[ size ];
+	correctVect = new int[ size ];
+	timeVect = new long[ size ];
+	for( int k = size-1; k >= 0; k-- ) {
 	    foundVect[k] = 0;
 	    correctVect[k] = 0;
 	    timeVect[k] = 0;
@@ -697,21 +650,7 @@ public class GroupEval {
     }
 
     public void usage() {
-	System.out.println("usage: GroupEval [options]");
-	System.out.println("options are:");
-	System.out.println("\t--format=prfot -r prfot\tSpecifies the output order (precision/recall/f-measure/overall/time)");
-	// Apparently not implemented
-	//System.out.println("\t--sup=algo -s algo\tSpecifies if dominant columns are algorithms or measure");
-	System.out.println("\t--output=filename -o filename\tSpecifies a file to which the output will go");
-	System.out.println("\t--reference=filename -r filename\tSpecifies the name of the reference alignment file (default: refalign.rdf)");
-
-	System.out.println("\t--type=html|xml|tex|ascii|triangle -t html|xml|tex|ascii\tSpecifies the output format");
-	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
-	System.out.println("\t--color=color -c color\tSpecifies if the output must color even lines of the output");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.out.println("\t--help -h\t\t\tPrint this message");
-	System.err.print("\n"+GroupEval.class.getPackage().getImplementationTitle()+" "+GroupEval.class.getPackage().getImplementationVersion());
-	System.err.println(" ($Id$)\n");
+	usage( "java "+this.getClass().getName()+" [options]\nEvaluates in parallel several matching results on several tests in subdirectories" );
     }
 
 /*

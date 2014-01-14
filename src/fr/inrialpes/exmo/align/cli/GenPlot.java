@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012, INRIA
+ * Copyright (C) 2003-2014, INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -51,8 +51,14 @@ import java.lang.InstantiationException;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -71,7 +77,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
  *  where the options are:
  *  <pre>
  *  -o filename --output=filename
- *  -d debug --debug=level
  *  -l list of compared algorithms
  *  -t output --type=output: xml/tex/html/ascii
  *  -e classname --evaluator=classname
@@ -93,22 +98,33 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
  * @author Jérôme Euzenat
  */
 
-public class GenPlot {
+public class GenPlot extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( GenPlot.class );
 
     int STEP = 10;
-    Properties params = new Properties();
-    Vector<String> listAlgo;
+    String[] listAlgo = null;
     Vector<GraphEvaluator> listEvaluators;
     String fileNames = "";
-    String outFile = null;
     Constructor evalConstructor = null;
     Constructor graphConstructor = null;
     String xlabel;
     String ylabel;
-    String type = "tsv";
-    int debug = 0;
+    String type = "tex";
     int size = 0; // the set of algo to compare
-    PrintWriter output = null;
+    String ontoDir = null;
+
+    public GenPlot() {
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
+	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output in the specified FORMAT (values" ).withArgName("tsv|tex|html(|xml)").create( 't' ) );
+	options.addOption( OptionBuilder.withLongOpt( "evaluator" ).hasArg().withDescription( "Use CLASS as evaluation plotter" ).withArgName("CLASS").create( 'e' ) );
+	options.addOption( OptionBuilder.withLongOpt( "grapher" ).hasArg().withDescription( "Use CLASS as graph generator" ).withArgName("CLASS").create( 'g' ) );
+	//options.addOption( OptionBuilder.withLongOpt( "step" ).hasArg().withDescription( "" ).withArgName("").create( 's' ) );
+	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
+	// .setRequired( true )
+	Option opt = options.getOption( "list" );
+	if ( opt != null ) opt.setRequired( true );
+    }
 
     public static void main(String[] args) {
 	try { new GenPlot().run( args ); }
@@ -116,74 +132,26 @@ public class GenPlot {
     }
 
     public void run(String[] args) throws Exception {
-	LongOpt[] longopts = new LongOpt[10];
-
- 	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[3] = new LongOpt("type", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[5] = new LongOpt("evaluator", LongOpt.REQUIRED_ARGUMENT, null, 'e');
-	longopts[6] = new LongOpt("grapher", LongOpt.REQUIRED_ARGUMENT, null, 'g');
-	longopts[7] = new LongOpt("list", LongOpt.REQUIRED_ARGUMENT, null, 'l');
-	longopts[8] = new LongOpt("step", LongOpt.REQUIRED_ARGUMENT, null, 's');
-	longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-
-	Getopt g = new Getopt("", args, "ho:d::l:D:e:g:s:t:", longopts);
-	int step = 10;
-	int c;
-	String arg;
 	String evalCN = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
 	String graphCN = "fr.inrialpes.exmo.align.impl.eval.PRGraphEvaluator";
 
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h' :
-		usage();
-		return;
-	    case 'o' :
-		/* Write output here */
-		outFile = g.getOptarg();
-		break;
-	    case 'e' :
-		/* Name of the evaluator to use */
-		evalCN = g.getOptarg();
-		break;
-	    case 'g' :
-		/* Name of the graph display to use */
-		graphCN = g.getOptarg();
-		break;
-	    case 't' :
-		/* Type of output (tex/tsv(/html/xml/ascii)) */
-		type = g.getOptarg();
-		break;
-	    case 'l' :
-		/* List of filename */
-		fileNames = g.getOptarg();
-		break;
-		//case 's' :
-		/* Step */
-		//fileNames = g.getOptarg();
-		//break;
-	    case 'd' :
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'D' :
-		/* Parameter definition */
-		arg = g.getOptarg();
-		int index = arg.indexOf('=');
-		if ( index != -1 ) {
-		    params.setProperty( arg.substring( 0, index), 
-					 arg.substring(index+1));
-		} else {
-		    System.err.println("Bad parameter syntax: "+g);
-		    usage();
-		    System.exit(0);
-		}
-		break;
+	try { 
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
+	    
+	    // Here deal with command specific arguments
+	    if ( line.hasOption( 'e' ) ) evalCN = line.getOptionValue( 'e' );
+	    if ( line.hasOption( 'g' ) ) graphCN = line.getOptionValue( 'g' );
+	    if ( line.hasOption( 't' ) ) type = line.getOptionValue( 't' );
+	    if ( line.hasOption( 'l' ) ) {
+		listAlgo = line.getOptionValues( 'l' );
+		size = listAlgo.length;
 	    }
+	    if ( line.hasOption( 'w' ) ) ontoDir = line.getOptionValue( 'w' );
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
+	    usage();
+	    System.exit(-1);
 	}
 
 	Class<?> graphClass = Class.forName(graphCN);
@@ -192,14 +160,6 @@ public class GenPlot {
 
 	//Class<?> evalClass = Class.forName(evalCN);
 	//evalConstructor = evalClass.getConstructor( cparams );
-
-	listAlgo = new Vector<String>();
-	for ( String s : fileNames.split(",") ) {
-	    size++;
-	    listAlgo.add( s );	    
-	}
-
-	if (debug > 0) params.setProperty( "debug", Integer.toString( debug-1 ) );
 
 	// Collect correspondences from alignments in all directories
 	// . -> Vector<EvalCell>
@@ -211,7 +171,7 @@ public class GenPlot {
 	    int n = e.nbCells();
 	    if ( n > max ) max = n;
 	}
-	params.setProperty( "scale", Integer.toString( max ) );
+	parameters.setProperty( "scale", Integer.toString( max ) );
 
 	xlabel = listEvaluators.get(0).xlabel();
 	ylabel = listEvaluators.get(0).ylabel();
@@ -223,18 +183,18 @@ public class GenPlot {
 	for( int i = 0; i < size ; i++ ) {
 	    // Convert it with the adequate GraphPlotter
 	    // Scale the point pairs to the current display (local)
-	    toplot.add( i, listEvaluators.get(i).eval( params ) );
+	    toplot.add( i, listEvaluators.get(i).eval( parameters ) );
 	    //scaleResults( STEP, 
 	}
 
 	// Set output file
 	OutputStream stream;
-	if (outFile == null) {
+	if ( outputfilename == null) {
 	    stream = System.out;
 	} else {
-	    stream = new FileOutputStream(outFile);
+	    stream = new FileOutputStream( outputfilename );
 	}
-	output = new PrintWriter (
+	PrintWriter writer = new PrintWriter (
 		   new BufferedWriter(
 		     new OutputStreamWriter( stream, "UTF-8" )), true);
 
@@ -242,12 +202,16 @@ public class GenPlot {
 	// Display the required type of output
 	// Vector<Pair> -> .
 	if ( type.equals("tsv") ){
-	    printTSV( toplot );
+	    printTSV( toplot, writer );
 	} else if ( type.equals("html") ) {
-	    printHTMLGGraph( toplot );
+	    printHTMLGGraph( toplot, writer );
 	} else if ( type.equals("tex") ) {
-	    printPGFTex( toplot );
-	} else System.err.println("Flag -t "+type+" : not implemented yet");
+	    printPGFTex( toplot, writer );
+	} else {
+	    logger.error( "Flag -t {} : not implemented yet", type );
+	    usage();
+	    System.exit(-1);
+	}
     }
 
     /**
@@ -265,17 +229,22 @@ public class GenPlot {
 		ev.setStep( STEP );
 		evaluators.add( i, ev );
 	    }
-	} catch (Exception ex) { //InstantiationException, IllegalAccessException
-	    ex.printStackTrace();
+	} catch ( Exception ex ) { //InstantiationException, IllegalAccessException
+	    logger.error( "FATAL Exception", ex );
 	    System.exit(-1);
 	}
 
 	File [] subdir = null;
 	try {
-	    subdir = (new File(System.getProperty("user.dir"))).listFiles();
-	} catch (Exception e) {
-	    System.err.println("Cannot stat dir "+ e.getMessage());
+	    if (ontoDir == null) {
+		subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+	    } else {
+		subdir = (new File(ontoDir)).listFiles();
+	    }
+	} catch ( Exception e ) {
+	    logger.error( "Cannot stat dir", e );
 	    usage();
+	    System.exit(-1);
 	}
 
 	// Evaluate the results in each directory
@@ -289,42 +258,31 @@ public class GenPlot {
     }
 
     public void iterateAlignments ( File dir, Vector<GraphEvaluator> evaluators ) {
-	if ( debug > 0 ) System.err.println("Directory : "+dir);
+	//logger.trace( "Directory : {}", dir );
 	String prefix = dir.toURI().toString()+"/";
 
-	int nextdebug;
-	if ( debug < 2 ) nextdebug = 0;
-	else nextdebug = debug - 2;
-	AlignmentParser aparser = new AlignmentParser( nextdebug );
+	AlignmentParser aparser = new AlignmentParser();
 	Alignment refalign = null;
 
 	try { // Load the reference alignment...
 	    refalign = aparser.parse( prefix+"refalign.rdf" );
-	    if ( debug > 1 ) System.err.println(" Reference alignment parsed");
+	    //logger.trace(" Reference alignment parsed");
 	} catch ( Exception aex ) {
-	    if ( debug > 1 ) {
-		aex.printStackTrace();
-	    } else {
-		System.err.println("GenPlot cannot parse refalign : "+aex);
-	    };
-	    return;
+	    logger.error( "GenPlot cannot parse refalign", aex );
+	    System.exit(-1);
 	}
 
 	// for all alignments there,
 	for( int i = 0; i < size; i++ ) {
-	    String algo = listAlgo.get(i);
+	    String algo = listAlgo[i];
 	    Alignment al = null;
-	    if ( debug > 0 ) System.err.println("  Considering result "+algo+" ("+i+")");
+	    //logger.trace("  Considering result {} ({})", algo, i );
 	    try {
 		aparser.initAlignment( null );
 		al = aparser.parse( prefix+algo+".rdf" );
-		if ( debug > 1 ) System.err.println(" Alignment "+algo+" parsed");
-	    } catch (Exception ex) { 
-		if ( debug > 1 ) {
-		    ex.printStackTrace();
-		} else {
-		    System.err.println("GenPlot: "+ex);
-		};
+		//logger.trace(" Alignment {} parsed", algo );
+	    } catch ( Exception ex ) { 
+		logger.error( "IGNORED Exception", ex );
 	    }
 	    // even if empty, declare refalign
 	    evaluators.get(i).ingest( al, refalign );
@@ -333,7 +291,7 @@ public class GenPlot {
 	try {
 	    OntologyFactory.clear();
 	} catch ( OntowrapException owex ) { // only report
-	    owex.printStackTrace();
+	    logger.error( "IGNORED Exception", owex );
 	}
     }
     
@@ -370,86 +328,86 @@ public class GenPlot {
      * This does average plus plot
      *
      */
-    public void printPGFTex( Vector<Vector<Pair>> result ){
+    public void printPGFTex( Vector<Vector<Pair>> result, PrintWriter writer ){
 	int i = 0;
 	String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
 	String colortable[] = { "black", "red", "green!50!black", "blue", "cyan", "magenta" }	;
-	output.println("\\documentclass[11pt]{book}");
-	output.println();
-	output.println("\\usepackage{pgf}");
-	output.println("\\usepackage{tikz}");
-	output.println("\\usetikzlibrary{plotmarks}");
-	output.println();
-	output.println("\\begin{document}");
-	output.println("\\date{today}");
-	output.println("");
-	output.println("\n%% Plot generated by GenPlot of alignapi");
-	output.println("\\begin{tikzpicture}[cap=round]");
-	output.println("% Draw grid");
-	output.println("\\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
-	output.println("\\draw[->] (-0.2,0) -- (10.2,0);");
-	output.println("\\draw (5,-0.3) node {$"+xlabel+"$}; ");
-	output.println("\\draw (0,-0.3) node {0.}; ");
-	output.println("\\draw (10,-0.3) node {1.}; ");
-	output.println("\\draw[->] (0,-0.2) -- (0,10.2);");
-	output.println("\\draw (-0.3,0) node {0.}; ");
-	output.println("\\draw (-0.3,5) node[rotate=90] {$"+ylabel+"$}; ");
-	output.println("\\draw (-0.3,10) node {1.}; ");
-	output.println("% Plots");
+	writer.println("\\documentclass[11pt]{book}");
+	writer.println();
+	writer.println("\\usepackage{pgf}");
+	writer.println("\\usepackage{tikz}");
+	writer.println("\\usetikzlibrary{plotmarks}");
+	writer.println();
+	writer.println("\\begin{document}");
+	writer.println("\\date{today}");
+	writer.println("");
+	writer.println("\n%% Plot generated by GenPlot of alignapi");
+	writer.println("\\begin{tikzpicture}[cap=round]");
+	writer.println("% Draw grid");
+	writer.println("\\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
+	writer.println("\\draw[->] (-0.2,0) -- (10.2,0);");
+	writer.println("\\draw (5,-0.3) node {$"+xlabel+"$}; ");
+	writer.println("\\draw (0,-0.3) node {0.}; ");
+	writer.println("\\draw (10,-0.3) node {1.}; ");
+	writer.println("\\draw[->] (0,-0.2) -- (0,10.2);");
+	writer.println("\\draw (-0.3,0) node {0.}; ");
+	writer.println("\\draw (-0.3,5) node[rotate=90] {$"+ylabel+"$}; ");
+	writer.println("\\draw (-0.3,10) node {1.}; ");
+	writer.println("% Plots");
 	i = 0;
 	for ( String m : listAlgo ) {
-	    output.print("\\draw["+colortable[i%6] );
-	    if ( !listEvaluators.get(i).isValid() ) output.print(",dotted");
-	    output.println("] plot[mark="+marktable[i%19]+"] file {"+m+".table};");
+	    writer.print("\\draw["+colortable[i%6] );
+	    if ( !listEvaluators.get(i).isValid() ) writer.print(",dotted");
+	    writer.println("] plot[mark="+marktable[i%19]+"] file {"+m+".table};");
 	    //,smooth
 	    i++;
 	}
 	// And a legend
-	output.println("% Legend");
+	writer.println("% Legend");
 	i = 0;
 	for ( String m : listAlgo ) {
-	    output.print("\\draw["+colortable[i%6] );
-	    if ( !listEvaluators.get(i).isValid() ) output.print(",dotted");
-	    output.println("] plot[mark="+marktable[i%19]+"] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
+	    writer.print("\\draw["+colortable[i%6] );
+	    if ( !listEvaluators.get(i).isValid() ) writer.print(",dotted");
+	    writer.println("] plot[mark="+marktable[i%19]+"] coordinates {("+((i%3)*3+1)+","+(-(i/3)*.8-1)+") ("+((i%3)*3+3)+","+(-(i/3)*.8-1)+")};");
 	    //,smooth
-	    output.println("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
-	    output.printf("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-1.2)+") node {%1.2f};\n", listEvaluators.get(i).getGlobalResult() );
+	    writer.println("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-.8)+") node {"+m+"};");
+	    writer.printf("\\draw["+colortable[i%6]+"] ("+((i%3)*3+2)+","+(-(i/3)*.8-1.2)+") node {%1.2f};\n", listEvaluators.get(i).getGlobalResult() );
 	    i++;
 	}
-	output.println("\\end{tikzpicture}");
-	output.println();
-	output.println("\\end{document}");
+	writer.println("\\end{tikzpicture}");
+	writer.println();
+	writer.println("\\end{document}");
 
 	i = 0;
 	for( Vector<Pair> table : result ) {
-	    String algo = listAlgo.get(i);
+	    String algo = listAlgo[i];
 	    // Open one file
-	    PrintWriter writer = null;
+	    PrintWriter auxwriter = null;
 	    try {
-		writer = new PrintWriter (
+		auxwriter = new PrintWriter (
 				    new BufferedWriter(
                                        new OutputStreamWriter(
                                             new FileOutputStream(algo+".table"), "UTF-8" )), true);
 		// Print header
-		writer.println("#Curve 0, "+(STEP+1)+" points");
-		writer.println("#x y type");
-		writer.println("%% Plot generated by GenPlot of alignapi");
-		writer.println("%% Include in PGF tex by:\n");
-		writer.println("%% \\begin{tikzpicture}[cap=round]");
-		writer.println("%% \\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
-		writer.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$"+xlabel+"$}; ");
-		writer.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$"+ylabel+"$}; ");
-		writer.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
-		writer.println("%% \\end{tikzpicture}");
-		writer.println();
+		auxwriter.println("#Curve 0, "+(STEP+1)+" points");
+		auxwriter.println("#x y type");
+		auxwriter.println("%% Plot generated by GenPlot of alignapi");
+		auxwriter.println("%% Include in PGF tex by:\n");
+		auxwriter.println("%% \\begin{tikzpicture}[cap=round]");
+		auxwriter.println("%% \\draw[step="+(STEP/10)+"cm,very thin,color=gray] (-0.2,-0.2) grid ("+STEP+","+STEP+");");
+		auxwriter.println("%% \\draw[->] (-0.2,0) -- (10.2,0) node[right] {$"+xlabel+"$}; ");
+		auxwriter.println("%% \\draw[->] (0,-0.2) -- (0,10.2) node[above] {$"+ylabel+"$}; ");
+		auxwriter.println("%% \\draw plot[mark=+,smooth] file {"+algo+".table};");
+		auxwriter.println("%% \\end{tikzpicture}");
+		auxwriter.println();
 		for( Pair p : table ) {
-		    if ( debug > 1 ) System.err.println( " >> "+p.getX()+" - "+p.getY() );
-		    writer.println( p.getX()*10+" "+ p.getY()*10 );
+		    //logger.trace( " >> {} - {}", p.getX(), p.getY() );
+		    auxwriter.println( p.getX()*10+" "+ p.getY()*10 );
 		}
-	    } catch (Exception ex) {
-		ex.printStackTrace(); 
+	    } catch ( Exception ex ) {
+		logger.error( "IGNORED Exception", ex );
 	    } finally {
-		if ( writer != null ) writer.close();
+		if ( auxwriter != null ) auxwriter.close();
 	    }
 	    // UnsupportedEncodingException + FileNotFoundException
 	    i++;
@@ -460,30 +418,30 @@ public class GenPlot {
      * This does average plus generate the call for Google Chart API
      *
      */
-    public void printHTMLGGraph( Vector<Vector<Pair>> result ){
-	output.print("<img src=\"http://chart.apis.google.com/chart?");
-	output.print("chs=600x500&cht=lxy&chg=10,10&chof=png");
-	output.print("&chxt=x,x,y,y&chxr=0,0.0,1.0,0.1|2,0.0,1.0,0.1&chxl=1:|"+xlabel+"|3:|"+ylabel+"&chma=b&chxp=1,50|3,50&chxs=0N*sz1*|2N*sz1*");
-	output.print("&chd=t:"); // data
+    public void printHTMLGGraph( Vector<Vector<Pair>> result, PrintWriter writer ){
+	writer.print("<img src=\"http://chart.apis.google.com/chart?");
+	writer.print("chs=600x500&cht=lxy&chg=10,10&chof=png");
+	writer.print("&chxt=x,x,y,y&chxr=0,0.0,1.0,0.1|2,0.0,1.0,0.1&chxl=1:|"+xlabel+"|3:|"+ylabel+"&chma=b&chxp=1,50|3,50&chxs=0N*sz1*|2N*sz1*");
+	writer.print("&chd=t:"); // data
 	boolean firstalg = true;
 	for( Vector<Pair> table : result ) {
-	    if ( !firstalg ) output.print("|");
+	    if ( !firstalg ) writer.print("|");
 	    firstalg = false;
 	    boolean firstpoint = true;
 	    String Yval = "|";
 	    for( Pair p : table ) {
 		if ( !firstpoint ) {
-		    output.print(",");
+		    writer.print(",");
 		    Yval += ",";
 		}
 		firstpoint = false;
 		Yval += String.format("%1.2f", p.getY()*10);
-		if ( debug > 1 ) System.err.println( " >> "+p.getX()+" - "+p.getY() );
-		output.printf( "%1.2f", p.getX()*10 );
+		//logger.trace( " >> {} - {}", p.getX(), p.getY() );
+		writer.printf( "%1.2f", p.getX()*10 );
 	    }
-	    output.print( Yval );
+	    writer.print( Yval );
 	}
-	output.print("&chdl="); // labels
+	writer.print("&chdl="); // labels
 	int i = 0;
 	//String marktable[] = { "+", "*", "x", "-", "|", "o", "asterisk", "star", "oplus", "oplus*", "otimes", "otimes*", "square", "square*", "triangle", "triangle*", "diamond", "diamond*", "pentagon", "pentagon*"};
 	//String colortable[] = { "black", "red", "green!50!black", "blue", "cyan", "magenta" };
@@ -492,11 +450,11 @@ public class GenPlot {
 	String color = "";
 	for ( String m : listAlgo ) {
 	    if ( i > 0 ) {
-		output.print( "|" );
+		writer.print( "|" );
 		color += ",";
 		style += "|";
 	    }
-	    output.print( m );
+	    writer.print( m );
 	    color += colortable[i%28];
 	    if ( !listEvaluators.get(i).isValid() ) {
 		style += "2,6,3";
@@ -505,39 +463,32 @@ public class GenPlot {
 	    }
 	    i++;
 	}
-	//output.print("&chdlp=b"); // legend position (but ugly)
-	output.print("&chco="+color); // colors
-	output.print("&chls="+style); // linestyle
-	output.println("&chds=0,10\"/>");
+	//writer.print("&chdlp=b"); // legend position (but ugly)
+	writer.print("&chco="+color); // colors
+	writer.print("&chls="+style); // linestyle
+	writer.println("&chds=0,10\"/>");
     }
 
     // 2010: TSV output is not finished
     // It is supposed to provide
     // List of algo
     // List of STEP + points
-    public void printTSV( Vector<Vector<Pair>> points ) {
+    public void printTSV( Vector<Vector<Pair>> points, PrintWriter writer ) {
 	// Print first line
 	for ( String m : listAlgo ) {
-	    output.print("\t"+m );
+	    writer.print("\t"+m );
 	}
 	// Print others
 	for ( int i= 0; i < 100 ; i += STEP ) {
 	    for( int j = 0; j < size; j++ ){
 		Pair precrec = points.get(j).get(i);
-		output.println( precrec.getX()+" "+precrec.getY() );
+		writer.println( precrec.getX()+" "+precrec.getY() );
 	    }
 	}
-	output.println();
+	writer.println();
     }
 
     public void usage() {
-	System.out.println("usage: GenPlot [options]");
-	System.out.println("options are:");
-	System.out.println("\t--type=tsv|tex|html(|xml) -t tsv|tex|html(|xml)\tSpecifies the output format");
-	System.out.println("\t--graph=class -g class\tSpecifies the class of Evaluator to be used");
-	System.out.println("\t--evaluator=class -e class\tSpecifies the class of GraphEvaluator (plotter) to be used");
-	System.out.println("\t--list=algo1,...,algon -l algo1,...,algon\tSequence of the filenames to consider");
-	System.out.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.out.println("\t--help -h\t\t\tPrint this message");
+	usage( "java "+this.getClass().getName()+" [options]\nGenerate a graphic presentation of evaluation results" );
     }
 }

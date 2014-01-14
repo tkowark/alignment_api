@@ -25,6 +25,9 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -47,6 +50,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  */
 
 public class SWRLRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
+    final static Logger logger = LoggerFactory.getLogger( SWRLRendererVisitor.class );
     PrintWriter writer = null;
     Alignment alignment = null;
     LoadedOntology onto1 = null;
@@ -90,7 +94,7 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	}
 	writer.print("\n");
 	writer.println("  <owlx:Imports rdf:resource=\""+onto1.getURI()+"\"/>\n");
-	for( Cell c : align ){
+	for( Cell c : alignment ){
 	    c.accept( this );
 	}
 	writer.println("</swrlx:Ontology>");
@@ -104,13 +108,23 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
     }
 
     public void visit( EquivRelation rel ) throws AlignmentException {
-	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
 	Object ob1 = cell.getObject1();
 	Object ob2 = cell.getObject2();
-	URI uri1;
-	URI uri2;
+	generateImplication( ob1, ob2 );
+	generateImplication( ob2, ob1 );
+    }
+
+    public void visit( SubsumeRelation rel ) throws AlignmentException {
+	generateImplication( cell.getObject2(), cell.getObject1() );
+    };
+    public void visit( SubsumedRelation rel ) throws AlignmentException {
+	generateImplication( cell.getObject1(), cell.getObject2() );
+    };
+
+    public void generateImplication( Object ob1, Object ob2 ) throws AlignmentException {
+	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
 	try {
-	    uri1 = onto1.getEntityURI( ob1 );
+	    URI uri1 = onto1.getEntityURI( ob1 );
 	    writer.println("  <ruleml:imp>");
 	    writer.println("    <ruleml:_body>");
 	    if ( onto1.isClass( ob1 ) ){
@@ -131,7 +145,7 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	    }
 	    writer.println("    </ruleml:_body>");
 	    writer.println("    <ruleml:_head>");
-	    uri2 = onto2.getEntityURI( ob2 );
+	    URI uri2 = onto2.getEntityURI( ob2 );
 	    if ( onto2.isClass( ob2 ) ){
 		writer.println("      <swrlx:classAtom>");
 		writer.println("        <owllx:Class owllx:name=\""+uri2+"\"/>");
@@ -155,9 +169,66 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	}
     }
 
-    public void visit( SubsumeRelation rel ){};
-    public void visit( SubsumedRelation rel ){};
-    public void visit( IncompatRelation rel ){};
+    public void visit( IncompatRelation rel ) throws AlignmentException {
+	// JE: We should send warnings when dataproperties are mapped to individual properties and vice versa...
+	Object ob1 = cell.getObject1();
+	Object ob2 = cell.getObject2();
+	try {
+	    URI uri1 = onto1.getEntityURI( ob1 );
+	    URI uri2 = onto2.getEntityURI( ob2 );
+	    writer.println("  <ruleml:imp>");
+	    if ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ){
+		writer.println("    <ruleml:_body>");
+		writer.println("      <swrl:classAtom>");
+		writer.println("        <owllx:Class owllx:name=\""+uri1+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("      </swrl:classAtom>");
+		writer.println("      <swrlx:classAtom>");
+		writer.println("        <owllx:Class owllx:name=\""+uri2+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("      </swrl:classAtom>");
+		writer.println("    </ruleml:_body>");
+		writer.println("    <ruleml:_head>");
+		writer.println("      <swrlx:classAtom>");
+		writer.println("        <owllx:Class owllx:name=\"owl:Nothing\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("      </swrl:classAtom>");
+		writer.println("    </ruleml:_head>");
+	    } else if ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) {
+		writer.println("    <ruleml:_body>");
+		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri1+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      <swrl:datavaluedPropertyAtom>");
+		writer.println("      <swrl:datavaluedPropertyAtom swrlx:property=\""+uri2+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:datavaluedPropertyAtom>");
+		writer.println("    </ruleml:_body>");
+		writer.println("    <ruleml:_head>");
+		writer.println("    </ruleml:_head>");
+	    } else if ( onto1.isObjectProperty( ob1 ) && onto2.isObjectProperty( ob2 ) ) {
+		writer.println("    <ruleml:_body>");
+		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri1+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:individualPropertyAtom>");
+		writer.println("      <swrl:individualPropertyAtom swrlx:property=\""+uri2+"\"/>");
+		writer.println("        <ruleml:var>x</ruleml:var>");
+		writer.println("        <ruleml:var>y</ruleml:var>");
+		writer.println("      </swrl:individualPropertyAtom>");
+		writer.println("    </ruleml:_body>");
+		writer.println("    <ruleml:_head>");
+		writer.println("    </ruleml:_head>");
+	    } else {
+		logger.warn( "Cannot generate heterogeneous rules" );
+	    }
+	    writer.println("  </ruleml:imp>\n");
+	} catch ( OntowrapException owex ) {
+	    throw new AlignmentException( "Error accessing ontology", owex );
+	}
+    }
+
     public void visit( Relation rel ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
 	// default behaviour

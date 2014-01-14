@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2008
- * Copyright (C) INRIA, 2008-2010, 2012
+ * Copyright (C) INRIA, 2008-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -84,8 +84,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedList;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Yes we are relying on Jena for parsing RDF
 import com.hp.hpl.jena.rdf.model.Model;
@@ -116,12 +116,9 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * @version $Revision: 1.7 $
  */
 public class RDFParser {
-
-    private static Logger logger = Logger.getLogger(RDFParser.class.toString());
+    final static Logger logger = LoggerFactory.getLogger( RDFParser.class );
 
     private static Model rDFModel;
-
-    private int debug = 0;
 
     private boolean isPattern = false; // I contain variables
     private boolean speedparse = false; // skip all checks
@@ -131,17 +128,13 @@ public class RDFParser {
     /** 
      * Creates an RDF Parser.
      */
-    public RDFParser() {
-	this(0);
-    }
+    public RDFParser() {}
 
     /** 
      * Creates an RDF Parser.
-     * @param debugMode The value of the debug mode
+     * @param debugMode The value of the debug mode (DEPRECATED)
      */
-    public RDFParser( int debugMode ) {
-	debug = debugMode;
-    }
+    public RDFParser( int debugMode ) {}
 
     /**
      * Initialisation of the structures
@@ -172,7 +165,7 @@ public class RDFParser {
 	// Initialize the syntax description
 	initSyntax();
 	// Shut up logging handling
-	com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
+	//com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
 	// Get the statement including alignment resource as rdf:type
 	StmtIterator stmtIt = rdfmodel.listStatements(null, RDF.type,(Resource)SyntaxElement.getResource("Alignment"));
 	// Take the first one if it exists
@@ -283,11 +276,10 @@ public class RDFParser {
 	    stmtIt = node.listProperties((Property)SyntaxElement.MAP.resource );
 	    while (stmtIt.hasNext()) {
 		Statement stmt = stmtIt.nextStatement();
-		if ( debug > 0 ) System.err.println( "  ---------------> "+stmt );
+		//logger.trace( "  ---------------> {}", stmt );
 		try { alignment.addAlignCell( parseCell( stmt.getResource() ) ); }
 		catch ( AlignmentException ae ) {
-		    System.err.println( "Error "+ae );
-		    ae.printStackTrace();
+		    logger.debug( "IGNORED Exception", ae );
 		}
 	    }
 
@@ -394,10 +386,8 @@ public class RDFParser {
 	    
 	    Expression s = parseExpression( entity1 );
 	    Expression t = parseExpression( entity2 );
-	    if ( debug > 0 ) {
-		System.err.println(" s : "+s);	    
-		System.err.println(" t : "+t);
-	    }
+	    //logger.trace(" s : {}", s);	    
+	    //logger.trace(" t : {}", t);
 
 	    EDOALCell cell = new EDOALCell( id, s, t, type, m );
 	    // Parse the possible transformations
@@ -406,13 +396,11 @@ public class RDFParser {
 		Statement stmt = stmtIt.nextStatement();
 		try { cell.addTransformation( parseTransformation( stmt.getResource() ) ); }
 		catch ( AlignmentException ae ) {
-		    System.err.println( "Error "+ae );
-		    ae.printStackTrace();
+		    logger.debug( "INGORED Exception", ae );
 		}
 	    }
 	    return cell;
 	} catch (Exception e) {  //wrap other type exception
-	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct: " + node.getLocalName() + " "+e.getMessage());
 	    throw new AlignmentException("Cannot parse correspondence " + node.getLocalName(), e);
 	}
     }
@@ -429,13 +417,10 @@ public class RDFParser {
 	    Resource entity2 = node.getProperty((Property)SyntaxElement.TRENT2.resource).getResource();
 	    ValueExpression s = parseValue( entity1 );
 	    ValueExpression t = parseValue( entity2 );
-	    if ( debug > 0 ) {
-		System.err.println(" (Transf)s : "+s);	    
-		System.err.println(" (Transf)t : "+t);
-	    }
+	    //logger.trace(" (Transf)s : {}", s);	    
+	    //logger.trace(" (Transf)t : {}", t);
 	    return new Transformation( type, s, t );
 	} catch (Exception e) {  //wrap other type exception
-	    logger.log(java.util.logging.Level.SEVERE, "The cell isn't correct:" + node.getLocalName() + " "+e.getMessage());
 	    throw new AlignmentException("Cannot parse transformation " + node, e);
 	}
     }
@@ -476,10 +461,8 @@ public class RDFParser {
     }
     
     protected ClassExpression parseClass( final Resource node ) throws AlignmentException {
-	if ( debug > 1 ) {
-	    StmtIterator it = node.listProperties();
-	    while ( it.hasNext() ) System.err.println( "   > "+it.next() );
-	}
+	//StmtIterator it = node.listProperties();
+	//while ( it.hasNext() ) logger.trace( "   > {}", it.next() );
 	Resource rdfType = node.getProperty(RDF.type).getResource();
 	if ( rdfType.equals( SyntaxElement.CLASS_EXPR.resource ) ) {
 	    URI id = getNodeId( node );
@@ -696,7 +679,7 @@ public class RDFParser {
     protected Datatype parseDatatype ( final RDFNode nn ) throws AlignmentException {
 	String uri = null;
 	if ( nn.isLiteral() ) { // Legacy
-	    System.err.println( "Warning: datatypes must be Datatype objects ("+((Literal)nn).getString()+")" );
+	    logger.warn( "Datatypes must be Datatype objects ({})", ((Literal)nn).getString() );
 	    uri = ((Literal)nn).getString();
 	} else if ( nn.isResource() ) {
 	    if ( !((Resource)nn).getProperty(RDF.type).getResource().equals( SyntaxElement.DATATYPE.resource ) )
@@ -824,7 +807,7 @@ public class RDFParser {
 			    u = new URI( ((Resource)node).getProperty( (Property)SyntaxElement.ETYPE.resource ).getLiteral().getString() );
 			} catch (URISyntaxException urisex) {
 			    //throw new AlignmentException( "Incorect URI for edoal:type : "+ ((Resource)node).getProperty( (Property)SyntaxElement.TYPE.resource ).getLiteral().getString() );
-			    urisex.printStackTrace();
+			    logger.debug( "IGNORED Exception", urisex );
 			}
 		    }
 		    if ( u != null ) {

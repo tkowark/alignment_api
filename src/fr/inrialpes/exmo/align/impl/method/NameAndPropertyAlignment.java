@@ -1,7 +1,7 @@
 /*
  * $id: NameAndPropertyAlignment.java 1189 2010-01-03 17:57:13Z euzenat $
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2010
+ * Copyright (C) INRIA, 2003-2004, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,9 @@ import java.lang.Integer;
 import java.util.Vector;
 import java.util.Set;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -50,11 +53,12 @@ import fr.inrialpes.exmo.ontosim.string.StringDistances;
  *  - pia3 [ignored=0]: weigth for property domain
  *  - pia4 [ignored=0]: weigth for property range
  *
- * @author Jï¿½rï¿½me Euzenat / Jerome Pierson
+ * @author Jérôme Euzenat / Jérôme Pierson
  * @version $Id$ 
  */
 
 public class NameAndPropertyAlignment extends DistanceAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( NameAndPropertyAlignment.class );
 
     private HeavyLoadedOntology<Object> honto1 = null;
     private HeavyLoadedOntology<Object> honto2 = null;
@@ -97,9 +101,6 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	double pia1 = 1.; // relation weight for name
 	double epsillon = 0.05; // stoping condition 
        	
-	if ( params.getProperty("debug") != null )
-	    debug = Integer.parseInt( params.getProperty("debug") );
-
 	try {
 	    // Create property lists and matrix
 	    for ( Object prop : honto1.getObjectProperties() ){
@@ -131,7 +132,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    }
 	    classmatrix = new double[nbclass1+1][nbclass2+1];
 	    
-	    if (debug > 0) System.err.println("Initializing property distances");
+	    logger.debug("Initializing property distances");
 	    for ( i=0; i<nbprop1; i++ ){
 		Object cl1 = proplist1.get(i);
 		String st1 = honto1.getEntityName( cl1 );
@@ -149,7 +150,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    }
 	    
 	    // Initialize class distances
-	    if (debug > 0) System.err.println("Initializing class distances");
+	    logger.debug("Initializing class distances");
 	    for ( i=0; i<nbclass1; i++ ){
 		Object cl1 = classlist1.get(i);
 		for ( j=0; j<nbclass2; j++ ){
@@ -168,7 +169,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	    // Here create the best matches for property distance already
 	    // -- FirstExp: goes directly in the alignment structure
 	    //    since it will never be refined anymore...
-	    if (debug > 0) System.err.print("Storing property alignment\n");
+	    logger.debug("Storing property alignment");
 	    for ( i=0; i<nbprop1; i++ ){
 		boolean found = false;
 		int best = 0;
@@ -182,7 +183,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 		}
 		if ( found && max < 0.5) { addAlignCell( proplist1.get(i), proplist2.get(best), "=", 1.-max ); }
 	    }
-	    if (debug > 0) System.err.print("Computing class distances\n");
+	    logger.debug("Computing class distances");
 	    // Compute classes distances
 	    // -- for all of its attribute, find the best match if possible... easy
 	    // -- simply replace in the matrix the value by the value plus the 
@@ -230,7 +231,7 @@ public class NameAndPropertyAlignment extends DistanceAlignment implements Align
 	// 1:1: get the best discard lines and columns and iterate
 	// Here we basically implement ?:* because the algorithm
 	// picks up the best matching object above threshold for i.
-	if (debug > 0) System.err.print("Storing class alignment\n");
+	logger.debug("Storing class alignment");
 	
 	for ( i=0; i<nbclass1; i++ ){
 	    boolean found = false;

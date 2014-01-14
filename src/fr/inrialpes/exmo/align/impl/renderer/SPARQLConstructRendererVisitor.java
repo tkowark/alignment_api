@@ -99,7 +99,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	content_Corese += "<!ENTITY rul \"http://ns.inria.fr/edelweiss/2011/rule#\">" + NL;
     	content_Corese += "]>" + NL;
     	content_Corese += "<rdf:RDF xmlns:rdfs=\"&rdfs;\" xmlns:rdf=\"&rdf;\" xmlns = \'&rul;\' >" + NL + NL + NL;
-    	for( Cell c : align ){ c.accept( this ); };
+    	for( Cell c : alignment ){ c.accept( this ); };
     	content_Corese += "</rdf:RDF>" + NL;
     	if ( corese ) {
 	    if( split ) {			

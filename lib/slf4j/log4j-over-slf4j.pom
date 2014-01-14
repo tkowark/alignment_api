@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.slf4j</groupId>
     <artifactId>slf4j-parent</artifactId>
-    <version>1.7.2</version>
+    <version>1.7.5</version>
   </parent>
   <groupId>org.slf4j</groupId>
   <artifactId>log4j-over-slf4j</artifactId>
@@ -14,7 +14,7 @@
     <url>http://www.qos.ch</url>
   </organization>
   <inceptionYear>2005</inceptionYear>
-  <!-- Copyright (c) 2004-2011 QOS.ch -->
+  <!-- Copyright (c) 2004-2013 QOS.ch -->
   <licenses>
     <license>
       <name>MIT License</name>

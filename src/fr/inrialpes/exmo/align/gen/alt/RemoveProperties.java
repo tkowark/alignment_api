@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,11 +36,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 
 public class RemoveProperties extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( RemoveProperties.class );
 
     public RemoveProperties( Alterator om ) {
 	initModel( om );
@@ -60,7 +64,7 @@ public class RemoveProperties extends BasicAlterator {
 
         int nbProperties = properties.size();				//the number of properties
 
-	//System.err.println( percentage );
+	//logger.trace( "Percentage {}", percentage );
         int toBeRemoved = Math.round( percentage*nbProperties );			//the number of properties to be removed
 
         //build the list of classes to be removed

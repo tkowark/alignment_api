@@ -25,6 +25,9 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
@@ -87,6 +90,7 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
  */
 
 public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor, EDOALVisitor {
+    final static Logger logger = LoggerFactory.getLogger( OWLAxiomsRendererVisitor.class );
     boolean heterogeneous = false;
     boolean edoal = false;
     Alignment alignment = null;
@@ -108,6 +112,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     public void visit( Alignment align ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
 	// default behaviour
+	//logger.trace( "Alignment: {}", align );
 	if ( align instanceof ObjectAlignment ) {
 	    alignment = align;
 	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
@@ -139,10 +144,10 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	writer.print("  </owl:Ontology>"+NL+NL);
 	
 	try {
-	    for( Cell c : align ){
+	    for( Cell c : alignment ){
 		Object ob1 = c.getObject1();
 		Object ob2 = c.getObject2();
-		
+		//logger.trace( "Rendering {} -- {}", ob1, ob2 );
 		if ( heterogeneous || edoal ||
 		     ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
 		     ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
@@ -154,6 +159,9 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	} catch ( OntowrapException owex ) {
 	    throw new AlignmentException( "Error accessing ontology", owex );
 	}
+	//logger.trace( "Heterogeneous: {}", heterogeneous);
+	//logger.trace( "EDOAL: {}", edoal);
+	//logger.trace( "onto1: {}", onto1);
 
 	writer.print("</rdf:RDF>"+NL);
     }

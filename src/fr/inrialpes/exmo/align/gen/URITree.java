@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,9 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.alt.BasicAlterator;
 
 public class URITree {
+    final static Logger logger = LoggerFactory.getLogger( URITree.class );
+
     private String URI;                 //the URI of the node
     private ArrayList<URITree> children;//the list of children
     private URITree parent;		//the parent of the node
@@ -208,7 +213,7 @@ public class URITree {
 
     public void print( int depth ) {
         indent( getDepth() );
-        System.err.println( "[" + getURI() + "]" + "->" + getDepth() );
+        //logger.trace( "[{}] -> {}", getURI(), getDepth() );
 	for( URITree n : getChildrenList() ) {
             n.print( depth+1 );
 	}

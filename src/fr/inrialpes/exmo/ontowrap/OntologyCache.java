@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008, 2010
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,10 +21,12 @@
 
 package fr.inrialpes.exmo.ontowrap; 
 
-// import java classes
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This caches the loaded ontologies so that it is possible
@@ -38,7 +40,8 @@ import java.net.URI;
  */
 
 public class OntologyCache <O extends LoadedOntology> {
- 
+    final static Logger logger = LoggerFactory.getLogger( OntologyCache.class );
+
   /** The list of currently loaded ontologies as a function:
    * URI --> Ontology
    * This is the ontology URI, NOT its filename
@@ -73,15 +76,15 @@ public class OntologyCache <O extends LoadedOntology> {
 
     /* debugging utility */
     public void displayCache(){
-	System.err.println("CACHE: "+ontologies.size()+"/"+ontologyUris.size()+" elements cached");
+	logger.trace( "CACHE: {}/{} elements cached", ontologies.size(), ontologyUris.size() );
 	// No way to make this iterable??
 	//for ( URI u : ontologies.keys() ){
 	for( Enumeration<URI> e = ontologies.keys(); e.hasMoreElements(); ){
-	URI u = e.nextElement();
+	    URI u = e.nextElement();
 	    LoadedOntology o = ontologies.get( u );
-	    System.err.println( "      "+u );
-	    System.err.println( "      "+o.getURI() );
-	    System.err.println( "  --> "+o+" ("+o.getOntology()+")" );
+	    logger.trace( "      {}", u );
+	    logger.trace( "      {}", o.getURI() );
+	    logger.trace( "  --> {} ({})", o, o.getOntology() );
 	}
     };
 

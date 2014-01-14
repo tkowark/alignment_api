@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,6 +38,9 @@ import java.util.Comparator;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * GraphEvaluator: an abstraction that is used for providing evaluation curves
  * instead of values (or sets of values)
@@ -57,6 +60,7 @@ import java.net.URI;
  */
 
 public abstract class GraphEvaluator {
+    final static Logger logger = LoggerFactory.getLogger( GraphEvaluator.class );
 
     /**
      * The resolution of the provided result: by STEP steps
@@ -181,7 +185,7 @@ public abstract class GraphEvaluator {
 		}
 	    }
 	} catch ( AlignmentException aex ) {
-	    aex.printStackTrace(); 
+	    logger.debug( "IGNORED Exception", aex ); 
 	}
 	return false;
     }

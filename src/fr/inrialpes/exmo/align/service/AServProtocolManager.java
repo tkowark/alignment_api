@@ -248,7 +248,7 @@ public class AServProtocolManager implements Service {
 	Alignment al = null;
 	try {
 	    //logger.trace(" Parsing alignment");
-	    AlignmentParser aparser = new AlignmentParser(0);
+	    AlignmentParser aparser = new AlignmentParser();
 	    al = aparser.parse( name );
 	    //logger.trace(" Alignment parsed");
 	} catch (Exception e) {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,10 +30,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 public class FlattenLevel extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( FlattenLevel.class );
 
     public FlattenLevel( Alterator om ) {
 	initModel( om );
@@ -81,10 +85,10 @@ public class FlattenLevel extends BasicAlterator {
                         restr.add(r);
                     if ( r.isSomeValuesFromRestriction() )
                         restr.add(r);
-                    //if ( debug ) System.err.println( cls.getURI() );
+                    //logger.trace( "Class {}", cls.getURI() );
                 }
             }
-            //if ( debug ) System.err.println( restr.size() );
+            //logger.trace( "Size: {}", restr.size() );
 
             if ( !restrictions.containsKey( parentClass.getURI() ) ) {
                 restrictions.put( parentClass.getURI(), restr );
@@ -93,9 +97,9 @@ public class FlattenLevel extends BasicAlterator {
 
 	    OntClass superClass = superLevelClasses.get( i );                //parent class of the child class parents
 	    if ( superClass == null ) superClass = modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
-	    //if ( debug ) System.err.println("SuperClass class [" + superClass.getURI() + "]");
-	    //if ( debug ) System.err.println("Parent class [" + parentClass.getURI() + "]");
-	    //if ( debug ) System.err.println("Child class [" + childClass.getURI() + "]");
+	    //logger.trace("SuperClass class [{}]", superClass.getURI() );
+	    //logger.trace("Parent class [{}]", parentClass.getURI() );
+	    //logger.trace("Child class [{}]", childClass.getURI() );
 	    if ( modifiedModel.containsResource( parentClass ) ) {
 		//to check if the class appears as unionOf, someValuesFrom, allValuesFrom ..
 		unionOf.put( parentClass.getURI(), superClass.getURI() );

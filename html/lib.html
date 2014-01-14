@@ -39,15 +39,14 @@ This is a simplified view: <a href="img/dependencies.png">click here
 <h2>Required for the API implementation (procalign)</h2>
 
 <dl>
-<dt><a href="http://www.urbanophile.com/arenn/hacking/download.html">Gnu
-    getopt</a> 1.0.13: getopt.jar
-    [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
-<dd>Gnu library for parsing command line arguments. Required
-  everywhere (included by OWL-API).</dd>
-<dt><a href="http://www.slf4j.org/">SLF4J</a> 1.7.2:
+<dt><a href="http://commons.apache.org/proper/commons-cli/">Commons CLI</a> 1.2: commons-cli.jar
+    [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+<dd>Library for parsing command line arguments. Required for the
+  command line use (cli package; included by OWL-API).</dd>
+<dt><a href="http://www.slf4j.org/">SLF4J</a> 1.7.5:
  slf4j-api.jar log4j-over-slf4j.jar jcl-over-slf4j.jar [<a href="http://www.slf4j.org/license.html">MIT license</a>]
 </dt>
-<dd>At last some clean-up in the Java logging realm.</dd>
+<dd>Java unified logging library!</dd>
 </dl>
 
 <h3>Required for using EDOAL</h3>
@@ -118,7 +117,7 @@ and this will compile again.
 <h2>Required for the Alignment server (alignsvc)</h2>
 
 <dl>
-<dt><a href="http://dev.mysql.com/downloads/connector/j/3.0.html">MySQL
+<dt><a href="http://dev.mysql.com/downloads/connector/j/">MySQL
        JDBC Connectors</a> 5.1.12: mysql-connector-java-5.0.3-bin.jar
        [<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>]
        or <a href="http://jdbc.postgresql.org/">Postgres JDBC

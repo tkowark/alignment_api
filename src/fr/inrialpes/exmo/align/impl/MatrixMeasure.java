@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010
+ * Copyright (C) INRIA, 2003-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.text.NumberFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
@@ -47,6 +50,7 @@ import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 
 
 public abstract class MatrixMeasure implements Similarity {
+    final static Logger logger = LoggerFactory.getLogger( MatrixMeasure.class );
 
     public boolean similarity = true;
 
@@ -126,7 +130,7 @@ public abstract class MatrixMeasure implements Similarity {
 	proplist1 = new HashMap<Object,Integer>(); // onto1 properties
 	indlist2 = new HashMap<Object,Integer>(); // onto2 instances
 	indlist1 = new HashMap<Object,Integer>(); // onto1 instances
-	//System.err.println("  >> "+onto1+"/"+onto2 );
+	//logger.trace("  >> {}/{}", onto1, onto2 );
 
 	try {
 	    // Create class lists
@@ -136,7 +140,7 @@ public abstract class MatrixMeasure implements Similarity {
 	    for( Object cl : onto1.getClasses() ){
 		classlist1.put( cl, new Integer(nbclass1++) );
 	    }
-	    //System.err.println("  >> NbClasses: "+nbclass1+"/"+nbclass2 );
+	    //logger.trace("  >> NbClasses: {}/{}", nbclass1, nbclass2 );
 	    clmatrix = new double[nbclass1+1][nbclass2+1];
 
 	    // Create property lists
@@ -152,7 +156,7 @@ public abstract class MatrixMeasure implements Similarity {
 	    for( Object pr : onto1.getDataProperties() ){
 		proplist1.put( pr, new Integer(nbprop1++) );
 	    }
-	    //System.err.println("  >> NbProp: "+nbprop1+"/"+nbprop2 );
+	    //logger.trace("  >> NbProp: {}/{}", nbprop1, nbprop2 );
 	    prmatrix = new double[nbprop1+1][nbprop2+1];
 
 	    // Create individual lists
@@ -168,9 +172,11 @@ public abstract class MatrixMeasure implements Similarity {
 		    indlist1.put( ind, new Integer(nbind1++) );
 		}
 	    }
-	    //System.err.println("  >> NbInd: "+nbind1+"/"+nbind2 );
+	    //logger.trace("  >> NbInd: {}/{}", nbind1, nbind2 );
 	    indmatrix = new double[nbind1+1][nbind2+1];
-	} catch (OntowrapException e) { e.printStackTrace(); };
+	} catch (OntowrapException e) { 
+	    logger.debug( "IGNORED Exception", e );
+	};
     }
 
     @SuppressWarnings("unchecked") //ConcatenatedIterator
@@ -206,7 +212,9 @@ public abstract class MatrixMeasure implements Similarity {
 		}
 	    }
 	    // What is caught is really Exceptions
-	} catch (Exception e) { e.printStackTrace(); }
+	} catch (Exception e) { 
+	    logger.debug( "IGNORED Exception", e );
+	}
     }
 
     public double getIndividualSimilarity( Object i1, Object i2 ){
@@ -241,7 +249,9 @@ public abstract class MatrixMeasure implements Similarity {
 		}
 		System.out.println("\\\\");
 	    }
-	} catch (OntowrapException e) { e.printStackTrace(); };
+	} catch (OntowrapException e) { 
+	    logger.debug( "IGNORED Exception", e );
+	};
 	System.out.println("\n\\end{tabular}");
     }
 

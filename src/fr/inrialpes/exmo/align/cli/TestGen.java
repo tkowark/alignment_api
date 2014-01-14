@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -21,10 +21,16 @@
 
 package fr.inrialpes.exmo.align.cli;
 
-import gnu.getopt.Getopt;
-import gnu.getopt.LongOpt;
-
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.gen.TestGenerator;
 import fr.inrialpes.exmo.align.gen.BenchmarkGenerator;
@@ -40,23 +46,29 @@ import fr.inrialpes.exmo.align.gen.ParametersIds;
     </pre>
 
     where filename is the seed ontology,
-    and the options are:
-    <pre>
-        --debug[=n] -d [n]          --> Report debug info at level n,
-   </pre>
 
 */
 
-public class TestGen {
-    private Properties params = null;
-    private String methodName = null;                                           //the name of the method
-    private String fileName   = null;                                           //the name of the input file
-    private String dir        = ".";                                           //
-    private String url;                                                        //
-    private int debug         = 0;
+public class TestGen extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( TestGen.class );
+
+    private String methodName = null;         //the name of the method
+    private String fileName   = "onto.rdf";   //the name of the input file
+    private String dir        = ".";          //
+    private String url;                       //
 
     public TestGen() {
-	fileName = "onto.rdf";
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "testset" ).hasArg().withDescription( "Use CLASS for generating the test set" ).withArgName("CLASS").create( 't' ) );
+	options.addOption( OptionBuilder.withLongOpt( "outdir" ).hasArg().withDescription( "Output DIRectory (default: current)" ).withArgName("DIR").create( 'w' ) );
+	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "URI prefix of the seed ontology (REQUIRED)" ).withArgName("URI").create( 'u' ) );
+	options.addOption( OptionBuilder.withLongOpt( "alignname" ).hasArg().withDescription( "FILEname of generated alignment (default: refalign.rdf)" ).withArgName("FILE").create( 'a' ) );
+	// .setRequired( true )
+	Option opt = options.getOption( "uriprefix" );
+	if ( opt != null ) opt.setRequired( true );
+	// We redefine the message for -o
+	opt = options.getOption( "output" );
+	if ( opt != null ) opt.setDescription( "FILEname of the generated ontology (default: "+fileName+")" );
     }
 
     public static void main(String[] args) {
@@ -65,83 +77,49 @@ public class TestGen {
     }
 
     public void run(String[] args) throws Exception {
-	LongOpt[] longopts = new LongOpt[10];
-	params = new Properties();
-	
-	longopts[0] = new LongOpt("testset", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[1] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[2] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[3] = new LongOpt("outdir", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[4] = new LongOpt("urlprefix", LongOpt.REQUIRED_ARGUMENT, null, 'u');
-	longopts[5] = new LongOpt("ontoname", LongOpt.REQUIRED_ARGUMENT, null, 'n');
-	longopts[6] = new LongOpt("alignname", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-	longopts[7] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-          
-	Getopt g = new Getopt("", args, "d::o:u:m:n:a:D:t:h", longopts);
-	int c;
-	String arg;
+	try { 
+	    CommandLine line = parseCommandLine( args );
+	    if ( line == null ) return; // --help
 
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h':
-		usage();
-		return;
-	    case 't':
-		methodName = g.getOptarg();
-		break;
-	    case 'n':
-		params.setProperty( "ontoname", g.getOptarg() );
-		break;
-	    case 'a':
-		params.setProperty( "alignname", g.getOptarg() );
-		break;
-	    case 'o' : /* Use output directory */
-		dir = g.getOptarg();
-		params.setProperty( "outdir", dir );
-		break;
-	    case 'u' : /* URLPrefix */
-		url = g.getOptarg();
-		params.setProperty( "urlprefix", url );
-		break;
-	    case 'd' : /* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) params.setProperty( "debug", arg.trim() );
-		else 		  params.setProperty( "debug", "4" );
-		break;
-	    case 'D' : /* Parameter definition: could be used for all parameters */
-		arg = g.getOptarg();
-		int index = arg.indexOf('=');
-		if ( index != -1 ) {
-		    params.setProperty( arg.substring( 0, index), 
-					arg.substring(index+1));
-		} else {
-		    System.err.println("Bad parameter syntax: "+g);
-		    usage();
-		    System.exit(0);
-		}
-		break;
+	    outputfilename = fileName; // likely useless
+
+	    // Here deal with command specific arguments
+	    if ( line.hasOption( 't' ) ) methodName = line.getOptionValue( 't' );
+	    if ( line.hasOption( 'o' ) ) parameters.setProperty( "ontoname", line.getOptionValue( 'o' ) );
+	    if ( line.hasOption( 'a' ) ) parameters.setProperty( "alignname", line.getOptionValue( 'a' ) );
+	    if ( line.hasOption( 'w' ) ) {
+		dir = line.getOptionValue( 'w' );
+		parameters.setProperty( "outdir", dir );
 	    }
-	}
-
-	// We need an ontology
-	int i = g.getOptind();
-	
-	if ( args.length > i ) {
-	    fileName = args[i];
-	    params.setProperty( "filename", fileName );
-	} else {
-	    System.out.println("Require the seed ontology filename");
+	    if ( line.hasOption( 'u' ) ) {
+		url = line.getOptionValue( 'u' );
+		parameters.setProperty( "urlprefix", url ); // JE: Danger urlprefix/uriprefix
+	    }
+	    String[] argList = line.getArgs();
+	    if ( argList.length > 0 ) {
+		fileName = argList[0];
+		parameters.setProperty( "filename", fileName );
+	    } else {
+		logger.error("Require the seed ontology filename");
+		usage();
+		System.exit(-1);
+	    }
+	} catch( ParseException exp ) {
+	    logger.error( exp.getMessage() );
 	    usage();
-	    return;
+	    System.exit(-1);
 	}
 
-	if ( debug > 0 ) System.err.println( " >>>> "+methodName+" from "+fileName );
+	logger.debug( " >>>> {} from {}", methodName, fileName );
 
 	if ( methodName == null ) { // generate one test
 	    TestGenerator tg = new TestGenerator();
+	    // It would certainly be better to initialise the generator with parameters
 	    tg.setDirPrefix( dir );
 	    tg.setURLPrefix( url );
-	    tg.modifyOntology( fileName, (Properties)null, (String)null, params );
+	    if ( parameters.getProperty( "ontoname" ) != null ) tg.setOntoFilename( parameters.getProperty( "ontoname" ) );
+	    if ( parameters.getProperty( "alignname" ) != null ) tg.setAlignFilename( parameters.getProperty( "alignname" ) );
+	    tg.modifyOntology( fileName, (Properties)null, (String)null, parameters );
 	} else { // generate a test set
 	    TestSet tset = null;
 	    try {
@@ -151,38 +129,30 @@ public class TestGen {
 		java.lang.reflect.Constructor testSetConstructor = testSetClass.getConstructor(cparams);
 		tset = (TestSet)testSetConstructor.newInstance(mparams);
 	    } catch (Exception ex) {
-		System.err.println("Cannot create TestSet "+methodName+"\n"+ex.getMessage());
+		logger.error("Cannot create TestSet {}", methodName );
+		logger.error("Caught error", ex );
 		usage();
-		throw ex;
+		System.exit(-1);
 	    }
-	    tset.generate( params );
+	    tset.generate( parameters );
 	}
     }
 
     public void usage() {
-	System.out.println("TestGen [options] filename");
-	System.out.println("such that filename is the filename of the seed ontology\n");
-	System.out.println("options are:");
-	System.out.println("\t--urlprefix=url");
-	System.out.println("\t--testset=classname, where classname is the name of an implementation of TestSet");
-	System.out.println("\t--alignname=filename [default: refalign.rdf]");
-	System.out.println("\t--ontoname=filename [default: onto.rdf]");
-	System.out.println("\t--outdir=directory [default: .]");
-	System.out.println("\t--help");
-	System.out.println("\t--debug=number [default: 0]");
-	System.out.println("\t-Dparameter=value");
-	System.out.println("where the parameters are");
-	System.out.println( "\tRemove percentage subclasses       \""+ParametersIds.REMOVE_CLASSES+"\"" );
-	System.out.println( "\tRemove percentage properties       \""+ParametersIds.REMOVE_PROPERTIES+"\"" );
-	System.out.println( "\tRemove percentage comments         \""+ParametersIds.REMOVE_COMMENTS+"\"" );
-	System.out.println( "\tRemove percentage restrictions     \""+ParametersIds.REMOVE_RESTRICTIONS+"\"" );
-	System.out.println( "\tRemove individuals                 \""+ParametersIds.REMOVE_INDIVIDUALS+"\"" );
-	System.out.println( "\tAdd percentage subclasses          \""+ParametersIds.ADD_CLASSES+"\"" );
-	System.out.println( "\tAdd percentage properties          \""+ParametersIds.ADD_PROPERTIES+"\"" );
-	System.out.println( "\tRename percentage classes          \""+ParametersIds.RENAME_CLASSES+"\"" );
-	System.out.println( "\tRename percentage properties       \""+ParametersIds.RENAME_PROPERTIES+"\"" );
-	System.out.println( "\tnoHierarchy                        \""+ParametersIds.NO_HIERARCHY+"\"" );
-	System.out.println( "\tLevel flattened                    \""+ParametersIds.LEVEL_FLATTENED+"\"" );
-	System.out.println( "\tAdd nbClasses to a specific level  \""+ParametersIds.ADD_CLASSESLEVEL+"\"" );
+	usage( "java "+this.getClass().getName()+" [options] -u uriprefix filename\nGenerate ontology matching tests from the seed ontology file",
+	"Such that parameters may be:"+
+	       "\tRemove percentage subclasses       \""+ParametersIds.REMOVE_CLASSES+"\""+
+	       "\tRemove percentage properties       \""+ParametersIds.REMOVE_PROPERTIES+"\""+
+	       "\tRemove percentage comments         \""+ParametersIds.REMOVE_COMMENTS+"\""+
+	       "\tRemove percentage restrictions     \""+ParametersIds.REMOVE_RESTRICTIONS+"\""+
+	       "\tRemove individuals                 \""+ParametersIds.REMOVE_INDIVIDUALS+"\""+
+	       "\tAdd percentage subclasses          \""+ParametersIds.ADD_CLASSES+"\""+
+	       "\tAdd percentage properties          \""+ParametersIds.ADD_PROPERTIES+"\""+
+	       "\tRename percentage classes          \""+ParametersIds.RENAME_CLASSES+"\""+
+	       "\tRename percentage properties       \""+ParametersIds.RENAME_PROPERTIES+"\""+
+	       "\tnoHierarchy                        \""+ParametersIds.NO_HIERARCHY+"\""+
+	       "\tLevel flattened                    \""+ParametersIds.LEVEL_FLATTENED+"\""+
+	       "\tAdd nbClasses to a specific level  \""+ParametersIds.ADD_CLASSESLEVEL+"\""
+	       );
     }
 }

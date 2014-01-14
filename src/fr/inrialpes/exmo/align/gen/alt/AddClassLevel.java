@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -27,11 +27,14 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
-
 public class AddClassLevel extends BasicAlterator {
+    final static Logger logger = LoggerFactory.getLogger( AddClassLevel.class );
 
     public AddClassLevel( Alterator om ) {
 	initModel( om );
@@ -44,8 +47,8 @@ public class AddClassLevel extends BasicAlterator {
 	int index = p.indexOf(".");
 	int level = Integer.valueOf( p.substring(0, index) );
 	int nbClasses = Integer.valueOf( p.substring(index+1, p.length()) );
-	if ( debug ) System.err.println( "level " + level );
-	if ( debug ) System.err.println( "nbClasses " + nbClasses );
+	logger.trace( "level : {}", level );
+	logger.trace( "nbClasses : {}", nbClasses );
 	//float percentage = 1.00f;
         //the parent class -> if level is 1 then we create a new class
         //else we get a random class from the level : level-1 to be the parent of the class

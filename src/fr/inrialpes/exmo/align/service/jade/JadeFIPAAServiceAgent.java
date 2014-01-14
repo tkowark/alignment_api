@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006
- * Copyright (C) INRIA, 2006, 2008-2009, 2011-2012
+ * Copyright (C) INRIA, 2006, 2008-2009, 2011-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,11 +19,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 package fr.inrialpes.exmo.align.service.jade;
 
 import java.util.Iterator;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jade.content.ContentElement;
 import jade.content.ContentManager;
@@ -40,7 +42,6 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.util.Logger;
 
 import fr.inrialpes.exmo.align.service.AServProtocolManager;
 import fr.inrialpes.exmo.align.service.msg.Message;
@@ -58,12 +59,12 @@ import fr.inrialpes.exmo.align.service.jade.messageontology.STORE;
 import fr.inrialpes.exmo.align.service.jade.messageontology.TRANSLATE;
 
 public class JadeFIPAAServiceAgent extends Agent {
+    final static Logger logger = LoggerFactory.getLogger( JadeFIPAAServiceAgent.class );
 
     private static final long serialVersionUID = 330;
 	public static final String SERVICE_NAME = "Alignment";
 	public static final String SERVICE_TYPE = "Alignment-service";
 
-	private Logger myLogger = Logger.getMyLogger(getClass().getName());
 	private String myId;
 	private String serverId;
 	private AServProtocolManager manager;
@@ -78,24 +79,24 @@ public class JadeFIPAAServiceAgent extends Agent {
 
 
 	protected void setup() {
-		//myLogger.log(Logger.INFO, getAID().getName()+" started");
-		super.setup();
-		codec = new SLCodec();
+	    logger.info( "{} started", getAID().getName() );
+	    super.setup();
+	    codec = new SLCodec();
 
-		// ontology =  ContextAgentManagerOntology.getInstance();
-		CTmanager = this.getContentManager();
+	    // ontology =  ContextAgentManagerOntology.getInstance();
+	    CTmanager = this.getContentManager();
+	    
+	    // logger.trace("agent {} {} is created", getAID(), getLocalName() );
 
-		//System.out.println("agent" + getAID() + " "+ getLocalName()+" is created");
-
-		CTmanager.registerOntology(ontology);
-		CTmanager.registerLanguage(codec);
+	    CTmanager.registerOntology(ontology);
+	    CTmanager.registerLanguage(codec);
 
 
 		// Read arguments
 		Object[] args = getArguments();
 		if (args != null) {
 			/**for (int i = 0; i < args.length; ++i) {
-				myLogger.log(Logger.INFO, "Arg-"+i+" = "+args[i]);
+				logger.debug( "Arg-{} = {}", i, args[i] );
 			}**/
 
 		    manager=(AServProtocolManager) args[0];
@@ -123,7 +124,7 @@ public class JadeFIPAAServiceAgent extends Agent {
 				ACLMessage msg = myAgent.receive(tpl);
 				if (msg != null) {
 //					---------------------------------------------------------					
-					//myLogger.log(Logger.INFO, "Received message: "+msg.toString());
+					//logger.debug( "Received message: {}", msg.toString() );
 
 					try{
 						ContentElement ce = null;
@@ -141,7 +142,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								((Action)ce).setResult(answer.getContent());
 								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);								
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else if (ce instanceof LOAD){
 							Message answer = manager.load(new Message(newId(), (Message)null,myId,serverId,"",params));
 							if(!(answer instanceof ErrorMsg)){
@@ -153,7 +156,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								CTmanager.fillContent(JADEanswer, ce);
 								//JADEanswer.setContent(answer.getContent());
 								myAgent.send(JADEanswer);
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else if (ce instanceof RETRIEVE){
 							Message answer = manager.render(new Message(newId(), (Message)null,myId,serverId,"",params));
 							if(!(answer instanceof ErrorMsg)){
@@ -165,7 +170,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								((Action)ce).setResult(answer.getContent());
 								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else if (ce instanceof TRANSLATE){
 							//TODO
 						}else if (ce instanceof METADATA){
@@ -181,7 +188,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								((Action)ce).setResult(answer.getContent());
 								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else if (ce instanceof FIND){
 							Message answer = manager.existingAlignments(new Message(newId(), (Message)null,myId,serverId,"",params));
 							if(!(answer instanceof ErrorMsg)){
@@ -193,7 +202,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								((Action)ce).setResult(answer.getContent());
 								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else if (ce instanceof CUT){
 							Message answer = manager.trim(new Message(newId(), (Message)null,myId,serverId,"",params));
 							if(!(answer instanceof ErrorMsg)){
@@ -205,7 +216,9 @@ public class JadeFIPAAServiceAgent extends Agent {
 								((Action)ce).setResult(answer.getContent());
 								CTmanager.fillContent(JADEanswer, ce);
 								myAgent.send(JADEanswer);
-							}else{myLogger.log(Logger.WARNING, answer.getContent());}
+							}else{
+							    logger.warn( answer.getContent() );
+							}
 						}else {
 							ACLMessage JADEanswer=msg.createReply();
 							JADEanswer.setLanguage(codec.getName());
@@ -213,10 +226,11 @@ public class JadeFIPAAServiceAgent extends Agent {
 							JADEanswer.setPerformative(ACLMessage.NOT_UNDERSTOOD);						
 							myAgent.send(JADEanswer);
 						}
+					} catch( CodecException ce ) {
+					    logger.debug( "IGNORED Exception", ce );
+					} catch( OntologyException oe ) {
+					    logger.debug( "IGNORED Exception", oe );
 					}
-
-					catch(CodecException ce){ce.printStackTrace();}
-					catch(OntologyException oe){oe.printStackTrace();}
 				}else {
 					block();
 				}
@@ -231,9 +245,8 @@ public class JadeFIPAAServiceAgent extends Agent {
 	}//end of Setup
 
 	protected void takeDown() {
-
-		myLogger.log(Logger.INFO, "Agent Alignement Service close");
-		this.doDelete();
+	    logger.info( "Agent Alignement Service closed" );
+	    this.doDelete();
 	}
 
 	private void registerWithDF() {
@@ -244,12 +257,12 @@ public class JadeFIPAAServiceAgent extends Agent {
 		sd.setType(SERVICE_TYPE);
 		dfd.addServices(sd);
 		try {
-			//myLogger.log(Logger.INFO, "Registering with DF...");
-			DFService.register(this, dfd);
-			//myLogger.log(Logger.INFO, "Registration OK.");
+		    logger.debug( "Registering with DF..." );
+		    DFService.register(this, dfd);
+		    logger.debug( "Registration OK." );
 		}
-		catch (FIPAException fe) {
-			myLogger.log(Logger.WARNING, "Error registering with DF.", fe);
+		catch ( FIPAException fex ) {
+		    logger.warn( "Error registering with DF", fex );
 		}
 	}
 

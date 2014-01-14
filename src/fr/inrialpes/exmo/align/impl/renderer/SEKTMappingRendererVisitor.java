@@ -80,7 +80,7 @@ public class SEKTMappingRendererVisitor extends GenericReflectiveVisitor impleme
 	writer.print("  source(<\""+onto1.getURI()+"\">)\n");
 	writer.print("  target(<\""+onto2.getURI()+"\">)\n");
 
-	for( Cell c : align ){
+	for( Cell c : alignment ){
 	    c.accept( this );
 	} //end for
 	writer.print(")\n");

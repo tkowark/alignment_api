@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010, 2012
+ * Copyright (C) INRIA, 2009-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.skos.SKOSDataFactory;
 import org.semanticweb.skos.SKOSDataset;
 import org.semanticweb.skos.SKOSAnnotation;
@@ -45,6 +48,7 @@ import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class SKOSThesaurus extends BasicOntology<SKOSDataset> implements HeavyLoadedOntology<SKOSDataset>{
+    final static Logger logger = LoggerFactory.getLogger( SKOSThesaurus.class );
 
     SKOSDataFactory factory;
 
@@ -88,7 +92,7 @@ onto.getSKOSDataRelationAssertions(concept)
 assertion.getSKOSObject();
 if (literal.isTyped()) {
 SKOSTypedLiteral typedLiteral = literal.getAsSKOSTypedLiteral();
-System.out.println("\t\t" + assertion.getSKOSProperty().getURI().getFragment() + " " + literal.getLiteral() + " Type:" + typedLiteral.getDataType().getURI() );
+//logger.trace("\t\t {} {} Type: {}", assertion.getSKOSProperty().getURI().getFragment(), literal.getLiteral(), typedLiteral.getDataType().getURI() );
 } else {
 SKOSUntypedLiteral untypedLiteral = literal.getAsSKOSUntypedLiteral();
 if (untypedLiteral.hasLang()) {

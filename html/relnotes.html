@@ -38,14 +38,13 @@ The development of 4 versions continues.
 
 <p><ul compact="1">
 <li>Provide several URIs for the same alignment (server)</li>
-<li>Adopt, overall, slf4j (impl/server)</li>
 <li>Implement database store for EDOAL (server)</li>
 <li>Add simple "harder" test generator (gen)</li>
 <li>Add simple "hidden" test generator (gen)</li>
 <li>Add a <tt>dependsOn</tt> alignment property (api)</li>
 <li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking, cell ingestion) (impl)</li>
-<li>Use the OWLReasoner interface and HermiT for adding inference to Ontowrap (ontowrap)</li>
 <li>Add a JSON interface (server)</li>
+<li>Use the OWLReasoner interface and HermiT for adding inference to Ontowrap (ontowrap)</li>
 <li>Integrate tests from generator (test)</li>
 <li>Integrate some basic reasoning (impl).</li>
 <li>Complete tutorial4 with distributed reasoning.</li>
@@ -74,9 +73,23 @@ with a warning:
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
 <!--h2>Version 4.7 (1xxx): ??/??/201x - Letraset</h2-->
-<!--h2>Version 4.6 (1xxx): ??/??/201X - Da lec'h all</h2-->
+<!--h2>Version 4.6 (1xxx): ??/01/2014 - Da lec'h all</h2-->
 <p><ul compact="1">
+<li>Fixed a bug in <tt>EDOALAlignment.init()</tt> which would prohibit rendering (edoal)</li>
+<li>Fixed a bug in <tt>OWLAxiomsRendererVisitor</tt>, <tt>SWRLRendererVisitor</tt>, <tt>SEKTMappingRendererVisitor</tt>, <tt>COWLMappingRendererVisitor</tt> <tt>SPARQLConstructRendererVisitor</tt>, and <tt>SPARQLSelectRendererVisitor</tt> which sometimes rendered alignments empty (impl)</li>
+<li>All logging and signaling is now through slf4j (impl/server)</li>
+<li>Replaced getopt by <span style="color: green">commons cli</span> 1.2 as command line interpreter (lib/cli)</li>
+<li>Completed <tt>SWRLRendererVisitor</tt> to fill equivalence and subsumption statements (impl)</li>
 <li>Declared Alignment server as an OSGi service (server)</li>
+<li>Made EDOAL vocabulary dereferenceable (edoal)</li>
+<li>Fixed the build.xml file for using slf4j in microalign (android)</li>
+<li>Fixed several bugs in <tt>WeightedPREvaluator</tt>, now two versions (impl)</li>
+<li>Fixed display bugs in <tt>GroupEval</tt> and <tt>WGroupEval</tt> (cli)</li>
+<li>Cancelled test <tt>EDOALTest.anotherRoundTripTest()</tt> because would try to load a WSMO ontology (test)</li>
+<li>Changed <tt>-o</tt> option in <tt>GroupAlign</tt> to be homogeneous (cli)</li>
+<li>Updated tutorial2 with deprecated <tt>BasicParameters</tt> (tutorial)</li>
+<li>Added complete command line option tests in <tt>tests/clitest.sh</tt> (cli)</li>
+<li>Upgraded to <span style="color: green">SLF4J</span> to 1.7.5 (lib)</li>
 </ul></p>
 
 <h2>Version 4.5 (1847): 25/03/2013 - Building 16</h2>

@@ -38,11 +38,13 @@ import java.util.Set;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Evaluate proximity between two alignments.
- * This function implements Precision/Recall. The first alignment
- * is thus the expected one.
+ * This function implements weighted Precision/Recall.
+ * The first alignment is thus the expected one.
  *
  * Basic relation sensitivity has been implemented
  *
@@ -51,10 +53,11 @@ import java.net.URI;
  */
 
 public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
+    final static Logger logger = LoggerFactory.getLogger( WeightedPREvaluator.class );
 
     protected double precision = 1.;
 
-    protected double recall = 1.;
+    protected double recall = 0.;
 
     protected double overall = 0.;
 
@@ -85,7 +88,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 
     public void init(){
 	precision = 1.;
-	recall = 1.;
+	recall = 0.;
 	overall = 0.;
 	fmeasure = 0.;
 	time = 0;
@@ -117,39 +120,51 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();
-	    nbexpected += c1.getStrength();
+	    // measure 1
+	    nbexpected += 1.;
+	    // measure 2
+	    //nbexpected += c1.getStrength();
 	    Set<Cell> s2 = align2.getAlignCells1( c1.getObject1() );
-	    double diff = -1.0;
+	    double diff = -2.0;
 	    if( s2 != null ){
 		for( Cell c2 : s2 ) {
 		    URI uri2 = c2.getObject2AsURI();	
 		    if ( uri1.equals( uri2 )
 			 && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
 			diff = c1.getStrength() - c2.getStrength();
-			nbcorrect1 += ((diff>0.)?diff:-diff); //1. -
+			// measure 1
+			nbcorrect1 += ((diff>0.)?diff:-diff);
+			// measure 2
+			//nbcorrect1 += Math.min( c1.getStrength(), ((diff>0.)?diff:-diff) );
 			break;
 		    }
 		}
 	    }
-	    if ( diff == -1.0 ) nbcorrect1 += c1.getStrength(); // the c1 not found
+	    if ( diff == -2.0 ) nbcorrect1 += c1.getStrength(); // the c1 not found
 	}
 	for ( Cell c2 : align2 ) {
 	    URI uri2 = c2.getObject2AsURI();
-	    nbfound += c2.getStrength();
+	    // measure 1
+	    nbfound += 1.;
+	    // measure 2
+	    //nbfound += c2.getStrength();
 	    Set<Cell> s1 = align1.getAlignCells1( c2.getObject1() );
-	    double diff = -1.0;
+	    double diff = -2.0;
 	    if( s1 != null ){
 		for( Cell c1 : s1 ) {
 		    URI uri1 = c1.getObject2AsURI();	
 		    if ( uri2.equals( uri1 )
 			 && ( !relsensitive || c1.getRelation().equals( c2.getRelation() ) ) ) {
 			diff = c1.getStrength() - c2.getStrength();
-			nbcorrect2 += ((diff>0.)?diff:-diff); //1. -
+			// measure 1
+			nbcorrect2 += ((diff>0.)?diff:-diff);
+			// measure 2
+			//nbcorrect2 += Math.min( c2.getStrength(), ((diff>0.)?diff:-diff) );
 			break;
 		    }
 		}
 	    }
-	    if ( diff == -1.0 ) nbcorrect2 += c2.getStrength(); // the c2 not found
+	    if ( diff == -2.0 ) nbcorrect2 += c2.getStrength(); // the c2 not found
 	}
 
 	// What is the definition if:
@@ -159,6 +174,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	// precision is 0 [= nbcorrect is 0]
 	if ( nbfound != 0. ) precision = 1. - (nbcorrect2 / nbfound);
 	if ( nbexpected != 0. ) recall = 1. - (nbcorrect1 / nbexpected);
+	else { recall = 1.; precision = 0.; }
 	return computeDerived();
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
@@ -173,7 +189,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	} else { result = 0.; }
 	String timeExt = align2.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
-	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
+	//logger.trace(">>>> {} : {} : {}", nbcorrect, nbfound, nbexpected);
 	return (result);
     }
 
@@ -187,7 +203,8 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	try {
 	    result += "    <dt>input1</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input1\" href=\""+align1.getOntology1URI()+"\">"+align1.getOntology1URI()+"</dd>";
 	    result += "    <dt>input2</dt><dd rel=\""+Namespace.ATLMAP.shortCut+":input2\" href=\""+align1.getOntology2URI()+"\">"+align1.getOntology2URI()+"</dd>";
-	} catch (AlignmentException e) { e.printStackTrace(); };
+	} catch (AlignmentException e) { 
+	    logger.debug( "IGNORED exception", e ); };
 	// Other missing items (easy to get)
 	// result += "    <"+Namespace.ATLMAP.shortCut+":falseNegative>");
 	// result += "    <"+Namespace.ATLMAP.shortCut+":falsePositive>");
@@ -256,8 +273,8 @@ return result;
     public double getFound() { return nbfound; }
     // JE 2013: does not fit in WGroupEval anymore
     public double getCorrect() { return nbcorrect1; }
-    public double getCorrect1() { return nbcorrect1; }
-    public double getCorrect2() { return nbcorrect2; }
+    public double getCorrectExpected() { return nbcorrect1; }
+    public double getCorrectFound() { return nbcorrect2; }
     public long getTime() { return time; }
 }
 

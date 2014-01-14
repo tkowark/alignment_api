@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA, 2006-2007, 2009-2010
+ * Copyright (C) INRIA, 2006-2007, 2009-2010, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -24,7 +24,6 @@ package fr.inrialpes.exmo.align.service.jade;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
-import jade.util.Logger;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
@@ -36,16 +35,17 @@ import fr.inrialpes.exmo.align.service.AlignmentServiceProfile;
 import java.io.File;
 import java.util.Properties;
 
-public class JadeFIPAAServProfile implements AlignmentServiceProfile {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class JadeFIPAAServProfile implements AlignmentServiceProfile {
+    final static Logger logger = LoggerFactory.getLogger( JadeFIPAAServProfile.class );
 
 	private AgentContainer mc;
 	private AgentController algagentcontroller;
-	private Logger myLogger = Logger.getMyLogger(getClass().getName());
 
 	public void init( Properties params, AServProtocolManager manager ) throws AServException {
 		int port = 8888;
-		int debug = 0;
 		Object args[] = new Object[2];
 		
 		//set up the manager as an argument to pass to the JADEFIPAAServiceAgent
@@ -56,8 +56,6 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 		
 		if ( params.getProperty( "jade" ) != null )
 			port = Integer.parseInt( params.getProperty( "jade" ) );
-		if ( params.getProperty( "debug" ) != null )
-		    debug = Integer.parseInt( params.getProperty( "debug" ) ) - 1;
 
 		/**		
 	Properties props = new Properties();
@@ -76,8 +74,7 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 			// create a default Profile
 			Profile pMain = new ProfileImpl(null, port, null);
 
-			if ( debug > 0 )
-				System.out.println("Launching a whole in-process platform..."+pMain);
+			//logger.trace( "Launching a whole in-process platform... {}", pMain );
 			mc = rt.createMainContainer(pMain);
 			algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), args);
 			algagentcontroller.start();
@@ -91,15 +88,15 @@ public class JadeFIPAAServProfile implements AlignmentServiceProfile {
 	    try{
 		algagentcontroller.kill();
 		mc.kill();
-		myLogger.log(Logger.INFO, "Agent Alignement close");
+		logger.info( "Agent Alignement closed" );
 	    } catch (ControllerException e) {
-		myLogger.log(Logger.WARNING, "Error killing the alignment agent."); }
+		logger.warn( "Error killing the alignment agent." ); }
 	    try {
 		// Destroy the files please (JE)
 		new File("APDescription.txt").delete();
 		new File("MTPs-Main-Container.txt").delete();
 	    } catch (Exception e) {
-		e.printStackTrace();
+		logger.debug( "IGNORED Exception", e );
 	    }
 	}
 	

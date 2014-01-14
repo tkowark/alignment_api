@@ -264,8 +264,9 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
 						  IRI.create( align.getFile2() ) ) );
 	try {
-	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile1() ) );
-	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile2() ) );
+	    // JE: The two next lines should be useless
+	    //manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile1() ) );
+	    //manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile2() ) );
 	    // Load the ontology stream
 	    OWLOntology ontology = manager.loadOntologyFromOntologyDocument( in );
 	    reasoner = new Reasoner( ontology );
@@ -310,8 +311,9 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	manager.addIRIMapper(new SimpleIRIMapper( IRI.create( align.getOntology2URI() ), 
 						  IRI.create( align.getFile2() ) ) );
 	try {
-	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile1() ) );
-	    manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile2() ) );
+	    // JE: The two next lines should be useless
+	    //manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile1() ) );
+	    //manager.loadOntologyFromOntologyDocument( IRI.create( align.getFile2() ) );
 	    OWLOntology ontology = manager.loadOntologyFromOntologyDocument( merged );
 	    reasoner = new Reasoner( ontology );
 	} catch ( OWLOntologyCreationException ooce ) {

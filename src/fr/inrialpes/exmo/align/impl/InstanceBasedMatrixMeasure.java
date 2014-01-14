@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010
+ * Copyright (C) INRIA, 2010, 2013
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -43,6 +43,9 @@ import java.util.Set;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * InstanceBasedMatrixMeasure
  *
@@ -59,6 +62,7 @@ import java.util.Vector;
  */
 
 public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
+    final static Logger logger = LoggerFactory.getLogger( InstanceBasedMatrixMeasure.class );
 
     Set<Object>[] classinst1 = null;
     Set<Object>[] classinst2 = null;
@@ -89,9 +93,9 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
 		classinst2[ classlist2.get( cl2 ).intValue() ] = ontology2.getInstances( cl2, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
 	    }
 	} catch (OntowrapException owex) {
-	    owex.printStackTrace();
+	    logger.debug( "IGNORED Exception", owex );
 	} catch (AlignmentException alex) {
-	    alex.printStackTrace();
+	    logger.debug( "IGNORED Exception", alex );
 	}
 
     }
@@ -208,7 +212,7 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
 	return 0.;
     }
     public double individualMeasure( Object id1, Object id2 ) throws Exception {
-	//if ( debug > 4 ) System.err.println( "ID:"+id1+" -- "+id2);
+	//logger.trace( "ID: {} -- {}", id1, id2 );
 	// compute edit distance between both norms
 	//norm1[indlist1.get(ob1).intValue()], norm2[indlist2.get(ob2).intValue()]
 	return 0.;

@@ -1,8 +1,6 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003 The University of Manchester
- * Copyright (C) 2003 The University of Karlsruhe
  * Copyright (C) 2003-2008, 2010-2013 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
@@ -22,9 +20,6 @@
  * USA.
  */
 
-/* This program is an adaptation of the Processor.java class of the
-   initial release of the OWL-API
-*/
 package fr.inrialpes.exmo.align.cli;
 
 import org.semanticweb.owl.align.Alignment;
@@ -36,21 +31,27 @@ import fr.inrialpes.exmo.align.impl.Namespace;
 
 import java.io.OutputStream;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.Long;
+import java.lang.reflect.Constructor;
 
 import org.xml.sax.SAXException;
 
-import gnu.getopt.LongOpt;
-import gnu.getopt.Getopt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
@@ -71,7 +72,6 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     <pre>
         --alignment=filename -a filename Start from an XML alignment file
 	--params=filename -p filename   Read the parameters in file
-        --debug[=n] -d [n]              Report debug info at level n,
         --output=filename -o filename Output the alignment in filename
         --impl=className -i classname           Use the given alignment implementation.
         --renderer=className -r className       Specifies the alignment renderer
@@ -86,15 +86,27 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 $Id$
 </pre>
 
-@author Sean K. Bechhofer
 @author Jérôme Euzenat
-    */
+*/
 
-public class Procalign {
+public class Procalign extends CommonCLI {
+    final static Logger logger = LoggerFactory.getLogger( Procalign.class );
 
-    public static void main(String[] args) {
+    public Procalign() {
+	super();
+	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for output" ).withArgName("CLASS").create( 'r' ) );
+	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given CLASS for matcher" ).withArgName("CLASS").create( 'i' ) );
+	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
+	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
+	options.addOption( OptionBuilder.withLongOpt( "cutmethod" ).hasArg().withDescription( "Method to use for triming (hard|perc|prop|best|span)" ).withArgName("METHOD").create( 'T' ) );
+    }
+
+    public static void main( String[] args ) {
 	try { new Procalign().run( args ); }
-	catch ( Exception ex ) { ex.printStackTrace(); };
+	catch ( Exception ex ) {
+	    ex.printStackTrace(); 
+	    System.exit(-1);
+	};
     }
 
     public Alignment run(String[] args) throws Exception {
@@ -105,152 +117,84 @@ public class Procalign {
 	String initName = null;
 	Alignment init = null;
 	String alignmentClassName = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
-	String filename = null;
-	String paramfile = null;
 	String rendererClass = "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor";
 	PrintWriter writer = null;
 	AlignmentVisitor renderer = null;
-	int debug = 0;
 	double threshold = 0;
-	Properties params = new Properties();
+	CommandLine line = null;
 
-	LongOpt[] longopts = new LongOpt[10];
-
-	longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	longopts[1] = new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 'o');
-	longopts[2] = new LongOpt("alignment", LongOpt.REQUIRED_ARGUMENT, null, 'a');
-	longopts[3] = new LongOpt("renderer", LongOpt.REQUIRED_ARGUMENT, null, 'r');
-	longopts[4] = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 'd');
-	longopts[5] = new LongOpt("impl", LongOpt.REQUIRED_ARGUMENT, null, 'i');
-	longopts[6] = new LongOpt("threshold", LongOpt.REQUIRED_ARGUMENT, null, 't');
-	longopts[7] = new LongOpt("cutmethod", LongOpt.REQUIRED_ARGUMENT, null, 'T');
-	longopts[8] = new LongOpt("params", LongOpt.REQUIRED_ARGUMENT, null, 'p');
-	// Is there a way for that in LongOpt ???
-	longopts[9] = new LongOpt("D", LongOpt.REQUIRED_ARGUMENT, null, 'D');
-
-	Getopt g = new Getopt("", args, "ho:a:p:d::r:t:T:i:D:", longopts);
-	int c;
-	String arg;
-
-	while ((c = g.getopt()) != -1) {
-	    switch (c) {
-	    case 'h' :
+	try { 
+	    line = parseCommandLine( args );
+	} catch( ParseException exp ) {
+	    logger.error( "Cannot parse command line", exp );
+	    usage();
+	    exit( -1 );
+	}
+	if ( line == null ) exit(1); // --help
+	if ( line.hasOption( 'r' ) ) rendererClass = line.getOptionValue( 'r' );
+	if ( line.hasOption( 'i' ) ) alignmentClassName = line.getOptionValue( 'i' );
+	if ( line.hasOption( 'a' ) ) initName = line.getOptionValue( 'a' );
+	if ( line.hasOption( 't' ) ) threshold = Double.parseDouble(line.getOptionValue( 't' ));
+	if ( line.hasOption( 'T' ) ) cutMethod = line.getOptionValue( 'T' );
+	String[] argList = line.getArgs();
+	if ( argList.length > 1 ) {
+	    try {
+		onto1 = new URI( argList[0] );
+		onto2 = new URI( argList[1] );
+	    } catch( URISyntaxException usex ) {
+		logger.error( "Error in ontology URIs", usex );
 		usage();
-		return null;
-	    case 'o' :
-		/* Use filename instead of stdout */
-		filename = g.getOptarg();
-		break;
-	    case 'p' :
-		/* Read parameters from filename */
-		paramfile = g.getOptarg();
-		params.loadFromXML( new FileInputStream( paramfile ) );
-		break;
-	    case 'r' :
-		/* Use the given class for rendering */
-		rendererClass = g.getOptarg();
-		break;
-	    case 'i' :
-		/* Use the given class for the alignment */
-		alignmentClassName = g.getOptarg();
-		break;
-	    case 'a' :
-		/* Use the given file as a partial alignment */
-		initName = g.getOptarg();
-		break;
-	    case 't' :
-		/* Threshold */
-		threshold = Double.parseDouble(g.getOptarg());
-		break;
-	    case 'T' :
-		/* Cut method */
-		cutMethod = g.getOptarg();
-		break;
-	    case 'd' :
-		/* Debug level  */
-		arg = g.getOptarg();
-		if ( arg != null ) debug = Integer.parseInt(arg.trim());
-		else debug = 4;
-		break;
-	    case 'D' :
-		/* Parameter definition */
-		arg = g.getOptarg();
-		int index = arg.indexOf('=');
-		if ( index != -1 ) {
-		    params.setProperty( arg.substring( 0, index), 
-					 arg.substring(index+1));
-		} else {
-		    System.err.println("Bad parameter syntax: "+g);
-		    usage();
-		    System.exit(0);
-		}
-		break;
+		exit( -1 );
 	    }
+	} else {
+	    logger.error( "Require the ontology URIs" );
+	    usage();
+	    exit(-1);
 	}
-	
-	int i = g.getOptind();
 
-	if (debug > 0) {
-	    params.setProperty( "debug", Integer.toString(debug) );
-	} else if ( params.getProperty("debug") != null ) {
-	    debug = Integer.parseInt( params.getProperty("debug") );
-	}
+	logger.debug( "Ready to match {} and {}", onto1, onto2 );
 
 	try {
-	    URI uri1 = null;
-	    URI uri2 = null;
-
-	    if (args.length > i + 1) {
-		uri1 = new URI(args[i++]);
-		uri2 = new URI(args[i]);
-	    } else if (initName == null) {
-		System.err.println("Two URIs required");
-		usage();
-		System.exit(0);
+	    if (initName != null) {
+		AlignmentParser aparser = new AlignmentParser();
+		Alignment al = aparser.parse( initName );
+		init = al;
+		logger.debug("Init parsed");
 	    }
 
-	    if (debug > 0) System.err.println(" Ready");
+	    // Create alignment object
+	    Class<?> alignmentClass = Class.forName( alignmentClassName );
+	    Class[] cparams = {};
+	    Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+	    Object[] mparams = {};
+	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+	    result.init( onto1, onto2 );
+	} catch ( Exception ex ) {
+	    logger.error( "Cannot create alignment {}", alignmentClassName );
+	    usage();
+	    throw ex;
+	}
 
-	    try {
-		if (initName != null) {
-		    AlignmentParser aparser = new AlignmentParser(debug);
-		    Alignment al = aparser.parse( initName );
-		    init = al;
-		    if (debug > 0) System.err.println(" Init parsed");
-		}
+	logger.debug("Alignment structure created");
 
-		// Create alignment object
-		Object[] mparams = {};
-		Class<?> alignmentClass = Class.forName(alignmentClassName);
-		Class[] cparams = {};
-		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
-		result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
-		result.init( uri1, uri2 );
-	    } catch (Exception ex) {
-		System.err.println("Cannot create alignment "+alignmentClassName+"\n"
-				   +ex.getMessage());
-		usage();
-		throw ex;
-	    }
-
-	    if (debug > 0) System.err.println(" Alignment structure created");
+	try {
 	    // Compute alignment
 	    long time = System.currentTimeMillis();
-	    result.align(  init, params ); // add opts
+	    result.align(  init, parameters ); // add opts
 	    long newTime = System.currentTimeMillis();
 	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
 
-	    if (debug > 0) System.err.println(" Matching performed");
+	    logger.debug( "Matching performed" );
 	    
 	    // Set output file
 	    OutputStream stream;
-	    if (filename == null) {
+	    if ( outputfilename == null ) {
 		stream = System.out;
 	    } else {
-		stream = new FileOutputStream(filename);
+		stream = new FileOutputStream( outputfilename );
 	    }
 	    writer = new PrintWriter (
 			  new BufferedWriter(
@@ -261,18 +205,19 @@ public class Procalign {
 		Object[] mparams = {(Object) writer };
 		java.lang.reflect.Constructor[] rendererConstructors =
 		    Class.forName(rendererClass).getConstructors();
+		// JE: Not terrible: use the right constructor
 		renderer =
 		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
 	    } catch (Exception ex) {
-		System.err.println("Cannot create renderer "+rendererClass+"\n"
-				   + ex.getMessage());
+		logger.error( "Cannot create renderer {}", rendererClass );
 		usage();
 		throw ex;
 	    }
 	    
 	    // Output
 	    result.render(renderer);
-	} catch (Exception ex) {
+	    logger.debug( "Output printed" );
+	} catch ( Exception ex ) {
 	    throw ex;
 	} finally {
 	    if ( writer != null ) {
@@ -284,18 +229,6 @@ public class Procalign {
     }
 
     public void usage() {
-	System.err.println(Procalign.class.getPackage().getImplementationTitle()+" "+Procalign.class.getPackage().getImplementationVersion());
-	System.err.println("\nusage: Procalign [options] URI1 URI2");
-	System.err.println("options are:");
-	System.err.println("\t--impl=className -i classname\t\tUse the given alignment implementation.");
-	System.err.println("\t--renderer=className -r className\tSpecifies the alignment renderer");
-	System.err.println("\t--output=filename -o filename\tOutput the alignment in filename");
-	System.err.println("\t--params=filename -p filename\tReads parameters from filename");
-	System.err.println("\t--alignment=filename -a filename Start from an XML alignment file");
-	System.err.println("\t--threshold=double -t double\tFilters the similarities under threshold");
-	System.err.println("\t--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span\tmethod for computing the threshold");
-	System.err.println("\t--debug[=n] -d [n]\t\tReport debug info at level n");
-	System.err.println("\t-Dparam=value\t\t\tSet parameter");
-	System.err.println("\t--help -h\t\t\tPrint this message");
+	usage( "java "+this.getClass().getName()+" [options] ontoURI ontoURI\nMatches the two ontologies identified by <ontoURI>" );
     }
 }

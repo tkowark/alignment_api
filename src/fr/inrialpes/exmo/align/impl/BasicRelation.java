@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009-2012
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +35,9 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents an ontology alignment relation.
  *
@@ -43,6 +46,7 @@ import java.util.Map;
  */
 
 public class BasicRelation implements Relation {
+    final static Logger logger = LoggerFactory.getLogger( BasicRelation.class );
 
     private static Map<String, Class<?>> classIndex = null;
 
@@ -87,7 +91,7 @@ public class BasicRelation implements Relation {
 		classIndex.put( "~>", nti );
 		classIndex.put( "~&gt;", nti );
 	    } catch ( ClassNotFoundException cnfe ) {
-		cnfe.printStackTrace(); // should never occur
+		logger.debug( "IGNORED Exception (should never occur)", cnfe );
 	    }
 	}
 	return classIndex.get(label);
@@ -150,7 +154,7 @@ public class BasicRelation implements Relation {
 	    Constructor relationConstructor = relationClass.getConstructor((Class[])null);
 	    return (Relation)relationConstructor.newInstance((Object[])null);
 	} catch ( Exception ex ) {
-	    //ex.printStackTrace();
+	    logger.debug( "IGNORED Exception: created Basic Relation)", ex );
 	    //Otherwise, just create a Basic relation
 	    return new BasicRelation( rel );
 	}

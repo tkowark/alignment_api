@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011
+ * Copyright (C) INRIA, 2003-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,9 @@ import java.util.SortedSet;
 import java.util.Comparator;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
@@ -51,6 +54,7 @@ import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
  */
 
 public abstract class DistanceAlignment extends ObjectAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( DistanceAlignment.class );
     Similarity sim;
 
     /** Creation **/
@@ -134,7 +138,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	if (  params.getProperty("threshold") != null )
 	    threshold = Double.parseDouble( params.getProperty("threshold") );
 
-	//System.err.println("The type is "+type+" with length = "+type.length());
+	//logger.trace("The type is {} with length = {}", type, type.length() );
 	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
 	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqq( threshold, params );
 	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractqs( threshold, params );
@@ -209,8 +213,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		  }
 	      }
 	  }
-      } catch (OntowrapException owex) { owex.printStackTrace(); //}
-      } catch (AlignmentException alex) { alex.printStackTrace(); }
+      } catch (OntowrapException owex) { 
+	  logger.debug( "IGNORED Exception", owex );
+      } catch (AlignmentException alex) { 
+	  logger.debug( "IGNORED Exception", alex );
+      }
       return((Alignment)this);
     }
 
@@ -259,8 +266,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		    }
 		}
 	    }
-	} catch (OntowrapException owex) { owex.printStackTrace(); //}
-	} catch (AlignmentException alex) { alex.printStackTrace(); }
+	} catch (OntowrapException owex) { 
+	    logger.debug( "IGNORED Exception", owex );
+	} catch (AlignmentException alex) { 
+	    logger.debug( "IGNORED Exception", alex );
+	}
 	return((Alignment)this);
     }
 
@@ -316,8 +326,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		    }
 		}
 	    }
-	} catch ( AlignmentException alex) { alex.printStackTrace(); }
-	catch ( OntowrapException owex) { owex.printStackTrace(); }
+	} catch (OntowrapException owex) { 
+	    logger.debug( "IGNORED Exception", owex );
+	} catch (AlignmentException alex) { 
+	    logger.debug( "IGNORED Exception", alex );
+	}
 	// For properties
 	try{
 	    int nbprop1 = ontology1().nbProperties();
@@ -358,8 +371,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		    }
 		}
 	    }
-	} catch (AlignmentException alex) { alex.printStackTrace(); }
-	catch (OntowrapException owex) { owex.printStackTrace(); }
+	} catch (OntowrapException owex) { 
+	    logger.debug( "IGNORED Exception", owex );
+	} catch (AlignmentException alex) { 
+	    logger.debug( "IGNORED Exception", alex );
+	}
 	// For individuals
 	if (  params.getProperty("noinst") == null ){
 	    try {
@@ -405,8 +421,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 			}
 		    }
 		}
-	    } catch (AlignmentException alex) { alex.printStackTrace(); //}
-	    } catch (OntowrapException owex) { owex.printStackTrace(); }
+	    } catch (OntowrapException owex) { 
+		logger.debug( "IGNORED Exception", owex );
+	    } catch (AlignmentException alex) { 
+		logger.debug( "IGNORED Exception", alex );
+	    }
 	}
 	return((Alignment)this);
     }
@@ -451,7 +470,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 				public int compare( Cell o1, Cell o2 )
 				    throws ClassCastException{
 				    try {
-					//System.err.println(o1.getObject1()+" -- "+o1.getObject2()+" // "+o2.getObject1()+" -- "+o2.getObject2());
+					//logger.trace("{} -- {} // {} -- {}", o1.getObject1(), o1.getObject2(), o2.getObject1(), o2.getObject2());
 					if ( o1.getStrength() > o2.getStrength() ){
 					    return -1;
 					} else if ( o1.getStrength() < o2.getStrength() ){
@@ -533,11 +552,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	      }
 	  };
 
-      } catch (AlignmentException alex) {
-	  alex.printStackTrace();
-      } catch (OntowrapException owex) {
-	  owex.printStackTrace();
-      };
+      } catch (OntowrapException owex) { 
+	  logger.debug( "IGNORED Exception", owex );
+      } catch (AlignmentException alex) { 
+	  logger.debug( "IGNORED Exception", alex );
+      }
       return((Alignment)this);
     }
 

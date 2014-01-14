@@ -34,6 +34,9 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.xml.sax.ContentHandler;
 
 import org.semanticweb.owl.align.Alignment;
@@ -54,11 +57,12 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  * In version 3.0 this class is virtually abstract.
  * But it cannot be declared abstract because it uses its own constructor.
  *
- * @author Jï¿½rï¿½me Euzenat, David Loup, Raphaï¿½l Troncy
+ * @author Jérôme Euzenat, David Loup, Raphaël Troncy
  * @version $Id$
  */
 
 public class BasicAlignment implements Alignment {
+    final static Logger logger = LoggerFactory.getLogger( BasicAlignment.class );
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException {
 	visitor.visit( this );
@@ -66,8 +70,6 @@ public class BasicAlignment implements Alignment {
 
     protected Ontology<Object> onto1 = null;
     protected Ontology<Object> onto2 = null;
-
-    protected int debug = 0;
 
     protected String level = "0";
 
@@ -676,8 +678,10 @@ public class BasicAlignment implements Alignment {
 	if ( pretty != null ){
 	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/"+label );
 	};
-	newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE,
-			     extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE )+"" );
+	if ( extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) != null ) {
+	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE,
+				 extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) );
+	}
 	newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, method );
 	return newext;
     }
@@ -731,7 +735,10 @@ public class BasicAlignment implements Alignment {
     public Object clone() {
 	BasicAlignment align;
 	try { align = createNewAlignment( onto1, onto2 ); }
-	catch (AlignmentException ae) { ae.printStackTrace(); return null; }
+	catch (AlignmentException ae) { 
+	    logger.debug( "IGNORED Exception: alignment not cloned", ae );
+	    return null; 
+	}
 	align.setType( getType() );
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
@@ -743,7 +750,9 @@ public class BasicAlignment implements Alignment {
 	    align.setXNamespace( label, getXNamespace( label ) );
 	}
 	try { align.ingest( this ); }
-	catch (AlignmentException ex) { ex.printStackTrace(); }
+	catch (AlignmentException ex) { 
+	    logger.debug( "IGNORED Exception: alignment not ingested", ex );
+	}
 	return align;
     }
 

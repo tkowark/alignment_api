@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -33,6 +33,9 @@ import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.AlignmentException;
@@ -47,7 +50,7 @@ import fr.inrialpes.exmo.align.impl.Annotations;
 /**
  * This class allows the creation of a parser for an Alignment file.
  * The class is called by:
- * AlignmentParser parser = new AlignmentParser( debugLevel );
+ * AlignmentParser parser = new AlignmentParser();
  * Alignment alignment = parser.parse( input );
  * input can be a URI as a String, an InputStream
  * This new version (January 2004) parses the alignment description in
@@ -56,12 +59,8 @@ import fr.inrialpes.exmo.align.impl.Annotations;
  */
 
 public class AlignmentParser {
+    final static Logger logger = LoggerFactory.getLogger( AlignmentParser.class );
 
-    /**
-     * level of debug/warning information
-     */
-    protected int debugMode = 0;
-    
     /**
      * a URI to a process
      */
@@ -97,11 +96,11 @@ public class AlignmentParser {
 
     /** 
      * Creates a Parser.
-     * @param debugMode The value of the debug mode
+     * @param debugMode The value of the debug mode DEPRECATED
      */
-    public AlignmentParser( int debugMode ) {
-	this.debugMode = debugMode;
-    }
+    public AlignmentParser( int debugMode ) {}
+
+    public AlignmentParser() {}
 
     public void setEmbedded( boolean b ){
 	embedded = b;
@@ -129,21 +128,19 @@ public class AlignmentParser {
      */
     private Alignment callParser( Object o ) throws AlignmentException {
 	try { 
-	    XMLParser parser = new XMLParser( debugMode );
+	    XMLParser parser = new XMLParser();
 	    if ( embedded ) parser.setEmbedded( embedded );
 	    //alignment = parser.parse( o );
 	    alignment = callParser( parser, o );
 	} catch ( Exception e ) {
-	    if ( debugMode > 0 ) {
-		System.err.println("XMLParser failed to parse alignment (INFO)");
-		e.printStackTrace();
-	    }
+	    logger.debug( "XMLParser failed to parse alignment (INFO)", e );
+	    logger.debug( "Using RDFParser instead" );
 	    try {
 		if ( !embedded ) {
-		    RDFParser rparser = new RDFParser( debugMode );
+		    RDFParser rparser = new RDFParser();
 		    alignment = callParser( rparser, o );
 		} else {
-		    throw new AlignmentException( "Cannot parse "+o+" (use debug>0 for more info)", e );
+		    throw new AlignmentException( "Cannot parse "+o+" (use logging for more info)", e );
 		}
 	    } catch ( Exception ex ) {
 		// JE: should contain both ex and e

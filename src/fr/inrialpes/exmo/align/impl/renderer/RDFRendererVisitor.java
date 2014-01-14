@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010, 2012
+ * Copyright (C) INRIA, 2003-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentVisitor;
@@ -87,6 +90,7 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
  */
 
 public class RDFRendererVisitor extends IndentedRendererVisitor implements AlignmentVisitor,EDOALVisitor {
+    final static Logger logger = LoggerFactory.getLogger( RDFRendererVisitor.class );
 
     Alignment alignment = null;
     Cell cell = null;
@@ -111,6 +115,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( Alignment align ) throws AlignmentException {
+	//logger.trace( "Processing alignment {}", align );
 	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
 	// default behaviour
 	String extensionString = "";
@@ -224,6 +229,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     }
 
     public void visit( Cell cell ) throws AlignmentException {
+	//logger.trace( "Processing cell {}", cell );
 	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
 	// default behaviour
 	this.cell = cell;
@@ -242,6 +248,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	    if ( alignment.getLevel().startsWith("2EDOAL") ) {
 		indentedOutputln("<"+SyntaxElement.ENTITY1.print(DEF)+">");
 		increaseIndent();
+		//logger.trace( "Processing ob1 {}", cell.getObject1() );
 		((Expression)(cell.getObject1())).accept( this );
 		decreaseIndent();
 		writer.print(NL);
@@ -249,6 +256,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 		indentedOutputln("<"+SyntaxElement.ENTITY2.print(DEF)+">");
 		increaseIndent();
 		((Expression)(cell.getObject2())).accept( this );
+		//logger.trace( "Processing ob2 {}", cell.getObject2() );
 		decreaseIndent();
 		writer.print(NL);
 		indentedOutputln("</"+SyntaxElement.ENTITY2.print(DEF)+">");
@@ -644,7 +652,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
 	indentedOutput("</"+SyntaxElement.TRANSF.print(DEF)+">");
     }
 
-    public void visit( final Datatype e ) throws AlignmentException {
+    public void visit( final Datatype e ) {
 	indentedOutput("<"+SyntaxElement.EDATATYPE.print(DEF)+">");
 	writer.print("<"+SyntaxElement.DATATYPE.print(DEF)+" "+SyntaxElement.RDF_ABOUT.print(DEF)+"=\""+e.getType()+"\"/>");
 	writer.print("</"+SyntaxElement.EDATATYPE.print(DEF)+">");

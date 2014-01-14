@@ -166,7 +166,7 @@ public class RendererTest {
 	oalignment.render( renderer ); // test error with alignment
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 17293 ), "Rendered differently: expected "+17293+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 33811 ), "Rendered differently: expected "+33811+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })

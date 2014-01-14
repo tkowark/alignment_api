@@ -1,7 +1,7 @@
 /*
  * $id: ClassStructAlignment.java 1189 2010-01-03 17:57:13Z euzenat $
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2010
+ * Copyright (C) INRIA, 2003-2004, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.align.impl.method;
 import java.util.Vector;
 import java.util.Set;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -54,11 +57,12 @@ import fr.inrialpes.exmo.ontosim.string.StringDistances;
  *  - pia3 [ignored=0]: weigth for property domain
  *  - pia4 [ignored=0]: weigth for property range
  *
- * @author Jï¿½rï¿½me Euzenat
+ * @author Jérôme Euzenat
  * @version $Id$ 
  */
 
 public class ClassStructAlignment extends DistanceAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( ClassStructAlignment.class );
 
     private HeavyLoadedOntology<Object> honto1 = null;
     private HeavyLoadedOntology<Object> honto2 = null;
@@ -109,7 +113,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	}
 	classmatrix = new double[nbclass1+1][nbclass2+1];
 	
-	if (debug > 0) System.err.println("Initializing class distances");
+	logger.debug("Initializing class distances");
 
 	// Initialize class distances
 	// JE: Here AlignmentException is raised if cl or classlist2.get(j)
@@ -126,7 +130,7 @@ public class ClassStructAlignment extends DistanceAlignment implements Alignment
 	    throw new AlignmentException( "Cannot find entity URI", owex );
 	}
 
-	if (debug > 0) System.err.print("Computing class distances\n");
+	logger.debug("Computing class distances");
 	// Compute classes distances
 	// -- for all of its attribute, find the best match if possible... easy
 	// -- simply replace in the matrix the value by the value plus the 

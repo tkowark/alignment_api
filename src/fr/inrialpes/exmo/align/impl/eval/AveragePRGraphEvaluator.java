@@ -1,7 +1,7 @@
 /*
  * $Id: AveragePRGraphEvaluator.java 1196 2010-01-10 19:58:52Z euzenat $
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +35,9 @@ import java.util.Comparator;
 import java.util.Vector;
 import java.io.PrintWriter;
 import java.net.URI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Compute the precision recall graph on 11 points
@@ -72,6 +75,7 @@ import java.net.URI;
  */
 
 public class AveragePRGraphEvaluator extends GraphEvaluator {
+    final static Logger logger = LoggerFactory.getLogger( AveragePRGraphEvaluator.class );
 
     private int size = 0; // for averaging
 
@@ -93,10 +97,10 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
     public Vector<Pair> eval(){
 	Vector<Pair> result = new Vector<Pair>(STEP+1);
 	// Compute the average and build the vector pair
-	//System.err.println( " Size: "+size );
+	//logger.trace( " Size: {}", size );
 	for( int j = 0; j <= STEP; j++ ) {
 	    // JE: better with j/10
-	    //System.err.println( "  prec at "+j+" : "+precisions[j] );
+	    //logger.trace( "  prec at {} : {} ", j, precisions[j] );
 	    result.add( new Pair( ((double)j)/10, precisions[j] / size ) );
 	}
 	map = rawmap / size; // average map
@@ -115,7 +119,7 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
 	try {
 	    evalAlignment( reference, al );
 	} catch ( AlignmentException aex ) {
-	    aex.printStackTrace();
+	    logger.debug( "IGNORED Exception", aex );
 	}
     }
 
@@ -166,7 +170,7 @@ public class AveragePRGraphEvaluator extends GraphEvaluator {
 	// It works backward in the vector,
 	//  (in the same spirit as before, the maximum value so far -best- is retained)
 	int j = inflexion.size()-1; // index in recall-ordered vector of points
-	//System.err.println( "Inflexion: "+j);
+	//logger.trace( "Inflexion: {}", j);
 	int i = STEP; // index of the current recall interval
 	double level = (double)i/STEP; // max level of that interval
 	double best = 0.; // best value found for that interval

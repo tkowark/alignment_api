@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010, 2012
+ * Copyright (C) INRIA, 2008-2010, 2012-2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -45,6 +48,7 @@ import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
+    final static Logger logger = LoggerFactory.getLogger( SKOSLiteThesaurus.class );
     
     protected final static String SKOS_ONTO = SKOSLiteThesaurus.class.getClassLoader().getResource("fr/inrialpes/exmo/ontowrap/skoslite/skos.rdf").toString();
 
@@ -150,7 +154,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
      */
     public Set<? extends Object> getSubClasses(Object c, int local, int asserted, int named) {
 	HashSet<Object> sub = new HashSet<Object>(); 
-	//System.out.println(c);
+	//logger.trace( "getSubClasses({})", c);
 	StmtIterator it =ontoInf.listStatements(null,ontoInf.getProperty(SKOS_BROADERTRANSITIVE),(Resource) c);
 	while ( it.hasNext() ) {
 	    Statement st = it.next();
@@ -203,7 +207,8 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	try {
 	    Object o = ontoInf.getRawModel().getResource(u.toString());
 	    if (! ontoInf.contains((Resource) o, RDF.type, ontoInf.getResource(SKOS_CONCEPT))) {
-		return null;//System.out.println(u+" : "+o);
+		//logger.trace( "getEntity({}) = {}", u, o);
+		return null;
 	    }
 	    
 	    return o;
@@ -224,7 +229,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	while (it.hasNext()) {
 	    Node n = it.next().asNode();
 	    if (n.isLiteral() && (lang==null || lang.equals(n.getLiteralLanguage()))) {
-		//System.out.println(n.getLiteralLexicalForm());
+		//logger.trace( "getEntityAnnotation = {}", n.getLiteralLexicalForm() );
 		annots.add(n.getLiteralLexicalForm());
 	    }
 	}
@@ -243,7 +248,7 @@ public class SKOSLiteThesaurus implements HeavyLoadedOntology<Model> {
 	while (it.hasNext()) {
 	    Node n = it.next().asNode();
 	    if (n.isLiteral()) {
-		//System.out.println(n.getLiteralLexicalForm());
+		//logger.trace( "getEntityAnnotationsL = {}", n.getLiteralLexicalForm() );
 		annots.add(new Annotation(n.getLiteralLexicalForm(),n.getLiteralLanguage()));
 	    }
 	}

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2011
+ * Copyright (C) INRIA, 2009-2011, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,6 +35,9 @@ import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * NetworkCorrespondenceDropper
  *
@@ -45,6 +48,7 @@ import java.util.Properties;
  */
 
 public class NetworkCorrespondenceDropper implements OntologyNetworkWeakener {
+    final static Logger logger = LoggerFactory.getLogger( NetworkCorrespondenceDropper.class );
 
     public OntologyNetwork weaken( OntologyNetwork on, int n, Properties p ) throws AlignmentException {
 	throw new AlignmentException( "Cannot weaken alignments by fixed number of correspondences" );
@@ -74,14 +78,14 @@ public class NetworkCorrespondenceDropper implements OntologyNetworkWeakener {
 	    newon.addAlignment( newal );
 	}
 	// Select these correspondences to delete: either shuffle or order
-	//System.err.println( n+" * "+corresp.size()+" = "+n*(double)(corresp.size()) );
+	//logger.trace( "{} * {} = {}", n, corresp.size(), n*(double)(corresp.size()) );
 	int q = (int)(n*(double)(corresp.size()));
 	if ( !threshold ) Collections.shuffle( (ArrayList)corresp );
 	// Suppress the n*size() last ones or those which are under threshold
 	for ( LCell c : corresp ) {
 	    if ( q == 0 ) break;
 	    q--;
-	    //System.err.println( "Cell ["+c.getCell().getStrength()+"] : "+c );
+	    //logger.trace( "Cell [{}]: {}", c.getCell().getStrength(), c );
 	    c.getAlignment().remCell( c.getCell() );
 	}
 	// Cut

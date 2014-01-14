@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2011
+ * Copyright (C) INRIA, 2009-2011, 2013
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -34,6 +34,9 @@ import java.util.Set;
 import java.util.Collections;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * NetworkAlignmentDropper
  *
@@ -42,9 +45,10 @@ import java.util.ArrayList;
  * Returns a brand new BasicOntologyNetwork (with the initial alignments)
  */
 public class NetworkAlignmentDropper implements OntologyNetworkWeakener {
+    final static Logger logger = LoggerFactory.getLogger( NetworkAlignmentDropper.class );
 
     public OntologyNetwork weaken( OntologyNetwork on, double n, Properties p ) throws AlignmentException {
-	//System.err.println( " >>>> "+n );
+	//logger.trace( " >>>> {}", n );
 	if ( on == null ) throw new AlignmentException( "cannot weaken null ontology network" );
 	if ( n < 0. || n > 1. )
 	    throw new AlignmentException( "Argument must be between 0 and 1.: "+n );
@@ -52,7 +56,7 @@ public class NetworkAlignmentDropper implements OntologyNetworkWeakener {
     }
 
     public OntologyNetwork weaken( OntologyNetwork on, int n, Properties p ) throws AlignmentException {
-	//System.err.println( " >>>> "+n );
+	//logger.trace( " >>>> {}", n );
 	if ( on == null ) throw new AlignmentException( "cannot weaken null ontology network" );
 	if ( n < 0 )
 	    throw new AlignmentException( "Argument must be a positive integer: "+n );

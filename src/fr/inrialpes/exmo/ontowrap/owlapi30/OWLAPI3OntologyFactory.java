@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011
+ * Copyright (C) INRIA, 2008-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,9 @@ package fr.inrialpes.exmo.ontowrap.owlapi30;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owlapi.apibinding.OWLManager;
 
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -38,6 +41,7 @@ import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 
 public class OWLAPI3OntologyFactory extends OntologyFactory {
+    final static Logger logger = LoggerFactory.getLogger( OWLAPI3OntologyFactory.class );
 
     private URI formalismUri = null;
 
@@ -52,13 +56,13 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	try {
 	    formalismUri = new URI("http://www.w3.org/2002/07/owl#");
 	    manager = OWLManager.createOWLOntologyManager();
-	} catch (URISyntaxException ex) { // should not happen
-	    ex.printStackTrace();
+	} catch (URISyntaxException ex) {
+	    logger.debug( "IGNORED should never happen", ex );
 	}
     }
 
     @Override
-    public OWLAPI3Ontology newOntology( Object ontology , boolean onlyLocalEntities) throws OntowrapException {
+    public OWLAPI3Ontology newOntology( Object ontology, boolean onlyLocalEntities) throws OntowrapException {
 	if ( ontology instanceof OWLOntology ) {
 	    OWLAPI3Ontology onto = new OWLAPI3Ontology(onlyLocalEntities);
 	    onto.setFormalism( formalismId );
@@ -74,27 +78,26 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public HeavyLoadedOntology loadOntology( URI uri , boolean onlyLocalEntities) throws OntowrapException {
+    public HeavyLoadedOntology loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException {
 	OWLAPI3Ontology onto = null;
-	//System.err.println( " Loading ontology "+uri );
+	// logger.trace( " Loading ontology {}", uri );
 	// Cache seems to be implemented in API 3.0 anyway
 	// and it seems to not work well with this one
 	onto = cache.getOntologyFromURI( uri );
-	//System.err.println( "   cache1: "+onto );
+	// logger.trace( "cache1: {}", onto );
 	if ( onto != null ) return onto;
 	onto = cache.getOntology( uri );
-	//System.err.println( "   cache2: "+onto );
+	// logger.trace( "cache2: {}", onto );
 	if ( onto != null ) return onto;
 	// OWLAPI's own cache
 	IRI ontoIRI = IRI.create( uri );
 	OWLOntology ontology = manager.getOntology( ontoIRI );
-	//System.err.println( "   cache3: "+ontology );
-
+	// logger.trace( "cache3: {}", ontology );
 	try {
 	    // This below does not seem to work!
 	    //ontology = manager.loadOntologyFromOntologyDocument( IRI.create( uri ) );
 	    if ( ontology == null ) ontology = manager.loadOntology( ontoIRI );
-	    //System.err.println( "   loaded: "+ontology );
+	    // logger.trace( "loaded: {}", ontology );
 	    // I must retrieve it from cache and return it!
 	} catch ( OWLOntologyDocumentAlreadyExistsException oodaeex ) { // should never happen
 	    // This is a cache failure
@@ -105,10 +108,9 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	    if ( ontology == null )
 		throw new OntowrapException("Already loaded [owl cache failure] " + uri, ooaeex );
 	} catch ( OWLOntologyCreationException oocex ) {
-	    oocex.printStackTrace();
-	    throw new OntowrapException("Cannot load " + uri, oocex );
+	    throw new OntowrapException( "Cannot load " + uri, oocex );
 	}
-	onto = new OWLAPI3Ontology(onlyLocalEntities);
+	onto = new OWLAPI3Ontology( onlyLocalEntities );
 	onto.setFormalism( formalismId );
 	onto.setFormURI( formalismUri );
 	onto.setOntology( ontology );
@@ -119,10 +121,10 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
 	    // Better put in the OntowrapException of loaded
 	    // The ontology has no URI. In principle, it is not valid
 	    // It may be possible to put the uri instead (now it is void)
-	    e.printStackTrace();
+	    logger.debug( "IGNORED Exception (ontology without URI)", e );
 	}
 	cache.recordOntology( uri, onto );
-	//System.err.println( "   after-cache: "+cache.getOntology( uri ) );
+	// logger.trace( "after-cache: {}", cache.getOntology( uri ) );
 	return onto;
     }
     

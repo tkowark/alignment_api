@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -43,7 +43,12 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClassHierarchy {
+    final static Logger logger = LoggerFactory.getLogger( ClassHierarchy.class );
+
     private URITree root;							//the root of the tree
     private Map<AnonId,String> m_anonIDs = new HashMap<AnonId,String>();
     private int m_anonCount = 0;
@@ -119,23 +124,23 @@ public class ClassHierarchy {
 	    }
 	    /*
 	    if ( childClasses.get(childClasses.size()-1) != null ) {
-		System.err.print( childClasses.get(childClasses.size()-1).getURI() );
+		logger.trace( childClasses.get(childClasses.size()-1).getURI() );
 	    } else {
-		System.err.print( "**NULL**" );
+		logger.trace( "**NULL**" );
 	    }
 	    System.err.print( " < ");
 	    if ( parentClasses.get(childClasses.size()-1) != null ) {
-		System.err.print( parentClasses.get(childClasses.size()-1).getURI() );
+		logger.trace( parentClasses.get(childClasses.size()-1).getURI() );
 	    } else {
-		System.err.print( "**NULL**" );
+		logger.trace( "**NULL**" );
 	    }
-	    System.err.print( " < ");
+	    logger.trace( " < ");
 	    if ( superLevelClasses.get(childClasses.size()-1) != null ) {
-		System.err.print( superLevelClasses.get(childClasses.size()-1).getURI() );
+		logger.trace( superLevelClasses.get(childClasses.size()-1).getURI() );
 	    } else {
-		System.err.print( "**NULL**" );
+		logger.trace( "**NULL**" );
 	    }
-	    System.err.println();
+	    logger.trace("------------------");
 	    */
             childNode.setParent( superNode );			//change the parent of my superclass to the [parent of the "parent node"]
 	    // JE : likely wrong in multiple inheritance

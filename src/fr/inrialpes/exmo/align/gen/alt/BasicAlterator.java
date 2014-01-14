@@ -1,7 +1,7 @@
 /**
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -48,7 +48,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //Alignment API classes
 import org.semanticweb.owl.align.Alignment;
@@ -57,6 +59,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 
 //JENA classes
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -75,14 +78,13 @@ import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.ontology.AllValuesFromRestriction;
 import com.hp.hpl.jena.ontology.SomeValuesFromRestriction;
 
-
 //gen
 import fr.inrialpes.exmo.align.gen.Alterator;
 import fr.inrialpes.exmo.align.gen.ClassHierarchy;
 import fr.inrialpes.exmo.align.gen.ParametersIds;
 
 public abstract class BasicAlterator implements Alterator {
-    protected boolean debug = false;
+    final static Logger logger = LoggerFactory.getLogger( BasicAlterator.class );
 
     protected ClassHierarchy classHierarchy;    // the class hierarchy
     protected OntModel modifiedModel;		// the modified Ontology
@@ -141,8 +143,6 @@ public abstract class BasicAlterator implements Alterator {
 
     // -------------------------
     // Accessors
-
-    public void setDebug( boolean d ) { debug = d; }
 
     //returns the modified ontology after changing the namespace
     public OntModel getModifiedOntology () { return modifiedModel; }
@@ -383,9 +383,9 @@ public abstract class BasicAlterator implements Alterator {
     public Alignment extractAlignment( String base1, String base2 ) {
         Alignment extractedAlignment  = new URIAlignment();
         
-	//System.err.println( "\n-----> "+initOntologyNS );
-	//System.err.println( "-----> "+base1 );
-	//System.err.println( "-----> "+base2 );
+	//logger.trace( "-----> {}", initOntologyNS );
+	//logger.trace( "-----> {}", base1 );
+	//logger.trace( "-----> {}", base2 );
         try {
             URI onto1 = new URI( getNameSpace( base1 ) );
             URI onto2 = new URI( getNameSpace( base2 ) );
@@ -398,13 +398,13 @@ public abstract class BasicAlterator implements Alterator {
             for ( String key : alignment.stringPropertyNames() ) {
 		if ( !key.equals("##") ) {
 		    String value = alignment.getProperty(key);
-		    //if ( debug ) System.err.println( "[" + source + "][" + target + "]" );
+		    //logger.trace( "[{} --> {}]", source, target );
 		    extractedAlignment.addAlignCell( URI.create( base1+key ), URI.create( base2+value ) );
 		}
             }
 	    alignment.setProperty( "##", base1 );
         } catch ( Exception ex ) {  
-	    ex.printStackTrace();
+	    logger.debug( "IGNORED Exception", ex );	    
         }
 	return extractedAlignment;
     }
@@ -481,7 +481,7 @@ public abstract class BasicAlterator implements Alterator {
 	    ByteArrayInputStream in = new ByteArrayInputStream( sout.getBytes("UTF8") );
 	    model.read( in, null );
 	} catch ( Exception ex ) { //UnsupportedEncodingException;
-	    ex.printStackTrace(); 
+	    logger.debug( "IGNORED Exception", ex );
 	}
 	return model;
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011, 2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,11 +29,14 @@ package fr.inrialpes.exmo.align.gen;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BenchmarkGenerator extends TestSet {
+    final static Logger logger = LoggerFactory.getLogger( BenchmarkGenerator.class );
 
     public void initTestCases( Properties params ) {
 	// Process params
-	debug = ( params.getProperty( "debug" ) != null );
 
 	// JE: ugly 
 	secondOntoFile = params.getProperty( "outdir" )+"/101/onto.rdf";
@@ -47,11 +50,11 @@ public class BenchmarkGenerator extends TestSet {
 	try {
 	    if ( hard != null && !hard.equals("") ) incr = Float.parseFloat( hard );
 	} catch ( Exception ex ) {
-	    ex.printStackTrace(); // continue with the default
+	    logger.debug( "IGNORED Exception (continue with default)", ex );
 	}
 	String max = params.getProperty( "maximum" );
 	if ( max != null ) maximum = Integer.parseInt( max );
-	if ( debug ) System.err.println( " Mod: "+mod+" / Incr: "+incr+" / Max: "+maximum );
+	logger.trace( " Mod: {} / Incr: {} / Max: {}", mod, incr, maximum );
 
         /* Test 101 Generate the initial situation */
 	initTests( "101" );
@@ -65,7 +68,7 @@ public class BenchmarkGenerator extends TestSet {
 	    if ( i > 0 ) PREVTEST = "201"+SUFFIX; // The previous suffix
 	    if ( !multModality ) i1 += incr; // traditional
 	    else i1 += (1. - i1) * incr; // hardened
-	    //if ( debug ) System.err.println( " ******************************************************** "+i+": i1 = "+i1 );
+	    //logger.trace( " ******************************************************** {}: i1 = {}", i, i1 );
 
 	    if ( i1 < 1.0f ) {
 		SUFFIX = "-"+(i+1)*2; //((Float)i1).toString().substring(2, 3); // 2 4 6 8

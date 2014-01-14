@@ -30,19 +30,16 @@ import java.lang.Exception;
  * @version $Id$
  */
 
-public class AlignmentException extends Exception 
-{
+public class AlignmentException extends Exception {
 
     private static final long serialVersionUID = 330;
 
-    public AlignmentException( String message )
-    {
+    public AlignmentException( String message ) {
 	super( message );
     }
     
-    public AlignmentException( String message, Exception e )
-    {
-	super( message, e );
+    public AlignmentException( String message, Exception ex ) {
+	super( message, ex );
     }
     
 }

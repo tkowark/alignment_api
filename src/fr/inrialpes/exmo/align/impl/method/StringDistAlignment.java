@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011
+ * Copyright (C) INRIA, 2003-2011, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,9 @@ import java.net.URI;
 import java.util.Properties;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
@@ -45,6 +48,7 @@ import fr.inrialpes.exmo.align.impl.MatrixMeasure;
  */
 
 public class StringDistAlignment extends DistanceAlignment implements AlignmentProcess {
+    final static Logger logger = LoggerFactory.getLogger( StringDistAlignment.class );
     
     Method dissimilarity = null;
     String methodName = "equalDistance";
@@ -59,14 +63,13 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    try {
 		s1 = ontology1().getEntityName( o1 );
 		s2 = ontology2().getEntityName( o2 );
-	    } catch ( Exception owex ) { // dealt with below
-		if ( debug > 1 ) owex.printStackTrace();
+	    } catch ( Exception owex ) {
+		logger.debug( "IGNORED (returned 1. instead)", owex );
 	    };
 	    // Unnamed entity = max distance
 	    if ( s1 == null || s2 == null ) return 1.;
 	    Object[] params = { s1.toLowerCase(), s2.toLowerCase() };
-	    if ( debug > 4 ) 
-		System.err.println( "OB:"+s1+" ++ "+s2+" ==> "+dissimilarity.invoke( null, params ));
+	    //logger.trace( "OB:{} ++ {} ==> {}", s1, s2, dissimilarity.invoke( null, params ) );
 	    return ((Double)dissimilarity.invoke( null, params )).doubleValue();
 	}
 	public double classMeasure( Object cl1, Object cl2 ) throws Exception {
@@ -103,7 +106,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    Class[] mParams = { sClass, sClass };
 	    dissimilarity = Class.forName("fr.inrialpes.exmo.ontosim.string.StringDistances").getMethod( methodName, mParams );
 	} catch (ClassNotFoundException e) {
-	    e.printStackTrace(); // never happens
+	    logger.debug( "IGNORED (never happens)", e ); // never happens
 	} catch (NoSuchMethodException e) {
 	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+params.getProperty("stringFunction"), e );
 	}

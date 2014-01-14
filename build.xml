@@ -55,7 +55,7 @@
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
     <property name="version.minor" value="5"/>
-    <property name="copyyear" value="2003-2013"/>
+    <property name="copyyear" value="2003-2014"/>
     <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
     <condition property="svn.revision" value="${svn.rev}" else="nosvn">
@@ -224,7 +224,7 @@
       group="fr.inrialpes.exmo.align"
       desc="Alignment API implementation"
       main="fr.inrialpes.exmo.align.cli.Procalign"
-      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar getopt/getopt.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
+      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar cli/commons-cli.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
       <files>
 	<fileset dir="classes">
 	  <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
@@ -285,7 +285,7 @@
 	<attribute name="Built-Date" value="${date}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs, add here -->
-	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jaroyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
+	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jar oyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
 	<!-- others should be there naturally -->
         <attribute name="Class-Path" value="alignsvc.jar"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
@@ -313,6 +313,7 @@
   <!-- tested -->
   <target name="test" depends="bind" description="Unit test code">
     <echo message="Testing..."/>
+    <echo message="You may also want to try sh test/clitest.sh"/>
     <taskdef name="testng" classpath="${tooldir}/testng/testng.jar" classname="org.testng.TestNGAntTask" />
     <javac srcdir="test/src" includeantruntime="false" destdir="test/classes" debug="on"
 	   classpath="tools/testng/testng.jar" encoding="iso8859-15">
@@ -344,7 +345,7 @@
     <delete>
       <fileset dir="test/classes" includes="**/*.class"/>
       <fileset dir="test/output" includes="**/*.*"/>
-      <fileset dir="test/html" includes="**/*.html,**/*.xml,**/*.css"/>
+      <fileset dir="test/html" includes="**/*.*"/>
     </delete>
     <delete dir="test/html/Ant suite"/>
   </target>
@@ -515,7 +516,7 @@
       <echo message="@{file}" />
       <onepom file="@{file}" />
     </for-->
-    <onepom file="getopt/getopt" />
+    <onepom file="cli/commons-cli" />
     <onepom file="google-translate/google-api-translate-java" />
     <onepom file="google-translate/json" />
     <onepom file="hermit/hermit" />

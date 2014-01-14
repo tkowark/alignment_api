@@ -168,11 +168,11 @@ public abstract class OntologyFactory {
      */
     public LoadedOntology loadOntology( Ontology onto ) throws OntowrapException {
 	// logger.trace( "loading Ontology: {}", onto );
-	try { // Try with URI
-	    return loadOntology( onto.getURI() );
+	try { // Try with file
+	    return loadOntology( onto.getFile() );
 	} catch ( Exception ex ) {
-	    try { // Try with file
-		return loadOntology( onto.getFile() );
+	    try { // Try with URI
+		return loadOntology( onto.getURI() );
 	    } catch ( Exception ex2 ) {
 		throw new OntowrapException( "Cannot load ontology "+onto );
 	    }

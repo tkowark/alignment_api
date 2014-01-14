@@ -22,11 +22,15 @@ package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Contains the messages that should be sent according to the protocol
  */
 
 public class AlignmentIds extends Success {
+    final static Logger logger = LoggerFactory.getLogger( AlignmentIds.class );
 
     String pretty = null;
 
@@ -45,8 +49,8 @@ public class AlignmentIds extends Success {
 	if ( id.length >= 1 ) {
 	    result = "Alignment Ids: <ul>";
 	    for ( int i = id.length-1; i >= 0; i-- ){
-		//System.err.println("id["+i+"]"+id[i]);
-		//result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
+		// logger.trace("id[{}]{}", i, id[i] );
+		// result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
 		result += "<li><a href=\""+id[i]+"\">";
 		result += id[i];
 		String pp = null;
@@ -56,7 +60,7 @@ public class AlignmentIds extends Success {
 	    	        if (pp != null && !pp.equals("") && !pp.equals("null"))  {		
 			    result += " ("+pp+")";
 			}
-			//System.err.println("pid["+i+"]="+pp);
+			// logger.trace( "pid[{}]={}", i, pp );
 		    } catch(Exception ex) { 
 		    }
 		} 

@@ -28,6 +28,9 @@ import java.util.Set;
 import java.util.Collection;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.xml.sax.SAXException;
 
 import org.semanticweb.owl.align.Alignment;
@@ -52,13 +55,14 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  */
 
 public class ObjectAlignment extends BasicAlignment {
+    final static Logger logger = LoggerFactory.getLogger( ObjectAlignment.class );
 
     protected ObjectAlignment init = null;
 
     public ObjectAlignment() {}
 
-    public void init(Object onto1, Object onto2) throws AlignmentException {
-	if ( (onto1 instanceof LoadedOntology && onto2 instanceof LoadedOntology) ){
+    public void init( Object onto1, Object onto2 ) throws AlignmentException {
+	if ( (onto1 instanceof LoadedOntology) && (onto2 instanceof LoadedOntology) ){
 	    super.init( onto1, onto2 );
 	} else if ( onto1 instanceof URI && onto2 instanceof URI ) {
 		super.init( loadOntology( (URI)onto1 ),
@@ -161,7 +165,7 @@ public class ObjectAlignment extends BasicAlignment {
 		} catch ( NullPointerException npe ) {
 		    throw new AlignmentException( "Cannot dereference entity "+c.getObject2AsURI( alignment ), npe );
 		}
-		//System.err.println( obj1+"  "+obj2+"  "+c.getRelation()+"  "+c.getStrength() );
+		//logger.trace( "{} {} {} {}", obj1, obj2, c.getRelation(), c.getStrength() );
 		if ( obj1 == null ) throw new AlignmentException( "Cannot dereference entity "+c.getObject1AsURI( alignment ) );
 		if ( obj2 == null ) throw new AlignmentException( "Cannot dereference entity "+c.getObject2AsURI( alignment ) );
 		Cell newc = alignment.addAlignCell( c.getId(), obj1, obj2,

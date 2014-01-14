@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008, 2010
+ * Copyright (C) INRIA, 2003-2008, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,6 +24,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Ontology;
@@ -35,6 +38,7 @@ import fr.inrialpes.exmo.ontowrap.OntologyCache;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 public class JENAOntologyFactory extends OntologyFactory {
+    final static Logger logger = LoggerFactory.getLogger( JENAOntologyFactory.class );
 
     private static URI formalismUri = null;
     private static String formalismId = "OWL1.0";
@@ -45,7 +49,9 @@ public class JENAOntologyFactory extends OntologyFactory {
 	cache = new OntologyCache<JENAOntology>();
 	try { 
 	    formalismUri = new URI("http://www.w3.org/2002/07/owl#");
-	} catch (URISyntaxException ex) { ex.printStackTrace(); } // should not happen
+	} catch (URISyntaxException ex) { 
+	    logger.debug( "IGNORED (should never happen)", ex ); 
+	} // should not happen
     }
 
     public JENAOntology newOntology( Object ontology , boolean onlyLocalEntities ) throws OntowrapException {

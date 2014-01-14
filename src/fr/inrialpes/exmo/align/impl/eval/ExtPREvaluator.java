@@ -43,6 +43,9 @@ import java.io.PrintWriter;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Implements extended precision and recall between alignments.
  * These are the measures corresponding to [Ehrig&Euzenat2005].
@@ -75,6 +78,7 @@ import java.net.URI;
  */
 
 public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
+    final static Logger logger = LoggerFactory.getLogger( ExtPREvaluator.class );
 
     private HeavyLoadedOntology<Object> onto1;
     private HeavyLoadedOntology<Object> onto2;
@@ -194,8 +198,9 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	if ( nbexpected != 0 ) precorientrec = orientPrecsimilarity / (double) nbexpected;
 	if ( nbfound != 0 ) recorientprec = orientRecsimilarity / (double) nbfound;
 	if ( nbexpected != 0 ) recorientrec = orientRecsimilarity / (double) nbexpected;
-	//System.err.println(">>>> " + nbcorrect + " : " + nbfound + " : " + nbexpected);
-	//System.err.println(">>>> " + symsimilarity + " : " + effsimilarity + " : " + orientRecsimilarity + " : " + orientPrecsimilarity);
+	//logger.trace(">>>> {} : {} : {}", nbcorrect, nbfound, nbexpected);
+	//logger.trace(">>>> {} : {}", symsimilarity, effsimilarity );
+	//logger.trace(">>>> {} : {}", orientRecsimilarity, orientPrecsimilarity);
 	return (result);
     }
 
@@ -216,19 +221,20 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 		    val1 = 0;
 		} else {
 		    val1 = Math.abs( relativePosition( c1.getObject1(), c2.getObject1(), onto1 ) );
-		    //System.err.println( c1.getObject1()+" -- "+c2.getObject1()+" = "+val1 );
+		    //logger.trace( "{} -- {} = {}", c1.getObject1(), c2.getObject1(), val1 );
 		    if ( val1 == 0 ) continue;
 		}
 		if ( onto2.getEntityURI( c1.getObject2() ).equals( onto2.getEntityURI(c2.getObject2()) ) ){
 		    val2 = 0;
 		} else {
 		    val2 = Math.abs( relativePosition( c1.getObject2(), c2.getObject2(), onto2 ) );
-		    //System.err.println( c1.getObject2()+" -- "+c2.getObject2()+" = "+val2 );
+		    //logger.trace( "{} -- {} = {}", c1.getObject2(), c2.getObject2(), val2 );
 		    if ( val2 == 0 ) continue;
 		}
 		double val = Math.pow( symALPHA, val1 + val2 );
 		if ( withConfidence ) val *= 1. - Math.abs( c1.getStrength() - c2.getStrength() );
-		//System.err.println( "               => "+symALPHA+"^"+val1+"+"+val2+" * "+(1. - Math.abs( c1.getStrength() - c2.getStrength() ))+"  =  "+val );
+		// Does not write 5 {}
+		//logger.trace( "               => {}^{}+{}*{} = {}", symALPHA, val1, val2, (1. - Math.abs( c1.getStrength() - c2.getStrength() )), val );
 		if ( relsensitive && !c1.getRelation().equals( c2.getRelation() ) ) {
 		    if ( ( c1.getRelation().getRelation().equals("=") &&
 			   ( c2.getRelation().getRelation().equals("<") || c2.getRelation().getRelation().equals(">") ))

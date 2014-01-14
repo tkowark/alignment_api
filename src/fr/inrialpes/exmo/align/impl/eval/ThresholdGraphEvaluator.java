@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -39,6 +39,9 @@ import java.util.Vector;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Compute the F-measure/precision/recall at various thresholds
  *
@@ -48,6 +51,7 @@ import java.net.URI;
  */
 
 public class ThresholdGraphEvaluator extends GraphEvaluator {
+    final static Logger logger = LoggerFactory.getLogger( ThresholdGraphEvaluator.class );
 
     private int STEP = 50; 
 
@@ -106,7 +110,7 @@ public class ThresholdGraphEvaluator extends GraphEvaluator {
 	// This is the version with increment
 	// Determine what the increment is
 	double increment = 1./(double)STEP;
-	//System.err.println(" INCREMENT SET "+increment );
+	//logger.trace(" INCREMENT SET {}", increment );
 	double next = 1.;
 	next -= increment;
 	for ( EvalCell c : cellSet ) {

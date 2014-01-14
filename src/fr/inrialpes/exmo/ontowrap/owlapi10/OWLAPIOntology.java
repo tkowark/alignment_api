@@ -1,7 +1,7 @@
 /*
  * $Id: OWLAPIOntology.java 896 2008-11-25 14:45:46Z jdavid $
  *
- * Copyright (C) INRIA, 2007-2008, 2010
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inrialpes.exmo.ontowrap.Annotation;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
@@ -69,6 +72,7 @@ import org.semanticweb.owl.model.helper.OWLEntityCollector;
  */
 
 public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyLoadedOntology<OWLOntology> {
+    final static Logger logger = LoggerFactory.getLogger( OWLAPIOntology.class );
 
     /* For caching sizes */
     private int nbentities = -1;
@@ -82,7 +86,9 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	setFormalism( "OWL1.0" );
 	try {
 	    setFormURI( new URI("http://www.w3.org/2002/07/owl#") );
-	} catch (Exception e) {}; // does not happen
+	} catch (Exception e) {
+	    logger.debug( "IGNORED (should never happen)", e );
+	};
     };
 
     // -----------------------------------------------------------------
@@ -179,7 +185,7 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 		try {
 		    return new OWLAPIAnnotIt(o,e,lang,typeAnnot);
 		} catch (OWLException e) {
-		    e.printStackTrace();
+		    logger.debug( "IGNORED", e );
 		    return null;
 		}
 	    }
@@ -357,7 +363,9 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
     public void unload() {
 	try {
 	    onto.getOWLConnection().notifyOntologyDeleted( onto );
-	} catch (OWLException ex) { System.err.println(ex); };
+	} catch (OWLException ex) { 
+	    logger.debug( "IGNORED Exception", ex); 
+	};
     }
 
     // -----------------------------------------------------------------
@@ -412,7 +420,9 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 		    if ( ent instanceof OWLRestriction ) 
 			prop.add( ((OWLRestriction)ent).getProperty() );
 		}
-	    } catch (OWLException e) { e.printStackTrace(); }
+	    } catch (OWLException e) { 
+		logger.debug( "IGNORED", e ); 
+	    }
 	} else {
 	    prop = getInheritedProperties( (OWLClass)cl );
 	}

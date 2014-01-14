@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2012, INRIA
+ * Copyright (C) 2011-2013, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -28,6 +28,10 @@
  * or generate tests independently.
  * 
  * Variations can also be obtained.
+ *
+ * The API is:
+ * initTestCases: creates the test structure (abstract) made of TestCases
+ * generate: generates the actual tests using a TestGenerator
  */
 
 package fr.inrialpes.exmo.align.gen;
@@ -37,12 +41,15 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class TestSet {
+    final static Logger logger = LoggerFactory.getLogger( TestSet.class );
 
     private String initOntoFile;                         //the initial ontology file
     protected String secondOntoFile;                         //the secondary ontology file
     protected boolean continuous = false;
-    protected boolean debug = false;
 
     private TestGenerator generator;                                  // a TestGenerator
    
@@ -59,7 +66,7 @@ public abstract class TestSet {
 	addTestChild( tests.get( from ), name, params );
     }
     public void addTestChild( TestCase father, String name, Properties params ) {
-	//System.err.println( name + " ["+father+"]" );
+	//logger.trace( "{} [{}]", name, father );
 	TestCase c = father.addSubTest( name, params );
 	tests.put( name, c );
     }
@@ -89,7 +96,6 @@ public abstract class TestSet {
     // Generates the test set
     public void generate( Properties params ) {
 	// Generator parameters... are these OK?
-	generator.setDebug( debug );
 	initOntoFile = params.getProperty( "filename" ); // If no filename error
 	if ( params.getProperty( "urlprefix" ) != null ) generator.setURLPrefix( params.getProperty( "urlprefix" ) );
 	if ( params.getProperty( "outdir" ) != null ) generator.setDirPrefix( params.getProperty( "outdir" ) );
@@ -105,7 +111,7 @@ public abstract class TestSet {
 	// Initialises test cases tree
 	initTestCases( params );
 	// Print it
-	if ( debug ) printTestHierarchy( root, 0 );
+	// printTestHierarchy( root, 0 );
 	if ( params.getProperty( "alignname" ) != null ) generator.setAlignFilename( params.getProperty( "alignname" ) );
 	// Generate all tests
 	startTestGeneration();
