@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Basic relation sensitivity has been implemented
  *
  * @author Jerome Euzenat
- * @version $Id: PRecEvaluator.java 1494 2010-07-23 14:43:36Z euzenat $ 
+ * @version $Id: WeightedPRecEvaluator.java 1494 2010-07-23 14:43:36Z euzenat $ 
  */
 
 public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {

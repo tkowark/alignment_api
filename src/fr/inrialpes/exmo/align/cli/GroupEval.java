@@ -28,6 +28,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Evaluator;
 
 import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
+import fr.inrialpes.exmo.align.impl.eval.WeightedPREvaluator; //JE:merge
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
@@ -37,6 +38,7 @@ import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.lang.Integer;
+import java.lang.reflect.Constructor;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
@@ -68,6 +70,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
     where the options are:
     <pre>
     -o filename --output=filename
+    -e classname --evaluator=classname
     -f format = prfot (precision/recall/f-measure/overall/time) --format=prfot
     -r filename --reference=filename
     -s algo/measure
@@ -101,11 +104,14 @@ public class GroupEval extends CommonCLI {
     int size = 0;
     String color = null;
     String ontoDir = null;
+    String classname = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
+    Constructor evalConstructor = null;
 
     public GroupEval() {
 	super();
 	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
+	options.addOption( OptionBuilder.withLongOpt( "evaluator" ).hasArg().withDescription( "Use CLASS as evaluation plotter" ).withArgName("CLASS").create( 'e' ) );
 	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Used MEASures and order (precision/recall/f-measure/overall/time)  (default: "+format+")" ).withArgName("MEAS").create( 'f' ) );
 	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
 	//options.addOption( OptionBuilder.withLongOpt( "sup" ).hasArg().withDescription( "Specifies if dominant columns are algorithms or measure" ).withArgName("algo").create( 's' ) );
@@ -129,6 +135,7 @@ public class GroupEval extends CommonCLI {
 	    if ( line == null ) return; // --help
 
 	    // Here deal with command specific arguments
+	    if ( line.hasOption( 'e' ) ) classname = line.getOptionValue( 'e' );
 	    if ( line.hasOption( 'f' ) ) format = line.getOptionValue( 'f' );
 	    if ( line.hasOption( 'r' ) ) reference = line.getOptionValue( 'r' );
 	    if ( line.hasOption( 's' ) ) dominant = line.getOptionValue( 's' );
@@ -145,6 +152,11 @@ public class GroupEval extends CommonCLI {
 	    System.exit( -1 );
 	}
 
+	Class<?> evalClass = Class.forName( classname );
+	Class<?> alClass = Class.forName( "org.semanticweb.owl.align.Alignment" );
+	Class[] cparams = { alClass, alClass };
+	evalConstructor = evalClass.getConstructor( cparams );
+
 	print( iterateDirectories() );
     }
 
@@ -153,9 +165,9 @@ public class GroupEval extends CommonCLI {
 	File [] subdir = null;
 	try {
 	    if (ontoDir == null) {
-		subdir = (new File(System.getProperty("user.dir"))).listFiles(); 
+		subdir = ( new File(System.getProperty("user.dir") ) ).listFiles(); 
 	    } else {
-		subdir = (new File(ontoDir)).listFiles();
+		subdir = ( new File(ontoDir) ).listFiles();
 	    }
 	} catch ( Exception e ) {
 	    logger.error( "Cannot stat dir ", e );
@@ -219,7 +231,9 @@ public class GroupEval extends CommonCLI {
 	    Alignment align2 = aparser.parse( alignName2 );
 	    //logger.trace(" Alignment structure2 parsed");
 	    // Create evaluator object
-	    eval = new PRecEvaluator( align1, align2 );
+	    //eval = new PRecEvaluator( align1, align2 );
+	    Object[] mparams = { align1, align2 };
+	    eval = (Evaluator) evalConstructor.newInstance(mparams);
 	    // Compare
 	    eval.eval( parameters ) ;
 	} catch (Exception ex) {

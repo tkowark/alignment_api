@@ -154,12 +154,15 @@ public class GenPlot extends CommonCLI {
 	    System.exit(-1);
 	}
 
-	Class<?> graphClass = Class.forName(graphCN);
+	Class<?> graphClass = Class.forName( graphCN );
 	Class[] cparams = {};
 	graphConstructor = graphClass.getConstructor( cparams );
 
-	//Class<?> evalClass = Class.forName(evalCN);
-	//evalConstructor = evalClass.getConstructor( cparams );
+	// JE: This is not used
+	Class<?> evalClass = Class.forName( evalCN );
+	Class<?> alClass = Class.forName( "org.semanticweb.owl.align.Alignment" );
+	Class[] caparams = { alClass, alClass };
+	evalConstructor = evalClass.getConstructor( caparams );
 
 	// Collect correspondences from alignments in all directories
 	// . -> Vector<EvalCell>

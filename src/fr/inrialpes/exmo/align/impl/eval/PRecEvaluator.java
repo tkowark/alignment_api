@@ -80,7 +80,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
      * The two parameters are transformed into URIAlignment before being processed
      * Hence, if one of them is modified after initialisation, this will not be taken into account.
      **/
-    public PRecEvaluator(Alignment align1, Alignment align2) throws AlignmentException {
+    public PRecEvaluator( Alignment align1, Alignment align2 ) throws AlignmentException {
 	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
     }
 
