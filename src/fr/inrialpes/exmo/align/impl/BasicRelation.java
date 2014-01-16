@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009-2013
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,14 @@ package fr.inrialpes.exmo.align.impl;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
+import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
+import fr.inrialpes.exmo.align.impl.rel.SubsumedRelation;
+import fr.inrialpes.exmo.align.impl.rel.SubsumeRelation;
+import fr.inrialpes.exmo.align.impl.rel.IncompatRelation;
+import fr.inrialpes.exmo.align.impl.rel.InstanceOfRelation;
+import fr.inrialpes.exmo.align.impl.rel.HasInstanceRelation;
+import fr.inrialpes.exmo.align.impl.rel.NonTransitiveImplicationRelation;
+
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Relation;
@@ -30,7 +38,6 @@ import org.xml.sax.ContentHandler;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.ClassNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,44 +62,32 @@ public class BasicRelation implements Relation {
 	    throw new NullPointerException("The string to search must not be null");
 	if ( classIndex == null ){
 	    classIndex = new HashMap<String, Class<?>>();
-	    try {
-		Class<?> eq = Class.forName("fr.inrialpes.exmo.align.impl.rel.EquivRelation");
-		Class<?> sub = Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumedRelation");
-		Class<?> sup = Class.forName("fr.inrialpes.exmo.align.impl.rel.SubsumeRelation");
-		Class<?> dis = Class.forName("fr.inrialpes.exmo.align.impl.rel.IncompatRelation");
-		Class<?> ins = Class.forName("fr.inrialpes.exmo.align.impl.rel.InstanceOfRelation");
-		Class<?> has = Class.forName("fr.inrialpes.exmo.align.impl.rel.HasInstanceRelation");
-		Class<?> nti = Class.forName("fr.inrialpes.exmo.align.impl.rel.NonTransitiveImplicationRelation");
-		
-		classIndex.put( "Equivalence", eq );
-		classIndex.put( "=", eq );
-		classIndex.put( "equivalence", eq );
-		classIndex.put( "ClassMapping", eq );
-		
-		classIndex.put( "Subsumes", sup );
-		classIndex.put( ">", sup );
-		classIndex.put( "&gt;", sup );
-		
-		classIndex.put( "SubsumedBy", sub );
-		classIndex.put( "<", sub );
-		classIndex.put( "&lt;", sub );
-		
-		classIndex.put("><", dis );
-		classIndex.put("%", dis );
-		classIndex.put("DisjointFrom",dis);
-		classIndex.put("Disjoint",dis);
-		classIndex.put("disjointFrom",dis);
-		classIndex.put("disjoint",dis);
+	    classIndex.put( "Equivalence", EquivRelation.class );
+	    classIndex.put( "=", EquivRelation.class );
+	    classIndex.put( "equivalence", EquivRelation.class );
+	    classIndex.put( "ClassMapping", EquivRelation.class );
 	    
-		classIndex.put( "InstanceOf", ins );
+	    classIndex.put( "Subsumes", SubsumeRelation.class );
+	    classIndex.put( ">", SubsumeRelation.class );
+	    classIndex.put( "&gt;", SubsumeRelation.class );
 	    
-		classIndex.put( "HasInstance", has );
+	    classIndex.put( "SubsumedBy", SubsumedRelation.class );
+	    classIndex.put( "<", SubsumedRelation.class );
+	    classIndex.put( "&lt;", SubsumedRelation.class );
+	    
+	    classIndex.put("><", IncompatRelation.class );
+	    classIndex.put("%", IncompatRelation.class );
+	    classIndex.put("DisjointFrom",IncompatRelation.class);
+	    classIndex.put("Disjoint",IncompatRelation.class);
+	    classIndex.put("disjointFrom",IncompatRelation.class);
+	    classIndex.put("disjoint",IncompatRelation.class);
+	    
+	    classIndex.put( "InstanceOf", InstanceOfRelation.class );
+	    
+	    classIndex.put( "HasInstance", HasInstanceRelation.class );
 
-		classIndex.put( "~>", nti );
-		classIndex.put( "~&gt;", nti );
-	    } catch ( ClassNotFoundException cnfe ) {
-		logger.debug( "IGNORED Exception (should never occur)", cnfe );
-	    }
+	    classIndex.put( "~>", NonTransitiveImplicationRelation.class );
+	    classIndex.put( "~&gt;", NonTransitiveImplicationRelation.class );
 	}
 	return classIndex.get(label);
     }
@@ -172,11 +167,9 @@ public class BasicRelation implements Relation {
 
     /** Are the two relations equal **/
     public boolean equals( Relation r ) {
-	if ( r instanceof BasicRelation ){
+	if ( r instanceof BasicRelation )
 	    return ( relation.equals( ((BasicRelation)r).getRelation() ) );
-	} else {
-	    return false;
-	}
+	return false;
     }
     public int hashCode() {
 	return 19+relation.hashCode();

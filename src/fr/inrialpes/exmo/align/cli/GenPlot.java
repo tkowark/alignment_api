@@ -160,8 +160,7 @@ public class GenPlot extends CommonCLI {
 
 	// JE: This is not used
 	Class<?> evalClass = Class.forName( evalCN );
-	Class<?> alClass = Class.forName( "org.semanticweb.owl.align.Alignment" );
-	Class[] caparams = { alClass, alClass };
+	Class[] caparams = { Alignment.class, Alignment.class };
 	evalConstructor = evalClass.getConstructor( caparams );
 
 	// Collect correspondences from alignments in all directories

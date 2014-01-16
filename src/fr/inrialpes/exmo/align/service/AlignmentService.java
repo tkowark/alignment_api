@@ -238,7 +238,7 @@ public class AlignmentService extends CommonCLI {
     }
 
     protected Object loadInstance( String className ) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-	Class<?> cl = Class.forName(className);
+	Class<?> cl = Class.forName( className );
 	java.lang.reflect.Constructor constructor = cl.getConstructor( (Class[])null );
 	return constructor.newInstance( (Object[])null );
     }

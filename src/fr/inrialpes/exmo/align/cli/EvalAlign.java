@@ -41,6 +41,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.slf4j.Logger;
@@ -140,11 +141,10 @@ public class EvalAlign extends CommonCLI {
 	    if ( classname != null ) {
 		// Create evaluator object
 		try {
+		    Class[] cparams = { Alignment.class, Alignment.class };
+		    Class<?> evaluatorClass = Class.forName(classname);
+		    Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
 		    Object [] mparams = {(Object)align1, (Object)align2};
-		    Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
-		    Class[] cparams = { oClass, oClass };
-		    Class<?> evaluatorClass =  Class.forName(classname);
-		    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
 		    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
 		} catch (ClassNotFoundException ex) {
 		    logger.debug( "IGNORED Exception", ex );

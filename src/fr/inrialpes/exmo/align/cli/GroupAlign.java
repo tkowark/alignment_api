@@ -43,6 +43,7 @@ import java.lang.Long;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.lang.reflect.Constructor;
 
 import org.xml.sax.SAXException;
 
@@ -205,8 +206,7 @@ public class GroupAlign extends CommonCLI {
 		Object[] mparams = {};
 		Class[] cparams = {};
 		Class<?> alignmentClass = Class.forName( alignmentClassName );
-		java.lang.reflect.Constructor alignmentConstructor =
-		    alignmentClass.getConstructor(cparams);
+		Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 		result = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 		result.init( uri1, uri2 );
 	    } catch (Exception ex) {
@@ -232,10 +232,10 @@ public class GroupAlign extends CommonCLI {
 	    AlignmentVisitor renderer = null;
 
 	    try {
-		Object[] mparams = { (Object)writer };
-		Class[] cparams = { Class.forName("java.io.PrintWriter") };
-		java.lang.reflect.Constructor rendererConstructor =
+		Class[] cparams = { PrintWriter.class };
+		Constructor rendererConstructor =
 		    Class.forName(rendererClass).getConstructor(cparams);
+		Object[] mparams = { (Object)writer };
 		renderer = (AlignmentVisitor)rendererConstructor.newInstance(mparams);
 	    } catch (Exception ex) {
 		logger.debug( "Cannot create renderer {}", rendererClass );

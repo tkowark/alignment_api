@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011-2013
+ * Copyright (C) INRIA, 2003-2004, 2007-2008, 2011-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Constructor;
 
 import org.xml.sax.SAXException;
 
@@ -148,7 +149,7 @@ public class ParserPrinter extends CommonCLI {
 	    else {
 		try {
 		    Class[] cparams = {};
-		    java.lang.reflect.Constructor parserConstructor =
+		    Constructor parserConstructor =
 			Class.forName(parserClass).getConstructor(cparams);
 		    Object[] mparams = {};
 		    aparser = (AlignmentParser) parserConstructor.newInstance(mparams);
@@ -190,12 +191,10 @@ public class ParserPrinter extends CommonCLI {
 	    if ( rendererClass == null ) renderer = new RDFRendererVisitor( writer );
 	    else {
 		try {
-		    Object[] mparams = {(Object) writer };
-		    // JE: Not terrible: use the right constructor
-		    java.lang.reflect.Constructor[] rendererConstructors =
-			Class.forName(rendererClass).getConstructors();
-		    renderer =
-			(AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+		    Class[] cparams = { PrintWriter.class };
+		    Constructor rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
+		    Object[] mparams = { (Object)writer };
+		    renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 		} catch (Exception ex) {
 		    logger.error( "Cannot create renderer {}", rendererClass );
 		    usage();

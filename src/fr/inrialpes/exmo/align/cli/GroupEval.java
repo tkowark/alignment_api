@@ -153,8 +153,7 @@ public class GroupEval extends CommonCLI {
 	}
 
 	Class<?> evalClass = Class.forName( classname );
-	Class<?> alClass = Class.forName( "org.semanticweb.owl.align.Alignment" );
-	Class[] cparams = { alClass, alClass };
+	Class[] cparams = { Alignment.class, Alignment.class };
 	evalConstructor = evalClass.getConstructor( cparams );
 
 	print( iterateDirectories() );

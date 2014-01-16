@@ -22,6 +22,7 @@
 package fr.inrialpes.exmo.align.cli;
 
 import java.util.Properties;
+import java.lang.reflect.Constructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,11 +124,11 @@ public class TestGen extends CommonCLI {
 	} else { // generate a test set
 	    TestSet tset = null;
 	    try {
-		Object[] mparams = {};
 		Class<?> testSetClass = Class.forName( methodName );
 		Class[] cparams = {};
-		java.lang.reflect.Constructor testSetConstructor = testSetClass.getConstructor(cparams);
-		tset = (TestSet)testSetConstructor.newInstance(mparams);
+		Constructor testSetConstructor = testSetClass.getConstructor(cparams);
+		Object[] mparams = {};
+		tset = (TestSet)testSetConstructor.newInstance( mparams );
 	    } catch (Exception ex) {
 		logger.error("Cannot create TestSet {}", methodName );
 		logger.error("Caught error", ex );

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011, 2013
+ * Copyright (C) INRIA, 2003-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
+
+import fr.inrialpes.exmo.ontosim.string.StringDistances;
 
 import fr.inrialpes.exmo.align.impl.DistanceAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
@@ -102,12 +104,9 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	String f = params.getProperty("stringFunction");
 	try {
 	    if ( f != null ) methodName = f.trim();
-	    Class sClass = Class.forName("java.lang.String");
-	    Class[] mParams = { sClass, sClass };
-	    dissimilarity = Class.forName("fr.inrialpes.exmo.ontosim.string.StringDistances").getMethod( methodName, mParams );
-	} catch (ClassNotFoundException e) {
-	    logger.debug( "IGNORED (never happens)", e ); // never happens
-	} catch (NoSuchMethodException e) {
+	    Class[] mParams = { String.class, String.class };
+	    dissimilarity = StringDistances.class.getMethod( methodName, mParams );
+	} catch ( NoSuchMethodException e ) {
 	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+params.getProperty("stringFunction"), e );
 	}
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2008, 2010-2013 INRIA
+ * Copyright (C) 2003-2008, 2010-2014 INRIA
  * Copyright (C) 2004, Université de Montréal
  *
  * This program is free software; you can redistribute it and/or
@@ -167,7 +167,7 @@ public class Procalign extends CommonCLI {
 	    Class[] cparams = {};
 	    Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
 	    Object[] mparams = {};
-	    result = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+	    result = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 	    result.init( onto1, onto2 );
 	} catch ( Exception ex ) {
 	    logger.error( "Cannot create alignment {}", alignmentClassName );
@@ -202,12 +202,10 @@ public class Procalign extends CommonCLI {
 
 	    // Result printing (to be reimplemented with a default value)
 	    try {
-		Object[] mparams = {(Object) writer };
-		java.lang.reflect.Constructor[] rendererConstructors =
-		    Class.forName(rendererClass).getConstructors();
-		// JE: Not terrible: use the right constructor
-		renderer =
-		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+		Class[] cparams = { PrintWriter.class };
+		Constructor rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
+		    Object[] mparams = { (Object)writer };
+		    renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 	    } catch (Exception ex) {
 		logger.error( "Cannot create renderer {}", rendererClass );
 		usage();
