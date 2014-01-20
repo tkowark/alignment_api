@@ -7,7 +7,7 @@
 </head>
 <body bgcolor="#ffffff">
 
-<h1 class="titre">Alignment API: Libraries shipped with the package (release 4.5)</h1>
+<h1 class="titre">Alignment API: Libraries shipped with the package (release 4.6)</h1>
 
 <p>The Alignment API uses a number of external libraries. These libraries
 are shipped (in the lib directory) with the Alignment API. Each
@@ -52,10 +52,10 @@ This is a simplified view: <a href="img/dependencies.png">click here
 <h3>Required for using EDOAL</h3>
 
 <dl>
-<dt><a href="http://jena.sourceforge.net/">Jena</a> 2.7.0-incubating:
-  jena.jar icu4j.jar iri.jar arq.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache</a>]</dt>
+<dt><a href="http://jena.sourceforge.net/">Jena</a> 2.9.0:
+  jena.jar iri.jar arq.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache</a>]</dt>
 <dd>Provides the RDF parser.</dd>
-<dt><a href="http://xerces.apache.org">Xerces</a> 2.10.0: xercesImpl.jar resolver.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
+<dt><a href="http://xerces.apache.org">Xerces</a> 2.11.0: xercesImpl.jar resolver.jar xml-apis.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
 <dd>Required by Jena for parsing international characters.</dd-->
 </dl>
 
@@ -84,7 +84,7 @@ In addition to OntoSim, JWNLAlignment requires JWNL.
 <dl>
 <dt><a href="http://iddl.gforge.inria.fr">DRAOn</a> (or IDDL) 1.5: iddl.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>In turns it requires HermiT.</dd>
-<dt><a href="http://www.hermit-reasoner.com/">HermiT</a> 1.3.6:
+<dt><a href="http://www.hermit-reasoner.com/">HermiT</a> 1.3.8:
   hermit.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-3.0.html">LGPL</a>]</dt>
 <dd>Provides OWL Reasoning. It requires the OWL API.</dd>
 </dl>
@@ -98,7 +98,7 @@ delete the subdirectories <tt>src/fr/inrialpes/exmo/ontowrap/xxxx</tt>
 and this will compile again.
 </p>
 <dl>
-<dt><a href="http://owlapi.sourceforge.org">OWL API</a> 3.4.2:
+<dt><a href="http://owlapi.sourceforge.net">OWL API</a> 3.4.8:
   owlapi-bin.jar [<a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">LGPL</a>]</dt>
 <dd>Provides parsing and API to OWL entities. Used by
   OWLAPIAlignments. api.jar is required for compiling, the others are
@@ -118,10 +118,10 @@ and this will compile again.
 
 <dl>
 <dt><a href="http://dev.mysql.com/downloads/connector/j/">MySQL
-       JDBC Connectors</a> 5.1.12: mysql-connector-java-5.0.3-bin.jar
+       JDBC Connectors</a> 5.1.28: mysql-connector-java.jar
        [<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL</a>]
        or <a href="http://jdbc.postgresql.org/">Postgres JDBC
-       connectors</a> 8.4.701 [<a href="http://jdbc.postgresql.org/license.html">BSD</a>]</dt>
+       connectors</a> 9.3-1100: postgres-jdbc4.jar [<a href="http://jdbc.postgresql.org/license.html">BSD</a>]</dt>
 <dd>This also requires MySQL to be installed. Required for alignsvc.</dd>
 <dt><a href="http://jetty.mortbay.org/">Jetty</a> 6.1.2rc5: jetty.jar
   jetty-util.jar [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>

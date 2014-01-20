@@ -54,7 +54,7 @@
   <target name="versionnumber" depends="bind" description="Establishes the version number">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
-    <property name="version.minor" value="5"/>
+    <property name="version.minor" value="6"/>
     <property name="copyyear" value="2003-2014"/>
     <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
@@ -97,6 +97,7 @@
     <delete>
       <fileset dir="." includes="classes/**/*.class"/>
     </delete>
+    <delete dir="tattletale" />
     <antcall target="cleanjar"/>
     <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
@@ -142,11 +143,12 @@
 	<include name="java/lang/*.java"/>
       </fileset>
     </pmd-->
-    <!-- tattletale: very long -->
+    <echo message="Wait... this is quite long" />
     <taskdef name="tattletale-report"
              classname="org.jboss.tattletale.ant.ReportTask"
              classpath="${tooldir}/tattletale/tattletale-ant.jar:${tooldir}/tattletale/tattletale.jar:${tooldir}/tattletale/javassist.jar"/>
     <tattletale-report source="lib" destination="tattletale"/>
+    <!-- For tattletale, look at dependencies in "tattletale/graphviz/dependencies.dot" -->
     <!-- Emma (coverage) seems really difficult -->
     <!--taskdef resource="emma_ant.properties" classpathref="emma.lib" /-->
   </target>
@@ -517,8 +519,6 @@
       <onepom file="@{file}" />
     </for-->
     <onepom file="cli/commons-cli" />
-    <onepom file="google-translate/google-api-translate-java" />
-    <onepom file="google-translate/json" />
     <onepom file="hermit/hermit" />
     <onepom file="iddl/iddl" />
     <onepom file="jade/jade-http" />
@@ -550,8 +550,6 @@
     <onepom file="xerces/resolver" />
     <onepom file="xerces/xercesImpl" />
     <onepom file="xerces/xml-apis" />
-    <onepom file="xsdlib/relaxngDatatype" />
-    <onepom file="xsdlib/xsdlib" />
     <onepom file="align" />
     <onepom file="ontowrap" />
     <onepom file="procalign" />
