@@ -3,7 +3,7 @@
 
   <groupId>org.apache</groupId>
   <artifactId>xerces</artifactId>
-  <version>2.10.0</version>
+  <version>2.11.0</version>
   <name></name>
   <description></description>
   <!-- Copyright 1999-2010 The Apache Software Foundation -->

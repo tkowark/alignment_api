@@ -3,7 +3,7 @@
 
   <groupId>org.semanticweb.HermiT</groupId>
   <artifactId>HermiT</artifactId>
-  <version>1.3.6</version>
+  <version>1.3.8</version>
   <!-- This is a stripped down version of HermiT with suppressed:
        getopt, owl-api, common-loggins -->
   <name>HermiT</name>

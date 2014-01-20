@@ -993,12 +993,13 @@ kill -TERM $!
 
 #-------------------
 echo "\t-A,--jade <PORT>"
-java -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -A 5555 &> $RESDIR/err.txt &
+echo "\tOnly works with increased PermGenSize"
+java -XX:PermSize=128m -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -A 5555 &> $RESDIR/err.txt &
 sleep 20;
 if [ -s $RESDIR/err.txt ]; then grep "is ready" $RESDIR/err.txt > $RESDIR/jerr.txt; else echo error with ASERV-JADE1; fi
 if [ ! -s $RESDIR/jerr.txt ]; then echo error with ASERV-JADE2; fi
 kill -TERM $!
-java -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --jade 5555 &> $RESDIR/err.txt &
+java -XX:PermSize=128m -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --jade 5555 &> $RESDIR/err.txt &
 sleep 20;
 if [ -s $RESDIR/err.txt ]; then grep "is ready" $RESDIR/err.txt > $RESDIR/jerr.txt; else echo error with ASERV-JADE3; fi
 if [ ! -s $RESDIR/jerr.txt ]; then echo error with ASERV-JADE4; fi

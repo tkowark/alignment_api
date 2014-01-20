@@ -210,7 +210,7 @@
     <onejar file="ontowrap"
       group="fr.inrialpes.exmo"
       desc="Ontology wrapper"
-      path="jena/arq.jar jena/icu4j.jar jena/iri.jar jena/jena.jar skosapi/skosapi.jar owlapi10/api.jar owlapi10/impl.jar owlapi10/io.jar owlapi10/rdfapi.jar owlapi10/rdfparser.jar owlapi3/owlapi-bin.jar">
+      path="jena/arq.jar jena/iri.jar jena/jena.jar skosapi/skosapi.jar owlapi10/api.jar owlapi10/impl.jar owlapi10/io.jar owlapi10/rdfapi.jar owlapi10/rdfparser.jar owlapi3/owlapi-bin.jar">
       <files>
 	<fileset dir="classes">
 	  <include name="fr/inrialpes/exmo/ontowrap/**/*.class" />
@@ -224,7 +224,7 @@
       group="fr.inrialpes.exmo.align"
       desc="Alignment API implementation"
       main="fr.inrialpes.exmo.align.cli.Procalign"
-      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar cli/commons-cli.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar jena/icu4j.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
+      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar cli/commons-cli.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
       <files>
 	<fileset dir="classes">
 	  <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
@@ -527,7 +527,6 @@
     <onepom file="jdbc/mysql-connector-java" />
     <onepom file="jdbc/postgresql-jdbc4" />
     <onepom file="jena/arq" />
-    <onepom file="jena/icu4j" />
     <onepom file="jena/iri" />
     <onepom file="jena/jena" />
     <onepom file="jetty/jetty-util" />

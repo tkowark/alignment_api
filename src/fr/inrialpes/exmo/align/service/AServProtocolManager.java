@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2013
+ * Copyright (C) INRIA, 2006-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -61,6 +61,9 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
 
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +76,7 @@ import java.lang.IllegalAccessException;
 import java.lang.NullPointerException;
 import java.lang.UnsatisfiedLinkError;
 import java.lang.ExceptionInInitializerError;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -104,7 +108,7 @@ import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 
 /**
- * This is the main class that control the behaviour of the Alignment Server
+ * This is the main class which controls the behaviour of the Alignment Server
  * It is as independent from the OWL API as possible.
  * However, it is still necessary to test for the reachability of an ontology and moreover to resolve its URI for that of its source.
  * For these reasons we still need a parser of OWL files here.
@@ -461,11 +465,10 @@ public class AServProtocolManager implements Service {
 			       new OutputStreamWriter( result, "UTF-8" )), true);
 	    AlignmentVisitor renderer = null;
 	    try {
-		Object[] mparams = {(Object) writer };
-		java.lang.reflect.Constructor[] rendererConstructors =
-		    Class.forName(method).getConstructors();
-		renderer =
-		    (AlignmentVisitor) rendererConstructors[0].newInstance(mparams);
+		Class[] cparams = { PrintWriter.class };
+		Constructor rendererConstructor = Class.forName( method ).getConstructor( cparams );
+		Object[] mparams = { (Object)writer };
+		renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 	    } catch ( ClassNotFoundException cnfex ) {
 		// should return the message
 		logger.error( "Unknown method", cnfex );
@@ -684,12 +687,11 @@ public class AServProtocolManager implements Service {
 	if ( classname == null ) classname = "fr.inrialpes.exmo.align.impl.eval.PRecEvaluator";
 	Evaluator eval = null;
 	try {
-	    Object [] mparams = {(Object)ref, (Object)al};
-	    Class<?> oClass = Class.forName("org.semanticweb.owl.align.Alignment");
-	    Class[] cparams = { oClass, oClass };
-	    Class<?> evaluatorClass = Class.forName(classname);
-	    java.lang.reflect.Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
-	    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
+	    Class[] cparams = { Alignment.class, Alignment.class };
+	    Class<?> evaluatorClass = Class.forName( classname );
+	    Constructor evaluatorConstructor = evaluatorClass.getConstructor( cparams );
+	    Object [] mparams = { (Object)ref, (Object)al };
+	    eval = (Evaluator)evaluatorConstructor.newInstance( mparams );
 	} catch ( ClassNotFoundException cnfex ) {
 	    logger.error( "Unknown method", cnfex );
 	    return new UnknownMethod(newId(),mess,serverId,mess.getSender(),classname,(Properties)null);
@@ -856,10 +858,51 @@ public class AServProtocolManager implements Service {
 
     /*********************************************************************
      * Utilities: Finding the implementation of an interface
+     *
+     * This is starting causing "java.lang.OutOfMemoryError: PermGen space"
+     * (when it was in static)
+     * Remedied (for the moment by improving the visited cache)
+     * This may also benefit by first filling the visited by the path of the
+     * libraries we know.
+     *
+     * May be replaced by org.reflections (see reflectiveImplementations)
+     * JE: Was unable to set it properly
      *********************************************************************/
 
-    public static void implementations( Class tosubclass, Set<String> list ){
+    /*
+    public Set<Class<?>> reflectiveImplementations( String interfaceName ) {
+	Set<Class<?>> classes = null;
+	try {
+	    Class toclass = Class.forName( interfaceName );
+	    //Reflections reflections = new Reflections("com.mycompany");
+	    Reflections reflections = new Reflections( new ConfigurationBuilder() );
+	    //Set<Class<? extends MyInterface>> 
+	    classes = reflections.getSubTypesOf(toclass);
+	} catch (ClassNotFoundException ex) {
+	    logger.debug( "IGNORED Class {} not found!", interfaceName );
+	}
+	return classes;
+	}*/
+
+    /**
+     * Display all the classes inheriting or implementing a given
+     * interface in the currently loaded packages.
+     * @param interfaceName the name of the interface to implement
+     */
+    public Set<String> implementations( String interfaceName ) {
+	Set<String> list = new HashSet<String>();
+	try {
+	    Class toclass = Class.forName(interfaceName);
+	    implementations( toclass, list );
+	} catch (ClassNotFoundException ex) {
+	    logger.debug( "IGNORED Class {} not found!", interfaceName );
+	}
+	return list;
+    }
+
+    public void implementations( Class tosubclass, Set<String> list ){
 	Set<String> visited = new HashSet<String>();
+	//visited.add();
 	String classPath = System.getProperty("java.class.path",".");
 	// Hack: this is not necessary
 	//classPath = classPath.substring(0,classPath.lastIndexOf(File.pathSeparatorChar));
@@ -889,32 +932,41 @@ public class AServProtocolManager implements Service {
 				}
 			    }
 			}
-		    } else if ( file.toString().endsWith(".jar") &&
-				!visited.contains( file.toString() ) &&
-				file.exists() ) {
-			//logger.trace("JAR {}", file);
-			visited.add( file.toString() );
-			JarFile jar = null;
+		    } else {
+			String canon = null;
 			try {
-			    jar = new JarFile( file );
-			    exploreJar( list, visited, tosubclass, jar );
-			    // Iterate on needed Jarfiles
-			    // JE(caveat): this deals naively with Jar files,
-			    // in particular it does not deal with section'ed MANISFESTs
-			    Attributes mainAttributes = jar.getManifest().getMainAttributes();
-			    String path = mainAttributes.getValue( Name.CLASS_PATH );
-			    //logger.trace("  >CP> {}", path);
-			    if ( path != null && !path.equals("") ) {
-				// JE: Not sure where to find the other Jars:
-				// in the path or at the local place?
-				//classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
-				// This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
-				// Is there a way to make it iterable???
-				for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
-				    classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
+			    canon = file.getCanonicalPath();
+			} catch ( IOException ioex ) {
+			    canon = file.toString();
+			    logger.warn( "IGNORED Invalid Jar path", ioex );
+			}
+			if ( canon.endsWith(".jar") &&
+			     !visited.contains( canon ) && 
+			     file.exists() ) {
+			    //logger.trace("JAR {}", file);
+			    visited.add( canon );
+			    JarFile jar = null;
+			    try {
+				jar = new JarFile( file );
+				exploreJar( list, visited, tosubclass, jar );
+				// Iterate on needed Jarfiles
+				// JE(caveat): this deals naively with Jar files,
+				// in particular it does not deal with section'ed MANISFESTs
+				Attributes mainAttributes = jar.getManifest().getMainAttributes();
+				String path = mainAttributes.getValue( Name.CLASS_PATH );
+				//logger.trace("  >CP> {}", path);
+				if ( path != null && !path.equals("") ) {
+				    // JE: Not sure where to find the other Jars:
+				    // in the path or at the local place?
+				    //classPath += File.pathSeparator+file.getParent()+File.separator + path.replaceAll("[ \t]+",File.pathSeparator+file.getParent()+File.separator);
+				    // This replaces the replaceAll which is not tolerant on Windows in having "\" as a separator
+				    // Is there a way to make it iterable???
+				    for( StringTokenizer token = new StringTokenizer(path," \t"); token.hasMoreTokens(); )
+					classPath += File.pathSeparator+file.getParent()+File.separator+token.nextToken();
+				}
+			    } catch (NullPointerException nullexp) { //Raised by JarFile
+				//logger.trace( "JarFile, file {} unavailable", file );
 			    }
-			} catch (NullPointerException nullexp) { //Raised by JarFile
-			    //logger.trace( "JarFile, file {} unavailable", file );
 			}
 		    }
 		} catch( IOException e ) {
@@ -928,7 +980,7 @@ public class AServProtocolManager implements Service {
 	}
     }
     
-    public static void exploreJar( Set<String> list, Set<String> visited, Class tosubclass, JarFile jar ) {
+    public void exploreJar( Set<String> list, Set<String> visited, Class tosubclass, JarFile jar ) {
 	Enumeration enumeration = jar.entries();
 	while( enumeration != null && enumeration.hasMoreElements() ){
 	    JarEntry entry = (JarEntry)enumeration.nextElement();
@@ -944,38 +996,46 @@ public class AServProtocolManager implements Service {
 		if ( implementsInterface( entryName, tosubclass ) ) {
 			    list.add( entryName );
 		}
-	    } else if( entryName.endsWith(".jar") &&
-		       !visited.contains( entryName ) ) { // a jar in a jar
-		//logger.trace("JAR {}", entryName);
-		visited.add( entryName );
-		//logger.trace(  "jarEntry is a jarfile={}", je.getName() );
-		InputStream jarSt = null;
-		OutputStream out = null;
-		File f = null;
+	    } else {
+		String canon = entryName;
 		try {
-		    jarSt = jar.getInputStream( (ZipEntry)entry );
-		    f = File.createTempFile( "aservTmpFile"+visited.size(), "jar" );
-		    out = new FileOutputStream( f );
-		    byte buf[]=new byte[1024];
-		    int len1 ;
-		    while( (len1 = jarSt.read(buf))>0 )
-			out.write(buf,0,len1);
-		    JarFile inJar = new JarFile( f );
-		    exploreJar( list, visited, tosubclass, inJar );
-		} catch (IOException ioex) {
-		    logger.warn( "IGNORED Cannot read embedded jar", ioex );
-		} finally {
+		    canon = new File( entryName ).getCanonicalPath();
+		} catch ( IOException ioex ) {
+		    logger.warn( "IGNORED Invalid Jar path", ioex );
+		}
+		if( canon.endsWith(".jar") &&
+		    !visited.contains( canon ) ) { // a jar in a jar
+		    //logger.trace("JAR {}", entryName);
+		    visited.add( canon );
+		    //logger.trace(  "jarEntry is a jarfile={}", je.getName() );
+		    InputStream jarSt = null;
+		    OutputStream out = null;
+		    File f = null;
 		    try {
-			jarSt.close();
-			out.close();
-			f.delete();
-		    } catch (Exception ex) {};
+			jarSt = jar.getInputStream( (ZipEntry)entry );
+			f = File.createTempFile( "aservTmpFile"+visited.size(), "jar" );
+			out = new FileOutputStream( f );
+			byte buf[]=new byte[1024];
+			int len1 ;
+			while( (len1 = jarSt.read(buf))>0 )
+			    out.write(buf,0,len1);
+			JarFile inJar = new JarFile( f );
+			exploreJar( list, visited, tosubclass, inJar );
+		    } catch (IOException ioex) {
+			logger.warn( "IGNORED Cannot read embedded jar", ioex );
+		    } finally {
+			try {
+			    jarSt.close();
+			    out.close();
+			    f.delete();
+			} catch (Exception ex) {};
+		    }
 		}
 	    } 
 	}
     }
 
-    public static boolean implementsInterface( String classname, Class tosubclass ) {
+    public boolean implementsInterface( String classname, Class tosubclass ) {
 	try {
 	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") || 
 		 classname.equals("org.apache.log4j.net.ZeroConfSupport") 
@@ -1004,27 +1064,6 @@ public class AServProtocolManager implements Service {
 	    //logger.trace("   ******** {}", classname);
 	}
 	return false;
-    }
-
-    /**
-     * Display all the classes inheriting or implementing a given
-     * interface in the currently loaded packages.
-     * @param interfaceName the name of the interface to implement
-     */
-    public static Set<String> implementations( String interfaceName ) {
-	Set<String> list = new HashSet<String>();
-	try {
-	    Class toclass = Class.forName(interfaceName);
-	    //Package [] pcks = Package.getPackages();
-	    //for (int i=0;i<pcks.length;i++) {
-		//logger.trace(interfaceName+ ">> "+pcks[i].getName() );
-		//implementations( pcks[i].getName(), toclass, list );
-		//}
-	    implementations( toclass, list );
-	} catch (ClassNotFoundException ex) {
-	    logger.debug( "IGNORED Class {} not found!", interfaceName );
-	}
-	return list;
     }
 
     protected class Aligner implements Runnable {
@@ -1075,13 +1114,13 @@ public class AServProtocolManager implements Service {
 	    
 	    // Create alignment object
 	    try {
-		Object[] mparams = {};
 		if ( method == null )
 		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 		Class<?> alignmentClass = Class.forName(method);
 		Class[] cparams = {};
-		java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
-		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
+		Constructor alignmentConstructor = alignmentClass.getConstructor( cparams );
+		Object[] mparams = {};
+		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 		try {
 		    aresult.init( uri1, uri2 );
 		    long time = System.currentTimeMillis();
