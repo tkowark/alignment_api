@@ -61,8 +61,8 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
 
-import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
+//import org.reflections.Reflections;
+//import org.reflections.util.ConfigurationBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

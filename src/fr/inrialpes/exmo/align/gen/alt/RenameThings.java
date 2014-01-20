@@ -31,21 +31,21 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntClass;
 
+//activeRandomString is true -> we replace the label with a random string
+//activeTranslateString is true -> we translate the label
+
+/*
 //Google API classes
 import com.google.api.GoogleAPI;
 import com.google.api.translate.Language;
 import com.google.api.translate.Translate;
+*/
 
 /*
 //WordNet API classes
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 */
-
-// JE: reengineer this class... (what have we to rename)
-
-//activeRandomString is true -> we replace the label with a random string
-//activeTranslateString is true -> we translate the label
 
 import java.util.Properties;
 import java.util.List;
@@ -448,46 +448,47 @@ public abstract class RenameThings extends BasicAlterator {
     }
 
     //translates the string from English to French
+    // Google translate API is now a paid service
     public String translateString( String source ) {
+	/*
         String translatedText = "";
+	// This should be the URL of your web site
         GoogleAPI.setHttpReferrer("http://code.google.com/p/google-api-translate-java/");
-        //Translate.setHttpReferrer("http://code.google.com/p/google-api-translate-java/");
+	// Key to paid service
+	GoogleAPI.setKey( **** Enter your API key here **** );
         try {
             translatedText = Translate.execute(source, Language.ENGLISH, Language.FRENCH);
         } catch (Exception e) {
 	    logger.debug( "IGNORED Exception", e );
         }
         return removeSpaces ( translatedText );
+	*/
+	return source;
     }
 
     public String getSynonym( String source ) {
+        /*
+	  String synonym = "";
+	  //set this variable according to your WordNet installation folder
+	  //and please pass it as argument
+	  //see : http://lyle.smu.edu/~tspell/jaws/index.html
+	  System.setProperty("wordnet.database.dir", "/usr/Wordnet/WordNet-3.0/dict");
+	  WordNetDatabase database = WordNetDatabase.getFileInstance();
+	  Synset[] synsets = database.getSynsets( source );
+	  if (synsets.length > 0) {
+	      for (int i = 0; i < synsets.length; i++) {
+		  String[] wordForms = synsets[i].getWordForms();
+		  for (int j = 0; j < wordForms.length; j++) {
+		      if ( !wordForms[j].equals( source ) ) {
+			  synonym = removeSpaces ( wordForms[j] );
+			  return synonym;
+		      }
+		  }
+	      }
+	  } else return source;
+        */
         return source;
     }
-        /*
-	//synonym of the word
-	public String getSynonym ( String source ) {
-		String synonym = "";
-		//set this variable according to your WordNet installation folder
-		//see : http://lyle.smu.edu/~tspell/jaws/index.html
-		System.setProperty("wordnet.database.dir", "/usr/Wordnet/WordNet-3.0/dict");
-		WordNetDatabase database = WordNetDatabase.getFileInstance();
-		Synset[] synsets = database.getSynsets( source );
-		if (synsets.length > 0) {
-			for (int i = 0; i < synsets.length; i++) {
-				String[] wordForms = synsets[i].getWordForms();
-				for (int j = 0; j < wordForms.length; j++) {
-					if ( !wordForms[j].equals( source ) )	{
-						synonym = removeSpaces ( wordForms[j] );
-						return synonym;
-					}
-				}
-			}
-		}
-		else
-			return source;
-		return source;
-	}
-        */
 
     public String parseString (String str, boolean activeTranslateString, boolean activeSynonym) {
         // logger.trace( "str = [{}]", str );
