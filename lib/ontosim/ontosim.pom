@@ -3,8 +3,7 @@
 
   <groupId>fr.inrialpes.exmo</groupId>
   <artifactId>ontosim</artifactId>
-  <version>2.3adv</version>
-  <!-- This is a non released OntoSim at revision 139 -->
+  <version>2.4</version>
   <name>OntoSim</name>
   <description>OntoSim is a library and API for distances and similarities between ontologies.</description>
   <licenses>

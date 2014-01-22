@@ -78,6 +78,7 @@
 
   <target name="upgrade" description="Upgrade local dependencies">
     <copy file="../ontosim/lib/ontosim.jar" todir="lib/ontosim" filtering="false"/>
+    <echo message="Do not forget to upgrade the POM that ontosim has not" />
   </target>
 
   <!-- tested -->
@@ -97,7 +98,6 @@
     <delete>
       <fileset dir="." includes="classes/**/*.class"/>
     </delete>
-    <delete dir="tattletale" />
     <antcall target="cleanjar"/>
     <antcall target="jar"/>
     <ant dir="plugins/neon" target="compileall" />
@@ -226,7 +226,7 @@
       group="fr.inrialpes.exmo.align"
       desc="Alignment API implementation"
       main="fr.inrialpes.exmo.align.cli.Procalign"
-      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar cli/commons-cli.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar jena/jena.jar jena/iri.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
+      path="skosapi/skosapi.jar owlapi30/owlapi-bin.jar ontosim/ontosim.jar cli/commons-cli.jar slf4j/jcl-over-slf4j.jar slf4j/log4j-over-slf4j.jar slf4j/slf4j-api.jar jwnl/jwnl.jar lucene/lucene-core.jar lucene/lucene-analyzers-common.jar jena/jena.jar jena/iri.jar iddl/iddl.jar xerces/xercesImpl.jar xerces/resolver.jar xerces/xml-apis.jar hermit/hermit.jar align.jar ontowrap.jar procalign.jar">
       <files>
 	<fileset dir="classes">
 	  <include name="fr/inrialpes/exmo/align/impl/**/*.class"/>
@@ -344,12 +344,13 @@
   <!-- tested -->
   <target name="cleantest" depends="bind" description="Clean up test directory">
     <echo message="Cleaning tests..."/>
-    <delete>
+    <delete includeemptydirs="true">
       <fileset dir="test/classes" includes="**/*.class"/>
       <fileset dir="test/output" includes="**/*.*"/>
+      <fileset dir="test/html" includes="**"/>
       <fileset dir="test/html" includes="**/*.*"/>
     </delete>
-    <delete dir="test/html/Ant suite"/>
+    <!--delete dir="test/html/*"/-->
   </target>
 
   <!-- tested -->
@@ -536,6 +537,7 @@
     <onepom file="slf4j/jcl-over-slf4j" />
     <onepom file="slf4j/log4j-over-slf4j" />
     <onepom file="lucene/lucene-core" />
+    <onepom file="lucene/lucene-analyzers-common" />
     <onepom file="ontosim/ontosim" />
     <onepom file="osgi/osgi-core" />
     <onepom file="owlapi10/api" />
@@ -559,6 +561,7 @@
   <!-- tested -->
   <target name="clean" description="Clean up the whole directory">
     <echo message="Cleaning..."/>
+    <delete dir="tattletale" />
     <antcall target="cleantest"/>
     <ant dir="plugins/neon" target="clean" />
     <ant dir="plugins/webcontent" target="clean" />

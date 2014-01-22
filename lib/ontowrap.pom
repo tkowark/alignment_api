@@ -16,8 +16,8 @@
 
   <groupId>fr.inrialpes.exmo</groupId>
   <artifactId>ontowrap</artifactId>
-  <version>4.5</version>
-  <!-- Rev 1846M 25/03/2013 -->
+  <version>4.6</version>
+  <!-- Rev 1874M 22/01/2014 -->
   <name>Ontology wrapping API</name>
   <description>An ontology wrapping API and library.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -25,7 +25,7 @@
     <name>INRIA Exmo team</name>
     <url>http://exmo.inrialpes.fr</url>
   </organization>
-  <!-- (C) INRIA, 2003-2013 -->
+  <!-- (C) INRIA, 2003-2014 -->
   <licenses>
     <license>
       <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999</name>

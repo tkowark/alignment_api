@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010, 2013
+ * Copyright (C) INRIA, 2008-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -179,7 +179,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 11903, "Rendered differently" );
+	assertEquals( stream.toString().length(), 11906, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 10 );
     }

@@ -16,8 +16,8 @@
 
   <groupId>fr.inrialpes.exmo.align</groupId>
   <artifactId>alignsvc</artifactId>
-  <version>4.5</version>
-  <!-- Rev 1846M 25/03/2013 -->
+  <version>4.6</version>
+  <!-- Rev 1874M 22/01/2014 -->
   <name>Alignment server</name>
   <description>A server for storing and sharing ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -25,7 +25,7 @@
     <name>INRIA Exmo team</name>
     <url>http://exmo.inrialpes.fr</url>
   </organization>
-  <!-- (C) INRIA, 2003-2013 -->
+  <!-- (C) INRIA, 2003-2014 -->
   <licenses>
     <license>
       <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999</name>
@@ -42,19 +42,19 @@
     <dependency>
       <groupId>org.semanticweb.owl</groupId>
       <artifactId>align</artifactId>
-      <version>4.5</version>
+      <version>4.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo</groupId>
       <artifactId>ontowrap</artifactId>
-      <version>4.5</version>
+      <version>4.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo.align</groupId>
       <artifactId>procalign</artifactId>
-      <version>4.5</version>
+      <version>4.6</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -76,6 +76,10 @@
     <dependency>
       <groupId>org.neon_toolkit.registery</groupId>
       <artifactId>oyster2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.knopflerfish</groupId>
+      <artifactId>framework</artifactId>
     </dependency>
     <dependency>
       <groupId>javax</groupId>

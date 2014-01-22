@@ -6,11 +6,10 @@
 <Alignment>
   <xml>yes</xml>
   <level>0</level>
-  <type>**</type>
-  <align:method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</align:method>
+  <type>?*</type>
   <provenance>null</provenance>
+  <time>518</time>
   <method>http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse</method>
-  <align:time>356</align:time>
   <onto1>
     <Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl">
       <location>file:///Java/alignapi/html/tutorial/edu.mit.visus.bibtex.owl</location>
