@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011
+ * Copyright (C) INRIA, 2008-2011, 2014
  * Copyright (C) FZI/Juergen Bock, 2010
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,16 @@ public class BasicAlignmentTest {
 	assertNotNull( alignment, "Alignment was null" );
     }
 
+    @Test(expectedExceptions = AlignmentException.class, groups = { "full", "raw" })
+    public void nonInitErrorTest() throws AlignmentException {
+	// Error detected on v4.6 (through NPE)
+	alignment = new BasicAlignment();
+	assertNotNull( alignment, "Alignment was null" );
+	URI cls1 = URI.create( "http://example.org/test#cls1" );
+	URI cls2 = URI.create( "http://example.org/test#cls2" );
+	alignment.addAlignCell( (URI)null, (URI)null );
+    }
+
     @Test(groups = { "full", "raw" })
     public void someCutTest() throws AlignmentException {
 	// THIS SHOULD BE REPLACED WITH ALIGNMENT BUILT IN PREVIOUS TESTS
@@ -79,7 +89,7 @@ public class BasicAlignmentTest {
      * @throws java.lang.Exception
      */
     @BeforeClass(groups = { "full", "raw" })
-	public static void setUpBeforeClass() throws Exception {
+    public static void setUpBeforeClass() throws Exception {
 	URI cls1 = URI.create( "http://example.org/test#cls1" );
 	URI cls2 = URI.create( "http://example.org/test#cls2" );
 	URI cls3 = URI.create( "http://example.org/test#cls3" );
@@ -103,7 +113,7 @@ public class BasicAlignmentTest {
     }
     
     @Test(groups = { "full", "raw" })
-	public void testEquals() {
+    public void testEquals() {
 	assertTrue( cell1.equals( cell1 ) ); // 1 == 1
 	assertTrue( cell1.equals( cell2 ) ); // 1 == 2
 	assertTrue( cell2.equals( cell1 ) ); // 2 == 1
@@ -115,7 +125,7 @@ public class BasicAlignmentTest {
     }
 
     @Test(groups = { "full", "raw" })
-	public void testEqualsObject() {
+    public void testEqualsObject() {
 	assertTrue( cell1.equals( (Object) cell1 ) ); // 1 == 1
 	assertTrue( cell1.equals( (Object) cell2 ) ); // 1 == 2
 	assertTrue( cell2.equals( (Object) cell1 ) ); // 2 == 1
@@ -128,7 +138,7 @@ public class BasicAlignmentTest {
 	
     // These have been added because equals is not redefined in URICell anymore
     @Test(groups = { "full", "raw" })
-	public void testUEquals() {
+    public void testUEquals() {
 	assertTrue( ucell1.equals( ucell1 ) ); // 1 == 1
 	assertTrue( ucell1.equals( ucell2 ) ); // 1 == 2
 	assertTrue( ucell2.equals( ucell1 ) ); // 2 == 1
@@ -140,7 +150,7 @@ public class BasicAlignmentTest {
     }
 
     @Test(groups = { "full", "raw" })
-	public void testUEqualsObject() {
+    public void testUEqualsObject() {
 	assertTrue( ucell1.equals( (Object) ucell1 ) ); // 1 == 1
 	assertTrue( ucell1.equals( (Object) ucell2 ) ); // 1 == 2
 	assertTrue( ucell2.equals( (Object) ucell1 ) ); // 2 == 1
@@ -152,7 +162,7 @@ public class BasicAlignmentTest {
     }
 	
     @Test(groups = { "full", "raw" })
-	public void testHashCodeEquals() {
+    public void testHashCodeEquals() {
 	assertTrue( cell1.equals( cell2 ) && cell1.hashCode() == cell2.hashCode() );
 	assertTrue( cell1.equals( cell1 ) && cell1.hashCode() == cell1.hashCode() );
 	assertTrue( cell2.equals( cell1 ) && cell2.hashCode() == cell1.hashCode() );

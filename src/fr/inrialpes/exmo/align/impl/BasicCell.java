@@ -54,6 +54,8 @@ public class BasicCell implements Cell, Comparable<Cell> {
 
     /** Creation **/
     public BasicCell( String id, Object ob1, Object ob2, Relation rel, double m ) throws AlignmentException {
+	if ( ob1 == null ) throw new AlignmentException( "object1 cannot be null" );
+	if ( ob2 == null ) throw new AlignmentException( "object2 cannot be null" );
 	setId( id );
 	object1 = ob1;
 	object2 = ob2;
@@ -133,9 +135,11 @@ public class BasicCell implements Cell, Comparable<Cell> {
 	}
     }
     public void setObject1( Object ob ) throws AlignmentException {
+	if ( ob == null ) throw new AlignmentException( "object1 cannot be null" );
 	object1 = ob;
     }
     public void setObject2( Object ob ) throws AlignmentException {
+	if ( ob == null ) throw new AlignmentException( "object2 cannot be null" );
 	object2 = ob;
     }
     public Relation getRelation(){ return relation; };
