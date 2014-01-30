@@ -311,14 +311,6 @@ public class BasicAlignment implements Alignment {
 	}
     }
 
-    public void remCell( Cell c ) throws AlignmentException {
-	boolean found = false;
-	Set<Cell> s1 = hash1.get(c.getObject1());
-	if ( s1 != null ) s1.remove( c );
-	Set<Cell> s2 = hash2.get(c.getObject2());
-	if( s2 != null ) s2.remove( c );
-    }
-
     public Set<Cell> getAlignCells1(Object ob) throws AlignmentException {
 	return hash1.get( ob );
     }
@@ -425,15 +417,20 @@ public class BasicAlignment implements Alignment {
 
     // JE: beware this does only remove the exact equal cell
     // not those with same value
-    public void removeAlignCell(Cell c) throws AlignmentException {
+    public void remCell( Cell c ) throws AlignmentException {
 	Set<Cell> s1 = hash1.get(c.getObject1());
+	if ( s1 != null ) s1.remove( c );
+	if (s1.isEmpty()) hash1.remove(c.getObject1());
 	Set<Cell> s2 = hash2.get(c.getObject2());
-	s1.remove(c);
-	s2.remove(c);
-	if (s1.isEmpty())
-	    hash1.remove(c.getObject1());
-	if (s2.isEmpty())
-	    hash2.remove(c.getObject2());
+	if( s2 != null ) s2.remove( c );
+	if (s2.isEmpty()) hash2.remove(c.getObject2());
+    }
+
+    /*
+     * @deprecated
+     */
+    public void removeAlignCell( Cell c ) throws AlignmentException {
+	remCell( c );
     }
 
     /***************************************************************************
@@ -442,8 +439,7 @@ public class BasicAlignment implements Alignment {
      **************************************************************************/
     public void cut2(double threshold) throws AlignmentException {
 	for ( Cell c : this ) {
-	    if ( c.getStrength() < threshold )
-		removeAlignCell( c );
+	    if ( c.getStrength() < threshold ) remCell( c );
 	}
     }
 
@@ -527,7 +523,7 @@ public class BasicAlignment implements Alignment {
      */
     public void harden(double threshold) throws AlignmentException {
 	for ( Cell c : this ) {
-	    if (c.getStrength() < threshold) removeAlignCell( c );
+	    if (c.getStrength() < threshold) remCell( c );
 	    else c.setStrength(1.);
 	}
     }
