@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011, 2013
+ * Copyright (C) INRIA, 2003-2011, 2013-2014
  * Copyright (C) CNR Pisa, 2005
  *
  * This program is free software; you can redistribute it and/or modify
@@ -287,21 +287,21 @@ public class BasicAlignment implements Alignment {
 	Set<Cell> s1 = hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
-	    for (Iterator i = s1.iterator(); !found && i.hasNext(); ) {
-		if ( c.equals((BasicCell)i.next()) ) found = true;
+	    for ( Iterator<Cell> i = s1.iterator(); !found && i.hasNext(); ) {
+		if ( c.equals( i.next() ) ) found = true;
 	    }
 	    if (!found) s1.add( c );
+	    found = false;
 	} else {
 	    s1 = new HashSet<Cell>();
 	    s1.add( c );
 	    hash1.put(c.getObject1(),s1);
 	}
-	found = false;
 	Set<Cell> s2 = hash2.get(c.getObject2());
 	if( s2 != null ){
 	    // I must check that there is no one here
-	    for (Iterator i=s2.iterator(); !found && i.hasNext(); ) {
-		if ( c.equals((BasicCell)i.next()) ) found = true;
+	    for ( Iterator<Cell> i=s2.iterator(); !found && i.hasNext(); ) {
+		if ( c.equals( i.next() ) ) found = true;
 	    }
 	    if (!found)	s2.add( c );
 	} else {
