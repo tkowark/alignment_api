@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2013
+ * Copyright (C) INRIA, 2009-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -119,7 +119,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	convertToObjectAlignments( al1, al2 );
     }
 
-    public void init( Properties params ){
+    public SemPRecEvaluator init( Properties params ){
 	super.init();
 	nbexpectedentailed = 0;
 	nbfoundentailed = 0;
@@ -128,6 +128,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	if ( sem != null ) {
 	    semantics = Semantics.valueOf( sem );
 	}
+	return this;
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id: WeightedPRecEvaluator.java 1494 2010-07-23 14:43:36Z euzenat $
  *
- * Copyright (C) INRIA, 2004-2013
+ * Copyright (C) INRIA, 2004-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -86,7 +86,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
     }
 
-    public void init(){
+    public WeightedPREvaluator init(){
 	precision = 1.;
 	recall = 0.;
 	overall = 0.;
@@ -97,6 +97,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	nbcorrect1 = 0.;
 	nbcorrect2 = 0.;
 	result = 1.;
+	return this;
     }
 
     /**

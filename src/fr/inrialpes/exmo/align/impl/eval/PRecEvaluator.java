@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2011, 2013
+ * Copyright (C) INRIA, 2004-2011, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -84,7 +84,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	super(((BasicAlignment)align1).toURIAlignment(), ((BasicAlignment)align2).toURIAlignment());
     }
 
-    public void init(){
+    public PRecEvaluator init() {
 	precision = 1.;
 	recall = 1.;
 	overall = 0.;
@@ -94,6 +94,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
 	nbfound = 0;
 	nbcorrect = 0;
 	result = 1.;
+	return this;
     }
 
     /**
