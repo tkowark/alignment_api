@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2009
+ * Copyright (C) INRIA, 2003-2005, 2007-2009, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ import org.xml.sax.ContentHandler;
 public interface Alignment extends Cloneable, Iterable<Cell>, Visitable {
 
     /** Initialize the alignement before using it **/
-
+    /** This should return an Alignment and not be void **/
     public void init( Object onto1, Object onto2 ) throws AlignmentException;
 
     /**
