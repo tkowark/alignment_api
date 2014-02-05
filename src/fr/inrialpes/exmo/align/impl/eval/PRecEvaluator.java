@@ -114,7 +114,7 @@ public class PRecEvaluator extends BasicEvaluator implements Evaluator {
     public double eval( Properties params ) throws AlignmentException {
 	init();
 	nbfound = align2.nbCells();
-	if ( params.getProperty("relations") != null ) relsensitive = true;
+	if ( params != null && params.getProperty("relations") != null ) relsensitive = true;
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();

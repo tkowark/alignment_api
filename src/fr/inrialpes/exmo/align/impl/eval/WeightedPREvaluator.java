@@ -117,7 +117,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
     public double eval( Properties params ) throws AlignmentException {
 	init();
 	//for ( Cell c2 : align2 ) nbfound += c2.getStrength();
-	if ( params.getProperty("relations") != null ) relsensitive = true;
+	if ( params != null && params.getProperty("relations") != null ) relsensitive = true;
 
 	for ( Cell c1 : align1 ) {
 	    URI uri1 = c1.getObject2AsURI();

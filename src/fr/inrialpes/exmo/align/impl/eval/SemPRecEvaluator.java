@@ -124,9 +124,11 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	nbexpectedentailed = 0;
 	nbfoundentailed = 0;
 	// Set the semantics to be used
-	String sem = params.getProperty( "semantics" );
-	if ( sem != null ) {
-	    semantics = Semantics.valueOf( sem );
+	if (  params != null ) {
+	    String sem = params.getProperty( "semantics" );
+	    if ( sem != null ) {
+		semantics = Semantics.valueOf( sem );
+	    }
 	}
 	return this;
     }

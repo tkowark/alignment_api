@@ -144,8 +144,10 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	return eval( params, (Object)null );
     }
     public double eval( Properties params, Object cache ) throws AlignmentException {
-	if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
-	if ( params.getProperty( "relations" ) != null ) relsensitive = true;
+	if ( params != null ) {
+	    if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
+	    if ( params.getProperty( "relations" ) != null ) relsensitive = true;
+	}
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject1();
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject2();
 	if ( !( o1 instanceof HeavyLoadedOntology ) || !( o2 instanceof HeavyLoadedOntology ) )

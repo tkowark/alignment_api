@@ -104,6 +104,7 @@ public class BasicAlignment implements Alignment {
      */
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
 	init( onto1, onto2 );
+	// Should return it
     }
 
     @SuppressWarnings( "unchecked" )
@@ -115,6 +116,7 @@ public class BasicAlignment implements Alignment {
 	    this.onto1.setOntology( onto1 );
 	    this.onto2.setOntology( onto2 );
 	}
+	// Should return it
     }
 
     public static Properties getParameters() {
