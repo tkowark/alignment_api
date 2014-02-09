@@ -57,6 +57,7 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.AddAxiom;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
@@ -115,7 +116,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      **/
     public SemPRecEvaluator( Alignment al1, Alignment al2 ) throws AlignmentException {
 	super( al1, al2 );
-	logger.debug( "Created a SemPREvaluator" );
+	logger.trace( "Created a SemPREvaluator" );
 	convertToObjectAlignments( al1, al2 );
     }
 
@@ -179,14 +180,15 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	    allist.add( al1 );
 	    try {
 		reasoner = new IDDLReasoner( allist, semantics );
-	    } catch ( IDDLException idex ) {
+	    } catch ( Exception idex ) { // IDDLException... useful when no IDDL
 		throw new AlignmentException( "Cannot create IDDLReasoner", idex );
 	    }
 	} else { // Hermit
-	    loadPipedAlignedOntologies( al1 );
+	    //loadPipedAlignedOntologies( al1 );
+	    loadAlignedOntologies( al1 );
 	}
 	if ( !reasoner.isConsistent() ) return al2.nbCells(); // everything is entailed
-	logger.debug( "{} is consistent", al1 );
+	logger.trace( "{} is consistent ({} cells)", al1, al1.nbCells() );
 	int entailed = 0;
 	for ( Cell c2 : al2 ) {
 	    logger.trace( c2.getObject1()+" {} {}", c2.getRelation().getRelation(), c2.getObject2() );
@@ -196,8 +198,8 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 			logger.trace( "      --> entailed" );
 			entailed++;
 		    }
-		} catch (IDDLException idex) { // counted as non entailed
-		    logger.warn( "Cannot be translated." );
+		} catch ( Exception idex ) { // IDDLException... useful when no IDDL
+		    logger.warn( "Cannot be translated." );// counted as non entailed
 		}
 	    } else { // Hermit
 		try {
@@ -219,6 +221,48 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
      */
     protected OWLOntologyManager manager = null;
     protected OWLReasoner reasoner = null;
+
+    /**
+     * Even simpler if they are loaded: just merge them on the spot
+     * 
+     */
+    public void loadAlignedOntologies( ObjectAlignment align ) throws AlignmentException {
+	// Get the two ontologies
+	Object onto1 = align.getOntology1();
+	Object onto2 = align.getOntology2();
+	// Check that they are OWLOntologies
+	if ( onto1 == null || !(onto1 instanceof OWLOntology) )
+	    throw new AlignmentException( "Can only use OWLOntologies : "+onto1 );
+	if ( onto2 == null || !(onto2 instanceof OWLOntology) )
+	    throw new AlignmentException( "Can only use OWLOntologies : "+onto2 );
+	// Put their axioms in a new ontology
+	manager = OWLManager.createOWLOntologyManager();
+	try {
+	    OWLOntology ontology = manager.createOntology( IRI.create( "http://www" ) ); // should be generated
+	    for ( OWLAxiom ax : ((OWLOntology)onto1).getAxioms() ) {
+		AddAxiom action = new AddAxiom( ontology, ax );
+		manager.applyChange( action );
+	    }
+	    for ( OWLAxiom ax : ((OWLOntology)onto2).getAxioms() ) {
+		AddAxiom action = new AddAxiom( ontology, ax );
+		manager.applyChange( action );
+	    }
+	    // Put the alignment axioms in the new ontology...
+	    // Isn't it OK?
+	    for ( Cell c : align ) {
+		try {
+		    AddAxiom action = new AddAxiom( ontology, correspToAxiom( align, (ObjectCell)c ) );
+		    manager.applyChange( action );
+		} catch (AlignmentException alex) {
+		    logger.debug( "Cannot convert correspondence", alex );
+		}
+	    }
+	    reasoner = new Reasoner( ontology );
+	} catch (OWLOntologyCreationException ocex) {
+	    throw new AlignmentException( "Cannot create merged ontology for "+align, ocex );
+	}
+    }
+
 
     /* 
      * Loads the Aligned ontologies without intermediate file
@@ -338,24 +382,24 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 	Object e2 = corresp.getObject2();
 	Relation r = corresp.getRelation();
 	try {
-	if ( onto1.isClass( e1 ) ) {
-	    if ( onto2.isClass( e2 ) ) {
-		OWLClass entity1 = owlfactory.getOWLClass( IRI.create( onto1.getEntityURI( e1 ) ) );
-		OWLClass entity2 = owlfactory.getOWLClass( IRI.create( onto2.getEntityURI( e2 ) ) );
-		if ( r instanceof EquivRelation ) {
-		    return owlfactory.getOWLEquivalentClassesAxiom( entity1, entity2 );
-		} else if ( r instanceof SubsumeRelation ) {
-		    return owlfactory.getOWLSubClassOfAxiom( entity2, entity1 );
-		} else if ( r instanceof SubsumedRelation ) {
-		    return owlfactory.getOWLSubClassOfAxiom( entity1, entity2 );
-		} else if ( r instanceof IncompatRelation ) {
-		    return owlfactory.getOWLDisjointClassesAxiom( entity1, entity2 );
+	    if ( onto1.isClass( e1 ) ) {
+		if ( onto2.isClass( e2 ) ) {
+		    OWLClass entity1 = owlfactory.getOWLClass( IRI.create( onto1.getEntityURI( e1 ) ) );
+		    OWLClass entity2 = owlfactory.getOWLClass( IRI.create( onto2.getEntityURI( e2 ) ) );
+		    if ( r instanceof EquivRelation ) {
+			return owlfactory.getOWLEquivalentClassesAxiom( entity1, entity2 );
+		    } else if ( r instanceof SubsumeRelation ) {
+			return owlfactory.getOWLSubClassOfAxiom( entity2, entity1 );
+		    } else if ( r instanceof SubsumedRelation ) {
+			return owlfactory.getOWLSubClassOfAxiom( entity1, entity2 );
+		    } else if ( r instanceof IncompatRelation ) {
+			return owlfactory.getOWLDisjointClassesAxiom( entity1, entity2 );
+		    }
+		} else if ( onto2.isIndividual( e2 ) && ( r instanceof HasInstanceRelation ) ) {
+		    return owlfactory.getOWLClassAssertionAxiom( owlfactory.getOWLClass( IRI.create( onto1.getEntityURI( e1 ) ) ),  
+								 owlfactory.getOWLNamedIndividual( IRI.create( onto2.getEntityURI( e2 ) ) ) );
 		}
-	    } else if ( onto2.isIndividual( e2 ) && ( r instanceof HasInstanceRelation ) ) {
-		return owlfactory.getOWLClassAssertionAxiom( owlfactory.getOWLClass( IRI.create( onto1.getEntityURI( e1 ) ) ),  
-							     owlfactory.getOWLNamedIndividual( IRI.create( onto2.getEntityURI( e2 ) ) ) );
-	    }
-	} else if ( onto1.isDataProperty( e1 ) && onto2.isDataProperty( e2 ) ) {
+	    } else if ( onto1.isDataProperty( e1 ) && onto2.isDataProperty( e2 ) ) {
 		OWLDataProperty entity1 = owlfactory.getOWLDataProperty( IRI.create( onto1.getEntityURI( e1 ) ) );
 		OWLDataProperty entity2 = owlfactory.getOWLDataProperty( IRI.create( onto2.getEntityURI( e2 ) ) );
 		if ( r instanceof EquivRelation ) {
@@ -367,7 +411,7 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 		} else if ( r instanceof IncompatRelation ) {
 		    return owlfactory.getOWLDisjointDataPropertiesAxiom( entity1, entity2 );
 		}
-	} else if ( onto1.isObjectProperty( e1 ) && onto2.isObjectProperty( e2 ) ) {
+	    } else if ( onto1.isObjectProperty( e1 ) && onto2.isObjectProperty( e2 ) ) {
 		OWLObjectProperty entity1 = owlfactory.getOWLObjectProperty( IRI.create( onto1.getEntityURI( e1 ) ) );
 		OWLObjectProperty entity2 = owlfactory.getOWLObjectProperty( IRI.create( onto2.getEntityURI( e2 ) ) );
 		if ( r instanceof EquivRelation ) {
@@ -379,23 +423,24 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
 		} else if ( r instanceof IncompatRelation ) {
 		    return owlfactory.getOWLDisjointObjectPropertiesAxiom( entity1, entity2 );
 		}
-	} else if ( onto1.isIndividual( e1 ) ) {
-	    if ( onto2.isIndividual( e2 ) ) {
-		OWLIndividual entity1 = owlfactory.getOWLNamedIndividual( IRI.create( onto1.getEntityURI( e1 ) ) );
-		OWLIndividual entity2 = owlfactory.getOWLNamedIndividual( IRI.create( onto2.getEntityURI( e2 ) ) );
-		if ( r instanceof EquivRelation ) {
-		    return owlfactory.getOWLSameIndividualAxiom( entity1, entity2 );
-		} else if ( r instanceof IncompatRelation ) {
-		    return owlfactory.getOWLDifferentIndividualsAxiom( entity1, entity2 );
+	    } else if ( onto1.isIndividual( e1 ) ) {
+		if ( onto2.isIndividual( e2 ) ) {
+		    OWLIndividual entity1 = owlfactory.getOWLNamedIndividual( IRI.create( onto1.getEntityURI( e1 ) ) );
+		    OWLIndividual entity2 = owlfactory.getOWLNamedIndividual( IRI.create( onto2.getEntityURI( e2 ) ) );
+		    if ( r instanceof EquivRelation ) {
+			return owlfactory.getOWLSameIndividualAxiom( entity1, entity2 );
+		    } else if ( r instanceof IncompatRelation ) {
+			return owlfactory.getOWLDifferentIndividualsAxiom( entity1, entity2 );
+		    }
+		} else if ( onto2.isClass( e2 ) && ( r instanceof InstanceOfRelation ) ) {
+		    return owlfactory.getOWLClassAssertionAxiom( owlfactory.getOWLClass( IRI.create( onto2.getEntityURI( e2 ) ) ), 
+								 owlfactory.getOWLNamedIndividual( IRI.create( onto1.getEntityURI( e1 ) ) ) );
 		}
-	    } else if ( onto2.isClass( e2 ) && ( r instanceof InstanceOfRelation ) ) {
-		return owlfactory.getOWLClassAssertionAxiom( owlfactory.getOWLClass( IRI.create( onto2.getEntityURI( e2 ) ) ), 
-							     owlfactory.getOWLNamedIndividual( IRI.create( onto1.getEntityURI( e1 ) ) ) );
-	    }
 	    }
 	} catch ( OntowrapException owex ) {
 	    throw new AlignmentException( "Error interpreting URI "+owex );
 	}
+	//System.err.println( e1+ " -- "+e2 );
 	throw new AlignmentException( "Cannot convert correspondence "+corresp );
     }
 
