@@ -117,7 +117,7 @@ import java.util.zip.ZipEntry;
 public class AServProtocolManager implements Service {
     final static Logger logger = LoggerFactory.getLogger( AServProtocolManager.class );
 
-    CacheImpl alignmentCache = null;
+    Cache alignmentCache = null;
     Properties commandLineParams = null;
     Set<String> renderers = null;
     Set<String> methods = null;
@@ -1037,9 +1037,33 @@ public class AServProtocolManager implements Service {
 
     public boolean implementsInterface( String classname, Class tosubclass ) {
 	try {
-	    if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") || 
+	    // This was used to ban classes with weird behaviour
+	    // This is not needed anymore (kept as an example)
+	    /*
+	      if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") || 
 		 classname.equals("org.apache.log4j.net.ZeroConfSupport") 
-	    ) throw new ClassNotFoundException( "Classes breaking this work" );
+		 ) {
+		throw new ClassNotFoundException( "Classes breaking this work" );
+		}*/
+	    // This is a little crazy but at least save PermGem
+	    // These are our largest libraries, but others may be to ban
+	    // Hope that they do not implement any of our interfaces
+	    if ( classname.startsWith( "org.apache.lucene" )
+		 || classname.startsWith( "org.tartarus" )
+		 || classname.startsWith( "com.hp.hpl.jena" )
+		 || classname.startsWith( "org.apache.jena" )
+		 || classname.startsWith( "arq." )
+		 || classname.startsWith( "riotcmd" )
+		 || classname.startsWith( "org.openjena" )
+		 || classname.startsWith( "uk.ac.manchester.cs.owlapi" )
+		 || classname.startsWith( "org.coode" )
+		 || classname.startsWith( "org.semanticweb.owlapi" )
+		 || classname.startsWith( "de.uulm.ecs.ai.owlapi" )
+		 || classname.startsWith( "org.apache.xerces" )
+		 || classname.startsWith( "org.apache.xml" )
+		 || classname.startsWith( "org.apache.html" )
+		 || classname.startsWith( "org.apache.wml" )
+		 ) return false;
 	    // JE: Here there is a bug that is that it is not possible
 	    // to have ALL interfaces with this function!!!
 	    // This is really stupid but that's life
