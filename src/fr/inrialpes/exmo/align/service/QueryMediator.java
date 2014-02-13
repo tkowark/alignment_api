@@ -46,6 +46,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Map;
 import java.io.IOException;
 
 /**
@@ -111,7 +113,7 @@ public class QueryMediator implements QueryProcessor {
     /**
      *@param query  -- The query string
      */
-    public Result query(String query) {
+    public Result query( String query ) {
 	try {
 	    String newQuery = rewriteQuery( query );
 	    return processor.query( newQuery );
@@ -151,19 +153,23 @@ public class QueryMediator implements QueryProcessor {
      * - This does not care for the *:x status of alignments
      * - This does work from ontology1 to ontology2, not the otherway round
      *    (use invert() in this case).
-     * 
-     * TODO: Could benefit from adding new namespaces.
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {
 	return rewriteSPARQLQuery( aQuery, alignment );
     }
 
+    public String rewriteQuery( String aQuery, Properties prefix ) throws AlignmentException {
+	return rewriteSPARQLQuery( aQuery, alignment, prefix );
+    }
+
     public static String rewriteSPARQLQuery( String aQuery, Alignment align ) throws AlignmentException {
+	return rewriteSPARQLQuery( aQuery, align, new Properties() );
+    }
+
+    public static String rewriteSPARQLQuery( String aQuery, Alignment align, Properties prefix ) throws AlignmentException {
 	// The first part expands the prefixes of the query
-        //aQuery = aQuery.replaceFirst("^[ \t\n]+","").replaceAll("PREFIX", "prefix");
 	aQuery = aQuery.trim().replaceAll("PREFIX", "prefix");
         String mainQuery = ""; 
-	String prefix[][] = null;
 
 	// Collect and reduce prefix
         if( aQuery.indexOf("prefix") != -1 )  {
@@ -177,18 +183,15 @@ public class QueryMediator implements QueryProcessor {
                 mainQuery = str.substring(str.indexOf('>')+1, str.length());
             }
 
-	    prefix = new String[pref.length][2];
-            for( int i = 0; i < pref.length; i++ )  {       
+            for( int i = 0; i < pref.length; i++ )  {   
                 String currPrefix = pref[i].trim();       
                 if(!currPrefix.equals("") && currPrefix.indexOf('<') != -1 && currPrefix.indexOf('>') != -1)  {
                     int begin = currPrefix.indexOf('<');
                     int end = currPrefix.indexOf('>');
                     String ns = currPrefix.substring(0, currPrefix.indexOf(':')).trim();
                     String iri = currPrefix.substring(begin+1, end).trim();
-		    prefix[i][0] = ns;
-		    prefix[i][1] = iri;
+		    prefix.setProperty( ns, iri );
 		    mainQuery = Pattern.compile(ns+":([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"$1>");
-		    //mainQuery = mainQuery.replaceAll(ns+"([A-Za-z0-9_-]+)", "<"+iri+"#$1>");
                 }
             }
         } else mainQuery = aQuery;
@@ -201,13 +204,12 @@ public class QueryMediator implements QueryProcessor {
 	}
 
 	// Post process prefix
-	for ( int i=0; i < prefix.length; i++ ) {
-	    if ( prefix[i][0] != null ) {
-		mainQuery = Pattern.compile("<"+prefix[i][1]+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( prefix[i][0]+":$1" );
-		mainQuery = "PREFIX "+prefix[i][0]+": <"+prefix[i][1]+"> .\n" + mainQuery;
+	for ( Map.Entry<Object,Object> m : prefix.entrySet() ) {
+	    if ( m.getKey() != null ) {
+		mainQuery = Pattern.compile("<"+m.getValue()+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( m.getKey()+":$1" );
+		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> .\n" + mainQuery;
 	    }
 	}
-
 
         return mainQuery;
     }

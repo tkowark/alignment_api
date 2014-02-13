@@ -118,7 +118,7 @@ public class TransformQuery extends CommonCLI {
 	    if ( echo ) System.out.println( query );
 	    // Create query processor
 	    QueryMediator qproc = new QueryMediator( alignmentURL );
-	    result = qproc.rewriteQuery( query );
+	    result = qproc.rewriteQuery( query, parameters );
 	    
 	    // Set output file
 	    OutputStream stream;
@@ -140,7 +140,9 @@ public class TransformQuery extends CommonCLI {
 	    }	    
 	    
 	} catch (Exception ex) {
-	    logger.debug( "IGNORED Exception", ex );
+	    ex.printStackTrace();
+	    logger.error( ex.getMessage() );
+	    System.exit(-1);
 	}
     }
 
