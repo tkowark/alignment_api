@@ -144,7 +144,6 @@ public class QueryMediator implements QueryProcessor {
     /**
      * @param aQuery -- query to be re-written
      * @return -- rewritten query:
-     * - replaces all the prefix namespaces, if present, in the query by actual IRIs
      * - replaces all entity IRI by their counterpart in the ontology
      *
      * Caveats:
@@ -152,6 +151,8 @@ public class QueryMediator implements QueryProcessor {
      * - This does not care for the *:x status of alignments
      * - This does work from ontology1 to ontology2, not the otherway round
      *    (use invert() in this case).
+     * 
+     * TODO: Could benefit from adding new namespaces.
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {
 	return rewriteSPARQLQuery( aQuery, alignment );
@@ -162,6 +163,9 @@ public class QueryMediator implements QueryProcessor {
         //aQuery = aQuery.replaceFirst("^[ \t\n]+","").replaceAll("PREFIX", "prefix");
 	aQuery = aQuery.trim().replaceAll("PREFIX", "prefix");
         String mainQuery = ""; 
+	String prefix[][] = null;
+
+	// Collect and reduce prefix
         if( aQuery.indexOf("prefix") != -1 )  {
             String[] pref = aQuery.split("prefix");               
             for(int j=0; j < pref.length; j++)  {
@@ -172,25 +176,39 @@ public class QueryMediator implements QueryProcessor {
                     str = pref[pref.length-1];
                 mainQuery = str.substring(str.indexOf('>')+1, str.length());
             }
-                
-            for(int i = 0; i < pref.length; i++)  {       
+
+	    prefix = new String[pref.length][2];
+            for( int i = 0; i < pref.length; i++ )  {       
                 String currPrefix = pref[i].trim();       
                 if(!currPrefix.equals("") && currPrefix.indexOf('<') != -1 && currPrefix.indexOf('>') != -1)  {
                     int begin = currPrefix.indexOf('<');
                     int end = currPrefix.indexOf('>');
-                    String ns = currPrefix.substring(0, begin).trim();
+                    String ns = currPrefix.substring(0, currPrefix.indexOf(':')).trim();
                     String iri = currPrefix.substring(begin+1, end).trim();
-		    mainQuery = Pattern.compile(ns+"([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"#$1>");
+		    prefix[i][0] = ns;
+		    prefix[i][1] = iri;
+		    mainQuery = Pattern.compile(ns+":([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"$1>");
 		    //mainQuery = mainQuery.replaceAll(ns+"([A-Za-z0-9_-]+)", "<"+iri+"#$1>");
                 }
             }
         } else mainQuery = aQuery;
+
 	// The second part replaces the named items by their counterparts
 	for( Cell cell : align ){
 	    mainQuery = mainQuery.replaceAll(
 					     cell.getObject1AsURI(align).toString(),
 					     cell.getObject2AsURI(align).toString() );
 	}
+
+	// Post process prefix
+	for ( int i=0; i < prefix.length; i++ ) {
+	    if ( prefix[i][0] != null ) {
+		mainQuery = Pattern.compile("<"+prefix[i][1]+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( prefix[i][0]+":$1" );
+		mainQuery = "PREFIX "+prefix[i][0]+": <"+prefix[i][1]+"> .\n" + mainQuery;
+	    }
+	}
+
+
         return mainQuery;
     }
     

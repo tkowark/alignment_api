@@ -20,10 +20,7 @@
 
 package fr.inrialpes.exmo.align.cli;
 
-import java.lang.Integer;
 import java.lang.Double;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.Properties;
 
 import java.io.File;
@@ -33,8 +30,6 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
-
-import org.xml.sax.SAXException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +44,6 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
-import fr.inrialpes.exmo.align.impl.ObjectAlignment;
-import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A really simple utility that loads and alignment and prints it.
