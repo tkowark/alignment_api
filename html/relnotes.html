@@ -72,18 +72,16 @@ with a warning:
 
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
-<!--h2>Version 4.7 (1xxx): ??/??/201x - Letraset</h2-->
+<!--h2>Version 4.7 (1xxx): ??/0?/2014 - Letraset</h2-->
 <p><ul compact="1">
-<li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>,
-  use <tt>remCell()</tt> instead (impl)</tt>
-<li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>,
-  from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
-<li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (server)</li>
-<li>Implemented <tt>translateMessage()</tt>
-  and <tt>rewriteQuery()</tt> in <tt>BasicAlignment</tt> (impl)</li>
-<li>Enabled query translation in interface (server)</li>
+<li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>, use <tt>remCell()</tt> instead (impl)</tt>
+<li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>, from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
+<li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
+<li>Implemented <tt>translateMessage()</tt> and <tt>rewriteQuery()</tt> in <tt>BasicAlignment</tt> (impl)</li>
+<li>Enabled query translation in interface (serv)</li>
 <li>Added a command-line utility for query translation (cli)</li>
 <li>Added a guard forbiding to create a <tt>BasicCell</tt> with null objects (impl)</li>
+<li>Genericised storage <tt>Cache</tt> (serv)</li>
 </ul></p>
 
 <h2>Version 4.6 (1875): 22/01/2014 - Da lec'h all</h2>
@@ -91,10 +89,10 @@ with a warning:
 <p><ul compact="1">
 <li>Fixed a bug in <tt>EDOALAlignment.init()</tt> which would prohibit rendering (edoal)</li>
 <li>Fixed a bug in <tt>OWLAxiomsRendererVisitor</tt>, <tt>SWRLRendererVisitor</tt>, <tt>SEKTMappingRendererVisitor</tt>, <tt>COWLMappingRendererVisitor</tt> <tt>SPARQLConstructRendererVisitor</tt>, and <tt>SPARQLSelectRendererVisitor</tt> which sometimes rendered alignments empty (impl)</li>
-<li>All logging and signaling is now through slf4j (impl/server)</li>
+<li>All logging and signaling is now through slf4j (impl/serv)</li>
 <li>Replaced getopt by <span style="color: green">commons cli 1.2</span> as command line interpreter (lib/cli)</li>
 <li>Completed <tt>SWRLRendererVisitor</tt> to fill equivalence and subsumption statements (impl)</li>
-<li>Declared Alignment server as an OSGi service (server)</li>
+<li>Declared Alignment server as an OSGi service (serv)</li>
 <li>Made EDOAL vocabulary dereferenceable (edoal)</li>
 <li>Fixed the build.xml file for using slf4j in microalign (android)</li>
 <li>Fixed several bugs in <tt>WeightedPREvaluator</tt>, now two versions (impl)</li>
@@ -117,18 +115,18 @@ with a warning:
 
 <p><ul compact="1">
 <li>Added several EDOAL-SPARQL renderers (impl)</li>
-<li>Added <tt>ontowrap</tt> support in database store (server)</li>
-<li>Made Alignment URIs independent from URL prefix (server)</li>
-<li>Added alignment selection per ontologies in list alignment interface (server)</li>
+<li>Added <tt>ontowrap</tt> support in database store (serv)</li>
+<li>Made Alignment URIs independent from URL prefix (serv)</li>
+<li>Added alignment selection per ontologies in list alignment interface (serv)</li>
 <li>Added relation sensitiveness to evaluators (impl)</li>
 <li>Added generation of local <a href="maven.html">maven repository</a> in build.xml</li>
-<li>Implemented transactions in database store (server)</li>
+<li>Implemented transactions in database store (serv)</li>
 <li>Modified evaluators needing <tt>ObjectAlignment</tt> to convert them on the fly (impl)</li>
 <li>Modified renderers needing <tt>ObjectAlignment</tt> to convert them on the fly (impl)</li>
-<li>Evaluators report better errors on the server (server)</li>
+<li>Evaluators report better errors on the server (serv)</li>
 <li>Fixed a bug in <tt>WeightedPREvaluator</tt> (can be more than 1.) (impl)</li>
 <li>Fixed strong bug in the implementation of relaxed precision and recall (impl)</li>
-<li>Fixed a (non manifested) bug in cache management (server)</li>
+<li>Fixed a (non manifested) bug in cache management (serv)</li>
 <li>Fixed a bug in displaying evaluation tables (cli)</li>
 <li>Fixed a bug with subsumption statements in <tt>OWLAxiomsRendererVisitor</tt> (impl)</li>
 <li>Simplified and rewritten <tt>SemPRecEvaluator</tt> (impl)</li>
@@ -154,10 +152,10 @@ with a warning:
 <li>Upgraded to <span style="color: green">SKOS API 2</span> and
   <span style="color: green">OntoSim 2.3</span> (lib)</li>
 <li>Added <tt>JSONRendererVisitor</tt> (impl)</li>
-<li>Added <tt>corresp</tt> primitive (server)</li>
+<li>Added <tt>corresp</tt> primitive (serv)</li>
 <li>Added <tt>EDOALAlignment.toEDOALAlignment()</tt> (edoal)</li>
 <li>Simplified <tt>TestGen</tt> options (cli)</li>
-<li>Fixed server initialisation error with new log4j (server)</li>
+<li>Fixed server initialisation error with new log4j (serv)</li>
 <li>Fixed a float parsing bug in <tt>XMLParser</tt> (parser)</li>
 <li>Fixed a display error in <tt>DiffEvaluator</tt> (impl)</li>
 <li>Corrected bug with <tt>owl:inverseOf</tt> in OWL rendering (edoal)</li>
@@ -215,13 +213,13 @@ with a warning:
 <li>Added a few statistical primitives to BasicAlignment (impl)</li>
 <li>Suppressed <tt>EDOALRelation</tt>: EDOAL uses <tt>BasicRelation</tt> (edoal)</li>
 <li>EDOAL default printout now uses pretty relations, i.e., &lt;, &gt;, =, % (edoal)</li>
-<li>Modified server answers so that namespaces are well placed in REST (server)</li>
+<li>Modified server answers so that namespaces are well placed in REST (serv)</li>
 <li>Changed order of display to precision/F-measure/recall (util)</li>
 <li><span style="color: red;">Suppressed</span> incorrect computation of fallout (eval)</li>
 <li>Corrected NaN derived measures when precision is 0. (eval)</li>
 <li>Set precision to 1. when alignments are empty (eval)</li>
 <li>Upgraded to <span style="color: green">OntoSim 2.2</span> (lib)</li>
-<li>Minor display changes in HTML display (server)</li>
+<li>Minor display changes in HTML display (serv)</li>
 <li>Suppressed <tt>PreAlignment</tt> (impl)</li>
 </ul></p>
 
@@ -241,7 +239,7 @@ with a warning:
 <li>Added a <tt>getResult()</tt> method to <tt>Evaluator</tt> (api)</li>
 <li>Added a <tt>DiffAlign( al1, al2 )</tt> evaluator (impl)</li>
 <li>Added an <tt>aggr.ConsensusAggregator</tt> for merging several alignments (impl)</li>
-<li>Implemented online evaluation and diff (server)</li>
+<li>Implemented online evaluation and diff (serv)</li>
 <li>Added the possibility to drop a number of correspondences in <tt>ONetworkWeakener</tt> (util)</li>
 <li>Added a google chart API display of plots <tt>GenPlot -t html</tt> (util)</li>
 <li><tt>edoal:or</tt>, <tt>edoal:and</tt> and <tt>edoal:compose</tt> can be empty (edoal)</li>
@@ -252,7 +250,7 @@ with a warning:
 <li>Added <a href="tutorial/tutorial4/index.html">tutorial 4</a> Pellet action (tutorial)</li>
 <li>Added <a href="tutorial/tutorial5/index.html">tutorial 5</a> about exposing matchers as web services (tutorial)</li>
 <li>Fixed several problems with loading twice the same ontology in the OWL API (ontowrap)</li>
-<li>Corrected an error in matching when a alignment existed without method extension (server)</li>
+<li>Corrected an error in matching when a alignment existed without method extension (serv)</li>
 <li>Fixed path errors in tutorials (tutorial)</li>
 <li>Improved RDF Rendering layout (impl)</li>
 </ul></p>
@@ -277,14 +275,14 @@ with a warning:
 <li>Implemented semantic precision and recall (impl)</li>
 <li>Implemented ROC curve computing and reimplemented the plotting
   structure. Now they are based on harmonic means instead of average. (eval)</li>
-<li>Fully implemented <tt>find</tt> to interface (server)</li>
+<li>Fully implemented <tt>find</tt> to interface (serv)</li>
 <li>Completely modified the web service interface so that SOAP and
   REST are fully aligned. This is
   now  <a href="rest.html#version4">documented</a> (serv)</li>
 <li>Added a <tt>listevaluators</tt> primitive to the service interface (serv)</li>
 <li>Added computation of MAP (Mean Average Precision) in <tt>PRGraphEvaluator</tt> (impl).</li>
-<li>Added pretty-printing of names in server (server)</li>
-<li>Added provenance tracking in server (server)</li>
+<li>Added pretty-printing of names in server (serv)</li>
+<li>Added provenance tracking in server (serv)</li>
 <li>Added initialisation through initial alignment
   in <tt>MatrixMeasure</tt> (impl)</li>
 <li>Added a parameter to the <tt>OWLAxiomsRendererVisitor</tt> so that it could render
@@ -295,26 +293,26 @@ with a warning:
 <li>Suppressed <tt>OWLAPICell</tt> and <tt>OWLAPIAlignment</tt>
   (deprecated since version 3.3) (impl)</li>
 <li>Changed the signature of <tt></tt> from <tt>Enumeration</tt>
-  to <tt>Collection&lt;Alignment&gt;</tt> (server)</tt>
+  to <tt>Collection&lt;Alignment&gt;</tt> (serv)</tt>
 <li>Reorganised the lib directory hierarchically (build)</li>
 <li>Corrected missing <tt>hashCode()</tt> (bug #9680) (impl)</li>
 <li>Corrected a bug when the server is launched without -S
-  (server)</li>
-<li>Fixed error message in server (#8502: org.apache.xml.resolver.readers.CatalogReader: deprecated) by upgrading resolver.jar (server)</li>
+  (serv)</li>
+<li>Fixed error message in server (#8502: org.apache.xml.resolver.readers.CatalogReader: deprecated) by upgrading resolver.jar (serv)</li>
 <li>Corrected a bug in <tt>HTMLRendererVisitor</tt> that made the
-  display of alignments, especially stored, to break (server)</li>
+  display of alignments, especially stored, to break (serv)</li>
 <li>Corrected the README.TXT of examples/wservice (serv)</li>
 <li>Corrected a bug in retrieving alignments from ontologies when the
-  two ontologies are the same (server)</li>
+  two ontologies are the same (serv)</li>
 <li>Corrected a bug in triming, which left one item too much (impl)</li>
 <li>Corrected a bug when <tt>StringDistAlignment</tt> fails to raise
   exception when unknown method is given (impl)</li>
 <li>Corrected a problem due to parser reentrance which led two
   alignment parsed by the same parser to go into the same alignment (parser)</li>
 <li>Corrected a bug introduced in 3.6 which prevented from storing the
-  "stored" date of alignments (server)</li>
-<li>Corrected a bug in the "find" primitive of service (server)</li>
-<li>Corrected a bug that prevented proper search of <tt>aserv.wsdl</tt> file in all imported jars (server)</li>
+  "stored" date of alignments (serv)</li>
+<li>Corrected a bug in the "find" primitive of service (serv)</li>
+<li>Corrected a bug that prevented proper search of <tt>aserv.wsdl</tt> file in all imported jars (serv)</li>
 <li>Corrected a bug in tests that did not force to clean-up the state
   after <tt>OntoTest</tt> (test)</li>
 <li>Corrected a (commented) error in the <tt>wine.xml</tt> OMWG
@@ -336,14 +334,14 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <p>
 <ul compact="1">
 <li><tt>tokenize</tt> has been moved from <tt>JWNLDistances</tt> to <tt>StringDistances</tt> (ling)</li>
-<li>Added REST interface to the HTML interface (server)</li>
+<li>Added REST interface to the HTML interface (serv)</li>
 <li>Addition of the notion of <tt>OntologyNetwork</tt> made of a set of
   ontologies and alignments within the API (api/impl/test).</li>
 <li>Added new gap based (hardgap and propgap) methods in <tt>BasicAlignment.cut()</tt> (impl)</li>
 <li>Added new methods (Cosynonymy, Wu-Palmer) in JWNLDistances (ling)</li>
 <li>Added tests for ling and set noling as default in build (test)</li>
 <li>Added the possibility for <tt>OWLAxiomsRendererVisitor</tt> to output relations between individuals (renderer)</li>
-<li>Added JDBC drivers for Postgress and improved mySQL code for genericity (server)</li>
+<li>Added JDBC drivers for Postgress and improved mySQL code for genericity (serv)</li>
 <li>Improved renderers with more metadata (renderer)</li>
 <li>Completed individual alignment and extraction in <tt>DistanceAlignment</tt> (impl)</li>
 <li>Completed matrix printing in <tt>MatrixMeasure</tt> (impl)</li>
@@ -351,7 +349,7 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Corrected a bug in <tt>XMLMetadataRendererVisitor</tt> (renderer)</li>
 <li>Corrected a bug in <tt>RDFRendererVisitor</tt> that output rdf:ID="" (renderer)</li>
 <li>Corrected a bug in <tt>OWLAxiomsRendererVisitor</tt> for generating disjointWith statements (renderer)</li>
-<li>Corrected a (rare) bug in server which was not able to recognise URIs (server)</li>
+<li>Corrected a (rare) bug in server which was not able to recognise URIs (serv)</li>
 <li>Corrected a bug in <tt>BasicAlignment.cut("best")</tt> (impl)</li>
 <li>Prevented <tt>OWLAxiomsRenderer</tt> from returning equivalence
   between Data and Object properties and, in general, heterogeneous equivalences (impl)</li>
@@ -371,13 +369,13 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Completed the integration of Jena ontologies (ontowrap)</li>
 <li>Implemented basic algebraic operations (impl)</li>
 <li>Added diff algebraic operation (api)</li>
-<li>Reengineered parameter passing for web service interface (server)</li>
+<li>Reengineered parameter passing for web service interface (serv)</li>
 <li>Updated <tt>SKOSRendererVisitor</tt> to work with 2008 version of
   SKOS, old version can be obtained by parameter <tt>pre2008</tt> (impl)</li>
 <li>Suppressed <tt>GenTriangle</tt> (util)</li>
 <li>Corrected an error preventing DistanceAlignment to consider individuals (impl)</li>
 <li>Corrected SWRL format missing rdf namespace (impl)</li>
-<li>Corrected an error transmitting the DBMS coordinates on the web (server)</li>
+<li>Corrected an error transmitting the DBMS coordinates on the web (serv)</li>
 <li>Corrected a bug in <tt>SKOSRendererVisitor</tt> and <tt>XSLTRendererVisitor</tt> (impl)</li>
 <li>Started to put copyright notices to INRIA instead of INRIA Rh&ocirc;ne-Alpes (misc)</li>
 <li>Used Java 1.5 print Formatter instead of our printFormat (impl)</li>
@@ -390,7 +388,7 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <p>
 <ul compact="1">
 <li>Implemented WSAlignment connecting to remote web service for
-  matching (server)</li>
+  matching (serv)</li>
 <li><span style="color: red;">Deprecated</span> <tt>Cell.getObjectXAsURI()</tt>
   in favour of <tt>Cell.getObjectXAsURI(Alignment al)</tt> (api)</tt>
 <li>Upgraded NeOn plug-in for working with <span style="color: green">NeOn toolkit 1.1</span> (plugin)</li>
@@ -404,22 +402,22 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Added <tt>initAlignment(URIAlignment)</tt> to parser (parser)</li>
 <li>Added <tt>parse(InputStream)</tt> to parser (parser)</li>
 <li>Parser now ignore SOAP envelops (parser)</li>
-<li>Implemented a better recovery in case of database connection loss (server)</li>
-<li>Implemented cache flushing functions (server)</li>
-<li>Provided better return forms in <tt>HTMLAServManager</tt> (server)</li>
-<li>Catched <tt>init()</tt> errors in server (server)</li>
-<li>Reorganised HTML interface (server)</li>
-<li>Added indentation and namespaces in the Web service interface (server)</li>
+<li>Implemented a better recovery in case of database connection loss (serv)</li>
+<li>Implemented cache flushing functions (serv)</li>
+<li>Provided better return forms in <tt>HTMLAServManager</tt> (serv)</li>
+<li>Catched <tt>init()</tt> errors in server (serv)</li>
+<li>Reorganised HTML interface (serv)</li>
+<li>Added indentation and namespaces in the Web service interface (serv)</li>
 <li>Implemented <a href="http://www.webcontent.fr">WebContent</a> plug-in (plugin)</li>
 <li>Improved NeOn plug-in documentation (html)</li>
-<li>Increased the size of relation id to 25 char (server)</li>
+<li>Increased the size of relation id to 25 char (serv)</li>
 <li>Corrected <tt>MyAlign</tt> example which was not adapted to the
   new onto structure (examples)</li>
 <li>Corrected tutorial so that it works with new code (tutorial)</li>
 <li>Corrected an error of the <tt>Cell.inverse()</tt> method (impl)</li>
-<li>Corrected an error in storing alignments (server)</li>
+<li>Corrected an error in storing alignments (serv)</li>
 <li>Corrected an error in the MANIFEST of the NeOn plug in (plugin)</li>
-<li>Corrected an error that prevented the server to work on Windows (server)</li>
+<li>Corrected an error that prevented the server to work on Windows (serv)</li>
 </ul>
 </p>
 
@@ -436,8 +434,8 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <li>Made <tt>Alignment</tt> iterable&lt;Cell&gt; (api/impl)</li>
 <li>Improved NeOn plug-in and upgraded to <span style="color: green">
     NeOn toolkit 1.0</span> (plugin)</li>
-<li>Corrected a bug in Web service when the content was XML (server)</li>
-<li>Corrected a bug when loading an alignment with id (server)</li>
+<li>Corrected a bug in Web service when the content was XML (serv)</li>
+<li>Corrected a bug when loading an alignment with id (serv)</li>
 <li>Corrected a bug in AlignmentParser that overlooked formalism URI (parser)</li>
 <li>Passed to Java 1.5 generics [incl. API modif] (dev/api)</li>
 <li>Added first unit tests (TestNG) (dev)</li>
@@ -448,18 +446,18 @@ If you want to stay with WordNet-2.0, you need to replace the jwnl.jar
 <a name="3.2"></a><h2>Version 3.2 (666): 29/02/2008 - Blejsko jezero</h2>
 <p>
 <ul compact="1">
-<li>Connection to Oyster directory (server)</li>
-<li>Added the opportunity to run matchers asynchronously (server)</li>
+<li>Connection to Oyster directory (serv)</li>
+<li>Added the opportunity to run matchers asynchronously (serv)</li>
 <li>Made sure that http server is launched when wsdl option is chosen
-  (server)</li>
+  (serv)</li>
 <li>Moved NeOn toolkit plugin in the plugins/neon (plugin)</li>
 <li>Cleaned-up working NeOn plug-in for NeOn toolkit (plugin)</li>
-<li>Introduced abstract directories (server)</li>
+<li>Introduced abstract directories (serv)</li>
 <li>Improved the WordNet interface by introducing version. 3.0 is default (ling)</li>
 <li>Reinstated the possibility to use the old namespace in the parser (parser)</li>
 <li>Corrected a bug that prevented to store alignments in Web service
-  interface (server)</li>
-<li>Passed command line parameters to <tt>align()</tt> (server)</li>
+  interface (serv)</li>
+<li>Passed command line parameters to <tt>align()</tt> (serv)</li>
 <li>Created an Annotation class for storing static strings (impl)</li>
 <li>Enriched Ontology objects (impl)</li>
 <li>Progressed in the implementation of alignment composition (impl)</li>
@@ -479,7 +477,7 @@ For better conforming with RDF practice, we have
 <li>Modified the extension mechanism so that getExtension and
   setExtension take a namespace URI as first argument (api).</li>
 <li>Modified the service database extension format for recording this
-  URI (server).</li>
+  URI (serv).</li>
 </ul></p>
 
 <p>
@@ -494,24 +492,24 @@ Other improvements include:
   implementation of ontology descriptions (format/parser/impl)</li>
 <li>Modified the Alignement namespace by adding a '#'(format)</li>
 <li>Separated namespace from pName in extension keys</li>
-<li>Added Web Service Alignment server profile (server)</li>
-<li>Multithreaded matching in Services (server)</li>
+<li>Added Web Service Alignment server profile (serv)</li>
+<li>Multithreaded matching in Services (serv)</li>
 <li>Got rid of the property file for wordnet (ling)</li>
-<li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (server)</li>
-<li>Suppressed all printouts (Jade or Jetty logging) (server)</li>
-<li>Added file logging option (server)</li>
-<li>Added the inverse operation (server)</li>
-<li>Completely rewritten autodetection of renderers and methods in server (server)</li>
+<li>In Server/FIPA, suppressed generated files on <tt>close()</tt> (serv)</li>
+<li>Suppressed all printouts (Jade or Jetty logging) (serv)</li>
+<li>Added file logging option (serv)</li>
+<li>Added the inverse operation (serv)</li>
+<li>Completely rewritten autodetection of renderers and methods in server (serv)</li>
 <li>Modified interface of embedded methods</li>
 <li>Added guarantee that results displayed by <tt>GroupEval</tt> be sorted
   (thanks Vassilis Spiliopoulos) (util)</li>
 <li>Added namespace support in BasicAlignment (impl)</li>
-<li>Forced trailing slash in HTML menu URLs (server)</li>
-<li>Added fetching alignments from URIs (server)</li>
-<li>Changed for Jetty as an embedded HTTP server (server)</li>
-<li>Implemented alignment upload (server)</li>
+<li>Forced trailing slash in HTML menu URLs (serv)</li>
+<li>Added fetching alignments from URIs (serv)</li>
+<li>Changed for Jetty as an embedded HTTP server (serv)</li>
+<li>Implemented alignment upload (serv)</li>
 <li>Corrected an error on "force"-ing alignment in Server/HTML (was
-  inverted) (server)</li>
+  inverted) (serv)</li>
 <li>Corrected a bug concerning extension namespaces (impl)</li>
 <li>Corrected a bug in the DistanceAlignment Hungarian method
   extraction (impl)</li>

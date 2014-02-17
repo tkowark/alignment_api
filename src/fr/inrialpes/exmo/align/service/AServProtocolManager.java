@@ -67,8 +67,6 @@ import org.semanticweb.owl.align.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-
 import java.lang.ClassNotFoundException;
 import java.lang.InstantiationException;
 import java.lang.NoSuchMethodException;
@@ -138,12 +136,12 @@ public class AServProtocolManager implements Service {
 	directories = dir;
     }
 
-    public void init( DBService connection, Properties prop ) throws SQLException, AlignmentException {
+    public void init( DBService connection, Properties prop ) throws AlignmentException {
 	commandLineParams = prop;
 	serverId = prop.getProperty("prefix");
 	if ( serverId == null || serverId.equals("") )
 	    serverId = "http://"+prop.getProperty("host")+":"+prop.getProperty("http");
-	alignmentCache = new CacheImpl( connection );
+	alignmentCache = new SQLCache( connection );
 	alignmentCache.init( prop, serverId );
 	renderers = implementations( "org.semanticweb.owl.align.AlignmentVisitor" );
 	methods = implementations( "org.semanticweb.owl.align.AlignmentProcess" );
@@ -154,16 +152,16 @@ public class AServProtocolManager implements Service {
 
     public void close() {
 	try { alignmentCache.close(); }
-	catch (SQLException sqle) { 
-	    logger.trace( "IGNORED SQL Exception", sqle );
+	catch (AlignmentException alex) { 
+	    logger.trace( "IGNORED Exception", alex );
 	}
     }
 
     public void reset() {
 	try {
 	    alignmentCache.reset();
-	} catch (SQLException sqle) {
-	    logger.trace( "IGNORED SQL Exception", sqle );
+	} catch (AlignmentException alex) {
+	    logger.trace( "IGNORED Exception", alex );
 	}
     }
 
@@ -175,8 +173,8 @@ public class AServProtocolManager implements Service {
 	try { 
 	    alignmentCache.close();
 	    System.exit(0);
-	} catch (SQLException sqle) {
-	    logger.trace( "IGNORED SQL Exception", sqle );
+	} catch (AlignmentException alex) {
+	    logger.trace( "IGNORED Exception", alex );
 	}
     }
 

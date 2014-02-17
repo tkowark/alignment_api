@@ -46,7 +46,6 @@ public class DBServiceImpl implements DBService {
     static String dbpass = null;
     String driverPrefix = "jdbc:mysql";
     //String driverPrefix = "jdbc:postgresql";
-    CacheImpl cache = null;
 	
     public DBServiceImpl() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 	Class.forName("com.mysql.jdbc.Driver").newInstance();

@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2006-2013
+ * Copyright (C) INRIA, 2006-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -60,14 +60,17 @@ import java.io.PrintStream;
 import java.io.EOFException;
 
 /**
+ * JE: This class and Cache should never return SQLException but AlignmentException
+ * JE: Maybe some methods are common with RDF storage, the rest would rather be DBService...
+ *
  * This class caches the content of the alignment database. I.e.,
  * It loads the metadata in the hash table
  * It stores the alignment when requested
  * It 
  */
 
-public class CacheImpl {
-    final static Logger logger = LoggerFactory.getLogger( CacheImpl.class );
+public class SQLCache implements Cache {
+    final static Logger logger = LoggerFactory.getLogger( SQLCache.class );
 
     Hashtable<String,Alignment> alignmentTable = null;
     Hashtable<URI,Set<Alignment>> ontologyTable = null;
@@ -109,7 +112,7 @@ public class CacheImpl {
 	
     //**********************************************************************
 
-    public CacheImpl( DBService serv ) {
+    public SQLCache( DBService serv ) {
 	service = serv;
 	try {
 	    conn = service.getConnection();
@@ -120,50 +123,63 @@ public class CacheImpl {
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
     }
 
-    public void reset() throws SQLException {
+    public void reset() throws AlignmentException {
 	alignmentTable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
 	// reload alignment descriptions
-	loadAlignments( true );
+	try {
+	    loadAlignments( true );
+	} catch ( SQLException sqlex ) {
+	    throw new AlignmentException( "SQL exception", sqlex );
+	}
+
     }
 
     /**
      * loads the alignment descriptions from the database and put them in the
      * alignmentTable hashtable
      */
-    public void init( Properties p, String prefix ) throws SQLException, AlignmentException {
+    public void init( Properties p, String prefix ) throws AlignmentException {
 	logger.debug( "Initializing Database cache" );
 	port = p.getProperty("http"); // bad idea
 	host = p.getProperty("host");
 	idprefix = prefix;
-	Statement st = createStatement();
-	// test if a database is here, otherwise create it
-	ResultSet rs = conn.getMetaData().getTables(null,null, "server", new String[]{"TABLE"});
-	if ( !rs.next() ) {
-	    initDatabase();
-	} else {
-	    updateDatabase(); // in case it is necessary to upgrade
-	}
-	String pref = p.getProperty("prefix");
-	if ( pref == null || pref.equals("") ) {
-	    rs = st.executeQuery( "SELECT prefix FROM server WHERE port='port'" );
-	    while( rs.next() ) {
-		idprefix = rs.getString("prefix");
+	try {
+	    Statement st = createStatement();
+	    // test if a database is here, otherwise create it
+	    ResultSet rs = conn.getMetaData().getTables(null,null, "server", new String[]{"TABLE"});
+	    if ( !rs.next() ) {
+		initDatabase();
+	    } else {
+		updateDatabase(); // in case it is necessary to upgrade
 	    }
+	    String pref = p.getProperty("prefix");
+	    if ( pref == null || pref.equals("") ) {
+		rs = st.executeQuery( "SELECT prefix FROM server WHERE port='port'" );
+		while( rs.next() ) {
+		    idprefix = rs.getString("prefix");
+		}
+	    }
+	    // register by the database
+	    registerServer( host, port, rights==1, idprefix );
+	    // load alignment descriptions
+	    loadAlignments( true );
+	    st.close();
+	} catch (SQLException sqlex) {
+	    throw new AlignmentException( "SQLException", sqlex );
 	}
-	st.close();
-	// register by the database
-	registerServer( host, port, rights==1, idprefix );
-	// load alignment descriptions
-	loadAlignments( true );
     }
 
-    public void close() throws SQLException  {
-	Statement st = createStatement();
-	// unregister by the database
-	st.executeUpdate( "DELETE FROM server WHERE host='"+host+"' AND port='"+port+"'" );
-	st.close();
-	conn.close();
+    public void close() throws AlignmentException  {
+	try {
+	    Statement st = createStatement();
+	    // unregister by the database
+	    st.executeUpdate( "DELETE FROM server WHERE host='"+host+"' AND port='"+port+"'" );
+	    st.close();
+	    conn.close();
+	} catch (SQLException sqlex) {
+	    throw new AlignmentException( "SQL Exception", sqlex );
+	}
     }
 
     public Statement createStatement() throws SQLException {
@@ -207,15 +223,15 @@ public class CacheImpl {
 	return alignmentTable.elements();
     }
 
-    protected Collection<Alignment> alignments() {
+    public Collection<Alignment> alignments() {
 	return alignmentTable.values();
     }
 
-    protected Collection<URI> ontologies() {
+    public Collection<URI> ontologies() {
 	return ontologyTable.keySet();
     }
 
-    protected Collection<Alignment> alignments( URI u1, URI u2 ) {
+    public Collection<Alignment> alignments( URI u1, URI u2 ) {
 	Collection<Alignment> results = new HashSet<Alignment>();
 	if ( u1 != null ) {
 	    for ( Alignment al : ontologyTable.get( u1 ) ) {
@@ -237,7 +253,7 @@ public class CacheImpl {
 	return results;
     }
 
-    protected void flushCache() {// throws AlignmentException
+    public void flushCache() {// throws AlignmentException
 	for ( Alignment al : alignmentTable.values() ){
 	    if ( al.getExtension(SVCNS, CACHED ) != null && 
 		 !al.getExtension( SVCNS, CACHED ).equals("") &&
@@ -438,7 +454,7 @@ public class CacheImpl {
     /**
      * retrieve full alignment from id (and cache it)
      */
-    public Alignment getAlignment( String uri ) throws AlignmentException, SQLException {
+    public Alignment getAlignment( String uri ) throws AlignmentException {
 	Alignment result = null;
 	try {
 	    result = alignmentTable.get( uri );
@@ -456,8 +472,11 @@ public class CacheImpl {
 	if ( ( result.getExtension( SVCNS, CACHED ) == null || result.getExtension( SVCNS, CACHED ).equals("") )
 	     && result.getExtension(SVCNS, STORED ) != null 
 	     && !result.getExtension(SVCNS, STORED ).equals("") ) {
-	    try { retrieveAlignment( uri, result ); }
-	    catch ( URISyntaxException urisex ) {
+	    try { 
+		retrieveAlignment( uri, result );
+	    } catch ( SQLException sqlex ) {
+		throw new AlignmentException( "getAlignment: SQL exception", sqlex );
+	    } catch ( URISyntaxException urisex ) {
 		logger.trace( "Cache: cannot read from DB", urisex );
 		throw new AlignmentException( "getAlignment: Cannot find alignment", urisex );
 	    };
@@ -615,16 +634,19 @@ public class CacheImpl {
 		 !alignment.getExtension( SVCNS, STORED ).equals("") );
     }
 
-
     /**
      * Non publicised class
      */
-    public void eraseAlignment( String uri, boolean eraseFromDB ) throws SQLException, AlignmentException {
+    public void eraseAlignment( String uri, boolean eraseFromDB ) throws AlignmentException {
         Alignment alignment = getAlignment( uri );
         if ( alignment != null ) {
-            if ( eraseFromDB ) unstoreAlignment( uri, alignment );
-            // Suppress it from the cache...
-            unRecordAlignment( alignment );
+	    try {
+		if ( eraseFromDB ) unstoreAlignment( uri, alignment );
+		// Suppress it from the cache...
+	    } catch (SQLException sqlex) {
+		throw new AlignmentException( "SQL Exception", sqlex );
+	    }
+	    unRecordAlignment( alignment );
         }
     }
 
@@ -667,7 +689,17 @@ public class CacheImpl {
 	}
     }
 
-    public void storeAlignment( String uri ) throws AlignmentException, SQLException {
+    /*
+	    try {
+		if ( eraseFromDB ) unstoreAlignment( uri, alignment );
+		// Suppress it from the cache...
+	    } catch (SQLException sqlex) {
+		throw new AlignmentException( "SQL Exception", sqlex );
+	    }
+	    unRecordAlignment( alignment );
+        }
+    */
+    public void storeAlignment( String uri ) throws AlignmentException {
 	String query = null;
 	BasicAlignment alignment = (BasicAlignment)getAlignment( uri );
 	String id = stripAlignmentUri( uri );
@@ -677,89 +709,92 @@ public class CacheImpl {
 	// We empty cached date
 	alignment.setExtension( SVCNS, CACHED, (String)null );
 
-	// Try to store at most 3 times.
-	// Otherwise, an exception EOFException will be thrown (relation with Jetty???)
-	// [JE2013: Can we check this?]
-	for( int i=0; i < 3 ; i++ ) {
-	    st = createStatement();
-	    try {
-		logger.debug( "Storing alignment {} as {}", uri, id );
-		conn.setAutoCommit( false );
-		query = "INSERT INTO alignment " + 
-		    "(id, type, level) " +
-		    "VALUES (" +quote(id)+","+quote(alignment.getType())+","+quote(alignment.getLevel()) +")";
-		st.executeUpdate(query);
-		
-		recordOntology( st, id, true,
-				alignment.getOntology1URI(),
-				alignment.getFile1(), 
-				alignment.getOntologyObject1() );
-		recordOntology( st, id, false,
-				alignment.getOntology2URI(),
-				alignment.getFile2(), 
-				alignment.getOntologyObject2() );
-		
-		// store dependencies
-		
-		for ( String[] ext : alignment.getExtensions() ) {
-		    String turi = ext[0];
-		    String tag = ext[1];
-		    String val = ext[2];
-		    query = "INSERT INTO extension " + 
-			"(id, uri, tag, val) " +
-			"VALUES (" + quote(id) + "," +  quote(turi) + "," +  quote(tag) + "," + quote(val) + ")";
+	try {
+	    // Try to store at most 3 times.
+	    // Otherwise, an exception EOFException will be thrown (relation with Jetty???)
+	    // [JE2013: Can we check this?]
+	    for( int i=0; i < 3 ; i++ ) {
+		try {
+		    st = createStatement();
+		    logger.debug( "Storing alignment {} as {}", uri, id );
+		    conn.setAutoCommit( false );
+		    query = "INSERT INTO alignment " + 
+			"(id, type, level) " +
+			"VALUES (" +quote(id)+","+quote(alignment.getType())+","+quote(alignment.getLevel()) +")";
 		    st.executeUpdate(query);
-		}
-		
-		for( Cell c : alignment ) {
-		    String cellid = null;
-		    if ( c.getObject1() != null && c.getObject2() != null ){
-			cellid = c.getId();
-			if ( cellid != null ){
-			    if ( cellid.startsWith("#") ) {
-				cellid = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) + cellid;
-			    }
-			} else if ( c.getExtensions() != null ) {
-			    // JE: In case of extensions create an ID
-			    cellid = generateCellId();
-			}
-			else cellid = "";
-			String uri1 = c.getObject1AsURI(alignment).toString();
-			String uri2 = c.getObject2AsURI(alignment).toString();
-			String strength = c.getStrength() + ""; // crazy Java
-			String sem;
-			if ( !c.getSemantics().equals("first-order") )
-			    sem = c.getSemantics();
-			else sem = "";
-			String rel =  ((BasicRelation)c.getRelation()).getRelation();	
-			query = "INSERT INTO cell " + 
-			    "(id, cell_id, uri1, uri2, measure, semantics, relation) " +
-			    "VALUES (" + quote(id) + "," + quote(cellid) + "," + quote(uri1) + "," + quote(uri2) + "," + quote(strength) + "," + quote(sem) + "," + quote(rel) + ")";
+		    
+		    recordOntology( st, id, true,
+				    alignment.getOntology1URI(),
+				    alignment.getFile1(), 
+				    alignment.getOntologyObject1() );
+		    recordOntology( st, id, false,
+				    alignment.getOntology2URI(),
+				    alignment.getFile2(), 
+				    alignment.getOntologyObject2() );
+		    
+		    // store dependencies
+		    for ( String[] ext : alignment.getExtensions() ) {
+			String turi = ext[0];
+			String tag = ext[1];
+			String val = ext[2];
+			query = "INSERT INTO extension " + 
+			    "(id, uri, tag, val) " +
+			    "VALUES (" + quote(id) + "," +  quote(turi) + "," +  quote(tag) + "," + quote(val) + ")";
 			st.executeUpdate(query);
 		    }
-		    if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
-			// Store extensions
-			for ( String[] ext : c.getExtensions() ) {
-			    String turi = ext[0];
-			    String tag = ext[1];
-			    String val = ext[2];
-			    query = "INSERT INTO extension " + 
-				"(id, uri, tag, val) " +
-				"VALUES (" + quote(cellid) + "," +  quote(turi) + "," +  quote(tag) + "," + quote(val) + ")";
+		
+		    for( Cell c : alignment ) {
+			String cellid = null;
+			if ( c.getObject1() != null && c.getObject2() != null ){
+			    cellid = c.getId();
+			    if ( cellid != null ){
+				if ( cellid.startsWith("#") ) {
+				    cellid = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) + cellid;
+				}
+			    } else if ( c.getExtensions() != null ) {
+				// JE: In case of extensions create an ID
+				cellid = generateCellId();
+			    }
+			    else cellid = "";
+			    String uri1 = c.getObject1AsURI(alignment).toString();
+			    String uri2 = c.getObject2AsURI(alignment).toString();
+			    String strength = c.getStrength() + ""; // crazy Java
+			    String sem;
+			    if ( !c.getSemantics().equals("first-order") )
+				sem = c.getSemantics();
+			    else sem = "";
+			    String rel =  ((BasicRelation)c.getRelation()).getRelation();	
+			    query = "INSERT INTO cell " + 
+				"(id, cell_id, uri1, uri2, measure, semantics, relation) " +
+				"VALUES (" + quote(id) + "," + quote(cellid) + "," + quote(uri1) + "," + quote(uri2) + "," + quote(strength) + "," + quote(sem) + "," + quote(rel) + ")";
 			    st.executeUpdate(query);
 			}
+			if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
+			    // Store extensions
+			    for ( String[] ext : c.getExtensions() ) {
+				String turi = ext[0];
+				String tag = ext[1];
+				String val = ext[2];
+				query = "INSERT INTO extension " + 
+				    "(id, uri, tag, val) " +
+				    "VALUES (" + quote(cellid) + "," +  quote(turi) + "," +  quote(tag) + "," + quote(val) + ")";
+				st.executeUpdate(query);
+			    }
+			}
 		    }
+		    st.close();
+		} catch ( SQLException sex ) {
+		    logger.warn( "SQLError", sex );
+		    conn.rollback();
+		    throw new AlignmentException( "SQLException", sex );
+		} finally {
+		    conn.setAutoCommit( true );
 		}
-	    } catch ( SQLException sex ) {
-		logger.warn( "SQLError", sex );
-		conn.rollback();
-		throw sex;
-	    } finally {
-		conn.setAutoCommit( true );
+		break;
 	    }
-	    break;
+	} catch (SQLException sqlex) {
+	    throw new AlignmentException( "SQLRollBack issue", sqlex );
 	}
-	st.close();
 	// We reset cached date
 	resetCacheStamp(alignment);
     }
@@ -872,6 +907,27 @@ public class CacheImpl {
 	    st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255))");
 	    st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	    st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), prefix VARCHAR (50), edit BOOLEAN, version VARCHAR(5))");
+
+	    /*
+	    // EDOAL
+	    st.executeUpdate("CREATE TABLE instexpr (intid VARCHAR(50), id VARCHAR(250), var VARCHAR(250))");
+	    st.executeUpdate("CREATE TABLE instlist (joinid VARCHAR(50), intid VARCHAR(250))"); //intid in instexpr
+
+	    st.executeUpdate("CREATE TABLE classexpr (intid VARCHAR(50), type VARCHAR(10), joinid VARCHAR(250), var VARCHAR(250))");
+	    // type=uri: joinid = uri
+	    // type=id:  joinid = uri
+	    // type\in classconst: joinid = joinid in classlist
+	    // type\in classrest: joinid = id in classrest
+	    st.executeUpdate("CREATE TABLE classlist (joinid VARCHAR(50), intid VARCHAR(250))"); //intid in classexpr
+	    st.executeUpdate("CREATE TABLE classrest (joinid VARCHAR(50), arg1 VARCHAR(250), arg2 VARCHAR(250))");
+	    
+
+	    */
+
+
+
+
+
 	    st.close();
 
 	    // Register *DATABASE* Because of the values (that some do not like), this is a special statement
