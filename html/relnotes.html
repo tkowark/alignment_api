@@ -37,13 +37,13 @@ The development of 4 versions continues.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
+<li>Add a JSON interface (server)</li>
 <li>Provide several URIs for the same alignment (server)</li>
 <li>Implement database store for EDOAL (server)</li>
 <li>Add simple "harder" test generator (gen)</li>
 <li>Add simple "hidden" test generator (gen)</li>
 <li>Add a <tt>dependsOn</tt> alignment property (api)</li>
 <li>Consolidate alignment based on <tt>dependsOn</tt> (loop checking, cell ingestion) (impl)</li>
-<li>Add a JSON interface (server)</li>
 <li>Use the OWLReasoner interface and HermiT for adding inference to Ontowrap (ontowrap)</li>
 <li>Integrate tests from generator (test)</li>
 <li>Integrate some basic reasoning (impl).</li>
@@ -76,8 +76,13 @@ with a warning:
 <p><ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>,
   use <tt>remCell()</tt> instead (impl)</tt>
-<li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
-<li>Added a command-line utility for query mediation (cli)</li>
+<li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>,
+  from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
+<li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (server)</li>
+<li>Implemented <tt>translateMessage()</tt>
+  and <tt>rewriteQuery()</tt> in <tt>BasicAlignment</tt> (impl)</li>
+<li>Enabled query translation in interface (server)</li>
+<li>Added a command-line utility for query translation (cli)</li>
 <li>Added a guard forbiding to create a <tt>BasicCell</tt> with null objects (impl)</li>
 </ul></p>
 

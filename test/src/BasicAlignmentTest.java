@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.net.URI;
+import java.util.Properties;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicCell;
@@ -80,6 +81,23 @@ public class BasicAlignmentTest {
 	assertEquals( ((BasicAlignment)result).varianceConfidence(), .07111111111111101 );
 	result.cut( "hard", .5 );
 	assertEquals( result.nbCells(), 1, "Alignment should contain 1 cell" );
+    }
+
+    @Test(groups = { "full", "raw" })
+    public void queryRewritingTest() throws AlignmentException {
+	AlignmentParser aparser = new AlignmentParser( 0 );
+	assertNotNull( aparser, "AlignmentParser was null" );
+	BasicAlignment result = (BasicAlignment)aparser.parse( "file:examples/rdf/newsample.rdf" );
+	assertNotNull( result, "URIAlignment(result) was null" );
+	String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\nPREFIX onto1: <http://www.example.org/ontology1#> .\n\nSELECT *\nFROM XXX\nWHERE {\n    ?X rdf:type <http://www.example.org/ontology1#reviewedarticle>.\n    ?X rdf:type onto1:reviewedarticle .\n  }";
+	String transf = result.rewriteQuery( query );
+	assertEquals( transf.length(), 280 );
+	Properties prefix = new Properties();
+	prefix.setProperty( "onto2", "http://www.example.org/ontology2#" );
+	transf = result.rewriteQuery( query, prefix );
+	assertEquals( transf.length(), 274 );
+	transf = result.translateMessage( query );
+	assertEquals( transf.length(), 249 );
     }
 
     private static Cell cell1, cell2, cell3, cell4, cell5, cell6;

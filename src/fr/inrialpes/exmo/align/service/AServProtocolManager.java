@@ -425,15 +425,16 @@ public class AServProtocolManager implements Service {
 	Properties params = mess.getParameters();
 	// Retrieve the alignment
 	String id = params.getProperty("id");
-	Alignment al = null;
+	BasicAlignment al = null;
 	try {
-	    al = alignmentCache.getAlignment( id );
+	    // JE:This one is risky
+	    al = (BasicAlignment)alignmentCache.getAlignment( id );
 	} catch (Exception e) {
 	    return new UnknownAlignment(newId(),mess,serverId,mess.getSender(),id,(Properties)null);
 	}
 	// Translate the query
 	try {
-	    String translation = QueryMediator.rewriteSPARQLQuery( params.getProperty("query"), al );
+	    String translation = al.rewriteSPARQLQuery( params.getProperty("query") );
 	    return new TranslatedMessage(newId(),mess,serverId,mess.getSender(),translation,(Properties)null);
 	} catch (AlignmentException e) {
 	    return new ErrorMsg(newId(),mess,serverId,mess.getSender(),e.toString(),(Properties)null);

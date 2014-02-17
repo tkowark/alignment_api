@@ -42,13 +42,16 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
-import org.semanticweb.owl.align.Alignment;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import org.semanticweb.owl.align.AlignmentException;
-
-import fr.inrialpes.exmo.align.service.QueryMediator;
 
 /**
  * Transform a query according to an alignment
+ * TransformQuery alignmentURI -q query [-e]
+ * would be better with:
+ * TransformQuery [-a alignmentURI] [-e] [-q query] < query
+ * definitely...todo
  */
 
 public class TransformQuery extends CommonCLI {
@@ -57,9 +60,8 @@ public class TransformQuery extends CommonCLI {
     public TransformQuery() {
 	super();
 	options.addOption( "e", "echo", false, "Echo the input query" );
-	options.addOption( OptionBuilder.withLongOpt( "process" ).hasArg().withDescription( "Process the query against a particular CLASS" ).withArgName("CLASS").create( 'p' ) );
-	options.addOption( OptionBuilder.withLongOpt( "process" ).hasArg().withDescription( "get the query from the corresponding FILE" ).withArgName("FILE").create( 'q' ) );
-	//options.addOption( OptionBuilder.withLongOpt( "parser" ).hasArg().withDescription( "Use the given CLASS for parsing" ).withArgName("CLASS").create( 'p' ) );
+	//options.addOption( OptionBuilder.withLongOpt( "process" ).hasArg().withDescription( "Process the query against a particular CLASS" ).withArgName("CLASS").create( 'p' ) );
+	options.addOption( OptionBuilder.withLongOpt( "query" ).hasArg().withDescription( "get the query from the corresponding FILE" ).withArgName("FILE").create( 'q' ) );
     }
 
     public static void main(String[] args) {
@@ -68,11 +70,11 @@ public class TransformQuery extends CommonCLI {
     }
 
     public void run(String[] args) throws Exception {
-	Alignment al = null;
+	BasicAlignment al = null;
 	String alignmentURL = null;
 	String query = "";
 	String result = null;
-	String processorClass = null;
+	//String processorClass = null;
 	String queryFile = null;
 	PrintWriter writer = null;
 	boolean echo = false;
@@ -82,7 +84,7 @@ public class TransformQuery extends CommonCLI {
 	    if ( line == null ) return; // --help
 
 	    // Here deal with command specific arguments	    
-	    if ( line.hasOption( 'p' ) ) processorClass = line.getOptionValue( 'p' );
+	    //if ( line.hasOption( 'p' ) ) processorClass = line.getOptionValue( 'p' );
 	    if ( line.hasOption( 'q' ) ) queryFile = line.getOptionValue( 'q' );
 	    if ( line.hasOption( 'e' ) ) echo = true;
 	    String[] argList = line.getArgs();
@@ -115,10 +117,14 @@ public class TransformQuery extends CommonCLI {
 		//} finally {
 	    }
 
+	    // load the alignment
+	    AlignmentParser aparser = new AlignmentParser();
+	    al = (BasicAlignment)aparser.parse( alignmentURL );
+
 	    if ( echo ) System.out.println( query );
+
 	    // Create query processor
-	    QueryMediator qproc = new QueryMediator( alignmentURL );
-	    result = qproc.rewriteQuery( query, parameters );
+	    result = al.rewriteQuery( query, parameters );
 	    
 	    // Set output file
 	    OutputStream stream;

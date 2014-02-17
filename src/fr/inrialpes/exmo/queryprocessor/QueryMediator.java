@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2013
+ * Copyright (C) INRIA, 2006-2009, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,13 +25,9 @@
  *
  */
 
-package fr.inrialpes.exmo.align.service;
+package fr.inrialpes.exmo.queryprocessor;
 
-import fr.inrialpes.exmo.queryprocessor.QueryProcessor;
-import fr.inrialpes.exmo.queryprocessor.Result;
-import fr.inrialpes.exmo.queryprocessor.Type;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.AlignmentException;
@@ -39,7 +35,6 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 
 import org.xml.sax.SAXException;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -47,7 +42,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.util.Map;
 import java.io.IOException;
 
 /**
@@ -64,28 +58,32 @@ import java.io.IOException;
  */
 public class QueryMediator implements QueryProcessor {
     
-    private Alignment alignment;
+    private BasicAlignment alignment;
     private QueryProcessor processor;
     
     // May be usefull to prohibit this...
     //public QueryMediator( ) {
     //}
     
-    public QueryMediator( QueryProcessor proc, Alignment a ) {
+    public QueryMediator( QueryProcessor proc, Alignment a ) throws AlignmentException {
 	processor = proc;
-        alignment = a;
+	if ( a instanceof BasicAlignment ) {
+	    alignment = (BasicAlignment)a;
+	} else {
+	    throw new AlignmentException( "QueryMediator requires BasicAlignments (so far)" );
+	}
     }
     
     public QueryMediator( QueryProcessor proc, String alignmentURI ) throws SAXException,ParserConfigurationException,IOException {
 	processor = proc;
 	AlignmentParser aparser = new AlignmentParser();
-	try { alignment = aparser.parse( alignmentURI ); }
+	try { alignment = (BasicAlignment)aparser.parse( alignmentURI ); }
 	catch ( Exception ex ) {
 	    throw new ParserConfigurationException("Error on parsing");
 	}
     }
 
-    public QueryMediator( Alignment a ) {
+    public QueryMediator( Alignment a ) throws AlignmentException {
 	// For this to work we need to generate a processor
 	this( (QueryProcessor)null, a );
     }
@@ -105,7 +103,7 @@ public class QueryMediator implements QueryProcessor {
     // done silently. (same for the other).
     public Result query(String query, Type type) {
 	try {
-	    String newQuery = rewriteQuery( query );
+	    String newQuery = alignment.rewriteQuery( query );
 	    return processor.query( newQuery, type );
 	} catch (AlignmentException e) { return (Result)null; }
     }
@@ -115,7 +113,7 @@ public class QueryMediator implements QueryProcessor {
      */
     public Result query( String query ) {
 	try {
-	    String newQuery = rewriteQuery( query );
+	    String newQuery = alignment.rewriteQuery( query );
 	    return processor.query( newQuery );
 	} catch (AlignmentException e) { return (Result)null; }
     }
@@ -126,7 +124,7 @@ public class QueryMediator implements QueryProcessor {
      */
     public String queryWithStringResults(String query) {
 	try {
-	    String newQuery = rewriteQuery( query );
+	    String newQuery = alignment.rewriteQuery( query );
 	    return processor.queryWithStringResults( newQuery );
 	} catch (AlignmentException e) { return (String)null; }
     }
@@ -141,77 +139,5 @@ public class QueryMediator implements QueryProcessor {
     
     public void loadOntology(String uri){
 	processor.loadOntology( uri );
-    }
-    
-    /**
-     * @param aQuery -- query to be re-written
-     * @return -- rewritten query:
-     * - replaces all entity IRI by their counterpart in the ontology
-     *
-     * Caveats:
-     * - This does only work for alignments with =
-     * - This does not care for the *:x status of alignments
-     * - This does work from ontology1 to ontology2, not the otherway round
-     *    (use invert() in this case).
-     */    
-    public String rewriteQuery( String aQuery ) throws AlignmentException {
-	return rewriteSPARQLQuery( aQuery, alignment );
-    }
-
-    public String rewriteQuery( String aQuery, Properties prefix ) throws AlignmentException {
-	return rewriteSPARQLQuery( aQuery, alignment, prefix );
-    }
-
-    public static String rewriteSPARQLQuery( String aQuery, Alignment align ) throws AlignmentException {
-	return rewriteSPARQLQuery( aQuery, align, new Properties() );
-    }
-
-    public static String rewriteSPARQLQuery( String aQuery, Alignment align, Properties prefix ) throws AlignmentException {
-	// The first part expands the prefixes of the query
-	aQuery = aQuery.trim().replaceAll("PREFIX", "prefix");
-        String mainQuery = ""; 
-
-	// Collect and reduce prefix
-        if( aQuery.indexOf("prefix") != -1 )  {
-            String[] pref = aQuery.split("prefix");               
-            for(int j=0; j < pref.length; j++)  {
-                String str = "";
-                if(!pref[0].equals(""))   
-                    str = pref[0];
-                else
-                    str = pref[pref.length-1];
-                mainQuery = str.substring(str.indexOf('>')+1, str.length());
-            }
-
-            for( int i = 0; i < pref.length; i++ )  {   
-                String currPrefix = pref[i].trim();       
-                if(!currPrefix.equals("") && currPrefix.indexOf('<') != -1 && currPrefix.indexOf('>') != -1)  {
-                    int begin = currPrefix.indexOf('<');
-                    int end = currPrefix.indexOf('>');
-                    String ns = currPrefix.substring(0, currPrefix.indexOf(':')).trim();
-                    String iri = currPrefix.substring(begin+1, end).trim();
-		    prefix.setProperty( ns, iri );
-		    mainQuery = Pattern.compile(ns+":([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"$1>");
-                }
-            }
-        } else mainQuery = aQuery;
-
-	// The second part replaces the named items by their counterparts
-	for( Cell cell : align ){
-	    mainQuery = mainQuery.replaceAll(
-					     cell.getObject1AsURI(align).toString(),
-					     cell.getObject2AsURI(align).toString() );
-	}
-
-	// Post process prefix
-	for ( Map.Entry<Object,Object> m : prefix.entrySet() ) {
-	    if ( m.getKey() != null ) {
-		mainQuery = Pattern.compile("<"+m.getValue()+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( m.getKey()+":$1" );
-		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> .\n" + mainQuery;
-	    }
-	}
-
-        return mainQuery;
-    }
-    
+    }    
 }

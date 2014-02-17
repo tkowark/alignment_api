@@ -32,6 +32,8 @@ import java.util.Properties;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.regex.Pattern;
 import java.net.URI;
 
 import org.slf4j.Logger;
@@ -768,6 +770,88 @@ public class BasicAlignment implements Alignment {
      * Does nothing in BasicAlignment.
      */
     public void cleanUp() {}
+
+    /**
+     * @param aQuery -- query to be re-written
+     * @return -- rewritten query:
+     * - replaces all entity IRI by their counterpart in the ontology
+     *
+     * Caveats:
+     * - This does only work for alignments with =
+     * - This does not care for the *:x status of alignments
+     * - This does work from ontology1 to ontology2, not the otherway round
+     *    (use invert() in this case).
+     */    
+    public String rewriteQuery( String aQuery ) throws AlignmentException {
+	return rewriteSPARQLQuery( aQuery );
+    }
+
+    public String rewriteQuery( String aQuery, Properties prefix ) throws AlignmentException {
+	return rewriteSPARQLQuery( aQuery, prefix );
+    }
+
+    public String rewriteSPARQLQuery( String aQuery ) throws AlignmentException {
+	return rewriteSPARQLQuery( aQuery, new Properties() );
+    }
+
+    public String rewriteSPARQLQuery( String aQuery, Properties prefix ) throws AlignmentException {
+	// The first part expands the prefixes of the query
+	aQuery = aQuery.trim().replaceAll("PREFIX", "prefix");
+        String mainQuery = ""; 
+
+	// Collect and reduce prefix
+        if( aQuery.indexOf("prefix") != -1 )  {
+            String[] pref = aQuery.split("prefix");               
+            for(int j=0; j < pref.length; j++)  {
+                String str = "";
+                if(!pref[0].equals(""))   
+                    str = pref[0];
+                else
+                    str = pref[pref.length-1];
+                mainQuery = str.substring(str.indexOf('>')+1, str.length());
+            }
+
+            for( int i = 0; i < pref.length; i++ )  {   
+                String currPrefix = pref[i].trim();       
+                if(!currPrefix.equals("") && currPrefix.indexOf('<') != -1 && currPrefix.indexOf('>') != -1)  {
+                    int begin = currPrefix.indexOf('<');
+                    int end = currPrefix.indexOf('>');
+                    String ns = currPrefix.substring(0, currPrefix.indexOf(':')).trim();
+                    String iri = currPrefix.substring(begin+1, end).trim();
+		    prefix.setProperty( ns, iri );
+		    mainQuery = Pattern.compile(ns+":([A-Za-z0-9_-]+)").matcher(mainQuery).replaceAll("<"+iri+"$1>");
+                }
+            }
+        } else mainQuery = aQuery;
+
+	mainQuery = translateMessage( mainQuery );
+
+	// Post process prefix
+	for ( Map.Entry<Object,Object> m : prefix.entrySet() ) {
+	    if ( m.getKey() != null ) {
+		mainQuery = Pattern.compile("<"+m.getValue()+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( m.getKey()+":$1" );
+		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> .\n" + mainQuery;
+	    }
+	}
+
+        return mainQuery;
+    }
+
+    // I hope that this works with subclasses
+    public String translateMessage( String query ) {
+	String result = query;
+	try {
+	    // The second part replaces the named items by their counterparts
+	    for( Cell cell : this ){
+		result = result.replaceAll( cell.getObject1AsURI(this).toString(),
+					    cell.getObject2AsURI(this).toString() );
+	    }
+	} catch (AlignmentException alex) {
+	    logger.debug( "IGNORED AlignmentException {}", alex );
+	}
+	return result;
+    }
+
 }
 
 class MEnumeration<T> implements Enumeration<T> {
@@ -795,6 +879,7 @@ class MEnumeration<T> implements Enumeration<T> {
 	}
 	return val;
     }
+
 }
 
 class MIterator<T> implements Iterator<T> {

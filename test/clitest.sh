@@ -51,8 +51,8 @@ if [ -s  $RESDIR/proc-o.rdf ]; then diff $RESDIR/proc-o.rdf $RESDIR/proc-output.
 
 #-------------------
 echo "\t-a,--alignment <FILE>"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/sample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-a.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --alignment examples/rdf/sample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-align.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/newsample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-a.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --alignment examples/rdf/newsample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-align.rdf
 if [ -s  $RESDIR/proc-a.rdf ]; then diff $RESDIR/proc-a.rdf $RESDIR/proc-align.rdf; else echo error with PROC-ALIGN1; fi
 
 #-------------------
@@ -939,6 +939,74 @@ echo "\t(same as Procalign)"
 echo "\t-P,--params <FILE>"
 echo "\t(same as Procalign)"
 
+########################################################################
+# TransformQuery
+########################################################################
+
+echo "\t\t *** Testing TransformQuery ***"
+
+#-------------------
+echo "\t-z, -zzz"
+
+java -Dlog.level=INFO -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery -z &> $RESDIR/zerr.txt
+grep "Unrecognized option: -z" $RESDIR/zerr.txt > $RESDIR/err.txt
+if [ ! -s $RESDIR/err.txt ]; then echo error with TRANSQ-ERR1; fi
+java -Dlog.level=INFO -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery --zzz &> $RESDIR/zzzerr.txt
+grep "Unrecognized option: --zzz" $RESDIR/zzzerr.txt > $RESDIR/err.txt
+if [ ! -s $RESDIR/err.txt ]; then echo error with TRANSQ-ERR2; fi
+
+#-------------------
+echo "\t-h, --help"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery -h &> $RESDIR/queryt-h.txt
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery --help &> $RESDIR/queryt-help.txt
+if [ -s  $RESDIR/queryt-h.txt ]; then diff $RESDIR/queryt-h.txt $RESDIR/queryt-help.txt; else echo error with $RESDIR/queryt-h.txt; fi
+
+#-------------------
+echo "\tno-op"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery &> $RESDIR/queryt-noop.rdf
+if [ -s  $RESDIR/queryt-noop.xml ]; then echo error with TRANSQ-NOOP; fi
+
+#-------------------
+echo "\t-q,--query <FILE>"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf -q $CWD/examples/rdf/query.sparql > $RESDIR/queryt-q1.rdf
+if [ -s $RESDIR/queryt-q1.rdf ]; then diff $RESDIR/queryt-q1.rdf $RESDIR/queryt-noop.rdf > $RESDIR/diff-query1.txt; else echo error with TRANSQ-QUERY1; fi
+if [ ! -s $RESDIR/diff-query1.txt ]; then echo error with TRANSQ-QUERY2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf --query $CWD/examples/rdf/query.sparql > $RESDIR/queryt-q2.rdf
+diff $RESDIR/queryt-q1.rdf $RESDIR/queryt-q2.rdf
+
+#-------------------
+echo "\t-o <F>, --output <F>"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf -q $CWD/examples/rdf/query.sparql -o $RESDIR/queryt-o1.rdf
+if [ -s $RESDIR/queryt-o1.rdf ]; then diff $RESDIR/queryt-o1.rdf $RESDIR/queryt-noop.rdf > $RESDIR/diff-output1.txt; else echo error with TRANSQ-OUTPUT1; fi
+if [ ! -s $RESDIR/diff-output1.txt ]; then echo error with TRANSQ-OUTPUT2; fi
+diff $RESDIR/queryt-o1.rdf $RESDIR/queryt-q1.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf --query $CWD/examples/rdf/query.sparql --output $RESDIR/queryt-o2.rdf
+diff $RESDIR/queryt-o1.rdf $RESDIR/queryt-o2.rdf
+
+#-------------------
+echo "\t-e,--echo"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf -q $CWD/examples/rdf/query.sparql -e > $RESDIR/queryt-e1.rdf
+if [ -s $RESDIR/queryt-e1.rdf ]; then diff $RESDIR/queryt-q1.rdf $RESDIR/queryt-e1.rdf > $RESDIR/diff-echo1.txt; else echo error with TRANSQ-ECHO1; fi
+if [ ! -s $RESDIR/diff-echo1.txt ]; then echo error with TRANSQ-ECHO2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf --query $CWD/examples/rdf/query.sparql --echo > $RESDIR/queryt-e2.rdf
+diff $RESDIR/queryt-e1.rdf $RESDIR/queryt-e2.rdf
+
+#-------------------
+echo "\t-Dn=v (used for prefix)"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery file://$CWD/examples/rdf/newsample.rdf -q $CWD/examples/rdf/query.sparql -Donto2=http://www.example.org/ontology2# -o $RESDIR/queryt-d1.rdf
+if [ -s $RESDIR/queryt-d1.rdf ]; then diff $RESDIR/queryt-q1.rdf $RESDIR/queryt-d1.rdf > $RESDIR/diff-prefix1.txt; else echo error with TRANSQ-PREFIX1; fi
+if [ ! -s $RESDIR/diff-prefix1.txt ]; then echo error with TRANSQ-PREFIX2; fi
+
+#-------------------
+echo "\t-P,--params <FILE>"
+echo "<?xml version='1.0' encoding='utf-8' standalone='no'?>
+<\x21DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">
+<properties>
+<entry key=\"onto2\">http://www.example.org/ontology2#</entry>
+</properties>" > $RESDIR/params.xml
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery -P $RESDIR/params.xml file://$CWD/examples/rdf/newsample.rdf -q $CWD/examples/rdf/query.sparql -o $RESDIR/queryt-P1.rdf
+if [ -s $RESDIR/queryt-P1.rdf ]; then diff $RESDIR/queryt-P1.rdf $RESDIR/queryt-d1.rdf > $RESDIR/diff-prefix2.txt; else echo error with TRANSQ-PREFIX3; fi
+if [ -s $RESDIR/diff-prefix2.txt ]; then echo error with TRANSQ-PREFIX4; fi
 
 ########################################################################
 # AlignmentService
