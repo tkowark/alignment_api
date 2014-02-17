@@ -48,10 +48,11 @@ import org.semanticweb.owl.align.AlignmentException;
 
 /**
  * Transform a query according to an alignment
- * TransformQuery alignmentURI -q query [-e]
- * would be better with:
  * TransformQuery [-a alignmentURI] [-e] [-q query] < query
- * definitely...todo
+ * Query can be taken from (priority):
+ * - parameter
+ * - a queryfile (-q)
+ * - standard input
  */
 
 public class TransformQuery extends CommonCLI {
@@ -62,6 +63,7 @@ public class TransformQuery extends CommonCLI {
 	options.addOption( "e", "echo", false, "Echo the input query" );
 	//options.addOption( OptionBuilder.withLongOpt( "process" ).hasArg().withDescription( "Process the query against a particular CLASS" ).withArgName("CLASS").create( 'p' ) );
 	options.addOption( OptionBuilder.withLongOpt( "query" ).hasArg().withDescription( "get the query from the corresponding FILE" ).withArgName("FILE").create( 'q' ) );
+	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "use the alignment identified by URI" ).withArgName("URI").create( 'a' ) );
     }
 
     public static void main(String[] args) {
@@ -72,7 +74,7 @@ public class TransformQuery extends CommonCLI {
     public void run(String[] args) throws Exception {
 	BasicAlignment al = null;
 	String alignmentURL = null;
-	String query = "";
+	String query = null;
 	String result = null;
 	//String processorClass = null;
 	String queryFile = null;
@@ -86,14 +88,11 @@ public class TransformQuery extends CommonCLI {
 	    // Here deal with command specific arguments	    
 	    //if ( line.hasOption( 'p' ) ) processorClass = line.getOptionValue( 'p' );
 	    if ( line.hasOption( 'q' ) ) queryFile = line.getOptionValue( 'q' );
+	    if ( line.hasOption( 'a' ) ) alignmentURL = line.getOptionValue( 'a' );
 	    if ( line.hasOption( 'e' ) ) echo = true;
 	    String[] argList = line.getArgs();
 	    if ( argList.length > 0 ) {
-		alignmentURL = argList[0];
-	    } else {
-		logger.error("Require the alignement URL");
-		usage();
-		System.exit(-1);
+		query = argList[0];
 	    }
 	} catch( ParseException exp ) {
 	    logger.error( exp.getMessage() );
@@ -102,29 +101,34 @@ public class TransformQuery extends CommonCLI {
 	}
 
 	try {
-
-	    try {
-		InputStream in = new FileInputStream( queryFile );
-		BufferedReader reader =
-		    new BufferedReader(new InputStreamReader(in));
-		String line = null;
-		while ((line = reader.readLine()) != null) {
-		    query += line + "\n";
+	    if ( query == null ) {
+		query = "";
+		try {
+		    InputStream in = (queryFile!=null)?new FileInputStream( queryFile ):System.in;
+		    BufferedReader reader = new BufferedReader( new InputStreamReader(in) );
+		    String line = null;
+		    while ((line = reader.readLine()) != null) {
+			query += line + "\n";
+		    }
+		} catch (IOException x) {
+		    System.err.println(x);
+		    System.exit( -1 );
+		    //} finally {
 		}
-	    } catch (IOException x) {
-		System.err.println(x);
-		System.exit( -1 );
-		//} finally {
 	    }
-
-	    // load the alignment
-	    AlignmentParser aparser = new AlignmentParser();
-	    al = (BasicAlignment)aparser.parse( alignmentURL );
 
 	    if ( echo ) System.out.println( query );
 
-	    // Create query processor
-	    result = al.rewriteQuery( query, parameters );
+	    // load the alignment
+	    if ( alignmentURL != null ) {
+		AlignmentParser aparser = new AlignmentParser();
+		al = (BasicAlignment)aparser.parse( alignmentURL );
+
+		// Create query processor
+		result = al.rewriteQuery( query, parameters );
+	    } else {
+		result = query;
+	    }
 	    
 	    // Set output file
 	    OutputStream stream;
@@ -143,9 +147,8 @@ public class TransformQuery extends CommonCLI {
 	    } finally {
 		writer.flush();
 		writer.close();
-	    }	    
-	    
-	} catch (Exception ex) {
+	    }}
+	    catch (Exception ex) {
 	    ex.printStackTrace();
 	    logger.error( ex.getMessage() );
 	    System.exit(-1);
@@ -153,6 +156,6 @@ public class TransformQuery extends CommonCLI {
     }
 
     public void usage() {
-	usage( "java "+this.getClass().getName()+" [options] alignmentURI query\nTransforms the given query and transforms it according to the alignment" );
+	usage( "java "+this.getClass().getName()+" [options] QUERY\nTransforms the given QUERY according to an alignment" );
     }
 }
