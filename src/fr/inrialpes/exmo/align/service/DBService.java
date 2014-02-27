@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
+ * Copyright (C) INRIA, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,7 +21,6 @@
 
 package fr.inrialpes.exmo.align.service;
 
-//import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 
