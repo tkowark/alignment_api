@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -106,16 +106,19 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	    writer.print("<?xml version='1.0' encoding='utf-8");
     	    writer.print("' standalone='no'?>"+NL+NL);
     	}
-    	indentedOutputln("<SILK>");
+    	indentedOutputln("<Silk>");
 	increaseIndent();
     	indentedOutputln("<Prefixes>");
 	increaseIndent();
     	indentedOutputln("<Prefix id=\"rdf\" namespace=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" />");
     	indentedOutputln("<Prefix id=\"rdfs\" namespace=\"http://www.w3.org/2000/01/rdf-schema#\" />");
     	indentedOutputln("<Prefix id=\"owl\" namespace=\"http://www.w3.org/2002/07/owl#\" />");
-    	for ( Enumeration e = prefixList.keys() ; e.hasMoreElements(); ) {
-		    String k = (String)e.nextElement();
-		    indentedOutputln("<Prefix id=\""+k+" namespace=\""+prefixList.get(k)+"\" />");
+	// JE2014: BUG
+	// These prefix are usually added by the GraphPatternGenerator after the patterns are generated...
+	// So, now they are empty...
+    	for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
+	    String k = e.nextElement();
+	    indentedOutputln("<Prefix id=\""+k+" namespace=\""+prefixList.get(k)+"\" />");
 	}
 	decreaseIndent();
     	indentedOutputln("</Prefixes>"+NL);
@@ -137,10 +140,11 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	indentedOutputln("<Interlinks>");
 	increaseIndent();
     	for( Cell c : align ){ c.accept( this ); };
+	// JE2014: ONLY NOW PREFIX SHOULD BE OK!
     	decreaseIndent();
     	indentedOutputln("</Interlinks>");
     	decreaseIndent();
-    	writer.print("</SILK>"+NL);
+    	writer.print("</Silk>"+NL);
     }
 
     private void printBasicOntology ( URI u, URI f, String function ) {
@@ -178,7 +182,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		indentedOutputln("<Interlink id=\""+id+"\">");
 		increaseIndent();
 		indentedOutputln("<LinkType>owl:sameAs</LinkType>");
-		indentedOutputln("<SourceDataSet dataSource=\"source\"" + " var=\"s\">");
+		indentedOutputln("<SourceDataset dataSource=\"source\"" + " var=\"s\">");
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
 		increaseIndent();
@@ -188,9 +192,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
-		indentedOutputln("</SourceDataSet>");
+		indentedOutputln("</SourceDataset>");
 
-		indentedOutputln("<TargetDataSet dataSource=\"target\"" + " var=\"x\">");
+		indentedOutputln("<TargetDataset dataSource=\"target\"" + " var=\"x\">");
 		increaseIndent();
 		indentedOutputln("<RestrictTo>");
 		increaseIndent();
@@ -200,7 +204,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 		decreaseIndent();
 		indentedOutputln("</RestrictTo>");
 		decreaseIndent();
-		indentedOutputln("</TargetDataSet>");
+		indentedOutputln("</TargetDataset>");
 
 		// This should certainly be specified in the EDOAL
 		indentedOutputln("<LinkageRule>");

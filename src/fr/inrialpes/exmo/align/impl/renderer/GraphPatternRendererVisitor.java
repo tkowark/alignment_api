@@ -99,15 +99,20 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private static String obj = "";
     private String strBGP = "";
     private String strBGP_Weaken = "";
-    protected List<String> listBGP = new ArrayList<String>();
-    private Set<String> subjectsRestriction = new HashSet<String>();
-    private Set<String> objectsRestriction = new HashSet<String>();
-    protected Hashtable<String,String> prefixList = new Hashtable<String,String>();
+    protected List<String> listBGP = null;
+    private Set<String> subjectsRestriction = null;;
+    private Set<String> objectsRestriction = null;
+    protected Hashtable<String,String> prefixList = null;
     
     private static int count = 1;
 	    
     public GraphPatternRendererVisitor( PrintWriter writer ){
-		super( writer );
+	super( writer );
+	listBGP = new ArrayList<String>();
+	subjectsRestriction = new HashSet<String>();
+	objectsRestriction = new HashSet<String>();
+	prefixList = new Hashtable<String,String>();
+	prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
     }
 
     public static void resetVariablesName( String s, String o ) {
@@ -119,10 +124,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public void resetVariables( String s, String o ) {
     	resetVariablesName(s, o);
     	strBGP = "";
-		strBGP_Weaken = "";
-		listBGP.clear();
-		objectsRestriction.clear();
-		flagRestriction = 0;
+	strBGP_Weaken = "";
+	listBGP.clear();
+	objectsRestriction.clear();
+	flagRestriction = 0;
     }
     
     public String getGP(){
@@ -172,32 +177,29 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
 
     public void visit( final ClassId e ) throws AlignmentException {
-    	if ( e.getURI() != null ) {
-    		String prefix = getPrefixDomain(e.getURI());
-    		String tag = getPrefixName(e.getURI());
-    		String shortCut;
-    		prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
-    		if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
-    			shortCut = getNamespace();
-    			prefixList.put( prefix, shortCut );
-    		}
-    		else {
-    			shortCut = prefixList.get( prefix );
-    		}
-
-			if ( !subjectsRestriction.isEmpty() ) {
-				Iterator<String> listSub = subjectsRestriction.iterator();
-				while ( listSub.hasNext() ) {
-					String str = listSub.next();
-					strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
-					strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-				}
-				subjectsRestriction.clear();
-			}
-			else {
-				strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-				strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-			}
+	URI u = e.getURI();
+    	if ( u != null ) {
+	    String prefix = getPrefixDomain( u );
+	    String tag = getPrefixName( u );
+	    String shortCut;
+	    if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
+		shortCut = getNamespace();
+		prefixList.put( prefix, shortCut );
+	    } else {
+		shortCut = prefixList.get( prefix );
+	    }
+	    if ( !subjectsRestriction.isEmpty() ) {
+		Iterator<String> listSub = subjectsRestriction.iterator();
+		while ( listSub.hasNext() ) {
+		    String str = listSub.next();
+		    strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
+		    strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+		}
+		subjectsRestriction.clear();
+	    } else {
+		strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+		strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+	    }
     	}
     }
 
