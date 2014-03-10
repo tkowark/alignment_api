@@ -121,6 +121,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	MIME_RDFXML = "application/rdf+xml",
 	MIME_DEFAULT_BINARY = "application/octet-stream";
 
+    private String returnType = MIME_HTML;
+
     public static final int MAX_FILE_SIZE = 10000;
 
     public static final String HEADER = "<style type=\"text/css\">body { font-family: sans-serif } button {background-color: #DDEEFF; margin-left: 1%; border: #CCC 1px solid;}</style>";
@@ -321,6 +323,28 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    start = uri.length();
 	}
 
+	// Content negotiation first
+	String accept = header.getProperty( "Accept" );
+	returnType = MIME_HTML;
+	if ( accept == null ) accept = header.getProperty( "accept" );
+	//logger.trace( "Accept header: {}", accept );
+	if ( accept != null && !accept.equals("") ) {
+	    int indexRXML = accept.indexOf( MIME_RDFXML );
+	    if ( indexRXML == -1 ) indexRXML = accept.indexOf( MIME_XML );
+	    int indexJSON = accept.indexOf( MIME_JSON );
+	    if ( indexRXML != -1 ) {
+		if ( indexJSON > indexRXML || indexJSON == -1 ) {
+		    returnType = MIME_RDFXML;
+		} else {
+		    returnType = MIME_JSON;
+		}
+	    } else if ( indexJSON != -1 ) {
+		returnType = MIME_JSON;
+	    }
+	}
+	//logger.trace( "Return MIME Type: {}", returnType );
+
+	// Serve this content
 	if ( oper.equals( "aserv" ) ){ // Classical web service SOAP/HTTP
 	    if ( wsmanager != null ) {
 		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
@@ -332,40 +356,37 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
 	    return adminAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "alid" ) ){ // Asks for an alignment by URI
-	    // depending on the header
-	    String accept = header.getProperty( "Accept" );
-	    if ( accept == null ) accept = header.getProperty( "accept" );
-	    //logger.trace( "Accept header: {}", accept );
-	    if ( accept != null && !accept.contains("html") ) { // Should I check for the exact MIME_TYPE?
-		if ( accept.contains( "rdf+xml" ) || accept.contains( "xml" ) ) {
-		    return returnAlignment( uri, MIME_RDFXML, "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-		} else if ( accept.contains( "json" ) ) {
-		    return returnAlignment( uri, MIME_JSON, "fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" );
-		}
+	    if ( returnType == MIME_JSON ) { // YES string compared by ==.
+		return returnAlignment( uri, MIME_JSON, "fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" );
+	    } else if ( returnType == MIME_RDFXML ) {
+		return returnAlignment( uri, MIME_RDFXML, "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+	    } else {
+		return returnAlignment( uri, MIME_HTML, "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
 	    }
-	    return returnAlignment( uri, MIME_HTML, "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
 	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
 	    return htmlAnswer( uri, uri.substring(start), header, params );
 	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
 	    params.setProperty( "restful", "true" );
-	    //The return format is XML by default 
-	    if ( params.getProperty("return") == null || (params.getProperty("return")).equals("XML") ) 
-	    	 params.setProperty( "renderer", "XML" );
-	    else 
-	    	 params.setProperty( "renderer", "HTML" );
-
+	    params.setProperty( "returnType", returnType );
 	    if ( wsmanager != null ) {
-		if( (params.getProperty("renderer")).equals("HTML") )
-		    return htmlAnswer( uri, uri.substring(start), header, params );
-		else {
+		if ( returnType == MIME_RDFXML ) {
+		    params.setProperty( "renderer", "XML" );
 		    return new Response( HTTP_OK, MIME_XML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		} else if ( returnType == MIME_JSON ) {
+		    params.setProperty( "renderer", "JSON" );
+		    return new Response( HTTP_OK, MIME_JSON, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
+		} else { // HTML still default!
+		    params.setProperty( "renderer", "HTML" );
+		    return htmlAnswer( uri, uri.substring(start), header, params );
 		}
 	    } else {
 		//Message err = new ErrorMsg(int surr, Message rep, String from, String to, String cont, params );
-		if( (params.getProperty("renderer")).equals("HTML") ) {
-		    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
+		if ( returnType == MIME_JSON ) {
+		    return new Response( HTTP_OK, MIME_JSON, "{ \"type\" : \"SystemErrorMsg\",\n  \"content\" : \"No service launched\"\n}" );
+		} else if ( returnType == MIME_RDFXML ) {
+		    return new Response( HTTP_OK, MIME_RDFXML, "<SystemErrorMsg>No service launched</SystemErrorMsg>" );
 		} else {
-		    return new Response( HTTP_OK, MIME_XML, "<SystemErrorMsg>No service launched</SystemErrorMsg>" );
+		    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
 		}
 	    }
 	} else if ( oper.equals( "wsdl" ) ){
@@ -379,7 +400,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     protected String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"html/\">Access</a></center>"
-	    + "(C) INRIA, 2006-2013<br />"
+	    + "(C) INRIA, 2006-2014<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
 	    + "</center>";
     }
@@ -895,8 +916,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     }	 
 
     private String testErrorMessages( Message answer, Properties param ) {
-	if ( param.getProperty("restful") != null ) {
+	if ( returnType == MIME_RDFXML ) {
 	    return answer.RESTString();
+	} else if ( returnType == MIME_JSON ) {
+	    return answer.JSONString();
 	} else {
 	    return "<h1>Alignment error</h1>"+answer.HTMLString();
 	}
@@ -904,19 +927,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private String displayAnswer( Message answer, Properties param ) {
 	String result = null;
-	if( param.getProperty("restful") != null ) {
-	    if( param.getProperty("return").equals("HTML") ) {
+	if ( returnType == MIME_RDFXML ) {
+	    if( param.getProperty("return").equals("HTML") ) { // RESTFUL but in HTML ??
 	    	result = answer.HTMLRESTString();
-	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
-		     result += "<table><tr>";
-result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
-result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
-	             result += "</tr></table>";
+	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ) {
+		    result += "<table><tr>";
+		    result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
+		    result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
+		    result += "</tr></table>";
 	    	} else if( answer instanceof AlignmentIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) {
-			   result = answer.HTMLRESTString();
-		  }
-	    } else 
+		    result = answer.HTMLRESTString();
+		}
+	    } else {
 		result = answer.RESTString();
+	    }
+	} else if ( returnType == MIME_JSON ) {
+	    result = answer.JSONString();
 	} else {
 	    result = answer.HTMLString();
 	    // Improved return
