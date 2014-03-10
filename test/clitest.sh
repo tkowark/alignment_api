@@ -19,6 +19,8 @@ mkdir -p $RESDIR
 # GOTO
 if false; then
 echo this is for avoiding some parts
+#GOTO
+fi
 
 echo "\t\tTHE -z OPTIONS RELY ON LOGBACK BEING PROPERLY DEFINED"
 echo "\t\t *** Testing Procalign ***"
@@ -937,8 +939,6 @@ echo "\t(same as Procalign)"
 echo "\t-P,--params <FILE>"
 echo "\t(same as Procalign)"
 
-#GOTO
-fi
 
 ########################################################################
 # TransformQuery
@@ -963,9 +963,22 @@ java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery --help &> $RESDIR/queryt
 if [ -s  $RESDIR/queryt-h.txt ]; then diff $RESDIR/queryt-h.txt $RESDIR/queryt-help.txt; else echo error with $RESDIR/queryt-h.txt; fi
 
 #-------------------
-echo "\tno-op (not testable because wait for input)"
-#java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery &> $RESDIR/queryt-noop.rdf
-#if [ ! -s  $RESDIR/queryt-noop.xml ]; then echo error with TRANSQ-NOOP; fi
+echo "\tno-op"
+java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery &> $RESDIR/queryt-noop.rdf <<EOF
+PREFIX dt:   <http://example.org/datatype#> .
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+PREFIX xmls:  <http://www.w3.org/2001/XMLSchema#> .
+PREFIX foaf:  <http://xmlns.com/foaf/0.1/> .
+PREFIX onto1: <http://www.example.org/ontology1#> .
+
+SELECT *
+FROM XXX
+WHERE {
+    ?X rdf:type <http://www.example.org/ontology1#reviewedarticle>.
+    ?X rdf:type onto1:reviewedarticle .
+  }
+EOF
+if [ ! -s  $RESDIR/queryt-noop.rdf ]; then echo error with TRANSQ-NOOP; fi
 
 #-------------------
 echo "\t<QUERY>"

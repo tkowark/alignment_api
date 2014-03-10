@@ -85,7 +85,7 @@ public class EvalAlign extends CommonCLI {
 
     public EvalAlign() {
 	super();
-	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given CLASS for evaluator" ).withArgName("CLASS").create( 'i' ) );
+	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withType(Class.class).withDescription( "Use the given CLASS for evaluator" ).withArgName("CLASS").create( 'i' ) );
     }
 
     public static void main(String[] args) {
@@ -97,9 +97,9 @@ public class EvalAlign extends CommonCLI {
 	Evaluator eval = null;
 	String alignName1 = null;
 	String alignName2 = null;
-	String classname = null;
 	PrintWriter writer = null;
 	CommandLine line = null;
+	Class<?> evaluatorClass = null;
 
 	try { 
 	    line = parseCommandLine( args );
@@ -109,7 +109,7 @@ public class EvalAlign extends CommonCLI {
 	    usage();
 	    System.exit(-1);
 	}
-	if ( line.hasOption( 'i' ) ) classname = line.getOptionValue( 'i' );
+	if ( line.hasOption( 'i' ) ) evaluatorClass = (Class<?>) line.getOptionObject( 'i' );
 	String[] argList = line.getArgs();
 	if ( argList.length > 1 ) {
 	    alignName1 = argList[0];
@@ -138,16 +138,13 @@ public class EvalAlign extends CommonCLI {
 	boolean totry = true; // 2013: This should not be necessary anymore
 	while ( totry ) {
 	    totry = false;
-	    if ( classname != null ) {
+	    if ( evaluatorClass != null ) {
 		// Create evaluator object
 		try {
 		    Class[] cparams = { Alignment.class, Alignment.class };
-		    Class<?> evaluatorClass = Class.forName(classname);
 		    Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
 		    Object [] mparams = {(Object)align1, (Object)align2};
 		    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
-		} catch (ClassNotFoundException ex) {
-		    logger.debug( "IGNORED Exception", ex );
 		} catch (InstantiationException ex) {
 		    logger.debug( "IGNORED Exception", ex );
 		} catch (InvocationTargetException ex) {
@@ -155,7 +152,7 @@ public class EvalAlign extends CommonCLI {
 		} catch (IllegalAccessException ex) {
 		    logger.debug( "IGNORED Exception", ex );
 		} catch (NoSuchMethodException ex) {
-		    logger.error( "No such method: {}", classname );
+		    logger.error( "No such method: {}", evaluatorClass );
 		    usage();
 		    throw( ex );
 		}
@@ -182,10 +179,8 @@ public class EvalAlign extends CommonCLI {
 	try {
 	    OutputStream stream;
 	    if ( outputfilename == null ) {
-		//writer = (PrintStream) System.out;
 		stream = System.out;
 	    } else {
-		//writer = new PrintStream(new FileOutputStream(filename));
 		stream = new FileOutputStream( outputfilename );
 	    }
 	    writer = new PrintWriter (
