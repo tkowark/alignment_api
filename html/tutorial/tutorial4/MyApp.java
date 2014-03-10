@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010, 2013
+ * Copyright (C) INRIA, 2009-2010, 2013-2014
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -250,7 +250,7 @@ public class MyApp {
 	try {
 	    in = new FileInputStream( merged );
 	    //OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
-	    Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
+	    Model model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
 	    model.read( in, "file:"+merged.getPath() );
 	    in.close();
 	
@@ -285,7 +285,7 @@ public class MyApp {
 	} finally {
 	    // Important - free up resources used running the query
 	    if ( qe != null ) qe.close();
-	}
+	    }
 
 	// (Sol2) Use the OWLReasoner to answer queries (at the ontology level)
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
