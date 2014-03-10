@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -80,8 +80,8 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 
 /**
- * Renders an alignment in JSON (and practically in JSON-LD)
- * http://json-ld.org/spec/latest/json-ld-syntax/
+ * Renders an alignment in JSON (and in fact in JSON-LD)
+ * IETF RFC 7159 + http://www.w3.org/TR/json-ld/
  *
  * application/json <========= media type available
  *
@@ -127,6 +127,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
 	for ( String[] ext : align.getExtensions() ) {
 	    String prefix = ext[0];
 	    String name = ext[1];
+	    if ( ! ( prefix.endsWith("#") || prefix.endsWith("/") ) ) prefix += "#";
 	    String tag = nslist.get(prefix);
 	    if ( tag == null ) {
 		tag = "ns"+gen++;
