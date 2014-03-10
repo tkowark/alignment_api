@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2011
+ * Copyright (C) INRIA, 2008, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -23,7 +23,7 @@ package fr.inrialpes.exmo.align.service.msg;
 import java.util.Properties;
 
 /**
- * Contains the messages that should be sent according to the protocol
+ * The id of the result of an evaluation
  */
 
 public class EvaluationId extends Success {
@@ -44,6 +44,9 @@ public class EvaluationId extends Success {
 
     public String RESTString(){
 	return "<alid>"+content+"</alid>";	
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"EvaluationId\",\n  \"id\" : \""+content+"\"}";	
     }
 
 }

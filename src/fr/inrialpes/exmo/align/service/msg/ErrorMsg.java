@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2011
+ * Copyright (C) INRIA, 2006-2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -55,5 +55,8 @@ public class ErrorMsg extends Message {
 	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
 	res += "      "+RESTString()+"\n"+"    </ErrorMsg>\n";
 	return res;
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"ErrorMsg\",\n  \"content\" : \""+content+"\"\n}";	
     }
 }

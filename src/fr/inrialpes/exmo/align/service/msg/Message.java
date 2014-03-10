@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2007, 2009, 2011
+ * Copyright (C) INRIA, 2006-2007, 2009, 2011-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -52,12 +52,19 @@ public class Message {
 	return "<ErrorMsg/>";
     }
 
+    /**
+     * For HTML interface calling the REST interface
+     */
     public String HTMLRESTString(){
 	return "<ErrorMsg/>";
     }
 
     public String SOAPString(){
 	return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content>";	
+    }
+
+    public String JSONString(){
+	return "{ \"id\" : \""+surrogate+"\",\n  \"sender\" : \""+sender+"\",\n  \"receiver\" : \""+receiver+"\",\n  \"in-reply-to\" : \"" + inReplyTo+ "\",\n  \"content\" : \"" + content + "\"\n}";	
     }
 
     public int getId () {

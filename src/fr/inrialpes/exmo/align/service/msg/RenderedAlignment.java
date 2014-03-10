@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006, 2008-2009, 2011
+ * Copyright (C) INRIA, 2006, 2008-2009, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -31,7 +31,12 @@ public class RenderedAlignment extends Success {
     public RenderedAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+    // THIS CONTENT SHOULD BE ESCAPED: XMLSTRINGENCODDE?
     public String RESTString(){
 	return "<alignment>"+content+"</alignment>";	
+    }
+    // THIS CONTENT SHOULD BE ESCAPED: STRINGENCODDE?
+    public String JSONString(){
+	return "{ \"type\" : \"RenderedAlignment\",\n  \"content\" : \""+content+"\"\n}";	
     }
 }

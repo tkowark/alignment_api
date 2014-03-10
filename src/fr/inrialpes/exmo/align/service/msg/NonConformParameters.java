@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011
+ * Copyright (C) INRIA, 2006-2009, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -37,6 +37,9 @@ public class NonConformParameters extends ErrorMsg {
     }
     public String RESTString(){
 	return "<NonConformParameters>" + content + "</NonConformParameters>";
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"NonConformParameters\",\n  \"content\" : \""+content+"\"\n}";	
     }
     
 }

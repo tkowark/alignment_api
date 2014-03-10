@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011, 2013
+ * Copyright (C) INRIA, 2006-2009, 2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -53,6 +53,9 @@ public class AlignmentId extends Success {
     }
     public String RESTString(){
 	return "<alid>"+getContent()+"</alid>";	
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"AlignmentId\",\n  \"content\" : \""+content+"\"\n}";	
     }
 
 }

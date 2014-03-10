@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011
+ * Copyright (C) INRIA, 2006-2009, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,5 +35,8 @@ public class UnknownAlignment extends ErrorMsg {
     }
     public String HTMLString(){
 	return "Unknown alignment: "+content;
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"UnknownAlignment\",\n  \"content\" : \""+content+"\"\n}";	
     }
 }

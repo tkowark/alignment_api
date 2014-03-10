@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006, 2008-2009, 2011
+ * Copyright (C) INRIA, 2006, 2008-2009, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -39,6 +39,13 @@ public class Success extends Message {
 	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
 	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
 	res += "      "+RESTString()+"\n";
+	return res;
+    }
+    public String JSONString(){
+	String res = "{ \"type\" : \"Success\",\n";
+	res += "  \"id\" : \""+surrogate+"\",\n";
+	if ( inReplyTo != null ) res += "  \"in-reply-to\" : \""+inReplyTo+"\",\n";
+	res += "  \"content\" : \""+content+"\"\n}\n";
 	return res;
     }
 }

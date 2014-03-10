@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011
+ * Copyright (C) INRIA, 2006-2009, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -35,5 +35,8 @@ public class RunTimeError extends ErrorMsg {
     }
     public String HTMLString(){
 	return "Cannot process: "+content;
+    }
+    public String JSONString(){
+	return "{ \"type\" : \"RunTimeError\",\n  \"content\" : \""+content+"\"\n}";	
     }
 }

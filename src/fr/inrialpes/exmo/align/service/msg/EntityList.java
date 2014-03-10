@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012
+ * Copyright (C) INRIA, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -61,6 +61,17 @@ public class EntityList extends Success {
 	    }
 	}	
 	msg += "      </entityList>";
+	return msg;
+    }
+    public String JSONString(){
+	String msg = "{ \"type\" : \"EntityList\",\n  \"entities\" : \" [\n";
+	String id[] = content.split(" ");
+	for ( int i = id.length-1; i >= 0; i-- ){
+	    if ( id[i].trim() != "" ) {
+		msg += "    \""+id[i].trim()+"\",\n";
+	    }
+	}	
+	msg += "]\n}";
 	return msg;
     }
 }

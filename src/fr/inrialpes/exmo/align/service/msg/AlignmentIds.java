@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2009, 2011, 2013
+ * Copyright (C) INRIA, 2006-2009, 2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -98,6 +98,19 @@ public class AlignmentIds extends Success {
 	    }
 	}	
 	msg += "      </alignmentList>";
+	return msg;
+    }
+
+    public String JSONString(){
+	String msg = "{ \"type\" : \"AlignmentIds\",\n";
+	msg += "  \"alignmentIds\" : [";
+	String id[] = content.split(" ");
+	for ( int i = id.length-1; i >= 0; i-- ){
+	    if ( id[i].trim() != "" ) {
+		msg += "    \""+id[i].trim()+"\",\n";
+	    }
+	}	
+	msg += "  ]\n}\n";
 	return msg;
     }
 }

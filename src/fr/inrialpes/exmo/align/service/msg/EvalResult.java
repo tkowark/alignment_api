@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2011
+ * Copyright (C) INRIA, 2006-2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -50,6 +50,14 @@ public class EvalResult extends Success {
 	    results += "<"+key+">"+getParameters().getProperty( key )+"</"+key+">";
 	}
 	results += "</EvaluationResults>";
+	return results;	
+    }
+    public String JSONString(){
+	String results = "{ \"type\" : \"EvaluationResult\"";
+	for ( String key : getParameters().stringPropertyNames() ) {
+	    results += ",\n  \""+key+"\" : \""+getParameters().getProperty( key )+"\"";
+	}
+	results += "\n}";
 	return results;	
     }
 
