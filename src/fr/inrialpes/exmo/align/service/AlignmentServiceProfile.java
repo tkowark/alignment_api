@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006
+ * Copyright (C) INRIA Rhône-Alpes, 2006, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,16 @@ public interface AlignmentServiceProfile {
      * required registery
      */
     public void init( Properties p, AServProtocolManager m ) throws AServException;
+
+    /**
+     * Tells if it accept requests with this prefix
+     */
+    public boolean accept( String prefix );
+
+    /**
+     * Process a particular request
+     */
+    public String process( String uri, String prefix, String perf, Properties header, Properties params );
 
     /**
      * Shutdown the Service and undeclare it from any registery

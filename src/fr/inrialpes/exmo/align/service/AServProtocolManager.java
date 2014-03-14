@@ -482,12 +482,10 @@ public class AServProtocolManager implements Service {
 	    //logger.trace( "Resulting rendering : {}", result.toString() );
 	    logger.error( "Cannot render alignment", e );
 	    return new Message(newId(),mess,serverId,mess.getSender(),"Failed to render alignment",(Properties)null);
-
 	} finally {
 	    writer.flush();
 	    writer.close();
 	}
-
 	return new RenderedAlignment(newId(),mess,serverId,mess.getSender(),result.toString(),(Properties)null);
     }
 

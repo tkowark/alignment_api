@@ -35,6 +35,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import java.util.Hashtable;
+import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintStream;
@@ -87,8 +88,9 @@ public class AlignmentService extends CommonCLI {
     private String filename = null;
     private String outfile = null;
     private String paramfile = null;
-    private Hashtable<String,AlignmentServiceProfile> services = null;
+    private Vector<AlignmentServiceProfile> services = null;
     private Hashtable<String,Directory> directories = null;
+    private HTTPTransport transport = null;
 
     private AServProtocolManager manager;
     private DBService connection;
@@ -124,7 +126,7 @@ public class AlignmentService extends CommonCLI {
     }
     
     public void run(String[] args) throws Exception {
-	services = new Hashtable<String,AlignmentServiceProfile>();
+	services = new Vector<AlignmentServiceProfile>();
 	directories = new Hashtable<String,Directory>();
 
 	// Read parameters
@@ -173,11 +175,11 @@ public class AlignmentService extends CommonCLI {
 	logger.debug("Manager created");
 
 	// Launch services
-	for ( AlignmentServiceProfile serv : services.values() ) {
+	for ( AlignmentServiceProfile serv : services ) {
 	    try {
 		serv.init( parameters, manager );
 	    } catch ( AServException ex ) { // This should rather be the job of the caller
-		logger.warn( "Cannot start {} server on {}:{}", serv, parameters.getProperty( "host" ), parameters.getProperty( "http" ) );
+		logger.warn( "Cannot start {} service on {}:{}", serv );
 	    }
 	}
 	logger.debug("Services launched");
@@ -196,6 +198,17 @@ public class AlignmentService extends CommonCLI {
 	}
 	logger.debug("Directories registered");
 
+	// Enables transports (here only HTTP)
+	try {
+	    transport = new HTTPTransport();
+	    transport.init( parameters, manager, services );
+	} catch ( AServException ex ) {
+	    logger.error( "Cannot start HTTP transport on {}:{}", parameters.getProperty( "host" ), parameters.getProperty( "http" ) );
+	    usage();
+	    System.exit(-1);
+	}
+	logger.debug("Transport enabled");
+
 	// Wait loop
 	logger.info("Alignment server running");
 	while ( true ) {
@@ -206,6 +219,8 @@ public class AlignmentService extends CommonCLI {
 
     protected void close(){
 	logger.debug("Shuting down server");
+	// Disable transport
+	if ( transport != null ) transport.close();
 	// [Directory]: unregister to directories
 	for ( Directory dir : directories.values() ) {
 	    try { dir.close(); }
@@ -215,7 +230,7 @@ public class AlignmentService extends CommonCLI {
 	    }
 	}
 	// Close services
-	for ( AlignmentServiceProfile serv : services.values() ) {
+	for ( AlignmentServiceProfile serv : services ) {
 	    try { serv.close(); }
 	    catch ( AServException ex ) {
 		logger.debug("Cannot close {}", serv);
@@ -258,7 +273,7 @@ public class AlignmentService extends CommonCLI {
 	    if ( line.hasOption( 'i' ) ) { /* external service */
 		String arg = line.getOptionValue( 'i' );
 		try {
-		    services.put( arg, (AlignmentServiceProfile)loadInstance( arg ) );
+		    services.add( (AlignmentServiceProfile)loadInstance( arg ) );
 		} catch (Exception ex) {
 		    logger.warn( "Cannot create service for {}", arg );
 		    logger.debug( "IGNORED Exception", ex );
@@ -269,7 +284,7 @@ public class AlignmentService extends CommonCLI {
 		parameters.setProperty( "http", line.getOptionValue( 'H', HTML ) );
 		// This shows that it does not work
 		try {
-		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
+		    services.add( (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
 		} catch (Exception ex) {
 		    logger.warn( "Cannot create service for HTMLAServProfile", ex );
 		}
@@ -277,19 +292,19 @@ public class AlignmentService extends CommonCLI {
 	    if ( line.hasOption( 'A' ) ) { 
 		parameters.setProperty( "jade", line.getOptionValue( 'A', JADE ) ); 
 		try {
-		    services.put( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile" ) );
+		    services.add( (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.jade.JadeFIPAAServProfile" ) );
 		} catch ( Exception ex ) {
 		    logger.warn("Cannot create service for JadeFIPAAServProfile", ex);
 		}
 	    }
 	    if ( line.hasOption( 'W' ) ) {
 		parameters.setProperty( "wsdl", line.getOptionValue( 'W', WSDL ) );
-		// The WSDL extension requires HTTP server (and the same one).
+		// The Web service extension requires HTTP server (and the same one).
 		// Put the default port, may be overriden
 		if ( parameters.getProperty( "http" ) == null )
 		    parameters.setProperty( "http", HTML );
 		try {
-		    services.put( "fr.inrialpes.exmo.align.service.HTMLAServProfile", (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.HTMLAServProfile" ) );
+		    services.add( (AlignmentServiceProfile)loadInstance( "fr.inrialpes.exmo.align.service.WSAServProfile" ) );
 		} catch ( Exception ex ) {
 		    logger.warn( "Cannot create service for Web services", ex );
 		}

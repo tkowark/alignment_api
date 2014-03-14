@@ -55,349 +55,56 @@ import java.util.Map;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.Socket;
-import java.net.ServerSocket;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
 
 import java.lang.Integer;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletResponseWrapper;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.handler.AbstractHandler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.Request;
-import org.mortbay.servlet.MultiPartFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * HTMLAServProfile: an HTML provile for the Alignment server
- * It embeds an HTTP server.
  */
 
 public class HTMLAServProfile implements AlignmentServiceProfile {
     final static Logger logger = LoggerFactory.getLogger( HTMLAServProfile.class );
 
-    private int tcpPort;
-    private String tcpHost;
-    private Server server;
     private AServProtocolManager manager;
-    private WSAServProfile wsmanager;
 
     private String myId;
     private String serverId;
     private int localId = 0;
 
-    /**
-     * Some HTTP response status codes
-     */
-    public static final String
-	HTTP_OK = "200 OK",
-	HTTP_REDIRECT = "301 Moved Permanently",
-	HTTP_FORBIDDEN = "403 Forbidden",
-	HTTP_NOTFOUND = "404 Not Found",
-	HTTP_BADREQUEST = "400 Bad Request",
-	HTTP_INTERNALERROR = "500 Internal Server Error",
-	HTTP_NOTIMPLEMENTED = "501 Not Implemented";
-
-    /**
-     * Common mime types for dynamic content
-     */
-    public static final String
-	MIME_PLAINTEXT = "text/plain",
-	MIME_HTML = "text/html",
-	MIME_XML = "text/xml",
-	MIME_JSON = "application/json",
-	MIME_RDFXML = "application/rdf+xml",
-	MIME_DEFAULT_BINARY = "application/octet-stream";
-
-    private String returnType = MIME_HTML;
+    private int newId() { return localId++; }
 
     public static final int MAX_FILE_SIZE = 10000;
 
     public static final String HEADER = "<style type=\"text/css\">body { font-family: sans-serif } button {background-color: #DDEEFF; margin-left: 1%; border: #CCC 1px solid;}</style>";
-    // ==================================================
-    // Socket & server code
-    // ==================================================
 
-    /**
-     * Starts a HTTP server to given port.<p>
-     * Throws an IOException if the socket is already in use
-     */
     public void init( Properties params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
-	tcpPort = Integer.parseInt( params.getProperty( "http" ) );
-	tcpHost = params.getProperty( "host" ) ;
+    }
 
-	/*
-	try {
-	    final ServerSocket ss = new ServerSocket( tcpPort );
-	    Thread t = new Thread( new Runnable() {
-		    public void run() {
-			try { while( true ) new HTTPSession( ss.accept());
-			} catch ( IOException ioe ) { logger.debug( "IGNORED Exception", ioe ); }
-		    }
-		});
-	    t.setDaemon( true );
-	    t.start();
-	} catch (Exception e) {
-	    throw new AServException ( "Cannot launch HTTP Server" , e );
-	}
-	*/
+    public boolean accept( String prefix ) {
+	if ( prefix.equals("admin") || prefix.equals("html") ) return true;
+	else return false;
+    }
 
-	// ********************************************************************
-	// JE: Jetty implementation
-	server = new Server(tcpPort);
-
-	// The handler deals with the request
-	// most of its work is to deal with large content sent in specific ways 
-	Handler handler = new AbstractHandler(){
-		public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch ) throws IOException, ServletException {
-		    String method = request.getMethod();
-		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
-		    // Should be decoded?
-		    String uri = request.getPathInfo();
-		    Properties params = new Properties();
-		    try { decodeParams( request.getQueryString(), params ); }
-		    catch ( Exception e) {};
-		    // I do not decode them here because it is useless
-		    // See below how it is done.
-		    Properties header = new Properties();
-		    Enumeration headerNames = request.getHeaderNames();
-		    while( headerNames.hasMoreElements() ) {
-			String headerName = (String)headerNames.nextElement();
-			header.setProperty( headerName, request.getHeader(headerName) );
-		    }
-
-		    // Get the content if any
-		    // This is supposed to be only an uploaded file
-		    // We use jetty MultiPartFilter to decode this file.
-		    // Note that this could be made more uniform 
-		    // with the text/xml part stored in a file as well.
-		    String mimetype = request.getContentType();
-		    // Multi part: the content provided by an upload HTML form
-		    if ( mimetype != null && mimetype.startsWith("multipart/form-data") ) {
-			MultiPartFilter filter = new MultiPartFilter();
-			// This is in fact useless
-			ParameterServletResponseWrapper dummyResponse =
-			    new ParameterServletResponseWrapper( response );
-			// In theory, the filter must be inited with a FilterConfig
-			// filter.init( new FilterConfig);
-			// This filter config must have a javax.servlet.context.tempdir attribute
-			// and a ServletConxtext with parameter "deleteFiles"
-			// Apparently the Jetty implementation uses System defaults
-			// if no FilterConfig
-			// e.g., it uses /tmp and keeps the files
-			filter.doFilter( request, dummyResponse, new Chain() );
-			// Apparently a bug from Jetty prevents from retrieving this
-			if ( request.getParameter("pretty") != null )
-			    params.setProperty( "pretty", request.getParameter("pretty").toString() );
-			if ( request.getAttribute("content") != null )
-			    params.setProperty( "filename", request.getAttribute("content").toString() );
-			filter.destroy();
-		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
-			// Most likely Web service request (REST through POST)
-			int length = request.getContentLength();
-			if ( length > 0 ) {
-			    char [] mess = new char[length+1];
-			    try {
-				new BufferedReader(new InputStreamReader(request.getInputStream())).read( mess, 0, length);
-			    } catch ( Exception e ) {
-				logger.debug( "IGNORED Exception", e );
-			    }
-			    params.setProperty( "content", new String( mess ) );
-			}
-		    // File attached to SOAP messages
-		    } else if ( mimetype != null && mimetype.startsWith("application/octet-stream") ) {
-         		File alignFile = new File(File.separator + "tmp" + File.separator + newId() +"XXX.rdf");
-         		// check if file already exists - and overwrite if necessary.
-         		if (alignFile.exists()) alignFile.delete();
-               	 	FileOutputStream fos = new FileOutputStream(alignFile);
-            		InputStream is = request.getInputStream();
-			
-           	        try {
-			    byte[] buffer = new byte[4096];
-			    int bytes=0; 
-			    while (true) {
-				bytes = is.read(buffer);
-				if (bytes < 0) break;
-				fos.write(buffer, 0, bytes);
-			    }
-            		} catch (Exception e) {
-			} finally {
-			    fos.flush();
-			    fos.close();
-			}
-               		is.close();
-			params.setProperty( "content", "" );
-			params.setProperty( "filename" ,  alignFile.getAbsolutePath()  );
-         	    } 
-
-		    // Get the answer (HTTP)
-		    Response r = serve( uri, method, header, params );
-
-		    // Return it
-		    response.setContentType( r.getContentType() );
-		    response.setStatus( HttpServletResponse.SC_OK );
-		    response.getWriter().println( r.getData() );
-		    ((Request)request).setHandled( true );
-		}
-	    };
-	server.setHandler(handler);
-
-	// Common part
-	try { server.start(); }
-	catch (Exception e) {
-	    throw new AServException( "Cannot launch HTTP Server" , e );
-	}
-	//server.join();
-
-	// ********************************************************************
-	if ( params.getProperty( "wsdl" ) != null ){
-	    wsmanager = new WSAServProfile();
-	    if ( wsmanager != null ) wsmanager.init( params, manager );
-	}
-	myId = "LocalHTMLInterface";
-	serverId = manager.serverURL();
-	logger.info( "Launched on {}/html/", serverId );
-	localId = 0;
+    public String process( String uri, String prefix, String perf, Properties header, Properties params ) {
+	if ( prefix.equals("html") ) {
+	    return htmlAnswer( uri, perf, header, params );
+	} else if ( prefix.equals("admin") ) {
+	    return adminAnswer( uri, perf, header, params );
+	} else return about();
     }
 
     public void close(){
-	if ( wsmanager != null ) wsmanager.close();
-	if ( server != null ) {
-	    try { server.stop(); }
-            catch (Exception e) { logger.debug( "IGNORED Exception on close", e ); }
-	}
     }
     
     // ==================================================
     // API parts
     // ==================================================
 
-    /**
-     * Override this to customize the server.<p>
-     *
-     * (By default, this delegates to serveFile() and allows directory listing.)
-     *
-     * @param uri	Percent-decoded URI without parameters, for example "/index.cgi"
-     * @param method	"GET", "POST" etc.
-     * @param parms	Parsed, percent decoded parameters from URI and, in case of POST, data.
-     * @param header	Header entries, percent decoded
-     * @return HTTP response, see class Response for details
-     */
-    public Response serve( String uri, String method, Properties header, Properties parms ) {
-	logger.debug( "{} '{}'", method, uri );
-
-	// Convert parms to parameters
-	Properties params = new Properties();
-	for ( String key : parms.stringPropertyNames() ) {
-	    //logger.trace( "  PRM: '{}' = '{}'", key, parms.getProperty( key ) );
-	    if ( key.startsWith( "paramn" ) ){
-		params.setProperty( parms.getProperty( key ),
-				     parms.getProperty( "paramv"+key.substring( 6 ) ) );
-	    } else if ( !key.startsWith( "paramv" ) ) {
-		params.setProperty( key, parms.getProperty( key ) );
-	    }
-	}
-	
-	int start = 0;
-	while ( start < uri.length() && uri.charAt(start) == '/' ) start++;
-	int end = uri.indexOf( '/', start+1 );
-	String oper = "";
-	if ( end != -1 ) {
-	    oper = uri.substring( start, end );
-	    start = end+1;
-	} else {
-	    oper = uri.substring( start );
-	    start = uri.length();
-	}
-
-	// Content negotiation first
-	String accept = header.getProperty( "Accept" );
-	returnType = MIME_HTML;
-	if ( accept == null ) accept = header.getProperty( "accept" );
-	//logger.trace( "Accept header: {}", accept );
-	if ( accept != null && !accept.equals("") ) {
-	    int indexRXML = accept.indexOf( MIME_RDFXML );
-	    if ( indexRXML == -1 ) indexRXML = accept.indexOf( MIME_XML );
-	    int indexJSON = accept.indexOf( MIME_JSON );
-	    if ( indexRXML != -1 ) {
-		if ( indexJSON > indexRXML || indexJSON == -1 ) {
-		    returnType = MIME_RDFXML;
-		} else {
-		    returnType = MIME_JSON;
-		}
-	    } else if ( indexJSON != -1 ) {
-		returnType = MIME_JSON;
-	    }
-	}
-	//logger.trace( "Return MIME Type: {}", returnType );
-
-	// Serve this content
-	if ( oper.equals( "aserv" ) ){ // Classical web service SOAP/HTTP
-	    if ( wsmanager != null ) {
-		return new Response( HTTP_OK, MIME_HTML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
-	    } else {
-		// This is not correct: I shoud return an error
-		// Especially in WSDL, but we are not supposed to be a Web service server at that point
-		return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
-	    }
-	} else if ( oper.equals( "admin" ) ){ // HTML/HTTP administration
-	    return adminAnswer( uri, uri.substring(start), header, params );
-	} else if ( oper.equals( "alid" ) ){ // Asks for an alignment by URI
-	    if ( returnType == MIME_JSON ) { // YES string compared by ==.
-		return returnAlignment( uri, MIME_JSON, "fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" );
-	    } else if ( returnType == MIME_RDFXML ) {
-		return returnAlignment( uri, MIME_RDFXML, "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
-	    } else {
-		return returnAlignment( uri, MIME_HTML, "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
-	    }
-	} else if ( oper.equals( "html" ) ){ // HTML/HTTP interface
-	    return htmlAnswer( uri, uri.substring(start), header, params );
-	} else if ( oper.equals( "rest" ) ){ // REST/HTTP
-	    params.setProperty( "restful", "true" );
-	    params.setProperty( "returnType", returnType );
-	    if ( wsmanager != null ) {
-		if ( returnType == MIME_RDFXML ) {
-		    params.setProperty( "renderer", "XML" );
-		    return new Response( HTTP_OK, MIME_XML, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
-		} else if ( returnType == MIME_JSON ) {
-		    params.setProperty( "renderer", "JSON" );
-		    return new Response( HTTP_OK, MIME_JSON, wsmanager.protocolAnswer( uri, uri.substring(start), header, params ) );
-		} else { // HTML still default!
-		    params.setProperty( "renderer", "HTML" );
-		    return htmlAnswer( uri, uri.substring(start), header, params );
-		}
-	    } else {
-		//Message err = new ErrorMsg(int surr, Message rep, String from, String to, String cont, params );
-		if ( returnType == MIME_JSON ) {
-		    return new Response( HTTP_OK, MIME_JSON, "{ \"type\" : \"SystemErrorMsg\",\n  \"content\" : \"No service launched\"\n}" );
-		} else if ( returnType == MIME_RDFXML ) {
-		    return new Response( HTTP_OK, MIME_RDFXML, "<SystemErrorMsg>No service launched</SystemErrorMsg>" );
-		} else {
-		    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+"<ErrMsg>No service launched</ErrMsg>"+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
-		}
-	    }
-	} else if ( oper.equals( "wsdl" ) ){
-	    return wsdlAnswer(uri, uri.substring(start), header, params);
-	} else {
-	    //return serveFile( uri, header, new File("."), true );
-	    return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+about()+"</body></html>" );
-	}
-    }
-
-    protected String about() {
+    protected static String about() {
 	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
 	    + "<center><a href=\"html/\">Access</a></center>"
 	    + "(C) INRIA, 2006-2014<br />"
@@ -409,7 +116,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
      * HTTP administration interface
      * Allows some limited administration of the server through HTTP
      */
-    public Response adminAnswer( String uri, String perf, Properties header, Properties params ) {
+    public String adminAnswer( String uri, String perf, Properties header, Properties params ) {
 	//logger.trace( "ADMIN[{}]", perf);
 	String msg = "";
         if ( perf.equals("listmethods") ){
@@ -436,11 +143,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // JE: This is unused because the menu below directly refers to /wsdl
 	    // This does not really work because the wsdl is hidden in the HTML
         } else if ( perf.equals("wsdl") ){
-	    if ( wsmanager != null ){
-		msg = "<pre>"+WSAServProfile.wsdlAnswer( false )+"</pre>";
-	    } else {
-		msg = "Error: the server does not have Web service capabilities (use -W switch)";
-	    }
+	    msg = "<pre>"+WSAServProfile.wsdlAnswer( false )+"</pre>";
 	} else if ( perf.equals("argline") ){
 	    msg = "<h1>Command line arguments</h1>\n<pre>\n"+manager.argline()+"\n<pre>\n";
 	} else if ( perf.equals("prmsqlquery") ){
@@ -468,8 +171,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Alignment server administration</h1>";
 	    msg += "<form action=\"listmethods\"><button title=\"List embedded plug-ins\" type=\"submit\">Embedded classes</button></form>";
-	    if ( wsmanager != null )
-		msg += "<form action=\"/wsdl\"><button title=\"WSDL Description\" type=\"submit\">WSDL Description</button></form>";
+	    msg += "<form action=\"/wsdl\"><button title=\"WSDL Description\" type=\"submit\">WSDL Description</button></form>";
 	    msg += "<form action=\"prmsqlquery\"><button title=\"Query the SQL database (unavailable)\" type=\"submit\">SQL Query</button></form>";
 	    msg += "<form action=\"prmflush\"><button title=\"Free memory by unloading correspondences\" type=\"submit\">Flush caches</button></form>";
 	    msg += "<form action=\"prmreset\"><button title=\"Restore launching state (reload from database)\" type=\"submit\">Reset server</button></form>";
@@ -479,30 +181,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else {
 	    msg = "Cannot understand: "+perf;
 	}
-	return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>" );
-    }
-
-    /**
-     * Returns the alignment in negociated format
-     */
-    public Response returnAlignment( String uri, String mime, String method ) {
-	Properties params = new Properties();
-	params.setProperty( "id", manager.serverURL()+uri );
-	params.setProperty( "method", method );
-	logger.trace( "Bloody URI : {}", manager.serverURL()+uri);
-	Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
-	if ( answer instanceof ErrorMsg ) {
-	    return new Response( HTTP_NOTFOUND, MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
-	} else {
-	    return new Response( HTTP_OK, mime, answer.getContent() );
-	}
+	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>";
     }
 
     /**
      * User friendly HTTP interface
      * uses the protocol but offers user-targeted interaction
      */
-    public Response htmlAnswer( String uri, String perf, Properties header, Properties params ) {
+    public String htmlAnswer( String uri, String perf, Properties header, Properties params ) {
 	//logger.trace("HTML[{}]", perf );
 	// REST get
 	String msg = "";
@@ -747,7 +433,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    } else {
 		// Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
-		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+		return answer.getContent();
 	    }
 	// Metadata not done yet
 	} else if ( perf.equals("prmmetadata") ) {
@@ -771,7 +457,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = testErrorMessages( answer, params );
 	    } else {
 		// Depending on the type we should change the MIME type
-		return new Response( HTTP_OK, MIME_HTML, answer.getContent() );
+		return answer.getContent();
 	    }
 	    // render
 	    // Alignment in HTML can be rendre or metadata+tuples
@@ -905,29 +591,30 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else {
 	    msg = "Cannot understand command "+perf;
 	}
-	return new Response( HTTP_OK, MIME_HTML, "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>" );
+	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server</a></small></center></body></html>";
     }
 
     // ===============================================
     // Util
 
-    public Response wsdlAnswer(String uri, String perf, Properties header, Properties params  ) {
-	return new Response( HTTP_OK, MIME_XML, WSAServProfile.wsdlAnswer( false ) );
-    }	 
-
     private String testErrorMessages( Message answer, Properties param ) {
-	if ( returnType == MIME_RDFXML ) {
+	/*
+	if ( returnType == HTTPResponse.MIME_RDFXML ) {
 	    return answer.RESTString();
-	} else if ( returnType == MIME_JSON ) {
+	} else if ( returnType == HTTPResponse.MIME_JSON ) {
 	    return answer.JSONString();
-	} else {
+	    } else {*/
 	    return "<h1>Alignment error</h1>"+answer.HTMLString();
-	}
+	    /*}*/
     }
 
     private String displayAnswer( Message answer, Properties param ) {
+	return displayAnswer( answer, param, null );
+    }
+
+    private String displayAnswer( Message answer, Properties param, String returnType ) {
 	String result = null;
-	if ( returnType == MIME_RDFXML ) {
+	if ( returnType == HTTPResponse.MIME_RDFXML ) {
 	    if( param.getProperty("return").equals("HTML") ) { // RESTFUL but in HTML ??
 	    	result = answer.HTMLRESTString();
 	    	if ( answer instanceof AlignmentId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ) {
@@ -941,7 +628,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    } else {
 		result = answer.RESTString();
 	    }
-	} else if ( returnType == MIME_JSON ) {
+	} else if ( returnType == HTTPResponse.MIME_JSON ) {
 	    result = answer.JSONString();
 	} else {
 	    result = answer.HTMLString();
@@ -969,121 +656,5 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return result;
     }
 
-    private int newId() { return localId++; }
-
-    private void decodeParams( String params, Properties p ) throws InterruptedException {
-	if ( params == null ) return;
-	
-	for ( String next : params.split("&") ) {
-	    int sep = next.indexOf( '=' );
-	    if ( sep >= 0 ){
-		try {
-		    p.put( URLDecoder.decode( next.substring( 0, sep ), "iso-8859-1" ).trim(),
-			   // JE: URLDecoder allows for : and / but not #
-			   URLDecoder.decode( next.substring( sep+1 ), "iso-8859-1" ));
-		} catch (Exception e) {}; //never thrown
-	    }
-	}
-    }
-
-    // ==================================================
-    // HTTP Machinery
-
-    /**
-     * HTTP response.
-     * Return one of these from serve().
-     */
-    public class Response {
-	/**
-	 * Default constructor: response = HTTP_OK, data = mime = 'null'
-	 */
-	public Response() {
-	    this.status = HTTP_OK;
-	}
-
-	/**
-	 * Basic constructor.
-	 */
-	public Response( String status, String mimeType, InputStream data ) {
-	    this.status = status;
-	    this.mimeType = mimeType;
-	    this.data = data;
-	}
-
-	/**
-	 * Convenience method that makes an InputStream out of
-	 * given text.
-	 */
-	public Response( String status, String mimeType, String txt ) {
-	    this.status = status;
-	    this.mimeType = mimeType;
-	    this.data = new ByteArrayInputStream( txt.getBytes());
-	    // JE: Added
-	    this.msg = txt;
-	}
-
-	/**
-	 * Adds given line to the header.
-	 */
-	public void addHeader( String name, String value ) {
-	    header.put( name, value );
-	}
-
-
-	/**
-	 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
-	 */
-	public String status;
-
-	/**
-	 * MIME type of content, e.g. "text/html"
-	 */
-	public String mimeType;
-
-	/**
-	 * Data of the response, may be null.
-	 */
-	public InputStream data;
-
-	/**
-	 * Headers for the HTTP response. Use addHeader()
-	 * to add lines.
-	 */
-	public Properties header = new Properties();
-	// JE: Added for testing Jetty
-	public String msg;
-	public String getStatus() { return status; };
-	public String getContentType() { return mimeType; }
-	public String getData() { return msg; }
-
-    }
-
-    /**
-     * Two private cclasses for retrieving parameters
-     */
-    private class ParameterServletResponseWrapper extends ServletResponseWrapper  {
-	private Map parameters;
-
-	public ParameterServletResponseWrapper( ServletResponse r ){
-	    super(r);
-	};
-
-	public Map getParameterMap(){ return parameters; }
- 
-	public void setParameterMap( Map m ){ parameters = m; }
- 
-     }
-
-    private class Chain implements FilterChain {
- 
-	public void doFilter( ServletRequest request, ServletResponse response)
-	    throws IOException, ServletException {
-	    if ( response instanceof ParameterServletResponseWrapper &&
-		 request instanceof ServletRequestWrapper ) {
-		((ParameterServletResponseWrapper)response).setParameterMap( ((ServletRequestWrapper)request).getParameterMap() );
-	    }
-         }
- 
-     }
 }
 

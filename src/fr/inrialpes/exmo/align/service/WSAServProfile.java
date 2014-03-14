@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2013
+ * Copyright (C) INRIA, 2007-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -89,6 +89,8 @@ public class WSAServProfile implements AlignmentServiceProfile {
     private String tcpHost;
     private AServProtocolManager manager;
     private static String wsdlSpec = "";
+
+    private boolean restful = false;
 
     private String myId;
     private String serverURL;
@@ -184,6 +186,23 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	}
     }
 
+    public boolean accept( String prefix ) {
+	if ( prefix.equals("aserv") || prefix.equals("rest") || prefix.equals("wsdl") ) return true;
+	else return false;
+    }
+
+    public String process( String uri, String prefix, String perf, Properties header, Properties params ) {
+	restful = false;
+	if ( prefix.equals("rest") ) {
+	    restful = true;
+	    return protocolAnswer( uri, perf, header, params );
+	} else if ( prefix.equals("aserv") ) {
+	    return protocolAnswer( uri, perf, header, params );
+	} else if ( prefix.equals("wsdl") ) {
+	    return wsdlAnswer( false );
+	} else return "";//about();
+    }
+
     public void close(){
 	// This may unregister the WSDL file to some directory
     }
@@ -204,7 +223,6 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	String message = null;
 	Properties newparameters = null;
 	Message answer = null;
-	boolean restful = (param.getProperty("restful")==null)?false:true;
 	String svcNS = "\n       xml:base='"+Namespace.ALIGNSVC.prefix+"'"+
 	    "\n       xmlns='"+Namespace.ALIGNSVC.prefix+"'";
 	String msg = "";
@@ -221,16 +239,19 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		// However, there is a way to pass SOAP messages with attachments
 		// It would be better to implement this. See:
 		// http://www.oracle.com/technology/sample_code/tech/java/codesnippet/webservices/attachment/index.html
-		message = param.getProperty("content").trim();
+		message = param.getProperty("content");
 		// Create the DOM tree for the SOAP message
 		Document domMessage = null;
 		try {
-		    domMessage = BUILDER.parse( new ByteArrayInputStream( message.getBytes()) );
+		    domMessage = BUILDER.parse( new ByteArrayInputStream( message.trim().getBytes() ) );
 		} catch  ( IOException ioex ) {
-		    logger.debug( "IGNORED Exception", ioex );
+		    logger.debug( "IGNORED Exception {}", ioex );
 		    answer = new NonConformParameters(0,(Message)null,myId,"Cannot Parse SOAP message",message,(Properties)null);
 		} catch  ( SAXException saxex ) {
-		    logger.debug( "IGNORED Exception", saxex );
+		    logger.debug( "IGNORED Exception {}", saxex );
+		    answer = new NonConformParameters(0,(Message)null,myId,"Cannot Parse SOAP message",message,(Properties)null);
+		} catch ( NullPointerException npex ) {
+		    logger.debug( "IGNORED Exception {}", npex );
 		    answer = new NonConformParameters(0,(Message)null,myId,"Cannot Parse SOAP message",message,(Properties)null);
 		}
 		newparameters = getParameters( domMessage );
@@ -238,6 +259,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		newparameters = new Properties();
 	    }
 	}
+	//logger.debug( "Analised header" );
 
 	// Process the action
 	if ( perf.equals("WSDL") || method.equals("wsdl") || method.equals("wsdlRequest") ) {

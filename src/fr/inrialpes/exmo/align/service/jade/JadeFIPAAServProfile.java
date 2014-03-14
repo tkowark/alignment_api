@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Orange R&D, 2006-2007
- * Copyright (C) INRIA, 2006-2007, 2009-2010, 2013
+ * Copyright (C) INRIA, 2006-2007, 2009-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -41,63 +41,69 @@ import org.slf4j.LoggerFactory;
 public class JadeFIPAAServProfile implements AlignmentServiceProfile {
     final static Logger logger = LoggerFactory.getLogger( JadeFIPAAServProfile.class );
 
-	private AgentContainer mc;
-	private AgentController algagentcontroller;
+    private AgentContainer mc;
+    private AgentController algagentcontroller;
 
-	public void init( Properties params, AServProtocolManager manager ) throws AServException {
-		int port = 8888;
-		Object args[] = new Object[2];
+    public void init( Properties params, AServProtocolManager manager ) throws AServException {
+	int port = 8888;
+	Object args[] = new Object[2];
+	
+	//set up the manager as an argument to pass to the JADEFIPAAServiceAgent
+	args[0]=manager;
 		
-		//set up the manager as an argument to pass to the JADEFIPAAServiceAgent
-		args[0]=manager;
+	// set up the Parameters as an argument to pass to the JADEFIPAServiceAgent
+	args[1]=params;
 		
-		// set up the Parameters as an argument to pass to the JADEFIPAServiceAgent
-		args[1]=params;
-		
-		if ( params.getProperty( "jade" ) != null )
-			port = Integer.parseInt( params.getProperty( "jade" ) );
+	if ( params.getProperty( "jade" ) != null )
+	    port = Integer.parseInt( params.getProperty( "jade" ) );
 
-		/**		
-	Properties props = new Properties();
-		 **/
-		try {
-			// Get a hold on JADE runtime
-			Runtime rt = Runtime.instance();
+	// Properties props = new Properties();
+	try {
+	    // Get a hold on JADE runtime
+	    Runtime rt = Runtime.instance();
 
-			// Exit the JVM when there are no more containers around
-			rt.setCloseVM(true);
+	    // Exit the JVM when there are no more containers around
+	    rt.setCloseVM(true);
 
-			/** Profile with no MTP( Message Transfer Protocol
+	    /** Profile with no MTP( Message Transfer Protocol
 		props.setProperty("nomtp", "true");
 		Profile pMain = new ProfileImpl(props);
-			 **/
-			// create a default Profile
-			Profile pMain = new ProfileImpl(null, port, null);
-
-			//logger.trace( "Launching a whole in-process platform... {}", pMain );
-			mc = rt.createMainContainer(pMain);
-			algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), args);
-			algagentcontroller.start();
-		}
-		catch(Exception e) {
-			throw new AServException ( "Cannot launch Jade Server" , e );
-		}
+	    **/
+	    // create a default Profile
+	    Profile pMain = new ProfileImpl(null, port, null);
+	    
+	    //logger.trace( "Launching a whole in-process platform... {}", pMain );
+	    mc = rt.createMainContainer(pMain);
+	    algagentcontroller = mc.createNewAgent("JadeFIPAAServiceAgent", JadeFIPAAServiceAgent.class.getName(), args);
+	    algagentcontroller.start();
+	} catch(Exception ex) {
+	    throw new AServException ( "Cannot launch Jade Server" , ex );
 	}
+    }
 
-	public void close(){
-	    try{
-		algagentcontroller.kill();
-		mc.kill();
-		logger.info( "Agent Alignement closed" );
-	    } catch (ControllerException e) {
-		logger.warn( "Error killing the alignment agent." ); }
-	    try {
-		// Destroy the files please (JE)
-		new File("APDescription.txt").delete();
-		new File("MTPs-Main-Container.txt").delete();
-	    } catch (Exception e) {
-		logger.debug( "IGNORED Exception", e );
-	    }
+
+    public boolean accept( String prefix ) {
+	return false;
+    }
+
+    public String process( String uri, String prefix, String perf, Properties header, Properties params ) {
+	return "JADE Cannot be invoked this way through HTTP service";
+    }
+
+    public void close(){
+	try{
+	    algagentcontroller.kill();
+	    mc.kill();
+	    logger.info( "Agent Alignement closed" );
+	} catch (ControllerException cex) {
+	    logger.warn( "Error killing the alignment agent." ); 
 	}
-	
+	try {
+	    // Destroy the files please (JE)
+	    new File("APDescription.txt").delete();
+	    new File("MTPs-Main-Container.txt").delete();
+	} catch (Exception ex) {
+	    logger.debug( "IGNORED Exception", ex );
+	}
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010, 2013
+ * Copyright (C) INRIA, 2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -54,6 +54,14 @@ public class OSGIAServProfile implements AlignmentServiceProfile, BundleActivato
     // AlignmentServiceProfile interface
     public void init( Properties params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
+    }
+
+    public boolean accept( String prefix ) {
+	return false;
+    }
+
+    public String process( String uri, String prefix, String perf, Properties header, Properties params ) {
+	return "OSGI Cannot be invoked this way through HTTP service";
     }
 
     public void close(){
