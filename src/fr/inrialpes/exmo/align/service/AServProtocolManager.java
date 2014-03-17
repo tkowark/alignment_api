@@ -61,9 +61,6 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
 
-//import org.reflections.Reflections;
-//import org.reflections.util.ConfigurationBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -486,7 +483,7 @@ public class AServProtocolManager implements Service {
 	    writer.flush();
 	    writer.close();
 	}
-	return new RenderedAlignment(newId(),mess,serverId,mess.getSender(),result.toString(),(Properties)null);
+	return new RenderedAlignment(newId(),mess,serverId,mess.getSender(),result.toString(),params);
     }
 
 

@@ -31,12 +31,12 @@ public class UnknownAlignment extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString(){
-	return "<UnknownAlignment>"+content+"</UnknownAlignment>";
+	return "<UnknownAlignment>"+getXMLContent()+"</UnknownAlignment>";
     }
     public String HTMLString(){
 	return "Unknown alignment: "+content;
     }
     public String JSONString(){
-	return "{ \"type\" : \"UnknownAlignment\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"UnknownAlignment\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

@@ -31,12 +31,12 @@ public class RunTimeError extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString(){
-	return "<RunTimeError>"+content+"</RunTimeError>";
+	return "<RunTimeError>"+getXMLContent()+"</RunTimeError>";
     }
     public String HTMLString(){
 	return "Cannot process: "+content;
     }
     public String JSONString(){
-	return "{ \"type\" : \"RunTimeError\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"RunTimeError\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

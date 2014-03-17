@@ -38,8 +38,6 @@ public class OntologyURI extends Success {
 	return "<uri>"+content+"</uri>";
     }
     public String JSONString(){
-	String res = "{ \"type\" : \"OntologyURI\",\n";
-	res += "  \"uri\" : \""+content+"\"\n}\n";
-	return res;
+	return "{ \"type\" : \"OntologyURI\", \"uri\" : \""+content+"\" }";
     }
 }

@@ -46,7 +46,7 @@ public class EvaluationId extends Success {
 	return "<alid>"+content+"</alid>";	
     }
     public String JSONString(){
-	return "{ \"type\" : \"EvaluationId\",\n  \"id\" : \""+content+"\"}";	
+	return "{ \"type\" : \"EvaluationId\", \"id\" : \""+content+"\" }";	
     }
 
 }

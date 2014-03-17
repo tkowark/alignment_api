@@ -19,7 +19,7 @@ and parameters are given in the classical URL syntax, e.g.,
 debug=true&amp;level=1.
 </p>
 <p>
-The result of these requests are provided in XML.
+The result of these requests are provided in XML (default) or JSON.
 In the sequel, we describe the various request types.
 They can be obtained by:
 <div class="terminal">
@@ -315,16 +315,17 @@ or
 </p>
 
 <h3>translate<a name="translate"></a></h3>
-<p>Translates a message (resp. a query) with regard to an alignment.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>id</b> = &lt;URI&gt;</p>
+<p>Translates a query with regard to an alignment.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>id</b> = &lt;URI&gt; &amp; <b>query</b> = &lt;SPARQL&gt;</p>
 <p>Parameters:
 <br /><b>id:</b> the URI of the alignment used for the translation.
+<br /><b>query:</b> the query to be translated.
 </p>
 <p>Result:<br />
 <div class="xml">
 &lt;translateResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
-    Metadata in RDF
+    &lt;result> The translated query &lt;/result>
 &lt;/translateResponse> 
 </div>
 </p>

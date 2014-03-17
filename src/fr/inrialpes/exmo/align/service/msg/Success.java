@@ -32,7 +32,7 @@ public class Success extends Message {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString(){
-	return "<content>"+content+"</content>";	
+	return "<content>"+getXMLContent()+"</content>";	
     }
     public String SOAPString(){
 	String res = "      <msgid>"+surrogate+"</msgid>\n";
@@ -45,7 +45,7 @@ public class Success extends Message {
 	String res = "{ \"type\" : \"Success\",\n";
 	res += "  \"id\" : \""+surrogate+"\",\n";
 	if ( inReplyTo != null ) res += "  \"in-reply-to\" : \""+inReplyTo+"\",\n";
-	res += "  \"content\" : \""+content+"\"\n}\n";
+	res += "  \"content\" : \""+getJSONContent()+"\"\n}\n";
 	return res;
     }
 }

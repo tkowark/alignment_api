@@ -34,9 +34,9 @@ public class UnknownMethod extends ErrorMsg {
 	return "Unknown method: "+content;
     }
     public String RESTString() {
-	return "<UnknownMethod>"+content+"</UnknownMethod>";
+	return "<UnknownMethod>"+getXMLContent()+"</UnknownMethod>";
     }
     public String JSONString(){
-	return "{ \"type\" : \"UnknownMethod\",\n  \"content\" : \""+getContent()+"\"\n}";	
+	return "{ \"type\" : \"UnknownMethod\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

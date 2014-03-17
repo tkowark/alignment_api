@@ -43,7 +43,7 @@ public class ErrorMsg extends Message {
 	return message;
     }
     public String RESTString(){
-	return "<error>" + content + "</error>";
+	return "<error>" + getXMLContent() + "</error>";
     }
     public String HTMLRESTString(){
 	return HTMLString();
@@ -57,6 +57,6 @@ public class ErrorMsg extends Message {
 	return res;
     }
     public String JSONString(){
-	return "{ \"type\" : \"ErrorMsg\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"ErrorMsg\", \"content\" : \""+getJSONContent()+"\" }";
     }
 }

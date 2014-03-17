@@ -245,7 +245,7 @@
       group="fr.inrialpes.exmo.align"
       desc="Alignment server"
       main="fr.inrialpes.exmo.align.service.AlignmentService"
-      path="procalign.jar osgi/osgi-core.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar">
+      path="procalign.jar osgi/osgi-core.jar jade/jade.jar jade/iiop.jar jade/http.jar jdbc/mysql-connector-java.jar jdbc/postgresql-jdbc4.jar servlet/servlet-api.jar jetty/jetty.jar jetty/jetty-util.jar xerces/xercesImpl.jar lang/commons-lang3.jar">
       <files>
 	<fileset dir="classes">
 	  <include name="fr/inrialpes/exmo/align/service/**/*.class"/>
@@ -538,6 +538,7 @@
     <onepom file="slf4j/log4j-over-slf4j" />
     <onepom file="lucene/lucene-core" />
     <onepom file="lucene/lucene-analyzers-common" />
+    <onepom file="lang/commons-lang3" />
     <onepom file="ontosim/ontosim" />
     <onepom file="osgi/osgi-core" />
     <onepom file="owlapi10/api" />

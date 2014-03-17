@@ -36,10 +36,10 @@ public class NonConformParameters extends ErrorMsg {
 	return "<h1>Non conform parameters</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }
     public String RESTString(){
-	return "<NonConformParameters>" + content + "</NonConformParameters>";
+	return "<NonConformParameters>" + getXMLContent() + "</NonConformParameters>";
     }
     public String JSONString(){
-	return "{ \"type\" : \"NonConformParameters\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"NonConformParameters\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
     
 }

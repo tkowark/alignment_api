@@ -102,15 +102,14 @@ public class AlignmentIds extends Success {
     }
 
     public String JSONString(){
-	String msg = "{ \"type\" : \"AlignmentIds\",\n";
-	msg += "  \"alignmentIds\" : [";
+	String msg = "[";
 	String id[] = content.split(" ");
 	for ( int i = id.length-1; i >= 0; i-- ){
 	    if ( id[i].trim() != "" ) {
 		msg += "    \""+id[i].trim()+"\",\n";
 	    }
 	}	
-	msg += "  ]\n}\n";
+	msg += "]";
 	return msg;
     }
 }

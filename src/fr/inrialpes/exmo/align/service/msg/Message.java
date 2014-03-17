@@ -22,6 +22,8 @@ package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 /**
  * Contains the messages that should be sent according to the protocol
  */
@@ -48,8 +50,11 @@ public class Message {
 	return "<h1>Message</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }
 
+    /**
+     * This must return an XML object, typically an attribute.
+     */
     public String RESTString(){
-	return "<ErrorMsg/>";
+	return "<Message>"+getXMLContent()+"</Message>";
     }
 
     /**
@@ -60,11 +65,14 @@ public class Message {
     }
 
     public String SOAPString(){
-	return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" + content + "</content>";	
+	return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" +getXMLContent()+ "</content>";	
     }
 
+    /**
+     * This must return a JSON object, that will typically be an attribute value.
+     */
     public String JSONString(){
-	return "{ \"id\" : \""+surrogate+"\",\n  \"sender\" : \""+sender+"\",\n  \"receiver\" : \""+receiver+"\",\n  \"in-reply-to\" : \"" + inReplyTo+ "\",\n  \"content\" : \"" + content + "\"\n}";	
+	return "\""+getJSONContent()+"\"";	
     }
 
     public int getId () {
@@ -81,6 +89,14 @@ public class Message {
 
     public String getContent() {
 	return content;
+    }
+
+    public String getXMLContent() {
+	return StringEscapeUtils.escapeXml11(content);
+    }
+
+    public String getJSONContent() {
+	return StringEscapeUtils.escapeJson(content);
     }
 
     public String getSender() {

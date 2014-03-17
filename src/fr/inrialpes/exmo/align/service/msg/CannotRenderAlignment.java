@@ -34,9 +34,9 @@ public class CannotRenderAlignment extends ErrorMsg {
 	return "Cannot render alignment "+content;
     }
     public String RESTString(){
-	return "<CannotRenderAlignment>"+content+"</CannotRenderAlignment>";
+	return "<CannotRenderAlignment>"+getXMLContent()+"</CannotRenderAlignment>";
     }
     public String JSONString(){
-	return "{ \"type\" : \"CannotRenderAlignment\",\n  \"content\" : \""+getContent()+"\"\n}";	
+	return "{ \"type\" : \"CannotRenderAlignment\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

@@ -31,12 +31,12 @@ public class UnreachableAlignment extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString() {
-	return "<UnreachableAlignment>"+content+"</UnreachableAlignment>";
+	return "<UnreachableAlignment>"+getXMLContent()+"</UnreachableAlignment>";
     }
     public String HTMLString() {
 	return "Unreachable alignment: "+content;
     }
     public String JSONString(){
-	return "{ \"type\" : \"UnreachableAlignment\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"UnreachableAlignment\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

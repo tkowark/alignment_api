@@ -36,12 +36,12 @@ public class AlignmentMetadata extends Success {
 	return "Metadata not implemented";
     }
     public String RESTString(){
-	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><metadata>"+content+"</metadata>";	
+	return "<metadata>"+content+"</metadata>";	
     }
     public String SOAPString(){
-	return "<id>"+surrogate+"</id>"+"<in-reply-to>"+inReplyTo+"</in-reply-to><metadata>"+content+"</metadata>";	
+	return "<metadata>"+content+"</metadata>";	
     }
     public String JSONString(){
-	return "{ \"type\" : \"AlignmentMetadata\",\n  \"id\" : \"+surrogate+\",\n  \"in-reply-to\" : \"+inReplyTo+\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"AlignmentMetadata\",\n  \"content\" : \""+content+"\"\n}";	
     }
 }

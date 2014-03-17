@@ -31,12 +31,20 @@ public class RenderedAlignment extends Success {
     public RenderedAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
-    // THIS CONTENT SHOULD BE ESCAPED: XMLSTRINGENCODDE?
     public String RESTString(){
-	return "<alignment>"+content+"</alignment>";	
+	String method = (parameters==null)?null:parameters.getProperty( "method" );
+	if ( method != null && method.equals("fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" ) ) {
+	    return "<alignment>"+content+"</alignment>";
+	} else {
+	    return "<alignment>"+getXMLContent()+"</alignment>";
+	}
     }
-    // THIS CONTENT SHOULD BE ESCAPED: STRINGENCODDE?
     public String JSONString(){
-	return "{ \"type\" : \"RenderedAlignment\",\n  \"content\" : \""+content+"\"\n}";	
+	String method = (parameters==null)?null:parameters.getProperty( "method" );
+	if ( method != null && method.equals("fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" ) ) {
+	    return content;
+	} else {
+	    return "\""+getJSONContent()+"\"";
+	}
     }
 }

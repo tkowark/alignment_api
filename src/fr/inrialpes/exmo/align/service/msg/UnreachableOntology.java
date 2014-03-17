@@ -31,12 +31,12 @@ public class UnreachableOntology extends ErrorMsg {
 	super( surr, rep, from, to, cont, param );
     }
     public String RESTString() {
-	return "<UnreachableOntology>"+content+"</UnreachableOntology>";
+	return "<UnreachableOntology>"+getXMLContent()+"</UnreachableOntology>";
     }
     public String HTMLString() {
 	return "Unreachable ontology: "+content;
     }
     public String JSONString(){
-	return "{ \"type\" : \"UnreachableOntology\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"UnreachableOntology\",\n  \"content\" : \""+getJSONContent()+"\"\n}";	
     }
 }

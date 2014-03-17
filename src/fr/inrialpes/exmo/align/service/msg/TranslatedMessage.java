@@ -35,9 +35,9 @@ public class TranslatedMessage extends Success {
 	return content;
     }
     public String RESTString(){
-	return "<message>"+content+"</message>";	
+	return "<message>"+getXMLContent()+"</message>";	
     }
     public String JSONString(){
-	return "{ \"type\" : \"TranslatedMessage\",\n  \"content\" : \""+content+"\"\n}";	
+	return "{ \"type\" : \"TranslatedMessage\", \"content\" : \""+getJSONContent()+"\" }";	
     }
 }

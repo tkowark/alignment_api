@@ -52,10 +52,10 @@ public class AlignmentId extends Success {
 	return "Alignment ID: <a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
     }
     public String RESTString(){
-	return "<alid>"+getContent()+"</alid>";	
+	return "<alid>"+content+"</alid>";	
     }
     public String JSONString(){
-	return "{ \"type\" : \"AlignmentId\",\n  \"content\" : \""+content+"\"\n}";	
+	return "\""+content+"\"";
     }
 
 }
