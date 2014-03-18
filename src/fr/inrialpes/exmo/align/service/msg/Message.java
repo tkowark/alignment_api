@@ -32,9 +32,9 @@ public class Message {
 
     int surrogate = 0;
     Message inReplyTo = null;
-    String receiver = "";
-    String sender = "";
-    String content = "";
+    String receiver = null;
+    String sender = null;
+    String content = null;
     Properties parameters = null;
 
     public Message ( int surr, Message rep, String from, String to, String cont, Properties param ) {
@@ -61,11 +61,11 @@ public class Message {
      * For HTML interface calling the REST interface
      */
     public String HTMLRESTString(){
-	return "<ErrorMsg/>";
+	return "<Message/>";
     }
 
     public String SOAPString(){
-	return "<id>"+surrogate+"</id>"+"<sender>"+sender+"</sender>" + "<receiver>"+receiver+"</receiver>" + "<in-reply-to>" + inReplyTo+ "</in-reply-to>" + "<content>" +getXMLContent()+ "</content>";	
+	return "<content>" +getXMLContent()+ "</content>";	
     }
 
     /**

@@ -49,12 +49,7 @@ public class ErrorMsg extends Message {
 	return HTMLString();
     }
     public String SOAPString(){
-	String res = "    <ErrorMsg>\n";
-	res += "      <msgid>"+surrogate+"</msgid>\n"+"        <sender>"+sender+"</sender>\n" + "        <receiver>"+receiver+"</receiver>\n" ;
-	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
-	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
-	res += "      "+RESTString()+"\n"+"    </ErrorMsg>\n";
-	return res;
+	return "    <ErrorMsg>"+RESTString()+"</ErrorMsg>\n";
     }
     public String JSONString(){
 	return "{ \"type\" : \"ErrorMsg\", \"content\" : \""+getJSONContent()+"\" }";

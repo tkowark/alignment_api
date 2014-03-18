@@ -35,17 +35,9 @@ public class Success extends Message {
 	return "<content>"+getXMLContent()+"</content>";	
     }
     public String SOAPString(){
-	String res = "      <msgid>"+surrogate+"</msgid>\n";
-	// Would be better to use inReplyTo's surrogate, but these ints are inconvenients
-	if ( inReplyTo != null ) res += "      <in-reply-to>"+inReplyTo+"</in-reply-to>\n";
-	res += "      "+RESTString()+"\n";
-	return res;
+	return RESTString();
     }
     public String JSONString(){
-	String res = "{ \"type\" : \"Success\",\n";
-	res += "  \"id\" : \""+surrogate+"\",\n";
-	if ( inReplyTo != null ) res += "  \"in-reply-to\" : \""+inReplyTo+"\",\n";
-	res += "  \"content\" : \""+getJSONContent()+"\"\n}\n";
-	return res;
+	return "{ \"type\" : \"Success\",\n  \"content\" : \""+getJSONContent()+"\"\n}\n";
     }
 }
