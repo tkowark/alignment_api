@@ -59,7 +59,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  * In version 3.0 this class is virtually abstract.
  * But it cannot be declared abstract because it uses its own constructor.
  *
- * @author Jérôme Euzenat, David Loup, Raphaël Troncy
+ * @author JÃ©rÃ´me Euzenat, David Loup, RaphaÃ«l Troncy
  * @version $Id$
  */
 
@@ -830,7 +830,7 @@ public class BasicAlignment implements Alignment {
 	for ( Map.Entry<Object,Object> m : prefix.entrySet() ) {
 	    if ( m.getKey() != null ) {
 		mainQuery = Pattern.compile("<"+m.getValue()+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( m.getKey()+":$1" );
-		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> .\n" + mainQuery;
+		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> \n" + mainQuery;
 	    }
 	}
 
@@ -843,8 +843,12 @@ public class BasicAlignment implements Alignment {
 	try {
 	    // The second part replaces the named items by their counterparts
 	    for( Cell cell : this ){
+                URI uri1 = cell.getObject1AsURI(this);
+                URI uri2 = cell.getObject2AsURI(this);
+                if(uri1 != null && uri2 != null){
 		result = result.replaceAll( cell.getObject1AsURI(this).toString(),
 					    cell.getObject2AsURI(this).toString() );
+                }
 	    }
 	} catch (AlignmentException alex) {
 	    logger.debug( "IGNORED AlignmentException {}", alex );
