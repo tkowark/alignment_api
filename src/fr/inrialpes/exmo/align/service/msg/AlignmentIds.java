@@ -37,10 +37,21 @@ public class AlignmentIds extends Success {
     public AlignmentIds ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
     public AlignmentIds ( int surr, Message rep, String from, String to, String cont, Properties param, String pretty ) {
 	super( surr, rep, from, to, cont, param );
 	this.pretty = pretty;
     }
+
+    public AlignmentIds ( Properties mess, int surr, String from, String cont, String pretty ) {
+	super( mess, surr, from, cont );
+	this.pretty = pretty;
+    }
+
+    public AlignmentIds ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString(){
 	String id[] = content.split(" ");
 	String pid[] = pretty.split(":");

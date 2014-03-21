@@ -30,6 +30,11 @@ public class UnreachableAlignment extends ErrorMsg {
     public UnreachableAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public UnreachableAlignment ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String RESTString() {
 	return "<UnreachableAlignment>"+getXMLContent()+"</UnreachableAlignment>";
     }

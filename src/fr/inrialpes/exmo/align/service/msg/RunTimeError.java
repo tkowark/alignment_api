@@ -27,9 +27,15 @@ import java.util.Properties;
  */
 
 public class RunTimeError extends ErrorMsg {
+
     public RunTimeError ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public RunTimeError ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String RESTString(){
 	return "<RunTimeError>"+getXMLContent()+"</RunTimeError>";
     }

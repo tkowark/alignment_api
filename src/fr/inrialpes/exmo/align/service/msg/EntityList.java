@@ -34,6 +34,10 @@ public class EntityList extends Success {
 	super( surr, rep, from, to, cont, param );
     }
 
+    public EntityList( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString(){
 	String id[] = content.split(" ");
 	String result = "No entity.";

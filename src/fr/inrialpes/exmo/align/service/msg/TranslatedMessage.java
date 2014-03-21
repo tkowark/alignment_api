@@ -31,6 +31,11 @@ public class TranslatedMessage extends Success {
     public TranslatedMessage ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public TranslatedMessage ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString() {
 	return content;
     }

@@ -27,8 +27,13 @@ import java.util.Properties;
  */
 
 public class NonConformParameters extends ErrorMsg {
+
     public NonConformParameters ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
+    }
+
+    public NonConformParameters ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
     }
 
     public String HTMLString(){

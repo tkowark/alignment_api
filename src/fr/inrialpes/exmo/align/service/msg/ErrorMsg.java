@@ -31,6 +31,11 @@ public class ErrorMsg extends Message {
     public ErrorMsg ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public ErrorMsg ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString(){
 	String message = "Generic error: "+content;
 	if ( parameters != null ) {

@@ -307,14 +307,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.store( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.store( newparameters );
 	    }
 	    msg += render( "storeResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("invertRequest") || method.equals("invert") ) { // URI -> URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.inverse( new Message(newId(),(Message)null,myId,serverURL, newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.inverse( newparameters );
 	    }
 	    msg += render( "invertResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("trimRequest") || method.equals("trim") ) { // URI * string * float -> URI
@@ -326,7 +326,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		if ( newparameters.getProperty( "type" ) == null ) {
 		    newparameters.setProperty( "type", "hard" );
 		}
-		answer = manager.trim( new Message(newId(),(Message)null,myId,serverURL,newparameters.getProperty( "id" ), newparameters) );
+		answer = manager.trim( newparameters );
 	    }
 	    msg += render( "trimResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("matchRequest") || method.equals("match") ) { // URL * URL * URI * String * boolean * (newparameters) -> URI
@@ -335,7 +335,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else if ( newparameters.getProperty( "onto2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		answer = manager.align( newparameters );
 	    }
 	    msg += render( "matchResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("align") ) { // URL * URL * (newparameters) -> URI
@@ -350,7 +350,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		} else {
 		    newparameters.setProperty( "method", newparameters.getProperty( "wsmethod" ) );
 	    	} // Match the two ontologies
-		Message result = manager.align( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		Message result = manager.align( newparameters );
 		if ( result instanceof ErrorMsg ) {
 		    answer = result;
 		} else {
@@ -362,7 +362,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		    } else {
 			newparameters.setProperty( "method",  "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
 			newparameters.setProperty( "embedded", "true" );
-			answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", newparameters) );
+			answer = manager.render( newparameters );
 		    }
 		}
 	    }
@@ -373,14 +373,14 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else if ( newparameters.getProperty( "entity" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.findCorrespondences( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		answer = manager.findCorrespondences( newparameters );
 	    }
 	    msg += render( "correspResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("findRequest") || method.equals("find") ) { // URI * URI -> List of URI
 	    if ( newparameters.getProperty( "onto1" ) == null && newparameters.getProperty( "onto2" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		answer = manager.existingAlignments( newparameters );
             }
 	    msg += render( "findResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("retrieveRequest") || method.equals("retrieve")) { // URI * method -> XML
@@ -390,7 +390,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
 		newparameters.setProperty( "embedded", "true" );
-		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", newparameters) );
+		answer = manager.render( newparameters );
 	    }
 	    msg += render( "retrieveResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("metadataRequest") || method.equals("metadata") ) { // URI -> XML
@@ -399,7 +399,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else {
 		newparameters.setProperty( "embedded", "true" );
 		newparameters.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
-		answer = manager.render( new Message(newId(),(Message)null,myId,serverURL, "", newparameters) );
+		answer = manager.render( newparameters );
             }
 	    msg += render( "metadataResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("loadRequest") || method.equals("load") ) { // URL -> URI
@@ -411,7 +411,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		 param.getProperty( "filename" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    }
-	    answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+	    answer = manager.load( newparameters );
 	    msg += render( "loadResponse", answer, param.getProperty("returnType"), newparameters);
 	    /*
 	      // This has never been in use.
@@ -419,7 +419,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( newparameters.getProperty( "url" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.load( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		answer = manager.load( newparameters );
 	    }
 	    msg += "    <loadResponse"+svcNS+">\n"+answer.SOAPString()+"    </loadResponse>\n";
 	    */
@@ -429,7 +429,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    } else if ( newparameters.getProperty( "query" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else {
-		answer = manager.translate( new Message(newId(),(Message)null,myId,serverURL,"", newparameters) );
+		answer = manager.translate( newparameters );
 	    }
 	    msg += render( "translateResponse", answer, param.getProperty("returnType"), newparameters);
 	} else {
@@ -538,7 +538,5 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	}
 	return params;
     }
-
-    private int newId() { return localId++; }
 
 }

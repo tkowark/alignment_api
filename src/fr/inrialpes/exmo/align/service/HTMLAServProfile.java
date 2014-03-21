@@ -70,11 +70,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private AServProtocolManager manager;
 
-    private String myId;
-    private String serverId;
+    private String serverURL;
     private int localId = 0;
-
-    private int newId() { return localId++; }
 
     public static final int MAX_FILE_SIZE = 10000;
 
@@ -82,6 +79,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     public void init( Properties params, AServProtocolManager manager ) throws AServException {
 	this.manager = manager;
+	serverURL = manager.serverURL()+"/html/";
     }
 
     public boolean accept( String prefix ) {
@@ -258,7 +256,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("errrazze") ){ // Suppress an alignment
 	    String id = params.getProperty("id");
 	    if ( id != null && !id.equals("") ) { // Erase it
-		Message answer = manager.erase( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		Message answer = manager.erase( params );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -273,7 +271,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
 		params.setProperty("id", id);
-		if ( !manager.storedAlignment( new Message(newId(),(Message)null,myId,serverId,"", params ) ) ){
+		if ( !manager.storedAlignment( params ) ){
 		    String pid = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		    msg += "<option value=\""+id+"\">"+pid+"</option>";
@@ -286,7 +284,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String id = params.getProperty("id");
 	    String url = params.getProperty("url");
 	    if ( url != null && !url.equals("") ) { // Load the URL
-		Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+		Message answer = manager.load( params );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -294,7 +292,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 	    }
 	    if ( id != null ){ // Store it
-		Message answer = manager.store( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		Message answer = manager.store( params );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -322,7 +320,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    String id = params.getProperty("id");
 	    String threshold = params.getProperty("threshold");
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
-		Message answer = manager.trim( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		Message answer = manager.trim( params );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -344,7 +342,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("inv") ) {
 	    String id = params.getProperty("id");
 	    if ( id != null && !id.equals("") ){ // Invert it
-		Message answer = manager.inverse( new Message(newId(),(Message)null,myId,serverId,id, params) );
+		Message answer = manager.inverse( params );
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params );
 		} else {
@@ -381,7 +379,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "  <input type=\"checkbox\" name=\"force\" /> Force <input type=\"checkbox\" name=\"async\" /> Asynchronous<br />";
 	    msg += "Additional parameters:<br /><input type=\"text\" name=\"paramn1\" size=\"15\"/> = <input type=\"text\" name=\"paramv1\" size=\"65\"/><br /><input type=\"text\" name=\"paramn2\" size=\"15\"/> = <input type=\"text\" name=\"paramv2\" size=\"65\"/><br /><input type=\"text\" name=\"paramn3\" size=\"15\"/> = <input type=\"text\" name=\"paramv3\" size=\"65\"/><br /><input type=\"text\" name=\"paramn4\" size=\"15\"/> = <input type=\"text\" name=\"paramv4\" size=\"65\"/></form>";
 	} else if ( perf.equals("match") ) {
-	    Message answer = manager.align( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.align( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -391,7 +389,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmfind") ) {
 	    msg ="<h1>Find alignments between ontologies</h1><form action=\"find\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URI identifying the ontologies. Not those of places where to upload them.</small><br /><input type=\"submit\" name=\"action\" value=\"Find\"/></form>";
 	} else if ( perf.equals("find") ) {
-	    Message answer = manager.existingAlignments( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.existingAlignments( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -399,7 +397,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += displayAnswer( answer, params );
 	    }
 	} else if ( perf.equals("corresp") ) {
-	    Message answer = manager.findCorrespondences( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.findCorrespondences( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -427,7 +425,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Retrieve\"/></form>";
 	} else if ( perf.equals("retrieve") ) {
-	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.render( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -451,7 +449,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    	params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.HTMLMetadataRendererVisitor");
 	    else
 		params.setProperty("method", "fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor");
-	    Message answer = manager.render( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.render( params );
 	    //logger.trace( "Content: {}", answer.getContent() );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
@@ -474,7 +472,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {
 	    // load
-	    Message answer = manager.load( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.load( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -493,7 +491,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br />";
 	    msg += "PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .<br /><br />SPARQL query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"80\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (SPARQL)<br /><small>A SPARQL query (PREFIX prefix: &lt;uri&gt; SELECT variables FROM &lt;url&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Translate\"/></form>";
 	} else if ( perf.equals("translate") ) {
-	    Message answer = manager.translate( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.translate( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -531,7 +529,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "</select><br /><input type=\"submit\" name=\"action\" value=\"Evaluate\"/>\n";
 	    msg += "</form>\n";
 	} else if ( perf.equals("eval") ) {
-	    Message answer = manager.eval( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.eval( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {
@@ -567,7 +565,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Compare\"/>\n";
 	    msg += "</form>\n";
 	} else if ( perf.equals("diff") ) {
-	    Message answer = manager.diff( new Message(newId(),(Message)null,myId,serverId,"", params) );
+	    Message answer = manager.diff( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params );
 	    } else {

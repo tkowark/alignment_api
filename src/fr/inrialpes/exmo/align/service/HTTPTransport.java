@@ -358,7 +358,7 @@ public class HTTPTransport {
 	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
 	}
 	logger.trace( "Bloody URI : {}", manager.serverURL()+uri);
-	Message answer = manager.render( new Message( newId(), (Message)null, myId, serverId, "", params) );
+	Message answer = manager.render( params );
 	if ( answer instanceof ErrorMsg ) {
 	    return new HTTPResponse( HTTPResponse.HTTP_NOTFOUND, HTTPResponse.MIME_PLAINTEXT, "Alignment server: unknown alignment : "+answer.getContent() );
 	} else {

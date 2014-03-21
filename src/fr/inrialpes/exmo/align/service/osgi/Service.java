@@ -20,6 +20,7 @@
 
 package fr.inrialpes.exmo.align.service.osgi;
 
+import java.util.Properties;
 import java.util.Set;
 import java.util.Collection;
 import java.net.URI;
@@ -61,29 +62,29 @@ public interface Service {
      * Basic protocol primitives
      *********************************************************************/
 
-    public Message load( Message mess );
+    public Message load( Properties mess );
 
-    public Message align( Message mess );
+    public Message align( Properties mess );
 
-    public Message existingAlignments( Message mess );
+    public Message existingAlignments( Properties mess );
 
-    public Message findCorrespondences( Message mess );
+    public Message findCorrespondences( Properties mess );
 
-    public Message find( Message mess );
+    public Message find( Properties mess );
 
-    public Message translate( Message mess );
+    public Message translate( Properties mess );
 
-    public Message render( Message mess );
+    public Message render( Properties mess );
 
     /*********************************************************************
      * Extended protocol primitives
      *********************************************************************/
 
-    public Message store( Message mess );
+    public Message store( Properties mess );
 
-    //public Message erase( Message mess );
+    //public Message erase( Properties mess );
 
-    public Message metadata( Message mess );
+    public Message metadata( Properties mess );
 
     /*********************************************************************
      * Extra alignment primitives
@@ -92,23 +93,23 @@ public interface Service {
      * There is no way an alignment server could modify an alignment
      *********************************************************************/
 
-    public Message trim( Message mess );
+    public Message trim( Properties mess );
 
-    public Message harden( Message mess );
+    public Message harden( Properties mess );
 
-    public Message inverse( Message mess );
+    public Message inverse( Properties mess );
 
-    public Message meet( Message mess );
+    public Message meet( Properties mess );
 
-    public Message join( Message mess );
+    public Message join( Properties mess );
 
-    public Message compose( Message mess );
+    public Message compose( Properties mess );
 
-    public Message eval( Message mess );
+    public Message eval( Properties mess );
 
-    public Message diff( Message mess );
+    public Message diff( Properties mess );
 
-    public boolean storedAlignment( Message mess );
+    public boolean storedAlignment( Properties mess );
 
     /*********************************************************************
      * Network of alignment server implementation

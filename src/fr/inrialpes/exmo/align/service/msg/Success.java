@@ -31,6 +31,11 @@ public class Success extends Message {
     public Success ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public Success ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String RESTString(){
 	return "<content>"+getXMLContent()+"</content>";	
     }

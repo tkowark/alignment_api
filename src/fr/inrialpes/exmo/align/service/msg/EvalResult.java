@@ -31,6 +31,12 @@ public class EvalResult extends Success {
     public EvalResult ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public EvalResult ( Properties mess, int surr, String from, String cont, Properties param ) {
+	super( mess, surr, from, cont );
+	parameters = param;
+    }
+
     public String HTMLString(){
 	String results = "";
 	if ( getParameters() == null ) {
@@ -44,6 +50,8 @@ public class EvalResult extends Success {
 	}
 	return results;
     }
+
+    // A diff will never be rendered outside of HTML
     public String RESTString(){
 	String results = "<EvaluationResults>";
 	for ( String key : getParameters().stringPropertyNames() ) {

@@ -32,6 +32,11 @@ public class AlignmentMetadata extends Success {
 	super( surr, rep, from, to, cont, param );
     }
 
+    public AlignmentMetadata ( Properties mess, int surr, String from, String cont, Properties param ) {
+	super( mess, surr, from, cont );
+	parameters = param;
+    }
+
     public String HTMLString() {
 	return "Metadata not implemented";
     }

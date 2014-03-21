@@ -27,9 +27,15 @@ import java.util.Properties;
  */
 
 public class CannotRenderAlignment extends ErrorMsg {
+
     public CannotRenderAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public CannotRenderAlignment ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString(){
 	return "Cannot render alignment "+content;
     }

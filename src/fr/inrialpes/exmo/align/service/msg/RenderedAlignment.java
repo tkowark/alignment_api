@@ -31,6 +31,12 @@ public class RenderedAlignment extends Success {
     public RenderedAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public RenderedAlignment ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+	parameters = mess; // This is used below
+    }
+
     public String RESTString(){
 	String method = (parameters==null)?null:parameters.getProperty( "method" );
 	if ( method != null && method.equals("fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" ) ) {

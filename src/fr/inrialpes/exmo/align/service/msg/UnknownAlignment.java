@@ -30,6 +30,11 @@ public class UnknownAlignment extends ErrorMsg {
     public UnknownAlignment ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public UnknownAlignment ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String RESTString(){
 	return "<UnknownAlignment>"+getXMLContent()+"</UnknownAlignment>";
     }

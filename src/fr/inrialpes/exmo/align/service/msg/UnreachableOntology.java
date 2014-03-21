@@ -30,6 +30,11 @@ public class UnreachableOntology extends ErrorMsg {
     public UnreachableOntology ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public UnreachableOntology ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String RESTString() {
 	return "<UnreachableOntology>"+getXMLContent()+"</UnreachableOntology>";
     }

@@ -46,6 +46,14 @@ public class Message {
 	parameters = param;
     }
 
+    public Message ( Properties mess, int surr, String from, String cont ) { 
+	surrogate = surr;
+	//inReplyTo = (Message)mess.getProperty( "msgid" );
+	receiver = mess.getProperty( "sender" );
+	sender = from;
+	content = cont;
+    }
+
     public String HTMLString(){
 	return "<h1>Message</h1><dl><dt>id:</dt><dd>"+surrogate+"</dd><dt>sender:</dt><dd>"+sender+"</dd><dt>receiver:</dt><dd>"+receiver+"</dd><dt>in-reply-to:</dt><dd>"+inReplyTo+"</dd><dt>content:</dt><dd>"+content+"</dd></dl>";
     }

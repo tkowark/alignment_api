@@ -31,6 +31,11 @@ public class OntologyURI extends Success {
     public OntologyURI ( int surr, Message rep, String from, String to, String cont, Properties param ) {
 	super( surr, rep, from, to, cont, param );
     }
+
+    public OntologyURI ( Properties mess, int surr, String from, String cont ) {
+	super( mess, surr, from, cont );
+    }
+
     public String HTMLString(){
 	return "Ontology URI: "+content;
     }
