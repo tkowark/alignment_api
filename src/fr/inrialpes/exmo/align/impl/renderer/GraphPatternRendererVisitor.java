@@ -96,7 +96,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private static int numberNs;
 	private static int number = 1;	
     private static String sub = ""; 
-    private static String obj = "";
+    protected String obj = "";
     private String strBGP = "";
     private String strBGP_Weaken = "";
     protected List<String> listBGP = null;
@@ -104,7 +104,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private Set<String> objectsRestriction = null;
     protected Hashtable<String,String> prefixList = null;
     
-    private static int count = 1;
+    protected static int count = 1;
 	    
     public GraphPatternRendererVisitor( PrintWriter writer ){
 	super( writer );
@@ -115,7 +115,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
     }
 
-    public static void resetVariablesName( String s, String o ) {
+    public void resetVariablesName( String s, String o ) {
     	count = 1;
     	sub = "?" + s;
     	obj = "?" + o + count;    	
@@ -158,8 +158,13 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	return str.substring( index+1 );
     }
     
-    public static String getNamespace(){
-    	return "ns" + numberNs++;
+    public String getOrGenerateNSPrefix(String namespace){
+	if (namespace.length()==0) return "";
+	String ns = prefixList.get(namespace);
+	if (ns==null) {
+	    prefixList.put(namespace, ns="ns"+numberNs++);
+	}
+    	return ns;
     }
     
     public void createQueryFile( String dir, String query ) {
@@ -176,30 +181,36 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	}
     }
 
+    private void createObjectVarName() {
+	
+	if ( blanks ) {
+		obj = "_:o" + ++count;
+	}
+	else {
+		obj = "?o" + ++count;
+	} 
+    }
+    
     public void visit( final ClassId e ) throws AlignmentException {
-	URI u = e.getURI();
-    	if ( u != null ) {
-	    String prefix = getPrefixDomain( u );
-	    String tag = getPrefixName( u );
-	    String shortCut;
-	    if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
-		shortCut = getNamespace();
-		prefixList.put( prefix, shortCut );
-	    } else {
-		shortCut = prefixList.get( prefix );
-	    }
-	    if ( !subjectsRestriction.isEmpty() ) {
-		Iterator<String> listSub = subjectsRestriction.iterator();
-		while ( listSub.hasNext() ) {
-		    String str = listSub.next();
-		    strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
-		    strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-		}
-		subjectsRestriction.clear();
-	    } else {
-		strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-		strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-	    }
+    	if ( e.getURI() != null ) {
+    		String prefix = getPrefixDomain(e.getURI());
+    		String tag = getPrefixName(e.getURI());
+    		String shortCut = getOrGenerateNSPrefix(prefix);
+    		prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
+
+			if ( !subjectsRestriction.isEmpty() ) {
+				Iterator<String> listSub = subjectsRestriction.iterator();
+				while ( listSub.hasNext() ) {
+					String str = listSub.next();
+					strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
+					strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+				}
+				subjectsRestriction.clear();
+			}
+			else {
+				strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+				strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
+			}
     	}
     }
 
@@ -287,12 +298,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		inClassRestriction = false;		
 		obj = temp;
 		if( op == Constructor.AND ){		
-			if ( blanks ) {
-	    		obj = "_:o" + ++count;
-	    	}
-	    	else {
-	    		obj = "?o" + ++count;
-	    	} 
+			this.createObjectVarName();
 		}
     }
 
@@ -383,21 +389,15 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	if ( e.getURI() != null ) {	
     		String prefix = getPrefixDomain( e.getURI() );
     		String tag = getPrefixName( e.getURI() );
-    		String shortCut;
-    		if( !prefixList.containsKey(prefix) && !prefix.equals("") ){
-    			shortCut = getNamespace();
-    			prefixList.put( prefix, shortCut );
-    		}
-    		else {
-    			shortCut = prefixList.get( prefix );
-    		}
+    		String shortCut=getOrGenerateNSPrefix(prefix);
     		String temp = obj;
     		if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )
     			obj = "\"" + valueRestriction.toString() + "\"";
     		if ( flagRestriction == 1 && inClassRestriction )
 				objectsRestriction.add(obj);
     		
-		    strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
+    		createObjectVarName();
+    			strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
 		    strBGP_Weaken += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
     		obj = temp;    		
 		}
@@ -437,9 +437,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		else if ( op == Constructor.COMP ){			
 			int size = e.getComponents().size();
 			String tempSub = sub;			
-			if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
-	    		obj = "_:o" + ++count;
-	    	}
+			//if (this.getClass() == SPARQLConstructRendererVisitor.class ) {
+			createObjectVarName();
+			//}
 			for ( final PathExpression re : e.getComponents() ) {			    
 			    re.accept( this );
 			    size--;
@@ -449,11 +449,8 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    		obj = "\"" + valueRestriction.toString() + "\"";
 			    	}
 			    	else {			    		
-			    		if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
-				    		obj = "_:o" + ++count;
-				    	}
-				    	else {
-				    		obj = "?o" + ++count;
+			    		if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
+				    		createObjectVarName();
 				    	}
 			    	}
 			    }
@@ -469,16 +466,16 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    re.accept( this );
 			    size--;	    
 			    objectsRestriction.add( obj );
-			    if( size != 0 && valueRestriction == null ){
+			    /*if( size != 0 && valueRestriction == null ){
 			    	obj = "?o" + ++count;			    			    	
-			    }
+			    }*/
 			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
 			    	listBGP.add(strBGP_Weaken);
 			    	strBGP_Weaken = "";
 			    }
 			}		
 		}
-		obj = "?o" + ++count;    	
+		//obj = "?o" + ++count;    	
     }
 
     public void visit( final PropertyValueRestriction c ) throws AlignmentException {
@@ -537,14 +534,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		if ( e.getURI() != null ) {
 			String prefix = getPrefixDomain(e.getURI());
     		String tag = getPrefixName(e.getURI());
-    		String shortCut;
-    		if ( !prefixList.containsKey(prefix) && !prefix.equals("") ) {
-    			shortCut = getNamespace();
-    			prefixList.put( prefix, shortCut );
-    		}
-    		else {
-    			shortCut = prefixList.get( prefix );
-    		}
+    		String shortCut=getOrGenerateNSPrefix(prefix);
 			strBGP += sub + " " + shortCut + ":"+ tag + "";
 			strBGP_Weaken += sub + " " + shortCut + ":"+ tag + "";
 		    
@@ -598,9 +588,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		else if ( op == Constructor.COMP ) {
 			int size = e.getComponents().size();
 			String temp = sub;	
-			if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
-	    		obj = "_:o" + ++count;
-	    	}
+			//if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+	    		//obj = "_:o" + ++count;
+			createObjectVarName();
+	    		//}
 			for ( final PathExpression re : e.getComponents() ) {			    
 			    re.accept( this );
 			    size--;
@@ -610,12 +601,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    		obj = valueRestriction.toString();
 			    	}
 			    	else {
-			    		if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
-				    		obj = "_:o" + ++count;
-				    	}
-				    	else {
-				    		obj = "?o" + ++count;				    		
-				    	}
+			    	    if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
+			    		createObjectVarName();
+			    	    }
 			    		objectsRestriction.add( obj );
 			    	}			    					    	
 			    } 
@@ -670,16 +658,16 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			    re.accept( this );
 			    size--;
 			    objectsRestriction.add( obj );
-			    if ( size != 0 && valueRestriction == null ) {
+			    /*if ( size != 0 && valueRestriction == null ) {
 			    	obj = "?o" + ++count;			    			    	
-			    }
+			    }*/
 			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
 			    	listBGP.add(strBGP_Weaken);
 			    	strBGP_Weaken = "";
 			    }
 			}		
 		}
-		obj = "?o" + ++count;    	
+		//obj = "?o" + ++count;    	
     }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
@@ -699,14 +687,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		if ( e.getURI() != null ) {
 			String prefix = getPrefixDomain( e.getURI() );
     		String tag = getPrefixName( e.getURI() );
-    		String shortCut;
-    		if ( !prefixList.containsKey( prefix) ){
-    			shortCut = getNamespace();
-    			prefixList.put( prefix, shortCut );
-    		}
-    		else {
-    			shortCut = prefixList.get( prefix );
-    		}
+    		String shortCut=getOrGenerateNSPrefix(prefix);
 			if ( flagRestriction != 1 )
 				strBGP += shortCut + ":"+ tag + " ?p ?o1 ." +NL;
 			else
