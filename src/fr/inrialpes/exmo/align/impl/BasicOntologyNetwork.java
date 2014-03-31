@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,7 @@ package fr.inrialpes.exmo.align.impl;
 import java.lang.Cloneable;
 import java.lang.Iterable;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,18 +42,19 @@ import org.semanticweb.owl.align.OntologyNetwork;
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.
  *
- * @author J�r�me Euzenat
- * @version $Id$ 
  */
 
 public class BasicOntologyNetwork implements OntologyNetwork {
 
     protected Hashtable<URI,OntologyTriple> ontologies;
     protected HashSet<Alignment> alignments;
+
+    protected Extensions extensions = null;
     
     protected HashMap<URI,Map<URI,Set<Alignment>>> onto2Align;
 
     public BasicOntologyNetwork(){
+	extensions = new Extensions();
 	ontologies = new Hashtable<URI,OntologyTriple>();
 	alignments = new HashSet<Alignment>();
 	onto2Align = new HashMap<URI,Map<URI,Set<Alignment>>>();
@@ -133,6 +135,18 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	}
 	return Collections.emptySet();
     }
+
+    public Collection<String[]> getExtensions(){ return extensions.getValues(); }
+
+    public void setExtensions( Extensions ext ){ extensions = ext; }
+
+    public void setExtension( String uri, String label, String value ) {
+	extensions.setExtension( uri, label, value );
+    };
+
+    public String getExtension( String uri, String label ) {
+	return extensions.getExtension( uri, label );
+    };
 
 }
 
