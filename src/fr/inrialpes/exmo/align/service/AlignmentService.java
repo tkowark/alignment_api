@@ -198,6 +198,8 @@ public class AlignmentService extends CommonCLI {
 	}
 	logger.debug("Directories registered");
 
+	init( parameters );
+
 	// Enables transports (here only HTTP)
 	try {
 	    transport = new HTTPTransport();
@@ -217,6 +219,9 @@ public class AlignmentService extends CommonCLI {
 	}
     }
 
+    protected void init( Properties parameters ) {
+    }
+ 
     protected void close(){
 	logger.debug("Shuting down server");
 	// Disable transport
