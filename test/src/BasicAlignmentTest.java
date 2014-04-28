@@ -91,11 +91,11 @@ public class BasicAlignmentTest {
 	assertNotNull( result, "URIAlignment(result) was null" );
 	String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\nPREFIX onto1: <http://www.example.org/ontology1#> .\n\nSELECT *\nFROM XXX\nWHERE {\n    ?X rdf:type <http://www.example.org/ontology1#reviewedarticle>.\n    ?X rdf:type onto1:reviewedarticle .\n  }";
 	String transf = result.rewriteQuery( query );
-	assertEquals( transf.length(), 280 );
+	assertEquals( transf.length(), 278 );
 	Properties prefix = new Properties();
 	prefix.setProperty( "onto2", "http://www.example.org/ontology2#" );
 	transf = result.rewriteQuery( query, prefix );
-	assertEquals( transf.length(), 274 );
+	assertEquals( transf.length(), 271 );
 	transf = result.translateMessage( query );
 	assertEquals( transf.length(), 249 );
     }
