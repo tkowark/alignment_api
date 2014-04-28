@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.OntologyNetwork;
 import org.semanticweb.owl.align.AlignmentException;
 
 /**
@@ -46,17 +47,12 @@ public interface Cache {
 
     public void close() throws AlignmentException;
 
-    public void flushCache();
-
     // **********************************************************************
-    // LOADING FROM DATABASE
-    /**
-     * loads the alignment descriptions from the database and put them in the
-     * alignmentTable hashtable
-     * index them under the ontology URIs
-     */
+    // INDEXES
+
     public Collection<Alignment> alignments();
     public Collection<URI> ontologies();
+    public Collection<OntologyNetwork> ontologyNetworks();
     public Collection<Alignment> alignments( URI u1, URI u2 );
 
     //**********************************************************************
@@ -64,6 +60,8 @@ public interface Cache {
 
     // Public because this is now used by AServProtocolManager
     public String generateAlignmentUri();
+    
+    public String generateOntologyNetworkUri();
     
     //**********************************************************************
     // FETCHING FROM CACHE
@@ -79,6 +77,11 @@ public interface Cache {
      */
     public Alignment getAlignment( String uri ) throws AlignmentException;
 	
+    /**
+     * retrieve network of ontologies from id
+     */
+    public OntologyNetwork getOntologyNetwork( String uri ) throws AlignmentException;
+	
     public Set<Alignment> getAlignments( URI uri );
 
     /**
@@ -87,8 +90,16 @@ public interface Cache {
      */
     public Set<Alignment> getAlignments( URI uri1, URI uri2 );
 
+    /**
+     * The equivalent primitives to both getAlignments() 
+     * within a network of ontologies are available from the network itself
+     */
+
+    public void flushCache();
+
     //**********************************************************************
-    // RECORDING ALIGNMENTS
+    // RECORDING ALIGNMENTS AND NETWORKS
+
     /**
      * records newly created alignment
      */
@@ -99,16 +110,31 @@ public interface Cache {
      */
     public String recordNewAlignment( String uri, Alignment al, boolean force ) throws AlignmentException;
 
+    /**
+     * records newly created alignment
+     */
+    public String recordNewNetwork( OntologyNetwork network, boolean force );
+
+    /**
+     * records alignment identified by id
+     */
+    public String recordNewNetwork( String uri, OntologyNetwork network, boolean force ) throws AlignmentException;
+
     //**********************************************************************
     // STORING IN DATABASE
 
     public boolean isAlignmentStored( Alignment alignment );
+
+    public boolean isNetworkStored( OntologyNetwork network );
 
     /**
      * Non publicised class
      */
     public void eraseAlignment( String uri, boolean eraseFromDB ) throws AlignmentException;
 
+    public void eraseOntologyNetwork( String uri, boolean eraseFromDB ) throws AlignmentException;
+
     public void storeAlignment( String uri ) throws AlignmentException;
 
+    public void storeOntologyNetwork( String uri ) throws AlignmentException;
 }

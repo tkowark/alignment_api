@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 
 import org.semanticweb.owl.align.OntologyNetwork;
 import org.semanticweb.owl.align.Alignment;
@@ -99,7 +100,7 @@ public class VolatilCache implements Cache {
     }
 
     // **********************************************************************
-    // LOADING FROM DATABASE
+    // INDEXES
 
     protected Enumeration<Alignment> listAlignments() {
 	return alignmentTable.elements();
@@ -113,6 +114,14 @@ public class VolatilCache implements Cache {
 	return ontologyTable.keySet();
     }
     
+    public Collection<URI> ontologyNetworkUris() {
+    	return onetworkTable.keySet();
+    }
+    
+    public Collection<OntologyNetwork> ontologyNetworks() {
+    	return onetworkTable.values();
+    }
+        
     public Set<Alignment> getAlignments( URI uri ) {
 	return ontologyTable.get( uri );
     }
@@ -154,14 +163,6 @@ public class VolatilCache implements Cache {
 	return result;
     }
 
-    public Collection<URI> ontologynetworks() {
-    	return onetworkTable.keySet();
-    }
-    
-    public Collection<OntologyNetwork> ontologyNetworks() {
-    	return onetworkTable.values();
-    }
-    
     public Collection<Alignment> alignments( URI u1, URI u2 ) {
 	Collection<Alignment> results = new HashSet<Alignment>();
 	if ( u1 != null ) {
@@ -202,7 +203,7 @@ public class VolatilCache implements Cache {
 	return alid.substring( alid.indexOf( ALID )+5 );
     }
 
-    public String generateNetworkUri() { //For Ontology and Ontology Networks
+    public String generateOntologyNetworkUri() { //For Ontology and Ontology Networks
 	// Generate an id based on a URI prefix + Date + random number
 	return recoverNetworkUri( generateId() );
     }
@@ -291,6 +292,16 @@ public class VolatilCache implements Cache {
 	return result;
     }
 	
+    /**
+     * retrieve network of ontologies from id
+     */
+    public OntologyNetwork getOntologyNetwork( String uri ) throws AlignmentException {
+	OntologyNetwork result = onetworkTable.get( uri );
+	if ( result == null )
+	    throw new AlignmentException("Cannot find ontology network "+uri);
+	return result;
+    }
+	
     public void flushCache() { // throws AlignmentException
 	for ( Alignment al : alignmentTable.values() ){
 	    if ( al.getExtension(SVCNS, CACHED ) != null && 
@@ -329,16 +340,14 @@ public class VolatilCache implements Cache {
      * records alignment identified by id
      */
     public String recordNewAlignment( String uri, Alignment al, boolean force ) throws AlignmentException {
-	Alignment alignment = al;
- 
-	alignment.setExtension(SVCNS, OURI1, alignment.getOntology1URI().toString());
-	alignment.setExtension(SVCNS, OURI2, alignment.getOntology2URI().toString());
+	al.setExtension(SVCNS, OURI1, al.getOntology1URI().toString());
+	al.setExtension(SVCNS, OURI2, al.getOntology2URI().toString());
 	// Index
-	recordAlignment( uri, alignment, force );
+	recordAlignment( uri, al, force );
 	// Not yet stored
-	alignment.setExtension(SVCNS, STORED, (String)null);
+	al.setExtension(SVCNS, STORED, (String)null);
 	// Cached now
-	resetCacheStamp(alignment);
+	resetCacheStamp( al );
 	return uri;
     }
 
@@ -392,11 +401,67 @@ public class VolatilCache implements Cache {
     }
 
     //**********************************************************************
+    // RECORDING NETWORKS OF ONTOLOGIES
+
+    /**
+     * records a newly created network
+     */
+    public String recordNewNetwork( OntologyNetwork network, boolean force ) {
+	try { return recordNewNetwork( generateOntologyNetworkUri(), network, force );
+	} catch ( AlignmentException ae ) { return (String)null; }
+    }
+
+    /**
+     * records alignment identified by id
+     */
+    public String recordNewNetwork( String uri, OntologyNetwork network, boolean force ) throws AlignmentException {
+	// Index
+	recordNetwork( uri, network, force );
+	// Not yet stored
+	((BasicOntologyNetwork)network).setExtension( SVCNS, STORED, (String)null );
+	// Cached now
+	resetCacheStamp( network );
+	return uri;
+    }
+
+    /**
+     * records a network identified by id
+     */
+    public String recordNetwork( String uri, OntologyNetwork network, boolean force ) {
+	// record the network at the corresponding Uri in tables!
+	((BasicOntologyNetwork)network).setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, uri );
+
+	// Store it
+	if ( force || onetworkTable.get( uri ) == null ) {
+	    try {
+		onetworkTable.put( new URI( uri ), network );
+	    } catch ( URISyntaxException uriex ) {
+		logger.debug( "IGNORED: Unlikely URI exception", uriex );
+		return null;
+	    }
+	}
+	return uri;
+    }
+
+    /**
+     * suppresses the record for a network of ontologies
+     */
+    public void unRecordNetwork( OntologyNetwork network ) {
+	String id = ((BasicOntologyNetwork)network).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	onetworkTable.remove( id );
+    }
+
+    //**********************************************************************
     // STORING IN DATABASE
 
     public boolean isAlignmentStored( Alignment alignment ) {
 	return ( alignment.getExtension( SVCNS, STORED ) != null &&
 		 !alignment.getExtension( SVCNS, STORED ).equals("") );
+    }
+
+    public boolean isNetworkStored( OntologyNetwork network ) {
+	return ( ((BasicOntologyNetwork)network).getExtension( SVCNS, STORED ) != null &&
+		 !((BasicOntologyNetwork)network).getExtension( SVCNS, STORED ).equals("") );
     }
 
     /**
@@ -416,10 +481,31 @@ public class VolatilCache implements Cache {
     public void storeAlignment( String uri ) throws AlignmentException {
     }
 
+    /**
+     * Non publicised class
+     */
+    public void eraseOntologyNetwork( String uri, boolean eraseFromDB ) throws AlignmentException {
+        OntologyNetwork network = getOntologyNetwork( uri );
+        if ( network != null ) {
+	    if ( eraseFromDB ) unstoreOntologyNetwork( uri, network );
+	    unRecordNetwork( network );
+        }
+    }
+
+    public void unstoreOntologyNetwork( String uri, OntologyNetwork network ) throws AlignmentException {
+    }
+
+    public void storeOntologyNetwork( String uri ) throws AlignmentException {
+    }
+
     //**********************************************************************
     // CACHE MANAGEMENT (Not implemented yet)
-    public void resetCacheStamp( Alignment result ){
-	result.setExtension(SVCNS, CACHED, new Date().toString() );
+    public void resetCacheStamp( Alignment al ){
+	al.setExtension(SVCNS, CACHED, new Date().toString() );
+    }
+
+    public void resetCacheStamp( OntologyNetwork network ){
+	((BasicOntologyNetwork)network).setExtension(SVCNS, CACHED, new Date().toString() );
     }
 
     public void cleanUpCache() {

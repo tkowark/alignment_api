@@ -520,6 +520,14 @@ public class SQLCache extends VolatilCache implements Cache {
 	st.executeUpdate(query);
     }
 
+    public void storeOntologyNetwork( String uri ) throws AlignmentException {
+	// TODO
+    }
+
+    public void unstoreOntologyNetwork( String uri, OntologyNetwork network ) throws AlignmentException {
+	// TODO
+    }
+
     // **********************************************************************
     // DATABASE CREATION AND UPDATING
     /*
