@@ -21,19 +21,14 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Hashtable;
+//import java.util.Iterator;
+//import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.Collection;
-import java.util.Set;
-import java.util.HashSet;
+//import java.util.Set;
 import java.util.Date;
-import java.util.Random;
 import java.util.Properties;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -45,43 +40,35 @@ import org.slf4j.LoggerFactory;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
+import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
-import fr.inrialpes.exmo.align.impl.URICell;
-import fr.inrialpes.exmo.align.impl.Namespace;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 
+import org.semanticweb.owl.align.OntologyNetwork;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
-import java.io.PrintStream;
-import java.io.EOFException;
 
 /**
- * JE: This class and Cache should never return SQLException but AlignmentException
- * JE: Maybe some methods are common with RDF storage, the rest would rather be DBService...
+ * This class implements, in addition to VolatilCache,
+ * the persistent storage of Alignments and networks
+ * In a SQL database.
  *
- * This class caches the content of the alignment database. I.e.,
- * It loads the metadata in the hash table
- * It stores the alignment when requested
- * It 
+ * It loads Alignments and network from the database
+ * It stores them in the database on demand
  */
 
-public class SQLCache implements Cache {
+public class SQLCache extends VolatilCache implements Cache {
     final static Logger logger = LoggerFactory.getLogger( SQLCache.class );
-
-    Hashtable<String,Alignment> alignmentTable = null;
-    Hashtable<URI,Set<Alignment>> ontologyTable = null;
 
     String host = null;
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    String idprefix = null;
-
-    final int VERSION = 450; // Version of the API to be stored in the database
+    final int VERSION = 461; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -94,6 +81,7 @@ public class SQLCache implements Cache {
        450: ADDED ontology database / reduced alignment database
 	    ADDED prefix in server
             ADDED dependency database (no action)
+       461: CHANGED THE STICKER BECAUSE OF IMPLEMENTATION
      */
 
     DBService service = null;
@@ -103,13 +91,6 @@ public class SQLCache implements Cache {
     final int SUCCESS = 2;
     final int INIT_ERROR = 3;
 
-    static private final String SVCNS = Namespace.ALIGNSVC.getUriPrefix();
-    static private final String CACHED = "cached";
-    static private final String STORED = "stored";
-    static private final String ALID = "alid/";
-    static private final String OURI1 = "ouri1";
-    static private final String OURI2 = "ouri2";
-	
     //**********************************************************************
 
     public SQLCache( DBService serv ) {
@@ -119,16 +100,14 @@ public class SQLCache implements Cache {
 	} catch( Exception e ) {
 	    logger.warn( "Cannot connect to DB", e );
 	}
-	alignmentTable = new Hashtable<String,Alignment>();
-	ontologyTable = new Hashtable<URI,Set<Alignment>>();
+	resetTables();
     }
 
     public void reset() throws AlignmentException {
-	alignmentTable = new Hashtable<String,Alignment>();
-	ontologyTable = new Hashtable<URI,Set<Alignment>>();
+	resetTables();
 	// reload alignment descriptions
 	try {
-	    loadAlignments( true );
+	    load( true );
 	} catch ( SQLException sqlex ) {
 	    throw new AlignmentException( "SQL exception", sqlex );
 	}
@@ -140,10 +119,9 @@ public class SQLCache implements Cache {
      * alignmentTable hashtable
      */
     public void init( Properties p, String prefix ) throws AlignmentException {
-	logger.debug( "Initializing Database cache" );
+	super.init( p, prefix );
 	port = p.getProperty("http"); // bad idea
 	host = p.getProperty("host");
-	idprefix = prefix;
 	try {
 	    Statement st = createStatement();
 	    // test if a database is here, otherwise create it
@@ -163,7 +141,7 @@ public class SQLCache implements Cache {
 	    // register by the database
 	    registerServer( host, port, rights==1, idprefix );
 	    // load alignment descriptions
-	    loadAlignments( true );
+	    load( true );
 	    st.close();
 	} catch (SQLException sqlex) {
 	    throw new AlignmentException( "SQLException", sqlex );
@@ -194,7 +172,7 @@ public class SQLCache implements Cache {
      * alignmentTable hashtable
      * index them under the ontology URIs
      */
-    private void loadAlignments( boolean force ) throws SQLException {
+    private void load( boolean force ) throws SQLException {
 	logger.debug( "Loading alignments..." );
 	String id = null;
 	Alignment alignment = null;
@@ -218,50 +196,7 @@ public class SQLCache implements Cache {
 	}
 	st.close();
     }
-
-    protected Enumeration<Alignment> listAlignments() {
-	return alignmentTable.elements();
-    }
-
-    public Collection<Alignment> alignments() {
-	return alignmentTable.values();
-    }
-
-    public Collection<URI> ontologies() {
-	return ontologyTable.keySet();
-    }
-
-    public Collection<Alignment> alignments( URI u1, URI u2 ) {
-	Collection<Alignment> results = new HashSet<Alignment>();
-	if ( u1 != null ) {
-	    for ( Alignment al : ontologyTable.get( u1 ) ) {
-		try {
-		    //    if ( al.getOntology1URI().equals( u1 ) ) {
-		    if ( u2 == null ) results.add( al );
-		    else if ( al.getOntology2URI().equals( u2 ) 
-			      || al.getOntology1URI().equals( u2 )) results.add( al );
-		    //    }
-		} catch (AlignmentException alex) {
-		    logger.debug( "IGNORED Exception", alex );
-		}
-	    }
-	} else if ( u2 != null ) {
-	    for ( Alignment al : ontologyTable.get( u2 ) ) {
-		results.add( al );
-	    }
-	} else { results = alignmentTable.values(); }
-	return results;
-    }
-
-    public void flushCache() {// throws AlignmentException
-	for ( Alignment al : alignmentTable.values() ){
-	    if ( al.getExtension(SVCNS, CACHED ) != null && 
-		 !al.getExtension( SVCNS, CACHED ).equals("") &&
-		 al.getExtension(SVCNS, STORED ) != null && 
-		 !al.getExtension( SVCNS, STORED ).equals("") ) flushAlignment( al );
-	};
-    }
-
+    
     /**
      * loads the description of alignments from the database and set them
      * in an alignment object
@@ -375,232 +310,23 @@ public class SQLCache implements Cache {
 	return alignment;
     }
     
-    /**
-     * unload the cells of an alignment...
-     * This should help retrieving some space
-     * 
-     * should be invoked when:
-     * 	( result.getExtension(CACHED) != ""
-     *  && obviously result.getExtension(STORED) != ""
-     */
-    protected void flushAlignment( Alignment alignment ) {// throws AlignmentException
-	//alignment.removeAllCells();
-	// reset
-    	//alignment.setExtension( SVCNS, CACHED, "" );
-    }
-    
-    //**********************************************************************
-    // DEALING WITH URIs
-
-    // Public because this is now used by AServProtocolManager
-    public String generateAlignmentUri() {
-	// Generate an id based on a URI prefix + Date + random number
-	return recoverAlignmentUri( generateId() );
-    }
-    
-    public String recoverAlignmentUri( String id ) {
-	// Recreate Alignment URI from its id
-	return idprefix + "/" + ALID + id;
-    }
-    
-    public String stripAlignmentUri( String alid ) {
-	return alid.substring( alid.indexOf( ALID )+5 );
-    }
-
-    /*
-     * Rules for cell ids:
-     * (1) if users set cell_id uses them (check them for URI)
-     * (2) if not, generate a *local* cell id if necessary and add ##
-     * (3) use these cell-id in the extension part...
-     * STORE:
-     * if cell has extension && no id, create cell id, store it in db, not in setId
-     * if cell has extension && id, us it with getId/setId
-     * UNSTORE:
-     * suppress those extensions with the cell_id if exists
-     * LOAD-FROM-DB: 
-     * if there is a cell id, use it for loading extensions
-     * At alignment store time, use getCellId -> store it
-     * At alignment load-from-db time, get the id and all the 
-     */
-
-    private String generateCellId() {
-	return "##"+generateId();
-    }
-    
-    private String generateId() {
-	// Generate an id based on Date + random number
-	return new Date().getTime() + "/" + randomNum();
-    }
-    
-    private int randomNum() {
-	Random rand = new Random(System.currentTimeMillis());
-	return Math.abs(rand.nextInt(1000)); 
-    }
-
     //**********************************************************************
     // FETCHING FROM CACHE
-    /**
-     * retrieve alignment metadata from id
-     * This is more difficult because we return the alignment we have 
-     * disreagarding if it is complete o only metadata
-     */
-    public Alignment getMetadata( String uri ) throws AlignmentException {
-	Alignment result = alignmentTable.get( uri );
-	if ( result == null )
-	    throw new AlignmentException("getMetadata: Cannot find alignment");
-	return result;
-    }
 	
     /**
      * retrieve full alignment from id (and cache it)
      */
-    public Alignment getAlignment( String uri ) throws AlignmentException {
-	Alignment result = null;
-	try {
-	    result = alignmentTable.get( uri );
-	} catch( Exception ex ) {
-	    //logger.trace( "Unknown exception with Id = {}", uri );
-	    logger.debug( "IGNORED: Unknown exception", ex );
+    protected Alignment fetchAlignment( String uri, Alignment result ) throws AlignmentException {
+	try { 
+	    return retrieveAlignment( uri, result );
+	} catch ( SQLException sqlex ) {
+	    throw new AlignmentException( "getAlignment: SQL exception", sqlex );
+	} catch ( URISyntaxException urisex ) {
+	    logger.trace( "Cache: cannot read from DB", urisex );
+	    throw new AlignmentException( "getAlignment: Cannot find alignment", urisex );
 	}
-	
-	if ( result == null ) {
-	    //logger.trace( "Cache: Id ={} is not found.", uri );
-	    throw new AlignmentException( "getAlignment: Cannot find alignment "+uri );
-	}
-
-	// If not cached, retrieve it now
-	if ( ( result.getExtension( SVCNS, CACHED ) == null || result.getExtension( SVCNS, CACHED ).equals("") )
-	     && result.getExtension(SVCNS, STORED ) != null 
-	     && !result.getExtension(SVCNS, STORED ).equals("") ) {
-	    try { 
-		retrieveAlignment( uri, result );
-	    } catch ( SQLException sqlex ) {
-		throw new AlignmentException( "getAlignment: SQL exception", sqlex );
-	    } catch ( URISyntaxException urisex ) {
-		logger.trace( "Cache: cannot read from DB", urisex );
-		throw new AlignmentException( "getAlignment: Cannot find alignment", urisex );
-	    };
-	}
-	return result;
     }
 	
-    public Set<Alignment> getAlignments( URI uri ) {
-	return ontologyTable.get( uri );
-    }
-
-    /**
-     * returns the alignments between two ontologies
-     * if one of the ontologies is null, then return them all
-     */
-    public Set<Alignment> getAlignments( URI uri1, URI uri2 ) {
-	Set<Alignment> result;
-	Set<Alignment> potential = new HashSet<Alignment>();
-	if ( uri2 != null ){
-	    String uri2String = uri2.toString();
-	    Set<Alignment> found = ontologyTable.get( uri2 );
-	    if ( found != null ) {
-		for( Alignment al : found ) {
-		    if ( al.getExtension(SVCNS, OURI2).equals( uri2String ) ) {
-			potential.add( al );
-		    }
-		}
-	    }
-	} 
-	if ( uri1 != null ) {
-	    if ( potential.isEmpty() ) {
-		Set<Alignment> found = ontologyTable.get( uri1 );
-		if ( found != null ) {
-		    potential = found;
-		} else return potential;
-	    }
-	    result = new HashSet<Alignment>();
-	    String uri1String = uri1.toString();
-	    for(  Alignment al : potential ) {
-		// This is not the best because URI are not resolved here...
-		if ( al.getExtension(SVCNS, OURI1).equals( uri1String ) ) {
-		    result.add( al );
-		}
-	    }
-	} else { result = potential; }
-	return result;
-    }
-
-    //**********************************************************************
-    // RECORDING ALIGNMENTS
-    /**
-     * records newly created alignment
-     */
-    public String recordNewAlignment( Alignment alignment, boolean force ) {
-	try { return recordNewAlignment( generateAlignmentUri(), alignment, force );
-	} catch (AlignmentException ae) { return (String)null; }
-    }
-
-    /**
-     * records alignment identified by id
-     */
-    public String recordNewAlignment( String uri, Alignment al, boolean force ) throws AlignmentException {
-	Alignment alignment = al;
- 
-	alignment.setExtension(SVCNS, OURI1, alignment.getOntology1URI().toString());
-	alignment.setExtension(SVCNS, OURI2, alignment.getOntology2URI().toString());
-	// Index
-	recordAlignment( uri, alignment, force );
-	// Not yet stored
-	alignment.setExtension(SVCNS, STORED, (String)null);
-	// Cached now
-	resetCacheStamp(alignment);
-	return uri;
-    }
-
-    /**
-     * records alignment identified by id
-     */
-    public String recordAlignment( String uri, Alignment alignment, boolean force ) {
-	// record the Alignment at the corresponding Uri in tables!
-	alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, uri );
-
-	// Store it
-	try {
-	    URI ouri1 = new URI( alignment.getExtension( SVCNS, OURI1) );
-	    URI ouri2 = new URI( alignment.getExtension( SVCNS, OURI2) );
-	    if ( force || alignmentTable.get( uri ) == null ) {
-		Set<Alignment> s1 = ontologyTable.get( ouri1 );
-		if ( s1 == null ) {
-		    s1 = new HashSet<Alignment>();
-		    ontologyTable.put( ouri1, s1 );
-		}
-		s1.add( alignment );
-		Set<Alignment> s2 = ontologyTable.get( ouri2 );
-		if ( s2 == null ) {
-		    s2 = new HashSet<Alignment>();
-		    ontologyTable.put( ouri2, s2 );
-		}
-		s2.add( alignment );
-		alignmentTable.put( uri, alignment );
-	    }
-	    return uri;
-	} catch ( Exception e ) {
-	    logger.debug( "IGNORED: Unlikely URI exception", e );
-	    return null;
-	}
-    }
-
-    /**
-     * suppresses the record for an alignment
-     */
-    public void unRecordAlignment( Alignment alignment ) {
-	String id = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	try {
-	    Set<Alignment> s1 = ontologyTable.get( new URI( alignment.getExtension( SVCNS, OURI1) ) );
-	    if ( s1 != null ) s1.remove( alignment );
-	    Set<Alignment> s2 = ontologyTable.get( new URI( alignment.getExtension( SVCNS, OURI2) ) );
-	    if ( s2 != null ) s2.remove( alignment );
-	} catch ( URISyntaxException uriex ) {
-	    logger.debug( "IGNORED: Unlikely URI exception", uriex );
-	}
-	alignmentTable.remove( id );
-    }
-
     //**********************************************************************
     // STORING IN DATABASE
     /**
@@ -629,76 +355,50 @@ public class SQLCache implements Cache {
 	return result + new String( chars, j, i-j ) + "'";
     }
 
-    public boolean isAlignmentStored( Alignment alignment ) {
-	return ( alignment.getExtension( SVCNS, STORED ) != null &&
-		 !alignment.getExtension( SVCNS, STORED ).equals("") );
-    }
-
     /**
      * Non publicised class
      */
-    public void eraseAlignment( String uri, boolean eraseFromDB ) throws AlignmentException {
-        Alignment alignment = getAlignment( uri );
-        if ( alignment != null ) {
-	    try {
-		if ( eraseFromDB ) unstoreAlignment( uri, alignment );
-		// Suppress it from the cache...
-	    } catch (SQLException sqlex) {
-		throw new AlignmentException( "SQL Exception", sqlex );
-	    }
-	    unRecordAlignment( alignment );
-        }
-    }
-
-    /**
-     * Non publicised class
-     */
-    public void unstoreAlignment( String uri ) throws SQLException, AlignmentException {
+    public void unstoreAlignment( String uri ) throws AlignmentException {
 	Alignment alignment = getAlignment( uri );
 	if ( alignment != null ) {
 	    unstoreAlignment( uri, alignment );
 	}
     }
 
-    public void unstoreAlignment( String uri, Alignment alignment ) throws SQLException, AlignmentException {
-	Statement st = createStatement();
-	String id = stripAlignmentUri( uri );
+    // Suppress it from the cache...
+    public void unstoreAlignment( String uri, Alignment alignment ) throws AlignmentException {
 	try {
-	    conn.setAutoCommit( false );
-	    // Delete cell's extensions
-	    ResultSet rs = st.executeQuery( "SELECT cell_id FROM cell WHERE id='"+id+"'" );
-	    while ( rs.next() ){
-		String cid = rs.getString("cell_id");
-		if ( cid != null && !cid.equals("") ) {
-		    st.executeUpdate( "DELETE FROM extension WHERE id='"+cid+"'" );
+	    Statement st = createStatement();
+	    String id = stripAlignmentUri( uri );
+	    try {
+		conn.setAutoCommit( false );
+		// Delete cell's extensions
+		ResultSet rs = st.executeQuery( "SELECT cell_id FROM cell WHERE id='"+id+"'" );
+		while ( rs.next() ){
+		    String cid = rs.getString("cell_id");
+		    if ( cid != null && !cid.equals("") ) {
+			st.executeUpdate( "DELETE FROM extension WHERE id='"+cid+"'" );
+		    }
 		}
+		st.executeUpdate("DELETE FROM cell WHERE id='"+id+"'");
+		st.executeUpdate("DELETE FROM extension WHERE id='"+id+"'");
+		st.executeUpdate("DELETE FROM ontology WHERE id='"+id+"'");
+		st.executeUpdate("DELETE FROM dependency WHERE id='"+id+"'");
+		st.executeUpdate("DELETE FROM alignment WHERE id='"+id+"'");
+		alignment.setExtension( SVCNS, STORED, (String)null);
+	    } catch ( SQLException sex ) {
+		conn.rollback();
+		logger.warn( "SQLError", sex );
+		throw new AlignmentException( "SQL Exception", sex );
+	    } finally {
+		conn.setAutoCommit( false );
+		st.close();
 	    }
-	    st.executeUpdate("DELETE FROM cell WHERE id='"+id+"'");
-	    st.executeUpdate("DELETE FROM extension WHERE id='"+id+"'");
-	    st.executeUpdate("DELETE FROM ontology WHERE id='"+id+"'");
-	    st.executeUpdate("DELETE FROM dependency WHERE id='"+id+"'");
-	    st.executeUpdate("DELETE FROM alignment WHERE id='"+id+"'");
-	    alignment.setExtension( SVCNS, STORED, (String)null);
 	} catch ( SQLException sex ) {
-	    conn.rollback();
-	    logger.warn( "SQLError", sex );
-	    throw sex;
-	} finally {
-	    conn.setAutoCommit( false );
-	    st.close();
+	    throw new AlignmentException( "Cannot establish SQL Connexion", sex );
 	}
     }
 
-    /*
-	    try {
-		if ( eraseFromDB ) unstoreAlignment( uri, alignment );
-		// Suppress it from the cache...
-	    } catch (SQLException sqlex) {
-		throw new AlignmentException( "SQL Exception", sqlex );
-	    }
-	    unRecordAlignment( alignment );
-        }
-    */
     public void storeAlignment( String uri ) throws AlignmentException {
 	String query = null;
 	BasicAlignment alignment = (BasicAlignment)getAlignment( uri );
@@ -716,7 +416,7 @@ public class SQLCache implements Cache {
 	    for( int i=0; i < 3 ; i++ ) {
 		try {
 		    st = createStatement();
-		    logger.debug( "Storing alignment {} as {}", uri, id );
+		    logger.debug( "Storing alignment {}ï¿½as {}", uri, id );
 		    conn.setAutoCommit( false );
 		    query = "INSERT INTO alignment " + 
 			"(id, type, level) " +
@@ -820,21 +520,6 @@ public class SQLCache implements Cache {
 	st.executeUpdate(query);
     }
 
-    //**********************************************************************
-    // CACHE MANAGEMENT (Not implemented yet)
-    public void resetCacheStamp( Alignment result ){
-	result.setExtension(SVCNS, CACHED, new Date().toString() );
-    }
-
-    public void cleanUpCache() {
-	// for each alignment in the table
-	// set currentDate = Date();
-	// if ( DateFormat.parse( result.getExtension(SVCNS, CACHED) ).before( ) ) {
-	// - for each ontology if no other alignment => unload
-	// - clean up cells
-	// }
-    }
-
     // **********************************************************************
     // DATABASE CREATION AND UPDATING
     /*
@@ -892,6 +577,24 @@ public class SQLCache implements Cache {
       uri varchar(200),
       tag varchar(50),
       val varchar(500));
+      
+      # ontologies info 
+      
+      create table  (
+      id varchar(255),
+      idonet varchar(255),
+      uri varchar(255),
+      name varchar(50),
+      file varchar(255));
+
+      # ontologynetwork info 
+      
+      create table ontologynetwork(
+      id varchar(255),
+      uri varchar(255),
+      name varchar(50),
+      type varchar(50),
+      file varchar(255));
 
     */
 
@@ -906,7 +609,9 @@ public class SQLCache implements Cache {
 	    st.executeUpdate("CREATE TABLE dependency (id VARCHAR(255), dependsOn VARCHAR(255))");
 	    st.executeUpdate("CREATE TABLE cell(id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255))");
 	    st.executeUpdate("CREATE TABLE extension(id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
-	    st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), prefix VARCHAR (50), edit BOOLEAN, version VARCHAR(5))");
+	 // st.executeUpdate("CREATE TABLE ontologies (id VARCHAR(255), idonet VARCHAR(255), uri VARCHAR(255), name VARCHAR(50), file VARCHAR(255), primary key (id,idonet))");
+     // st.executeUpdate("CREATE TABLE ontologynetwork (id VARCHAR(255), uri VARCHAR(255), name VARCHAR(50), type VARCHAR(50), file VARCHAR(255), primary key (id,uri))");
+	    st.executeUpdate("CREATE TABLE server (host VARCHAR(50), port VARCHAR(5), prefix VARCHAR (50), edit BOOLEAN, version VARCHAR(5))");	    
 
 	    /*
 	    // EDOAL
@@ -920,13 +625,7 @@ public class SQLCache implements Cache {
 	    // type\in classrest: joinid = id in classrest
 	    st.executeUpdate("CREATE TABLE classlist (joinid VARCHAR(50), intid VARCHAR(250))"); //intid in classexpr
 	    st.executeUpdate("CREATE TABLE classrest (joinid VARCHAR(50), arg1 VARCHAR(250), arg2 VARCHAR(250))");
-	    
-
 	    */
-
-
-
-
 
 	    st.close();
 
@@ -962,6 +661,8 @@ public class SQLCache implements Cache {
 	    st.executeUpdate("DROP TABLE IF EXISTS dependency");
 	    st.executeUpdate("DROP TABLE IF EXISTS cell");
 	    st.executeUpdate("DROP TABLE IF EXISTS extension");
+	    //st.executeUpdate("DROP TABLE IF EXISTS ontologies");
+	    //st.executeUpdate("DROP TABLE IF EXISTS ontologynetwork");
 	    // Redo it
 	    initDatabase();
 	  
@@ -1144,6 +845,16 @@ public class SQLCache implements Cache {
 		    st.executeUpdate( "UPDATE extension SET val=( SELECT e2.val FROM extension e2 WHERE e2.tag='cached' AND e2.id=extension.id ) WHERE tag='stored' AND val=''" );
 		    // We should also implement a clean up (suppress all starting with http://)
 		}
+		if ( version < 461 ) {
+		    logger.info("Upgrading to version 4.7");
+		    // Nothing to be done so far
+		    // 462:
+		    // Ontology tables (modified ex tables)
+		    // 463:
+		    // Ontology networks (+3 tables)
+		    // 464:
+		    // EDOAL
+		}
 		// ALTER version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"'");
 	    } else {
@@ -1152,5 +863,101 @@ public class SQLCache implements Cache {
 	}
 	st.close();
     }
+    
+    //**********************************************************************
+    // ONTOLOGY NETWORKS
+    /*
+     * 
+     * 
+     */
+  
+    /*
+      // JE: This adds an Ontology in THE NETWORK
+    // put the meta data of the ontology network
+    // - structure json/html
+    // - type=
+    public void putOntologyNetwork( URI onuri, String structure, String type ) throws AlignmentException {
+	onetwork = new BasicOntologyNetwork();
+	onetwork.onName = structure; 
+	onetwork.onType = type;
+	onetwork.onFile = null;
+	onetworkTable.put(onuri,onetwork);
+	//TODO handle error in put
+    }
+    */
+    
+    /*
+    // fetch all the ontologies of the network
+    // TODO where should be placed?
+    // To put in LOVAService.java
+import fr.inrialpes.exmo.ontowrap.onetparser.JSONFetcher;  //TODO it shouldn't be here?
 
+    public void fetchLOVOntologyNetwork( URI onuri, String structure, String type ) throws AlignmentException {
+	oonetworkTable = JSONFetcher.TypeFetcher(onuri, structure, type);
+    }
+    */
+    
+    /*
+    // JE: This code was for storing ontologies...
+    // And still relying on a global variable
+    // Apparently, this should work with ONE NETWORK...
+    public void	recordOntologyNetwork( String id ) throws SQLException {
+    	Statement st = null;
+    	id = stripNetworkUri( id );
+    	st = createStatement();
+    	Set<URI> keys = onetworkTable.keySet();
+        for(URI key: keys)
+	    if ( key != null ) {
+    		String uri = key.toString();
+    		String query = null;
+    		logger.debug( "Recording ontology {} with file {}", onetworkTable.keys() );
+		query = "INSERT INTO ontologynetwork " + 
+		    "(id, uri, name, type, file) " +
+		    "VALUES ("+
+		    quote(id)+","+
+		    quote(uri)+","+
+		    quote(onetwork.onName)+","+
+		    quote(onetwork.onType)+","+
+		    quote(onetwork.onFile)+")";
+		System.out.println("El query:  "+ query);
+		st.executeUpdate(query);
+	    }
+    	//recordOONetwork(id);
+    	//TODO add START TRANSACTION; (Insert into ontologynetwork and ontologies) .. COMMIT;
+    }
+    */
+    
+    /*
+    public void	recordOONetwork(String idonet) throws SQLException {
+        int totOnto = 0;
+    	Statement st = null;
+    	st = createStatement();
+    	Set<Entry<URI, OONetwork>> set = oonetworkTable.entrySet();
+        Iterator<Entry<URI, OONetwork>> it = set.iterator();
+        while (it.hasNext()) {
+	    Map.Entry<URI, OONetwork> entry = (Map.Entry<URI, OONetwork>) it.next();
+	    URI uri = entry.getKey();
+	    String urionto = uri.toString();
+	    OONetwork oonetwork = entry.getValue();
+	    String id = generateId()+totOnto;
+	    
+	    if ( urionto != null ) {
+		String query = null;
+		logger.debug( "Recording ontology {} with file {}", urionto );
+		query = "INSERT INTO ontologies " + 
+		    "(id, idonet, uri, name, file) " +
+		    "VALUES ("+
+		    quote(id)+","+
+		    quote(idonet)+","+
+		    quote(urionto)+","+
+		    quote(oonetwork.oonName)+","+
+		    quote(oonetwork.oonFile)+")";
+		System.out.println("El query:  "+ query);
+		totOnto++;
+	    	st.executeUpdate(query);
+	    }
+        }
+    	st.close();
+    }*/
+    
 }

@@ -70,12 +70,13 @@ with a warning:
 
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
-<!--h2>Version 4.7 (1xxx): ??/0?/2014 - Letraset</h2-->
+<!--h2>Version 4.7 (19xx): ??/0?/2014 - Letraset</h2-->
 <p><ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>, use <tt>remCell()</tt> instead (impl)</tt>
 <li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>, from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
 <li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
 <li>Fixed a few mistakes in <tt>SilkRendererVisitor</tt> (impl)</li>
+<li>Fixed several bugs in <tt>GraphPatternRendererVisitor</tt> (impl)</li>
 <li>Implemented <tt>translateMessage()</tt> and <tt>rewriteQuery()</tt> in <tt>BasicAlignment</tt> (impl)</li>
 <li>Reorganised AlignmentServices into transport (HTTP) and service (HTML/Web service) (serv)</li>
 <li>Enabled query translation in interface (serv)</li>
@@ -83,7 +84,8 @@ with a warning:
 <li>Added a command-line utility for query translation (cli)</li>
 <li>Added a guard forbiding to create a <tt>BasicCell</tt> with null objects (impl)</li>
 <li>Added httpcore library necessary for tutorial4 (tutorial/lib)</li>
-<li>Genericised storage <tt>Cache</tt> (serv)</li>
+<li>Added extensions to BasicOntologyNetwork (impl)</li>
+<li>Genericised storage <tt>Cache</tt> and implemented <tt>VolatilCache</tt> (serv)</li>
 </ul></p>
 
 <h2>Version 4.6 (1875): 22/01/2014 - Da lec'h all</h2>
