@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2008
- * Copyright (C) INRIA, 2008-2010, 2012-2013
+ * Copyright (C) INRIA, 2008-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -164,8 +164,6 @@ public class RDFParser {
     public EDOALAlignment parse( final Model rdfmodel ) throws AlignmentException {
 	// Initialize the syntax description
 	initSyntax();
-	// Shut up logging handling
-	//com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.silent = true;
 	// Get the statement including alignment resource as rdf:type
 	StmtIterator stmtIt = rdfmodel.listStatements(null, RDF.type,(Resource)SyntaxElement.getResource("Alignment"));
 	// Take the first one if it exists
@@ -176,7 +174,7 @@ public class RDFParser {
 	// If necessary type-check the alignment
 	if ( !speedparse ) alignment.accept( new TypeCheckingVisitor() );
 	// Clean up memory
-	rdfmodel.close(); // JE: I am not sure that I will not have trouble with initSyntax
+	rdfmodel.close();
 	return alignment;
     }
 
