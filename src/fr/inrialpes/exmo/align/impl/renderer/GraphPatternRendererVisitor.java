@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012-2013
+ * Copyright (C) INRIA, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -94,7 +94,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private Integer nbCardinality = null;
     private String opOccurence = "";    
     private static int numberNs;
-	private static int number = 1;	
+    private static int number = 1;	
     private static String sub = ""; 
     protected String obj = "";
     private String strBGP = "";
@@ -182,13 +182,11 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
 
     private void createObjectVarName() {
-	
 	if ( blanks ) {
-		obj = "_:o" + ++count;
+	    obj = "_:o" + ++count;
+	} else {
+	    obj = "?o" + ++count;
 	}
-	else {
-		obj = "?o" + ++count;
-	} 
     }
     
     public void visit( final ClassId e ) throws AlignmentException {
@@ -298,7 +296,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		inClassRestriction = false;		
 		obj = temp;
 		if( op == Constructor.AND ){		
-			this.createObjectVarName();
+		    createObjectVarName();
 		}
     }
 
@@ -387,95 +385,96 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     
     public void visit( final PropertyId e ) throws AlignmentException {
     	if ( e.getURI() != null ) {	
-    		String prefix = getPrefixDomain( e.getURI() );
-    		String tag = getPrefixName( e.getURI() );
-    		String shortCut=getOrGenerateNSPrefix(prefix);
-    		String temp = obj;
-    		if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )
-    			obj = "\"" + valueRestriction.toString() + "\"";
-    		if ( flagRestriction == 1 && inClassRestriction )
-				objectsRestriction.add(obj);
-    		
-    		createObjectVarName();
-    			strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-		    strBGP_Weaken += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-    		obj = temp;    		
-		}
+	    String prefix = getPrefixDomain( e.getURI() );
+	    String tag = getPrefixName( e.getURI() );
+	    String shortCut = getOrGenerateNSPrefix( prefix );
+	    String temp = obj;
+	    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )
+		obj = "\"" + valueRestriction.toString() + "\"";
+	    if ( flagRestriction == 1 && inClassRestriction )
+		objectsRestriction.add( obj );
+	    createObjectVarName();
+	    strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
+	    strBGP_Weaken += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
+	    obj = temp;    		
+	}
     }
 
     public void visit( final PropertyConstruction e ) throws AlignmentException {
     	op = e.getOperator();
-		if ( op == Constructor.OR ){	
-			int size = e.getComponents().size();
-			if ( valueRestriction != null && !inClassRestriction )
-				obj = "\"" + valueRestriction.toString() + "\"";
-			for ( final PathExpression re : e.getComponents() ) {
-			    strBGP += "{" +NL;
-			    strBGP_Weaken += "{" +NL;
-			    re.accept( this );
-			    size--;
-			    if( size != 0 ){
-			    	strBGP += "}" + " UNION " + NL;
-			    	strBGP_Weaken += "}" + " UNION " + NL;
-			    }
-			    else {
-			    	strBGP += "}" +NL;
-			    	strBGP_Weaken += "}" +NL;
-			    }
-			}		    
-			objectsRestriction.add( obj );
+	if ( op == Constructor.OR ){	
+	    if ( valueRestriction != null && !inClassRestriction )
+		obj = "\"" + valueRestriction.toString() + "\"";
+	    int size = e.getComponents().size();
+	    for ( final PathExpression re : e.getComponents() ) {
+		strBGP += "{" +NL;
+		strBGP_Weaken += "{" +NL;
+		re.accept( this );
+		size--;
+		if( size != 0 ){
+		    strBGP += "}" + " UNION " + NL;
+		    strBGP_Weaken += "}" + " UNION " + NL;
+		} else {
+		    strBGP += "}" +NL;
+		    strBGP_Weaken += "}" +NL;
 		}
-		else if ( op == Constructor.NOT ) {
-			strBGP += "FILTER (NOT EXISTS {" + NL;
-			strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
-			for ( final PathExpression re : e.getComponents() ) {				
-			    re.accept( this );			    
-			}
-			strBGP += "})" + NL;
-			strBGP_Weaken += "})" + NL;
+	    }		    
+	    objectsRestriction.add( obj );
+	} else if ( op == Constructor.NOT ) {
+	    strBGP += "FILTER (NOT EXISTS {" + NL;
+	    strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
+	    for ( final PathExpression re : e.getComponents() ) {				
+		re.accept( this );			    
+	    }
+	    strBGP += "})" + NL;
+	    strBGP_Weaken += "})" + NL;
+	} else if ( op == Constructor.COMP ){		
+	    String tempSub = sub;			
+	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+	    //	obj = "_:o" + ++count;
+	    //}
+	    String tempObj = obj;
+	    int size = e.getComponents().size();
+	    for ( final PathExpression re : e.getComponents() ) {
+		size--;
+		// next object 
+		if ( size == 0 ) { // last step
+		    if ( valueRestriction != null && !inClassRestriction ) {
+			obj = "\"" + valueRestriction.toString() + "\"";
+		    } else {
+			obj = tempObj;
+		    } // otherwise, generating intermediate variables...
+		} else if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+		    obj = "_:o" + ++count;
+		} else {
+		    obj = "?o" + ++count;
 		}
-		else if ( op == Constructor.COMP ){			
-			int size = e.getComponents().size();
-			String tempSub = sub;			
-			//if (this.getClass() == SPARQLConstructRendererVisitor.class ) {
-			createObjectVarName();
-			//}
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    re.accept( this );
-			    size--;
-			    if ( size != 0 ) {
-			    	sub = obj;
-			    	if( size == 1 && valueRestriction != null && !inClassRestriction ) {
-			    		obj = "\"" + valueRestriction.toString() + "\"";
-			    	}
-			    	else {			    		
-			    		if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
-				    		createObjectVarName();
-				    	}
-			    	}
-			    }
-			}
-			objectsRestriction.add( obj );
-			sub = tempSub;
-		}		
-		else {			
-			int size = e.getComponents().size();
-			if ( valueRestriction != null && !inClassRestriction )
-				obj = "\"" + valueRestriction.toString() + "\"";
-			for ( final PathExpression re : e.getComponents() ) {			  
-			    re.accept( this );
-			    size--;	    
-			    objectsRestriction.add( obj );
-			    /*if( size != 0 && valueRestriction == null ){
-			    	obj = "?o" + ++count;			    			    	
-			    }*/
-			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
-			    	listBGP.add(strBGP_Weaken);
-			    	strBGP_Weaken = "";
-			    }
-			}		
+		// sub = last obj; obj = obj if last, var or blank otherwise
+		re.accept( this ); // p
+		sub = obj; // sub <= last object
+	    }
+	    objectsRestriction.add( obj );
+	    obj = tempObj;
+	    sub = tempSub;
+	} else {			
+	    if ( valueRestriction != null && !inClassRestriction )
+		obj = "\"" + valueRestriction.toString() + "\"";
+	    int size = e.getComponents().size();
+	    for ( final PathExpression re : e.getComponents() ) {			  
+		re.accept( this );
+		size--;	    
+		objectsRestriction.add( obj );
+		if( size != 0 && valueRestriction == null ){
+		    //createObjectVarName();
+		    obj = "?o" + ++count;
 		}
-		//obj = "?o" + ++count;    	
+		if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
+		    listBGP.add(strBGP_Weaken);
+		    strBGP_Weaken = "";
+		}
+	    }		
+	}
+	obj = "?o" + ++count;
     }
 
     public void visit( final PropertyValueRestriction c ) throws AlignmentException {
