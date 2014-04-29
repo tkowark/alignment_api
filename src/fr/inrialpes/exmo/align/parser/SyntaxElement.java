@@ -59,6 +59,10 @@ public enum SyntaxElement {
 	IDENTIFIER(     Namespace.DUBLIN_CORE, "identifier"),
 
     // ALIGNMENT NAMESPACE
+        ONTOLOGYNETWORK(Namespace.ALIGNMENT, "OntologyNetwork", true),
+	ONID(           Namespace.ALIGNMENT, "id"),
+	ONONTOLOGY(     Namespace.ALIGNMENT, "ontology"),
+	ONALIGNMENT(    Namespace.ALIGNMENT, "alignment"),
         ALIGNMENT(      Namespace.ALIGNMENT, "Alignment", true),
 	ALID(           Namespace.ALIGNMENT, "id"),
 	CELL(           Namespace.ALIGNMENT, "Cell", true),

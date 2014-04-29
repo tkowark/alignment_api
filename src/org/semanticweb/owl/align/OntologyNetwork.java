@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,8 +32,6 @@ import fr.inrialpes.exmo.ontowrap.Ontology;
 /**
  * Represents a distributed system of aligned ontologies or network of ontologies.
  *
- * @author J�r�me Euzenat
- * @version $Id$ 
  */
 
 public interface OntologyNetwork extends Cloneable {

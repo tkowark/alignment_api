@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011, 2013
+ * Copyright (C) INRIA, 2008-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,19 +30,35 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.Properties;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
+import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
+
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.OntologyNetwork;
+
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
+
 import fr.inrialpes.exmo.align.gen.OntologyNetworkWeakener;
 import fr.inrialpes.exmo.align.gen.NetworkAlignmentDropper;
 import fr.inrialpes.exmo.align.gen.NetworkCorrespondenceDropper;
@@ -386,4 +402,92 @@ public class OntologyNetworkTest {
     public void weakenNDExceptionTest12() throws URISyntaxException, AlignmentException {
 	new NetworkDeconnector().weaken( noo, -.2, (Properties)null );
     }
+
+    /**
+     * HERE WE SHOULD ADD TESTS FOR PRINTER/WRITER
+     * - print on
+     * - read it
+     * - do it with an empty OntologyNetwork first
+     */
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"expandTest"})
+    public void printEmptyNetworkTest() throws URISyntaxException, AlignmentException, UnsupportedEncodingException {
+	BasicOntologyNetwork newnoo = new BasicOntologyNetwork();
+	newnoo.setIndentString( "" );
+	newnoo.setNewLineString( "" );	
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	try {
+	    newnoo.write( writer );
+	} finally {
+	    writer.flush();
+	    writer.close();
+	}
+	String str1 = stream.toString();
+	assertEquals( str1, "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xmlns:xsd='http://www.w3.org/2001/XMLSchema#'><OntologyNetwork></OntologyNetwork></rdf:RDF>" );
+    }
+
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"expandTest"},expectedExceptions = AlignmentException.class)
+    public void printNoURINetworkTest() throws URISyntaxException, AlignmentException, UnsupportedEncodingException {
+	BasicOntologyNetwork newnoo = (BasicOntologyNetwork)noo;
+	newnoo.setIndentString( "" );
+	newnoo.setNewLineString( "" );	
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	try {
+	    newnoo.write( writer );
+	} finally {
+	    writer.flush();
+	    writer.close();
+	}
+    }
+
+    @Test(groups = { "full", "raw" }, dependsOnMethods = {"printNoURINetworkTest"})
+    public void printNetworkTest() throws FileNotFoundException, URISyntaxException, AlignmentException, UnsupportedEncodingException {
+	BasicOntologyNetwork newnoo = (BasicOntologyNetwork)noo;
+	newnoo.setIndentString( "" );
+	newnoo.setNewLineString( "" );
+	int i = 0;
+	String prefix = "test/output/align";
+	for( Alignment al : newnoo.getAlignments() ) {
+	    i++;
+	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, "file:"+prefix+i+".rdf" );
+	    // I should also save these alignments...
+	    FileOutputStream stream = new FileOutputStream( prefix+i+".rdf" );
+	    PrintWriter writer = new PrintWriter (
+                          new BufferedWriter(
+                               new OutputStreamWriter( stream, "UTF-8" )), true);
+	    try {
+		al.render( new RDFRendererVisitor( writer ) );
+	    } finally {
+		writer.flush();
+		writer.close();
+	    }
+	}
+	// Print it in a string
+	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
+	PrintWriter writer = new PrintWriter (
+			  new BufferedWriter(
+			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	try {
+	    newnoo.write( writer );
+	} finally {
+	    writer.flush();
+	    writer.close();
+	}
+	String str1 = stream.toString();
+	//System.err.println(str1);
+	assertEquals( str1, "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#' xmlns:xsd='http://www.w3.org/2001/XMLSchema#'><OntologyNetwork><ontology rdf:resource='http://www.example.org/ontology2'/><ontology rdf:resource='http://www.example.org/ontology1'/><ontology rdf:resource='file:examples/rdf/edu.mit.visus.bibtex.owl'/><ontology rdf:resource='file:examples/rdf/edu.umbc.ebiquity.publication.owl'/><alignment rdf:resource='file:test/output/align1.rdf'/><alignment rdf:resource='file:test/output/align2.rdf'/><alignment rdf:resource='file:test/output/align3.rdf'/><alignment rdf:resource='file:test/output/align4.rdf'/><alignment rdf:resource='file:test/output/align5.rdf'/><alignment rdf:resource='file:test/output/align6.rdf'/></OntologyNetwork></rdf:RDF>" );
+	// Read it from the string
+	OntologyNetwork bon = BasicOntologyNetwork.read( new ByteArrayInputStream( str1.getBytes() ) );
+	// Check the topology
+	assertEquals( bon.getAlignments().size(), 6 );
+	assertEquals( bon.getOntologies().size(), 4 );
+    }
+
 }
