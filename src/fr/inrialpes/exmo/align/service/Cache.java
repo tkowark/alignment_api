@@ -101,22 +101,22 @@ public interface Cache {
     // RECORDING ALIGNMENTS AND NETWORKS
 
     /**
-     * records newly created alignment
+     * records newly created alignment and returns its idenfifier
      */
     public String recordNewAlignment( Alignment alignment, boolean force );
 
     /**
-     * records alignment identified by id
+     * records alignment identified by id and returns its idenfifier
      */
     public String recordNewAlignment( String uri, Alignment al, boolean force ) throws AlignmentException;
 
     /**
-     * records newly created alignment
+     * records newly created network and returns its idenfifier
      */
     public String recordNewNetwork( OntologyNetwork network, boolean force );
 
     /**
-     * records alignment identified by id
+     * records network identified by id and returns its idenfifier
      */
     public String recordNewNetwork( String uri, OntologyNetwork network, boolean force ) throws AlignmentException;
 
