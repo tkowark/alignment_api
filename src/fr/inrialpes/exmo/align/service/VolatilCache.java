@@ -58,6 +58,7 @@ public class VolatilCache implements Cache {
     final static Logger logger = LoggerFactory.getLogger( VolatilCache.class );
 
     Hashtable<String,Alignment> alignmentTable = null;
+    Hashtable<String,Alignment> alignmentURITable = null;
     Hashtable<URI,Set<Alignment>> ontologyTable = null;
     Hashtable<URI,OntologyNetwork> onetworkTable = null;
 
@@ -79,6 +80,8 @@ public class VolatilCache implements Cache {
 
     public void resetTables() {
 	alignmentTable = new Hashtable<String,Alignment>();
+	// URIINdex:
+	alignmentURITable = new Hashtable<String,Alignment>();
 	ontologyTable = new Hashtable<URI,Set<Alignment>>();
 	onetworkTable = new Hashtable<URI,OntologyNetwork>();
     }
@@ -261,7 +264,23 @@ public class VolatilCache implements Cache {
 	    throw new AlignmentException("getMetadata: Cannot find alignment");
 	return result;
     }
-	
+
+    // URIINdex:
+    public Alignment findAlignment( String uri ) throws AlignmentException {
+	Alignment result = null;
+	try {
+	    result = getAlignment( uri );
+	} catch (AlignmentException alex) {
+	    try {
+		result = alignmentURITable.get( uri );
+	    } catch (URISyntaxException uriex) {
+		logger.error( "URISyntaxException on {}", uri );
+		throw alex;
+	    }
+	}
+	return result;
+    }
+
     /**
      * retrieve full alignment from id (and cache it)
      */
@@ -355,6 +374,7 @@ public class VolatilCache implements Cache {
      * records alignment identified by id
      */
     public String recordAlignment( String uri, Alignment alignment, boolean force ) {
+	// URIINdex: if this guy already has a URI, record in table
 	// record the Alignment at the corresponding Uri in tables!
 	alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, uri );
 
@@ -398,6 +418,7 @@ public class VolatilCache implements Cache {
 	    logger.debug( "IGNORED: Unlikely URI exception", uriex );
 	}
 	alignmentTable.remove( id );
+	// URIINdex: should remove all entries pointing to it
     }
 
     //**********************************************************************

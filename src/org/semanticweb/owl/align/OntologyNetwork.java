@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-package org.semanticweb.owl.align; 
+package org.semanticweb.owl.align;
 
 import java.lang.Cloneable;
 import java.lang.Iterable;
