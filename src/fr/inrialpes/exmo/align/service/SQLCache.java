@@ -860,6 +860,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		}
 	    }
 	    // Suppress old database if exists
+	    st.executeUpdate("DROP TABLE IF EXISTS alignmenturis");
 	    st.executeUpdate("DROP TABLE IF EXISTS extension");
 	    st.executeUpdate("DROP TABLE IF EXISTS cell");
 	    st.executeUpdate("DROP TABLE IF EXISTS dependency");
