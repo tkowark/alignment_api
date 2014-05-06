@@ -82,8 +82,8 @@ public class SQLCache extends VolatilCache implements Cache {
             SUPPRESSED alignment information (id,source) from ontology
             ADDED ontology ids to alignments (onto1, onto2)
             ADDED network table
-            ADDED ontologynetwork join table
-            ADDED alignmentnetwork join table
+            ADDED networkontology join table
+            ADDED networkalignment join table
        463: ADDED FOREIGN KEY CONSTRAINTS
        // URIINdex:
        464: ADDED multiple uris for alignments
@@ -198,7 +198,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		alignment = retrieveDescription( id );
 		recordAlignment( recoverAlignmentUri( id ), alignment, true );
 		// URIINdex: load alternative URIs
-		rs = st.executeQuery("SELECT uri,prefered FROM alignmenturis WHERE id="+quote(id)+");");
+		rs = st.executeQuery("SELECT uri,prefered FROM alignmenturis WHERE id="+quote(id)+";");
 		while( rs.next() ) {
 		    alignmentURITable.put( rs.getString("uri"), alignment );
 		}	    
@@ -863,8 +863,8 @@ public class SQLCache extends VolatilCache implements Cache {
 	    st.executeUpdate("DROP TABLE IF EXISTS extension");
 	    st.executeUpdate("DROP TABLE IF EXISTS cell");
 	    st.executeUpdate("DROP TABLE IF EXISTS dependency");
-	    st.executeUpdate("DROP TABLE IF EXISTS alignmentnetwork");
-	    st.executeUpdate("DROP TABLE IF EXISTS ontologynetwork");
+	    st.executeUpdate("DROP TABLE IF EXISTS networkalignment");
+	    st.executeUpdate("DROP TABLE IF EXISTS networkontology");
 	    st.executeUpdate("DROP TABLE IF EXISTS network");
 	    st.executeUpdate("DROP TABLE IF EXISTS alignment");
 	    st.executeUpdate("DROP TABLE IF EXISTS ontology");
