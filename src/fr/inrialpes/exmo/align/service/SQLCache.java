@@ -463,6 +463,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		//ontologies do not depend on alignments
 		//st.executeUpdate("DELETE FROM ontology WHERE id='"+id+"'");
 		st.executeUpdate("DELETE FROM dependency WHERE id='"+id+"'");
+		st.executeUpdate("DELETE FROM alignmenturis WHERE id='"+id+"'");
 		st.executeUpdate("DELETE FROM alignment WHERE id='"+id+"'");
 		alignment.setExtension( SVCNS, STORED, (String)null);
 	    } catch ( SQLException sex ) {
@@ -795,7 +796,7 @@ public class SQLCache extends VolatilCache implements Cache {
       
       CREATE TABLE alignmenturis (
       id varchar(100),
-      uri varchar(200),
+      uri varchar(255),
       prefered boolean);
       // Implicit constraint, for each id, there is at most one prefered set to true
       
@@ -816,7 +817,7 @@ public class SQLCache extends VolatilCache implements Cache {
 	    st.executeUpdate("CREATE TABLE dependency (id VARCHAR(100), dependsOn VARCHAR(100), FOREIGN KEY (id) REFERENCES alignment (id), FOREIGN KEY (dependsOn) REFERENCES alignment (id), primary key (id, dependsOn))");
 	    st.executeUpdate("CREATE TABLE cell (id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255), FOREIGN KEY (id) REFERENCES alignment (id))");
 	    st.executeUpdate("CREATE TABLE extension (id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
-	    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(200), prefered boolean);");
+	    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(255), prefered boolean);");
 
 	    /*
 	    // EDOAL
@@ -1090,7 +1091,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		if ( version < 464 ) {
 		    // ADDED TABLE FOR MULTIPLE URIs
 		    // URIINdex:
-		    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(200), prefered boolean);");
+		    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(255), prefered boolean);");
 		}
 		// EDOAL
 		// ALTER version
