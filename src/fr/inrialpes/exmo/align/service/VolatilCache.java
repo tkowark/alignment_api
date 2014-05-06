@@ -271,12 +271,7 @@ public class VolatilCache implements Cache {
 	try {
 	    result = getAlignment( uri );
 	} catch (AlignmentException alex) {
-	    try {
-		result = alignmentURITable.get( uri );
-	    } catch (URISyntaxException uriex) {
-		logger.error( "URISyntaxException on {}", uri );
-		throw alex;
-	    }
+	    result = alignmentURITable.get( uri );
 	}
 	return result;
     }
