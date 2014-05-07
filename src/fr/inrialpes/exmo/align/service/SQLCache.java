@@ -633,6 +633,8 @@ public class SQLCache extends VolatilCache implements Cache {
 		    st = createStatement();
 		    logger.debug( "Storing network {} as {}", uri, id );
 		    conn.setAutoCommit( false );
+		    // Declare ontology network
+		    st.executeUpdate("INSERT INTO network (id) VALUES ("+qid+");");
 		    // Store alignments
 		    for ( Alignment align : network.getAlignments() ) {
 			String alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );

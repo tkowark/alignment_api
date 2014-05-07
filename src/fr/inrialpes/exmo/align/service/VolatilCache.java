@@ -310,10 +310,14 @@ public class VolatilCache implements Cache {
      * retrieve network of ontologies from id
      */
     public OntologyNetwork getOntologyNetwork( String uri ) throws AlignmentException {
-	OntologyNetwork result = onetworkTable.get( uri );
-	if ( result == null )
-	    throw new AlignmentException("Cannot find ontology network "+uri);
-	return result;
+	try {
+	    OntologyNetwork result = onetworkTable.get( new URI( uri ) );
+	    if ( result == null )
+		throw new AlignmentException("Cannot find ontology network "+uri);
+	    return result;
+	} catch (URISyntaxException uriex) {
+	    throw new AlignmentException( "URI Syntax exception: "+uri, uriex );
+	}
     }
 	
     public void flushCache() { // throws AlignmentException
