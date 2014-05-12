@@ -349,14 +349,14 @@ public class SQLCache extends VolatilCache implements Cache {
 	    //ResultSet rs = st.executeQuery( "SELECT * FROM network WHERE id = '" + id  +"'" );
 	    //while( rs.next() ) {}
 	    ResultSet rs = st.executeQuery( "SELECT * FROM networkontology WHERE network = '" + id  +"'" );
-	    if ( rs.next() ) {
+	    while ( rs.next() ) {
 		// TODO: Create the ontology if non existant [NO: Todo when storing!]
 		network.addOntology( new URI( rs.getString( "onto" ) ) );
 	    }
 	    rs = st.executeQuery( "SELECT * FROM networkalignment WHERE network = '" + id  +"'" );
-	    if ( rs.next() ) {
+	    while ( rs.next() ) {
 		// get the alignment with that URI and set it
-		network.addAlignment( getAlignment( rs.getString("align") ) );
+		network.addAlignment( getAlignment( recoverAlignmentUri( rs.getString("align") ) ) );
 	    }
 
 	    // Get extension metadata (including URI)

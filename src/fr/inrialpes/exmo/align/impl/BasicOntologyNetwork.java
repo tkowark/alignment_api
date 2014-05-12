@@ -284,7 +284,12 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	    while ( stmtIt.hasNext() ) {
 		RDFNode al = stmtIt.nextStatement().getObject();
 		if ( al.isURIResource() ) {
-		    on.addAlignment( aparser.parse( al.asResource().getURI() ) );
+		    String aluri = al.asResource().getURI();
+		    Alignment alobject = aparser.parse( aluri );
+		    if ( alobject.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) == null ) {
+			alobject.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, aluri );
+		    }
+		    on.addAlignment( alobject );
 		} else {
 		    logger.debug( "IGNORED Exception : Alignments must be identified by URIs" );
 		}
