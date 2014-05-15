@@ -20,7 +20,7 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
-import java.lang.Cloneable;
+//import java.lang.Cloneable; // JE: what happens when I do a clone() ??
 import java.lang.Iterable;
 import java.util.Collections;
 import java.util.Collection;
@@ -135,13 +135,44 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	return ontologies.keySet(); // ??
     };
     public Set<Alignment> getTargetingAlignments( URI onto ){
-	if (!ontologies.containsKey(onto)) return Collections.emptySet();
-	return ontologies.get( onto ).targettingAlignments;
-    };
+	OntologyTriple ot = ontologies.get( onto );
+	if ( ot == null ) return Collections.emptySet();
+	return ot.targettingAlignments;
+    }
     public Set<Alignment> getSourceAlignments( URI onto ){
-	if (!ontologies.containsKey(onto)) return Collections.emptySet();
-	return ontologies.get( onto ).sourceAlignments;
-    };
+	OntologyTriple ot = ontologies.get( onto );
+	if ( ot == null ) return Collections.emptySet();
+	return ot.sourceAlignments;
+    }
+    /*
+      The one below is more efficient (as soon as the structure is maintained)
+      Thus structure is not necessary... it should have been put rather in ontoTriple!
+    public Set<Alignment> getAlignments( URI onto1, URI onto2 ){
+	OntologyTriple ot1 = ontologies.get( onto1 );
+	OntologyTriple ot2 = ontologies.get( onto2 );
+	if ( ot1 == null || ot2 == null ) return Collections.emptySet();
+	return intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
+    }
+    */
+    public Set<Alignment> getAlignments(URI srcOnto, URI dstOnto) {
+	Map<URI,Set<Alignment>> m = onto2Align.get(srcOnto);
+	if (m!=null) {
+	    Set<Alignment> aligns = m.get(dstOnto);
+	    if (aligns!=null) return Collections.unmodifiableSet(aligns);
+	}
+	return Collections.emptySet();
+    }
+
+
+    /**
+     * Clone?
+     */
+    //public BasicOntologyNetwork clone() {}
+
+    /**
+     * Normalizes an ontology network for it to have exactly one alignment between each pair of ontologies.
+     * Creates a new network
+     */
     public void invert() throws AlignmentException {
 	HashSet<Alignment> newal = new HashSet<Alignment>();
 	for ( Alignment al : alignments ) newal.add( al.inverse() );
@@ -155,7 +186,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
     public void normalize() throws AlignmentException {
 	for ( OntologyTriple ot1 : ontologies.values() ) {
 	    for ( OntologyTriple ot2 : ontologies.values() ) {
-		Set<Alignment> als = intersect( ot1.sourceAlignments, ot2.targettingAlignments );
+		Set<Alignment> als = intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
 		// Suppress them
 		if ( als.size() != 1 ) {
 		    Alignment norm = normalizeAlignmentSet( als, ot1.onto, ot2.onto );
@@ -169,7 +200,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	}
     }
 
-    protected Alignment normalizeAlignmentSet( Set<Alignment> als, URI onto1, URI onto2 ) {
+    protected static Alignment normalizeAlignmentSet( Set<Alignment> als, URI onto1, URI onto2 ) throws AlignmentException {
 	Alignment result = null;
 	if ( als.size() == 0 ) { // If no element, create new
 	    result = new BasicAlignment();
@@ -189,7 +220,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	return result;
     }
 
-    protected Set<Alignment> intersect( Set<Alignment> s1, Set<Alignment> s2 ) {
+    protected static Set<Alignment> intersectAlignments( Set<Alignment> s1, Set<Alignment> s2 ) {
 	Set<Alignment> result = new HashSet<Alignment>();
 	for ( Alignment x : s1 ) {
 	    if ( s2.contains( x ) ) result.add( x );
@@ -201,13 +232,16 @@ public class BasicOntologyNetwork implements OntologyNetwork {
      * Match ontologies in a network, using existing ontologies as input...
      * Modifies the network
      * TODO
+     * Alternative definition!
+     * public void match( Class<? extends AlignmentProcess> method, boolean reflexive ) throws AlignmentException {
+    }
      */
     public void match( String method, boolean reflexive, boolean symmetric) throws AlignmentException {
 	for ( OntologyTriple ot1 : ontologies.values() ) {
 	    for ( OntologyTriple ot2 : ontologies.values() ) {
 		if ( ( ot1 == ot2 && reflexive )
 		     || symmetric ) {
-		    Set<Alignment> als = intersect( ot1.sourceAlignments, ot2.targettingAlignments );
+		    Set<Alignment> als = intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
 		    Alignment init = normalizeAlignmentSet( als, ot1.onto, ot2.onto );
 		    for ( Alignment al : als ) {
 			remAlignment( al );
@@ -225,9 +259,19 @@ public class BasicOntologyNetwork implements OntologyNetwork {
     }
 
     /**
+     * Applies a threshold to all alignments in a network
+     * Modifies the network
+     */
+    public void trim( String method, double threshold ) throws AlignmentException {
+	for ( Alignment al : alignments ) {
+	    al.cut( method, threshold );
+	}
+    }
+
+    /**
      * Intersection of two ontology networks...
      * Creates a new network
-     * TODO
+     * TODO: add extensions? i.e., partial clone as BasicAlignment
      */
     public static BasicOntologyNetwork meet( OntologyNetwork on1, OntologyNetwork on2 ) throws AlignmentException {
 	BasicOntologyNetwork result = new BasicOntologyNetwork();
@@ -242,8 +286,13 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	for ( URI onto1 : result.getOntologies() ) {
 	    for ( URI onto2 : result.getOntologies() ) {
 		// Get the alignments from both networks
+		Set<Alignment> als1 = on1.getAlignments( onto1, onto2 );
+		Set<Alignment> als2 = on2.getAlignments( onto1, onto2 );
 		// Normalise them (yes because it is join)
+		Alignment init1 = normalizeAlignmentSet( als1, onto1, onto2 );
+		Alignment init2 = normalizeAlignmentSet( als2, onto1, onto2 );
 		// Meet them
+		result.addAlignment( init1.meet( init2 ) );
 	    }
 	}
 	return result;
@@ -252,25 +301,19 @@ public class BasicOntologyNetwork implements OntologyNetwork {
     /**
      * Union of two ontology networks...
      * Creates a new network
-     * TODO
+     * TODO: same as before
      */
     public static BasicOntologyNetwork join( OntologyNetwork on1, OntologyNetwork on2 ) throws AlignmentException {
 	return (BasicOntologyNetwork)null;
     }
 
     /**
-     * Add alignments only if there is no existing alignments
-    public void match( Class<? extends AlignmentProcess> method, boolean reflexive ) throws AlignmentException {
-    }
+     * Difference between two ontology networks...
+     * Creates a new network
+     * TODO: same as before
      */
-
-    public Set<Alignment> getAlignments(URI srcOnto, URI dstOnto) {
-	Map<URI,Set<Alignment>> m = onto2Align.get(srcOnto);
-	if (m!=null) {
-	    Set<Alignment> aligns = m.get(dstOnto);
-	    if (aligns!=null) return Collections.unmodifiableSet(aligns);
-	}
-	return Collections.emptySet();
+    public static BasicOntologyNetwork diff( OntologyNetwork on1, OntologyNetwork on2 ) throws AlignmentException {
+	return (BasicOntologyNetwork)null;
     }
 
     public Collection<String[]> getExtensions(){ return extensions.getValues(); }
