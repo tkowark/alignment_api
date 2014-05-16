@@ -21,14 +21,18 @@
 package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
 import fr.inrialpes.exmo.align.service.msg.AlignmentId;
 import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
 import fr.inrialpes.exmo.align.service.msg.EvaluationId;
+import fr.inrialpes.exmo.align.service.msg.OntologyNetworkId;
+import fr.inrialpes.exmo.align.service.msg.UnknownOntologyNetwork;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.OntologyNetwork;
 
 import java.io.File;
 import java.io.FileReader;
@@ -42,8 +46,8 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
-
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -52,10 +56,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.lang.Integer;
 
 import org.slf4j.Logger;
@@ -83,7 +85,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     }
 
     public boolean accept( String prefix ) {
-	if ( prefix.equals("admin") || prefix.equals("html") ) return true;
+	if ( prefix.equals("admin") || prefix.equals("html") || prefix.equals("ontonet")) return true;
 	else return false;
     }
 
@@ -92,7 +94,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    return htmlAnswer( uri, perf, header, params );
 	} else if ( prefix.equals("admin") ) {
 	    return adminAnswer( uri, perf, header, params );
-	} else return about();
+	} else if ( prefix.equals("ontonet") ) {
+	    return ontologyNetworkAnswer( uri, perf, header, params );
+	}else return about();
     }
 
     public void close(){
@@ -182,6 +186,270 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Alignment server administration</a></small></center></body></html>";
     }
 
+    
+    /**
+     * HTTP ontology networks interface
+     * Allows the ontology networks management through HTTP
+     */
+    public String ontologyNetworkAnswer( String uri, String perf, Properties header, Properties params ) {
+	logger.trace( "ONTONET[{}]", perf);
+	String msg = "";
+	String eSource = "on";
+        if ( perf.equals("prmlistonet") ){
+        	URI uriON = null;	
+    	    String uON = params.getProperty("uri");
+    	    try {
+    		if ( uON != null && !uON.equals("all") ) uriON = new URI( uON );
+    	    } catch ( URISyntaxException usex ) {
+    		logger.debug( "IGNORED Invalid URI parameter", usex );
+    	    };
+
+        	Collection<URI> ontologyNetworksURI = manager.ontologyNetworkUris();
+    	    msg = "<h1>Available networks</h1>";
+    	    msg += "<form action=\"listNetOnto\">";
+    	    msg += "Network:  <select name=\"uri\"><option value=\"all\">all</option>";
+		    if ( uriON == null ) msg += " selected=\"1\"";
+		    for ( URI onet : ontologyNetworksURI ) { 
+				msg += "<option";
+				if ( onet.equals( uriON ) ) msg += " selected =\"1\"";
+				msg += " value=\""+onet+"\">"+onet+"</option>";
+		    }
+		    msg += "</select>";
+		    msg += "&nbsp;<input type=\"submit\" value=\"List ontologies\"/></form><ul compact=\"1\">";
+		    //msg += "<table><tr><td><input type=\"submit\" value=\"List ontologies\"name=\"listNetOnto\"/></form>";
+		    //msg += "<input type=\"submit\" value=\"List alignments\"/ name=\"listNetAlig\"></form></td></tr></table/>";
+		    
+        } else if ( perf.equals("listNetOnto") ){
+        	
+        	msg = "<h1>Ontologies of the Network</h1>";
+        	msg += "<form action=\"listNetAlig\">";
+		    String uriON = params.getProperty("uri");  //send as parameter uriON for listNetAlig
+		    int numOnto = 0;
+		    Collection<URI> networkOntology = manager.networkOntologyUri(uriON);
+		    msg += "<p>" + uriON + "   ";
+		   	msg += "&nbsp;<input type=\"submit\" value=\"List alignments\"/></form><ul compact=\"1\"></p>";
+		   	msg += "<p><tr><th><b>Total ontologies: </b>" + networkOntology.size() + "</th></tr></p>";
+		    for ( URI onto : networkOntology ) {
+		    	numOnto ++;
+				msg += "<li><a href=\""+onto.toString()+"\"> ("+String.format("%05d", numOnto)+") "+onto.toString()+"</a></li>";
+		    }
+		    //msg += "&nbsp;<input type=\"submit\" value=\"List alignments\"/></form><ul compact=\"1\">";
+		    
+        } else if ( perf.equals("listNetAlig") ){
+        	
+        	msg = "<h1>Alignments of the Network</h1>";
+		    String uriON = params.getProperty("uri");   
+		    Set<Alignment> networkAlignments = manager.networkAlignmentUri(uriON);
+		    int numAlig = 0;
+		    msg += "<p>" + uriON + "</p>";
+		    msg += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
+		    for (Alignment al : networkAlignments) {
+		    	numAlig ++;
+		    	msg += "&nbsp;<li><a href=\""+"idAlign" + "\"> ("+String.format("%05d", numAlig)+") " +"idAlign:"+"</a>&nbsp;&nbsp;&nbsp; "+ al.getFile1() + "&nbsp;&nbsp;&nbsp;" + al.getFile2() + "</li>";
+		    	} 
+	    
+        } else if ( perf.equals("prmloadonet") ){
+        	//TODO add two more parameters TYPE of file (json/html, etc) and STRUCTURE of the file
+        	msg = "<h1>Load an ontology network</h1>";
+        	msg += "<form action=\"loadonet\">";
+    	    msg += "Network URL: <input type=\"text\" name=\"url\" size=\"80\"/><br />";
+    	    msg += "<small>This is the URL of ontology network. It must be reachable by the server (i.e., file://localhost/absolutePathTo/file or file:///absolutePathTo/file if localhost omitted)</small><br />";
+    	    msg += "Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
+    	    msg += "<input type=\"submit\" value=\"Load\"></form>";
+    	    msg += "Ontology network file: <form enctype=\"multipart/form-data\" action=\"loadonet\" method=\"POST\">";
+    	    msg += "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
+    	    msg += "<input name=\"content\" type=\"file\" size=\"35\"><br />";
+    	    msg += "Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
+    	    msg += "<input type=\"submit\" Value=\"Upload\">";
+    	    msg +=  " </form>";
+        } else if ( perf.equals("loadonet") ) {
+        	
+        	Message answer = manager.loadonet( params );
+    	    if ( answer instanceof ErrorMsg ) {
+    	    	msg = testErrorMessages( answer, params, eSource );
+    	    } else {
+    		msg = "<h1>Ontology Network loaded</h1>";
+    		msg += displayAnswerON( answer, params );
+    	    }
+	} else if ( perf.equals("storeonet") ){
+
+			// here should be done the switch between store and load/store
+		    String id = params.getProperty("id");
+		    String url = params.getProperty("url");
+		    if ( url != null && !url.equals("") ) {
+			Message answer = manager.loadonet( params );
+			if ( answer instanceof ErrorMsg ) {
+			    msg = testErrorMessages( answer, params, eSource );
+			    } else {
+			    	id = answer.getContent();
+			    	}
+			}
+		    if ( id != null ){ // Store it
+			Message answer = manager.storeonet( params );
+			if ( answer instanceof ErrorMsg ) {
+			    msg = testErrorMessages( answer, params, eSource );
+			    } else {
+			    	msg = "<h1>Ontology Network stored</h1>";
+			    	msg += displayAnswer( answer, params );
+			    	}
+			}	
+			
+    } else if ( perf.equals("listonet") ){
+   /* 	to be done
+    	
+		    msg = "<h1>Ontology Network listed</h1>"; 
+		    //msg += manager.listONetwork(params);
+		    msg += "onet";
+		    Collection<OntologyNetworkSet> onsV = manager.ontologyNetworkSetV();
+		    Object onetwork = manager.onetworksT();  //send parameter uri
+		    
+		    msg += "<p><b>URI :</b>"+ onsV.getValue() +"<br>";
+		    //msg += "<p><b>URI :</b>"+ onetwork.toString() +"<br>"; //falta un getName
+		    //msg += "<b>Name :</b>"+ onetwork.toString()+"<br>";
+		   
+		    Hashtable<URI,NetOntology<Object>> oonetworkTable = manager.oonetworksT();
+		    
+		    msg += "<tr><th><b>Total ontologies :</b>"+ oonetworkTable.size()+"</th></tr></p>";
+		    msg += "<table><tr><th>URI(ID)</th><th>NAME</th><th>FILE</th></tr>";
+		    Set<Entry<URI, NetOntology<Object>>> set = oonetworkTable.entrySet();
+            Iterator<Entry<URI, NetOntology<Object>>> it = set.iterator();
+            
+            while (it.hasNext()) {
+              Map.Entry<URI, NetOntology<Object>> entry = (Map.Entry<URI, NetOntology<Object>>) it.next();
+              NetOntology<Object> oonetwork = entry.getValue();
+              oonetwork.getFile();
+              msg += "<tr><td>" + entry.getKey() + "</td><td>" + oonetwork.getName() + "</td><td>" + oonetwork.getFile() + "</td></tr>";
+              //msg += "<tr><td>" + entry.getKey() + "</td><td>" + oonetwork.oonName + "</td><td>" + oonetwork.oonFile + "</td></tr>";
+
+            }
+            
+		    msg += "</table>";
+		    //msg += displayAnswerON( answer, params );
+		    //msg += displayAnswerON( (Message)null, params );
+		//}
+		 * 
+		 */
+    } else if ( perf.equals("prmstoreonet") ){
+
+	    	String sel = params.getProperty("id");
+	    	msg = "<h1>Store an ontology network</h1><form action=\"storeonet\">";
+		    msg += "Network:  <select name=\"id\">";
+		    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
+		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+		    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		    	if ( sel != null && sel.equals( id ) ){
+		    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+		    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+		    	}
+		    msg += "</select><br />";
+		    msg += "<br /><input type=\"submit\" value=\"Store\"/></form>";
+	    
+	} else if ( perf.equals("prmmatchonet") ){
+
+	    	msg = "<h1>Match an ontology network</h1><form action=\"matchonet\">";
+		    msg += "Network:  <select name=\"id\">";
+			String sel = params.getProperty("id");
+		    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
+		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+		    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		    	if ( sel != null && sel.equals( id ) ){
+		    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+		    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+		    	}
+		    msg += "<!--input type=\"submit\" name=\"action\" value=\"Find\"/>";
+		    msg += "<br /-->Methods: <select name=\"method\">";
+
+		    for( String idMethod : manager.listmethods() ) {
+				msg += "<option value=\""+idMethod+"\">"+idMethod+"</option>"; 
+			    }
+
+		    msg += "</select><br />";
+		    msg += "<input type=\"checkbox\" name=\"reflexive\" /> Reflexive ";
+		    msg += "<input type=\"checkbox\" name=\"symmetric\" /> Symmetric ";
+		    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+		    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Match\"/> ";
+		    	    
+	} else if ( perf.equals("matchonet") ) {
+		// DO MATCHING
+	    Message answer = manager.alignonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer, params, eSource );
+	    } else {
+		msg = "<h1>Network Alignments results</h1>";
+		msg += displayAnswer( answer, params );
+	    }
+	    
+	} else if ( perf.equals("prmretreiveonet") ){
+		
+		
+		String sel = params.getProperty("id");
+	    msg = "<h1>Retrieve ontology network</h1><form action=\"retrieveonet\">";
+	    msg += "Network:  <select name=\"id\">";
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+	    	if ( sel != null && sel.equals( id ) ){
+	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+	    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    	}
+	    msg += "</select><br />";
+	    msg += "<br /><input type=\"submit\" value=\"Retrieve\"/></form>";
+	    
+	} else if ( perf.equals("retrieveonet") ) {
+
+	    Message answer = manager.renderonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer, params, eSource );
+	    } else {
+		// Depending on the type we should change the MIME type
+	    	//return answer.getContent().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+	    	return answer.getContent();
+	    }
+		
+		
+		
+		
+	    
+	} else if ( perf.equals("prmcloseonet") ){
+		
+		msg = "<h1>Close an ontology network</h1><form action=\"matchonet\">";
+	    msg += "Network:  <select name=\"id\">";
+		String sel = params.getProperty("id");
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+	    	if ( sel != null && sel.equals( id ) ){
+	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+	    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    	}
+
+	    msg += "</select><br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\" /> ";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Compose\"/> ";
+	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	   
+	} else if ( perf.equals("prmresetonet") ){
+
+	} else if ( perf.equals("") ) {
+		msg = "<h1>Ontology Network commands</h1>";
+		msg += "<form action=\"prmlistonet\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
+		msg += "<form action=\"prmloadonet\"><button title=\"Load a network from a valid source\" type=\"submit\">Load a network</button></form>";
+		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
+		msg += "<form action=\"prmmatchonet\"><button title=\"Match an ontology network\" type=\"submit\">Match network </button></form>";
+		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
+		msg += "<form action=\"prmcloseonet\"><button title=\"Close an ontology network\" type=\"submit\">Close network</button></form>";
+		msg += "<form action=\"prmresetonet\"><button title=\"Reset an ontology network\" type=\"submit\">Reset network</button></form>";
+		msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
+	} else {
+	    msg = "Cannot understand: "+perf;
+	}
+	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Ontology Networks Management</a></small></center></body></html>";
+    }
+
     /**
      * User friendly HTTP interface
      * uses the protocol but offers user-targeted interaction
@@ -190,6 +458,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//logger.trace("HTML[{}]", perf );
 	// REST get
 	String msg = "";
+	String eSource = "al";
 	if ( perf.equals("listalignments") ) {
 	    URI uri1 = null;	
 	    String u1 = params.getProperty("uri1");
@@ -243,7 +512,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<li><a href=\""+id+"\">"+pid+"</a></li>";
 	    }
 	    msg += "</ul>";
-	} else if ( perf.equals("manalignments") ){ // Manage ailignments
+	} else if ( perf.equals("manalignments") ){ // Manage alignments
 	    msg = "<h1>Available alignments</h1><ul compact=\"1\">";
 	    for ( Alignment al : manager.alignments() ) {
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
@@ -258,7 +527,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null && !id.equals("") ) { // Erase it
 		Message answer = manager.erase( params );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer, params );
+		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    msg = "<h1>Alignment deleted</h1>";
 		    msg += displayAnswer( answer, params );
@@ -286,7 +555,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( url != null && !url.equals("") ) { // Load the URL
 		Message answer = manager.load( params );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer, params );
+		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    id = answer.getContent();
 		}
@@ -294,7 +563,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null ){ // Store it
 		Message answer = manager.store( params );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer, params );
+		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    msg = "<h1>Alignment stored</h1>";
 		    msg += displayAnswer( answer, params );
@@ -322,7 +591,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null && !id.equals("") && threshold != null && !threshold.equals("") ){ // Trim it
 		Message answer = manager.trim( params );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer, params );
+		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    msg = "<h1>Alignment trimed</h1>";
 		    msg += displayAnswer( answer, params );
@@ -344,7 +613,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    if ( id != null && !id.equals("") ){ // Invert it
 		Message answer = manager.inverse( params );
 		if ( answer instanceof ErrorMsg ) {
-		    msg = testErrorMessages( answer, params );
+		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    msg = "<h1>Alignment inverted</h1>";
 		    msg += displayAnswer( answer, params );
@@ -381,7 +650,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("match") ) {
 	    Message answer = manager.align( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Alignment results</h1>";
 		msg += displayAnswer( answer, params );
@@ -391,7 +660,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("find") ) {
 	    Message answer = manager.existingAlignments( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Found alignments</h1>";
 		msg += displayAnswer( answer, params );
@@ -399,7 +668,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("corresp") ) {
 	    Message answer = manager.findCorrespondences( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Found correspondences</h1>";
 		msg += displayAnswer( answer, params );
@@ -425,13 +694,15 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "</select><br /><input type=\"submit\" value=\"Retrieve\"/></form>";
 	} else if ( perf.equals("retrieve") ) {
+
 	    Message answer = manager.render( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		// Depending on the type we should change the MIME type
 		// This should be returned in answer.getParameters()
 		return answer.getContent();
+
 	    }
 	// Metadata not done yet
 	} else if ( perf.equals("prmmetadata") ) {
@@ -452,7 +723,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    Message answer = manager.render( params );
 	    //logger.trace( "Content: {}", answer.getContent() );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		// Depending on the type we should change the MIME type
 		return answer.getContent();
@@ -474,7 +745,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // load
 	    Message answer = manager.load( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Alignment loaded</h1>";
 		msg += displayAnswer( answer, params );
@@ -493,7 +764,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("translate") ) {
 	    Message answer = manager.translate( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Message translation</h1>";
 		msg += "<h2>Initial message</h2><pre>"+(params.getProperty("query")).replaceAll("&", "&amp;").replaceAll("<", "&lt;")+"</pre>";
@@ -531,7 +802,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("eval") ) {
 	    Message answer = manager.eval( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Evaluation results</h1>";
 		msg += displayAnswer( answer, params );
@@ -567,7 +838,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("diff") ) {
 	    Message answer = manager.diff( params );
 	    if ( answer instanceof ErrorMsg ) {
-		msg = testErrorMessages( answer, params );
+		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		msg = "<h1>Comparison results</h1>";
 		msg += displayAnswer( answer, params );
@@ -586,6 +857,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmeval\"><button title=\"Evaluation of an alignment\" type=\"submit\">Evaluate alignment</button></form>";
 	    msg += "<form action=\"prmdiff\"><button title=\"Compare two alignments\" type=\"submit\">Compare alignment</button></form>";
 	    msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
+	    msg += "<form action=\"../ontonet/\"><button style=\"background-color: lightgreen;\" title=\"Ontology Networks commands\" type=\"submit\">Ontology Networks</button></form>";
 	} else {
 	    msg = "Cannot understand command "+perf;
 	}
@@ -595,15 +867,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // ===============================================
     // Util
 
-    private String testErrorMessages( Message answer, Properties param ) {
+    private String testErrorMessages( Message answer, Properties param, String errorSource ) {
 	/*
 	if ( returnType == HTTPResponse.MIME_RDFXML ) {
 	    return answer.RESTString();
 	} else if ( returnType == HTTPResponse.MIME_JSON ) {
-	    return answer.JSONString();
+	    return answer.JSONString();render
+	    
 	    } else {*/
-	    return "<h1>Alignment error</h1>"+answer.HTMLString();
+//	    return "<h1>Alignment error</h1>"+answer.HTMLString();
 	    /*}*/
+	    
+	    switch (errorSource) {
+	    case "al": return "<h1>Alignment error</h1>"+answer.HTMLString();
+	    case "on": return "<h1>Ontology Network error</h1>"+answer.HTMLString();
+	    default:   return "<h1>Not know error source</h1>"+answer.HTMLString();
+	    }
     }
 
     private String displayAnswer( Message answer, Properties param ) {
@@ -621,7 +900,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
 		    result += "</tr></table>";
 	    	} else if( answer instanceof AlignmentIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) {
-		    result = answer.HTMLRESTString();
+	    	result = answer.HTMLRESTString();
 		}
 	    } else {
 		result = answer.RESTString();
@@ -653,6 +932,43 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	}
 	return result;
     }
+    
+    private String displayAnswerON( Message answer, Properties param ) {
+    	return displayAnswerON( answer, param, null );
+        }
+
+        private String displayAnswerON( Message answer, Properties param, String returnType ) {
+    	String result = null;
+    	if ( returnType == HTTPResponse.MIME_RDFXML ) {
+    	    if( param.getProperty("return").equals("HTML") ) { // RESTFUL but in HTML ??
+    	    	result = answer.HTMLRESTString();
+    	    	if ( answer instanceof OntologyNetworkId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ) {
+    		    result += "<table><tr>";
+    		    result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
+    		    result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
+    		    result += "</tr></table>";
+    	    	//} else if( answer instanceof OntologyNetworkIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) { //TODO is it needed??create public class OntologyNetworkIds extends Success {
+    		    result = answer.HTMLRESTString();
+    		}
+    	    } else {
+    		result = answer.RESTString();
+    	    }
+    	} else if ( returnType == HTTPResponse.MIME_JSON ) {
+    	    result = answer.JSONString();
+    	} else {
+    	    result = answer.HTMLString();
+    	    // Improved return
+    	    if ( answer instanceof OntologyNetworkId && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null ) ){
+    		result += "<table><tr>";
+    		// STORE ONTOLOGY NETWORK
+    		result += "<td><form action=\"storeonet\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Store\"/></form></td>";
+    		// RETREIVE ONTOLOGY NETWORK
+    		result += "<td><form action=\"prmretreiveonet\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Show\"/></form></td>";  
+    		result += "</tr></table>";
+    	    }
+    	}
+    	return result;
+        }
 
 }
 

@@ -23,21 +23,21 @@ package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.Annotations;
+import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.eval.DiffEvaluator;
 import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
-
 import fr.inrialpes.exmo.align.service.osgi.Service;
-
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.AlignmentId;
 import fr.inrialpes.exmo.align.service.msg.AlignmentIds;
 import fr.inrialpes.exmo.align.service.msg.AlignmentMetadata;
 import fr.inrialpes.exmo.align.service.msg.EntityList;
 import fr.inrialpes.exmo.align.service.msg.EvalResult;
+import fr.inrialpes.exmo.align.service.msg.OntologyNetworkId;
 import fr.inrialpes.exmo.align.service.msg.OntologyURI;
 import fr.inrialpes.exmo.align.service.msg.RenderedAlignment;
 import fr.inrialpes.exmo.align.service.msg.TranslatedMessage;
@@ -46,10 +46,11 @@ import fr.inrialpes.exmo.align.service.msg.NonConformParameters;
 import fr.inrialpes.exmo.align.service.msg.RunTimeError;
 import fr.inrialpes.exmo.align.service.msg.UnknownAlignment;
 import fr.inrialpes.exmo.align.service.msg.UnknownMethod;
+import fr.inrialpes.exmo.align.service.msg.UnknownOntologyNetwork;
 import fr.inrialpes.exmo.align.service.msg.UnreachableAlignment;
 import fr.inrialpes.exmo.align.service.msg.UnreachableOntology;
 import fr.inrialpes.exmo.align.service.msg.CannotRenderAlignment;
-
+import fr.inrialpes.exmo.align.service.msg.UnreachableOntologyNetwork;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
@@ -60,7 +61,7 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
-
+import org.semanticweb.owl.align.OntologyNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,9 @@ import java.lang.UnsatisfiedLinkError;
 import java.lang.ExceptionInInitializerError;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -83,6 +86,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.net.JarURLConnection;
@@ -209,11 +213,39 @@ public class AServProtocolManager implements Service {
     public Collection<URI> ontologies() {
 	return alignmentCache.ontologies();
     }
-
+    
+    public Collection<URI> networkOntologyUri(String uri) {
+    	OntologyNetwork noo = null;
+		try {
+			noo = alignmentCache.getOntologyNetwork(uri);
+		} catch (AlignmentException e) {
+			e.printStackTrace();
+		}
+		return ((BasicOntologyNetwork) noo).getOntologies();
+    }
+    
+    public Set<Alignment> networkAlignmentUri(String uri) {
+    	OntologyNetwork noo = null;
+		try {
+			noo = alignmentCache.getOntologyNetwork(uri);
+		} catch (AlignmentException e) {
+			e.printStackTrace();
+		}
+		return ((BasicOntologyNetwork) noo).getAlignments();
+    }
+    
     public Collection<Alignment> alignments( URI uri1, URI uri2 ) {
 	return alignmentCache.alignments( uri1, uri2 );
     }
+    
+    public Collection<URI> ontologyNetworkUris() {
+    return ((VolatilCache) alignmentCache).ontologyNetworkUris();
+    }
 
+    public Collection<OntologyNetwork> ontologyNetworks() {
+    	return alignmentCache.ontologyNetworks();
+    }
+ 
     public String query( String query ){
 	//return alignmentCache.query( query );
 	return "Not available yet";
@@ -1173,5 +1205,188 @@ public class AServProtocolManager implements Service {
 	}
     }
 
+  //* Ontology Networks */
     
+    public Message loadonet( Properties params ) {
+
+	// load the ontology network
+	String name = params.getProperty("url");
+	String file = null;
+	if ( name == null || name.equals("") ){
+	    file  = params.getProperty("filename");
+	    if ( file != null && !file.equals("") ) name = "file://"+file;
+	    }
+	logger.trace("Preparing for loading {}", name);
+	BasicOntologyNetwork noo = null;
+	try {
+	    noo = (BasicOntologyNetwork) BasicOntologyNetwork.read( name );
+	    logger.trace(" Ontology network parsed");
+	    } catch (Exception e) {
+		  return new UnreachableOntologyNetwork( params, newId(), serverId, name );
+		  }
+	// We preserve the pretty tag within the loaded ontology network
+	String pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); 
+	if ( pretty == null ) pretty = params.getProperty("pretty");
+	if ( pretty != null && !pretty.equals("") ) {
+		noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+		}
+	// register it
+	String id = alignmentCache.recordNewNetwork( noo, true );
+	logger.debug(" Ontology network loaded, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
+
+    //=== The alignment has the id of the source file (e.g. file:///path/FileName.rdf)
+	Set<Alignment> networkAlignments = networkAlignmentUri(id);
+	for (Alignment al : networkAlignments) {
+		String idAl = alignmentCache.recordNewAlignment( al, true );
+	}
+	
+	return new OntologyNetworkId( params, newId(), serverId, id ,pretty );
+    }
+
+    
+    public Message renderonet(Properties params) {
+   
+    	OntologyNetwork noo = null;
+   	    noo = new BasicOntologyNetwork();
+    	String id = params.getProperty( "id" );
+    	try {
+			noo = alignmentCache.getOntologyNetwork(id);	
+		} catch (AlignmentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+    	BasicOntologyNetwork newnoo = (BasicOntologyNetwork)noo;
+		newnoo.setIndentString( "" );
+		newnoo.setNewLineString( "" );
+		// Print it in a string	 
+		ByteArrayOutputStream result = new ByteArrayOutputStream(); 
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter (
+					  new BufferedWriter(
+					       new OutputStreamWriter( result, "UTF-8" )), true);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+		    newnoo.write( writer );
+		} catch (AlignmentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+		    writer.flush();
+		    writer.close();
+		}
+	  	return new RenderedAlignment( params, newId(), serverId, result.toString() ); //or RenderedOntologyNetwork
+
+    }
+
+
+    
+    public boolean storedOntologyNetwork( Properties params ) {
+    	// Retrieve the ontology network
+    	String id = params.getProperty("id");
+    	OntologyNetwork noo = null;
+    	try {
+    	    noo = alignmentCache.getOntologyNetwork( id );
+    	} catch (Exception e) {
+    	    return false;
+    	}
+    	return alignmentCache.isNetworkStored( noo );
+        }
+    
+ 
+    public Message storeonet( Properties params ) {
+    	String id = params.getProperty("id");
+      	OntologyNetwork noo = null;
+    	try {
+    	    noo = alignmentCache.getOntologyNetwork( id );
+    	    // Be sure it is not already stored
+    	    if ( !alignmentCache.isNetworkStored(noo) ) {
+	    		try {
+					alignmentCache.storeOntologyNetwork( id );
+				} catch (AlignmentException e) {
+					return new UnknownOntologyNetwork( params, newId(), serverId,id );
+				}
+	    		return new OntologyNetworkId( params, newId(), serverId, id,
+    				   ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+    	    } else {
+    	    	return new ErrorMsg( params, newId(), serverId,"Network already stored" );
+    	    }
+    	} catch (Exception e) {
+    	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
+    	}
+
+    }
+    
+    private Message retrieveAlignmentON( Properties params, URI uri1, URI uri2 ){
+    	String method = params.getProperty("method");
+
+    	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
+    	if ( alignments != null && params.getProperty("force") == null ) {
+    	    for ( Alignment al: alignments ){
+    		String meth2 = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD );
+    		if ( meth2 != null && meth2.equals(method) ) {
+    		    return new AlignmentId( params, newId(), serverId,
+    					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) ,
+    					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) );
+    		}
+    	    }
+    	}
+    	return (Message)null;
+        }
+    
+    public Message alignonet( Properties params ) {
+    	Message result = null;
+    	//not finished
+    	//parameters: onID, method, reflexive, symmetric
+    	for ( Enumeration<String> e = (Enumeration<String>)commandLineParams.propertyNames(); e.hasMoreElements();) {
+    	    String key = e.nextElement();
+    	    if ( params.getProperty( key ) == null ){
+    		params.setProperty( key , commandLineParams.getProperty( key ) );
+    	    }
+    	}
+    	//prepare for
+    	String id = params.getProperty("id");
+    	Boolean reflexive = false;
+    	if (params.getProperty("reflexive") != null) reflexive = true;
+    	Boolean symmetric = false;
+    	if (params.getProperty("symmetric") != null) symmetric = true;
+    	
+	    Collection<URI> networkOntologyA = networkOntologyUri(id);
+	    Collection<URI> networkOntologyB = networkOntologyUri(id);
+	    for ( URI ontoA : networkOntologyA ) {
+	    	for ( URI ontoB : networkOntologyB ) {
+	    		result = retrieveAlignmentON( params ,ontoA, ontoB);
+	        	if ( result != null ) return result;
+		    }
+	    }
+	    return (Message)null;
+ 
+    }
+
+    public Message listNetworkOntology( Properties params ) { //not UsED??
+    	String result = "";   	
+    	
+    	OntologyNetwork noo = null;
+   	    noo = new BasicOntologyNetwork();
+    	String id = params.getProperty( "id" );
+    	//URI onto2 = null;
+   	
+    	try {
+			noo = alignmentCache.getOntologyNetwork(id);
+			noo.getOntologies().size();
+	    	Iterator<URI> iterator2 = noo.getOntologies().iterator();
+	    	while (iterator2.hasNext()){
+				URI onto2 = (URI) iterator2.next();
+	    		result += "<li><a href=\""+onto2+"\">"+onto2+"</a></li>";
+	    	}
+	    	return new OntologyNetworkId( params, newId(), serverId, id ,result );
+    	} catch (AlignmentException e) {
+			return new UnknownOntologyNetwork( params, newId(), serverId, id );
+		}
+    }
+
 }
