@@ -57,12 +57,15 @@ import org.semanticweb.owl.align.AlignmentException;
 public class VolatilCache implements Cache {
     final static Logger logger = LoggerFactory.getLogger( VolatilCache.class );
 
-    Hashtable<String,Alignment> alignmentTable = null;
-    Hashtable<String,Alignment> alignmentURITable = null;
-    Hashtable<URI,Set<Alignment>> ontologyTable = null;
-    Hashtable<URI,OntologyNetwork> onetworkTable = null;
+    private static Random rand;
 
-    String idprefix = null;
+    private Hashtable<String,Alignment> alignmentTable = null;
+    private Hashtable<URI,Set<Alignment>> ontologyTable = null;
+    private Hashtable<URI,OntologyNetwork> onetworkTable = null;
+    // JE: not sure of that one
+    protected Hashtable<String,Alignment> alignmentURITable = null;
+
+    protected String idprefix = null;
 
     static protected final String SVCNS = Namespace.ALIGNSVC.getUriPrefix();
     static protected final String CACHED = "cached";
@@ -71,11 +74,12 @@ public class VolatilCache implements Cache {
     static protected final String OURI1 = "ouri1";
     static protected final String OURI2 = "ouri2";
     static protected final String ONID = "onid/";
-	
+
     //**********************************************************************
 
     public VolatilCache() {
 	resetTables();
+	rand = new Random(System.currentTimeMillis());
     }
 
     public void resetTables() {
@@ -226,8 +230,9 @@ public class VolatilCache implements Cache {
     }
     
     private int randomNum() {
-	Random rand = new Random(System.currentTimeMillis());
+	// We observe collisions!
 	return Math.abs(rand.nextInt(1000)); 
+	//return (int) (Math.abs(rand.nextInt(1000))+Math.random()*9);
     }
 
     /*

@@ -226,12 +226,12 @@ public class AServProtocolManager implements Service {
     
     public Set<Alignment> networkAlignmentUri(String uri) {
     	OntologyNetwork noo = null;
-		try {
-			noo = alignmentCache.getOntologyNetwork(uri);
-		} catch (AlignmentException e) {
-			e.printStackTrace();
-		}
-		return ((BasicOntologyNetwork) noo).getAlignments();
+	try {
+	    noo = alignmentCache.getOntologyNetwork(uri);
+	} catch (AlignmentException e) {
+	    e.printStackTrace();
+	}
+	return ((BasicOntologyNetwork) noo).getAlignments();
     }
     
     public Collection<Alignment> alignments( URI uri1, URI uri2 ) {
@@ -1221,25 +1221,23 @@ public class AServProtocolManager implements Service {
 	try {
 	    noo = (BasicOntologyNetwork) BasicOntologyNetwork.read( name );
 	    logger.trace(" Ontology network parsed");
-	    } catch (Exception e) {
-		  return new UnreachableOntologyNetwork( params, newId(), serverId, name );
-		  }
+	} catch (Exception e) {
+	    return new UnreachableOntologyNetwork( params, newId(), serverId, name );
+	}
 	// We preserve the pretty tag within the loaded ontology network
 	String pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); 
 	if ( pretty == null ) pretty = params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
-		noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
-		}
+	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	}
 	// register it
 	String id = alignmentCache.recordNewNetwork( noo, true );
 	logger.debug(" Ontology network loaded, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
 
-    //=== The alignment has the id of the source file (e.g. file:///path/FileName.rdf)
-	Set<Alignment> networkAlignments = networkAlignmentUri(id);
-	for (Alignment al : networkAlignments) {
-		String idAl = alignmentCache.recordNewAlignment( al, true );
+	//=== The alignment has the id of the source file (e.g. file:///path/FileName.rdf)
+	for ( Alignment al : noo.getAlignments() ) {
+	    alignmentCache.recordNewAlignment( al, true );
 	}
-	
 	return new OntologyNetworkId( params, newId(), serverId, id ,pretty );
     }
 

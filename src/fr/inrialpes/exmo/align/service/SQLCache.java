@@ -642,7 +642,7 @@ public class SQLCache extends VolatilCache implements Cache {
 			    storeAlignment( alid );
 			}
 			query = "INSERT INTO networkalignment (network,align) VALUES (" 
-			    +qid+","+quote( alid )+");";
+			    +qid+","+quote( stripAlignmentUri( alid ) )+");";
 			st.executeUpdate(query);
 		    }
 		    // Store ontologies...
