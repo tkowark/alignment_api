@@ -295,7 +295,7 @@ public class AServProtocolManager implements Service {
 	// register it
 	String id = alignmentCache.recordNewAlignment( al, true );
 	// if the file has been uploaded: discard it
-	if ( al != null && al != null ) {
+	if ( al != null ) {
 	    // try unlink
 	}
 	return new AlignmentId( params, newId(), serverId, id ,pretty );
