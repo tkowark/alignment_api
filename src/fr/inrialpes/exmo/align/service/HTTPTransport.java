@@ -319,6 +319,8 @@ public class HTTPTransport {
 
 	if ( oper.equals( "alid" ) ){ // Asks for an alignment by URI
 	    return returnAlignment( uri, returnType );
+	} else if ( oper.equals( "onid" ) ){ // Asks for a network by URI
+		return returnNetwork( uri, returnType );		
 	} else if ( oper.equals( "" ) ) {
 	    // SHOULD BE ASSIGNED TO CONTENT NEGOCIATION AS WELL... (DEFAULT IN SERVERS)
 	    //return serveFile( uri, header, new File("."), true );
@@ -366,6 +368,29 @@ public class HTTPTransport {
 	}
     }
 
+    
+    /**
+     * Returns the network in HTML format
+     */
+    
+    public HTTPResponse returnNetwork( String uri, String mimeType ) {
+    	Properties params = new Properties();
+    	params.setProperty( "id", manager.serverURL()+uri );
+    	if ( returnType == HTTPResponse.MIME_JSON ) { // YES string compared by ==.
+    	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.JSONRendererVisitor" );
+    	} else if ( returnType == HTTPResponse.MIME_RDFXML ) {
+    	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" );
+    	} else {
+    	    params.setProperty( "method", "fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor" );
+    	}
+    	logger.trace( "Bloody Network URI : {}", manager.serverURL()+uri);
+    	Message answer = manager.renderHTMLNetwork(params);
+    	if ( answer instanceof ErrorMsg ) {
+    	    return new HTTPResponse( HTTPResponse.HTTP_NOTFOUND, HTTPResponse.MIME_PLAINTEXT, "Alignment server: unknown network : "+answer.getContent() );
+    	} else {
+    	    return new HTTPResponse( HTTPResponse.HTTP_OK, mimeType, answer.getContent() );
+    	}
+        }
     // ===============================================
     // Util
 

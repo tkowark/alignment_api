@@ -56,7 +56,7 @@ public class OntologyNetworkId extends Success {
 	}                                                                                                                                                                                
     };                                                                                                                                                                               
     public String HTMLString(){                                                                                                                                                      
-	//return "Alignment ID: <a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
+	//return "Ontology Network ID: <a href=\"../ontonet/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";
 	return "Ontology Network ID: <a href=\""+getContent()+"\">"+getPretty(getContent())+"</a>&nbsp;";                                                                                       
     }                                                                                                                                                                                
     public String HTMLRESTString(){                                                                                                                                                  
