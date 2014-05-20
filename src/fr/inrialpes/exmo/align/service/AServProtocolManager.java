@@ -1377,9 +1377,7 @@ public class AServProtocolManager implements Service {
         }
   
     
-public List<Message> alignonet( Properties params ) {
-    	
-    	
+    public List<Message> alignonet( Properties params ) {
     	List<Message> result = new ArrayList<>();
     	//not finished
     	//parameters: onID, method, reflexive, symmetric
@@ -1412,9 +1410,7 @@ public List<Message> alignonet( Properties params ) {
 			    }
 		    }
 	    }
-	    
 	    return result;
- 
     }
 
     
@@ -1431,22 +1427,21 @@ public List<Message> alignonet( Properties params ) {
     	if (params.getProperty("symmetric") != null) symmetric = true;
     	
     	try {
-			noo = alignmentCache.getOntologyNetwork( id );
-			} catch (AlignmentException e1) {
-				return new UnknownOntologyNetwork( params, newId(), serverId,id );
-				}
+	    noo = alignmentCache.getOntologyNetwork( id );
+	} catch (AlignmentException e1) {
+	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
+	}
     	logger.debug(" Before Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
     	
     	try { 
-    		((BasicOntologyNetwork) noo).match(method, reflexive, symmetric);
-    		} catch (AlignmentException e) {
+	    ((BasicOntologyNetwork)noo).match( method, reflexive, symmetric, params );
+	} catch (AlignmentException e) {
     	    return new ErrorMsg( params, newId(), serverId,"Network alignment error" );
     	}
     	
     	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
     	return new OntologyNetworkId( params, newId(), serverId, id,
-				   ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
-    	
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
     
     

@@ -31,8 +31,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.lang.reflect.Constructor;
 
 import java.io.PrintWriter;
 import java.io.InputStream;
@@ -56,6 +58,7 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.Namespace;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.OntologyNetwork;
 
@@ -236,7 +239,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
      * public void match( Class<? extends AlignmentProcess> method, boolean reflexive ) throws AlignmentException {
     }
      */
-    public void match( String method, boolean reflexive, boolean symmetric) throws AlignmentException {
+    public void match( String method, boolean reflexive, boolean symmetric, Properties params ) throws AlignmentException {
 	for ( OntologyTriple ot1 : ontologies.values() ) {
 	    for ( OntologyTriple ot2 : ontologies.values() ) {
 		if ( ( ot1 == ot2 && reflexive )
@@ -246,13 +249,27 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 		    for ( Alignment al : als ) {
 			remAlignment( al );
 		    }
-		// Create the alignment process
-		//AlignmentProcess ap = ... 
-		// Match
-		//ap.init( ot1.onto, ot2.onto );
-		//ap.align( init, (Properties)null );
-		// replace
-		//addAlignment( ap );
+		    // Create the alignment process
+		    AlignmentProcess ap = null;
+		    try {
+			// Create alignment object
+			Class<?> alignmentClass = Class.forName( method );
+			Class[] cparams = {};
+			Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+			Object[] mparams = {};
+			ap = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
+			ap.init( ot1.onto, ot2.onto );
+		    } catch ( Exception ex ) {
+			logger.error( "Cannot create alignment {}", method );
+			throw new AlignmentException( "Cannot create alignment "+method, ex );
+		    }
+		    // Compute alignment
+		    long time = System.currentTimeMillis();
+		    ap.align( init, params ); // or params?
+		    long newTime = System.currentTimeMillis();
+		    ap.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+		    // replace
+		    addAlignment( ap );
 		}
 	    }
 	}
