@@ -1259,8 +1259,8 @@ public class AServProtocolManager implements Service {
 		}
 	    
     	BasicOntologyNetwork newnoo = (BasicOntologyNetwork)noo;
-		newnoo.setIndentString( "" );
-		newnoo.setNewLineString( "" );
+		newnoo.setIndentString( "  " );
+		newnoo.setNewLineString( System.getProperty("line.separator") );
 		// Print it in a string	 
 		ByteArrayOutputStream result = new ByteArrayOutputStream(); 
 		PrintWriter writer = null;
@@ -1377,7 +1377,9 @@ public class AServProtocolManager implements Service {
         }
   
     
-    public List<Message> alignonet( Properties params ) {
+public List<Message> alignonet( Properties params ) {
+    	
+    	
     	List<Message> result = new ArrayList<>();
     	//not finished
     	//parameters: onID, method, reflexive, symmetric
@@ -1411,7 +1413,7 @@ public class AServProtocolManager implements Service {
 		    }
 	    }
 	    return result;
-    }
+}
 
     
     // TO VERIFY
