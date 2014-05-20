@@ -216,7 +216,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
         } else if ( perf.equals("listNetOnto") ){   //TODO eliminate this
 		   //Message answer = manager.renderHTMLON( params );
-		   Message answer = manager.renderHTMLNetwork( params ); // "http://localhost:8089/onid/1400170347760/525" );
+		   Message answer = manager.renderHTMLNetwork( params );
 		    if ( answer instanceof ErrorMsg ) {
 			msg = testErrorMessages( answer, params, eSource );
 		    } else {
@@ -415,7 +415,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("matchonet") ) {
 		
 		// DO MATCHING version 1
-		
+/*		
 	    List<Message> answer = manager.alignonet( params );
 		msg = "<h1>Network Alignments results</h1>";
 		Iterator<Message> it = answer.iterator();
@@ -426,10 +426,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 		msg += "</ul>";
 		
-		
+*/		
 		
 		// DO MATCHING
-/*		String idON = params.getProperty("id");
+    	String idON = params.getProperty("id");
 		logger.debug("Matching network {}", idON);
 		Message answer = manager.alignonet2( params );
 		if ( answer instanceof ErrorMsg ) {
@@ -437,8 +437,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    } else {
 		    	//return answer.getContent();
 				msg = "<h1>Network alignments results</h1>";
-			    
-			    //String idON = "http://localhost:8089/onid/1400144735513/788";
 			    Set<Alignment> networkAlignments = manager.networkAlignmentUri(idON);
 			    msg += "<p> Network ID: <a href=\""+idON+"\">"+idON+"</a></p>";
 			    msg += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
@@ -450,8 +448,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 					msg += "<li><a href=\""+id+"\">"+pid+"</a></li>";
 				    }
 			    msg += "</ul>";
-		    }
-	*/	    
+		    }	    
 	    
 	} else if ( perf.equals("prmretreiveonet") ){
 		
@@ -511,12 +508,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<form action=\"../ontonet/listnetwork\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
 	//	msg += "<form action=\"prmlistonet\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
 		msg += "<form action=\"prmloadonet\"><button title=\"Load a network from a valid source\" type=\"submit\">Load a network</button></form>";
-		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
-		msg += "<form action=\"prmtrimonet\"><button title=\"Trim a network\" type=\"submit\">Trim network</button></form>";
 		msg += "<form action=\"prmmatchonet\"><button title=\"Match an ontology network\" type=\"submit\">Match network </button></form>";
-		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
+		msg += "<form action=\"prmtrimonet\"><button title=\"Trim a network\" type=\"submit\">Trim network</button></form>";
+		msg += "<form action=\"prmnormalizeonet\"><button title=\"Normalize an ontology network\" type=\"submit\">Normalize network</button></form>";
 		msg += "<form action=\"prmcloseonet\"><button title=\"Close an ontology network\" type=\"submit\">Close network</button></form>";
-		msg += "<form action=\"prmnormalizeonet\"><button title=\"Normalize an ontology network\" type=\"submit\">Reset network</button></form>";
+		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
+		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
 		msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
 	} else {
 	    msg = "Cannot understand: "+perf;

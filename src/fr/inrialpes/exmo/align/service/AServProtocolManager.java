@@ -1288,38 +1288,47 @@ public class AServProtocolManager implements Service {
     public Message renderHTMLNetwork( Properties params ){
     	// Retrieve the alignment
     	String result = new String();
+    	String idON = new String();
+    	String pidON = new String();
     	String id = params.getProperty( "id" );
     	//String id = idON;
     	BasicOntologyNetwork noo = null;
     	try {
     	    logger.trace("Network sought for {}", id);
     	    noo = (BasicOntologyNetwork) alignmentCache.getOntologyNetwork(id);
+    	    idON = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+			pidON = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
     	    logger.trace("Network found");
     	} catch (Exception e) {
     	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
     	    }
-	    result = "<h1>" + id + "</h1>";
+	    result = "<h1>" + id+ " ("+pidON+")" +"</h1>";
 	    
 	    result += "<table border=\"0\">\n";
 	    result += "<h2>Ontologies of the Network</h2>\n";
     	Collection<URI> networkOntology = networkOntologyUri(id);
 	    result += "<p><tr><th><b>Total ontologies: </b>" + networkOntology.size() + "</th></tr></p>";
 	    result += "<table>\n";
+	    result += "<ul>";
 	    for ( URI onto : networkOntology ) {
-	    	result += "<tr><td>" + "<a href=\"" + onto.toString() +"\">"+ onto.toString() + "</a>" + "</td></tr>\n";
+	    	result += "<li><a href=\"" + onto.toString() +"\">"+ onto.toString() + "</a></li>";
 	    }
+	    result += "</ul>";
 	    result += "</table>\n";
 	    
     	result += "<h2>Alignments of the Network</h2>\n"; 
 	    Set<Alignment> networkAlignments = networkAlignmentUri(id);
-	    result += "<table>\n";
 	    result += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
+	    result += "<table>\n";
+	    result += "<ul>";
 	    for (Alignment al : networkAlignments) {	
 	    	String idAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 			String pidAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 			if ( pidAl == null ) pidAl = idAl; else pidAl = idAl+" ("+pidAl+")";
-	    	result += "<tr><td>" + "<a href=\""+idAl+"\">"+pidAl+"</a>" + "</td></tr>\n";
+	    	result += "<li><a href=\""+idAl+"\">"+pidAl+" ("+ pidON +")"+"</a></li>";
 	    	}
+	    result += "</ul>";
+	    result += "</table>\n";
     	return new RenderedAlignment( params, newId(), serverId, result );
         }
     
@@ -1458,7 +1467,6 @@ public List<Message> alignonet( Properties params ) {
 	
     	try {
 			noo = alignmentCache.getOntologyNetwork( id );
-			 //nooClone = (OntologyNetwork) ((Hashtable<URI, OntologyNetwork>) noo)).clone();
 			} catch (AlignmentException e1) {
 				return new UnknownOntologyNetwork( params, newId(), serverId,id );
 				}
