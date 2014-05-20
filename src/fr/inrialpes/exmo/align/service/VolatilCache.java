@@ -231,8 +231,7 @@ public class VolatilCache implements Cache {
     
     private int randomNum() {
 	// We observe collisions!
-	return Math.abs(rand.nextInt(1000)); 
-	//return (int) (Math.abs(rand.nextInt(1000))+Math.random()*9);
+	return Math.abs(rand.nextInt(10000)); 
     }
 
     /*

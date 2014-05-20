@@ -1418,8 +1418,8 @@ public List<Message> alignonet( Properties params ) {
     }
 
     
-    /* TO VERIFY
-    public Message alignonet( Properties params ) {
+    // TO VERIFY
+    public Message alignonet2( Properties params ) {
     	  	
       	//parameters: onID, method, reflexive, symmetric 	
        	OntologyNetwork noo = null;
@@ -1435,6 +1435,7 @@ public List<Message> alignonet( Properties params ) {
 			} catch (AlignmentException e1) {
 				return new UnknownOntologyNetwork( params, newId(), serverId,id );
 				}
+    	logger.debug(" Before Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
     	
     	try { 
     		((BasicOntologyNetwork) noo).match(method, reflexive, symmetric);
@@ -1448,7 +1449,32 @@ public List<Message> alignonet( Properties params ) {
     	
     }
     
-    */
+    
+    public Message trimonet( Properties params ) {
+	  	
+      	//parameters: onID, method, reflexive, symmetric 	
+       	OntologyNetwork noo = null;
+       	OntologyNetwork nooClone = null;
+    	String id = params.getProperty("id");
+    	String method = params.getProperty("type");
+    	double threshold = Double.parseDouble(params.getProperty("threshold"));
+	
+    	try {
+			noo = alignmentCache.getOntologyNetwork( id );
+			 //nooClone = (OntologyNetwork) ((Hashtable<URI, OntologyNetwork>) noo)).clone();
+			} catch (AlignmentException e1) {
+				return new UnknownOntologyNetwork( params, newId(), serverId,id );
+				}
+     	
+    	try {
+    		((BasicOntologyNetwork) noo).trim(method, threshold);
+    		} catch (AlignmentException e) {
+    	    return new ErrorMsg( params, newId(), serverId,"Network alignment error" );
+    	}
+    	return new OntologyNetworkId( params, newId(), serverId, id,
+				   ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+    }
+   
 
     public Message listNetworkOntology( Properties params ) { //not UsED??
     	String result = "";   	

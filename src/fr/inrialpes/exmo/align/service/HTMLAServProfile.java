@@ -349,9 +349,38 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg += "</select><br />";
 		    msg += "<br /><input type=\"submit\" value=\"Store\"/></form>";
 	    
+    } else if ( perf.equals("prmtrimonet") ){
+    	
+    	String sel = params.getProperty("id");
+	    msg ="<h1>Trim networks</h1><form action=\"trimonet\">";
+	    msg += "Network:  <select name=\"id\">";
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+	    	if ( sel != null && sel.equals( id ) ){
+	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+	    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    	}
+	    msg += "</select><br />";
+	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
+
+    } else if ( perf.equals("trimonet") ){
+    	Message answer = manager.trimonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+	    	System.out.println("answer error ");
+		msg = testErrorMessages( answer, params, eSource );
+	    } else {
+	    	msg ="<h1>Trimed network</h1><form action=\"trimonet\">";
+	    	msg += "<a href=\"" + answer.getContent() +"\">" + answer.getContent() + "</a>";
+
+	    	System.out.println("answer: "+ answer.getContent());
+	    }
+	    
 	} else if ( perf.equals("prmmatchonet") ){
 
 	    	msg = "<h1>Match an ontology network</h1><form action=\"matchonet\">";
+	    	msg += "<h2><font color=\"red\">(not implemented yet)</font></h2>";
 		    msg += "Network:  <select name=\"id\">";
 			String sel = params.getProperty("id");
 		    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
@@ -385,7 +414,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    	    
 	} else if ( perf.equals("matchonet") ) {
 		
-		// DO MATCHING
+		// DO MATCHING version 1
+		
 	    List<Message> answer = manager.alignonet( params );
 		msg = "<h1>Network Alignments results</h1>";
 		Iterator<Message> it = answer.iterator();
@@ -396,11 +426,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		}
 		msg += "</ul>";
 		
-		/*
+		
+		
 		// DO MATCHING
-		String idON = params.getProperty("id");
+/*		String idON = params.getProperty("id");
 		logger.debug("Matching network {}", idON);
-		Message answer = manager.alignonet( params );
+		Message answer = manager.alignonet2( params );
 		if ( answer instanceof ErrorMsg ) {
 			msg = testErrorMessages( answer, params, eSource );
 		    } else {
@@ -420,7 +451,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 				    }
 			    msg += "</ul>";
 		    }
-		    */
+	*/	    
 	    
 	} else if ( perf.equals("prmretreiveonet") ){
 		
@@ -456,6 +487,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmcloseonet") ){
 		
 		msg = "<h1>Close an ontology network</h1><form action=\"matchonet\">";
+		msg += "<h2><font color=\"red\">(not implemented yet)</font></h2>";
 	    msg += "Network:  <select name=\"id\">";
 		String sel = params.getProperty("id");
 	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
@@ -472,7 +504,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Compose\"/> ";
 	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
 	   
-	} else if ( perf.equals("prmresetonet") ){
+	} else if ( perf.equals("prmnormalizeonet") ){
 
 	} else if ( perf.equals("") ) {
 		msg = "<h1>Ontology Network commands</h1>";
@@ -480,10 +512,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	//	msg += "<form action=\"prmlistonet\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
 		msg += "<form action=\"prmloadonet\"><button title=\"Load a network from a valid source\" type=\"submit\">Load a network</button></form>";
 		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
+		msg += "<form action=\"prmtrimonet\"><button title=\"Trim a network\" type=\"submit\">Trim network</button></form>";
 		msg += "<form action=\"prmmatchonet\"><button title=\"Match an ontology network\" type=\"submit\">Match network </button></form>";
 		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
 		msg += "<form action=\"prmcloseonet\"><button title=\"Close an ontology network\" type=\"submit\">Close network</button></form>";
-		msg += "<form action=\"prmresetonet\"><button title=\"Reset an ontology network\" type=\"submit\">Reset network</button></form>";
+		msg += "<form action=\"prmnormalizeonet\"><button title=\"Normalize an ontology network\" type=\"submit\">Reset network</button></form>";
 		msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
 	} else {
 	    msg = "Cannot understand: "+perf;

@@ -585,18 +585,21 @@ public class SQLCache extends VolatilCache implements Cache {
 
     // Do not add transaction here: this is handled by caller
     public void	recordOntology( Statement st, URI uri, URI file, Ontology onto ) throws SQLException {
-	String sfile = "";
+    // modify to use queryStatement.setNull for sformalism and sformuri
 	String suri = uri.toString();
+	String sfile = "";
 	if ( file != null ) sfile = file.toString();
+	String sformuri = "NULL";
 	String query = "SELECT * FROM ontology WHERE uri="+quote(suri)+";";
 	ResultSet res = st.executeQuery(query);
 
 	if ( !res.next() ) {
-	    logger.debug( "Recording ontology {} with file {}", suri, sfile );
+	    logger.debug( "Recording ontology {} with file {} formalism {} formURI {}", suri, sfile, onto.getFormalism(), onto.getFormURI() );
 	    if ( onto != null ) {
+	    	if ( onto.getFormURI() != null ) sformuri = onto.getFormURI().toString();	
 		query = "INSERT INTO ontology " + 
 		    "(uri, file, formname, formuri) " +
-		    "VALUES ("+ quote(suri)+","+quote(sfile)+","+quote(onto.getFormalism())+","+quote(onto.getFormURI().toString())+")";
+		    "VALUES ("+ quote(suri)+","+quote(sfile)+","+quote(onto.getFormalism())+","+quote(sformuri)+")";
 	    } else {
 		query = "INSERT INTO ontology " + 
 		    "(uri, file) " +
@@ -604,9 +607,12 @@ public class SQLCache extends VolatilCache implements Cache {
 	    }
 	    st.executeUpdate(query);
 	} else {
+		String sformname = "";
+		if ( res.getString("formname") != null ) sformname = res.getString("formname");
 	    if ( onto != null && res.getString("formname").equals("") ) { // JE: checktest
 		logger.debug( "Updating ontology {} with formalism {}", suri, onto.getFormalism() );
-		query = "UPDATE ontology SET formname="+quote(onto.getFormalism())+", formuri="+quote(onto.getFormURI().toString())+" WHERE uri="+quote(suri)+";";
+    	if ( onto.getFormURI() != null ) sformuri = onto.getFormURI().toString();	
+		query = "UPDATE ontology SET formname="+quote(onto.getFormalism())+", formuri="+quote(sformuri)+" WHERE uri="+quote(suri)+";";
 		st.executeUpdate(query);
 	    }
 	}
