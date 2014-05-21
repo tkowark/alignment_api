@@ -1433,6 +1433,7 @@ public List<Message> alignonet( Properties params ) {
     	Boolean reflexive = false;
     	Boolean symmetric = false;
     	String id = params.getProperty("id");
+		String pretty = params.getProperty("pretty");
     	String method = params.getProperty("method");
     	if (params.getProperty("reflexive") != null) reflexive = true;
     	if (params.getProperty("symmetric") != null) symmetric = true;
@@ -1451,7 +1452,15 @@ public List<Message> alignonet( Properties params ) {
     	}
     	
     	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
-    	return new OntologyNetworkId( params, newId(), serverId, id,
+    	Set<Alignment> networkAlignments = networkAlignmentUri(id);
+    	for (Alignment al : networkAlignments) {
+    		String idAl = alignmentCache.recordNewAlignment( al, true );
+    		if ( pretty != null && !pretty.equals("") ) {
+        	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+    		}
+    	}
+		
+		return new OntologyNetworkId( params, newId(), serverId, id,
 				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
     }
     
