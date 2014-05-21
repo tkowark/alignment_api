@@ -180,7 +180,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmreset\"><button title=\"Restore launching state (reload from database)\" type=\"submit\">Reset server</button></form>";
 	    //	    msg += "<form action=\"shutdown\"><button title=\"Shutdown server\" type=\"submit\">Shutdown</button></form>";
 	    msg += "<form action=\"..\"><button title=\"About...\" type=\"submit\">About</button></form>";
-	    msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
+	    msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">Alignments</button></form>";
+	    msg += "<form action=\"../ontonet/\"><button style=\"background-color: lightgreen;\" title=\"Ontology Networks commands\" type=\"submit\">Ontology networks</button></form>";
 	} else {
 	    msg = "Cannot understand: "+perf;
 	}
@@ -225,7 +226,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		      
         } else if ( perf.equals("listNetOnto2") ){
         	
-        	msg = "<h1>Ontologies of the Network</h1>";
+        	msg = "<h1>Ontologies</h1>";
         	msg += "<form action=\"listNetAlig\">";
 		    String uriON = params.getProperty("uriON");  //send as parameter uriON for listNetAlig
 		    int numOnto = 0;
@@ -241,7 +242,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    
         } else if ( perf.equals("listNetAlig") ){
         	
-        	msg = "<h1>Alignments of the Network</h1>";
+        	msg = "<h1>Alignments</h1>";
 		    String uriON = params.getProperty("uri");   
 		    Set<Alignment> networkAlignments = manager.networkAlignmentUri(uriON);
 		    int numAlig = 0;
@@ -249,7 +250,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
 		    for (Alignment al : networkAlignments) {
 		    	numAlig ++;
-		    	msg += "&nbsp;<li><a href=\""+"idAlign" + "\"> ("+String.format("%05d", numAlig)+") " +"idAlign:"+"</a>&nbsp;&nbsp;&nbsp; "+ al.getFile1() + "&nbsp;&nbsp;&nbsp;" + al.getFile2() + "</li>";
+		    	msg += "<li><a href=\""+"idAlign" + "\"> ("+String.format("%05d", numAlig)+") " +"idAlign:"+"</a>&nbsp;&nbsp;&nbsp; "+ al.getFile1() + "&nbsp;&nbsp;&nbsp;" + al.getFile2() + "</li>";
 		    	} 
 	    
         } else if ( perf.equals("prmloadonet") ){
@@ -504,7 +505,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmnormalizeonet") ){
 
 	} else if ( perf.equals("") ) {
-		msg = "<h1>Ontology Network commands</h1>";
+		msg = "<h1>Ontology network commands</h1>";
 		msg += "<form action=\"../ontonet/listnetwork\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
 	//	msg += "<form action=\"prmlistonet\"><button title=\"List networks stored in the server\" type=\"submit\">Available networks</button></form>";
 		msg += "<form action=\"prmloadonet\"><button title=\"Load a network from a valid source\" type=\"submit\">Load a network</button></form>";
@@ -514,11 +515,12 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<form action=\"prmcloseonet\"><button title=\"Close an ontology network\" type=\"submit\">Close network</button></form>";
 		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
 		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
-		msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">User interface</button></form>";
+		msg += "<form action=\"../html/\"><button style=\"background-color: lightpink;\" title=\"Back to user menu\" type=\"submit\">Alignments</button></form>";
+		msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
 	} else {
 	    msg = "Cannot understand: "+perf;
 	}
-	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Ontology Networks Management</a></small></center></body></html>";
+	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Network management</a></small></center></body></html>";
     }
 
     /**
@@ -928,8 +930,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmtranslate\"><button title=\"Query translation through an alignment\" type=\"submit\">Translate query</button></form>";
 	    msg += "<form action=\"prmeval\"><button title=\"Evaluation of an alignment\" type=\"submit\">Evaluate alignment</button></form>";
 	    msg += "<form action=\"prmdiff\"><button title=\"Compare two alignments\" type=\"submit\">Compare alignment</button></form>";
+	    msg += "<form action=\"../ontonet/\"><button style=\"background-color: lightgreen;\" title=\"Ontology Networks commands\" type=\"submit\">Ontology networks</button></form>";
 	    msg += "<form action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>";
-	    msg += "<form action=\"../ontonet/\"><button style=\"background-color: lightgreen;\" title=\"Ontology Networks commands\" type=\"submit\">Ontology Networks</button></form>";
 	} else {
 	    msg = "Cannot understand command "+perf;
 	}

@@ -1305,7 +1305,7 @@ public class AServProtocolManager implements Service {
 	    result = "<h1>" + id+ " ("+pidON+")" +"</h1>";
 	    
 	    result += "<table border=\"0\">\n";
-	    result += "<h2>Ontologies of the Network</h2>\n";
+	    result += "<h2>Ontologies</h2>\n";
     	Collection<URI> networkOntology = networkOntologyUri(id);
 	    result += "<p><tr><th><b>Total ontologies: </b>" + networkOntology.size() + "</th></tr></p>";
 	    result += "<table>\n";
@@ -1316,16 +1316,16 @@ public class AServProtocolManager implements Service {
 	    result += "</ul>";
 	    result += "</table>\n";
 	    
-    	result += "<h2>Alignments of the Network</h2>\n"; 
+    	result += "<h2>Alignments</h2>\n"; 
 	    Set<Alignment> networkAlignments = networkAlignmentUri(id);
 	    result += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
 	    result += "<table>\n";
 	    result += "<ul>";
 	    for (Alignment al : networkAlignments) {	
 	    	String idAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-			String pidAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-			if ( pidAl == null ) pidAl = idAl; else pidAl = idAl+" ("+pidAl+")";
-	    	result += "<li><a href=\""+idAl+"\">"+pidAl+" ("+ pidON +")"+"</a></li>";
+		String pidAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+		if ( pidAl == null ) pidAl = idAl; else pidAl = idAl+" ("+pidAl+")";
+	    	result += "<li><a href=\""+idAl+"\">"+pidAl+"</a></li>";
 	    	}
 	    result += "</ul>";
 	    result += "</table>\n";
