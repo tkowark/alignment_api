@@ -2,7 +2,7 @@
  * $Id$
  *
  * Sourceforge version 1.6 - 2008 - was OMWGAlignment
- * Copyright (C) INRIA, 2007-2013
+ * Copyright (C) INRIA, 2007-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -233,7 +233,7 @@ public class EDOALAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	align.setExtensions( convertExtension( "EDOALURIConverted", "http://exmo.inrialpes.fr/align/impl/edoal/EDOALAlignment#toURI" ) );
+	align.setExtensions( extensions.convertExtension( "EDOALURIConverted", "http://exmo.inrialpes.fr/align/impl/edoal/EDOALAlignment#toURI" ) );
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
 	    try {
@@ -306,7 +306,7 @@ public class EDOALAlignment extends BasicAlignment {
      */
     public void convertToEDOAL( BasicAlignment al ) throws AlignmentException {
 	setType( al.getType() );
-	setExtensions( al.convertExtension( "toEDOAL", "fr.inrialpes.exmo.align.edoal.EDOALAlignment#toEDOAL" ) );
+	setExtensions( al.getExtensionsObject().convertExtension( "toEDOAL", "fr.inrialpes.exmo.align.edoal.EDOALAlignment#toEDOAL" ) );
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)getOntologyObject2(); // [W:unchecked]
 	for ( Cell c : al ) {
@@ -360,7 +360,7 @@ public class EDOALAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	align.setExtensions( convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
+	align.setExtensions( extensions.convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { 

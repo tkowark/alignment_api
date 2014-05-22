@@ -218,6 +218,8 @@ public class BasicAlignment implements Alignment {
 
     public Collection<String[]> getExtensions(){ return extensions.getValues(); }
 
+    public Extensions getExtensionsObject(){ return extensions; }
+
     public void setExtensions( Extensions ext ){ extensions = ext; }
 
     public void setExtension( String uri, String label, String value ) {
@@ -667,25 +669,6 @@ public class BasicAlignment implements Alignment {
 	return result;
     }
 
-    public Extensions convertExtension( String label, String method ) {
-	Extensions newext = (Extensions)extensions.clone();
-	String oldid = extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	if ( oldid != null && !oldid.equals("") ) {
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.DERIVEDFROM, oldid );
-	    newext.unsetExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	}
-	String pretty = getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-	if ( pretty != null ){
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/"+label );
-	};
-	if ( extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) != null ) {
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE,
-				 extensions.getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) );
-	}
-	newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, method );
-	return newext;
-    }
-
     /**
      * A new alignment is created such that for
      * any pair (o, o', n, r) in O the resulting alignment will contain:
@@ -699,7 +682,7 @@ public class BasicAlignment implements Alignment {
 	// We must inverse getType
 	result.setType( getType() );
 	result.setLevel( getLevel() );
-	result.setExtensions( convertExtension( "inverted", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" ) );
+	result.setExtensions( extensions.convertExtension( "inverted", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" ) );
 	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	//    String label = (String)e.nextElement();
 	for ( String label : namespaces.stringPropertyNames() ) {
@@ -743,7 +726,7 @@ public class BasicAlignment implements Alignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	align.setExtensions( convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
+	align.setExtensions( extensions.convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
 	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
 	//    String label = (String)e.nextElement();
 	for ( String label : namespaces.stringPropertyNames() ) {

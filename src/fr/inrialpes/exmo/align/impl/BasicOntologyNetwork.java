@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
-//import java.lang.Cloneable; // JE: what happens when I do a clone() ??
 import java.lang.Iterable;
 import java.util.Collections;
 import java.util.Collection;
@@ -168,9 +167,23 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 
 
     /**
-     * Clone?
+     * Clone does some deeper cloning
+     * It has the same content but a different id (no id indeed)
      */
-    //public BasicOntologyNetwork clone() {}
+    public BasicOntologyNetwork clone() {
+	//public Object clone() {
+	BasicOntologyNetwork network = new BasicOntologyNetwork();
+	network.setExtensions( extensions.convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
+	for ( URI onto : ontologies.keySet() ) network.addOntology( onto );
+	for ( Alignment al : alignments ) {
+	    try { 
+		network.addAlignment( al );
+	    } catch (AlignmentException alex) {
+		logger.debug( "IGNORED Exception : should not happen {}", al );
+	    }
+	}
+	return network;
+    }
 
     /**
      * Normalizes an ontology network for it to have exactly one alignment between each pair of ontologies.

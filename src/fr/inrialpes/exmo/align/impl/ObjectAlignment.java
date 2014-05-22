@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011, 2013
+ * Copyright (C) INRIA, 2003-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -119,7 +119,7 @@ public class ObjectAlignment extends BasicAlignment {
 	align.setLevel( getLevel() );
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
-	align.setExtensions( convertExtension( "EDOALURIConverted", this.getClass().getName()+"#toURI" ) );
+	align.setExtensions( extensions.convertExtension( "EDOALURIConverted", this.getClass().getName()+"#toURI" ) );
 	for (Enumeration e = getElements(); e.hasMoreElements();) {
 	    Cell c = (Cell)e.nextElement();
 	    try {
@@ -147,7 +147,7 @@ public class ObjectAlignment extends BasicAlignment {
 	}
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
-	alignment.setExtensions( al.convertExtension( "ObjectURIConverted", "fr.inrialpes.exmo.align.ObjectAlignment#toObject" ) );
+	alignment.setExtensions( al.extensions.convertExtension( "ObjectURIConverted", "fr.inrialpes.exmo.align.ObjectAlignment#toObject" ) );
 	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
 	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
 	Object obj1 = null;
