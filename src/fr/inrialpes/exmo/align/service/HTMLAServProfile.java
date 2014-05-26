@@ -204,7 +204,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
         	String id = "";
         	String pid = "";
     	    msg = "<h1>Available networks</h1>";
-    	    //msg += "<form action=\"listNetOnto\"><ul compact=\"1\">";
     	    msg += "<form action=\"listnetwork\"><ul compact=\"1\">";
     	    for ( OntologyNetwork oNetwork : ontologyNetworks ) {
     	    	noo = (BasicOntologyNetwork) oNetwork;
@@ -215,20 +214,23 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     		    }
 		   msg += "</ul></form>";
 
-        } else if ( perf.equals("listNetOnto") ){   //TODO eliminate this
-		   //Message answer = manager.renderHTMLON( params );
+ /*
+          } else if ( perf.equals("listNetOnto") ){ //TODO verify if will it be used
+  	
 		   Message answer = manager.renderHTMLNetwork( params );
 		    if ( answer instanceof ErrorMsg ) {
 			msg = testErrorMessages( answer, params, eSource );
 		    } else {
 		    	return answer.getContent();
 		    }
-		      
-        } else if ( perf.equals("listNetOnto2") ){
+	*/	     
+		   /*
+		   
+        } else if ( perf.equals("listNetOnto2") ){//TODO verify if will it be used
         	
         	msg = "<h1>Ontologies</h1>";
         	msg += "<form action=\"listNetAlig\">";
-		    String uriON = params.getProperty("uriON");  //send as parameter uriON for listNetAlig
+		    String uriON = params.getProperty("uriON");
 		    int numOnto = 0;
 		    Collection<URI> networkOntology = manager.networkOntologyUri(uriON);
 		    msg += "<p>" + uriON + "   ";
@@ -239,6 +241,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 				msg += "<li><a href=\""+onto.toString()+"\"> ("+String.format("%05d", numOnto)+") "+onto.toString()+"</a></li>";
 		    }
 		    //msg += "&nbsp;<input type=\"submit\" value=\"List alignments\"/></form><ul compact=\"1\">";
+		*/   
+		   /*
 		    
         } else if ( perf.equals("listNetAlig") ){
         	
@@ -252,6 +256,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    	numAlig ++;
 		    	msg += "<li><a href=\""+"idAlign" + "\"> ("+String.format("%05d", numAlig)+") " +"idAlign:"+"</a>&nbsp;&nbsp;&nbsp; "+ al.getFile1() + "&nbsp;&nbsp;&nbsp;" + al.getFile2() + "</li>";
 		    	} 
+	    */
 	    
         } else if ( perf.equals("prmloadonet") ){
         	//TODO add two more parameters TYPE of file (json/html, etc) and STRUCTURE of the file
@@ -267,6 +272,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     	    msg += "Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
     	    msg += "<input type=\"submit\" Value=\"Upload\">";
     	    msg +=  " </form>";
+    	    
         } else if ( perf.equals("loadonet") ) {
         	
         	Message answer = manager.loadonet( params );
@@ -276,6 +282,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     		msg = "<h1>Ontology Network loaded</h1>";
     		msg += displayAnswerON( answer, params );
     	    }
+    	    
 	} else if ( perf.equals("storeonet") ){
 
 			// here should be done the switch between store and load/store
@@ -295,7 +302,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 			    msg = testErrorMessages( answer, params, eSource );
 			    } else {
 			    	msg = "<h1>Ontology Network stored</h1>";
-			    	msg += displayAnswer( answer, params );
+			    	msg += displayAnswerON( answer, params ); //it was msg += displayAnswer( answer, params );
 			    	}
 			}	
 			
@@ -340,8 +347,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    	msg = "<h1>Store an ontology network</h1><form action=\"storeonet\">";
 		    msg += "Network:  <select name=\"id\">";
 		    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
-		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		    	if ( sel != null && sel.equals( id ) ){
 		    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -356,8 +363,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg ="<h1>Trim networks</h1><form action=\"trimonet\">";
 	    msg += "Network:  <select name=\"id\">";
 	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
-	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 	    	if ( sel != null && sel.equals( id ) ){
 	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -369,34 +376,26 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     } else if ( perf.equals("trimonet") ){
     	Message answer = manager.trimonet( params );
 	    if ( answer instanceof ErrorMsg ) {
-	    	System.out.println("answer error ");
-		msg = testErrorMessages( answer, params, eSource );
+	    	msg = testErrorMessages( answer, params, eSource );
 	    } else {
-	    	msg ="<h1>Trimed network</h1><form action=\"trimonet\">";
-	    	msg += "<a href=\"" + answer.getContent() +"\">" + answer.getContent() + "</a>";
-
-	    	System.out.println("answer: "+ answer.getContent());
-	    }
+	    	msg ="<h1>Trimmed network</h1>";
+	    	msg += displayAnswerON( answer, params );
+	    }  
 	    
 	} else if ( perf.equals("prmmatchonet") ){
 
 	    	msg = "<h1>Match an ontology network</h1><form action=\"matchonet\">";
-	    	msg += "<h2><font color=\"red\">(not implemented yet)</font></h2>";
 		    msg += "Network:  <select name=\"id\">";
 			String sel = params.getProperty("id");
 		    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
-		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+		    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 		    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 		    	if ( sel != null && sel.equals( id ) ){
 		    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
 		    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
 		    	}
 		    msg += "</select><br />";
-
-//		    msg += "<!--input type=\"submit\" name=\"action\" value=\"Find\"/>";
-//		    msg += "<br /-->Methods: <select name=\"method\">";
-
 		    msg += "<br />Methods: <select name=\"method\">";
 		    for( String idMethod : manager.listmethods() ) {
 				msg += "<option value=\""+idMethod+"\">"+idMethod+"</option>"; 
@@ -415,24 +414,10 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    	    
 	} else if ( perf.equals("matchonet") ) {
 		
-		// DO MATCHING version 1
-/*		
-	    List<Message> answer = manager.alignonet( params );
-		msg = "<h1>Network Alignments results</h1>";
-		Iterator<Message> it = answer.iterator();
-		msg += "<ul>";
-		while (it.hasNext()) {
-			final Message alignment = it.next();
- 			msg += "<li><a href=\"" + alignment.getContent() +"\">" + alignment.getContent() + "</a></li>";
-		}
-		msg += "</ul>";
-		
-*/		
-		
 		// DO MATCHING
     	String idON = params.getProperty("id");
 		logger.debug("Matching network {}", idON);
-		Message answer = manager.alignonet2( params );
+		Message answer = manager.alignonet( params );
 		if ( answer instanceof ErrorMsg ) {
 			msg = testErrorMessages( answer, params, eSource );
 		    } else {
@@ -457,8 +442,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg = "<h1>Retrieve ontology network</h1><form action=\"retrieveonet\">";
 	    msg += "Network:  <select name=\"id\">";
 	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
-	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 	    	if ( sel != null && sel.equals( id ) ){
 	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -474,23 +459,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg = testErrorMessages( answer, params, eSource );
 	    } else {
 		// Depending on the type we should change the MIME type
-	    	//return answer.getContent().replaceAll("&", "&amp;").replaceAll("<", "&lt;");
 	    	return answer.getContent();
 	    }
-		
-		
-		
-		
 	    
 	} else if ( perf.equals("prmcloseonet") ){
 		
-		msg = "<h1>Close an ontology network</h1><form action=\"matchonet\">";
-		msg += "<h2><font color=\"red\">(not implemented yet)</font></h2>";
+		msg = "<h1>Close an ontology network</h1><form action=\"closeonet\">";
 	    msg += "Network:  <select name=\"id\">";
 		String sel = params.getProperty("id");
 	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ); //TODO eliminate BasicOntologyNetwork
-	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); //TODO eliminate BasicOntologyNetwork
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
 	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
 	    	if ( sel != null && sel.equals( id ) ){
 	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
@@ -498,11 +477,89 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    	}
 
 	    msg += "</select><br />";
-	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\" /> ";
-	    msg += "<input type=\"submit\" name=\"action\" value=\"Compose\"/> ";
-	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	    msg += "<input type=\"submit\" name=\"invert\" value=\"Invert\" /> ";
+	    //msg += "<input type=\"submit\" name=\"compose\" value=\"Compose\"/> ";
+	    //msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	    msg += "</form>";
+	    
+	} else if ( perf.equals("closeonet") ){
+    	Message answer = manager.closeonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+	    	msg = testErrorMessages( answer, params, eSource );
+	    } else {
+	    	msg ="<h1>Closed network</h1>";
+	    	msg += displayAnswerON( answer, params );
+	    }  
 	   
 	} else if ( perf.equals("prmnormalizeonet") ){
+		
+		msg = "<h1>Normalize an ontology network</h1><form action=\"normonet\">";
+	    msg += "Network:  <select name=\"id\">";
+		String sel = params.getProperty("id");
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    	if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+	    	if ( sel != null && sel.equals( id ) ){
+	    		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+	    		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    	}
+
+	    msg += "</select><br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Normalize\" /> ";
+	    msg += "</form>";
+	    
+	} else if ( perf.equals("normonet") ){
+    	Message answer = manager.normonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+	    	msg = testErrorMessages( answer, params, eSource );
+	    } else {
+	    	msg ="<h1>Normalized network</h1>";
+	    	msg += displayAnswerON( answer, params );
+	    }
+	    
+	} else if ( perf.equals("prmopersetonet") ){
+		
+		msg = "<h1>Operations on ontology network sets</h1><form action=\"opsetonet\">";
+	    msg += "Network 1:  <select name=\"id1\">";
+		String sel1 = params.getProperty("id1");
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id1 = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid1 = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    	if ( pid1 == null ) pid1 = id1; else pid1 = id1+" ("+pid1+")";
+	    	if ( sel1 != null && sel1.equals( id1 ) ){
+	    		msg += "<option selected=\"1\" value=\""+id1+"\">"+pid1+"</option>";
+	    		} else { msg += "<option value=\""+id1+"\">"+pid1+"</option>";}
+	    	}
+	    msg += "</select><br />";
+	    msg += "Network 2:  <select name=\"id2\">";
+		String sel2 = params.getProperty("id2");
+	    for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
+	    	String id2 = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	    	String pid2 = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    	if ( pid2 == null ) pid2 = id2; else pid2 = id2+" ("+pid2+")";
+	    	if ( sel2 != null && sel2.equals( id2 ) ){
+	    		msg += "<option selected=\"1\" value=\""+id2+"\">"+pid2+"</option>";
+	    		} else { msg += "<option value=\""+id2+"\">"+pid2+"</option>";}
+	    	} 
+	    msg += "</select><br />";
+	    
+	    msg += "<br /><input type=\"checkbox\" name=\"meet\" /> Meet ";
+	    msg += "<input type=\"checkbox\" name=\"join\" /> Join ";
+	    msg += "<input type=\"checkbox\" name=\"diff\" /> Diff ";
+	    msg += "<br /><br />";
+	    msg += "<input type=\"submit\" name=\"action\" value=\"Execute\"/> ";
+	    msg += "<br /><br /></form>";
+
+	    
+	} else if ( perf.equals("opsetonet") ){
+    	Message answer = manager.opsetonet( params );
+	    if ( answer instanceof ErrorMsg ) {
+	    	msg = testErrorMessages( answer, params, eSource );
+	    } else {
+	    	msg ="<h1>Operation on network done</h1>";
+	    	msg += displayAnswerON( answer, params );
+	    }
 
 	} else if ( perf.equals("") ) {
 		msg = "<h1>Ontology network commands</h1>";
@@ -512,6 +569,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<form action=\"prmmatchonet\"><button title=\"Match an ontology network\" type=\"submit\">Match network </button></form>";
 		msg += "<form action=\"prmtrimonet\"><button title=\"Trim a network\" type=\"submit\">Trim network</button></form>";
 		msg += "<form action=\"prmnormalizeonet\"><button title=\"Normalize an ontology network\" type=\"submit\">Normalize network</button></form>";
+		msg += "<form action=\"prmopersetonet\"><button title=\"Operations on ontology network sets\" type=\"submit\">Operations on network sets</button></form>";
 		msg += "<form action=\"prmcloseonet\"><button title=\"Close an ontology network\" type=\"submit\">Close network</button></form>";
 		msg += "<form action=\"prmretreiveonet\"><button title=\"Render an ontology network in a particular format\" type=\"submit\">Render network</button></form>";
 		msg += "<form action=\"prmstoreonet\"><button title=\"Store a network in the server\" type=\"submit\">Store network</button></form>";
@@ -667,7 +725,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		if ( answer instanceof ErrorMsg ) {
 		    msg = testErrorMessages( answer, params, eSource );
 		} else {
-		    msg = "<h1>Alignment trimed</h1>";
+		    msg = "<h1>Alignment trimmed</h1>";
 		    msg += displayAnswer( answer, params );
 		}
 	    }
@@ -1021,7 +1079,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     		    result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
     		    result += "<td><form action=\"metadata\"><input type=\"hidden\" name=\"id\" value=\""+answer.getContent()+"\"/><input type=\"submit\" name=\"action\" value=\"Metadata\"/></form></td>";
     		    result += "</tr></table>";
-    	    	//} else if( answer instanceof OntologyNetworkIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) { //TODO is it needed??create public class OntologyNetworkIds extends Success {
+    	    	//} else if( answer instanceof OntologyNetworkIds && ( answer.getParameters() == null || answer.getParameters().getProperty("async") == null )) { }
     		    result = answer.HTMLRESTString();
     		}
     	    } else {
