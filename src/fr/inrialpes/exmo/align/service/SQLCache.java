@@ -609,7 +609,7 @@ public class SQLCache extends VolatilCache implements Cache {
 	} else {
 		String sformname = "";
 		if ( res.getString("formname") != null ) sformname = res.getString("formname");
-	    if ( onto != null && res.getString("formname").equals("") ) { // JE: checktest
+		if ( onto != null && sformname.equals("") ) { // JE: checktest
 		logger.debug( "Updating ontology {} with formalism {}", suri, onto.getFormalism() );
     	if ( onto.getFormURI() != null ) sformuri = onto.getFormURI().toString();	
 		query = "UPDATE ontology SET formname="+quote(onto.getFormalism())+", formuri="+quote(sformuri)+" WHERE uri="+quote(suri)+";";
