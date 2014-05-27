@@ -59,10 +59,11 @@ postgres# quit
 Tentative by JD:
 <div class="terminal">
 su postgres
-createuser adminAServ
+createuser -P adminAServ
 createdb -O adminAServ AServDB
 </div>
-<p>
+Choose password 'aaa345' when prompted by createuser command.
+</p>
 
 <h2>Launching the Alignment server</h2>
 
@@ -230,8 +231,11 @@ sql> source toto.sql;
 <p>
 For Postgres:
 <div class="terminal">
-$ su postgres
-$ dropdb AServDB
+$ pg_dump  -W -U adminAServ > AServBackup
+</div>
+And restoring:
+<div class="terminal">
+$ psql -W -U adminAServ < AServBackup
 </div>
 
 </p>
