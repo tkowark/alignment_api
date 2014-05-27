@@ -1,6 +1,6 @@
 #######################################################################
 #              Ontology alignment API and implementation              #
-#                      10/02/2014, version 4.6                        #
+#                      27/05/2014, version 4.6+                        #
 #                  http://alignapi.gforge.inria.fr                    #
 #######################################################################
 
@@ -27,7 +27,7 @@ Read the LICENSE.TXT file for the terms of the LGPL license.
 WHAT IS ONTOLOGY ALIGNMENT?
 ---------------------------
 
-See http://alignapi.gforge.inria.fr for the moment.
+See http://alignapi.gforge.inria.fr.
 See also http://www.ontologymatching.org
 
 USING THE ONTOLOGY ALIGNMENT API IMPLEMENTATION
@@ -37,7 +37,7 @@ Building:
 ---------
 
 $ ant jar
-(or ant compileall; ant jar)
+(or ant compileall)
 
 Testing
 -------
@@ -105,7 +105,6 @@ FILES
 -----
 
 README.TXT	this file
-README.AServ	instructions for setting up an Alignment Server
 LICENSE.TXT	the terms under which the software is licensed to you.
 build.xml	the Ant build file for compiling and testing
 classes/	directory for compiling the sources
@@ -131,3 +130,19 @@ src/		Java sources of ontoalign
 		fr.inrialpes.exmo.ontowrap: Abstract ontology layer
 test/		Unit tests for testng
 tools/		Compile-time tools (testng, etc.)
+
+RUNNING THE ALIGNMENT SERVER
+----------------------------
+
+For information on how to setup an alignment setver, please consult the
+more elaborate documentation at: html/aserv.html
+
+$ java -jar lib/alignsvc.jar -H
+$ java -jar lib/alignsvc.jar -Dwndict=../WordNet-3.0/dict -H
+
+The alignment server is then available through HTTP with:
+
+    	      http://localhost:8089/html/
+
+For debugging, using logback, do:
+$ java -cp lib/slf4j/logback-core-1.0.9.jar:lib/slf4j/logback-classic-1.0.9.jar:lib/alignsvc.jar -Dlogback.configurationFile=logback.xml fr.inrialpes.exmo.align.service.AlignmentService -Dwndict=../WordNet-3.0/dict -H

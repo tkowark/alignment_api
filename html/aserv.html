@@ -10,16 +10,16 @@
 <h1 class="titre">Setting up an Alignment Server</h1>
 
 <p>An extensive presentation of the alignment API can be
-  found at <a href="http://gforge.inria.fr/docman/?group_id=117">http://gforge.inria.fr/docman/?group_id=117</a>. We also have
-  an on-line <a href="tutorial/tutorial1/server.html">tutorial</a> on using it.</p>
+  found at <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a>. We also have
+  an on-line <a href="tutorial/tutorial1/server.html">tutorial</a> on
+  using it through the server.</p>
 
 <h2>Requirements</h2>
 
 <p>Using the alignment server requires an SQL database server.
-We see here how to use mysql (http://dev.mysql.com/doc/refman), but
-  the server also works with Postgres.</p>
+We see here how to use <a href="http://dev.mysql.com/doc/refman">mysql</a> or Postgres.</p>
 
-<h2>Creating the MySQL database</h2>
+<h3>Creating the MySQL database</h3>
 
 <p>
 In order to use the Alignment server, it is necessary to create its database. This can simply be done by the following shell instructions:
@@ -45,10 +45,24 @@ database name. This can be achieved either:
 </ul>
 </p>
 
+<h3>Creating the Postgres database</h3>
+
 <p>
-It is also possible to use Postgres instead of MySQL, but then you
-should know how to do it.
-</p>
+Tentative by JE:
+<div class="terminal">
+$ psql -U postgres
+postgres# CREATE DATABASE AServDB;
+postgres# CREATE USER adminAServ PASSWORD 'aaa345';
+postgres# ALTER DATABASE AServDB OWNER TO adminAServ;
+postgres# quit
+</div>
+Tentative by JD:
+<div class="terminal">
+su postgres
+createuser adminAServ
+createdb -O adminAServ AServDB
+</div>
+<p>
 
 <h2>Launching the Alignment server</h2>
 
@@ -70,29 +84,36 @@ The alignment server is then available through HTTP with:
 The possible switches to the server launcher are:
 <div class="terminal">
 $ java -jar lib/alignsvc.jar -h
-options are:
-	--html[=port] -H[port]			Launch HTTP service
-	--jade[=port] -A[port]			Launch Agent service
-	--wsdl[=port] -W[port]			Launch Web service
-	--jxta[=port] -P[port]			Launch P2P service
-	--oyster -O			Register to Oyster directory
-	--serv=class -i class			Launch service corresponding to fully qualified classname
-	--output=filename -o filename	Redirect output to filename
-	--dbmshost=host -m host			Use DBMS host
-	--dbmsport=port -s port			Use DBMS port
-	--dbmsuser=name -u name			Use DBMS user name
-	--dbmspass=pwd -p pwd			Use DBMS password
-	--dbmsbase=name -b name			Use Database name
-	--dbms=name -B name			Use Database Management System
-	--uriprefix=uri -f uri			Set alignment URIs with this prefix
-	-Dparam=value			Set parameter
-	--help -h			Print this message
+usage: java fr.inrialpes.exmo.align.service.AlignmentService [options]
+            Launch an Alignment server
 
-Alignment server 4.4 (1835M) ($Id$)
+Options:
+ -A,--jade &lt;PORT>       Launch JADE service (with port PORT; default 8888)
+ -b,--dbmsbase &lt;BASE>   Use DBMS BASE (default: AServDB)
+ -B,--dbms &lt;DBMS>       Use DBMS system (mysql,postgres; default: mysql)
+ -D &lt;NAME=VALUE>        Use value for given property
+ -d,--debug &lt;LEVEL>     debug argument is deprecated, use logging instead
+                        See http://alignapi.gforge.inria.fr/logging.html
+ -H,--http &lt;PORT>       Launch HTTP service (with port PORT; default 8089)
+ -h,--help              Print this page
+ -i,--impl &lt;CLASS>      Launch service corresponding to CLASS
+ -l,--dbmsuser &lt;USER>   Use DBMS USER (default: scott)
+ -m,--dbmshost &lt;HOST>   Use DBMS HOST (default: localhost)
+ -o,--output &lt;FILE>     Send output to FILE
+ -O,--oyster            Register to Oyster directory
+ -P,--params &lt;FILE>     Read parameters from FILE
+ -p,--dbmspass &lt;PASS>   Use DBMS PASSword (default: tiger)
+ -s,--dbmsport &lt;PORT>   Use DBMS PORT (default: null)
+ -S,--host &lt;HOSTNAME>   Set the HOSTNAME of the server
+ -u,--uriprefix &lt;URI>   Set alignment URIs with prefix URI
+ -W,--wsdl &lt;PORT>       Launch Web service (with port PORT; default 7777)
+ -X,--jxta &lt;PORT>       Launch JXTA service (with port PORT; default 6666)
+
+Alignment server 4.6 (1934M)
 </div>
 </p>
 
-<h2>Embedding more methods in the Alignment Server</h2>
+<h3>Embedding more methods in the Alignment Server</h3>
 
 <p>Adding new matcher, renderer, evaluators, or services in the
   Alignment Server, is really easy. This requires that your class be
@@ -113,6 +134,40 @@ is the required MANIFEST file for embedding our OLA algorithm which
 requires two jarfiles: procola.jar and olgraph.jar.
 </p>
 
+<h3>In case of a PermGem error</h3>
+
+<p>
+Because we load all classes in the path to check if they implement an
+API interface, this may raise a PermGem error. The only solution is to
+increase its size with:
+<div class="terminal">
+-XX:MaxPermSize=256m
+</div>
+in the command line.
+</p>
+
+<h3>Launching the server with Oyster registery (legacy)</h3>
+
+<p>
+The alignment API is already compiled with Oyster support. However, it is not ready to be launched. The instructions to do so are:
+<ol>
+<li>get the Oyster2 package from http://ontoware.org/projects/oyster2</li>
+<li>copy the four libraries in lib/ (or at least in the classpath)</li>
+<li>copy the O2serverfiles directory</li>
+<li>copy the "new store" config file</li>
+<li>edit the "new store" config file for it to use the correct environent</li>
+<li>launch kaon2.jar:
+<div class="terminal">
+$ java -cp lib/kaon2.jar org.semanticweb.kaon2.server.ServerMain -registry -rmi -ontologies O2serverfiles
+</div>
+(use -registryport for using another port than 1099,
+ then the "new store" configuration file must be edited)
+</li>
+<li>launch the server:
+<div class="terminal">
+$ java -jar lib/alignsvc.jar -O -d4
+</div></li>
+</ol>
 
 <h2>Ports used by the Alignment Server (by default)</h2>
 
@@ -140,12 +195,29 @@ for the firewalls to open these ports:
 Of course, the ports need only to be open if there is an access from
 the outside to the server with the corresponding plug-in. The only
 compulsory ports for the server is the MySQL one.
+Both Jade and Oyster/Kaon2 use rmi connection and the default 1099 port.
+Moreover, concerning Oyster, this port must be open to the outside.
 </p>
 
-<h2>Setting up a back-up for your database</h2>
+
+<h2>Configuring an Apache frontend</h2>
+
+<p>
+It may be convenient to provide access to a server through an Apache
+server proxy. For that purpose...
+<div class="terminal">
+$ a2dissite default
+$ a2dissite default-ssl
+$ a2enmod proxy
+$ a2enmod proxy-http
+$ service apache2 restart
+</div>
+</p>
+
+<h2>Setting up a back-up for the database</h2>
 
 
-<p>Sample backup of the server content:
+<p>Sample backup of the server content (MySQL):
 <div class="terminal">
 $ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
 </div>
@@ -154,6 +226,14 @@ And restoring:
 $ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
 sql> source toto.sql;
 </div>
+</p>
+<p>
+For Postgres:
+<div class="terminal">
+$ su postgres
+$ dropdb AServDB
+</div>
+
 </p>
 
 <address>
