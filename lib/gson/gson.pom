@@ -1,0 +1,24 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.google</groupId>
+  <artifactId>gson</artifactId>
+  <version>2.2.3</version>
+  <name>Google gson</name>
+  <inceptionYear>2011</inceptionYear>
+  <description>
+Gson is a Java library that can be used to convert a Java object into its 
+JSON representation. It can also be used to convert a JSON string into an 
+equivalent Java object. Gson can work with arbitrary Java objects including 
+pre-existing objects that you do not have source-code of.
+  </description>
+  <packaging>jar</packaging>
+  <licenses>
+    <license>
+      <name>Apache License Version 2.0, January 2004</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <url>http://code.google.com/p/google-gson</url>
+
+</project>
