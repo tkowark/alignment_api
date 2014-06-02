@@ -49,9 +49,12 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     Hashtable<String,String> nslist = null;
 
     boolean embedded = false;
-
     boolean split = false;                                  // split each query in a file
     String splitdir = "";                                   // directory where to put query files
+
+    boolean edoal = false;
+
+    boolean requestedblanks = false;
 
     private String content_Corese = "";                     // resulting string for Corese
     
@@ -65,8 +68,8 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     public void init(Properties p) {
 	if ( p.getProperty( "embedded" ) != null 
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
-	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
-	    blanks = true;
+	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") )
+	    requestedblanks = true;
 	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
 	    weakens = true;
 	if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
@@ -91,6 +94,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
 	    }
 	}
+	edoal = alignment.getLevel().startsWith("2EDOAL");
     	content_Corese = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NL;
     	content_Corese += "<!DOCTYPE rdf:RDF [" + NL;
     	content_Corese += "<!ENTITY rdf \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" + NL;
@@ -115,21 +119,9 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	this.cell = cell;
     	URI u1 = cell.getObject1AsURI( alignment );
     	URI u2 = cell.getObject2AsURI( alignment );
-    	if ( ( u1 != null && u2 != null)
-    	     || alignment.getLevel().startsWith("2EDOAL") ){ //expensive test
-	    // Here the generation is dependent on global variables
-	    resetVariables("s", "o");
-	    ((Expression)(cell.getObject1())).accept( this );
-	    String GP1 = getGP();    		
-	    List<String> listGP1 = new ArrayList<String>(getBGP());    		
-	    resetVariables("s", "o");	    		
-	    ((Expression)(cell.getObject2())).accept( this );
-	    String GP2 = getGP();
-	    List<String> listGP2 = new ArrayList<String>(getBGP());
-	    // End of global variables
-	    
-	    generateConstruct( GP1, listGP1, GP2, listGP2 );
-	    generateConstruct( GP2, listGP2, GP1, listGP1 );
+    	if ( edoal || ( u1 != null && u2 != null) ) {
+	    generateConstruct( (Expression)(cell.getObject1()), (Expression)(cell.getObject2()) );
+	    generateConstruct( (Expression)(cell.getObject2()), (Expression)(cell.getObject1()) );
     	}
     }
     
@@ -139,8 +131,23 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 	// rel.write( writer );
     }
 
-    protected void generateConstruct( String GP1, List<String> listGP1, String GP2, List<String> listGP2 ) {
+    protected void generateConstruct( Expression expr1, Expression expr2 ) throws AlignmentException {
+	// AND NOW THE DIFFERENCE:
+	// CONSTRUCT contains blanks ; SELECT contains vars
+	// Here the generation is dependent on global variables
+	resetVariables("s", "o");
+	blanks = true;
+	expr1.accept( this );
+	String GP1 = getGP();    		
+	List<String> listGP1 = new ArrayList<String>(getBGP());    		
+	resetVariables("s", "o");	    		
+	blanks = requestedblanks;
+	expr2.accept( this );
+	String GP2 = getGP();
+	List<String> listGP2 = new ArrayList<String>(getBGP());
+	// End of global variables
     	String query = "";
+	// THIS BELOW IS OK!
 	if ( !GP1.contains("UNION") && !GP1.contains("FILTER") ) {
 	    query = createConstruct( GP1, GP2 );
 	    if ( corese ) content_Corese += createCoreseQuery( query );
@@ -162,19 +169,11 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     }
 
     protected String createConstruct( String GP1, String GP2 ) {
-	return createPrefix( prefixList )+"CONSTRUCT {"+NL+GP1+"}"+NL+"WHERE {"+NL+GP2+"}"+NL;
+	return createPrefixList()+"CONSTRUCT {"+NL+GP1+"}"+NL+"WHERE {"+NL+GP2+"}"+NL;
     }
 
     protected String createCoreseQuery( String query ) {
 	return "<rule>"+NL+"<body>"+NL+"<![CDATA["+NL+query+"]]>"+NL+"</body>"+NL+"</rule>"+NL+NL;
-    }
-
-    protected String createPrefix( Hashtable<String,String> preflist ) {
-	String result = "";
-	for ( String k : preflist.keySet() ) {
-	    result += "PREFIX "+preflist.get(k)+":<"+k+">"+NL;
-	}
-	return result;
     }
 
 }

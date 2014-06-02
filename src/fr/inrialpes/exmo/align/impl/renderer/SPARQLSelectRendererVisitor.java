@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012-2013
+ * Copyright (C) INRIA, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,12 +41,13 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
+
     boolean embedded = false;
     boolean split = false;
     String splitdir = "";
-    private String GP1;
-    private String GP2;
-    
+
+    boolean edoal = false;
+
     public SPARQLSelectRendererVisitor(PrintWriter writer) {
 	super(writer);
     }   
@@ -80,49 +81,33 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
 	    }
 	}
+	edoal = alignment.getLevel().startsWith("2EDOAL");
 	for( Cell c : alignment ){ c.accept( this ); };    	
     }	
 
     public void visit( Cell cell ) throws AlignmentException {
 	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
-    	String query = "";
     	this.cell = cell;    	
     	
     	URI u1 = cell.getObject1AsURI(alignment);
+    	if ( edoal ||  u1 != null ) {
+	    generateSelect( (Expression)(cell.getObject1()) );
+	}
     	URI u2 = cell.getObject2AsURI(alignment);
-    	if ( ( u1 != null && u2 != null) || alignment.getLevel().startsWith("2EDOAL") ) {
-	    resetVariables("s", "o");
-	    ((Expression)(cell.getObject1())).accept( this );
-	    GP1 = getGP();
-	    resetVariables("s", "o");
-	    ((Expression)(cell.getObject2())).accept( this );
-	    GP2 = getGP();
-	    for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
-		String k = e.nextElement();
-		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-	    }
-	    query += "SELECT ?s WHERE {"+NL;
-	    query += GP1;
-	    query += "}"+NL;	    		
-	    if ( split ) {
-		createQueryFile( splitdir, query );
-	    } else {
-		writer.println(query);
-	    }	    		
-	    query="";
-	    for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
-		String k = e.nextElement();
-		query += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
-	    }
-	    query += "SELECT ?s WHERE {"+NL;
-	    query += GP2;
-	    query += "}"+NL;
-	    if ( split ) {
-		createQueryFile( splitdir, query );
-	    } else {
-	    	writer.println(query);
-	    }
-    	}    
+    	if ( edoal ||  u2 != null ) {
+	    generateSelect( (Expression)(cell.getObject2()) );
+	}
+    }
+
+    protected void generateSelect( Expression expr ) throws AlignmentException {
+	resetVariables("s", "o");
+	expr.accept( this );
+	String query = createPrefixList()+"SELECT ?s WHERE {"+NL+getGP()+"}"+NL;   		
+	if ( split ) {
+	    createQueryFile( splitdir, query );
+	} else {
+	    writer.println( query );
+	}
     }
     
     public void visit( Relation rel ) throws AlignmentException {

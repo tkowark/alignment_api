@@ -189,6 +189,14 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	}
     }
     
+    protected String createPrefixList() {
+	String result = "";
+	for ( String k : prefixList.keySet() ) {
+	    result += "PREFIX "+prefixList.get(k)+":<"+k+">"+NL;
+	}
+	return result;
+    }
+
     public void visit( final ClassId e ) throws AlignmentException {
     	if ( e.getURI() != null ) {
     		String prefix = getPrefixDomain(e.getURI());
