@@ -92,7 +92,7 @@ public class AlignmentService extends CommonCLI {
     private Hashtable<String,Directory> directories = null;
     private HTTPTransport transport = null;
 
-    private AServProtocolManager manager;
+    protected AServProtocolManager manager;
     private DBService connection;
 
     public AlignmentService() {
@@ -120,12 +120,12 @@ public class AlignmentService extends CommonCLI {
 
     }
 
-    public static void main(String[] args) {
+    public static void main( String[] args ) {
 	try { new AlignmentService().run( args ); }
 	catch ( Exception ex ) { logger.error( "FATAL error", ex ); };
     }
     
-    public void run(String[] args) throws Exception {
+    public void run( String[] args ) throws Exception {
 	services = new Vector<AlignmentServiceProfile>();
 	directories = new Hashtable<String,Directory>();
 
