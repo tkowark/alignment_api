@@ -49,6 +49,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     Hashtable<String,String> nslist = null;
 
     boolean embedded = false;
+    boolean oneway = false;
     boolean split = false;                                  // split each query in a file
     String splitdir = "";                                   // directory where to put query files
 
@@ -68,6 +69,8 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     public void init(Properties p) {
 	if ( p.getProperty( "embedded" ) != null 
 	     && !p.getProperty( "embedded" ).equals("") ) embedded = true;
+	if ( p.getProperty( "oneway" ) != null && !p.getProperty( "oneway" ).equals("") ) 
+	    oneway = true;
 	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") )
 	    requestedblanks = true;
 	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
@@ -121,7 +124,9 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     	URI u2 = cell.getObject2AsURI( alignment );
     	if ( edoal || ( u1 != null && u2 != null) ) {
 	    generateConstruct( (Expression)(cell.getObject1()), (Expression)(cell.getObject2()) );
-	    generateConstruct( (Expression)(cell.getObject2()), (Expression)(cell.getObject1()) );
+	    if ( !oneway ) {
+		generateConstruct( (Expression)(cell.getObject2()), (Expression)(cell.getObject1()) );
+	    }
     	}
     }
     
@@ -132,22 +137,19 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     }
 
     protected void generateConstruct( Expression expr1, Expression expr2 ) throws AlignmentException {
-	// AND NOW THE DIFFERENCE:
-	// CONSTRUCT contains blanks ; SELECT contains vars
 	// Here the generation is dependent on global variables
-	resetVariables("s", "o");
+	resetVariables( expr1, "s", "o" );
 	blanks = true;
 	expr1.accept( this );
 	String GP1 = getGP();    		
 	List<String> listGP1 = new ArrayList<String>(getBGP());    		
-	resetVariables("s", "o");	    		
+	resetVariables( expr2, "s", "o" );	    		
 	blanks = requestedblanks;
 	expr2.accept( this );
 	String GP2 = getGP();
 	List<String> listGP2 = new ArrayList<String>(getBGP());
 	// End of global variables
     	String query = "";
-	// THIS BELOW IS OK!
 	if ( !GP1.contains("UNION") && !GP1.contains("FILTER") ) {
 	    query = createConstruct( GP1, GP2 );
 	    if ( corese ) content_Corese += createCoreseQuery( query );

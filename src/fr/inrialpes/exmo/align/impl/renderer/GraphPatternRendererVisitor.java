@@ -39,6 +39,7 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.ClassConstruction;
 import fr.inrialpes.exmo.align.impl.edoal.ClassDomainRestriction;
@@ -50,6 +51,7 @@ import fr.inrialpes.exmo.align.impl.edoal.ClassValueRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
+import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 import fr.inrialpes.exmo.align.impl.edoal.PathExpression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyConstruction;
@@ -98,7 +100,6 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private static String sub = ""; 
     protected String obj = "";
     private String strBGP = "";
-    private String strBGP_Weaken = "";
     protected List<String> listBGP = null;
     private Set<String> subjectsRestriction = null;;
     private Set<String> objectsRestriction = null;
@@ -115,19 +116,40 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
     }
 
-    public void resetVariablesName( String s, String o ) {
+    public void initStructure() {
     	count = 1;
-    	sub = "?" + s;
-    	obj = "?" + o + count;    	
-    }   
-    
-    public void resetVariables( String s, String o ) {
-    	resetVariablesName(s, o);
     	strBGP = "";
-	strBGP_Weaken = "";
 	listBGP.clear();
 	objectsRestriction.clear();
 	flagRestriction = 0;
+    }
+
+    public void resetVariables( Expression expr, String s, String o ) throws AlignmentException {
+	if ( expr instanceof ClassExpression ) {
+	    resetVariables( (ClassExpression)expr, s, o );
+	} else if ( expr instanceof PathExpression ) {
+	    resetVariables( (PathExpression)expr, s, o );
+	} else if ( expr instanceof InstanceExpression ) {
+	    resetVariables( (InstanceExpression)expr, s, o );
+	} else {
+	    throw new AlignmentException( "Cannot render as query : "+expr );
+	}
+    }
+    public void resetVariables( ClassExpression expr, String s, String o ) {
+	initStructure();
+	resetVariables( "?" + s, "?" + o + count);
+    }
+    public void resetVariables( PathExpression expr, String s, String o ) {
+	initStructure();
+	resetVariables( "?" + s, "?" + o);
+    }
+    public void resetVariables( InstanceExpression expr, String s, String o ) {
+	initStructure();
+	resetVariables( "?" + s, "?" + o + count);
+    }
+    public void resetVariables( String s, String o ) {
+    	sub = s;
+    	obj = o;
     }
     
     public String getGP(){
@@ -138,6 +160,13 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	return listBGP;
     }
     
+    public String registerPrefix( URI u ) {
+	String prefix = getPrefixDomain( u );
+	String tag = getPrefixName( u );
+	String shortCut=getOrGenerateNSPrefix( prefix );
+	return shortCut+":"+tag;
+    }
+
     public String getPrefixDomain( URI u ) {
     	String str = u.toString();
     	int index;
@@ -199,113 +228,96 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     public void visit( final ClassId e ) throws AlignmentException {
     	if ( e.getURI() != null ) {
-    		String prefix = getPrefixDomain(e.getURI());
-    		String tag = getPrefixName(e.getURI());
-    		String shortCut = getOrGenerateNSPrefix(prefix);
-    		prefixList.put( "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf" );
-
-			if ( !subjectsRestriction.isEmpty() ) {
-				Iterator<String> listSub = subjectsRestriction.iterator();
-				while ( listSub.hasNext() ) {
-					String str = listSub.next();
-					strBGP += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;			
-					strBGP_Weaken += str + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-				}
-				subjectsRestriction.clear();
-			}
-			else {
-				strBGP += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-				strBGP_Weaken += sub + " rdf:type " + shortCut + ":"+ tag + " ." + NL;
-			}
+	    String id = registerPrefix( e.getURI() );
+	    if ( !subjectsRestriction.isEmpty() ) {
+		Iterator<String> listSub = subjectsRestriction.iterator();
+		while ( listSub.hasNext() ) {
+		    String str = listSub.next();
+		    strBGP += str + " rdf:type " + id + " ." + NL;			
+		}
+		subjectsRestriction.clear();
+	    } else {
+		strBGP += sub + " rdf:type " + id + " ." + NL;
+	    }
     	}
     }
-
+    
     public void visit( final ClassConstruction e ) throws AlignmentException {    	
     	op = e.getOperator();
-		if (op == Constructor.OR) {			
-			int size = e.getComponents().size();			
-			for ( final ClassExpression ce : e.getComponents() ) {
-			    strBGP += "{" + NL;
-			    strBGP_Weaken += "{" + NL;
-			    ce.accept( this );			    			    
-			    size--;
-			    if( size != 0 ) {
-			    	strBGP += "}" + " UNION " + NL;
-			    	strBGP_Weaken += "}" + " UNION " + NL;
-			    }
-			    else {
-			    	strBGP += "}" + NL;
-			    	strBGP_Weaken += "}" + NL;
-			    }
-			}			
+	if (op == Constructor.OR) {			
+	    int size = e.getComponents().size();			
+	    for ( final ClassExpression ce : e.getComponents() ) {
+		strBGP += "{" + NL;
+		ce.accept( this );			    			    
+		size--;
+		if( size != 0 ) {
+		    strBGP += "}" + " UNION " + NL;
+		} else {
+		    strBGP += "}" + NL;
 		}
-		else if ( op == Constructor.NOT ) {			
-		    strBGP += "FILTER (NOT EXISTS {" + NL;
-		    strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
-			for ( final ClassExpression ce : e.getComponents() ) {			    
-			    ce.accept( this );				
-			}
-		    strBGP += "})" + NL;
-		    strBGP_Weaken += "})" + NL;
+	    }			
+	} else if ( op == Constructor.NOT ) {			
+	    strBGP += "FILTER (NOT EXISTS {" + NL;
+	    for ( final ClassExpression ce : e.getComponents() ) {			    
+		ce.accept( this );				
+	    }
+	    strBGP += "})" + NL;
+	} else {			
+	    for ( final ClassExpression ce : e.getComponents() ) {			    			    
+		ce.accept( this );
+		if ( weakens && !strBGP.equals("") ) {
+		    listBGP.add( strBGP );
+		    strBGP = "";
 		}
-		else {			
-			for ( final ClassExpression ce : e.getComponents() ) {			    			    
-			    ce.accept( this );
-			    if ( !strBGP_Weaken.equals("") ) {
-			    	listBGP.add(strBGP_Weaken);
-			    	strBGP_Weaken = "";
-			    }
-			}
-		}
+	    }
+	}
     }
 
     public void visit( final ClassValueRestriction c ) throws AlignmentException {
     	String str = "";
     	instance = "";
-	    value = "";
-	    flagRestriction = 1;
-	    c.getValue().accept( this );
-	    flagRestriction = 0;
+	value = "";
+	flagRestriction = 1;
+	c.getValue().accept( this );
+	flagRestriction = 0;
+	
+	if( !instance.equals("") )
+	    valueRestriction = instance;
+	else if( !value.equals("") )
+	    valueRestriction = value;
 	    
-	    if( !instance.equals("") )
-	    	valueRestriction = instance;
-	    else if( !value.equals("") )
-	    	valueRestriction = value;
-	    
-		if( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {
-			opOccurence = ">";
-			inClassRestriction = true;
+	if( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {
+	    opOccurence = ">";
+	    inClassRestriction = true;
+	}
+	if( c.getComparator().getURI().equals( Comparator.LOWER.getURI() ) ) {
+	    opOccurence = "<";
+	    inClassRestriction = true;
+	}
+	flagRestriction = 1;
+	c.getRestrictionPath().accept( this );
+	flagRestriction = 0;
+	String temp = obj;
+	if ( inClassRestriction && !objectsRestriction.isEmpty() ) {
+	    Iterator<String> listObj = objectsRestriction.iterator();
+	    if (op == Constructor.COMP) {			
+		String tmp = "";
+		while ( listObj.hasNext() )
+		    tmp = listObj.next();
+		str = "FILTER (" + tmp + opOccurence + valueRestriction + ")" +NL;		    
+	    } else {
+		while ( listObj.hasNext() ) {
+		    str += "FILTER (" + listObj.next() + opOccurence + valueRestriction + ")" +NL;	
 		}
-		if( c.getComparator().getURI().equals( Comparator.LOWER.getURI() ) ) {
-			opOccurence = "<";
-			inClassRestriction = true;
-		}
-		flagRestriction = 1;
-	    c.getRestrictionPath().accept( this );
-	    flagRestriction = 0;
-		String temp = obj;
-		if ( inClassRestriction && !objectsRestriction.isEmpty() ) {
-			Iterator<String> listObj = objectsRestriction.iterator();
-			if (op == Constructor.COMP) {			
-				String tmp = "";
-				while ( listObj.hasNext() )
-					tmp = listObj.next();
-				str = "FILTER (" + tmp + opOccurence + valueRestriction + ")" +NL;		    
-			}
-			else {
-				while ( listObj.hasNext() ) {
-					str += "FILTER (" + listObj.next() + opOccurence + valueRestriction + ")" +NL;	
-				}
-			}
-			strBGP += str;
-			strBGP_Weaken += str;
-		}
-		valueRestriction = null;
-		inClassRestriction = false;		
-		obj = temp;
-		if( op == Constructor.AND ){		
-		    createObjectVarName();
-		}
+	    }
+	    strBGP += str;
+	}
+	valueRestriction = null;
+	inClassRestriction = false;		
+	obj = temp;
+	if( op == Constructor.AND ){		
+	    createObjectVarName();
+	}
     }
 
     public void visit( final ClassTypeRestriction c ) throws AlignmentException {	
@@ -315,26 +327,25 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	flagRestriction = 1;
     	c.getRestrictionPath().accept( this );
     	flagRestriction = 0;
-		if ( !objectsRestriction.isEmpty() ) {
-			Iterator<String> listObj = objectsRestriction.iterator();
-			int size = objectsRestriction.size();
-			if ( size > 0 ) {
-				str = "FILTER (datatype(" + listObj.next() + ") = ";				
-				visit( c.getType() );
-				str += "xsd:" + datatype;				
-			}
-			while ( listObj.hasNext() ) {
-				str += " && datatype(" + listObj.next() + ") = ";				
-				visit( c.getType() );
-				str += "xsd:" + datatype;
-			}
-			str += ")" + NL;
-			
-			strBGP += str;
-			strBGP_Weaken += str;
-		}
-		objectsRestriction.clear();
-		inClassRestriction = false;
+	if ( !objectsRestriction.isEmpty() ) {
+	    Iterator<String> listObj = objectsRestriction.iterator();
+	    int size = objectsRestriction.size();
+	    if ( size > 0 ) {
+		str = "FILTER (datatype(" + listObj.next() + ") = ";				
+		visit( c.getType() );
+		str += "xsd:" + datatype;				
+	    }
+	    while ( listObj.hasNext() ) {
+		str += " && datatype(" + listObj.next() + ") = ";				
+		visit( c.getType() );
+		str += "xsd:" + datatype;
+	    }
+	    str += ")" + NL;
+	    
+	    strBGP += str;
+	}
+	objectsRestriction.clear();
+	inClassRestriction = false;
     }
 
     public void visit( final ClassDomainRestriction c ) throws AlignmentException {					
@@ -344,66 +355,61 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	flagRestriction = 0;
     	Iterator<String> listObj = objectsRestriction.iterator();
     	while ( listObj.hasNext() ) {
-			subjectsRestriction.add(listObj.next());			
-		}
+	    subjectsRestriction.add(listObj.next());			
+	}
     	c.getDomain().accept( this );    	
     	objectsRestriction.clear();
     	inClassRestriction = false;
     }
 
     public void visit( final ClassOccurenceRestriction c ) throws AlignmentException {
-		String str="";
-		inClassRestriction = true;
+	String str="";
+	inClassRestriction = true;
     	if( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {
-			nbCardinality = c.getOccurence();
-			opOccurence = "=";
+	    nbCardinality = c.getOccurence();
+	    opOccurence = "=";
+	}
+	if( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {
+	    nbCardinality = c.getOccurence();
+	    opOccurence = ">";
+	}
+	if( c.getComparator().getURI().equals( Comparator.LOWER.getURI() ) ) {
+	    nbCardinality = c.getOccurence();
+	    opOccurence = "<";
+	}
+	flagRestriction = 1;
+	c.getRestrictionPath().accept( this );	
+	flagRestriction = 0;
+	if ( !objectsRestriction.isEmpty() ) {
+	    Iterator<String> listObj = objectsRestriction.iterator();
+	    if (op == Constructor.COMP) {			
+		String tmp = "";
+		while ( listObj.hasNext() )
+		    tmp = listObj.next();
+		str += "FILTER(COUNT(" + tmp + ")" + opOccurence + nbCardinality + ")" +NL;	    
+	    } else {
+		while ( listObj.hasNext() ) {
+		    str += "FILTER(COUNT(" + listObj.next() + ")" + opOccurence + nbCardinality + ")" +NL;	
 		}
-		if( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {
-			nbCardinality = c.getOccurence();
-			opOccurence = ">";
-		}
-		if( c.getComparator().getURI().equals( Comparator.LOWER.getURI() ) ) {
-			nbCardinality = c.getOccurence();
-			opOccurence = "<";
-		}
-		flagRestriction = 1;
-		c.getRestrictionPath().accept( this );	
-		flagRestriction = 0;
-		if ( !objectsRestriction.isEmpty() ) {
-			Iterator<String> listObj = objectsRestriction.iterator();
-			if (op == Constructor.COMP) {			
-				String tmp = "";
-				while ( listObj.hasNext() )
-					tmp = listObj.next();
-				str += "FILTER(COUNT(" + tmp + ")" + opOccurence + nbCardinality + ")" +NL;	    
-			}
-			else{
-				while ( listObj.hasNext() ) {
-					str += "FILTER(COUNT(" + listObj.next() + ")" + opOccurence + nbCardinality + ")" +NL;	
-				}
-			}			
-			
-			strBGP += str;
-			strBGP_Weaken += str;
-		}
-		nbCardinality = null;
-		opOccurence = "";
-		inClassRestriction = false;
+	    }			
+	    
+	    strBGP += str;
+	}
+	nbCardinality = null;
+	opOccurence = "";
+	inClassRestriction = false;
     }
     
     public void visit( final PropertyId e ) throws AlignmentException {
     	if ( e.getURI() != null ) {	
-	    String prefix = getPrefixDomain( e.getURI() );
-	    String tag = getPrefixName( e.getURI() );
-	    String shortCut = getOrGenerateNSPrefix( prefix );
+	    String id = registerPrefix( e.getURI() );
 	    String temp = obj;
 	    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )
 		obj = "\"" + valueRestriction.toString() + "\"";
 	    if ( flagRestriction == 1 && inClassRestriction )
 		objectsRestriction.add( obj );
 	    createObjectVarName();
-	    strBGP += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
-	    strBGP_Weaken += sub + " " + shortCut + ":"+ tag + " " + obj + " ." +NL;
+	    strBGP += sub + " " + id + " " + obj + " ." +NL;
 	    obj = temp;    		
 	}
     }
@@ -416,26 +422,21 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    int size = e.getComponents().size();
 	    for ( final PathExpression re : e.getComponents() ) {
 		strBGP += "{" +NL;
-		strBGP_Weaken += "{" +NL;
 		re.accept( this );
 		size--;
 		if( size != 0 ){
 		    strBGP += "}" + " UNION " + NL;
-		    strBGP_Weaken += "}" + " UNION " + NL;
 		} else {
 		    strBGP += "}" +NL;
-		    strBGP_Weaken += "}" +NL;
 		}
 	    }		    
 	    objectsRestriction.add( obj );
 	} else if ( op == Constructor.NOT ) {
 	    strBGP += "FILTER (NOT EXISTS {" + NL;
-	    strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
 	    for ( final PathExpression re : e.getComponents() ) {				
 		re.accept( this );			    
 	    }
 	    strBGP += "})" + NL;
-	    strBGP_Weaken += "})" + NL;
 	} else if ( op == Constructor.COMP ){		
 	    String tempSub = sub;			
 	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
@@ -476,9 +477,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		    //createObjectVarName();
 		    obj = "?o" + ++count;
 		}
-		if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
-		    listBGP.add(strBGP_Weaken);
-		    strBGP_Weaken = "";
+		if ( weakens && !strBGP.equals("") && !inClassRestriction ) {
+		    listBGP.add( strBGP );
+		    strBGP = "";
 		}
 	    }		
 	}
@@ -490,191 +491,166 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	value = "";
     	uriType = "";
     	flagRestriction = 1;
-		c.getValue().accept( this );
-		flagRestriction = 0;
-  		if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
-    		str = "FILTER (xsd:" + uriType + "(" + obj + ") = ";    		
-    	}
-    	else if ( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {    		
-    		str = "FILTER (xsd:" + uriType + "(" + obj + ") > ";			
-    	}
-    	else {    		
-    		str = "FILTER (xsd:" + uriType + "(" + obj + ") < ";
+	c.getValue().accept( this );
+	flagRestriction = 0;
+	if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
+	    str = "FILTER (xsd:" + uriType + "(" + obj + ") = ";    		
+    	} else if ( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {    		
+	    str = "FILTER (xsd:" + uriType + "(" + obj + ") > ";			
+    	} else {    		
+	    str = "FILTER (xsd:" + uriType + "(" + obj + ") < ";
     	}
     	str += "\"" + value + "\")" + NL;
-		
-		strBGP += str;
-		strBGP_Weaken += str;
+	
+	strBGP += str;
     	value = "";
     	uriType = "";
     }
 
     public void visit( final PropertyDomainRestriction c ) throws AlignmentException {
     	flagRestriction = 1;
-		c.getDomain().accept( this );    	
-    	flagRestriction = 0;	
+	c.getDomain().accept( this );
+    	flagRestriction = 0;
     }
 
     public void visit( final PropertyTypeRestriction c ) throws AlignmentException {
     	String str = "";		
-		if ( !objectsRestriction.isEmpty() ) {
-			Iterator<String> listObj = objectsRestriction.iterator();
-			int size = objectsRestriction.size();
-			if ( size > 0 ) {
-				str = "FILTER (datatype(" + listObj.next() + ") = ";				
-				visit( c.getType() );
-				str += "xsd:" + datatype;				
-			}
-			while ( listObj.hasNext() ) {
-				str += " && datatype(" + listObj.next() + ") = ";				
-				visit( c.getType() );
-				str += "xsd:" + datatype;
-			}
-			str += ")" + NL;			
-			strBGP += str;
-			strBGP_Weaken += str;
-		}
-		objectsRestriction.clear();
+	if ( !objectsRestriction.isEmpty() ) {
+	    Iterator<String> listObj = objectsRestriction.iterator();
+	    int size = objectsRestriction.size();
+	    if ( size > 0 ) {
+		str = "FILTER (datatype(" + listObj.next() + ") = ";				
+		visit( c.getType() );
+		str += "xsd:" + datatype;				
+	    }
+	    while ( listObj.hasNext() ) {
+		str += " && datatype(" + listObj.next() + ") = ";				
+		visit( c.getType() );
+		str += "xsd:" + datatype;
+	    }
+	    str += ")" + NL;			
+	    strBGP += str;
+	}
+	objectsRestriction.clear();
     }
     
     public void visit( final RelationId e ) throws AlignmentException {
-		if ( e.getURI() != null ) {
-			String prefix = getPrefixDomain(e.getURI());
-    		String tag = getPrefixName(e.getURI());
-    		String shortCut=getOrGenerateNSPrefix(prefix);
-			strBGP += sub + " " + shortCut + ":"+ tag + "";
-			strBGP_Weaken += sub + " " + shortCut + ":"+ tag + "";
-		    
-		    if ( op == Constructor.TRANSITIVE && flagRestriction == 1 ) {
-		    	strBGP += "*";
-		    	strBGP_Weaken += "*";
-		    }
-		    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )			    
-					obj = valueRestriction.toString();
-		    if ( flagRestriction == 1 && inClassRestriction && op != Constructor.COMP )
-					objectsRestriction.add(obj);
-	    	
-		    strBGP += " " + obj + " ." + NL;
-		    strBGP_Weaken += " " + obj + " ." + NL;		    
-		}
+	if ( e.getURI() != null ) {
+	    String id = registerPrefix( e.getURI() );
+	    strBGP += sub + " " + id + "";
+	    if ( op == Constructor.TRANSITIVE && flagRestriction == 1 ) {
+		strBGP += "*";
+	    }
+	    if ( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )			    
+		obj = valueRestriction.toString();
+	    if ( flagRestriction == 1 && inClassRestriction && op != Constructor.COMP )
+		objectsRestriction.add(obj);
+	    strBGP += " " + obj + " ." + NL;
+	}
     }
-
+    
     public void visit( final RelationConstruction e ) throws AlignmentException {
-		op = e.getOperator();
-		if ( op == Constructor.OR )  {	
-			int size = e.getComponents().size();			
-			if ( valueRestriction != null && !inClassRestriction )
-				obj = valueRestriction.toString();
-			String temp = obj;
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    strBGP += "{" + NL;
-			    strBGP_Weaken += "{" + NL;
-			    re.accept( this );
-			    obj = temp;
-			    size--;
-			    if ( size != 0 ) {
-			    	strBGP += "}" + "UNION " + NL;
-			    	strBGP_Weaken += "}" + "UNION " + NL;
-			    }
-			    else {
-			    	strBGP += "}" + NL;
-			    	strBGP_Weaken += "}" + NL;
-			    }
-			}			
+	op = e.getOperator();
+	if ( op == Constructor.OR )  {	
+	    int size = e.getComponents().size();			
+	    if ( valueRestriction != null && !inClassRestriction )
+		obj = valueRestriction.toString();
+	    String temp = obj;
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		strBGP += "{" + NL;
+		re.accept( this );
+		obj = temp;
+		size--;
+		if ( size != 0 ) {
+		    strBGP += "}" + "UNION " + NL;
+		} else {
+		    strBGP += "}" + NL;
+		}
+	    }			
+	    objectsRestriction.add( obj );
+	} else if ( op == Constructor.NOT ) {		
+	    strBGP += "FILTER (NOT EXISTS {" + NL;
+	    for ( final PathExpression re : e.getComponents() ) {				
+		re.accept( this );			    
+	    }
+	    strBGP += "})" + NL;
+	} else if ( op == Constructor.COMP ) {
+	    int size = e.getComponents().size();
+	    String temp = sub;	
+	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+	    //obj = "_:o" + ++count;
+	    createObjectVarName();
+	    //}
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		re.accept( this );
+		size--;
+		if( size != 0 ) {
+		    sub = obj;
+		    if ( size == 1 && valueRestriction != null && !inClassRestriction ) {
+			obj = valueRestriction.toString();
+		    } else {
+			if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
+			    createObjectVarName();
+			}
 			objectsRestriction.add( obj );
+		    }			    					    	
+		} 
+	    }			
+	    sub = temp;
+	} else if ( op == Constructor.INVERSE ) {
+	    String tempSub = sub;
+	    for ( final PathExpression re : e.getComponents() ) {
+		String temp = sub;
+		sub = obj;
+		obj = temp;
+		re.accept( this );
+		sub = tempSub;
+	    }
+	} else if ( op == Constructor.SYMMETRIC ) {
+	    String tempSub = sub;
+	    for ( final PathExpression re : e.getComponents() ) {
+		strBGP += "{" + NL;			    
+		re.accept( this );
+		objectsRestriction.add( obj );
+		String temp = sub;
+		sub = obj;
+		obj = temp;
+		strBGP += "} UNION {" + NL;			    
+		re.accept( this );
+		objectsRestriction.add( obj );
+		strBGP +="}" + NL;			    
+	    }
+	    sub = tempSub;
+	} else if (op == Constructor.TRANSITIVE){						
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		flagRestriction = 1;
+		re.accept( this );
+		flagRestriction = 0;
+	    }
+	} else if ( op == Constructor.REFLEXIVE ) {			
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		strBGP += "{" + NL;
+		re.accept( this );
+		strBGP += "} UNION {" + NL + "FILTER(" + sub + "=" + obj + ")" + NL + "}";
+	    }
+	} else {			
+	    int size = e.getComponents().size();
+	    if ( valueRestriction != null && !inClassRestriction )
+		obj = valueRestriction.toString();
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		re.accept( this );
+		size--;
+		objectsRestriction.add( obj );
+		/*if ( size != 0 && valueRestriction == null ) {
+		  obj = "?o" + ++count;			    			    	
+		  }*/
+		if ( weakens && !strBGP.equals("") && !inClassRestriction ) {
+		    listBGP.add( strBGP );
+		    strBGP = "";
 		}
-		else if ( op == Constructor.NOT ) {		
-			strBGP += "FILTER (NOT EXISTS {" + NL;
-			strBGP_Weaken += "FILTER (NOT EXISTS {" + NL;
-			for ( final PathExpression re : e.getComponents() ) {				
-			    re.accept( this );			    
-			}
-			strBGP += "})" + NL;
-			strBGP_Weaken += "})" + NL;
-		}
-		else if ( op == Constructor.COMP ) {
-			int size = e.getComponents().size();
-			String temp = sub;	
-			//if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
-	    		//obj = "_:o" + ++count;
-			createObjectVarName();
-	    		//}
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    re.accept( this );
-			    size--;
-			    if( size != 0 ) {
-			    	sub = obj;
-			    	if ( size == 1 && valueRestriction != null && !inClassRestriction ) {
-			    		obj = valueRestriction.toString();
-			    	}
-			    	else {
-			    	    if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
-			    		createObjectVarName();
-			    	    }
-			    		objectsRestriction.add( obj );
-			    	}			    					    	
-			    } 
-			}			
-			sub = temp;
-		}
-		else if ( op == Constructor.INVERSE ) {
-			String tempSub = sub;
-			for ( final PathExpression re : e.getComponents() ) {
-			    String temp = sub;
-			    sub = obj;
-			    obj = temp;
-			    re.accept( this );
-			    sub = tempSub;
-			}
-		}
-		else if ( op == Constructor.SYMMETRIC ) {
-			String tempSub = sub;
-			for ( final PathExpression re : e.getComponents() ) {
-			    strBGP += "{" + NL;			    
-			    re.accept( this );
-			    objectsRestriction.add( obj );
-			    String temp = sub;
-			    sub = obj;
-			    obj = temp;
-			    strBGP += "} UNION {" + NL;			    
-			    re.accept( this );
-			    objectsRestriction.add( obj );
-			    strBGP +="}" + NL;			    
-			}
-			sub = tempSub;
-		}
-		else if (op == Constructor.TRANSITIVE){						
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    flagRestriction = 1;
-				re.accept( this );
-				flagRestriction = 0;
-			}
-		}
-		else if ( op == Constructor.REFLEXIVE ) {			
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    strBGP += "{" + NL;
-				re.accept( this );
-			    strBGP += "} UNION {" + NL + "FILTER(" + sub + "=" + obj + ")" + NL + "}";
-			}
-		}
-		else {			
-			int size = e.getComponents().size();
-			if ( valueRestriction != null && !inClassRestriction )
-				obj = valueRestriction.toString();
-			for ( final PathExpression re : e.getComponents() ) {			    
-			    re.accept( this );
-			    size--;
-			    objectsRestriction.add( obj );
-			    /*if ( size != 0 && valueRestriction == null ) {
-			    	obj = "?o" + ++count;			    			    	
-			    }*/
-			    if ( !strBGP_Weaken.equals("") && !inClassRestriction ) {
-			    	listBGP.add(strBGP_Weaken);
-			    	strBGP_Weaken = "";
-			    }
-			}		
-		}
-		//obj = "?o" + ++count;    	
+	    }		
+	}
+	//obj = "?o" + ++count;    	
     }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
@@ -686,35 +662,33 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     public void visit(final RelationDomainRestriction c) throws AlignmentException {
     	flagRestriction = 1;
-		c.getDomain().accept( this );
+	c.getDomain().accept( this );
     	flagRestriction = 0;
     }
 
     public void visit( final InstanceId e ) throws AlignmentException {
-		if ( e.getURI() != null ) {
-			String prefix = getPrefixDomain( e.getURI() );
-    		String tag = getPrefixName( e.getURI() );
-    		String shortCut=getOrGenerateNSPrefix(prefix);
-			if ( flagRestriction != 1 )
-				strBGP += shortCut + ":"+ tag + " ?p ?o1 ." +NL;
-			else
-				instance = shortCut + ":"+ tag;
-		}
+	if ( e.getURI() != null ) {
+	    String id = registerPrefix( e.getURI() );
+	    if ( flagRestriction != 1 )
+		strBGP += id + " ?p ?o1 ." +NL;
+	    else
+		instance = id;
+	}
     }
     
     public void visit( final Value e ) throws AlignmentException {
     	if (e.getType() != null) {
-	    	String str = e.getType().toString();
-	    	int index;
-	    	if ( str.contains("#") )
-	    		index = str.lastIndexOf("#");
-	    	else
-	    		index = str.lastIndexOf("/");
-	    	uriType = str.substring( index+1 );
+	    String str = e.getType().toString();
+	    int index;
+	    if ( str.contains("#") )
+		index = str.lastIndexOf("#");
+	    else
+		index = str.lastIndexOf("/");
+	    uriType = str.substring( index+1 );
     	}
     	value = e.getValue();
     	if ( uriType != null && uriType.equals("") ) {
-    		uriType = "string";
+	    uriType = "string";
     	}
     	
     }

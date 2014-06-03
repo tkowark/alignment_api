@@ -43,18 +43,21 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     Hashtable<String,String> nslist = null;
 
     boolean embedded = false;
+    boolean oneway = false;
     boolean split = false;
     String splitdir = "";
 
     boolean edoal = false;
 
-    public SPARQLSelectRendererVisitor(PrintWriter writer) {
-	super(writer);
+    public SPARQLSelectRendererVisitor( PrintWriter writer ) {
+	super( writer );
     }   
 
-    public void init(Properties p) {
+    public void init( Properties p ) {
 	if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
 	    embedded = true;
+	if ( p.getProperty( "oneway" ) != null && !p.getProperty( "oneway" ).equals("") ) 
+	    oneway = true;
 	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
 	    blanks = true;
 	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
@@ -93,16 +96,18 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     	if ( edoal ||  u1 != null ) {
 	    generateSelect( (Expression)(cell.getObject1()) );
 	}
-    	URI u2 = cell.getObject2AsURI(alignment);
-    	if ( edoal ||  u2 != null ) {
-	    generateSelect( (Expression)(cell.getObject2()) );
+	if ( !oneway ) {
+	    URI u2 = cell.getObject2AsURI(alignment);
+	    if ( edoal ||  u2 != null ) {
+		generateSelect( (Expression)(cell.getObject2()) );
+	    }
 	}
     }
 
     protected void generateSelect( Expression expr ) throws AlignmentException {
-	resetVariables("s", "o");
+	resetVariables( expr, "s", "o" );
 	expr.accept( this );
-	String query = createPrefixList()+"SELECT ?s WHERE {"+NL+getGP()+"}"+NL;   		
+	String query = createPrefixList()+"SELECT * WHERE {"+NL+getGP()+"}"+NL;   		
 	if ( split ) {
 	    createQueryFile( splitdir, query );
 	} else {

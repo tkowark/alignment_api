@@ -45,7 +45,9 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
+
     private boolean embedded = false;
+
     private String threshold = "";
     private String limit = "";
     private Random rand;
@@ -77,7 +79,6 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     }
 
     public void visit(Alignment align) throws AlignmentException {
-
     	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
     	// default behaviour
     	String extensionString = "";
@@ -116,8 +117,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 	// JE2014: BUG
 	// These prefix are usually added by the GraphPatternGenerator after the patterns are generated...
 	// So, now they are empty...
-    	for ( Enumeration<String> e = prefixList.keys() ; e.hasMoreElements(); ) {
-	    String k = e.nextElement();
+	for ( String k : prefixList.keySet() ) {
 	    indentedOutputln("<Prefix id=\""+k+" namespace=\""+prefixList.get(k)+"\" />");
 	}
 	decreaseIndent();
@@ -172,85 +172,85 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	this.cell = cell;      	
 
 	// JE: cannot use Cell id because it is an URI and not an id
-	String id = "RandomId"+Math.abs( rand.nextInt(100000) );
+	String id = "RandomId"+Math.abs( rand.nextInt( 100000 ) );
     	
     	URI u1 = cell.getObject1AsURI(alignment);
     	URI u2 = cell.getObject2AsURI(alignment);
     	if ( ( u1 != null && u2 != null)
     	     || alignment.getLevel().startsWith("2EDOAL") ){ //expensive test    		   		
 		
-		indentedOutputln("<Interlink id=\""+id+"\">");
-		increaseIndent();
-		indentedOutputln("<LinkType>owl:sameAs</LinkType>");
-		indentedOutputln("<SourceDataset dataSource=\"source\"" + " var=\"s\">");
-		increaseIndent();
-		indentedOutputln("<RestrictTo>");
-		increaseIndent();
-		resetVariables("s", "o");
-		((Expression)(cell.getObject1())).accept( this );
-		indentedOutput(getGP());
-		decreaseIndent();
-		indentedOutputln("</RestrictTo>");
-		decreaseIndent();
-		indentedOutputln("</SourceDataset>");
-
-		indentedOutputln("<TargetDataset dataSource=\"target\"" + " var=\"x\">");
-		increaseIndent();
-		indentedOutputln("<RestrictTo>");
-		increaseIndent();
-		resetVariables("x", "y");	    		
-		((Expression)(cell.getObject2())).accept( this );
-		indentedOutput(getGP());
-		decreaseIndent();
-		indentedOutputln("</RestrictTo>");
-		decreaseIndent();
-		indentedOutputln("</TargetDataset>");
-
-		// This should certainly be specified in the EDOAL
-		indentedOutputln("<LinkageRule>");
-		increaseIndent();
-		indentedOutputln("<Compare metric=\"levenshtein\" threshold=\".5\">");
-		increaseIndent();
-		indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
-		increaseIndent();
-		indentedOutputln("<Input path=\"?s\" />");
-		decreaseIndent();
-		indentedOutputln("</TransformInput>");
-		indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
-		increaseIndent();
-		indentedOutputln("<Input path=\"?x\" />");
-		decreaseIndent();
-		indentedOutputln("</TransformInput>");
-		decreaseIndent();
-		indentedOutputln("</Compare>");
-		decreaseIndent();
-		indentedOutputln("</LinkageRule>");
-		indentedOutputln("<Filter"+threshold+limit+" />");
-		indentedOutputln("<Outputs>");	    		
-		increaseIndent();
-		indentedOutputln("<Output minConfidence=\".7\" type=\"file\">");
-		increaseIndent();
-		indentedOutputln("<Param name=\"file\" value=\""+id+"-accepted.nt\"/>");
-		indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
-		decreaseIndent();
-		indentedOutputln("</Output>");
-		indentedOutputln("<Output maxConfidence=\".7\" minConfidence=\".2\" type=\"file\">");
-		increaseIndent();
-		indentedOutputln("<Param name=\"file\" value=\""+id+"-tocheck.nt\"/>");
-		indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
-		decreaseIndent();
-		indentedOutputln("</Output>");
-		decreaseIndent();
-		indentedOutputln("</Outputs>");
-		decreaseIndent();
-		indentedOutputln("</Interlink>"+NL);		    		
+	    indentedOutputln("<Interlink id=\""+id+"\">");
+	    increaseIndent();
+	    indentedOutputln("<LinkType>owl:sameAs</LinkType>");
+	    indentedOutputln("<SourceDataset dataSource=\"source\"" + " var=\"s\">");
+	    increaseIndent();
+	    indentedOutputln("<RestrictTo>");
+	    increaseIndent();
+	    resetVariables( (Expression)(cell.getObject1()), "s", "o" );
+	    ((Expression)(cell.getObject1())).accept( this );
+	    indentedOutput(getGP());
+	    decreaseIndent();
+	    indentedOutputln("</RestrictTo>");
+	    decreaseIndent();
+	    indentedOutputln("</SourceDataset>");
+	    
+	    indentedOutputln("<TargetDataset dataSource=\"target\"" + " var=\"x\">");
+	    increaseIndent();
+	    indentedOutputln("<RestrictTo>");
+	    increaseIndent();
+	    resetVariables( (Expression)(cell.getObject2()), "x", "y" );	    		
+	    ((Expression)(cell.getObject2())).accept( this );
+	    indentedOutput(getGP());
+	    decreaseIndent();
+	    indentedOutputln("</RestrictTo>");
+	    decreaseIndent();
+	    indentedOutputln("</TargetDataset>");
+	    
+	    // This should certainly be specified in the EDOAL
+	    indentedOutputln("<LinkageRule>");
+	    increaseIndent();
+	    indentedOutputln("<Compare metric=\"levenshtein\" threshold=\".5\">");
+	    increaseIndent();
+	    indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
+	    increaseIndent();
+	    indentedOutputln("<Input path=\"?s\" />");
+	    decreaseIndent();
+	    indentedOutputln("</TransformInput>");
+	    indentedOutputln("<TransformInput function=\"stripUriPrefix\">");
+	    increaseIndent();
+	    indentedOutputln("<Input path=\"?x\" />");
+	    decreaseIndent();
+	    indentedOutputln("</TransformInput>");
+	    decreaseIndent();
+	    indentedOutputln("</Compare>");
+	    decreaseIndent();
+	    indentedOutputln("</LinkageRule>");
+	    indentedOutputln("<Filter"+threshold+limit+" />");
+	    indentedOutputln("<Outputs>");	    		
+	    increaseIndent();
+	    indentedOutputln("<Output minConfidence=\".7\" type=\"file\">");
+	    increaseIndent();
+	    indentedOutputln("<Param name=\"file\" value=\""+id+"-accepted.nt\"/>");
+	    indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
+	    decreaseIndent();
+	    indentedOutputln("</Output>");
+	    indentedOutputln("<Output maxConfidence=\".7\" minConfidence=\".2\" type=\"file\">");
+	    increaseIndent();
+	    indentedOutputln("<Param name=\"file\" value=\""+id+"-tocheck.nt\"/>");
+	    indentedOutputln("<Param name=\"format\" value=\"ntriples\"/>");
+	    decreaseIndent();
+	    indentedOutputln("</Output>");
+	    decreaseIndent();
+	    indentedOutputln("</Outputs>");
+	    decreaseIndent();
+	    indentedOutputln("</Interlink>"+NL);		    		
     	}
     }
 
     public void visit( Relation rel ) throws AlignmentException {
-		if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
-		// default behaviour
-		// rel.write( writer );
+	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+	// default behaviour
+	// rel.write( writer );
     }
 	
 }
