@@ -138,13 +138,13 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
 
     protected void generateConstruct( Expression expr1, Expression expr2 ) throws AlignmentException {
 	// Here the generation is dependent on global variables
-	resetVariables( expr1, "s", "o" );
 	blanks = true;
+	resetVariables( expr1, "s", "o" );
 	expr1.accept( this );
 	String GP1 = getGP();    		
 	List<String> listGP1 = new ArrayList<String>(getBGP());    		
-	resetVariables( expr2, "s", "o" );	    		
 	blanks = requestedblanks;
+	resetVariables( expr2, "s", "o" );	    		
 	expr2.accept( this );
 	String GP2 = getGP();
 	List<String> listGP2 = new ArrayList<String>(getBGP());

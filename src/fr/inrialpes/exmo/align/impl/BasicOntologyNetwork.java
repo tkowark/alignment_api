@@ -50,7 +50,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-import fr.inrialpes.exmo.ontowrap.Ontology;
+//import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;

@@ -81,17 +81,20 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     Alignment alignment = null;
     Cell cell = null;
     Hashtable<String,String> nslist = null;
+
     protected boolean ignoreerrors = false;
     protected static boolean blanks = false;
     protected boolean weakens = false;
     protected boolean corese = false;
+
     private boolean inClassRestriction = false;
+    private Object valueRestriction = null;        
+    private boolean flagRestriction;
+
     private String instance = null;
     private String value = "";
     private String uriType = null;
     private String datatype = "";
-    private Object valueRestriction = null;        
-    private static int flagRestriction;
     private Constructor op = null;          
     private Integer nbCardinality = null;
     private String opOccurence = "";    
@@ -121,7 +124,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	strBGP = "";
 	listBGP.clear();
 	objectsRestriction.clear();
-	flagRestriction = 0;
+	flagRestriction = false;
     }
 
     public void resetVariables( Expression expr, String s, String o ) throws AlignmentException {
@@ -137,7 +140,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
     public void resetVariables( ClassExpression expr, String s, String o ) {
 	initStructure();
-	resetVariables( "?" + s, "?" + o + count);
+	resetVariables( "?" + s, createVarName() );
     }
     public void resetVariables( PathExpression expr, String s, String o ) {
 	initStructure();
@@ -145,11 +148,21 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
     public void resetVariables( InstanceExpression expr, String s, String o ) {
 	initStructure();
-	resetVariables( "?" + s, "?" + o + count);
+	resetVariables( "?" + s, createVarName() );
     }
     public void resetVariables( String s, String o ) {
     	sub = s;
     	obj = o;
+    }
+    
+    // JE2014: Why do we only create variables for obj?
+    private String createVarName() {
+	if ( blanks ) {
+	    obj = "_:o" + ++count;
+	} else {
+	    obj = "?o" + ++count;
+	}
+	return obj;
     }
     
     public String getGP(){
@@ -210,14 +223,6 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	}
     }
 
-    private void createObjectVarName() {
-	if ( blanks ) {
-	    obj = "_:o" + ++count;
-	} else {
-	    obj = "?o" + ++count;
-	}
-    }
-    
     protected String createPrefixList() {
 	String result = "";
 	for ( String k : prefixList.keySet() ) {
@@ -277,9 +282,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	String str = "";
     	instance = "";
 	value = "";
-	flagRestriction = 1;
+	flagRestriction = true;
 	c.getValue().accept( this );
-	flagRestriction = 0;
+	flagRestriction = false;
 	
 	if( !instance.equals("") )
 	    valueRestriction = instance;
@@ -294,9 +299,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    opOccurence = "<";
 	    inClassRestriction = true;
 	}
-	flagRestriction = 1;
+	flagRestriction = true;
 	c.getRestrictionPath().accept( this );
-	flagRestriction = 0;
+	flagRestriction = false;
 	String temp = obj;
 	if ( inClassRestriction && !objectsRestriction.isEmpty() ) {
 	    Iterator<String> listObj = objectsRestriction.iterator();
@@ -316,7 +321,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	inClassRestriction = false;		
 	obj = temp;
 	if( op == Constructor.AND ){		
-	    createObjectVarName();
+	    createVarName();
 	}
     }
 
@@ -324,9 +329,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	String str = "";
     	datatype = "";
     	inClassRestriction = true;
-    	flagRestriction = 1;
+    	flagRestriction = true;
     	c.getRestrictionPath().accept( this );
-    	flagRestriction = 0;
+    	flagRestriction = false;
 	if ( !objectsRestriction.isEmpty() ) {
 	    Iterator<String> listObj = objectsRestriction.iterator();
 	    int size = objectsRestriction.size();
@@ -350,9 +355,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     public void visit( final ClassDomainRestriction c ) throws AlignmentException {					
     	inClassRestriction = true;
-    	flagRestriction = 1;
+    	flagRestriction = true;
     	c.getRestrictionPath().accept( this );
-    	flagRestriction = 0;
+    	flagRestriction = false;
     	Iterator<String> listObj = objectsRestriction.iterator();
     	while ( listObj.hasNext() ) {
 	    subjectsRestriction.add(listObj.next());			
@@ -377,9 +382,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    nbCardinality = c.getOccurence();
 	    opOccurence = "<";
 	}
-	flagRestriction = 1;
+	flagRestriction = true;
 	c.getRestrictionPath().accept( this );	
-	flagRestriction = 0;
+	flagRestriction = false;
 	if ( !objectsRestriction.isEmpty() ) {
 	    Iterator<String> listObj = objectsRestriction.iterator();
 	    if (op == Constructor.COMP) {			
@@ -404,11 +409,11 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	if ( e.getURI() != null ) {	
 	    String id = registerPrefix( e.getURI() );
 	    String temp = obj;
-	    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )
+	    if( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction )
 		obj = "\"" + valueRestriction.toString() + "\"";
-	    if ( flagRestriction == 1 && inClassRestriction )
+	    if ( flagRestriction && inClassRestriction )
 		objectsRestriction.add( obj );
-	    createObjectVarName();
+	    // createVarName(); //JE2014!
 	    strBGP += sub + " " + id + " " + obj + " ." +NL;
 	    obj = temp;    		
 	}
@@ -474,7 +479,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		size--;	    
 		objectsRestriction.add( obj );
 		if( size != 0 && valueRestriction == null ){
-		    //createObjectVarName();
+		    //createVarName();
 		    obj = "?o" + ++count;
 		}
 		if ( weakens && !strBGP.equals("") && !inClassRestriction ) {
@@ -490,9 +495,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     	String str = "";
     	value = "";
     	uriType = "";
-    	flagRestriction = 1;
+    	flagRestriction = true;
 	c.getValue().accept( this );
-	flagRestriction = 0;
+	flagRestriction = false;
 	if ( c.getComparator().getURI().equals( Comparator.EQUAL.getURI() ) ) {    		
 	    str = "FILTER (xsd:" + uriType + "(" + obj + ") = ";    		
     	} else if ( c.getComparator().getURI().equals( Comparator.GREATER.getURI() ) ) {    		
@@ -508,9 +513,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
 
     public void visit( final PropertyDomainRestriction c ) throws AlignmentException {
-    	flagRestriction = 1;
+    	flagRestriction = true;
 	c.getDomain().accept( this );
-    	flagRestriction = 0;
+    	flagRestriction = false;
     }
 
     public void visit( final PropertyTypeRestriction c ) throws AlignmentException {
@@ -538,12 +543,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	if ( e.getURI() != null ) {
 	    String id = registerPrefix( e.getURI() );
 	    strBGP += sub + " " + id + "";
-	    if ( op == Constructor.TRANSITIVE && flagRestriction == 1 ) {
+	    if ( op == Constructor.TRANSITIVE && flagRestriction ) {
 		strBGP += "*";
 	    }
-	    if ( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction == 1 )			    
+	    if ( valueRestriction != null && !inClassRestriction && op != Constructor.COMP && flagRestriction )
 		obj = valueRestriction.toString();
-	    if ( flagRestriction == 1 && inClassRestriction && op != Constructor.COMP )
+	    if ( flagRestriction && inClassRestriction && op != Constructor.COMP )
 		objectsRestriction.add(obj);
 	    strBGP += " " + obj + " ." + NL;
 	}
@@ -568,6 +573,15 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		}
 	    }			
 	    objectsRestriction.add( obj );
+	} else if ( op == Constructor.AND )  {
+	    if ( valueRestriction != null && !inClassRestriction )
+		obj = valueRestriction.toString();
+	    String temp = obj;
+	    for ( final PathExpression re : e.getComponents() ) {			    
+		re.accept( this );
+		obj = temp;
+	    }			
+	    objectsRestriction.add( obj );
 	} else if ( op == Constructor.NOT ) {		
 	    strBGP += "FILTER (NOT EXISTS {" + NL;
 	    for ( final PathExpression re : e.getComponents() ) {				
@@ -579,7 +593,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    String temp = sub;	
 	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
 	    //obj = "_:o" + ++count;
-	    createObjectVarName();
+	    createVarName();
 	    //}
 	    for ( final PathExpression re : e.getComponents() ) {			    
 		re.accept( this );
@@ -590,7 +604,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 			obj = valueRestriction.toString();
 		    } else {
 			if ( this.getClass() == SPARQLConstructRendererVisitor.class ) {
-			    createObjectVarName();
+			    createVarName();
 			}
 			objectsRestriction.add( obj );
 		    }			    					    	
@@ -623,9 +637,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 	    sub = tempSub;
 	} else if (op == Constructor.TRANSITIVE){						
 	    for ( final PathExpression re : e.getComponents() ) {			    
-		flagRestriction = 1;
+		flagRestriction = true;
 		re.accept( this );
-		flagRestriction = 0;
+		flagRestriction = false;
 	    }
 	} else if ( op == Constructor.REFLEXIVE ) {			
 	    for ( final PathExpression re : e.getComponents() ) {			    
@@ -633,17 +647,12 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 		re.accept( this );
 		strBGP += "} UNION {" + NL + "FILTER(" + sub + "=" + obj + ")" + NL + "}";
 	    }
-	} else {			
-	    int size = e.getComponents().size();
+	} else { // JE2014: THIS IS SUPPOSED TO BE A AND!
 	    if ( valueRestriction != null && !inClassRestriction )
 		obj = valueRestriction.toString();
 	    for ( final PathExpression re : e.getComponents() ) {			    
 		re.accept( this );
-		size--;
 		objectsRestriction.add( obj );
-		/*if ( size != 0 && valueRestriction == null ) {
-		  obj = "?o" + ++count;			    			    	
-		  }*/
 		if ( weakens && !strBGP.equals("") && !inClassRestriction ) {
 		    listBGP.add( strBGP );
 		    strBGP = "";
@@ -654,25 +663,27 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
 	
     public void visit(final RelationCoDomainRestriction c) throws AlignmentException {
+	String stemp = sub;
     	sub = obj;
-    	flagRestriction = 1;		
+    	flagRestriction = true;		
     	c.getCoDomain().accept( this );    	
-    	flagRestriction = 0;
+    	flagRestriction = false;
+	sub = stemp;
     }
 
     public void visit(final RelationDomainRestriction c) throws AlignmentException {
-    	flagRestriction = 1;
+    	flagRestriction = true;
 	c.getDomain().accept( this );
-    	flagRestriction = 0;
+    	flagRestriction = false;
     }
 
     public void visit( final InstanceId e ) throws AlignmentException {
 	if ( e.getURI() != null ) {
 	    String id = registerPrefix( e.getURI() );
-	    if ( flagRestriction != 1 )
-		strBGP += id + " ?p ?o1 ." +NL;
-	    else
+	    if ( flagRestriction )
 		instance = id;
+	    else
+		strBGP += id + " ?p ?o1 ." +NL;
 	}
     }
     
