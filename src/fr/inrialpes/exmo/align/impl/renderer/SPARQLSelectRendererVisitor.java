@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
 package fr.inrialpes.exmo.align.impl.renderer;
 
 import org.semanticweb.owl.align.Alignment;
@@ -36,11 +35,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
-public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor{
+public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor {
 
     Alignment alignment = null;
     Cell cell = null;
-    Hashtable<String,String> nslist = null;
+    Hashtable<String, String> nslist = null;
 
     boolean embedded = false;
     boolean oneway = false;
@@ -49,75 +48,87 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 
     boolean edoal = false;
 
-    public SPARQLSelectRendererVisitor( PrintWriter writer ) {
-	super( writer );
-    }   
-
-    public void init( Properties p ) {
-	if ( p.getProperty( "embedded" ) != null && !p.getProperty( "embedded" ).equals("") ) 
-	    embedded = true;
-	if ( p.getProperty( "oneway" ) != null && !p.getProperty( "oneway" ).equals("") ) 
-	    oneway = true;
-	if ( p.getProperty( "blanks" ) != null && !p.getProperty( "blanks" ).equals("") ) 
-	    blanks = true;
-	if ( p.getProperty( "weakens" ) != null && !p.getProperty( "weakens" ).equals("") ) 
-	    weakens = true;
-	if ( p.getProperty( "ignoreerrors" ) != null && !p.getProperty( "ignoreerrors" ).equals("") ) 
-	    ignoreerrors = true;
-	split = ( p.getProperty( "split" ) != null && !p.getProperty( "split" ).equals("") );
-	if ( p.getProperty( "dir" ) != null && !p.getProperty( "dir" ).equals("") )
-	    splitdir = p.getProperty( "dir" )+"/";
-	if ( p.getProperty( "indent" ) != null )
-	    INDENT = p.getProperty( "indent" );
-	if ( p.getProperty( "newline" ) != null )
-	    NL = p.getProperty( "newline" );
+    public SPARQLSelectRendererVisitor(PrintWriter writer) {
+        super(writer);
     }
 
-    public void visit( Alignment align ) throws AlignmentException {
-	if ( subsumedInvocableMethod( this, align, Alignment.class ) ) return;
-	if ( align instanceof EDOALAlignment ) {
-	    alignment = align;
-	} else {
-	    try {
-		alignment = EDOALAlignment.toEDOALAlignment( (BasicAlignment)align );
-	    } catch ( AlignmentException alex ) {
-		throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex );
-	    }
-	}
-	edoal = alignment.getLevel().startsWith("2EDOAL");
-	for( Cell c : alignment ){ c.accept( this ); };    	
-    }	
-
-    public void visit( Cell cell ) throws AlignmentException {
-	if ( subsumedInvocableMethod( this, cell, Cell.class ) ) return;
-    	this.cell = cell;    	
-    	
-    	URI u1 = cell.getObject1AsURI(alignment);
-    	if ( edoal ||  u1 != null ) {
-	    generateSelect( (Expression)(cell.getObject1()) );
-	}
-	if ( !oneway ) {
-	    URI u2 = cell.getObject2AsURI(alignment);
-	    if ( edoal ||  u2 != null ) {
-		generateSelect( (Expression)(cell.getObject2()) );
-	    }
-	}
+    public void init(Properties p) {
+        if (p.getProperty("embedded") != null && !p.getProperty("embedded").equals("")) {
+            embedded = true;
+        }
+        if (p.getProperty("oneway") != null && !p.getProperty("oneway").equals("")) {
+            oneway = true;
+        }
+        if (p.getProperty("blanks") != null && !p.getProperty("blanks").equals("")) {
+            blanks = true;
+        }
+        if (p.getProperty("weakens") != null && !p.getProperty("weakens").equals("")) {
+            weakens = true;
+        }
+        if (p.getProperty("ignoreerrors") != null && !p.getProperty("ignoreerrors").equals("")) {
+            ignoreerrors = true;
+        }
+        split = (p.getProperty("split") != null && !p.getProperty("split").equals(""));
+        if (p.getProperty("dir") != null && !p.getProperty("dir").equals("")) {
+            splitdir = p.getProperty("dir") + "/";
+        }
+        if (p.getProperty("indent") != null) {
+            INDENT = p.getProperty("indent");
+        }
+        if (p.getProperty("newline") != null) {
+            NL = p.getProperty("newline");
+        }
     }
 
-    protected void generateSelect( Expression expr ) throws AlignmentException {
-	resetVariables( expr, "s", "o" );
-	expr.accept( this );
-	String query = createPrefixList()+"SELECT * WHERE {"+NL+getGP()+"}"+NL;   		
-	if ( split ) {
-	    createQueryFile( splitdir, query );
-	} else {
-	    writer.println( query );
-	}
+    public void visit(Alignment align) throws AlignmentException {
+        if (subsumedInvocableMethod(this, align, Alignment.class)) {
+            return;
+        }
+        if (align instanceof EDOALAlignment) {
+            alignment = align;
+        } else {
+            try {
+                alignment = EDOALAlignment.toEDOALAlignment((BasicAlignment) align);
+            } catch (AlignmentException alex) {
+                throw new AlignmentException("SPARQLSELECTRenderer: cannot render simple alignment. Need an EDOALAlignment", alex);
+            }
+        }
+        edoal = alignment.getLevel().startsWith("2EDOAL");
+        for (Cell c : alignment) {
+            c.accept(this);
+        };
     }
-    
-    public void visit( Relation rel ) throws AlignmentException {
-	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
+
+    public void visit(Cell cell) throws AlignmentException {
+        if (subsumedInvocableMethod(this, cell, Cell.class)) {
+            return;
+        }
+        this.cell = cell;
+
+        URI u1 = cell.getObject1AsURI(alignment);
+        if (edoal || u1 != null) {
+            generateSelect((Expression) (cell.getObject1()));
+        }
+        if (!oneway) {
+            URI u2 = cell.getObject2AsURI(alignment);
+            if (edoal || u2 != null) {
+                generateSelect((Expression) (cell.getObject2()));
+            }
+        }
+    }
+
+    protected void generateSelect(Expression expr) throws AlignmentException {
+        resetVariables(expr, "s", "o");
+        expr.accept(this);
+        String query = createPrefixList() + "SELECT * WHERE {" + NL + getGP() + "}" + NL;
+        saveQuery(expr, query);
+    }
+
+    public void visit(Relation rel) throws AlignmentException {
+        if (subsumedInvocableMethod(this, rel, Relation.class)) {
+            return;
+        }
 	// default behaviour
-	// rel.write( writer );
+        // rel.write( writer );
     }
 }

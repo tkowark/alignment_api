@@ -20,13 +20,7 @@
 
 package fr.inrialpes.exmo.align.impl.renderer;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Properties;
 import java.io.PrintWriter;
-import java.net.URI;
 
 /**
  * Structure for indented rendering
