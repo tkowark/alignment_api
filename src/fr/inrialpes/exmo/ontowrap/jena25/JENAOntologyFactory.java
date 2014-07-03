@@ -60,6 +60,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	    onto.setFormalism( formalismId );
 	    onto.setFormURI( formalismUri );
 	    onto.setOntology( (OntModel)ontology );
+            onto.getOntology().setStrictMode(false);
 	    //onto.setFile( uri );// unknown
 	    // to be checked : why several ontologies in a model ???
 	    // If no URI can be extracted from ontology, then we use the physical URI
@@ -91,6 +92,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	if ( onto != null ) return onto;
 	try {
 	    OntModel m = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM, null );
+            m.setStrictMode(false);
 	    m.read(uri.toString());
 	    onto = new JENAOntology(onlyLocalEntities);
 	    onto.setFile(uri);
