@@ -26,7 +26,7 @@
             </Ontology>
         </onto1>
         <onto2>
-            <Ontology  rdf:about="http://purl.org/ontology/mo/">
+            <Ontology rdf:about="http://purl.org/ontology/mo/">
                 <location>http://purl.org/ontology/mo/</location>
                 <formalism>
                     <Formalism align:name="OWL2.0" align:uri="http://www.w3.org/2002/07/owl#"/>
@@ -36,17 +36,17 @@
         <map>
             <Cell rdf:about="http://exmo.inrialpes.fr/connectors#cell1">
                 <entity1>
-                    <edoal:Class rdf:about="http://exmo.inrialpes.fr/connectors#RootElement"/>
+                  <edoal:Class rdf:about="http://purl.org/ontology/mo/MusicalWork"/>
                 </entity1>
                 <entity2>
-                    <edoal:Class rdf:about="http://purl.org/ontology/mo/MusicalWork"/>
+                  <edoal:Class rdf:about="http://exmo.inrialpes.fr/connectors#RootElement"/>
                 </entity2>
                 <relation>=</relation>
                 <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
                 <linkkey> 
-                    <Linkkey type="rule">
-                        <bindings>
-                            <Corresp type="eq">
+                    <Linkkey edoal:type="weak">
+                        <bindings rdf:parseType="Collection">
+                            <Corresp edoal:type="eq">
                                 <property1>
                                     <edoal:Property rdf:about="http://purl.org/ontology/mo/opus" />
                                 </property1>
