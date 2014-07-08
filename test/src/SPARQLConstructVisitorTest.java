@@ -1,5 +1,4 @@
 
-import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
@@ -7,20 +6,15 @@ import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
 import fr.inrialpes.exmo.align.impl.renderer.SPARQLConstructRendererVisitor;
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.parser.RDFParser;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import fr.inrialpes.exmo.align.test.Utils;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Properties;
-import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,19 +28,6 @@ import org.testng.annotations.Test;
  * @author Nicolas Guillouet <nicolas.guillouet@inria.fr>
  */
 public class SPARQLConstructVisitorTest {
-
-    private Alignment alignment = null;
-    private ObjectAlignment oalignment = null;
-
-    private static EDOALAlignment loadAlignement(String fileName) throws Exception {
-        AlignmentParser aparser = new AlignmentParser(0);
-        assertNotNull(aparser);
-        aparser.initAlignment(null);
-        RDFParser alignmentParser = new RDFParser();
-        InputStream alignIn = new FileInputStream("test/input/" + fileName);
-        EDOALAlignment loadedAlignment = alignmentParser.parse(alignIn);
-        return loadedAlignment;
-    }
 
     // Read the alignement that will be rendered by everyone
     @BeforeClass(groups = {"full", "impl", "raw"})
@@ -63,7 +44,7 @@ public class SPARQLConstructVisitorTest {
     public void ConstructSimplePropertiesRelation() throws Exception {
         EDOALAlignment alignment = new EDOALAlignment();
         Relation opusRelation = new EquivRelation();
-        Expression opusExpression1 = new PropertyId(new URI("http://exmo.inria.fr/connectors#opus"));
+        Expression opusExpression1 = new PropertyId(new URI("http://exmo.inrialpes.fr/connectors#opus"));
         Expression opusExpression2 = new PropertyId(new URI("http://purl.org/ontology/mo/opus"));
         EDOALCell opusCell = new EDOALCell("1", opusExpression1, opusExpression2, opusRelation, 1.0);
         alignment.addAlignCell(opusCell);
@@ -76,7 +57,7 @@ public class SPARQLConstructVisitorTest {
         alignment.render(renderer);
 
         String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
                 + "?s ns0:opus ?o .\n"
@@ -86,7 +67,7 @@ public class SPARQLConstructVisitorTest {
                 + "}\n";
 
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
                 + "?s ns1:opus ?o .\n"
@@ -96,6 +77,37 @@ public class SPARQLConstructVisitorTest {
                 + "}\n";
         assertEquals(renderer.getQuery(opusCell, 0), expectedQuery1);
         assertEquals(renderer.getQuery(opusCell, 1), expectedQuery2);
+        
+        //For remote sparql endpoint : 
+        
+        
+        String remoteServiceURIName = "http://example.org/remoteSparql";
+        URI remoteServiceURI = new URI(remoteServiceURIName);
+        expectedQuery1 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+                + "CONSTRUCT {\n"
+                + "?s ns0:opus ?o .\n"
+                + "}\n"
+                + "WHERE {\n"
+                + "SERVICE <%s> {\n"
+                + "?s ns1:opus ?o .\n"
+                + "}\n"
+                + "}\n", remoteServiceURIName);
+
+        expectedQuery2 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+                + "CONSTRUCT {\n"
+                + "?s ns1:opus ?o .\n"
+                + "}\n"
+                + "WHERE {\n"
+                + "SERVICE <%s> {\n"
+                + "?s ns0:opus ?o .\n"
+                + "}\n"
+                + "}\n", remoteServiceURIName);
+        assertEquals(renderer.getQuery(opusCell, 0, remoteServiceURI), expectedQuery1);
+        assertEquals(renderer.getQuery(opusCell, 1, remoteServiceURI), expectedQuery2);
     }
 
     /**
@@ -107,7 +119,7 @@ public class SPARQLConstructVisitorTest {
     public void ConstructSimpleClassesRelation() throws Exception {
         EDOALAlignment alignment = new EDOALAlignment();
         Relation classesRelation = new EquivRelation();
-        Expression rootElementExpression = new ClassId(new URI("http://exmo.inria.fr/connectors#RootElement"));
+        Expression rootElementExpression = new ClassId(new URI("http://exmo.inrialpes.fr/connectors#RootElement"));
         Expression musicalWorkExpression = new ClassId(new URI("http://purl.org/ontology/mo/MusicalWork"));
         EDOALCell classCell = new EDOALCell("1", rootElementExpression, musicalWorkExpression, classesRelation, 1.0);
         alignment.addAlignCell(classCell);
@@ -120,7 +132,7 @@ public class SPARQLConstructVisitorTest {
         alignment.render(renderer);
 
         String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
                 + "?s rdf:type ns0:RootElement .\n"
@@ -130,7 +142,7 @@ public class SPARQLConstructVisitorTest {
                 + "}\n";
 
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
                 + "?s rdf:type ns1:MusicalWork .\n"
@@ -146,7 +158,7 @@ public class SPARQLConstructVisitorTest {
     public void ConstructComposePropertyRelation() throws Exception {
         String[] alignmentFilesNames = {"alignment1.rdf"};
         for (String alignmentFileName : alignmentFilesNames) {
-            EDOALAlignment alignment = loadAlignement(alignmentFileName);
+            EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
             StringWriter stringWriter = new StringWriter();
             PrintWriter writer = new PrintWriter(stringWriter);
             SPARQLConstructRendererVisitor renderer = new SPARQLConstructRendererVisitor(writer);
@@ -159,7 +171,7 @@ public class SPARQLConstructVisitorTest {
 
             String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                     + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
-                    + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                     + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
                     + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
                     + "CONSTRUCT {\n"
@@ -173,7 +185,7 @@ public class SPARQLConstructVisitorTest {
 
             String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                     + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
-                    + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
+                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                     + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
                     + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
                     + "CONSTRUCT {\n"

@@ -181,7 +181,7 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
     }
 
     protected String createConstruct(String GP1, String GP2) {
-        return createPrefixList() + "CONSTRUCT {" + NL + GP1 + "}" + NL + "WHERE {" + NL + GP2 + "}" + NL;
+        return createPrefixList() + "CONSTRUCT {" + NL + GP1 + "}" + NL + "WHERE {" + FEDERATED_SERVICE_INTRODUCTION + NL + GP2 + FEDERATED_SERVICE_FINALIZATION + "}" + NL;
     }
 
     protected String createCoreseQuery(String query) {

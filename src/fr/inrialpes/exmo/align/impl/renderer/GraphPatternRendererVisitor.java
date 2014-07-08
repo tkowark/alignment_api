@@ -77,6 +77,8 @@ import java.util.LinkedList;
 public abstract class GraphPatternRendererVisitor extends IndentedRendererVisitor implements EDOALVisitor {
 
     final static Logger logger = LoggerFactory.getLogger(GraphPatternRendererVisitor.class);
+    protected static String FEDERATED_SERVICE_INTRODUCTION = "FEDERATED_SERVICE_BEGIN";
+    protected static String FEDERATED_SERVICE_FINALIZATION = "FEDERATED_SERVICE_END";
 
     Alignment alignment = null;
     Cell cell = null;
@@ -237,13 +239,21 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     }
     
     
+    private static String cleanQuery(String query, String serviceName){
+        if(serviceName == null || serviceName == "" ){
+            return query.replaceAll(FEDERATED_SERVICE_INTRODUCTION, "").replaceAll(FEDERATED_SERVICE_FINALIZATION, "");
+        }else{
+            return query.replaceAll(FEDERATED_SERVICE_INTRODUCTION, String.format("\nSERVICE <%s> {", serviceName)).replaceAll(FEDERATED_SERVICE_FINALIZATION, "}\n");
+        }
+    }
+    
     public void saveQuery(Object referer, String query) {
         //Query is stored in memory
         if(!queries.containsKey(referer)){
             queries.put(referer, new LinkedList());
         }
         queries.get(referer).add(query);
-        
+        query = cleanQuery(query, null);
         if (split) {
             BufferedWriter out = null;
             try {
@@ -263,8 +273,18 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         }
     }
     
+    /**
+     * Produce Query only for local call.
+     * @param referer
+     * @param index
+     * @return 
+     */
     public String getQuery(Object referer, int index){
-        return queries.get(referer).get(index);
+        return getQuery(referer, index, null);
+    }
+    
+    public String getQuery(Object referer, int index, URI remoteURI){
+        return cleanQuery(queries.get(referer).get(index), (remoteURI == null ? null : remoteURI.toString()));
     }
 
     protected String createPrefixList() {
