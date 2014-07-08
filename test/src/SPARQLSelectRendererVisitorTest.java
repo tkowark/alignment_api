@@ -32,10 +32,12 @@ public class SPARQLSelectRendererVisitorTest {
         Enumeration<Cell> cells = alignment.getElements();
         Cell cell = cells.nextElement();
         URI remoteURI = new URI("http://example.org/data.rdf");
+	// THIS DOES THE edoal:type="in" How to do equal?
         String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inria.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
-                + "CONSTRUCT ?s1 ?s2"
+	    //+ "CONSTRUCT { ?s1 owl:sameAs ?s2 }"
+	        + "SELECT ?s1 ?s2"
                 + "WHERE {\n"
                 + "?s1 rdf:type ns0:RootElement .\n"
                 + "?s1 ns0:number ?o1 ."
