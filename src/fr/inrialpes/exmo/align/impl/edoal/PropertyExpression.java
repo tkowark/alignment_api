@@ -22,9 +22,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Collection;
-import java.util.Set;
-
 /**
  * <p>
  * Represents a PropertyExpression.

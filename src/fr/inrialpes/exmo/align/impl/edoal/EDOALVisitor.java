@@ -45,6 +45,8 @@ public interface EDOALVisitor {
     public void visit( Value o ) throws AlignmentException;
     public void visit( Apply o ) throws AlignmentException;
     public void visit( Datatype o ) throws AlignmentException;
+    public void visit( Linkkey o ) throws AlignmentException;
+    public void visit( LinkkeyBinding o ) throws AlignmentException;
     //public void visit( Comparator o ) throws AlignmentException;
     //public void visit( EDOALCell o ) throws AlignmentException;
 }

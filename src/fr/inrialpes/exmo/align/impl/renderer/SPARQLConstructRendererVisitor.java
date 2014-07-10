@@ -28,6 +28,8 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 
 import java.io.PrintWriter;
 import java.net.URI;
@@ -141,6 +143,13 @@ public class SPARQLConstructRendererVisitor extends GraphPatternRendererVisitor 
         }
         // default behaviour
         // rel.write( writer );
+    }
+    public void visit(final Linkkey linkkey) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    
+    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
     }
 
     protected void generateConstruct(Cell cell, Expression expr1, Expression expr2) throws AlignmentException {

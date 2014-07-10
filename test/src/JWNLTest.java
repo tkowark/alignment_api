@@ -20,14 +20,10 @@
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeSuite;
 
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 
@@ -40,8 +36,6 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Vector;
 import java.util.Properties;
 
 /**

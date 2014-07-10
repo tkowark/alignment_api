@@ -22,15 +22,8 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.io.PrintStream;
-import java.io.IOException;
-import java.util.Comparator;
 import java.util.Set;
 import java.util.HashSet;
-import java.lang.ClassNotFoundException;
-import java.lang.Float;
-import java.lang.Double;
-import java.net.URISyntaxException;
 import java.net.URI;
 
 import org.semanticweb.owl.align.Alignment;
@@ -40,7 +33,6 @@ import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicCell;
-import fr.inrialpes.exmo.align.impl.rel.*;
 
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
@@ -72,6 +64,7 @@ public class EDOALCell extends BasicCell {
     private URI id; // This is the id
 
     private Set<Transformation> transformations;
+    private Set<Linkkey> linkkeys;
 
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
@@ -109,6 +102,16 @@ public class EDOALCell extends BasicCell {
      */
     public Set<Transformation> transformations() {
 	return transformations;
+    }
+    
+    public void addLinkkey( Linkkey linkkey ){
+	if ( linkkeys == null ) {
+	    linkkeys = new HashSet<Linkkey>();
+	}
+	linkkeys.add( linkkey );
+    }
+    public Set<Linkkey> linkkeys() {
+	return linkkeys;
     }
 
     public Cell inverse() throws AlignmentException {

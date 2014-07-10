@@ -752,5 +752,31 @@
 	</edoal:transformation>
       </Cell>
     </map>
+    <!-- test on linkkeys -->
+    <map>
+      <Cell rdf:about="LinkkeyTest">
+	<entity1>
+          <edoal:Class rdf:about="&wine;VintageYear" />
+	</entity1>
+	<entity2>
+          <edoal:Class rdf:about="&vin;Millesime" />
+	</entity2>
+        <measure rdf:datatype='&xsd;float'>1.</measure>        
+        <edoal:linkkey> 
+          <Linkkey edoal:type="weak">
+            <binding>
+              <Corresp edoal:type="eq">
+                <property1>
+                  <edoal:Property rdf:about="&wine;yearValue" />
+                </property1>
+                <property2>
+                  <edoal:Property rdf:about="&vin;annee_millesime" />
+                </property2>
+              </Corresp>
+            </binding>
+          </Linkkey>
+        </edoal:linkkey>
+      </Cell>
+    </map>
   </Alignment>
 </rdf:RDF>

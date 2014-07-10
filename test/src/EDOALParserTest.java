@@ -18,102 +18,135 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Alignment;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.parser.RDFParser;
 import fr.inrialpes.exmo.align.util.NullStream;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Set;
-import java.net.URI;
-
+import org.semanticweb.owl.align.Cell;
+import static org.testng.Assert.assertFalse;
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
  */
-
 public class EDOALParserTest {
 
     private AlignmentParser aparser1 = null;
+    
 
-    @Test(groups = { "full", "omwg", "raw" })
+    @Test(groups = {"full", "omwg", "raw"})
     public void setUp() throws Exception {
-	aparser1 = new AlignmentParser( 0 );
-	assertNotNull( aparser1 );
+        aparser1 = new AlignmentParser(0);
+        assertNotNull(aparser1);
     }
 
-    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods={ "setUp" })
+    @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
     public void typedParsingTest() throws Exception {
-	AlignmentParser aparser2 = new AlignmentParser( 2 );
-	aparser2.initAlignment( null );
-	// Would be good to close System.err at that point...
-	OutputStream serr = System.err;
-	System.setErr( new PrintStream( new NullStream() ) );
-	Alignment al = aparser2.parse( "file:examples/omwg/total.xml" );
-	System.setErr( new PrintStream( serr ) );
-	assertNotNull( al );
+        AlignmentParser aparser2 = new AlignmentParser(2);
+        aparser2.initAlignment(null);
+        // Would be good to close System.err at that point...
+        OutputStream serr = System.err;
+        System.setErr(new PrintStream(new NullStream()));
+        Alignment al = aparser2.parse("file:examples/omwg/total.xml");
+        System.setErr(new PrintStream(serr));
+        assertNotNull(al);
     }
 
-    @Test(groups = { "full", "omwg", "raw" }, dependsOnMethods={ "typedParsingTest" })
-    public void roundTripTest() throws Exception {
-	// Load the full test
-	aparser1.initAlignment( null );
-	Alignment alignment = aparser1.parse( "file:examples/omwg/total.xml" );
-	assertNotNull( alignment );
-	// Print it in a string
-	ByteArrayOutputStream stream = new ByteArrayOutputStream(); 
-	PrintWriter writer = new PrintWriter (
-			  new BufferedWriter(
-			       new OutputStreamWriter( stream, "UTF-8" )), true);
-	AlignmentVisitor renderer = new RDFRendererVisitor( writer );
-	alignment.render( renderer );
-	writer.flush();
-	writer.close();
-	String str1 = stream.toString();
-	// Read it again
-	aparser1 = new AlignmentParser( 0 );
-	aparser1.initAlignment( null );
-	//System.err.println( str1 );
-	Alignment al = aparser1.parseString( str1 );
-	assertEquals( alignment.nbCells(), al.nbCells() );
-	// Print it in another string
-	stream = new ByteArrayOutputStream(); 
-	writer = new PrintWriter (
-			  new BufferedWriter(
-			       new OutputStreamWriter( stream, "UTF-8" )), true);
-	renderer = new RDFRendererVisitor( writer );
-	al.render( renderer );
-	writer.flush();
-	writer.close();
-	String str2 = stream.toString();
-	// They should be the same... (no because of invertion...)
-	//assertEquals( str1, str2 );
-	// But have the same length
-	assertEquals( str1.length(), str2.length() );
+    @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"typedParsingTest"})
+    public void linkeyParsingTest() throws Exception {
+        // Load the full test
+        aparser1.initAlignment(null);
+        EDOALAlignment alignment = (EDOALAlignment) aparser1.parse("file:test/input/alignment2.rdf");
+        assertNotNull(alignment);
+        Enumeration<Cell> cells = alignment.getElements();
+        EDOALCell cell = (EDOALCell) cells.nextElement();
+        assertFalse(cells.hasMoreElements());
+
+        Set<Linkkey> linkkeys = cell.linkkeys();
+        assertEquals(linkkeys.size(), 1);
+        Linkkey linkkey = linkkeys.iterator().next();
+        assertEquals(linkkey.getType(), "weak");
+
+        Set<LinkkeyBinding> bindings = linkkey.bindings();
+        assertEquals(bindings.size(), 2);
+        Iterator<LinkkeyBinding> bindingIter = bindings.iterator();
+        LinkkeyBinding binding = bindingIter.next();
+        LinkkeyBinding firstBinding = null;
+        LinkkeyBinding secondBinding = null;
+        if(binding.getType().equals("eq")){
+            firstBinding = binding;
+            secondBinding =  bindingIter.next();
+        }
+        else{
+            firstBinding = bindingIter.next();
+            secondBinding =  binding;
+            
+        }
+        assertEquals(firstBinding.getType(), "eq");
+        assertEquals(((PropertyId)firstBinding.getExpression1()).getURI().toString(), "http://purl.org/ontology/mo/opus");
+        assertEquals(((PropertyId)firstBinding.getExpression2()).getURI().toString(), "http://exmo.inrialpes.fr/connectors#number");
+        
+        assertEquals(secondBinding.getType(), "in");
+        assertEquals(((PropertyId)secondBinding.getExpression1()).getURI().toString(), "http://purl.org/ontology/mo/name");
+        assertEquals(((PropertyId)secondBinding.getExpression2()).getURI().toString(), "http://exmo.inrialpes.fr/connectors#nom");
     }
+    
+    @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"linkeyParsingTest"})
+    public void roundTripTest() throws Exception {
+        // Load the full test
+        aparser1.initAlignment(null);
+        Alignment alignment = aparser1.parse("file:examples/omwg/total.xml");
+        assertNotNull(alignment);
+        // Print it in a string
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(stream, "UTF-8")), true);
+        AlignmentVisitor renderer = new RDFRendererVisitor(writer);
+        alignment.render(renderer);
+        writer.flush();
+        writer.close();
+        String str1 = stream.toString();
+        // Read it again
+        aparser1 = new AlignmentParser(0);
+        aparser1.initAlignment(null);
+        //System.err.println( str1 );
+        Alignment al = aparser1.parseString(str1);
+        assertEquals(alignment.nbCells(), al.nbCells());
+        // Print it in another string
+        stream = new ByteArrayOutputStream();
+        writer = new PrintWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(stream, "UTF-8")), true);
+        renderer = new RDFRendererVisitor(writer);
+        al.render(renderer);
+        writer.flush();
+        writer.close();
+        String str2 = stream.toString();
+	// They should be the same... (no because of invertion...)
+        //assertEquals( str1, str2 );
+        // But have the same length
+        assertEquals(str1.length(), str2.length());
+    }
+
 }

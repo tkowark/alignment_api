@@ -21,17 +21,13 @@
 package fr.inrialpes.exmo.align.parser;
 
 import java.util.Hashtable;
-import java.util.Properties;
 import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
-import org.semanticweb.owl.align.Visitable;
 import org.semanticweb.owl.align.AlignmentException;
 
 import fr.inrialpes.exmo.align.impl.Namespace;
@@ -65,7 +61,8 @@ import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
 import fr.inrialpes.exmo.align.impl.edoal.Apply;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
-import fr.inrialpes.exmo.align.impl.edoal.Comparator;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 
 /**
  * Checks if an EDOALAlignment is well-typed
@@ -158,6 +155,15 @@ public class TypeCheckingVisitor {
 	if ( !compatible( tp2, TYPE.VALUE ) ) return raiseError( null, tp2, TYPE.VALUE );
 	return TYPE.ANY;
     }
+    
+    public TYPE visit( final Linkkey linkkey ) throws AlignmentException {
+	return TYPE.ERROR;
+    }
+    
+    public TYPE visit( final LinkkeyBinding linkkeyBinding ) throws AlignmentException {
+	return TYPE.ERROR;
+    }
+    
     /*
     public TYPE visit( final PathExpression p ) throws AlignmentException {
 	throw new AlignmentException( "Cannot dispatch PathExpression "+p );

@@ -22,9 +22,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-
 /**
  * <p>
  * Superclass for all ClassRestrictions.

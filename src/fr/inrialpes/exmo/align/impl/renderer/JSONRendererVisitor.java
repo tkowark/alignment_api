@@ -78,6 +78,8 @@ import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 
 /**
  * Renders an alignment in JSON (and in fact in JSON-LD)
@@ -645,6 +647,14 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
 	indentedOutput("\"@id\" : \""+e.getType()+"\" }");
 	decreaseIndent();
 	decreaseIndent();
+    }
+    
+    public void visit(final Linkkey linkkey) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    
+    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
     }
 	
 }

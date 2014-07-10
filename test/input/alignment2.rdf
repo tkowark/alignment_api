@@ -43,20 +43,30 @@
                 </entity2>
                 <relation>=</relation>
                 <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
-                <linkkey> 
-                    <Linkkey edoal:type="weak">
-                        <bindings rdf:parseType="Collection">
-                            <Corresp edoal:type="eq">
-                                <property1>
+                <edoal:linkkey> 
+                    <edoal:Linkkey edoal:type="weak">
+                        <edoal:binding>
+                            <edoal:Corresp edoal:type="eq">
+                                <edoal:property1>
                                     <edoal:Property rdf:about="http://purl.org/ontology/mo/opus" />
-                                </property1>
-                                <property2>
+                                </edoal:property1>
+                                <edoal:property2>
                                     <edoal:Property rdf:about="http://exmo.inrialpes.fr/connectors#number" />
-                                </property2>
-                            </Corresp>
-                        </bindings>
-                    </Linkkey>
-                </linkkey>
+                                </edoal:property2>
+                            </edoal:Corresp>
+                        </edoal:binding>
+                        <edoal:binding>
+                            <edoal:Corresp edoal:type="in">
+                                <edoal:property1>
+                                    <edoal:Property rdf:about="http://purl.org/ontology/mo/name" />
+                                </edoal:property1>
+                                <edoal:property2>
+                                    <edoal:Property rdf:about="http://exmo.inrialpes.fr/connectors#nom" />
+                                </edoal:property2>
+                            </edoal:Corresp>
+                        </edoal:binding>
+                    </edoal:Linkkey>
+                </edoal:linkkey>
             </Cell>
         </map>
     </Alignment>

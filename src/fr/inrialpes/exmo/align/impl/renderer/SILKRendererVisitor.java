@@ -33,6 +33,8 @@ import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 
 import java.net.URI;
 import java.util.Enumeration;
@@ -251,6 +253,13 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 	if ( subsumedInvocableMethod( this, rel, Relation.class ) ) return;
 	// default behaviour
 	// rel.write( writer );
+    }
+    public void visit(final Linkkey linkkey) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    
+    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
     }
 	
 }

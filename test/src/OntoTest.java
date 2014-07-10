@@ -20,9 +20,7 @@
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -33,23 +31,12 @@ import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
-import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntology;
-import fr.inrialpes.exmo.ontowrap.owlapi10.OWLAPIOntologyFactory;
 import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology;
 import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntologyFactory;
 import fr.inrialpes.exmo.ontowrap.jena25.JENAOntology;
 
-import org.semanticweb.owl.align.AlignmentException;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import java.util.Set;
 

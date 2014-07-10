@@ -20,40 +20,20 @@
 
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
 
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Evaluator;
-
-import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.align.impl.URIAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.method.NameAndPropertyAlignment;
 
-import fr.inrialpes.exmo.ontowrap.Ontology;
-import fr.inrialpes.exmo.ontowrap.BasicOntology;
-import fr.inrialpes.exmo.ontowrap.LoadedOntology;
-import fr.inrialpes.exmo.ontowrap.HeavyLoadedOntology;
-import fr.inrialpes.exmo.ontowrap.OntologyFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**

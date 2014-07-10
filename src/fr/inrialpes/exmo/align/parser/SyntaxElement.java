@@ -46,6 +46,7 @@ import org.semanticweb.owl.align.AlignmentException;
 public enum SyntaxElement {
 
     // RDF NAMESPACE
+// RDF NAMESPACE
     RDF(                Namespace.RDF, "RDF", true), // This is not a resource, nor a property
 	RDF_ID(         Namespace.RDF, "ID"),
 	RDF_ABOUT(      Namespace.RDF, "about"),
@@ -132,6 +133,13 @@ public enum SyntaxElement {
 	TRANSF(         Namespace.EDOAL, "Transformation", true),
 	TRDIR(          Namespace.EDOAL, "direction"),
 	TRANSFORMATION( Namespace.EDOAL, "transformation"),
+	LINKKEYS( Namespace.EDOAL, "linkkey", true),
+	LINKKEY( Namespace.EDOAL, "Linkkey"),
+	LINKKEY_BINDING( Namespace.EDOAL, "binding"),
+	CORRESP( Namespace.EDOAL, "Corresp"),
+	CORRESP_PROPERTY1( Namespace.EDOAL, "property1"),
+	CORRESP_PROPERTY2( Namespace.EDOAL, "property2"),
+	EDOAL_TYPE(           Namespace.EDOAL, "type"),
 	TRANSITIVE(     Namespace.EDOAL, "transitive", Constructor.TRANSITIVE),
 	TYPE_COND(Namespace.EDOAL, "AttributeTypeRestriction", true), // undocumented
 	VALUE(          Namespace.EDOAL, "value"),

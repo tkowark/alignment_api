@@ -81,6 +81,8 @@ import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -846,4 +848,11 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	indentedOutput("<owl:Datatype><owl:onDataType rdf:resource=\""+e.getType()+"\"/></owl:Datatype>");
     }
 
+    public void visit(final Linkkey linkkey) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    
+    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
 }

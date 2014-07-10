@@ -22,9 +22,6 @@
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 //import org.testng.annotations.*;
 
@@ -32,30 +29,16 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
-import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.Cell;
 
 import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.MatrixMeasure;
-import fr.inrialpes.exmo.ontosim.string.StringDistances;
-import fr.inrialpes.exmo.align.impl.eval.PRecEvaluator;
-import fr.inrialpes.exmo.align.impl.URIAlignment;
-
-import fr.inrialpes.exmo.ontowrap.OntologyCache;
-
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.util.NullStream;
-
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Vector;
 import java.util.Properties;
 
 /**
