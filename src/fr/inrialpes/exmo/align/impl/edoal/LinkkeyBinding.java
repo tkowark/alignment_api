@@ -35,13 +35,6 @@ public class LinkkeyBinding {
         this.expression2 = expression2;
     }
     
-    public void accept(EDOALVisitor visitor) throws AlignmentException {
-        visitor.visit(this);
-    }
-    
-    public TypeCheckingVisitor.TYPE accept( TypeCheckingVisitor visitor ) throws AlignmentException {
-	return visitor.visit(this);
-    }
     
     public String getType(){
         return type;

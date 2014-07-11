@@ -40,8 +40,10 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import org.semanticweb.owl.align.Cell;
 import static org.testng.Assert.assertFalse;
@@ -70,6 +72,8 @@ public class EDOALParserTest {
         Alignment al = aparser2.parse("file:examples/omwg/total.xml");
         System.setErr(new PrintStream(serr));
         assertNotNull(al);
+        List<Cell> cells = Collections.list(al.getElements());
+        assertEquals(cells.size(), 17);//Should be changed if new tests added ...
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"typedParsingTest"})

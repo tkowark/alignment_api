@@ -17,7 +17,7 @@
   <groupId>fr.inrialpes.exmo</groupId>
   <artifactId>ontowrap</artifactId>
   <version>4.6</version>
-  <!-- Rev 1954M 10/07/2014 -->
+  <!-- Rev 1954:1956M 11/07/2014 -->
   <name>Ontology wrapping API</name>
   <description>An ontology wrapping API and library.</description>
   <url>http://alignapi.gforge.inria.fr</url>

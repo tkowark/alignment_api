@@ -280,12 +280,9 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
                     Set<Linkkey> linkkeys = ((EDOALCell) cell).linkkeys();
                     if (linkkeys != null) {
                         for (Linkkey linkkey : linkkeys) {
-                            indentedOutputln("<" + SyntaxElement.LINKKEY.print(DEF) + ">");
                             increaseIndent();
                             linkkey.accept(this);
                             decreaseIndent();
-                            writer.print(NL);
-                            indentedOutputln("</" + SyntaxElement.LINKKEY.print(DEF) + ">");
                         }
                     }
                 }
@@ -722,29 +719,26 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         increaseIndent();
         indentedOutput("<" + SyntaxElement.LINKKEY.print(DEF) + " " + SyntaxElement.EDOAL_TYPE.print(DEF) + "=\"" + linkkey.getType() + "\">" + NL);
         increaseIndent();
-        for(LinkkeyBinding linkkeyBinding : linkkey.bindings()){
-            linkkeyBinding.accept(this);
+        for (LinkkeyBinding linkkeyBinding : linkkey.bindings()) {
+            indentedOutputln("<" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
+            increaseIndent();
+            indentedOutput("<" + SyntaxElement.CORRESP.print(DEF) + " " + SyntaxElement.EDOAL_TYPE.print(DEF) + "=\"" + linkkeyBinding.getType() + "\">" + NL);
+            increaseIndent();
+            indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
+            linkkeyBinding.getExpression1().accept(this);
+            indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
+            indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + ">");
+            linkkeyBinding.getExpression2().accept(this);
+            indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + ">");
+            decreaseIndent();
+            indentedOutput("</" + SyntaxElement.CORRESP.print(DEF) + ">" + NL);
+            decreaseIndent();
+            indentedOutputln("</" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
+//            linkkeyBinding.accept(this);
         }
         decreaseIndent();
         indentedOutput("</" + SyntaxElement.LINKKEY.print(DEF) + ">" + NL);
         decreaseIndent();
         indentedOutputln("</" + SyntaxElement.LINKKEYS.print(DEF) + ">");
-    }
-
-    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
-        indentedOutputln("<" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
-        increaseIndent();
-        indentedOutput("<" + SyntaxElement.CORRESP.print(DEF) + " " + SyntaxElement.EDOAL_TYPE.print(DEF) + "=\"" + linkkeyBinding.getType() + "\">" + NL);
-        increaseIndent();
-        indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
-        linkkeyBinding.getExpression1().accept(this);
-        indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
-        indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + ">");
-        linkkeyBinding.getExpression2().accept(this);
-        indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY2 .print(DEF) + ">");
-        decreaseIndent();
-        indentedOutput("</" + SyntaxElement.CORRESP.print(DEF) + ">" + NL);
-        decreaseIndent();
-        indentedOutputln("</" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
     }
 }

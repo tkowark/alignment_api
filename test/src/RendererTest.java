@@ -46,6 +46,7 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
+import static org.testng.Assert.fail;
 
 public class RendererTest {
 

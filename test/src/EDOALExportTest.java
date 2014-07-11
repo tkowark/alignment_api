@@ -77,12 +77,8 @@ import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
 import fr.inrialpes.exmo.align.impl.edoal.Value;
 import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
-import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
-import org.semanticweb.owl.align.Relation;
-import org.testng.Assert;
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
@@ -99,21 +95,6 @@ public class EDOALExportTest {
     }
 
     private String render(Expression v) throws Exception {
-        // JE2009: This can only be improved if we can change the stream
-        stream = new ByteArrayOutputStream();
-        writer = new PrintWriter(new BufferedWriter(
-                new OutputStreamWriter(stream, "UTF-8")), true);
-        renderer = new RDFRendererVisitor(writer);
-        renderer.setIndentString("");	// Indent should be empty
-        renderer.setNewLineString("");
-        v.accept(renderer);
-        writer.flush();
-        writer.close();
-        stream.close();
-        return stream.toString();
-    }
-
-    private String render(LinkkeyBinding v) throws Exception {
         // JE2009: This can only be improved if we can change the stream
         stream = new ByteArrayOutputStream();
         writer = new PrintWriter(new BufferedWriter(
@@ -228,8 +209,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         String str1 = stream.toString();
-        //System.err.println(str1);
-        assertEquals(str1.length(), 36024);
+        assertEquals(str1.length(), 37076);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
@@ -508,46 +488,66 @@ public class EDOALExportTest {
 //        Assert.fail("HAVE TODO");
     }
 
+//    @Test(groups = {"full", "omwg"}, dependsOnMethods = {"setUp"})
+//    public void testExportLinkkeyBinding() throws Exception {
+//        LinkkeyBinding linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
+//        assertEquals(render(linkkeyBinding),
+//                "<edoal:binding>"
+//                + "<edoal:Corresp edoal:type=\"eq\">"
+//                + "<edoal:property1>"
+//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
+//                + "</edoal:property1>"
+//                + "<edoal:property2>"
+//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
+//                + "</edoal:property2>"
+//                + "</edoal:Corresp>"
+//                + "</edoal:binding>"
+//        );
+//        linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.IN);
+//        assertEquals(render(linkkeyBinding),
+//                "<edoal:binding>"
+//                + "<edoal:Corresp edoal:type=\"in\">"
+//                + "<edoal:property1>"
+//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
+//                + "</edoal:property1>"
+//                + "<edoal:property2>"
+//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
+//                + "</edoal:property2>"
+//                + "</edoal:Corresp>"
+//                + "</edoal:binding>"
+//        );
+//    }
     @Test(groups = {"full", "omwg"}, dependsOnMethods = {"setUp"})
-    public void testExportLinkkeyBinding() throws Exception {
-        LinkkeyBinding linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
-        assertEquals(render(linkkeyBinding),
-                "<edoal:binding>"
-                + "<edoal:Corresp edoal:type=\"eq\">"
-                + "<edoal:property1>"
-                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
-                + "</edoal:property1>"
-                + "<edoal:property2>"
-                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
-                + "</edoal:property2>"
-                + "</edoal:Corresp>"
-                + "</edoal:binding>"
-        );
-        linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.IN);
-        assertEquals(render(linkkeyBinding),
-                "<edoal:binding>"
-                + "<edoal:Corresp edoal:type=\"in\">"
-                + "<edoal:property1>"
-                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
-                + "</edoal:property1>"
-                + "<edoal:property2>"
-                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
-                + "</edoal:property2>"
-                + "</edoal:Corresp>"
-                + "</edoal:binding>"
-        );
-    }
-
-    @Test(groups = {"full", "omwg"}, dependsOnMethods = {"testExportLinkkeyBinding"})
     public void testExportLinkkey() throws Exception {
+        //With EQ
         Linkkey linkkey = new Linkkey();
-        LinkkeyBinding linkkeyBinding1 = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
-        linkkey.addBinding(linkkeyBinding1);
+        LinkkeyBinding linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
+        linkkey.addBinding(linkkeyBinding);
         assertEquals(render(linkkey),
                 "<edoal:linkkey>"
                 + "<edoal:Linkkey edoal:type=\"plain\">"
                 + "<edoal:binding>"
                 + "<edoal:Corresp edoal:type=\"eq\">"
+                + "<edoal:property1>"
+                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
+                + "</edoal:property1>"
+                + "<edoal:property2>"
+                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
+                + "</edoal:property2>"
+                + "</edoal:Corresp>"
+                + "</edoal:binding>"
+                + "</edoal:Linkkey>"
+                + "</edoal:linkkey>"
+        );
+        //With IN
+        linkkey = new Linkkey();
+        linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.IN);
+        linkkey.addBinding(linkkeyBinding);
+        assertEquals(render(linkkey),
+                "<edoal:linkkey>"
+                + "<edoal:Linkkey edoal:type=\"plain\">"
+                + "<edoal:binding>"
+                + "<edoal:Corresp edoal:type=\"in\">"
                 + "<edoal:property1>"
                 + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
                 + "</edoal:property1>"
