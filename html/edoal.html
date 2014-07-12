@@ -91,8 +91,8 @@ function primerOnLoad() {
 </script>
 </head>
 <body>
-[<a href="http://alignapi.gforge.inria.fr/format.html">Alignment format</a>]
-[<a href="http://alignapi.gforge.inria.fr/">API</a>]
+[<a href="format.html">Alignment format</a>]
+[<a href="index.html">API</a>]
 
 
 <h1 class="titre">EDOAL: Expressive and Declarative Ontology Alignment Language</h1>
@@ -104,7 +104,7 @@ correspondences between the entities of different ontologies. Unlike
 other formats, the alignment vocabulary allows to represent complex
 correspondences allowing to precisely describe the relation between
 the entities. The alignment vocabulary extends
-the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a>.</p> 
+the <a href="format.html">alignment format</a>.</p> 
 
 <!--dl>
  <dt><a href="#sec:purpose">Purpose</a></dt>
@@ -128,7 +128,7 @@ the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a>.<
 </pre>
 </div-->
 
-<p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
+<p>Representing ontology alignments is the general purpose of this vocabulary. Particularly, it extends the ontology <a href="format.html">alignment format</a> in order to enable the representation of complex correspondences.</p>
 
 <p>This format can be used for cases where expressing equivalence or subsumption between terms is not sufficient, when more precise relations need to be expressed. While term equivalence or subsumption might be enough for exchanging documents, more precise relations are needed to exchange and integrate data.</p>    
 
@@ -146,6 +146,8 @@ The alignment vocabulary has the following features:
  specified. Property values using different encoding or units can be
  aligned using transformations. The current version of Edoal only
  supports a limited kind of transformations. This will be improved soon.</li>
+ <li><b>Linkkeys</b> can be defined for expressing conditions under
+ which, instances of the aligned entities should be considered equivalent.</li>
 </ul>
 
 <div class="syntaxmenu">
@@ -177,7 +179,7 @@ The diagram below shows the vocabulary classes ???
 </p-->
 
 <p>
-While <i>Alignment</i> and <i>Cell</i> are described by the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a>, we will focus here on the remaining classes.</p>
+While <i>Alignment</i> and <i>Cell</i> are described by the <a href="format.html">alignment format</a>, we will focus here on the remaining classes.</p>
 
 <h3 id="ssec:namespaces">Namespaces</h3>
 <p>
@@ -236,7 +238,7 @@ exemplified in the code below.
 ...
 </div></div>
 
-<p>Details on each property are available on the <a href="http://alignapi.gforge.inria.fr/format.html">alignment format</a> page.</p>
+<p>Details on each property are available on the <a href="format.html">alignment format</a> page.</p>
 
 <p>An alignment contains a set of correspondences (<tt>Cell</tt>s). 
 Each cell can be linked to an alignment using the <tt>map</tt> property.
@@ -253,15 +255,32 @@ Each cell can be linked to an alignment using the <tt>map</tt> property.
       &lt;align:relation>=&lt;/align:relation>
       &lt;align:measure rdf:datatype="&amp;xsd;float">1.0&lt;/align:measure>
       &lt;<b>edoal:transformation</b>>...&lt;/<b>edoal:transformation</b>>
+      &lt;<b>edoal:linkkey</b>>...&lt;/<b>edoal:linkkey</b>>
     &lt;/align:Cell>
   &lt;/align:map>
 ...
 </div></div>
+A <tt>Cell</tt> can only have
+one <tt>entity1</tt>, <tt>entity2</tt>, <tt>relation</tt>
+and <tt>measure</tt> property, though it may have
+several <tt>transformation</tt> and <tt>linkkey</tt> properties.
 </p>
+<div class="grammar">
+<u>corresp</u> ::= &lt;Cell {rdf:about=" <u>URI</u> "} />
+               &lt;entity1> <u>entity</u> &lt;/entity1> 
+               &lt;entity2> <u>entity</u> &lt;/entity2> 
+               &lt;relation> <u>STRING</u> &lt;/relation> 
+               &lt;measure> <u>STRING</u> &lt;/measure> 
+               (&lt;transformation> <u>transformation</u> &lt;/transformation>)* 
+               (&lt;linkkey> <u>linkkey</u> &lt;/linkkey>)* 
+            &lt;/Cell>
+</div>
+
 <p>
 As the example shows, the EDOAL vocabulary only appears within the
-"entity" properties and very specificaly in the <tt>edoal:transformation</tt>
-property.
+"entity" properties and very specificaly in
+the <tt>edoal:transformation</tt> and <tt>edoal:linkkey</tt>
+properties.
 </p>
 <p>
 The correspondence between the two entities could have been expressed
@@ -310,6 +329,8 @@ EDOALCell extends BasicCell
 Value implements <i>ValueExpression</i>
 Apply implements <i>ValueExpression</i>
 Transformation
+Linkkey
+Corresp
 TransfService implements <i>Clonable</i>
 <a href="sec:patterns">Variable</a>
 Comparator
@@ -780,20 +801,15 @@ Transformations are expressed in the cell itself. Transformations do
 not express constraints on the classes or properties, but constraints
 on instances that should match.
 </p>
-
-<!-- JE: old stuff? -->
-<!--div class="grammar">
-<u>transformation</u> ::=  &lt;Transformation edoal:operator=" <u>URI</u> " edoal:direction=" <u>STRING</u> ">
-                        &lt;arguments rdf:parseType="Collection"> <u>value</u>* &lt;/arguments> 
-                    &lt;/Transformation>
-</div-->
+<p>
 <div class="grammar">
 <u>transformation</u> ::=  &lt;Transformation edoal:direction=" <u>STRING</u> ">
                         &lt;entity1> <u>entity</u> &lt;/entity1> 
                         &lt;entity2> <u>entity</u> &lt;/entity2> 
                     &lt;/Transformation>
+<i>with</i> <u>STRING</u> ::= 'o-' | '-o'
 </div>
-
+</p>
 <p>
 Transformations <!--are of two kinds, either XPath transformation functions can be used, or other transformation services -->can be invoked, for example for dynamic transformations like currency conversions (see <a href="#sec:examples">examples</a>).</p>
 
@@ -822,6 +838,79 @@ The following correspondence shows an example of the use of data transformation:
 	&lt;/transformation>
 </div></div>
 
+
+<h2 id="ssec:linkkeys">Linkkeys</h2>
+
+<p>
+Linkkeys which are a generalisation to several data
+sets of keys in relational databases.
+A linkkey is a statement such as:
+<center>
+( {&lang;<i>p</i><sub>1</sub>, <i>q</i><sub>1</sub>&rang;,... &lang;<i>p</i><sub><i>n</i></sub>,<i>q</i><sub><i>n</i></sub>&rang;} linkkey &lang;<i>c</i>, <i>d</i>&rang; )
+</center>
+stating that whatever an instance of the class <i>c</i> has the same
+values for
+properties <i>p</i><sub>1</sub>,... <i>p</i><sub><i>n</i></sub> as an
+instance of class <i>d</i> has for
+properties <i>q</i><sub>1</sub>,... <i>q</i><sub><i>n</i></sub>, then
+these two are the same entity.
+</p>
+<p>
+Such keys are slightly more complex than in databases because in RDF
+properties are not necessarily functional (they may have several
+values) and their values may be other objects. For this reason, it is
+necessary to indicate if it is required that all values must be the same
+(eq) or if some of them must be the same (in).
+</p>
+
+</p>
+<p>
+<div class="grammar">
+<u>linkkey</u> ::=  &lt;Linkkey {edoal:type=" <u>STRING</u> ">}
+               (&lt;binding> <u>bindspec</u> &lt;binding/>)*
+             &lt;/Linkkey>
+<i>with</i> <u>STRING</u> ::= 'weak' | 'plain' (default) | 'strong'
+
+<u>bindspec</u> ::=  &lt;Corresp edoal:type=" <u>STRING</u> ">
+                &lt;entity1> <u>entity</u> &lt;/entity1> 
+                &lt;entity2> <u>entity</u> &lt;/entity2> 
+              &lt;/Corresp>
+<i>with</i> <u>STRING</u> ::= 'in' | 'eq'
+</div>
+</p>
+<p>
+Linkkeys are primarily used for identifying identical objects.
+For instance, it may be that a instance of the <i>Livre</i> class is
+equivalent to an instance of the <i>Novel</i> class as soon as their
+properties <i>auteur</i> and <i>titre</i> on the one side
+and <i>creator</i> and <i>title</i> on the other side have the same values.
+This is expressed in the following example:
+<div class="rdfxmlDiv">
+The following correspondence shows an example of the use of data transformation:
+<div class="rdfxml">RDF/XML Syntax</div>
+<div class="rdfxml">
+	&lt;linkkey>
+	  &lt;Linkkey edoal:type="plain">
+	    &lt;binding>
+	      &lt;Corresp edoal:type="in">
+	        &lt;entity1>&lt;Relation rdf:about="auteur" />&lt;/entity1>
+	        &lt;entity2>&lt;Relation rdf:about="creator" />&lt;/entity2>
+	      &lt;/Corresp>
+	    &lt;/binding>
+	    &lt;binding>
+	      &lt;Corresp edoal:type="eq">
+	        &lt;entity1>&lt;Property rdf:about="titre" />&lt;/entity1>
+	        &lt;entity2>&lt;Property rdf:about="title" />&lt;/entity2>
+	      &lt;/Corresp>
+	    &lt;/binding>
+	  &lt;/Linkkey>
+	&lt;/linkkey>
+</div></div>
+</p>
+<p>
+It is then possible to identify duplicates or to
+generate <tt>owl:sameAs</tt> links.
+</p>
 
 <h2 id="sec:examples">Longer examples</h2>
 
@@ -1499,6 +1588,56 @@ the EDOAL API requires complete knowledge of the alignment.
 </div>
 
 <div class="vocab">
+<h3>Class: <a name="Linkkey">Linkkey</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Linkkey">http://ns.inria.org/edoal/1.0/#Linkkey</a></dd>
+<!--dt>superclasses</dt><dd><a href="#Value">Value</a></dd-->
+<dt>properties</dt><dd><a href="#type">type</a>, <a href="#binding">binding</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Relation: <a name="binding">binding</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#binding">http://ns.inria.org/edoal/1.0/#binding</a></dd>
+<!--dt>superclasses</dt><dd><a href="#Value">Value</a></dd-->
+<dt>domain</dt><dd><a href="#Linkkey">Linkkey</a></dd>
+<dt>range</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Class: <a name="Corresp">Corresp</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#Corresp">http://ns.inria.org/edoal/1.0/#Corresp</a></dd>
+<dt>properties</dt><dd><a href="#type">type</a>, <a href="#entity1">entity1</a>, <a href="#entity2">entity2</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Relation: <a name="entity1">entity1</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#entity1">http://ns.inria.org/edoal/1.0/#entity1</a></dd>
+<dt>domain</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Relation: <a name="entity2">entity2</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#entity1">http://ns.inria.org/edoal/1.0/#entity2</a></dd>
+<dt>domain</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
 <h3>Class: <a name="Comparator">Comparator</a></h3>
 <dl>
 <dt>URI</dt><dd><a href="#Comparator">http://ns.inria.org/edoal/1.0/#Comparator</a></dd>
@@ -1512,11 +1651,14 @@ the EDOAL API requires complete knowledge of the alignment.
 </dl>
 </div>
 
+<p>
+Not yet declared:
 <div class="vocab">
 Transformation
 TransfService implements <i>Clonable</i>
 <a href="sec:patterns">Variable</a>
 </pre></div>
+</p>
 
 <h2>History</h2>
 
@@ -1538,6 +1680,12 @@ manipulated through the Alignment API tools (starting version 3.1).
 It has now been redesigned and reimplemented under the name of
 EDOAL. It is a plain component of the Alignment API and is maintained
 together with it.
+</p>
+<p>
+The linkkey idea has been promoted by J&eacute;r&ocirc;me Euzenat,
+further refined with J&eacute;r&ocirc;me David and Manuel Atencia
+and finally implemented in the Alignment API (version 4.7) by Nicolas
+Guillouet.
 </p>
 
 <h2>Thanks</h2>
