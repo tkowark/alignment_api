@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008, 2010, 2012
+ * Copyright (C) INRIA, 2007-2008, 2010, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -919,9 +919,9 @@ public class WSInterface {
 	            if (in != null) in.close();
 	            answer = strBuff.toString();
 	            
-	            if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
+	            if( HttpURLConnection.HTTP_REQ_TOO_LONG == httpConn.getResponseCode() ) System.err.println("Request too long");
 	            
-	            //if(httpConn.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
+	            //if(HttpURLConnection.HTTP_OK == httpConn.getResponseCode()) System.out.println("Request OK");
 	        	
 	        } catch  (Exception ex) {
 	        	connected= false; ex.printStackTrace() ; return null;

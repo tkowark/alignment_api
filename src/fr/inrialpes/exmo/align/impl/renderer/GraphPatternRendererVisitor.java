@@ -124,7 +124,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         objectsRestriction = new HashSet<String>();
         prefixList = new Hashtable<String, String>();
         prefixList.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf");
-        queries = new LinkedHashMap();
+        queries = new LinkedHashMap<Object, List<String>>();
     }
 
     
@@ -250,7 +250,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     public void saveQuery(Object referer, String query) {
         //Query is stored in memory
         if(!queries.containsKey(referer)){
-            queries.put(referer, new LinkedList());
+            queries.put(referer, new LinkedList<String>());
         }
         queries.get(referer).add(query);
         query = cleanQuery(query, null);

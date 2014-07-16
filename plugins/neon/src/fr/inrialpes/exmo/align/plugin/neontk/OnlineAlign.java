@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -316,7 +316,7 @@ public class OnlineAlign {
 		    answer += line + "\n";
 		}
 		if (in != null) in.close();
-		if(httpConn.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
+		if( HttpURLConnection.HTTP_REQ_TOO_LONG == httpConn.getResponseCode()) System.err.println("Request too long");
 	    }
 	} catch  (Exception ex) {
 	    //connected= false; 

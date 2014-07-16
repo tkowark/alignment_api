@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -175,11 +175,11 @@ public class AlignView extends ViewPart implements SelectionListener, Listener {
 	IPath location = root.getLocation();
 	String  path = location.toOSString();
 		     
-	//ontoFolder = new File(path + location.SEPARATOR + "onto");
-	ontoFolder = new File(path + location.SEPARATOR + "align");
+	//ontoFolder = new File(path + IPath.SEPARATOR + "onto");
+	ontoFolder = new File(path + IPath.SEPARATOR + "align");
 	if (!ontoFolder.exists()) ontoFolder.mkdir();
 
-	alignFolder = new File(path + location.SEPARATOR + "align");
+	alignFolder = new File(path + IPath.SEPARATOR + "align");
 	if (!alignFolder.exists()) alignFolder.mkdir();
 		    
 	offlineInit( true );
