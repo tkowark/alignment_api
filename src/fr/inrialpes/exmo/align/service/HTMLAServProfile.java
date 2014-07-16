@@ -268,9 +268,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     	    msg += "<input type=\"submit\" value=\"Load\"></form>";
     	    msg += "Ontology network file: <form enctype=\"multipart/form-data\" action=\"loadonet\" method=\"POST\">";
     	    msg += "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
-    	    msg += "<input name=\"content\" type=\"file\" size=\"35\"><br />";
+    	    msg += "<input name=\"content\" type=\"file\" value=\"\" size=\"35\"/><br />"; // size=\"35\" ??
     	    msg += "Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
-    	    msg += "<input type=\"submit\" Value=\"Upload\">";
+    	    msg += "<input type=\"submit\" Value=\"Upload\"/>";
     	    msg +=  " </form>";
     	    
         } else if ( perf.equals("loadonet") ) {

@@ -278,7 +278,6 @@ public class AServProtocolManager implements Service {
     // DONE
     // Implements: store (different from store below)
     public Message load( Properties params ) {
-	boolean todiscard = false;
 	// load the alignment
 	String name = params.getProperty("url");
 	String file = null;
@@ -305,8 +304,13 @@ public class AServProtocolManager implements Service {
 	// register it
 	String id = alignmentCache.recordNewAlignment( al, true );
 	// if the file has been uploaded: discard it
-	if ( al != null ) {
-	    // try unlink
+	if ( params.getProperty("todiscard") != null ) {
+	    try {
+		File f = new File( name );
+		f.delete();
+	    } catch ( Exception ex ) {
+		logger.debug( "IGNORED EXCEPTION : {}", ex );
+	    }
 	}
 	return new AlignmentId( params, newId(), serverId, id ,pretty );
     }

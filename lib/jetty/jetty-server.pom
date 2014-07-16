@@ -5,9 +5,9 @@
     <version>9.1.4.v20140401</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jetty-util</artifactId>
-  <name>Jetty :: Utilities</name>
-  <description>Utility classes for Jetty</description>
+  <artifactId>jetty-server</artifactId>
+  <name>Jetty :: Server Core</name>
+  <description>The core jetty server artifact.</description>
   <url>http://www.eclipse.org/jetty</url>
   <!-- Extended from included pom.xml -->
   <packaging>jar</packaging>
@@ -21,8 +21,9 @@
       <url>http://www.eclipse.org/legal/epl-v10.html</url>
     </license>
   </licenses>
+
   <properties>
-    <bundle-symbolic-name>${project.groupId}.util</bundle-symbolic-name>
+    <bundle-symbolic-name>${project.groupId}.server</bundle-symbolic-name>
   </properties>
   <build>
     <plugins>
@@ -32,23 +33,36 @@
         <extensions>true</extensions>
         <executions>
           <execution>
+            <id>generate-manifest</id>
             <goals>
               <goal>manifest</goal>
             </goals>
             <configuration>
               <instructions>
-                <Import-Package>javax.servlet.*;version="[2.6.0,3.2)",org.slf4j;version="[1.5,2.0)";resolution:=optional,org.slf4j.impl;version="[1.5,2.0)";resolution:=optional,*</Import-Package>
+                <Import-Package>javax.servlet.*;version="[2.6.0,3.2)",org.eclipse.jetty.jmx.*;version="9.1";resolution:=optional,*</Import-Package>
+                <_nouses>true</_nouses>
               </instructions>
             </configuration>
-           </execution>
+          </execution>
         </executions>
       </plugin>
       <plugin>
-        <!--
-        Required for OSGI
-        -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>artifact-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>test-jar</id>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -76,38 +90,51 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <configuration>
-          <onlyAnalyze>org.eclipse.jetty.util.*</onlyAnalyze>
+          <onlyAnalyze>org.eclipse.jetty.server.*</onlyAnalyze>
         </configuration>
       </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.jetty.toolchain</groupId>
       <artifactId>jetty-test-helper</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+<!--
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet</artifactId>
+-->
     </dependency>
-    <!--
-      This dependency is used to test Slf4jLog.
-      Due to the introduction of src/test/resource/jetty-logging.properties (and the Log.static{} block)
-      the default Log implementation is still StdErrLog during testing. 
-     -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j-version}</version>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-http</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-io</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-xml</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jmx</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+      </dependency>
   </dependencies>
 </project>

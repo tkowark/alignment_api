@@ -24,51 +24,34 @@ import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.Hashtable;
 import java.util.Vector;
+import java.util.List;
 import java.util.Properties;
-import java.util.Collection;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.Socket;
-import java.net.ServerSocket;
-import java.net.URLEncoder;
 import java.net.URLDecoder;
 
 import java.lang.Integer;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletResponseWrapper;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.handler.AbstractHandler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.Request;
-import org.mortbay.servlet.MultiPartFilter;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Request;
+
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,14 +113,18 @@ public class HTTPTransport {
 	// The handler deals with the request
 	// most of its work is to deal with large content sent in specific ways 
 	Handler handler = new AbstractHandler(){
-		public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch ) throws IOException, ServletException {
+		public void handle( String String, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		// This was the required header for Jetty version 6
+		//public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch ) throws IOException, ServletException {
 		    String method = request.getMethod();
 		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
 		    // Should be decoded?
 		    String uri = request.getPathInfo();
 		    Properties params = new Properties();
 		    try { decodeParams( request.getQueryString(), params ); }
-		    catch ( Exception e) {};
+		    catch ( Exception ex) {
+			logger.debug( "IGNORED EXCEPTION: {}", ex );
+		    };
 		    // I do not decode them here because it is useless
 		    // See below how it is done.
 		    Properties header = new Properties();
@@ -154,25 +141,51 @@ public class HTTPTransport {
 		    // with the text/xml part stored in a file as well.
 		    String mimetype = request.getContentType();
 		    // Multi part: the content provided by an upload HTML form
+		    // This code is also in the MultiPartFilter
 		    if ( mimetype != null && mimetype.startsWith("multipart/form-data") ) {
-			MultiPartFilter filter = new MultiPartFilter();
-			// This is in fact useless
-			ParameterServletResponseWrapper dummyResponse =
-			    new ParameterServletResponseWrapper( response );
-			// In theory, the filter must be inited with a FilterConfig
-			// filter.init( new FilterConfig);
-			// This filter config must have a javax.servlet.context.tempdir attribute
-			// and a ServletConxtext with parameter "deleteFiles"
-			// Apparently the Jetty implementation uses System defaults
-			// if no FilterConfig
-			// e.g., it uses /tmp and keeps the files
-			filter.doFilter( request, dummyResponse, new Chain() );
-			// Apparently a bug from Jetty prevents from retrieving this
-			if ( request.getParameter("pretty") != null )
-			    params.setProperty( "pretty", request.getParameter("pretty").toString() );
-			if ( request.getAttribute("content") != null )
-			    params.setProperty( "filename", request.getAttribute("content").toString() );
-			filter.destroy();
+			logger.info( "********************************************************************");
+			try {
+			    if ( !ServletFileUpload.isMultipartContent( request ) ) {
+				logger.debug( "Does not detect multipart" );
+			    }
+			    // Man... fileupload...
+			    DiskFileItemFactory factory = new DiskFileItemFactory();
+			    //			    File repository = File.createTempFile( "testfileupload", null );
+			    File repository = new File( "/tmp" );
+			    factory.setRepository( repository );
+			    ServletFileUpload upload = new ServletFileUpload(factory);
+			    List<FileItem> items = upload.parseRequest(request);
+			    for( FileItem fi : items ) {
+				if ( fi.isFormField() ) {
+				    logger.trace( "  >> {} = {}", fi.getFieldName(), fi.getString() );
+				    params.setProperty( fi.getFieldName(), fi.getString() );
+				} else {
+				    logger.trace( "  >> {} : {}", fi.getName(), fi.getSize() );
+				    logger.trace( "  Stored at {}", fi.getName(), fi.getSize() );
+				    // This is a temoporary solution
+				    // NOTE: This getName() won't work with internet explorer... create a new file name...
+				    try {
+					File uploadedFile = new File( "/tmp/"+fi.getName() );
+					fi.write( uploadedFile );
+					params.setProperty( "filename", uploadedFile.toString() );
+					params.setProperty( "todiscard", "true" );
+				    } catch ( Exception ex ) {
+					logger.warn( "Cannot load file", ex );
+				    }
+				    // Another solution is to run this in 
+				    /*
+				      InputStream uploadedStream = item.getInputStream();
+				      ...
+				      uploadedStream.close();
+				    */
+				}
+			    };
+			} catch ( FileUploadException fuex ) {
+			    logger.trace( "Upload Error", fuex );
+			} catch ( NullPointerException npex ) {
+			    logger.trace( "NPE Error", npex );
+			}
+			logger.info( "********************************************************************");
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
 			// Most likely Web service request (REST through POST)
 			int length = request.getContentLength();
@@ -209,7 +222,7 @@ public class HTTPTransport {
                		is.close();
 			params.setProperty( "content", "" );
 			params.setProperty( "filename" ,  alignFile.getAbsolutePath()  );
-         	    } 
+         	    }
 
 		    // Get the answer (HTTP)
 		    HTTPResponse r = serve( uri, method, header, params );
@@ -406,36 +419,11 @@ public class HTTPTransport {
 		    p.put( URLDecoder.decode( next.substring( 0, sep ), "iso-8859-1" ).trim(),
 			   // JE: URLDecoder allows for : and / but not #
 			   URLDecoder.decode( next.substring( sep+1 ), "iso-8859-1" ));
-		} catch (Exception e) {}; //never thrown
+		} catch ( Exception ex ) { //never thrown
+		    logger.debug( "IGNORED (SHOULD NEVER BEEN TROWN: {}", ex );
+		};
 	    }
 	}
     }
-    /**
-     * Two private cclasses for retrieving parameters
-     */
-    private class ParameterServletResponseWrapper extends ServletResponseWrapper  {
-	private Map parameters;
-
-	public ParameterServletResponseWrapper( ServletResponse r ){
-	    super(r);
-	};
-
-	public Map getParameterMap(){ return parameters; }
- 
-	public void setParameterMap( Map m ){ parameters = m; }
- 
-     }
-
-    private class Chain implements FilterChain {
- 
-	public void doFilter( ServletRequest request, ServletResponse response)
-	    throws IOException, ServletException {
-	    if ( response instanceof ParameterServletResponseWrapper &&
-		 request instanceof ServletRequestWrapper ) {
-		((ParameterServletResponseWrapper)response).setParameterMap( ((ServletRequestWrapper)request).getParameterMap() );
-	    }
-         }
- 
-     }
 }
 

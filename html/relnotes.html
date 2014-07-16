@@ -52,7 +52,6 @@ The development of 4 versions continues.
 <li>Genericize evaluators in <tt>GraphEvaluator</tt> and <tt>GenPlot</tt> (eval)</li>
 <li>Replace <tt>DistanceAlignment</tt> and <tt>Similarity</tt> with a version more in line with <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl)</tt>
 <li>Implement transformations in EDOAL (edoal)</li>
-<li>Implement linkkeys in EDOAL (edoal)</li>
 <li>Improve HTML interface layout and usability (serv)</li>
 <li>Implement correspondence selection (serv)</li>
 <li>Automatically switch to correct <tt>ontowrap</tt> implementation in parsers (parser)</li>
@@ -69,6 +68,8 @@ with a warning:
 
 <h2>Current SVN trunk version</h2>
 
+<p>The Alignment API is now compiled in Java 1.7.</p>
+
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
 <!--h2>Version 4.7 (19xx): ??/0?/2014 - Letraset</h2-->
@@ -78,6 +79,7 @@ with a warning:
 <li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
 <li>Fixed a few mistakes in <tt>SilkRendererVisitor</tt> (impl)</li>
 <li>Fixed several bugs in <tt>GraphPatternRendererVisitor</tt> (impl)</li>
+<li>Implemented linkkeys in EDOAL (edoal)</li>
 <li>Implemented <tt>translateMessage()</tt> and <tt>rewriteQuery()</tt> in <tt>BasicAlignment</tt> (impl)</li>
 <li>Reorganised AlignmentServices into transport (HTTP) and service (HTML/Web service) (serv)</li>
 <li>Enabled query translation in interface (serv)</li>
@@ -90,6 +92,9 @@ with a warning:
 <li>Added algebraic manipulation of <tt>BasicOntologyNetwork</tt> (impl)</li>
 <li>Added storage support for networks of ontologies (serv)</li>
 <li>Genericised storage <tt>Cache</tt> and implemented <tt>VolatilCache</tt> which contains a full Cache implementation without storage (serv)</li>
+<li>Managed alignment upload via <span style="color: green">Commons fileupload 1.3.1</span> and <span style="color: green">io 2.4</span> instead of Jetty (lib)</li>
+<li>Upgraded to <span style="color: green">Servlet API 3.1</span> (lib)</li>
+<li>Upgraded to <span style="color: green">Jetty 9.1.4</span> (lib)</li>
 </ul></p>
 
 <h2>Version 4.6 (1875): 22/01/2014 - Da lec'h all</h2>

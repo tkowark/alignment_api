@@ -9,17 +9,17 @@
 
 <h1 class="titre">Setting up an Alignment Server</h1>
 
-<p>An extensive presentation of the alignment API can be
+<p>An extensive presentation of the Alignment API can be
   found at <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a>. We also have
   an on-line <a href="tutorial/tutorial1/server.html">tutorial</a> on
   using it through the server.</p>
 
 <h2>Requirements</h2>
 
-<p>Using the alignment server requires an SQL database server.
+<p>Using the Alignment server requires an SQL database server.
 We see here how to use <a href="http://dev.mysql.com/doc/refman">mysql</a> or Postgres.</p>
 
-<h3>Creating the MySQL database</h3>
+<h3>Creating the database for MySQL</h3>
 
 <p>
 In order to use the Alignment server, it is necessary to create its database. This can simply be done by the following shell instructions:
@@ -45,7 +45,7 @@ database name. This can be achieved either:
 </ul>
 </p>
 
-<h3>Creating the Postgres database</h3>
+<h3>Creating the database for Postgres</h3>
 
 <p>
 Tentative by JE:
@@ -76,7 +76,7 @@ Running the Alignment server is achieved through (use the corresponding options)
 <div class="terminal">
 $ java -jar lib/alignsvc.jar -H
 </div>
-The alignment server is then available through HTTP with:
+The Alignment server is then available through HTTP with:
 <center>
     	      http://localhost:8089/html/
 </center>
@@ -150,7 +150,7 @@ in the command line.
 <h3>Launching the server with Oyster registery (legacy)</h3>
 
 <p>
-The alignment API is already compiled with Oyster support. However, it is not ready to be launched. The instructions to do so are:
+The Alignment API is already compiled with Oyster support. However, it is not ready to be launched. The instructions to do so are:
 <ol>
 <li>get the Oyster2 package from http://ontoware.org/projects/oyster2</li>
 <li>copy the four libraries in lib/ (or at least in the classpath)</li>
@@ -172,7 +172,7 @@ $ java -jar lib/alignsvc.jar -O -d4
 
 <h2>Ports used by the Alignment Server (by default)</h2>
 
-<p>The alignment server is a communicating system that communicates through
+<p>The Alignment server is a communicating system that communicates through
 TCP sockets which are bound to ports on your machines. We provide here the
 list of default ports and options to change them as well as the necessity
 for the firewalls to open these ports:
@@ -200,12 +200,11 @@ Both Jade and Oyster/Kaon2 use rmi connection and the default 1099 port.
 Moreover, concerning Oyster, this port must be open to the outside.
 </p>
 
-
 <h2>Configuring an Apache frontend</h2>
 
 <p>
 It may be convenient to provide access to a server through an Apache
-server proxy. For that purpose...
+server proxy. For that purpose some tweaking is necessary:
 <div class="terminal">
 $ a2dissite default
 $ a2dissite default-ssl
