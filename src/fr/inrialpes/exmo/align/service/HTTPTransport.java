@@ -52,6 +52,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.io.FilenameUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,22 +91,6 @@ public class HTTPTransport {
 	tcpPort = Integer.parseInt( params.getProperty( "http" ) );
 	tcpHost = params.getProperty( "host" ) ;
 
-	/*
-	try {
-	    final ServerSocket ss = new ServerSocket( tcpPort );
-	    Thread t = new Thread( new Runnable() {
-		    public void run() {
-			try { while( true ) new HTTPSession( ss.accept());
-			} catch ( IOException ioe ) { logger.debug( "IGNORED Exception", ioe ); }
-		    }
-		});
-	    t.setDaemon( true );
-	    t.start();
-	} catch (Exception e) {
-	    throw new AServException ( "Cannot launch HTTP Server" , e );
-	}
-	*/
-
 	// ********************************************************************
 	// JE: Jetty implementation
 	server = new Server(tcpPort);
@@ -114,11 +99,7 @@ public class HTTPTransport {
 	// most of its work is to deal with large content sent in specific ways 
 	Handler handler = new AbstractHandler(){
 		public void handle( String String, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		// This was the required header for Jetty version 6
-		//public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch ) throws IOException, ServletException {
 		    String method = request.getMethod();
-		    //uri = URLDecoder.decode( request.getURI(), "iso-8859-1" );
-		    // Should be decoded?
 		    String uri = request.getPathInfo();
 		    Properties params = new Properties();
 		    try { decodeParams( request.getQueryString(), params ); }
@@ -136,23 +117,18 @@ public class HTTPTransport {
 
 		    // Get the content if any
 		    // This is supposed to be only an uploaded file
-		    // We use jetty MultiPartFilter to decode this file.
 		    // Note that this could be made more uniform 
 		    // with the text/xml part stored in a file as well.
 		    String mimetype = request.getContentType();
 		    // Multi part: the content provided by an upload HTML form
-		    // This code is also in the MultiPartFilter
 		    if ( mimetype != null && mimetype.startsWith("multipart/form-data") ) {
-			logger.info( "********************************************************************");
 			try {
-			    if ( !ServletFileUpload.isMultipartContent( request ) ) {
-				logger.debug( "Does not detect multipart" );
-			    }
-			    // Man... fileupload...
+			    //if ( !ServletFileUpload.isMultipartContent( request ) ) {
+			    //	logger.debug( "Does not detect multipart" );
+			    //}
 			    DiskFileItemFactory factory = new DiskFileItemFactory();
-			    //			    File repository = File.createTempFile( "testfileupload", null );
-			    File repository = new File( "/tmp" );
-			    factory.setRepository( repository );
+			    File tempDir = new File( System.getProperty("java.io.tmpdir") );
+			    factory.setRepository( tempDir );
 			    ServletFileUpload upload = new ServletFileUpload(factory);
 			    List<FileItem> items = upload.parseRequest(request);
 			    for( FileItem fi : items ) {
@@ -162,10 +138,9 @@ public class HTTPTransport {
 				} else {
 				    logger.trace( "  >> {} : {}", fi.getName(), fi.getSize() );
 				    logger.trace( "  Stored at {}", fi.getName(), fi.getSize() );
-				    // This is a temoporary solution
-				    // NOTE: This getName() won't work with internet explorer... create a new file name...
 				    try {
-					File uploadedFile = new File( "/tmp/"+fi.getName() );
+					// FilenameUtils.getName() needed for Internet Explorer problem
+					File uploadedFile = new File( tempDir, FilenameUtils.getName( fi.getName() ) );
 					fi.write( uploadedFile );
 					params.setProperty( "filename", uploadedFile.toString() );
 					params.setProperty( "todiscard", "true" );
@@ -182,10 +157,7 @@ public class HTTPTransport {
 			    };
 			} catch ( FileUploadException fuex ) {
 			    logger.trace( "Upload Error", fuex );
-			} catch ( NullPointerException npex ) {
-			    logger.trace( "NPE Error", npex );
 			}
-			logger.info( "********************************************************************");
 		    } else if ( mimetype != null && mimetype.startsWith("text/xml") ) {
 			// Most likely Web service request (REST through POST)
 			int length = request.getContentLength();
