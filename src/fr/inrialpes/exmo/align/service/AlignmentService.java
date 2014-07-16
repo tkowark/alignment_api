@@ -163,7 +163,7 @@ public class AlignmentService extends CommonCLI {
 	    connection.init();
 	    connection.connect( DBHOST, DBPORT, DBUSER, DBPASS, DBBASE );
 	} catch ( Exception ex ) {
-	    logger.error( ex.getMessage() );
+	    logger.error( "Cannot connect to database : {}", ex.getMessage() );
 	    System.exit(-1);
 	}
 
