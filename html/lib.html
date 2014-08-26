@@ -7,7 +7,7 @@
 </head>
 <body bgcolor="#ffffff">
 
-<h1 class="titre">Alignment API: Libraries shipped with the package (release 4.6)</h1>
+<h1 class="titre">Alignment API: Libraries shipped with the package (release 4.7)</h1>
 
 <p>The Alignment API uses a number of external libraries. These libraries
 are shipped (in the lib directory) with the Alignment API. Each
@@ -111,7 +111,7 @@ and this will compile again.
   necessary for executing parts of the Alignment API which need the
   OWL API.</dd>
 <dt>Jena</dt>
-<dd>is also an option.</dd>
+<dd>is also an option. Required for parsing RDF files and in particular EDOAL alignments.</dd>
 </dl>
 
 <h2>Required for the Alignment server (alignsvc)</h2>
@@ -128,12 +128,12 @@ and this will compile again.
   servlet-api.jar
   [<a href="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html">CDDL + GPLv2 with classpath exception</a>]</dt>
 <dd>Required and shipped with Jetty. This is part of Java 2 Enterprise Edition</dd>
-<dt><a href="http://commons.apache.org/proper/commons-fileupload/">Commons
+<dt>Apache <a href="http://commons.apache.org/proper/commons-fileupload/">Commons
   fileupload</a> 1.3.1
   and <a href="http://commons.apache.org/proper/commons-io/">Commons IO</a> 2.4:
   commons-fileupload.jar, commons-io.jar
    [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
-<dd>Required and shipped with Jetty. This is part of Java 2 Enterprise Edition</dd>
+<dd>Required for uploading alignments and networks to the server.</dd>
 <dt><a href="http://commons.apache.org/proper/commons-lang/">Apache Commons Lang</a> 3.3: commons-lang3.jar
     [<a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache</a>]</dt>
 <dd>Required for escaping strings for various formats (XML, JSON)</dd>
