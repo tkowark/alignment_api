@@ -330,7 +330,8 @@ Value implements <i>ValueExpression</i>
 Apply implements <i>ValueExpression</i>
 Transformation
 Linkkey
-Corresp
+Equals
+Includes
 TransfService implements <i>Clonable</i>
 <a href="sec:patterns">Variable</a>
 Comparator
@@ -846,13 +847,15 @@ Linkkeys which are a generalisation to several data
 sets of keys in relational databases.
 A linkkey is a statement such as:
 <center>
-( {&lang;<i>p</i><sub>1</sub>, <i>q</i><sub>1</sub>&rang;,... &lang;<i>p</i><sub><i>n</i></sub>,<i>q</i><sub><i>n</i></sub>&rang;} linkkey &lang;<i>c</i>, <i>d</i>&rang; )
+( {&lang;<i>p</i><sub>1</sub>, <i>q</i><sub>1</sub>&rang;,... &lang;<i>p</i><sub><i>n</i></sub>,<i>q</i><sub><i>n</i></sub>&rang;}{&lang;<i>p'</i><sub>1</sub>, <i>q'</i><sub>1</sub>&rang;,... &lang;<i>p'</i><sub><i>m</i></sub>,<i>q'</i><sub><i>m</i></sub>&rang;} linkkey &lang;<i>c</i>, <i>d</i>&rang; )
 </center>
 stating that whatever an instance of the class <i>c</i> has the same
 values for
 properties <i>p</i><sub>1</sub>,... <i>p</i><sub><i>n</i></sub> as an
 instance of class <i>d</i> has for
-properties <i>q</i><sub>1</sub>,... <i>q</i><sub><i>n</i></sub>, then
+properties <i>q</i><sub>1</sub>,... <i>q</i><sub><i>n</i></sub> and
+that their values for respectively <i>p'</i><sub>1</sub>,... <i>p'</i><sub><i>m</i></sub>
+and <i>q'</i><sub>1</sub>,... <i>q'</i><sub><i>m</i></sub> instersect pairwise, then
 these two are the same entity.
 </p>
 <p>
@@ -860,22 +863,24 @@ Such keys are slightly more complex than in databases because in RDF
 properties are not necessarily functional (they may have several
 values) and their values may be other objects. For this reason, it is
 necessary to indicate if it is required that all values must be the same
-(eq) or if some of them must be the same (in).
+(Equals) or if some of them must instersect (Intersects).
 </p>
 
 </p>
 <p>
 <div class="grammar">
-<u>linkkey</u> ::=  &lt;Linkkey {edoal:type=" <u>STRING</u> ">}
+<u>linkkey</u> ::=  &lt;Linkkey>
                (&lt;binding> <u>bindspec</u> &lt;binding/>)*
              &lt;/Linkkey>
-<i>with</i> <u>STRING</u> ::= 'weak' | 'plain' (default) | 'strong'
 
-<u>bindspec</u> ::=  &lt;Corresp edoal:type=" <u>STRING</u> ">
-                &lt;entity1> <u>entity</u> &lt;/entity1> 
-                &lt;entity2> <u>entity</u> &lt;/entity2> 
-              &lt;/Corresp>
-<i>with</i> <u>STRING</u> ::= 'in' | 'eq'
+<u>bindspec</u> ::=  &lt;Equals>
+                &lt;property1> <u>attexpr</u> &lt;/property1> 
+                &lt;property2> <u>attexpr</u> &lt;/property2> 
+              &lt;/Equals>
+            | &lt;Intersects>
+                &lt;property1> <u>attexpr</u> &lt;/property1> 
+                &lt;property2> <u>attexpr</u> &lt;/property2> 
+              &lt;/Intersects>
 </div>
 </p>
 <p>
@@ -886,25 +891,30 @@ properties <i>auteur</i> and <i>titre</i> on the one side
 and <i>creator</i> and <i>title</i> on the other side have the same values.
 This is expressed in the following example:
 <div class="rdfxmlDiv">
-The following correspondence shows an example of the use of data transformation:
 <div class="rdfxml">RDF/XML Syntax</div>
 <div class="rdfxml">
-	&lt;linkkey>
-	  &lt;Linkkey edoal:type="plain">
-	    &lt;binding>
-	      &lt;Corresp edoal:type="in">
-	        &lt;entity1>&lt;Relation rdf:about="auteur" />&lt;/entity1>
-	        &lt;entity2>&lt;Relation rdf:about="creator" />&lt;/entity2>
-	      &lt;/Corresp>
-	    &lt;/binding>
-	    &lt;binding>
-	      &lt;Corresp edoal:type="eq">
-	        &lt;entity1>&lt;Property rdf:about="titre" />&lt;/entity1>
-	        &lt;entity2>&lt;Property rdf:about="title" />&lt;/entity2>
-	      &lt;/Corresp>
-	    &lt;/binding>
-	  &lt;/Linkkey>
-	&lt;/linkkey>
+&lt;align:Cell rdf:about="#cell-with-linkkey">
+  &lt;align:entity1>&lt;Class rdf:about="Livre" />&lt;/align:entity1>
+  &lt;align:entity2>&lt;Class rdf:about="Novel" />&lt;/align:entity2>
+  &lt;align:relation>=&lt;/align:relation>
+  &lt;linkkey>
+    &lt;Linkkey>
+      &lt;lk:type>plain&lt;/lk:type>
+      &lt;binding>
+        &lt;Intersects>
+          &lt;property1>&lt;Relation rdf:about="auteur" />&lt;/property1>
+	  &lt;property2>&lt;Relation rdf:about="creator" />&lt;/property2>
+	&lt;/Intersects>
+      &lt;/binding>
+      &lt;binding>
+        &lt;Equals>
+          &lt;property1>&lt;Property rdf:about="titre" />&lt;/property1>
+          &lt;property2>&lt;Property rdf:about="title" />&lt;/property2>
+        &lt;/Equals>
+      &lt;/binding>
+    &lt;/Linkkey>
+  &lt;/linkkey>
+&lt;/align:Cell>
 </div></div>
 </p>
 <p>
@@ -1592,7 +1602,7 @@ the EDOAL API requires complete knowledge of the alignment.
 <dl>
 <dt>URI</dt><dd><a href="#Linkkey">http://ns.inria.org/edoal/1.0/#Linkkey</a></dd>
 <!--dt>superclasses</dt><dd><a href="#Value">Value</a></dd-->
-<dt>properties</dt><dd><a href="#type">type</a>, <a href="#binding">binding</a></dd>
+<dt>properties</dt><dd><a href="#binding">binding</a></dd>
 <dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
 </dl>
 </div>
@@ -1603,35 +1613,44 @@ the EDOAL API requires complete knowledge of the alignment.
 <dt>URI</dt><dd><a href="#binding">http://ns.inria.org/edoal/1.0/#binding</a></dd>
 <!--dt>superclasses</dt><dd><a href="#Value">Value</a></dd-->
 <dt>domain</dt><dd><a href="#Linkkey">Linkkey</a></dd>
-<dt>range</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>range</dt><dd><a href="#Equals">Equals</a>, <a href="#Intersects">Intersects</a></dd>
 <dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
 </dl>
 </div>
 
 <div class="vocab">
-<h3>Class: <a name="Corresp">Corresp</a></h3>
+<h3>Class: <a name="Equals">Equals</a></h3>
 <dl>
-<dt>URI</dt><dd><a href="#Corresp">http://ns.inria.org/edoal/1.0/#Corresp</a></dd>
-<dt>properties</dt><dd><a href="#type">type</a>, <a href="#entity1">entity1</a>, <a href="#entity2">entity2</a></dd>
+<dt>URI</dt><dd><a href="#Equals">http://ns.inria.org/edoal/1.0/#Equals</a></dd>
+<dt>properties</dt><dd><a href="#property1">property1</a>, <a href="#property2">property2</a></dd>
 <dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
 </dl>
 </div>
 
 <div class="vocab">
-<h3>Relation: <a name="entity1">entity1</a></h3>
+<h3>Class: <a name="Intersects">Intersects</a></h3>
 <dl>
-<dt>URI</dt><dd><a href="#entity1">http://ns.inria.org/edoal/1.0/#entity1</a></dd>
-<dt>domain</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>URI</dt><dd><a href="#Intersects">http://ns.inria.org/edoal/1.0/#Intersects</a></dd>
+<dt>properties</dt><dd><a href="#property1">property1</a>, <a href="#property2">property2</a></dd>
+<dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
+</dl>
+</div>
+
+<div class="vocab">
+<h3>Relation: <a name="property1">property1</a></h3>
+<dl>
+<dt>URI</dt><dd><a href="#property1">http://ns.inria.org/edoal/1.0/#property1</a></dd>
+<dt>domain</dt><dd><a href="#Equals">Equals</a>, <a href="#Intersects">Intersects</a></dd>
 <dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
 <dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
 </dl>
 </div>
 
 <div class="vocab">
-<h3>Relation: <a name="entity2">entity2</a></h3>
+<h3>Relation: <a name="property2">property2</a></h3>
 <dl>
-<dt>URI</dt><dd><a href="#entity1">http://ns.inria.org/edoal/1.0/#entity2</a></dd>
-<dt>domain</dt><dd><a href="#Corresp">Corresp</a></dd>
+<dt>URI</dt><dd><a href="#property2">http://ns.inria.org/edoal/1.0/#property2</a></dd>
+<dt>domain</dt><dd><a href="#Equals">Equals</a>, <a href="#Intersects">Intersects</a></dd>
 <dt>range</dt><dd><a href="#Attribute">Attribute</a></dd>
 <dt>see also</dt><dd><a href="#ssec:linkkeys">Linkkey section</a></dd>
 </dl>
