@@ -69,6 +69,9 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
+import java.util.Collection;
 
 /**
  * Renders an alignment in JSON (and in fact in JSON-LD) IETF RFC 7159 +
@@ -311,12 +314,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
                 writer.print("," + NL);
                 indentedOutput("\"" + SyntaxElement.SEMANTICS.print(DEF) + "\" : \"" + cell.getSemantics() + "\"");
             }
-            if (cell.getExtensions() != null) {
-                for (String[] ext : cell.getExtensions()) {
-                    writer.print("," + NL);
-                    indentedOutputln(ext[1] + " : \"" + ext[2] + "\"");
-                }
-            }
+            printAnnotations(cell.getExtensions());
             decreaseIndent();
             writer.print(NL);
             indentedOutput("}");
@@ -724,7 +722,6 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
     public void visit(final Linkkey linkkey) throws AlignmentException {
         indentedOutputln("{ \"@type\" : \"" + SyntaxElement.LINKKEY.print(DEF) + "\",");
         increaseIndent();
-        indentedOutputln("\"" + SyntaxElement.EDOAL_TYPE.print(DEF) + "\" : \"" + linkkey.getType() + "\",");
         indentedOutputln("\"" + SyntaxElement.LINKKEY_BINDING.print(DEF) + "\" : [");
         increaseIndent();
         boolean first = true;
@@ -734,27 +731,49 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
             } else {
                 writer.print("," + NL);
             }
-            indentedOutputln("{ \"@type\" : \"" + SyntaxElement.CORRESP.print(DEF) + "\",");
             increaseIndent();
-            indentedOutputln("\"" + SyntaxElement.EDOAL_TYPE.print(DEF) + "\" : \"" + linkkeyBinding.getType() + "\",");
-            indentedOutputln("\"" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + "\" :");
-            increaseIndent();
-            linkkeyBinding.getExpression1().accept(this);
-            writer.print("," + NL);
+            linkkeyBinding.accept(this);
             decreaseIndent();
-            indentedOutputln("\"" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + "\" :");
-            increaseIndent();
-            linkkeyBinding.getExpression2().accept(this);
-            decreaseIndent();
-            writer.print(NL);
-            decreaseIndent();
-            indentedOutput("}");
         }
         writer.print(NL);
         decreaseIndent();
         indentedOutputln("]");
         decreaseIndent();
         indentedOutput("}");
+    }
+
+    private void visitLinkKeyBinding(LinkkeyBinding linkkeyBinding, SyntaxElement syntaxElement) throws AlignmentException {
+        indentedOutputln("{ \"@type\" : \"" + syntaxElement.print(DEF) + "\",");
+        increaseIndent();
+        indentedOutputln("\"" + SyntaxElement.LINKEY_PROPERTY1.print(DEF) + "\" :");
+        increaseIndent();
+        linkkeyBinding.getExpression1().accept(this);
+        writer.print("," + NL);
+        decreaseIndent();
+        indentedOutputln("\"" + SyntaxElement.LINKEY_PROPERTY2.print(DEF) + "\" :");
+        increaseIndent();
+        linkkeyBinding.getExpression2().accept(this);
+        decreaseIndent();
+        writer.print(NL);
+        decreaseIndent();
+        indentedOutput("}");
+    }
+
+    public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
+        visitLinkKeyBinding(linkkeyEquals, SyntaxElement.LINKEY_EQUALS);
+    }
+
+    public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
+        visitLinkKeyBinding(linkkeyIntersects, SyntaxElement.LINKEY_INTERSECTS);
+    }
+
+    private void printAnnotations(Collection<String[]> extensions) {
+        if (extensions != null) {
+            for (String[] ext : extensions) {
+                writer.print("," + NL);
+                indentedOutputln(ext[1] + " : \"" + ext[2] + "\"");
+            }
+        }
     }
 
 }

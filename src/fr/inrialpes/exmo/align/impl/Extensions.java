@@ -32,7 +32,7 @@ import java.util.Set;
  * So it is implemented the old way with concatenation... unfortunately
  */
 
-public class Extensions {
+    public class Extensions {
 
     private Hashtable<String,String[]> table;
  

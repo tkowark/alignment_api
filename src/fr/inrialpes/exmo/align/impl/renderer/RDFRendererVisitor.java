@@ -72,6 +72,9 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
+import java.util.Collection;
 
 /**
  * Renders an alignment in its RDF format
@@ -717,28 +720,62 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
     public void visit(final Linkkey linkkey) throws AlignmentException {
         indentedOutputln("<" + SyntaxElement.LINKKEYS.print(DEF) + ">");
         increaseIndent();
-        indentedOutput("<" + SyntaxElement.LINKKEY.print(DEF) + " " + SyntaxElement.EDOAL_TYPE.print(DEF) + "=\"" + linkkey.getType() + "\">" + NL);
+        indentedOutput("<" + SyntaxElement.LINKKEY.print(DEF) + ">" + NL);
+        Collection<String[]> extensions = linkkey.getExtensions();
+//        nslist.put(Namespace.EDOAL.prefix, Namespace.EDOAL.shortCut);
+//        if (extensions != null) {
+//            printAnnotations(extensions);
+//        }
+
         increaseIndent();
         for (LinkkeyBinding linkkeyBinding : linkkey.bindings()) {
             indentedOutputln("<" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
             increaseIndent();
-            indentedOutput("<" + SyntaxElement.CORRESP.print(DEF) + " " + SyntaxElement.EDOAL_TYPE.print(DEF) + "=\"" + linkkeyBinding.getType() + "\">" + NL);
-            increaseIndent();
-            indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
-            linkkeyBinding.getExpression1().accept(this);
-            indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY1.print(DEF) + ">");
-            indentedOutputln("<" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + ">");
-            linkkeyBinding.getExpression2().accept(this);
-            indentedOutputln("</" + SyntaxElement.CORRESP_PROPERTY2.print(DEF) + ">");
-            decreaseIndent();
-            indentedOutput("</" + SyntaxElement.CORRESP.print(DEF) + ">" + NL);
+            linkkeyBinding.accept(this);
             decreaseIndent();
             indentedOutputln("</" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
-//            linkkeyBinding.accept(this);
         }
         decreaseIndent();
         indentedOutput("</" + SyntaxElement.LINKKEY.print(DEF) + ">" + NL);
         decreaseIndent();
         indentedOutputln("</" + SyntaxElement.LINKKEYS.print(DEF) + ">");
+    }
+
+    private void visitLinkKeyBinding(LinkkeyBinding linkkeyBinding, SyntaxElement syntaxElement) throws AlignmentException {
+        indentedOutput("<" + syntaxElement.print(DEF) + ">" + NL);
+        increaseIndent();
+        indentedOutputln("<" + SyntaxElement.LINKEY_PROPERTY1.print(DEF) + ">");
+        linkkeyBinding.getExpression1().accept(this);
+        indentedOutputln("</" + SyntaxElement.LINKEY_PROPERTY1.print(DEF) + ">");
+        indentedOutputln("<" + SyntaxElement.LINKEY_PROPERTY2.print(DEF) + ">");
+        linkkeyBinding.getExpression2().accept(this);
+        indentedOutputln("</" + SyntaxElement.LINKEY_PROPERTY2.print(DEF) + ">");
+        decreaseIndent();
+        indentedOutput("</" + syntaxElement.print(DEF) + ">" + NL);
+    }
+
+    public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
+        visitLinkKeyBinding(linkkeyEquals, SyntaxElement.LINKEY_EQUALS);
+    }
+
+    public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
+        visitLinkKeyBinding(linkkeyIntersects, SyntaxElement.LINKEY_INTERSECTS);
+    }
+
+    private void printAnnotations(Collection<String[]> extensions) {
+        for (String[] ext : extensions) {
+            String uri = ext[0];
+            String tag = nslist.get(uri);
+            if (tag == null) {
+                tag = ext[1];
+                // That's heavy.
+                // Maybe adding an extra: ns extension in the alignment at parsing time
+                // would help redisplaying it better...
+                indentedOutputln("<alignapilocalns:" + tag + " xmlns:alignapilocalns=\"" + uri + "\">" + ext[2] + "</alignapilocalns:" + tag + ">");
+            } else {
+                tag += ":" + ext[1];
+                indentedOutputln("<" + tag + ">" + ext[2] + "</" + tag + ">");
+            }
+        }
     }
 }

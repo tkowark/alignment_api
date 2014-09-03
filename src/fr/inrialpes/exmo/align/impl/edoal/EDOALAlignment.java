@@ -21,9 +21,7 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Collection;
 import java.util.Set;
@@ -33,12 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.Cell;
 import org.semanticweb.owl.align.Relation;
 
-import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.Ontology;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;

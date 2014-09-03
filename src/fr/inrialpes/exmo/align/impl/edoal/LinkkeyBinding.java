@@ -6,39 +6,22 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
-import java.util.Arrays;
-import java.util.List;
 import org.semanticweb.owl.align.AlignmentException;
-import org.semanticweb.owl.align.AlignmentVisitor;
-import org.semanticweb.owl.align.Visitable;
 
 /**
  *
  * @author Nicolas Guillouet <nicolas@meaningengines.com>
  */
-public class LinkkeyBinding {
-    public static final String IN = "in";
-    public static final String EQ = "eq";
-    private static List<String> ALLOWED_TYPES = Arrays.asList(IN, EQ);
+public abstract class LinkkeyBinding {
     
     private PathExpression expression1;
     private PathExpression expression2;
-    private String type;
     
-    public LinkkeyBinding(PathExpression expression1, PathExpression expression2, String type) throws AlignmentException {
-        if(!ALLOWED_TYPES.contains(type)){
-            throw new AlignmentException("The  type " + type + " is not allowed !");
-        }
-        this.type = type;
+    public LinkkeyBinding(PathExpression expression1, PathExpression expression2) throws AlignmentException {
         this.expression1 = expression1;
         this.expression2 = expression2;
     }
-    
-    
-    public String getType(){
-        return type;
-    }
+   
     
     public PathExpression getExpression1(){
         return expression1;
@@ -46,4 +29,7 @@ public class LinkkeyBinding {
     public PathExpression getExpression2(){
         return expression2;
     }
+    
+    public abstract void accept( EDOALVisitor visitor ) throws AlignmentException;
+    
 }

@@ -83,6 +83,8 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALVisitor;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 /**
  * Renders an alignment as a new ontology merging these.
@@ -853,6 +855,12 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
     
     public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
         throw new AlignmentException("NOT IMPLEMENTED !");
     }
 }

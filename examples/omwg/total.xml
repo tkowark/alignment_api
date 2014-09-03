@@ -818,16 +818,16 @@ without it, this is not! -->
                 <measure rdf:datatype='&xsd;float'>1.</measure>
                 <relation>SubsumedBy</relation> 
                 <edoal:linkkey> 
-                    <edoal:Linkkey edoal:type="weak">
+                    <edoal:Linkkey>
                         <edoal:binding>
-                            <edoal:Corresp edoal:type="eq">
+                            <edoal:Equals>
                                 <edoal:property1>
                                     <edoal:Property rdf:about="&wine;yearValue" />
                                 </edoal:property1>
                                 <edoal:property2>
                                     <edoal:Property rdf:about="&vin;annee_millesime" />
                                 </edoal:property2>
-                            </edoal:Corresp>
+                            </edoal:Equals>
                         </edoal:binding>
                     </edoal:Linkkey>
                 </edoal:linkkey>

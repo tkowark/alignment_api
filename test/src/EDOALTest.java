@@ -32,6 +32,8 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 import fr.inrialpes.exmo.align.impl.edoal.PathExpression;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import fr.inrialpes.exmo.align.impl.rel.EquivRelation;
@@ -147,24 +149,18 @@ public class EDOALTest {
      } */
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"roundTripTest"})
     public void linkkeyBindingTest() throws Exception {
-        String[] types = {"eq", "in"};
         PathExpression expression1 = new PropertyId(new URI("http://exmo.inria.fr/RootElement1"));
         PathExpression expression2 = new PropertyId(new URI("http://exmo.inria.fr/RootElement2"));
 
         LinkkeyBinding linkkeyBinding = null;
-        for (String type : types) {
-            linkkeyBinding = new LinkkeyBinding(expression1, expression2, type);
-            assertEquals(linkkeyBinding.getExpression1(), expression1);
-            assertEquals(linkkeyBinding.getExpression2(), expression2);
-            assertEquals(type, linkkeyBinding.getType());
-        }
-
-        try {
-            new LinkkeyBinding(expression1, expression2, "toto");
-            fail("AlignmentException should be raised !");
-        } catch (AlignmentException aex) {
-            ;//OK
-        }
+        
+        linkkeyBinding = new LinkkeyEquals(expression1, expression2);
+        assertEquals(linkkeyBinding.getExpression1(), expression1);
+        assertEquals(linkkeyBinding.getExpression2(), expression2);
+        
+        linkkeyBinding = new LinkkeyIntersects(expression1, expression2);
+        assertEquals(linkkeyBinding.getExpression1(), expression1);
+        assertEquals(linkkeyBinding.getExpression2(), expression2);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"linkkeyBindingTest"})
@@ -174,36 +170,19 @@ public class EDOALTest {
         Expression expression2 = new ClassId("http://exmo.inria.fr/RootElement2");
         EDOALCell cell = new EDOALCell("1", expression1, expression2, relation, 1.0);
 
-        //Testing type
-        assertEquals("weak", Linkkey.WEAK);
-        assertEquals("plain", Linkkey.PLAIN);
-        assertEquals("strong", Linkkey.STRONG);
-        String[] types = {"weak", "plain", "strong"};
-        Linkkey linkkey = null;
-        for (String type : types) {
-            linkkey = new Linkkey(type);
-            assertEquals(type, linkkey.getType());
-            cell.addLinkkey(linkkey);
-        }
-        assertEquals(3, cell.linkkeys().size());
-
-        linkkey = new Linkkey();
-        assertEquals(Linkkey.PLAIN, linkkey.getType());
-        try {
-            new Linkkey("toto");
-            fail("AlignmentException should be raised !");
-        } catch (AlignmentException aex) {
-            ;//OK
-        }
-        
+        Linkkey linkkey = new Linkkey();
         //Tests on bindings
-        LinkkeyBinding linkkeyBinding1 = new LinkkeyBinding(new PropertyId(), new PropertyId(), LinkkeyBinding.IN);
-        LinkkeyBinding linkkeyBinding2 = new LinkkeyBinding(new PropertyId(), new PropertyId(), LinkkeyBinding.EQ);
+        LinkkeyBinding linkkeyBinding1 = new LinkkeyIntersects(new PropertyId(), new PropertyId());
+        LinkkeyBinding linkkeyBinding2 = new LinkkeyEquals(new PropertyId(), new PropertyId());
         linkkey.addBinding(linkkeyBinding1);
         linkkey.addBinding(linkkeyBinding2);
         Set<LinkkeyBinding> bindings = linkkey.bindings();
         assertEquals(2, bindings.size());
         assertTrue(bindings.contains(linkkeyBinding1));
         assertTrue(bindings.contains(linkkeyBinding2));
+
+        //Tests on type
+        linkkey.setExtension("http://ns.inria.org/edoal/1.0/", "type", "weak");
+        assertEquals("weak", linkkey.getExtension("http://ns.inria.org/edoal/1.0/", "type"));
     }
 }

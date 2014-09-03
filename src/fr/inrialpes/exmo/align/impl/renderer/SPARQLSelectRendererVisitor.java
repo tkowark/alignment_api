@@ -30,10 +30,11 @@ import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -138,7 +139,14 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         throw new AlignmentException("NOT IMPLEMENTED !");
     }
     
-    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+    public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
         throw new AlignmentException("NOT IMPLEMENTED !");
     }
+    public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
+        throw new AlignmentException("NOT IMPLEMENTED !");
+    }
+    
+//    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
+//        throw new AlignmentException("NOT IMPLEMENTED !");
+//    }
 }

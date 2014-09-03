@@ -79,6 +79,8 @@ import fr.inrialpes.exmo.align.impl.edoal.Datatype;
 import fr.inrialpes.exmo.align.impl.edoal.Comparator;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 /**
  * These tests corresponds to the tests presented in the examples/omwg directory
@@ -209,7 +211,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         String str1 = stream.toString();
-        assertEquals(str1.length(), 37076);
+        assertEquals(str1.length(), 36468);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
@@ -488,73 +490,48 @@ public class EDOALExportTest {
 //        Assert.fail("HAVE TODO");
     }
 
-//    @Test(groups = {"full", "omwg"}, dependsOnMethods = {"setUp"})
-//    public void testExportLinkkeyBinding() throws Exception {
-//        LinkkeyBinding linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
-//        assertEquals(render(linkkeyBinding),
-//                "<edoal:binding>"
-//                + "<edoal:Corresp edoal:type=\"eq\">"
-//                + "<edoal:property1>"
-//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
-//                + "</edoal:property1>"
-//                + "<edoal:property2>"
-//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
-//                + "</edoal:property2>"
-//                + "</edoal:Corresp>"
-//                + "</edoal:binding>"
-//        );
-//        linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.IN);
-//        assertEquals(render(linkkeyBinding),
-//                "<edoal:binding>"
-//                + "<edoal:Corresp edoal:type=\"in\">"
-//                + "<edoal:property1>"
-//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
-//                + "</edoal:property1>"
-//                + "<edoal:property2>"
-//                + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
-//                + "</edoal:property2>"
-//                + "</edoal:Corresp>"
-//                + "</edoal:binding>"
-//        );
-//    }
     @Test(groups = {"full", "omwg"}, dependsOnMethods = {"setUp"})
     public void testExportLinkkey() throws Exception {
         //With EQ
         Linkkey linkkey = new Linkkey();
-        LinkkeyBinding linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.EQ);
+        LinkkeyBinding linkkeyBinding = new LinkkeyEquals(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")));
         linkkey.addBinding(linkkeyBinding);
+        linkkey.setExtension("http://ns.inria.org/edoal/1.0/#", "type", "plain");
         assertEquals(render(linkkey),
                 "<edoal:linkkey>"
-                + "<edoal:Linkkey edoal:type=\"plain\">"
+                + "<edoal:Linkkey>"
+//                + "<edoal:type>plain</edoal:type>"
                 + "<edoal:binding>"
-                + "<edoal:Corresp edoal:type=\"eq\">"
+                + "<edoal:Equals>"
                 + "<edoal:property1>"
                 + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
                 + "</edoal:property1>"
                 + "<edoal:property2>"
                 + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
                 + "</edoal:property2>"
-                + "</edoal:Corresp>"
+                + "</edoal:Equals>"
                 + "</edoal:binding>"
                 + "</edoal:Linkkey>"
                 + "</edoal:linkkey>"
         );
         //With IN
         linkkey = new Linkkey();
-        linkkeyBinding = new LinkkeyBinding(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")), LinkkeyBinding.IN);
+        linkkeyBinding = new LinkkeyIntersects(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")));
         linkkey.addBinding(linkkeyBinding);
+        linkkey.setExtension("http://ns.inria.org/edoal/1.0/#", "type", "plain");
         assertEquals(render(linkkey),
                 "<edoal:linkkey>"
-                + "<edoal:Linkkey edoal:type=\"plain\">"
+                + "<edoal:Linkkey>"
+//                + "<edoal:type>plain</edoal:type>"
                 + "<edoal:binding>"
-                + "<edoal:Corresp edoal:type=\"in\">"
+                + "<edoal:Intersects>"
                 + "<edoal:property1>"
                 + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding1\"/>"
                 + "</edoal:property1>"
                 + "<edoal:property2>"
                 + "<edoal:Property rdf:about=\"http://exmo.inrialpes.fr/binding2\"/>"
                 + "</edoal:property2>"
-                + "</edoal:Corresp>"
+                + "</edoal:Intersects>"
                 + "</edoal:binding>"
                 + "</edoal:Linkkey>"
                 + "</edoal:linkkey>"
@@ -586,12 +563,11 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         stream.close();
-        assertEquals(stream.toString(),
-                "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
+        String stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
-                + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>"
+                + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>" 
                 + "<Alignment rdf:about=\"http://asdf\"><xml>yes</xml><level>2EDOAL</level><type>**</type><id>http://asdf</id>"
                 + "<onto1>"
                 + "<Ontology rdf:about=\"http://source\"><location>http://source</location>"
@@ -600,7 +576,8 @@ public class EDOALExportTest {
                 + "<Ontology rdf:about=\"http://target\"><location>http://target</location>"
                 + "<formalism><Formalism align:name=\"wsml\" align:uri=\"http://wsml\"/></formalism>"
                 + "</Ontology>" + "</onto2>"
-                + "</Alignment>" + "</rdf:RDF>");
+                + "</Alignment>" + "</rdf:RDF>";
+        assertEquals(stream.toString(), stringToTest);
         doc.setType("1*");
         stream = new ByteArrayOutputStream();
         writer = new PrintWriter(new BufferedWriter(
@@ -612,8 +589,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         stream.close();
-        assertEquals(stream.toString(),
-                "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
+        stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
@@ -626,7 +602,8 @@ public class EDOALExportTest {
                 + "<Ontology rdf:about=\"http://target\"><location>http://target</location>"
                 + "<formalism><Formalism align:name=\"wsml\" align:uri=\"http://wsml\"/></formalism>"
                 + "</Ontology>" + "</onto2>"
-                + "</Alignment>" + "</rdf:RDF>");
+                + "</Alignment>" + "</rdf:RDF>";
+        assertEquals(stream.toString(), stringToTest);
     }
 
 }

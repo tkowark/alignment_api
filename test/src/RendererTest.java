@@ -46,7 +46,6 @@ import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
-import static org.testng.Assert.fail;
 
 public class RendererTest {
 
@@ -80,7 +79,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	//System.err.println( stream.toString() );
+//	System.err.println( stream.toString() );
 	assertTrue( valueSimilarTo( stream.toString().length(), 11563 ), "Rendered differently: expected "+11563+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");

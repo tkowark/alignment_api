@@ -20,6 +20,7 @@
 
 package org.semanticweb.owl.align; 
 
+import fr.inrialpes.exmo.align.impl.edoal.Extensable;
 import java.lang.Cloneable;
 import java.lang.Iterable;
 import java.util.Enumeration;
@@ -38,7 +39,7 @@ import org.xml.sax.ContentHandler;
  */
 
 
-public interface Alignment extends Cloneable, Iterable<Cell>, Visitable {
+public interface Alignment extends Cloneable, Iterable<Cell>, Visitable, Extensable {
 
     /** Initialize the alignement before using it **/
     /** This should return an Alignment and not be void **/
@@ -152,15 +153,6 @@ public interface Alignment extends Cloneable, Iterable<Cell>, Visitable {
     public Set<Cell> getAlignCells1( Object ob ) throws AlignmentException;
     public Set<Cell> getAlignCells2( Object ob ) throws AlignmentException;
 
-    /**
-     * Extensions are a way to read and add other information (metadata)
-     * to the alignment structure itself.
-     * getExtensions returns a set of tripes: uri*label*value
-     * all three being String
-     */
-    public Collection<String[]> getExtensions();
-    public String getExtension( String uri, String label );
-    public void setExtension( String uri, String label, String value );
 
     public Enumeration<Cell> getElements();
     public Iterator<Cell> iterator();

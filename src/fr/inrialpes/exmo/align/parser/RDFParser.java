@@ -89,9 +89,11 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.vocabulary.RDF;
+import fr.inrialpes.exmo.align.impl.edoal.Extensable;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
-import java.io.StringWriter;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 /**
  * <p>
@@ -457,14 +459,11 @@ public class RDFParser {
             throw new NullPointerException("The node must not be null");
         }
         try {
-            // parsing type
-            Statement stmt = node.getProperty((Property) SyntaxElement.EDOAL_TYPE.resource);
-            if (stmt == null) {
-                throw new AlignmentException("Required " + SyntaxElement.EDOAL_TYPE.print() + " property in Linkkey");
-            }
-            String type = stmt.getLiteral().toString();
-            Linkkey linkkey = new Linkkey(type);
+            Linkkey linkkey = new Linkkey();
+            // parsing annotations (type, ...)
+            parseAnnotation(node.getProperty((Property) SyntaxElement.EDOAL_TYPE.resource), linkkey);
 
+            //Parsing bindings
             StmtIterator stmtIt = node.listProperties((Property) SyntaxElement.LINKKEY_BINDING.resource);
             while (stmtIt.hasNext()) {
                 Statement bindingStmt = stmtIt.nextStatement();
@@ -480,24 +479,33 @@ public class RDFParser {
         }
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     * @throws AlignmentException
+     */
     protected LinkkeyBinding parseLinkkeyBinding(final Resource node) throws AlignmentException {
         if (node == null) {
             throw new NullPointerException("The node must not be null");
         }
         try {
-            Statement bindingTypeStmt = node.getProperty((Property) SyntaxElement.EDOAL_TYPE.resource);
-            if (bindingTypeStmt == null) {
-                throw new AlignmentException("Required " + SyntaxElement.EDOAL_TYPE.print() + " property in Corresp");
-            }
-            String bindingType = bindingTypeStmt.getLiteral().toString();
-            Statement property1Stmt = node.getProperty((Property) SyntaxElement.CORRESP_PROPERTY1.resource);
-            Statement property2Stmt = node.getProperty((Property) SyntaxElement.CORRESP_PROPERTY2.resource);
+            Statement property1Stmt = node.getProperty((Property) SyntaxElement.LINKEY_PROPERTY1.resource);
+            Statement property2Stmt = node.getProperty((Property) SyntaxElement.LINKEY_PROPERTY2.resource);
             if (property1Stmt == null || property2Stmt == null) {
-                throw new AlignmentException("Required " + SyntaxElement.CORRESP_PROPERTY1.print() + " and " + SyntaxElement.CORRESP_PROPERTY2.print() + " properties in Linkkey binding corresp.");
+                throw new AlignmentException("Required " + SyntaxElement.LINKEY_PROPERTY1.print() + " and " + SyntaxElement.LINKEY_PROPERTY2.print() + " properties in Linkkey binding corresp.");
             }
             PathExpression pathExpression1 = parsePathExpression(property1Stmt.getResource());
             PathExpression pathExpression2 = parsePathExpression(property2Stmt.getResource());
-            return new LinkkeyBinding(pathExpression1, pathExpression2, bindingType);
+            
+            Resource rdfType = node.getProperty(RDF.type).getResource();
+            if (rdfType.equals(SyntaxElement.LINKEY_EQUALS.resource)) {
+                    return new LinkkeyEquals(pathExpression1, pathExpression2);
+            } else if (rdfType.equals(SyntaxElement.LINKEY_INTERSECTS.resource)) {
+                    return new LinkkeyIntersects(pathExpression1, pathExpression2);
+            } else {
+                throw new Exception("Unknown type linkey binding : " + rdfType);
+            }
         } catch (Exception e) {  //wrap other type exception
             throw new AlignmentException("Cannot parse linkkey " + node, e);
         }
@@ -999,10 +1007,10 @@ public class RDFParser {
      * Parses a given annotaion in the the given node.
      *
      * @param stmt the annotation statement
-     * @param al the alignment in which the annotation is
+     * @param extensable 
      * @throws NullPointerException if the node or the element is null
      */
-    protected void parseAnnotation(final Statement stmt, EDOALAlignment al) throws AlignmentException {
+    protected void parseAnnotation(final Statement stmt, Extensable extensable) throws AlignmentException {
         try {
             final String anno = stmt.getString();
             if ((anno != null) && (anno.length() > 0)) {
@@ -1017,7 +1025,7 @@ public class RDFParser {
                     prefix += "#";
                 }
                 // This will not work for stuff like dc:creator which has no fragment!
-                al.setExtension(prefix, name, anno);
+                extensable.setExtension(prefix, name, anno);
             }
         } catch (Exception e1) {
             // It would be better to silently ignore annotations

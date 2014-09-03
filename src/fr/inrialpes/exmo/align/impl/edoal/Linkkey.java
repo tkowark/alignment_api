@@ -5,10 +5,10 @@
  */
 package fr.inrialpes.exmo.align.impl.edoal;
 
+import fr.inrialpes.exmo.align.impl.Extensions;
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.semanticweb.owl.align.AlignmentException;
 
@@ -16,14 +16,10 @@ import org.semanticweb.owl.align.AlignmentException;
  *
  * @author Nicolas Guillouet <nicolas@meaningengines.com>
  */
-public class Linkkey {
-    public static final String PLAIN = "plain";
-    public static final String WEAK = "weak";
-    public static final String STRONG = "strong";
-    private static List<String> ALLOWED_TYPES = Arrays.asList(PLAIN, WEAK, STRONG);
+public class Linkkey implements Extensable{
     
-    private String type;
     private Set<LinkkeyBinding> bindings;
+    protected Extensions extensions = null;
     
     public void accept(EDOALVisitor visitor) throws AlignmentException {
         visitor.visit(this);
@@ -33,17 +29,10 @@ public class Linkkey {
 	return visitor.visit(this);
     }
 
-    public Linkkey() throws AlignmentException {
-        this(PLAIN);
-    }
-
-    public Linkkey(String type) throws AlignmentException {
-        if(!ALLOWED_TYPES.contains(type)){
-            throw new AlignmentException("The  type " + type + " is not allowed !");
-        }
-        this.type = type;
+    public Linkkey() {
         bindings = new HashSet<>();
     }
+
 
     public void addBinding(LinkkeyBinding binding){
         bindings.add(binding);
@@ -53,7 +42,25 @@ public class Linkkey {
         return bindings;
     }
     
-    public String getType() {
-        return type;
+
+    public Collection<String[]> getExtensions(){ 
+	if ( extensions != null ) return extensions.getValues();
+	else return null;
     }
+    public void setExtensions( Extensions p ){
+	extensions = p;
+    }
+
+    public void setExtension( String uri, String label, String value ) {
+	if ( extensions == null ) extensions = new Extensions();
+	extensions.setExtension( uri, label, value );
+    };
+
+    public String getExtension( String uri, String label ) {
+	if ( extensions != null ) {
+	    return extensions.getExtension( uri, label );
+	} else {
+	    return (String)null;
+	}
+    };
 }

@@ -18,10 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+import fr.inrialpes.exmo.align.impl.Extensions;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -54,6 +56,7 @@ import static org.testng.Assert.assertFalse;
 public class EDOALParserTest {
 
     private AlignmentParser aparser1 = null;
+    protected Extensions extensions = null;
     
 
     @Test(groups = {"full", "omwg", "raw"})
@@ -89,7 +92,7 @@ public class EDOALParserTest {
         Set<Linkkey> linkkeys = cell.linkkeys();
         assertEquals(linkkeys.size(), 1);
         Linkkey linkkey = linkkeys.iterator().next();
-        assertEquals(linkkey.getType(), "weak");
+        assertEquals(linkkey.getExtension("http://ns.inria.org/edoal/1.0/#", "type"), "weak");
 
         Set<LinkkeyBinding> bindings = linkkey.bindings();
         assertEquals(bindings.size(), 2);
@@ -97,7 +100,7 @@ public class EDOALParserTest {
         LinkkeyBinding binding = bindingIter.next();
         LinkkeyBinding firstBinding = null;
         LinkkeyBinding secondBinding = null;
-        if(binding.getType().equals("eq")){
+        if(binding instanceof LinkkeyEquals){
             firstBinding = binding;
             secondBinding =  bindingIter.next();
         }
@@ -106,11 +109,9 @@ public class EDOALParserTest {
             secondBinding =  binding;
             
         }
-        assertEquals(firstBinding.getType(), "eq");
         assertEquals(((PropertyId)firstBinding.getExpression1()).getURI().toString(), "http://purl.org/ontology/mo/opus");
         assertEquals(((PropertyId)firstBinding.getExpression2()).getURI().toString(), "http://exmo.inrialpes.fr/connectors#number");
         
-        assertEquals(secondBinding.getType(), "in");
         assertEquals(((PropertyId)secondBinding.getExpression1()).getURI().toString(), "http://purl.org/ontology/mo/name");
         assertEquals(((PropertyId)secondBinding.getExpression2()).getURI().toString(), "http://exmo.inrialpes.fr/connectors#nom");
     }
@@ -150,7 +151,7 @@ public class EDOALParserTest {
 	// They should be the same... (no because of invertion...)
         //assertEquals( str1, str2 );
         // But have the same length
-        assertEquals(str1.length(), str2.length());
+        assertEquals(str1.length(), str2.length(), "STR 1 : \n " + str1 + "STR2 : \n" + str2);
     }
 
 }

@@ -44,26 +44,27 @@
                 <relation>=</relation>
                 <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
                 <edoal:linkkey> 
-                    <edoal:Linkkey edoal:type="weak">
+                    <edoal:Linkkey>
+                        <edoal:type>weak</edoal:type>
                         <edoal:binding>
-                            <edoal:Corresp edoal:type="eq">
+                            <edoal:Equals>
                                 <edoal:property1>
                                     <edoal:Property rdf:about="http://purl.org/ontology/mo/opus" />
                                 </edoal:property1>
                                 <edoal:property2>
                                     <edoal:Property rdf:about="http://exmo.inrialpes.fr/connectors#number" />
                                 </edoal:property2>
-                            </edoal:Corresp>
+                            </edoal:Equals>
                         </edoal:binding>
                         <edoal:binding>
-                            <edoal:Corresp edoal:type="in">
+                            <edoal:Intersects>
                                 <edoal:property1>
                                     <edoal:Property rdf:about="http://purl.org/ontology/mo/name" />
                                 </edoal:property1>
                                 <edoal:property2>
                                     <edoal:Property rdf:about="http://exmo.inrialpes.fr/connectors#nom" />
                                 </edoal:property2>
-                            </edoal:Corresp>
+                            </edoal:Intersects>
                         </edoal:binding>
                     </edoal:Linkkey>
                 </edoal:linkkey>
