@@ -11,7 +11,7 @@
         <type>?*</type>
         <pretty>test1</pretty>
         <ns0:cached>Thu Mar 13 14:44:05 CET 2014</ns0:cached>
-        <ns0:stored>null</ns0:stored>
+        <ns0:stored>Thu Mar 13 14:44:05 CET 2014</ns0:stored>
         <time>34</time>
         <ns0:ouri2>http://purl.org/ontology/mo/</ns0:ouri2>
         <id>http://localhost:8089/alid/1394718240757/976</id>
@@ -45,7 +45,7 @@
                 <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
                 <edoal:linkkey> 
                     <edoal:Linkkey>
-                        <edoal:type>weak</edoal:type>
+                        <ns0:type>weak</ns0:type>
                         <edoal:binding>
                             <edoal:Equals>
                                 <edoal:property1>

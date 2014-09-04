@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fr.inrialpes.exmo.align.impl.edoal;
+package fr.inrialpes.exmo.align.impl;
 
 import fr.inrialpes.exmo.align.impl.Extensions;
 import java.util.Collection;
@@ -12,8 +12,8 @@ import java.util.Collection;
  *
  * @author Nicolas Guillouet <nicolas@meaningengines.com>
  */
-public interface Extensable {
 
+public interface Extensible {
     
     /**
      * Extensions are a way to read and add other information (metadata)
@@ -24,5 +24,5 @@ public interface Extensable {
     public Collection<String[]> getExtensions();
     public String getExtension( String uri, String label );
     public void setExtension( String uri, String label, String value );
-    public void setExtensions(Extensions p);
+    public void setExtensions( Extensions p );
 }

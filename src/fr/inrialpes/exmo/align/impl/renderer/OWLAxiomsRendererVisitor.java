@@ -835,6 +835,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 
     // Not implemented. We only ignore transformations in OWL
     public void visit( final Transformation transf ) throws AlignmentException {
+	logger.debug( "Transformations ignored in OWL" );
     }
 
     /**
@@ -851,16 +852,16 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     }
 
     public void visit(final Linkkey linkkey) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+	logger.debug( "Cannot (yet) render linkkeys in OWL" );
     }
     
     public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+	logger.debug( "Cannot (yet) render linkkeys in OWL" );
     }
     public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+	logger.debug( "Cannot (yet) render linkkeys in OWL" );
     }
     public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+	logger.debug( "Cannot (yet) render linkkeys in OWL" );
     }
 }

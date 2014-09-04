@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010
+ * Copyright (C) INRIA, 2009-2010, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,7 +32,7 @@ import java.util.Set;
  * So it is implemented the old way with concatenation... unfortunately
  */
 
-    public class Extensions {
+public class Extensions {
 
     private Hashtable<String,String[]> table;
  

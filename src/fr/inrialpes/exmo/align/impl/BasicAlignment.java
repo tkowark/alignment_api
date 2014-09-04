@@ -63,7 +63,7 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
  * @version $Id$
  */
 
-public class BasicAlignment implements Alignment {
+public class BasicAlignment implements Alignment, Extensible {
     final static Logger logger = LoggerFactory.getLogger( BasicAlignment.class );
 
     public void accept( AlignmentVisitor visitor ) throws AlignmentException {

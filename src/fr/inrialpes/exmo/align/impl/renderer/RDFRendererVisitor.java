@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010, 2012-2013
+ * Copyright (C) INRIA, 2003-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,6 +38,9 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
+import fr.inrialpes.exmo.align.impl.BasicCell;
+import fr.inrialpes.exmo.align.impl.Extensible;
+
 import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
@@ -175,6 +178,8 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         indentedOutputln("<" + SyntaxElement.LEVEL.print(DEF) + ">" + align.getLevel() + "</" + SyntaxElement.LEVEL.print(DEF) + ">");
         indentedOutputln("<" + SyntaxElement.TYPE.print(DEF) + ">" + align.getType() + "</" + SyntaxElement.TYPE.print(DEF) + ">");
         writer.print(extensionString);
+	// Brings complications
+	//if ( align instanceof BasicAlignment ) printExtensions( (Extensible)align );
         indentedOutputln("<" + SyntaxElement.MAPPING_SOURCE.print(DEF) + ">");
         increaseIndent();
         if (align instanceof BasicAlignment) {
@@ -234,7 +239,26 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         indentedOutputln("</" + SyntaxElement.ONTOLOGY.print(DEF) + ">");
     }
 
-    public void visit(Cell cell) throws AlignmentException {
+    protected void printExtensions( final Extensible extent ) {
+	if ( extent.getExtensions() != null ) {
+	    for ( String[] ext : extent.getExtensions() ) {
+		String uri = ext[0];
+		String tag = (nslist==null)?null:nslist.get(uri);
+		if (tag == null) {
+		    tag = ext[1];
+		    // That's heavy.
+		    // Maybe adding an extra: ns extension in the alignment at parsing time
+		    // would help redisplaying it better...
+		    indentedOutputln("<alignapilocalns:" + tag + " xmlns:alignapilocalns=\"" + uri + "\">" + ext[2] + "</alignapilocalns:" + tag + ">");
+		} else {
+		    tag += ":" + ext[1];
+		    indentedOutputln("<" + tag + ">" + ext[2] + "</" + tag + ">");
+		}
+	    }
+	}
+    }
+
+    public void visit( Cell cell ) throws AlignmentException {
         //logger.trace( "Processing cell {}", cell );
         if (subsumedInvocableMethod(this, cell, Cell.class)) {
             return;
@@ -253,7 +277,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
             }
             writer.print(">" + NL);
             increaseIndent();
-            if (alignment.getLevel().startsWith("2EDOAL")) {
+            if ( alignment.getLevel().startsWith("2EDOAL") ) {
                 indentedOutputln("<" + SyntaxElement.ENTITY1.print(DEF) + ">");
                 increaseIndent();
                 //logger.trace( "Processing ob1 {}", cell.getObject1() );
@@ -268,27 +292,6 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
                 decreaseIndent();
                 writer.print(NL);
                 indentedOutputln("</" + SyntaxElement.ENTITY2.print(DEF) + ">");
-                if (cell instanceof EDOALCell) { // Here put the transf
-                    Set<Transformation> transfs = ((EDOALCell) cell).transformations();
-                    if (transfs != null) {
-                        for (Transformation transf : transfs) {
-                            indentedOutputln("<" + SyntaxElement.TRANSFORMATION.print(DEF) + ">");
-                            increaseIndent();
-                            transf.accept(this);
-                            decreaseIndent();
-                            writer.print(NL);
-                            indentedOutputln("</" + SyntaxElement.TRANSFORMATION.print(DEF) + ">");
-                        }
-                    }
-                    Set<Linkkey> linkkeys = ((EDOALCell) cell).linkkeys();
-                    if (linkkeys != null) {
-                        for (Linkkey linkkey : linkkeys) {
-                            increaseIndent();
-                            linkkey.accept(this);
-                            decreaseIndent();
-                        }
-                    }
-                }
             } else {
                 indentedOutputln("<" + SyntaxElement.ENTITY1.print(DEF) + " " + SyntaxElement.RDF_RESOURCE.print(DEF) + "='" + u1.toString() + "'/>");
                 indentedOutputln("<" + SyntaxElement.ENTITY2.print(DEF) + " " + SyntaxElement.RDF_RESOURCE.print(DEF) + "='" + u2.toString() + "'/>");
@@ -302,22 +305,26 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
                     && !cell.getSemantics().equals("first-order")) {
                 indentedOutputln("<" + SyntaxElement.SEMANTICS.print(DEF) + ">" + cell.getSemantics() + "</" + SyntaxElement.SEMANTICS.print(DEF) + ">");
             }
-            if (cell.getExtensions() != null) {
-                for (String[] ext : cell.getExtensions()) {
-                    String uri = ext[0];
-                    String tag = nslist.get(uri);
-                    if (tag == null) {
-                        tag = ext[1];
-                        // That's heavy.
-                        // Maybe adding an extra: ns extension in the alignment at parsing time
-                        // would help redisplaying it better...
-                        indentedOutputln("<alignapilocalns:" + tag + " xmlns:alignapilocalns=\"" + uri + "\">" + ext[2] + "</alignapilocalns:" + tag + ">");
-                    } else {
-                        tag += ":" + ext[1];
-                        indentedOutputln("<" + tag + ">" + ext[2] + "</" + tag + ">");
-                    }
-                }
-            }
+	    if ( cell instanceof EDOALCell ) { // output Linkkeys and Transformations²
+		Set<Linkkey> linkkeys = ((EDOALCell)cell).linkkeys();
+		if ( linkkeys != null ) {
+		    for (Linkkey linkkey : linkkeys) {
+			linkkey.accept(this);
+		    }
+		}
+		Set<Transformation> transfs = ((EDOALCell)cell).transformations();
+		if (transfs != null) {
+		    for (Transformation transf : transfs) {
+			indentedOutputln("<" + SyntaxElement.TRANSFORMATION.print(DEF) + ">");
+			increaseIndent();
+			transf.accept(this);
+			decreaseIndent();
+			writer.print(NL);
+			indentedOutputln("</" + SyntaxElement.TRANSFORMATION.print(DEF) + ">");
+		    }
+		}
+	    }
+	    if ( cell instanceof BasicCell ) printExtensions( (Extensible)cell );
             decreaseIndent();
             indentedOutputln("</" + SyntaxElement.CELL.print(DEF) + ">");
             decreaseIndent();
@@ -721,13 +728,8 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         indentedOutputln("<" + SyntaxElement.LINKKEYS.print(DEF) + ">");
         increaseIndent();
         indentedOutput("<" + SyntaxElement.LINKKEY.print(DEF) + ">" + NL);
-        Collection<String[]> extensions = linkkey.getExtensions();
-//        nslist.put(Namespace.EDOAL.prefix, Namespace.EDOAL.shortCut);
-//        if (extensions != null) {
-//            printAnnotations(extensions);
-//        }
-
         increaseIndent();
+	printExtensions( linkkey );
         for (LinkkeyBinding linkkeyBinding : linkkey.bindings()) {
             indentedOutputln("<" + SyntaxElement.LINKKEY_BINDING.print(DEF) + ">");
             increaseIndent();
@@ -745,10 +747,16 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         indentedOutput("<" + syntaxElement.print(DEF) + ">" + NL);
         increaseIndent();
         indentedOutputln("<" + SyntaxElement.LINKEY_PROPERTY1.print(DEF) + ">");
+        increaseIndent();
         linkkeyBinding.getExpression1().accept(this);
+	writer.print(NL);
+        decreaseIndent();
         indentedOutputln("</" + SyntaxElement.LINKEY_PROPERTY1.print(DEF) + ">");
         indentedOutputln("<" + SyntaxElement.LINKEY_PROPERTY2.print(DEF) + ">");
+        increaseIndent();
         linkkeyBinding.getExpression2().accept(this);
+	writer.print(NL);
+        decreaseIndent();
         indentedOutputln("</" + SyntaxElement.LINKEY_PROPERTY2.print(DEF) + ">");
         decreaseIndent();
         indentedOutput("</" + syntaxElement.print(DEF) + ">" + NL);
@@ -762,20 +770,4 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         visitLinkKeyBinding(linkkeyIntersects, SyntaxElement.LINKEY_INTERSECTS);
     }
 
-    private void printAnnotations(Collection<String[]> extensions) {
-        for (String[] ext : extensions) {
-            String uri = ext[0];
-            String tag = nslist.get(uri);
-            if (tag == null) {
-                tag = ext[1];
-                // That's heavy.
-                // Maybe adding an extra: ns extension in the alignment at parsing time
-                // would help redisplaying it better...
-                indentedOutputln("<alignapilocalns:" + tag + " xmlns:alignapilocalns=\"" + uri + "\">" + ext[2] + "</alignapilocalns:" + tag + ">");
-            } else {
-                tag += ":" + ext[1];
-                indentedOutputln("<" + tag + ">" + ext[2] + "</" + tag + ">");
-            }
-        }
-    }
 }

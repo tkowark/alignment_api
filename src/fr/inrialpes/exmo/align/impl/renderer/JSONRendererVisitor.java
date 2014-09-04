@@ -35,7 +35,10 @@ import org.semanticweb.owl.align.Relation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
-import fr.inrialpes.exmo.ontowrap.Ontology; //?
+import fr.inrialpes.exmo.align.impl.BasicCell;
+import fr.inrialpes.exmo.align.impl.Extensible;
+
+import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
@@ -260,6 +263,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
                 //indentedOutputln("\"rdf:about\" : \""+cell.getId()+"\",");
                 indentedOutputln("\"@id\" : \"" + cell.getId() + "\",");
             }
+            if ( cell instanceof BasicCell ) printExtensions( (Extensible)cell );
             if (alignment.getLevel().startsWith("2EDOAL")) {
                 indentedOutputln("\"" + SyntaxElement.ENTITY1.print(DEF) + "\" : ");
                 increaseIndent();
@@ -271,35 +275,6 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
                 ((Expression) (cell.getObject2())).accept(this);
                 decreaseIndent();
                 writer.print("," + NL);
-                if (cell instanceof EDOALCell) { // Here put the transf and the linkkeys
-                    Set<Transformation> transfs = ((EDOALCell) cell).transformations();
-                    if (transfs != null) {
-                        for (Transformation transf : transfs) {
-                            indentedOutputln("\"" + SyntaxElement.TRANSFORMATION.print(DEF) + "\" : ");
-                            increaseIndent();
-                            transf.accept(this);
-                            decreaseIndent();
-                            writer.print("," + NL);
-                        }
-                    }
-                    Set<Linkkey> linkeys = ((EDOALCell) cell).linkkeys();
-                    if (linkeys != null) {
-                        indentedOutputln("\"" + SyntaxElement.LINKKEYS.print(DEF) + "\" : [");
-                        increaseIndent();
-                        boolean first = true;
-                        for (Linkkey linkkey : linkeys) {
-                            if (first) {
-                                first = false;
-                            } else {
-                                writer.print("," + NL);
-                            }
-                            linkkey.accept(this);
-                        }
-                        writer.print(NL);
-                        decreaseIndent();
-                        indentedOutputln("],");
-                    }
-                }
             } else {
                 indentedOutputln("\"" + SyntaxElement.ENTITY1.print(DEF) + "\" : \"" + u1.toString() + "\",");
                 indentedOutputln("\"" + SyntaxElement.ENTITY2.print(DEF) + "\" : \"" + u2.toString() + "\",");
@@ -314,7 +289,38 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
                 writer.print("," + NL);
                 indentedOutput("\"" + SyntaxElement.SEMANTICS.print(DEF) + "\" : \"" + cell.getSemantics() + "\"");
             }
-            printAnnotations(cell.getExtensions());
+	    if ( cell instanceof EDOALCell ) { // Here put the transf and the linkkeys
+		Set<Linkkey> linkeys = ((EDOALCell)cell).linkkeys();
+		if ( linkeys != null ) {
+		    writer.print("," + NL);
+		    indentedOutputln("\"" + SyntaxElement.LINKKEYS.print(DEF) + "\" : [");
+		    increaseIndent();
+		    boolean first = true;
+		    for (Linkkey linkkey : linkeys) {
+			if (first) {
+			    first = false;
+			} else {
+			    writer.print("," + NL);
+			}
+			linkkey.accept(this);
+		    }
+		    writer.print(NL);
+		    decreaseIndent();
+		    indentedOutput("]");
+		}
+		Set<Transformation> transfs = ((EDOALCell) cell).transformations();
+		if (transfs != null) {
+		    writer.print("," + NL);
+		    indentedOutputln("\"" + SyntaxElement.TRANSFORMATION.print(DEF) + "\" : [");
+		    increaseIndent();
+		    for (Transformation transf : transfs) {
+			transf.accept(this);
+		    }
+		    writer.print(NL);
+		    decreaseIndent();
+		    indentedOutput("]");
+		}
+	    }
             decreaseIndent();
             writer.print(NL);
             indentedOutput("}");
@@ -722,6 +728,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
     public void visit(final Linkkey linkkey) throws AlignmentException {
         indentedOutputln("{ \"@type\" : \"" + SyntaxElement.LINKKEY.print(DEF) + "\",");
         increaseIndent();
+	printExtensions( linkkey );
         indentedOutputln("\"" + SyntaxElement.LINKKEY_BINDING.print(DEF) + "\" : [");
         increaseIndent();
         boolean first = true;
@@ -767,13 +774,18 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
         visitLinkKeyBinding(linkkeyIntersects, SyntaxElement.LINKEY_INTERSECTS);
     }
 
-    private void printAnnotations(Collection<String[]> extensions) {
-        if (extensions != null) {
-            for (String[] ext : extensions) {
-                writer.print("," + NL);
-                indentedOutputln(ext[1] + " : \"" + ext[2] + "\"");
-            }
-        }
+    protected void printExtensions( final Extensible extent ) {
+	if ( extent.getExtensions() != null ) {
+	    for ( String[] ext : extent.getExtensions() ) {
+		String uri = ext[0];
+		String tag = (nslist==null)?null:nslist.get(uri);
+		if (tag == null) {
+		    indentedOutputln( "\""+uri+":"+ext[1]+"\" : \"" + ext[2] + "\",");
+		} else {
+		    indentedOutputln( "\""+tag+":"+ext[1]+"\" : \"" + ext[2] + "\",");
+		}
+	    }
+	}
     }
 
 }

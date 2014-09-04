@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 package fr.inrialpes.exmo.align.parser;
 
 import org.semanticweb.owl.align.AlignmentException;
@@ -30,6 +31,8 @@ import fr.inrialpes.exmo.ontowrap.BasicOntology;
 import fr.inrialpes.exmo.align.impl.BasicRelation;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.Extensions;
+import fr.inrialpes.exmo.align.impl.Extensible;
 
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
@@ -55,6 +58,11 @@ import fr.inrialpes.exmo.align.impl.edoal.RelationDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.RelationCoDomainRestriction;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceExpression;
 import fr.inrialpes.exmo.align.impl.edoal.InstanceId;
+
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
+import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 import fr.inrialpes.exmo.align.impl.edoal.ValueExpression;
@@ -88,12 +96,8 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.LiteralRequiredException;
 import com.hp.hpl.jena.vocabulary.RDF;
-import fr.inrialpes.exmo.align.impl.edoal.Extensable;
-import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
-import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
-import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
-import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 /**
  * <p>
@@ -218,7 +222,6 @@ public class RDFParser {
         return parse(align);
     }
 
-    // Below is the real work
     /**
      * Parses a mapping document. The resource passed to this method must be a
      * <code>&lt;Alignment&gt;</code> tag.
@@ -239,7 +242,7 @@ public class RDFParser {
             final URI id = getNodeId(node);
 
             alignment = new EDOALAlignment();
-            if (id != null) {
+            if ( id != null ) {
                 alignment.setExtension(Namespace.ALIGNMENT.uri, Annotations.ID, id.toString());
             }
 
@@ -295,11 +298,9 @@ public class RDFParser {
                 }
             }
 
-            // Remaining resources...
-            // rdf:type must be forgotten
-            //else if ( !pred.equals( SyntaxElement.getResource("rdftype") ) ) { // Unknown is annotation
-            //	parseAnnotation( stmt, alignment );
-            //}
+	    // Parse extensions
+	    parseExtensions( node, alignment );
+
             if (source != null && target != null) {
                 alignment.init(source, target);
             } else {
@@ -312,6 +313,34 @@ public class RDFParser {
         } catch (Exception e) {
             throw new AlignmentException("There is some error in parsing alignment: " + node.getLocalName(), e);
         }
+    }
+
+    protected void parseExtensions( final Resource node, Extensible ext ) throws AlignmentException {
+	// scan all statements in which node is subject
+	// This one is for next version of Jena
+	//for ( Statement stmt : node.listProperties()  ) {
+	StmtIterator stmtIt = node.listProperties();
+	while ( stmtIt.hasNext() ) {
+	    Statement stmt = stmtIt.nextStatement();
+	    //logger.trace( "  ---------------> {}", stmt );
+	    String prefix = stmt.getPredicate().getNameSpace();
+	    String name = stmt.getPredicate().getLocalName();
+	    // suppress those which are in namespaces: owl, rdf, rdfs, align, edoal
+	    if ( !prefix.startsWith( Namespace.ALIGNMENT.uri ) &&
+		 !prefix.startsWith( Namespace.EDOAL.uri ) &&
+		 !prefix.startsWith( Namespace.RDF.uri ) &&
+		 !prefix.startsWith( Namespace.RDF_SCHEMA.uri ) ) {
+		// Check that this is a literal
+		try {
+		    String content = stmt.getString();
+		    //System.err.println( prefix + " :: "+ name + " == " +content );
+		    ext.setExtension( prefix, name, content );
+		} catch (LiteralRequiredException lrex) {
+		    // Could also be just a warning
+		    throw new AlignmentException( "Extension "+stmt.getPredicate()+" should contain a literal" );
+		}
+	    }
+	}
     }
 
     /**
@@ -401,7 +430,8 @@ public class RDFParser {
             //logger.trace(" s : {}", s);	    
             //logger.trace(" t : {}", t);
 
-            EDOALCell cell = new EDOALCell(id, s, t, type, m);
+            EDOALCell cell = new EDOALCell( id, s, t, type, m );
+
             // Parse the possible transformations
             StmtIterator stmtIt = node.listProperties((Property) SyntaxElement.TRANSFORMATION.resource);
             while (stmtIt.hasNext()) {
@@ -412,7 +442,8 @@ public class RDFParser {
                     logger.debug("INGORED Exception on Transformation parsing", ae);
                 }
             }
-            //parse the linkkeys
+
+            // Parse the linkkeys
             stmtIt = node.listProperties((Property) SyntaxElement.LINKKEYS.resource);
             while (stmtIt.hasNext()) {
                 Statement stmt = stmtIt.nextStatement();
@@ -423,6 +454,9 @@ public class RDFParser {
                     logger.debug("IGNORED Exception linkkeys parsing", ae);
                 }
             }
+
+	    // Parse extensions
+	    parseExtensions( node, cell );
 
             return cell;
         } catch (Exception e) {  //wrap other type exception
@@ -454,14 +488,12 @@ public class RDFParser {
         }
     }
 
-    protected Linkkey parseLinkkey(final Resource node) throws AlignmentException {
-        if (node == null) {
+    protected Linkkey parseLinkkey( final Resource node ) throws AlignmentException {
+        if ( node == null ) {
             throw new NullPointerException("The node must not be null");
         }
         try {
             Linkkey linkkey = new Linkkey();
-            // parsing annotations (type, ...)
-            parseAnnotation(node.getProperty((Property) SyntaxElement.EDOAL_TYPE.resource), linkkey);
 
             //Parsing bindings
             StmtIterator stmtIt = node.listProperties((Property) SyntaxElement.LINKKEY_BINDING.resource);
@@ -473,6 +505,9 @@ public class RDFParser {
                     logger.debug("IGNORED Exception", ae);
                 }
             }
+
+	    // Parse extensions
+	    parseExtensions( node, linkkey );
             return linkkey;
         } catch (Exception e) {  //wrap other type exception
             throw new AlignmentException("Cannot parse linkkey " + node, e);
@@ -1000,37 +1035,6 @@ public class RDFParser {
             }
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Parses a given annotaion in the the given node.
-     *
-     * @param stmt the annotation statement
-     * @param extensable 
-     * @throws NullPointerException if the node or the element is null
-     */
-    protected void parseAnnotation(final Statement stmt, Extensable extensable) throws AlignmentException {
-        try {
-            final String anno = stmt.getString();
-            if ((anno != null) && (anno.length() > 0)) {
-                URI uri = new URI(stmt.getPredicate().getURI());
-                String name = uri.getFragment();
-                String prefix = uri.getScheme() + ":" + uri.getSchemeSpecificPart();
-                if (name == null) {
-                    int pos = prefix.lastIndexOf('/');
-                    name = prefix.substring(pos + 1);
-                    prefix = prefix.substring(0, pos + 1);
-                } else {
-                    prefix += "#";
-                }
-                // This will not work for stuff like dc:creator which has no fragment!
-                extensable.setExtension(prefix, name, anno);
-            }
-        } catch (Exception e1) {
-            // It would be better to silently ignore annotations
-            // Or report them in a bunch
-            throw new AlignmentException("The annotation is not correct", e1);
         }
     }
 

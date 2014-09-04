@@ -1,22 +1,42 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * $Id: BasicCell.java 1878 2014-01-29 14:52:55Z euzenat $
+ *
+ * Copyright (C) INRIA, 2003-2005, 2007-2010
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
  */
+
 package fr.inrialpes.exmo.align.impl.edoal;
 
 import fr.inrialpes.exmo.align.impl.Extensions;
+import fr.inrialpes.exmo.align.impl.Extensible;
+
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.semanticweb.owl.align.AlignmentException;
 
 /**
  *
  * @author Nicolas Guillouet <nicolas@meaningengines.com>
  */
-public class Linkkey implements Extensable{
+public class Linkkey implements Extensible {
     
     private Set<LinkkeyBinding> bindings;
     protected Extensions extensions = null;
@@ -33,7 +53,6 @@ public class Linkkey implements Extensable{
         bindings = new HashSet<>();
     }
 
-
     public void addBinding(LinkkeyBinding binding){
         bindings.add(binding);
     }
@@ -42,11 +61,11 @@ public class Linkkey implements Extensable{
         return bindings;
     }
     
-
-    public Collection<String[]> getExtensions(){ 
-	if ( extensions != null ) return extensions.getValues();
-	else return null;
+    public Collection<String[]> getExtensions() { 
+    	if ( extensions != null ) return extensions.getValues();
+    	else return null;
     }
+
     public void setExtensions( Extensions p ){
 	extensions = p;
     }

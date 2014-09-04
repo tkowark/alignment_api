@@ -44,13 +44,6 @@ import org.semanticweb.owl.align.AlignmentException;
 public enum SyntaxElement {
 
     // RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
-// RDF NAMESPACE
     RDF(Namespace.RDF, "RDF", true), // This is not a resource, nor a property
     RDF_ID(Namespace.RDF, "ID"),
     RDF_ABOUT(Namespace.RDF, "about"),

@@ -151,6 +151,7 @@ public class EDOALExportTest {
         aparser.initAlignment(null);
         Alignment alignment = aparser.parse("file:examples/omwg/total-owlable.xml");
         assertNotNull(alignment);
+	assertEquals( alignment.nbCells(), 16 );
         // Print it in a string
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(
@@ -168,7 +169,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 11623);
+        assertEquals(str1.length(), 11747); // was: 11623
     }
 
     // Use an alignment converted from URI
@@ -211,7 +212,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         String str1 = stream.toString();
-        assertEquals(str1.length(), 36468);
+        assertEquals(str1.length(), 37175);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
@@ -496,11 +497,11 @@ public class EDOALExportTest {
         Linkkey linkkey = new Linkkey();
         LinkkeyBinding linkkeyBinding = new LinkkeyEquals(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")));
         linkkey.addBinding(linkkeyBinding);
-        linkkey.setExtension("http://ns.inria.org/edoal/1.0/#", "type", "plain");
+        linkkey.setExtension("http://blabla.com#", "type", "plain");
         assertEquals(render(linkkey),
                 "<edoal:linkkey>"
                 + "<edoal:Linkkey>"
-//                + "<edoal:type>plain</edoal:type>"
+                + "<alignapilocalns:type xmlns:alignapilocalns=\"http://blabla.com#\">plain</alignapilocalns:type>"
                 + "<edoal:binding>"
                 + "<edoal:Equals>"
                 + "<edoal:property1>"
@@ -518,11 +519,11 @@ public class EDOALExportTest {
         linkkey = new Linkkey();
         linkkeyBinding = new LinkkeyIntersects(new PropertyId(new URI("http://exmo.inrialpes.fr/binding1")), new PropertyId(new URI("http://exmo.inrialpes.fr/binding2")));
         linkkey.addBinding(linkkeyBinding);
-        linkkey.setExtension("http://ns.inria.org/edoal/1.0/#", "type", "plain");
+	linkkey.setExtension("http://blabla.com#", "type", "weak");
         assertEquals(render(linkkey),
                 "<edoal:linkkey>"
                 + "<edoal:Linkkey>"
-//                + "<edoal:type>plain</edoal:type>"
+                + "<alignapilocalns:type xmlns:alignapilocalns=\"http://blabla.com#\">weak</alignapilocalns:type>"
                 + "<edoal:binding>"
                 + "<edoal:Intersects>"
                 + "<edoal:property1>"

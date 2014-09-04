@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011, 2013
+ * Copyright (C) INRIA, 2008-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -127,7 +127,7 @@ public class EDOALTest {
         // This tests the round triping
         assertEquals(wine2.length(), stream.toString().length());
         // This provides an absolute value
-        assertEquals(wine2.length(), 4669);
+        assertEquals(wine2.length(), 4818);
         // This does not work because (at least) the order of correspondences is never the same...
         //assertEquals( wine2, stream.toString() );
     }

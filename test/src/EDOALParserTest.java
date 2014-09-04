@@ -26,6 +26,7 @@ import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
 import fr.inrialpes.exmo.align.impl.edoal.PropertyId;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
 import org.testng.annotations.Test;
 
@@ -67,32 +68,29 @@ public class EDOALParserTest {
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
     public void typedParsingTest() throws Exception {
-        AlignmentParser aparser2 = new AlignmentParser(2);
-        aparser2.initAlignment(null);
-        // Would be good to close System.err at that point...
-        OutputStream serr = System.err;
-        System.setErr(new PrintStream(new NullStream()));
-        Alignment al = aparser2.parse("file:examples/omwg/total.xml");
-        System.setErr(new PrintStream(serr));
+        //AlignmentParser aparser2 = new AlignmentParser(2);
+        aparser1.initAlignment(null);
+        Alignment al = aparser1.parse("file:examples/omwg/total.xml");
         assertNotNull(al);
-        List<Cell> cells = Collections.list(al.getElements());
-        assertEquals(cells.size(), 17);//Should be changed if new tests added ...
+	assertEquals( al.nbCells(), 17 ); //Should be changed if new tests added...
     }
 
-    @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"typedParsingTest"})
+    @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
     public void linkeyParsingTest() throws Exception {
         // Load the full test
         aparser1.initAlignment(null);
         EDOALAlignment alignment = (EDOALAlignment) aparser1.parse("file:test/input/alignment2.rdf");
         assertNotNull(alignment);
         Enumeration<Cell> cells = alignment.getElements();
-        EDOALCell cell = (EDOALCell) cells.nextElement();
+        assertTrue( cells.hasMoreElements() );
+        EDOALCell cell = (EDOALCell)cells.nextElement();
         assertFalse(cells.hasMoreElements());
 
         Set<Linkkey> linkkeys = cell.linkkeys();
         assertEquals(linkkeys.size(), 1);
         Linkkey linkkey = linkkeys.iterator().next();
-        assertEquals(linkkey.getExtension("http://ns.inria.org/edoal/1.0/#", "type"), "weak");
+        //assertEquals(linkkey.getExtension("http://ns.inria.org/edoal/1.0/#", "type"), "weak");
+	assertEquals(linkkey.getExtension("http://exmo.inrialpes.fr/align/service#", "type"), "weak");
 
         Set<LinkkeyBinding> bindings = linkkey.bindings();
         assertEquals(bindings.size(), 2);

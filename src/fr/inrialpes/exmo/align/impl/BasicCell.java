@@ -39,7 +39,7 @@ import org.semanticweb.owl.align.Relation;
  * @version $Id$
  */
 
-public class BasicCell implements Cell, Comparable<Cell> {
+public class BasicCell implements Cell, Comparable<Cell>, Extensible {
     public void accept( AlignmentVisitor visitor) throws AlignmentException {
         visitor.visit( this );
     }

@@ -365,14 +365,6 @@ public class XMLParser extends DefaultHandler {
 	    throw new SAXException("[XMLParser] bad URI syntax : "+name);}
     }
 
-    /**
-     * Put the content in a variable
-    public void characters(char ch[], int start, int length) {
-	content = new String( ch, start, length );
-	//logger.trace( "content XMLParser : {}", content );
-    }
-    */
-
     /* From a patch proposed by Sabine Massmann
      * Get around some nasty double parsing bug. Sometimes it parses
      * 6.925955630686735E-4 as
@@ -511,7 +503,7 @@ public class XMLParser extends DefaultHandler {
 		extensions.setExtension( namespaceURI, pName, content );
 	    } else if (  !embedded ) throw new SAXException("[XMLParser] Unknown namespace : "+namespaceURI);
 	}
-	content = null; // JE2012: set it for the character patch
+	content = null; // set it for the character patch
 	parseLevel--;
     } //end endElement
     
