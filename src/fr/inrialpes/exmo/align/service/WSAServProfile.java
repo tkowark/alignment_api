@@ -22,11 +22,14 @@ package fr.inrialpes.exmo.align.service;
 
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
+
 import fr.inrialpes.exmo.align.service.msg.Message;
 import fr.inrialpes.exmo.align.service.msg.ErrorMsg;
 import fr.inrialpes.exmo.align.service.msg.NonConformParameters;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.OntologyNetwork;
 
 import java.io.File;
 import java.io.FileReader;
@@ -189,6 +192,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	}
     }
 
+    // See HTTPTransport about it
     public boolean accept( String prefix ) {
 	if ( prefix.equals("aserv") || prefix.equals("rest") || prefix.equals("wsdl") ) return true;
 	else return false;
@@ -295,6 +299,121 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		}
 		msg += "      </alignmentList>\n    </listalignmentsResponse>\n";
 	    }
+	} else if ( method.equals("listnetworksRequest") || method.equals("listnetworks") ) { // -> List of URI
+	    if ( param.getProperty("returnType") == HTTPResponse.MIME_JSON ) {
+		msg = "{ \"type\" : \"listnetworksResponse\",\n";
+		if ( newparameters.getProperty("msgid") != null ) {
+		    msg += "  \"in-reply-to\" : \""+newparameters.getProperty("msgid")+"\",\n";
+		}
+		msg += "  \"answer\" : [";
+		boolean first = true;
+		for( OntologyNetwork oNetwork : manager.ontologyNetworks() ){
+		    String id = ((BasicOntologyNetwork)oNetwork).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		    if ( first ) {
+			msg += "\n        \""+id+"\"";
+			first = false;
+		    } else {
+			msg += ",\n        \""+id+"\"";
+		    }
+		}
+		msg += "\n]}";
+	    } else {
+		msg = "    <listnetworksResponse "+svcNS+">\n";
+		if ( newparameters.getProperty("msgid") != null ) {
+		    msg += "      <in-reply-to>"+newparameters.getProperty("msgid")+"</in-reply-to>\n";
+		}
+		msg += "      <networkList>\n";
+		for( OntologyNetwork oNetwork : manager.ontologyNetworks() ){
+		    String id = ((BasicOntologyNetwork)oNetwork).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		    msg += "        <onid>"+id+"</onid>\n";
+		}
+		msg += "      </networkList>\n    </listnetworksResponse>\n";
+	    }
+	} else if ( method.equals("matchnetworkRequest") || method.equals("matchnetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "method" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.matchOntologyNetwork( newparameters );
+	    }
+	    msg += render( "matchnetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("printnetworkRequest") || method.equals("printnetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.renderOntologyNetwork( newparameters );
+	    }
+	    msg += render( "printnetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("trimnetworkRequest") || method.equals("trimnetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "threshold" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		if ( newparameters.getProperty( "type" ) == null ) {
+		    newparameters.setProperty( "type", "hard" );
+		}
+		answer = manager.trimOntologyNetwork( newparameters );
+	    }
+	    msg += render( "trimnetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("invertnetworkRequest") || method.equals("invertnetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.invertOntologyNetwork( newparameters );
+	    }
+	    msg += render( "invertnetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("normalizenetworkRequest") || method.equals("normalizenetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.normOntologyNetwork( newparameters );
+	    }
+	    msg += render( "normalizenetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("denormalizenetworkRequest") || method.equals("denormalizenetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.denormOntologyNetwork( newparameters );
+	    }
+	    msg += render( "denormalizenetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("closenetworkRequest") || method.equals("closenetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.closeOntologyNetwork( newparameters );
+	    }
+	    msg += render( "closenetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("setopnetworksRequest") || method.equals("setopnetworks") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id1" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "id2" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "oper" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.setopOntologyNetwork( newparameters );
+	    }
+	    msg += render( "setopnetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("storenetworkRequest") || method.equals("storenetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.storeOntologyNetwork( newparameters );
+	    }
+	    msg += render( "storenetworkResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("loadnetworkRequest") || method.equals("loadnetwork") ) { // -> List of URI
+	    if ( newparameters.getProperty( "url" ) == null &&
+		 param.getProperty( "filename" ) != null ) {
+		// HTTP Server has stored it in filename (HTMLAServProfile)
+		newparameters.setProperty( "url",  "file://"+param.getProperty( "filename" ) );
+	    } else if ( newparameters.getProperty( "url" ) == null &&
+		 param.getProperty( "filename" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    }
+	    answer = manager.loadOntologyNetwork( newparameters );
+	    msg += render( "loadnetworkResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("listmethodsRequest") || method.equals("listmethods") ) { // -> List of String
 	    msg += getClasses( "listmethodsResponse", manager.listmethods(), param.getProperty("returnType"), newparameters );
 	} else if ( method.equals("listrenderersRequest") || method.equals("listrenderers") ) { // -> List of String
@@ -383,6 +502,15 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = manager.existingAlignments( newparameters );
             }
 	    msg += render( "findResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("evalRequest") || method.equals("eval") ) { // URI * URI -> List of URI
+	    if ( newparameters.getProperty( "id" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else if ( newparameters.getProperty( "ref" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.eval( newparameters );
+            }
+	    msg += render( "evalResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("retrieveRequest") || method.equals("retrieve")) { // URI * method -> XML
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
@@ -423,7 +551,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    }
 	    msg += "    <loadResponse"+svcNS+">\n"+answer.SOAPString()+"    </loadResponse>\n";
 	    */
-	} else if ( method.equals("translateRequest") ) { // XML * URI -> XML
+	} else if ( method.equals("translateRequest") || method.equals("translate") ) { // XML * URI -> XML
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
 	    } else if ( newparameters.getProperty( "query" ) == null ) {
@@ -467,7 +595,7 @@ public class WSAServProfile implements AlignmentServiceProfile {
 	    if ( mess.getSender() != null ) res += "      <sender>"+mess.getSender()+"</sender>\n";
 	    if ( mess.getReceiver() != null ) res += "      <receiver>"+mess.getReceiver()+"</receiver>\n";
 	    if ( mess.getInReplyTo() != null ) res += "      <in-reply-to>"+mess.getInReplyTo().getId()+"</in-reply-to>\n";
-	    res += mess.SOAPString()+"\n    </"+type+">\n";
+	    res += "      "+mess.SOAPString()+"\n    </"+type+">\n";
 	}
 	return res;
     }

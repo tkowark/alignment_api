@@ -39,7 +39,14 @@ public class RenderedAlignment extends Success {
 
     public String RESTString(){
 	String method = (parameters==null)?null:parameters.getProperty( "method" );
-	if ( method != null && method.equals("fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" ) ) {
+	if ( method != null
+	     && ( method.equals("fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.COWLMappingRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.SWRLRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.XSLTRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.XMLMetadataRendererVisitor" )
+		  || method.equals("fr.inrialpes.exmo.align.impl.renderer.SKOSRendererVisitor" ) ) ) {
 	    return "<alignment>"+content+"</alignment>";
 	} else {
 	    return "<alignment>"+getXMLContent()+"</alignment>";

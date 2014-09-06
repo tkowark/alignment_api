@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.net.URI;
@@ -186,13 +187,26 @@ public class BasicOntologyNetwork implements OntologyNetwork {
     }
 
     /**
-     * Normalizes an ontology network for it to have exactly one alignment between each pair of ontologies.
-     * Creates a new network
+     * Invert all alignments in a network of ontologies
+     * In fact, this is closing by invert!
+     * Modifies the network
      */
     public void invert() throws AlignmentException {
-	HashSet<Alignment> newal = new HashSet<Alignment>();
+	Vector<Alignment> newal = new Vector<Alignment>();
 	for ( Alignment al : alignments ) newal.add( al.inverse() );
 	for ( Alignment al : newal ) addAlignment( al );
+    }
+
+    /**
+     * Denormalizes an ontology network: suppress all empty alignments
+     * Modifies the network
+     */
+    public void denormalize() throws AlignmentException {
+	Vector<Alignment> toremove = new Vector<Alignment>();
+	for ( Alignment al : alignments ) {
+	    if ( al.nbCells() == 0 ) toremove.add( al );
+	}
+	for ( Alignment al : toremove ) remAlignment( al );
     }
 
     /**
@@ -204,7 +218,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	    for ( OntologyTriple ot2 : ontologies.values() ) {
 		Set<Alignment> als = intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
 		// Suppress them
-		if ( als.size() != 1 ) {
+		if ( als.size() > 1 ) {
 		    Alignment norm = normalizeAlignmentSet( als, ot1.onto, ot2.onto );
 		    for ( Alignment al : als ) {
 			remAlignment( al );

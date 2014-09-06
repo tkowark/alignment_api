@@ -19,6 +19,10 @@ and parameters are given in the classical URL syntax, e.g.,
 debug=true&amp;level=1.
 </p>
 <p>
+The color of the items correspond to the panel in the browser interface
+where these actions are found.
+</p>
+<p>
 The result of these requests are provided in XML (default) or JSON.
 In the sequel, we describe the various request types.
 They can be obtained by:
@@ -36,7 +40,7 @@ Beware: URIs within the &lt;URL&gt; above should be URLEncoded.
 This is particularly true of '#' that do not pass through Java URL decoding.
 </p>
 
-<h3>listalignments<a name="listalignments"></a></h3>
+<h3><span style="background-color: lightblue;">listalignments</span><a name="listalignments"></a></h3>
 
 <p>Gets the list of the alignments available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listalignments</b> ?</p>
@@ -53,7 +57,24 @@ This is particularly true of '#' that do not pass through Java URL decoding.
 </div>
 </p>
 
-<h3>listmethods<a name="listmethods"></a></h3>
+<h3><span style="background-color: lightgreen;">listnetworks</span><a name="listnetworkss"></a></h3>
+
+<p>Gets the list of the ontology networks available on the server.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>listnetworks</b> ?</p>
+<p>Parameters: none</p>
+<p>Result:<br />
+<div class="xml">
+&lt;listnetworksResponse>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;networkList>
+        &lt;onid> URI &lt;/onid>
+	...
+    &lt;/networkList>
+&lt;/listnetworksResponse>
+</div>
+</p>
+
+<h3><span style="background-color: lightpink;">listmethods</span><a name="listmethods"></a></h3>
 <p>Gets the list of matching methods available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listmethods</b> ?</p>
 <p>Parameters: none</p>
@@ -69,7 +90,7 @@ This is particularly true of '#' that do not pass through Java URL decoding.
 </div>
 </p>
 
-<h3>listrenderers<a name="listrenderers"></a></h3>
+<h3><span style="background-color: lightpink;">listrenderers</span><a name="listrenderers"></a></h3>
 <p>Gets the list of renderer methods available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listrenderers</b> ?</p>
 <p>Parameters: none</p>
@@ -85,7 +106,7 @@ This is particularly true of '#' that do not pass through Java URL decoding.
 </div>
 </p>
 
-<h3>listservices<a name="listservices"></a></h3>
+<h3><span style="background-color: lightpink;">listservices</span><a name="listservices"></a></h3>
 <p>Gets the list of communication services available (and running) on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listservices</b> ?</p>
 <p>Parameters: none</p>
@@ -101,7 +122,7 @@ This is particularly true of '#' that do not pass through Java URL decoding.
 </div>
 </p>
 
-<h3>listevaluators<a name="listevaluators"></a></h3>
+<h3><span style="background-color: lightpink;">listevaluators</span><a name="listevaluators"></a></h3>
 <p>Gets the list of evauators available on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>listevaluators</b> ?</p>
 <p>Parameters: none</p>
@@ -117,7 +138,7 @@ This is particularly true of '#' that do not pass through Java URL decoding.
 </div>
 </p>
 
-<h3>match<a name="match"></a></h3>
+<h3><span style="background-color: lightblue;">match</span><a name="match"></a></h3>
 <p>Matches two ontologies.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>match</b> ? <b>onto1</b> =
   &lt;URI&gt; &amp; <b>onto2</b> = &lt;URI&gt; &amp; method =
@@ -152,7 +173,41 @@ and value of parameter <i>n</i>.
 </div>
 </p>
 
-<h3>find<a name="find"></a></h3>
+<h3><span style="background-color: lightgreen;">matchnetwork</span><a name="match"></a></h3>
+<p>Compute alignments between each pairs of ontologies in a network.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>matchnetwork</b> ? <b>id</b> =
+  &lt;URI&gt; &amp; method =
+  &lt;classname&gt; &amp; force = &lt;boolean&gt;</p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network to be matched,
+<br /><b>method:</b> the name of a matching method available on the server,
+  see <a href="#listmethods">listmethods</a> (default: fr.inrialpes.exmo.align.impl.method.StringDistAlignment).
+<br /><b>force:</b> a boolean (default: false) which forces the server to
+  create a new alignment even if one is already available.<br />
+otherwise, the server first tries to find
+  an existing alignment for the two ontologies. If no alignment is
+found a new alignment will be produced.
+<br /><b>sym:</b> a boolean (default: false) requiring to compute the
+alignments in a symmetric fashion.
+<br /><b>refl:</b> a boolean (default: false) requiring to compute the
+alignments in a reflexive fashion, i.e., each ontology will be matched
+with itself.
+<br /><b>paramn<i>n</i></b> and <b>paramv<i>n</i>:</b> the name
+and value of parameter <i>n</i>.
+</p>
+<p>Note: the process is always asynchronous.
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;matchnetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/matchnetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">find</span><a name="find"></a></h3>
 <p>Finds alignments related to one or two ontologies.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>find</b> ? <b>onto1</b>
   = &lt;URI&gt; &amp; <b>onto2</b> = &lt;URI&gt;</p>
@@ -173,7 +228,7 @@ and value of parameter <i>n</i>.
 </div>
 <p>
 
-<h3>corresp<a name="corresp"></a></h3>
+<h3><span style="background-color: lightblue;">corresp</span><a name="corresp"></a></h3>
 <p>Finds the concepts corresponding to a concept in a particular alignment.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>corresp</b> ? <b>id</b>
   = &lt;URI&gt; &amp; <b>entity</b> = &lt;URI&gt; &amp; strict = &lt;boolean&gt;</p>
@@ -196,7 +251,7 @@ and value of parameter <i>n</i>.
 </div>
 <p>
 
-<h3>retrieve<a name="retrieve"></a></h3>
+<h3><span style="background-color: lightblue;">retrieve</span><a name="retrieve"></a></h3>
 <p>Retrieves an alignment in a specific format.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>retrieve</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>method</b> = &lt;classname&gt;</p>
@@ -209,14 +264,31 @@ and value of parameter <i>n</i>.
 <p>Result:<br />
 <div class="xml">
 &lt;retrieveResponse>
-  &lt;result>
+  &lt;alignment>
   Alignment in required format	
-  &lt;/result>
+  &lt;/alignment>
 &lt;/retrieveResponse>
 </div>
 </p>
 
-<h3>trim<a name="trim"></a></h3>
+<h3><span style="background-color: lightgreen;">printnetwork</span><a name="printnetwork"></a></h3>
+<p>Prints a network in RDF/XML format.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>printnetwork</b> ? <b>id</b> =
+  &lt;URI&gt;</p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontology to print.
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;printnetworkResponse>
+  &lt;network>
+  Ontology network in RDF/XML
+  &lt;/network>
+&lt;/printnetworkResponse>
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">trim</span><a name="trim"></a></h3>
 <p>Trims an alignment with a threshhold.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>trim</b> ? <b>id</b> =
   &lt;URI&gt; &amp; <b>threshold</b> = &lt;float&gt; &amp; type = &lt;label&gt; </p>
@@ -236,7 +308,27 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h3>invert<a name="invert"></a></h3>
+<h3><span style="background-color: lightgreen;">trimnetwork</span><a name="trim"></a></h3>
+<p>Trims all the alignments in a network with a threshhold.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>trimnetwork</b> ? <b>id</b> =
+  &lt;URI&gt; &amp; <b>threshold</b> = &lt;float&gt; &amp; type = &lt;label&gt; </p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be trimmed.
+<br /><b>threshold:</b> the threshold for trimming.
+<br /><b>type:</b> the method used for trimming (values: hard, perc, best,
+span, prop; default: hard).
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;trimnetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/trimnetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">invert</span><a name="invert"></a></h3>
 <p>Inverts an alignment.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>invert</b> ? <b>id</b> =
   &lt;URI&gt; </p>
@@ -253,7 +345,99 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h3>store<a name="store"></a></h3>
+<h3><span style="background-color: lightgreen;">invertnetwork</span><a name="invert"></a></h3>
+<p>Inverts all alignments of a network of ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>invertnetwork</b> ? <b>id</b> = &lt;URI&gt; </p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be inverted.
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;invertnetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/invertnetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightgreen;">normalizenetwork</span><a name="normalize"></a></h3>
+<p>Normalises a network of ontologies, i.e., set exactly one alignment,
+  eventually empty, between each pair of ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>normalizenetwork</b> ? <b>id</b> = &lt;URI&gt; &amp; new = &lt;boolean&gt; </p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be normalised.
+<br /><b>new:</b> if true create a new network of ontologies (default: false).
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;normalizenetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/normalizenetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightgreen;">denormalizenetwork</span><a name="normalize"></a></h3>
+<p>Suppress all empty alignments from a network of ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>denormalizenetwork</b> ? <b>id</b> = &lt;URI&gt; &amp; new = &lt;boolean&gt; </p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be denormalised.
+<br /><b>new:</b> if true create a new network of ontologies (default: false).
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;denormalizenetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/denormalizenetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightgreen;">closenetwork</span><a name="close"></a></h3>
+<p>Compute the closure a network of ontologies.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>closenetwork</b> ? <b>id</b> =
+  &lt;URI&gt; &amp; sym = &lt;boolean&gt; &amp; trans = &lt;boolean&gt; &amp; refl = &lt;boolean&gt; </p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be closed.
+<br /><b>sym:</b> indicates if the symmetric closure must be performed (default: false).
+<br /><b>trans:</b> indicates if the transitive closure must be performed (default: false).
+<br /><b>refl:</b> indicates if the reflexive closure must be performed (default: false).
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;closenetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/closenetworkResponse> 
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">eval</span><a name="eval"></a></h3>
+<p>Evaluates an alignment on the server.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>eval</b> ? <b>id</b> =
+  &lt;URI&gt; &amp; <b>ref</b> = &lt;URI&gt; &amp; method = &lt;classname&gt;</p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the alignment to be evaluated.
+<br /><b>ref:</b> the URI of the reference alignment.
+<br /><b>method:</b> the name of a evaluation method available on the server,
+  see <a href="#listevaluators">listevaluators</a> (default: fr.inrialpes.exmo.align.impl.eval.PRecEvaluator).
+
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;evalResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to>  MessageId &lt;/in-reply-to>
+    &lt;result> Result of the evaluation &lt;/result>
+&lt;/evalResponse>
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">store</span><a name="store"></a></h3>
 <p>Stores an alignment on the server.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>store</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
@@ -269,7 +453,23 @@ span, prop; default: hard).
 </div>
 </p>
 
-<h3>load<a name="load"></a></h3>
+<h3><span style="background-color: lightgreen;">storenetwork</span><a name="store"></a></h3>
+<p>Stores a network of ontologies on the server.</p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>storenetwork</b> ? <b>id</b> = &lt;URI&gt;</p>
+<p>Parameters:
+<br /><b>id:</b> the URI of the network of ontologies to be stored.
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;storenetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to>  MessageId &lt;/in-reply-to>
+    &lt;onid> URI &lt;/onid>
+&lt;/storenetworkResponse>
+</div>
+</p>
+
+<h3><span style="background-color: lightblue;">load</span><a name="load"></a></h3>
 <p>Uploads an alignment to the server.</p>
 <p>
 This function can work in two ways: either with a url parameter
@@ -293,13 +493,31 @@ or
 </div>
 </p>
 
-<h2>Unsupported features</h2>
-
-<p>These features may have been implemented and may become standard at
-  some point. For the moment, they are not.
+<h3><span style="background-color: lightgreen;">loadnetwork</span><a name="load"></a></h3>
+<p>Uploads a network of ontologies to the server.</p>
+<p>
+This function can work in two ways: either with a url parameter
+which contains a publicly accessible URL that the server will use
+for uploading the file, or by using a POST request method, in which
+the network of ontologies is in the message content (e.g., a loadfile java script, see <a href="http://aserv.inrialpes.fr/html/prmload?">here</a>).</p>
+<p>URI: http://aserv.inrialpes.fr/rest/ <b>loadnetwork</b> ? <b>url</b> = &lt;URL&gt &amp; pretty = &lt;string&gt;</p>
+or
+<p>URI: http://aserv.inrialpes.fr/rest/ <b>loadnetwork</b> ? pretty = &lt;string&gt;</p>
+<p>Parameters: 
+<br /><b>url:</b> the accessible URL where to find the alignment to upload.
+<br /><b>pretty:</b> a string that will name the resulting alignment.
+</p>
+<p>Result:<br />
+<div class="xml">
+&lt;loadnetworkResponse>
+    &lt;msgid> MessageId &lt;/msgid>
+    &lt;in-reply-to> MessageId &lt;/in-reply-to>
+    &lt;alid> URI &lt;/alid>
+&lt;/loadnetworkResponse>
+</div>
 </p>
 
-<h3>metadata<a name="metadata"></a></h3>
+<h3><span style="background-color: lightblue;">metadata</span><a name="metadata"></a></h3>
 <p>Gets metadata of an alignment, i.e., avoid downloading all correspondences.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>metadata</b> ? <b>id</b> = &lt;URI&gt;</p>
 <p>Parameters:
@@ -309,30 +527,35 @@ or
 <div class="xml">
 &lt;metadataResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
-    Metadata in RDF
+    &lt;alignment>
+      Metadata in RDF
+    &lt;/alignment>
 &lt;/metadataResponse> 
 </div>
 </p>
 
-<h3>translate<a name="translate"></a></h3>
+<h3><span style="background-color: lightblue;">translate</span><a name="translate"></a></h3>
 <p>Translates a query with regard to an alignment.</p>
 <p>URL: http://aserv.inrialpes.fr/rest/ <b>translate</b> ? <b>id</b> = &lt;URI&gt; &amp; <b>query</b> = &lt;SPARQL&gt;</p>
 <p>Parameters:
 <br /><b>id:</b> the URI of the alignment used for the translation.
-<br /><b>query:</b> the query to be translated.
+<br /><b>query:</b> the query to be translated (URL encoded).
 </p>
 <p>Result:<br />
 <div class="xml">
 &lt;translateResponse>
     &lt;in-reply-to> MessageId &lt;/in-reply-to>
-    &lt;result> The translated query &lt;/result>
+    &lt;message> 
+      The translated query 
+    &lt;/message>
 &lt;/translateResponse> 
 </div>
 </p>
 
-<h3>align<a name="align"></a></h3>
+<!--h3><span style="background-color: lightblue;">align</span><a name="align"></a></h3>
 <p>Matches two ontologies and directly returns the RDF rendering of the result.</p>
-<p>URL: http://aserv.inrialpes.fr/rest/ <b>align</b> ? </p>
+<p>URL: http://aserv.inrialpes.fr/rest/ <b>align</b> ? <b>onto1</b> =
+  &lt;URI&gt; &amp; <b>onto2</b> = &lt;URI&gt; </p>
 <p>Parameters:
 <br /><b>onto1</b> and <b>onto2:</b> the URLs or URIs of the ontology
 to be matched.
@@ -345,7 +568,25 @@ to be matched.
     &lt;result> The alignment in RDF/XML &lt;/result>
 &lt;/alignResponse>
 </div>
-</p>
+</p-->
+
+<!--h2>Unsupported features</h2>
+
+<p>These features may have been implemented and may become standard at
+  some point. For the moment, they are not.
+</p-->
+
+<h2>Potential other features</h2>
+
+<p>Here are some feature that could eventually be implemented if
+  someone has a need for them.</p>
+<p>Getting metadata by keys (one by one).</p>
+
+<p>findbyPrettyName for finding elements from their pretty name.</p>
+
+<p>findNetworksWithOntologies for finding network containing
+  particular ontologies.</p>
+
 
 <h2>Note about the SOAP interface</h2>
 
@@ -379,7 +620,7 @@ and answers:
 </div>
 </p>
 
-<h3>wsdl<a name="wsdl"></a></h3>
+<h3><span style="background-color: lightpink;">wsdl</span><a name="wsdl"></a></h3>
 
 <p>Gets the Web Service Description Language description of the SOAP interface.</p>
 <p>URL: <a href="http://aserv.inrialpes.fr/wsdl?">http://aserv.inrialpes.fr/ <b>wsdl</b> ?</a> </p>
