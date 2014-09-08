@@ -359,7 +359,6 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "Additional parameters:<br /><input type=\"text\" name=\"paramn1\" size=\"15\"/> = <input type=\"text\" name=\"paramv1\" size=\"65\"/><br /><input type=\"text\" name=\"paramn2\" size=\"15\"/> = <input type=\"text\" name=\"paramv2\" size=\"65\"/><br /><input type=\"text\" name=\"paramn3\" size=\"15\"/> = <input type=\"text\" name=\"paramv3\" size=\"65\"/><br /><input type=\"text\" name=\"paramn4\" size=\"15\"/> = <input type=\"text\" name=\"paramv4\" size=\"65\"/>";
 	    msg += "<br /><input type=\"checkbox\" name=\"reflexive\" /> Reflexive ";
 	    msg += "<input type=\"checkbox\" name=\"symmetric\" /> Symmetric ";
-	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
 	    msg += "<br /><br /><input type=\"submit\" name=\"action\" value=\"Match\"/> ";
 	    msg += "</form>";
 	} else if ( perf.equals("match") ) {
@@ -401,23 +400,22 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
 	    msg += "<input type=\"submit\" name=\"invert\" value=\"Invert\" /> ";
 	    msg += "</form>";
-	} else if ( perf.equals("close") ){
-	    Message answer = manager.closeOntologyNetwork( params );
+	} else if ( perf.equals("invert") ){
+	    Message answer = manager.invertOntologyNetwork( params );
 	    if ( answer instanceof ErrorMsg ) {
 	    	msg = testErrorMessages( answer, params, eSource );
 	    } else {
-	    	msg ="<h1>Closed network</h1>";
+	    	msg ="<h1>Inverted network</h1>";
 	    	msg += displayAnswerON( answer, params );
 	    }  
 	} else if ( perf.equals("prmclose") ){
 	    msg = "<h1>Close a network of ontologies</h1><form action=\"close\">";
 	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
 	    msg += "<input type=\"submit\" name=\"close\" value=\"Close\" /> ";
-	    //msg += "<input type=\"submit\" name=\"symmetric\" value=\"Symmetric\"/> ";
-	    //msg += "<input type=\"submit\" name=\"transitive\" value=\"Transitive\"/> ";
-	    //msg += "<input type=\"submit\" name=\"reflexive\" value=\"Reflexive\"/> ";
-	    //msg += "<input type=\"submit\" name=\"compose\" value=\"Compose\"/> ";
-	    //msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	    msg += "<input type=\"submit\" name=\"symmetric\" value=\"Symmetric\"/> ";
+	    msg += "<input type=\"submit\" name=\"transitive\" value=\"Transitive\"/> ";
+	    msg += "<input type=\"submit\" name=\"reflexive\" value=\"Reflexive\"/> ";
+	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
 	    msg += "</form>";
 	} else if ( perf.equals("close") ){
 	    Message answer = manager.closeOntologyNetwork( params );
@@ -457,15 +455,14 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("") ) {
 	    msg = "<h1>Ontology networks</h1>";
-	    // JE: was: ../noo/
 	    msg += "<form action=\"listnetworks\"><button style=\"background-color: lightgreen;\" title=\"List of networks of ontologies stored in the server\" type=\"submit\">Available networks</button></form>";
 	    msg += "<form action=\"prmload\"><button style=\"background-color: lightgreen;\" title=\"Load a network of ontologies from a valid source\" type=\"submit\">Load a network</button></form>";
 	    msg += "<form action=\"prmmatch\"><button style=\"background-color: lightgreen;\" title=\"Match all ontologies in a network of ontologies\" type=\"submit\">Apply matching</button></form>";
 	    msg += "<form action=\"prmtrim\"><button style=\"background-color: lightgreen;\" title=\"Trim a network of ontologies\" type=\"submit\">Trim network</button></form>";
 	    msg += "<form action=\"prminvert\"><button style=\"background-color: lightgreen;\" title=\"Invert a network of ontologies\" type=\"submit\">Invert network</button></form>";
 	    msg += "<form action=\"prmnormalize\"><button style=\"background-color: lightgreen;\" title=\"Normalise a network of ontologies\" type=\"submit\">Normalise network</button></form>";
-	    msg += "<form action=\"prmoperset\"><button style=\"background-color: lightgreen;\" title=\"Set operations on networks of ontologies\" type=\"submit\">Set operations on networks</button></form>";
-	    //msg += "<form action=\"prmclose\"><button style=\"background-color: lightgreen;\" title=\"Close a network of ontologies\" type=\"submit\">Close network</button></form>";
+	    //msg += "<form action=\"prmoperset\"><button style=\"background-color: lightgreen;\" title=\"Set operations on networks of ontologies\" type=\"submit\">Set operations on networks</button></form>";
+	    msg += "<form action=\"prmclose\"><button style=\"background-color: lightgreen;\" title=\"Close a network of ontologies\" type=\"submit\">Close network</button></form>";
 	    msg += "<form action=\"prmretrieve\"><button style=\"background-color: lightgreen;\" title=\"Display a network of ontologies\" type=\"submit\">Show network</button></form>";
 	    msg += "<form action=\"prmstore\"><button style=\"background-color: lightgreen;\" title=\"Store a network of ontologies in the server\" type=\"submit\">Store network</button></form>";
 	    msg += "<form action=\"../html/\"><button style=\"background-color: lightblue;\" title=\"Back to alignment menu\" type=\"submit\">Alignments</button></form>";

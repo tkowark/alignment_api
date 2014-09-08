@@ -998,28 +998,22 @@ public class AServProtocolManager implements Service {
 	} catch ( AlignmentException alex ) {
 	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
 	}
-	// clone if requested
-    	boolean newnet = false;
-    	if (params.getProperty("new") != null) newnet = true;
-	if ( newnet ) {
-	    String pretty = params.getProperty("pretty");
-	    if ( pretty == null || pretty.equals("") ) {
-		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/matched";
-	    }
-	    noo = ((BasicOntologyNetwork) noo).clone();
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	// always clone
+	String pretty = params.getProperty("pretty");
+	if ( pretty == null || pretty.equals("") ) {
+	    pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/matched";
 	}
+	noo = ((BasicOntologyNetwork) noo).clone();
+	noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	// match
     	try { 
 	    noo.match( method, reflexive, symmetric, params );
 	} catch ( AlignmentException alex ) {
 	    return new ErrorMsg( params, newId(), serverId, "Network alignment error" );
 	}
-    	
     	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
 	// register
-	String newid = id;
-	if ( newnet) newid = alignmentCache.recordNewNetwork( noo, true );
+	String newid = alignmentCache.recordNewNetwork( noo, true );
     	for ( Alignment al : networkAlignmentUri( newid ) ) {
 	    alignmentCache.recordNewAlignment( al, true );
     	}
@@ -1064,34 +1058,39 @@ public class AServProtocolManager implements Service {
    
     public Message closeOntologyNetwork( Properties params ) {
 	BasicOntologyNetwork noo = null;
-	boolean invert = false;
-	boolean compose = false; //what should it do?
-	boolean newnet = false; //would always be a network, what is the behaviour with compose?
+	boolean sym = false;
+	boolean trans = false;
+	boolean refl = false;
 	String id = params.getProperty("id");
-	if (params.getProperty("invert") != null) invert = true;
-	if (params.getProperty("compose") != null) compose = true;
-	if (params.getProperty("new") != null) newnet = true;
+	if (params.getProperty("symmetric") != null) sym = true;
+	if (params.getProperty("transitive") != null) trans = true;
+	if (params.getProperty("reflexive") != null) refl = true;
 	// find
 	try {
 	    noo = (BasicOntologyNetwork)alignmentCache.getOntologyNetwork(id);
 	} catch (AlignmentException e) {
 	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
 	}
-	// clone
-    	String pretty = params.getProperty("pretty");
-	if ( pretty == null || pretty.equals("") ) {
-	    pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/closed";
+	// clone if needed
+   	boolean newnet = false;
+    	if (params.getProperty("new") != null) newnet = true;
+	if ( newnet ) {
+	    String pretty = params.getProperty("pretty");
+	    if ( pretty == null || pretty.equals("") ) {
+		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/denormalized";
+	    }
+	    noo = ((BasicOntologyNetwork) noo).clone();
+	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	}
-	noo = (BasicOntologyNetwork)noo.clone();
-	noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
 	// close
 	try {
-	    if (invert) ((BasicOntologyNetwork) noo).invert();
+	    noo.close( sym, trans, refl, params );
 	} catch (AlignmentException e) {
 	    return new ErrorMsg( params, newId(), serverId,"Invert network alignment error" );
 	}
 	// register
-	String newid = alignmentCache.recordNewNetwork( noo, true );
+	String newid = id;
+	if ( newnet) newid = alignmentCache.recordNewNetwork( noo, true );
 	for (Alignment al : networkAlignmentUri( newid ) ) {
 	alignmentCache.recordNewAlignment( al, true );
 	}

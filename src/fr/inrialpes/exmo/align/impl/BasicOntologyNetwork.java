@@ -230,6 +230,47 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 	}
     }
 
+    /**
+     * Computes the transitive, reflexive, symmetric closure of a network of ontology
+     * TODO.
+     * Reflexive: for each ontology generate id alignment + merge it with others
+     * Symmetric: for each pair of ontologies
+     * Transitive: for each triple of ontologies
+     */
+    public void close( boolean symmetric, boolean transitive, boolean reflexive, Properties params ) throws AlignmentException {
+	for ( OntologyTriple ot1 : ontologies.values() ) {
+	    if ( reflexive ) {
+		// generate id alignment
+		// + merge it with others
+	    }
+	    for ( OntologyTriple ot2 : ontologies.values() ) {
+		if ( symmetric ) {
+		    // merge ot1-ot2 with invert( ot2-ot1)
+		    // eventually replace ot2-ot1 with inverse ot1-ot2
+		}
+		if ( transitive ) {
+		    for ( OntologyTriple ot3 : ontologies.values() ) {
+			// merge ot1-ot3 with compose( ot1-ot2, ot2-ot3 )
+		    }
+		}
+		// EXCEPT THAT FOR TRANSITIVE, THIS MUST BE REITERATED UNTIL EXHAUSTION (BETTER WAY TO DO WITH A QUEUE)
+
+		// ...THIS IS THE BASE STEP...
+		// This is the normalisation step
+		Set<Alignment> als = intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
+		// Suppress them
+		if ( als.size() > 1 ) {
+		    Alignment norm = normalizeAlignmentSet( als, ot1.onto, ot2.onto );
+		    for ( Alignment al : als ) {
+			remAlignment( al );
+		    }
+		    // Add new
+		    addAlignment( norm );
+		}
+	    }
+	}
+    }
+
     protected static Alignment normalizeAlignmentSet( Set<Alignment> als, URI onto1, URI onto2 ) throws AlignmentException {
 	Alignment result = null;
 	if ( als.size() == 0 ) { // If no element, create new
@@ -269,14 +310,15 @@ public class BasicOntologyNetwork implements OntologyNetwork {
     public void match( String method, boolean reflexive, boolean symmetric, Properties params ) throws AlignmentException {
 	for ( OntologyTriple ot1 : ontologies.values() ) {
 	    for ( OntologyTriple ot2 : ontologies.values() ) {
-		if ( ( ot1 == ot2 && reflexive )
-		     || symmetric ) {
+		if ( ot1 != ot2 || reflexive ) {
 		    Set<Alignment> als = intersectAlignments( ot1.sourceAlignments, ot2.targettingAlignments );
 		    Alignment init = normalizeAlignmentSet( als, ot1.onto, ot2.onto );
 		    for ( Alignment al : als ) {
 			remAlignment( al );
 		    }
 		    // Create the alignment process
+		    // JE: reentrance would be useful
+		    // Async is not honoured (but not here)
 		    AlignmentProcess ap = null;
 		    try {
 			// Create alignment object
@@ -298,6 +340,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 		    // replace
 		    addAlignment( ap );
 		}
+		if ( ot1 == ot2 && !symmetric ) break;
 	    }
 	}
     }
