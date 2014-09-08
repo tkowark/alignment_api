@@ -55,7 +55,9 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.parser.RDFParser;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.Extensible;
 
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
@@ -67,7 +69,7 @@ import org.semanticweb.owl.align.OntologyNetwork;
  *
  */
 
-public class BasicOntologyNetwork implements OntologyNetwork {
+public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
     final static Logger logger = LoggerFactory.getLogger( BasicOntologyNetwork.class );
 
     protected Hashtable<URI,OntologyTriple> ontologies;
@@ -534,6 +536,7 @@ public class BasicOntologyNetwork implements OntologyNetwork {
 		    logger.debug( "IGNORED Exception : Alignments must be identified by URIs" );
 		}
 	    }
+	    RDFParser.parseExtensions( res, on );
 	} catch ( AlignmentException alex ) {
 	    throw alex;
 	} catch ( URISyntaxException urisex ) {

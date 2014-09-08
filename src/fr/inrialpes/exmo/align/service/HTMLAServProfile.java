@@ -411,11 +411,11 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("prmclose") ){
 	    msg = "<h1>Close a network of ontologies</h1><form action=\"close\">";
 	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
-	    msg += "<input type=\"submit\" name=\"close\" value=\"Close\" /> ";
-	    msg += "<input type=\"submit\" name=\"symmetric\" value=\"Symmetric\"/> ";
-	    msg += "<input type=\"submit\" name=\"transitive\" value=\"Transitive\"/> ";
-	    msg += "<input type=\"submit\" name=\"reflexive\" value=\"Reflexive\"/> ";
+	    msg += "<input type=\"checkbox\" name=\"symmetric\" value=\"Symmetric\"/> ";
+	    msg += "<input type=\"checkbox\" name=\"transitive\" value=\"Transitive\"/> ";
+	    msg += "<input type=\"checkbox\" name=\"reflexive\" value=\"Reflexive\"/> ";
 	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	    msg += "<br /><input type=\"submit\" name=\"close\" value=\"Close\" /> ";
 	    msg += "</form>";
 	} else if ( perf.equals("close") ){
 	    Message answer = manager.closeOntologyNetwork( params );
@@ -426,16 +426,23 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    	msg += displayAnswerON( answer, params );
 	    }  
 	} else if ( perf.equals("prmnormalize") ){
-	    msg = "<h1>Normalize a network of ontologies</h1><form action=\"norm\">";
+	    msg = "<h1>Normalize/denormalize a network of ontologies</h1><form action=\"norm\">";
 	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
-	    msg += "<input type=\"submit\" name=\"action\" value=\"Normalize\" /> ";
+	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
+	    msg += "<input type=\"submit\" name=\"oper\" value=\"Normalize\" /> ";
+	    msg += "<input type=\"submit\" name=\"oper\" value=\"Denormalize\" /> ";
 	    msg += "</form>";
 	} else if ( perf.equals("norm") ){
-	    Message answer = manager.normOntologyNetwork( params );
+	    Message answer = null;
+	    if ( params.getProperty( "oper" ).equals( "Normalize" ) ) {
+		answer = manager.normOntologyNetwork( params );
+	    } else {
+		answer = manager.denormOntologyNetwork( params );
+	    }
 	    if ( answer instanceof ErrorMsg ) {
 	    	msg = testErrorMessages( answer, params, eSource );
 	    } else {
-	    	msg ="<h1>Normalized network</h1>";
+	    	msg ="<h1>Normalized/denormalized network</h1>";
 	    	msg += displayAnswerON( answer, params );
 	    }
 	} else if ( perf.equals("prmoperset") ){
@@ -460,7 +467,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<form action=\"prmmatch\"><button style=\"background-color: lightgreen;\" title=\"Match all ontologies in a network of ontologies\" type=\"submit\">Apply matching</button></form>";
 	    msg += "<form action=\"prmtrim\"><button style=\"background-color: lightgreen;\" title=\"Trim a network of ontologies\" type=\"submit\">Trim network</button></form>";
 	    msg += "<form action=\"prminvert\"><button style=\"background-color: lightgreen;\" title=\"Invert a network of ontologies\" type=\"submit\">Invert network</button></form>";
-	    msg += "<form action=\"prmnormalize\"><button style=\"background-color: lightgreen;\" title=\"Normalise a network of ontologies\" type=\"submit\">Normalise network</button></form>";
+	    msg += "<form action=\"prmnormalize\"><button style=\"background-color: lightgreen;\" title=\"Normalise/denormalize a network of ontologies\" type=\"submit\">Normalise network</button></form>";
 	    //msg += "<form action=\"prmoperset\"><button style=\"background-color: lightgreen;\" title=\"Set operations on networks of ontologies\" type=\"submit\">Set operations on networks</button></form>";
 	    msg += "<form action=\"prmclose\"><button style=\"background-color: lightgreen;\" title=\"Close a network of ontologies\" type=\"submit\">Close network</button></form>";
 	    msg += "<form action=\"prmretrieve\"><button style=\"background-color: lightgreen;\" title=\"Display a network of ontologies\" type=\"submit\">Show network</button></form>";

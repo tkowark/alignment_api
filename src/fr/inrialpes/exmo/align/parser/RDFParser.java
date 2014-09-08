@@ -315,7 +315,7 @@ public class RDFParser {
         }
     }
 
-    protected void parseExtensions( final Resource node, Extensible ext ) throws AlignmentException {
+    public static void parseExtensions( final Resource node, Extensible ext ) throws AlignmentException {
 	// scan all statements in which node is subject
 	// This one is for next version of Jena
 	//for ( Statement stmt : node.listProperties()  ) {

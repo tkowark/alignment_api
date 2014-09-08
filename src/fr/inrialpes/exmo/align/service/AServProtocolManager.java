@@ -1077,7 +1077,7 @@ public class AServProtocolManager implements Service {
 	if ( newnet ) {
 	    String pretty = params.getProperty("pretty");
 	    if ( pretty == null || pretty.equals("") ) {
-		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/denormalized";
+		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/closed";
 	    }
 	    noo = ((BasicOntologyNetwork) noo).clone();
 	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
