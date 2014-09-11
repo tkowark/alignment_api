@@ -27,16 +27,22 @@ import org.semanticweb.owl.align.Relation;
 
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
 import fr.inrialpes.exmo.align.impl.edoal.Expression;
 import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyBinding;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
+import static fr.inrialpes.exmo.align.impl.renderer.GraphPatternRendererVisitor.blanks;
 
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor implements AlignmentVisitor {
 
@@ -50,6 +56,8 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     String splitdir = "";
 
     boolean edoal = false;
+
+    boolean fromOnto1ToOnto2 = true;
 
     public SPARQLSelectRendererVisitor(PrintWriter writer) {
         super(writer);
@@ -106,47 +114,174 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         if (subsumedInvocableMethod(this, cell, Cell.class)) {
             return;
         }
+        // default behaviour
         this.cell = cell;
-
         URI u1 = cell.getObject1AsURI(alignment);
-        if (edoal || u1 != null) {
-            generateSelect((Expression) (cell.getObject1()));
-        }
-        if (!oneway) {
-            URI u2 = cell.getObject2AsURI(alignment);
-            if (edoal || u2 != null) {
-                generateSelect((Expression) (cell.getObject2()));
+        URI u2 = cell.getObject2AsURI(alignment);
+        if (edoal || (u1 != null && u2 != null)) {
+            generateSelect(cell, (Expression) (cell.getObject1()), (Expression) (cell.getObject2()), false);
+            if (!oneway) {
+                generateSelect(cell, (Expression) (cell.getObject1()), (Expression) (cell.getObject2()), true);
             }
         }
-    }
-
-    protected void generateSelect(Expression expr) throws AlignmentException {
-        resetVariables(expr, "s", "o");
-        expr.accept(this);
-        String query = createPrefixList() + "SELECT * WHERE {" + NL + getGP() + "}" + NL;
-        saveQuery(expr, query);
     }
 
     public void visit(Relation rel) throws AlignmentException {
         if (subsumedInvocableMethod(this, rel, Relation.class)) {
             return;
         }
-	// default behaviour
-        // rel.write( writer );
     }
-    
+
     public void visit(final Linkkey linkkey) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+        for (LinkkeyBinding linkkeyBinding : linkkey.bindings()) {
+            linkkeyBinding.accept(this);
+        }
+    }
+
+    protected void resetS1(String obj) {
+        if(fromOnto1ToOnto2){
+            resetVariables("?s1", obj); 
+        }else{
+            resetVariables("?s2", obj);
+        }
+    }
+
+    protected void resetS2(String obj) {
+        if(fromOnto1ToOnto2){
+            resetVariables("?s2", obj); 
+        }else{
+            resetVariables("?s1", obj);
+        }
     }
     
+    /**
+     * Where each element must be equal
+     *
+     * @param linkkeyEquals
+     * @throws AlignmentException
+     */
     public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+        //Main part for selection
+//        resetVariables("?s1", "?o1");
+        resetS1("?o1");
+        Expression expr1 = linkkeyEquals.getExpression1();
+        expr1.accept(this);
+//        resetVariables("?s2", "?o2");
+        resetS2("?o2");
+        Expression expr2 = linkkeyEquals.getExpression2();
+        expr2.accept(this);
+        //Retrieving intersect elements
+        addToGP("MINUS { " + NL
+                + "SELECT DISTINCT ?s1 ?s2 " + NL
+                + "WHERE " + NL
+                + "{ " + NL);
+//        resetVariables("?s1", "?o1");
+        resetS1("?o1");
+        expr1.accept(this);
+//        resetVariables("?s1", "?o2");
+        resetS1("?o2");
+        expr1.accept(this);
+//        resetVariables("?s2", "?o3");
+        resetS2("?o3");
+        expr2.accept(this);
+        addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o1 && ?o3 = ?o1 && NOT EXISTS {" + NL);
+//        resetVariables("?s2", "?o2");
+        resetS2("?o2");
+        expr2.accept(this);
+        addToGP("}) " + NL);
+        addToGP("} " + NL);
+        addToGP("} " + NL);
+        //Second part
+        addToGP("MINUS {" + NL
+                + "SELECT DISTINCT ?s1 ?s2 " + NL
+                + "WHERE " + NL
+                + "{ " + NL);
+//        resetVariables("?s1", "?o1");
+        resetS1("?o1");
+        expr1.accept(this);
+//        resetVariables("?s2", "?o2");
+        resetS2("?o2");
+        expr2.accept(this);
+//        resetVariables("?s2", "?o3");
+        resetS2("?o3");
+        expr2.accept(this);
+        addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o3 && ?o2 = ?o1 && NOT EXISTS {" + NL);
+//        resetVariables("?s1", "?o3");
+        resetS1("?o3");
+        expr1.accept(this);
+        addToGP("})" + NL);
+        addToGP("}" + NL);
+        addToGP("}" + NL);
     }
+
+    /**
+     * Where we must have at least one element equal between each source.
+     *
+     * @param linkkeyIntersects
+     * @throws AlignmentException
+     */
     public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
-        throw new AlignmentException("NOT IMPLEMENTED !");
+//        resetVariables("?s1", "?o1");
+        resetS1("?o1");
+        Expression expr1 = linkkeyIntersects.getExpression1();
+        expr1.accept(this);
+//        resetVariables("?s2", "?o2");
+        resetS2("?o2");
+        Expression expr2 = linkkeyIntersects.getExpression2();
+        expr2.accept(this);
     }
-    
-//    public void visit(final LinkkeyBinding linkkeyBinding) throws AlignmentException {
-//        throw new AlignmentException("NOT IMPLEMENTED !");
-//    }
+
+    protected void generateSelect(Cell cell, Expression expr1, Expression expr2, boolean from1To2) throws AlignmentException {
+        // Here the generation is dependent on global variables
+        List<String> listGP = new LinkedList();
+        blanks = false;
+        fromOnto1ToOnto2 = from1To2;
+        // :-( should find something better !!
+        if (fromOnto1ToOnto2) {
+            resetVariables(expr1, "s1", "o");
+        } else {
+            resetVariables(expr1, "s2", "o");
+        }
+        expr1.accept(this);
+        listGP.add(getGP());
+        if (fromOnto1ToOnto2) {
+            resetVariables(expr2, "s2", "o");
+        } else {
+            resetVariables(expr1, "s1", "o");
+        }
+        expr2.accept(this);
+        listGP.add(getGP());
+        initStructure();
+        boolean hasLinkeys = false;
+        String filter = "FILTER(?s1 != ?s2)";
+        Set<Linkkey> linkkeys = ((EDOALCell) cell).linkkeys();
+        if (linkkeys != null) {
+            hasLinkeys = true;
+            for (Linkkey linkkey : linkkeys) {
+                linkkey.accept(this);
+            }
+        }
+        if (hasLinkeys) {
+            filter = "FILTER(?s1 != ?s2 && ?o2 = ?o1)";
+            listGP.add(getGP());
+        }
+        // End of global variables
+        String query = createSelect(listGP, filter);
+        if (corese) {
+            throw new AlignmentException("corese case NOT IMPLEMENTED for SPARQLSelectRendererVisitor !!");
+        }
+        if (corese) {
+            return;
+        }
+        saveQuery(cell, query);
+    }
+
+    protected String createSelect(List<String> listGP, String filter) {
+        StringBuilder mainGPBuilder = new StringBuilder();
+        for (String GP : listGP) {
+            mainGPBuilder.append(GP);
+        }
+        return createPrefixList() + "SELECT DISTINCT ?s1 ?s2 " + NL + "WHERE {" + NL + mainGPBuilder + filter + NL + "}" + NL;
+    }
+
 }

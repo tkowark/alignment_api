@@ -77,8 +77,6 @@ import java.util.LinkedList;
 public abstract class GraphPatternRendererVisitor extends IndentedRendererVisitor implements EDOALVisitor {
 
     final static Logger logger = LoggerFactory.getLogger(GraphPatternRendererVisitor.class);
-    protected static String FEDERATED_SERVICE_INTRODUCTION = "FEDERATED_SERVICE_BEGIN";
-    protected static String FEDERATED_SERVICE_FINALIZATION = "FEDERATED_SERVICE_END";
 
     Alignment alignment = null;
     Cell cell = null;
@@ -107,7 +105,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private String strBGP = "";
     protected List<String> listBGP = null;
     private Set<String> subjectsRestriction = null;
-    
+
     private Set<String> objectsRestriction = null;
     protected Hashtable<String, String> prefixList = null;
 
@@ -178,6 +176,9 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         return obj;
     }
 
+    protected void addToGP(String str){
+        strBGP += str;
+    }
     protected String getGP() {
         return strBGP;
     }
@@ -225,35 +226,23 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         }
         return ns;
     }
-    
-    
-    protected final void split(boolean split, String splitdir){
-        if(split){
+
+    protected final void split(boolean split, String splitdir) {
+        if (split) {
             this.split = split;
             this.splitdir = splitdir;
-        }
-        else{
+        } else {
             this.split = false;
             this.splitdir = null;
         }
     }
-    
-    
-    private static String cleanQuery(String query, String serviceName){
-        if(serviceName == null || serviceName == "" ){
-            return query.replaceAll(FEDERATED_SERVICE_INTRODUCTION, "").replaceAll(FEDERATED_SERVICE_FINALIZATION, "");
-        }else{
-            return query.replaceAll(FEDERATED_SERVICE_INTRODUCTION, String.format("\nSERVICE <%s> {", serviceName)).replaceAll(FEDERATED_SERVICE_FINALIZATION, "}\n");
-        }
-    }
-    
+
     public void saveQuery(Object referer, String query) {
         //Query is stored in memory
-        if(!queries.containsKey(referer)){
+        if (!queries.containsKey(referer)) {
             queries.put(referer, new LinkedList<String>());
         }
         queries.get(referer).add(query);
-        query = cleanQuery(query, null);
         if (split) {
             BufferedWriter out = null;
             try {
@@ -268,25 +257,31 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
             } catch (IOException ioe) {
                 logger.debug("IGNORED Exception", ioe);
             }
-        }else{
+        } else {
             writer.println(query);
         }
     }
-    
+
     /**
      * Produce Query only for local call.
+     *
      * @param referer
      * @param index
-     * @return 
+     * @return
      */
-    public String getQuery(Object referer, int index){
-        return getQuery(referer, index, null);
-    }
-    
-    public String getQuery(Object referer, int index, URI remoteURI){
-        return cleanQuery(queries.get(referer).get(index), (remoteURI == null ? null : remoteURI.toString()));
+    protected String getQuery(Object referer, int index) {
+        return queries.get(referer).get(index);
     }
 
+    public String getQueryFromOnto1ToOnto2(Object referer){
+        return getQuery(referer, 1);
+    }
+    
+    
+    public String getQueryFromOnto2ToOnto1(Object referer){
+        return getQuery(referer, 0);
+    }
+    
     protected String createPrefixList() {
         String result = "";
         for (String k : prefixList.keySet()) {
@@ -514,7 +509,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
             strBGP += "})" + NL;
         } else if (op == Constructor.COMP) {
             String tempSub = sub;
-	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+            //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
             //	obj = "_:o" + ++count;
             //}
             String tempObj = obj;
@@ -666,7 +661,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         } else if (op == Constructor.COMP) {
             int size = e.getComponents().size();
             String temp = sub;
-	    //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
+            //if ( blanks && this.getClass() == SPARQLConstructRendererVisitor.class ) {
             //obj = "_:o" + ++count;
             createVarName();
             //}

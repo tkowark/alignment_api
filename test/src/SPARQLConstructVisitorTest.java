@@ -60,54 +60,57 @@ public class SPARQLConstructVisitorTest {
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
-                + "?s ns0:opus ?o .\n"
+                + "?s ns1:opus ?o .\n"
                 + "}\n"
                 + "WHERE {\n"
-                + "?s ns1:opus ?o .\n"
+                + "?s ns0:opus ?o .\n"
                 + "}\n";
-
+        
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
-                + "?s ns1:opus ?o .\n"
+                + "?s ns0:opus ?o .\n"
                 + "}\n"
                 + "WHERE {\n"
-                + "?s ns0:opus ?o .\n"
+                + "?s ns1:opus ?o .\n"
                 + "}\n";
-        assertEquals(renderer.getQuery(opusCell, 0), expectedQuery1);
-        assertEquals(renderer.getQuery(opusCell, 1), expectedQuery2);
+
+        
+        assertEquals(renderer.getQueryFromOnto1ToOnto2(opusCell), expectedQuery1);
+        assertEquals(renderer.getQueryFromOnto2ToOnto1(opusCell), expectedQuery2);
         
         //For remote sparql endpoint : 
         
-        
-        String remoteServiceURIName = "http://example.org/remoteSparql";
-        URI remoteServiceURI = new URI(remoteServiceURIName);
-        expectedQuery1 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
-                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
-                + "CONSTRUCT {\n"
-                + "?s ns0:opus ?o .\n"
-                + "}\n"
-                + "WHERE {\n"
-                + "SERVICE <%s> {\n"
-                + "?s ns1:opus ?o .\n"
-                + "}\n"
-                + "}\n", remoteServiceURIName);
-
-        expectedQuery2 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
-                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
-                + "CONSTRUCT {\n"
-                + "?s ns1:opus ?o .\n"
-                + "}\n"
-                + "WHERE {\n"
-                + "SERVICE <%s> {\n"
-                + "?s ns0:opus ?o .\n"
-                + "}\n"
-                + "}\n", remoteServiceURIName);
-        assertEquals(renderer.getQuery(opusCell, 0, remoteServiceURI), expectedQuery1);
-        assertEquals(renderer.getQuery(opusCell, 1, remoteServiceURI), expectedQuery2);
+//        String remoteServiceURIName = "http://example.org/remoteSparql";
+//        URI remoteServiceURI = new URI(remoteServiceURIName);
+//
+//        expectedQuery1 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s ns1:opus ?o .\n"
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "SERVICE <%s> {\n"
+//                + "?s ns0:opus ?o .\n"
+//                + "}\n"
+//                + "}\n", remoteServiceURIName);
+//        
+//        expectedQuery2 = String.format("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s ns0:opus ?o .\n"
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "SERVICE <%s> {\n"
+//                + "?s ns1:opus ?o .\n"
+//                + "}\n"
+//                + "}\n", remoteServiceURIName);
+//        
+//        assertEquals(renderer.getQueryFromOnto1ToOnto2(opusCell, remoteServiceURI), expectedQuery1);
+//        assertEquals(renderer.getQueryFromOnto2ToOnto1(opusCell, remoteServiceURI), expectedQuery2);
     }
 
     /**
@@ -131,27 +134,29 @@ public class SPARQLConstructVisitorTest {
         renderer.init(properties);
         alignment.render(renderer);
 
+
         String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
-                + "?s rdf:type ns0:RootElement .\n"
+                + "?s rdf:type ns1:MusicalWork .\n"
                 + "}\n"
                 + "WHERE {\n"
-                + "?s rdf:type ns1:MusicalWork .\n"
+                + "?s rdf:type ns0:RootElement .\n"
                 + "}\n";
-
+        
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
                 + "CONSTRUCT {\n"
-                + "?s rdf:type ns1:MusicalWork .\n"
+                + "?s rdf:type ns0:RootElement .\n"
                 + "}\n"
                 + "WHERE {\n"
-                + "?s rdf:type ns0:RootElement .\n"
+                + "?s rdf:type ns1:MusicalWork .\n"
                 + "}\n";
-        assertEquals(renderer.getQuery(classCell, 0), expectedQuery1);
-        assertEquals(renderer.getQuery(classCell, 1), expectedQuery2);
+        
+        assertEquals(renderer.getQueryFromOnto1ToOnto2(classCell), expectedQuery1);
+        assertEquals(renderer.getQueryFromOnto2ToOnto1(classCell), expectedQuery2);
     }
 
     @Test(groups = {"full", "impl", "raw"})
@@ -169,21 +174,8 @@ public class SPARQLConstructVisitorTest {
             Enumeration<Cell> cells = alignment.getElements();
             Cell cell = cells.nextElement();
 
-            String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                    + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
-                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
-                    + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
-                    + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
-                    + "CONSTRUCT {\n"
-                    + "?s ns0:key ?o .\n"
-                    + "}\n"
-                    + "WHERE {\n"
-                    + "?o3 rdf:type ns1:Key .\n"
-                    + "?o3 ns2:key ?o4 .\n"
-                    + "?o4 ns3:label ?o .\n"
-                    + "}\n";
 
-            String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+            String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                     + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
                     + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                     + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
@@ -196,8 +188,22 @@ public class SPARQLConstructVisitorTest {
                     + "WHERE {\n"
                     + "?s ns0:key ?o .\n"
                     + "}\n";
-            assertEquals(renderer.getQuery(cell, 0), expectedQuery1, "FOR alignment file " + alignmentFileName);
-            assertEquals(renderer.getQuery(cell, 1), expectedQuery2, "FOR alignment file " + alignmentFileName);
+            
+            String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                    + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
+                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+                    + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
+                    + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
+                    + "CONSTRUCT {\n"
+                    + "?s ns0:key ?o .\n"
+                    + "}\n"
+                    + "WHERE {\n"
+                    + "?o3 rdf:type ns1:Key .\n"
+                    + "?o3 ns2:key ?o4 .\n"
+                    + "?o4 ns3:label ?o .\n"
+                    + "}\n";
+            assertEquals(renderer.getQueryFromOnto1ToOnto2(cell), expectedQuery1, "FOR alignment file " + alignmentFileName);
+            assertEquals(renderer.getQueryFromOnto2ToOnto1(cell), expectedQuery2, "FOR alignment file " + alignmentFileName);
         }
     }
 
