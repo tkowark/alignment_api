@@ -125,7 +125,6 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         queries = new LinkedHashMap<Object, List<String>>();
     }
 
-    
     protected void initStructure() {
         varsIndexcount = 1;
         strBGP = "";
@@ -176,9 +175,10 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         return obj;
     }
 
-    protected void addToGP(String str){
+    protected void addToGP(String str) {
         strBGP += str;
     }
+
     protected String getGP() {
         return strBGP;
     }
@@ -273,15 +273,14 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         return queries.get(referer).get(index);
     }
 
-    public String getQueryFromOnto1ToOnto2(Object referer){
+    public String getQueryFromOnto1ToOnto2(Object referer) {
         return getQuery(referer, 1);
     }
-    
-    
-    public String getQueryFromOnto2ToOnto1(Object referer){
+
+    public String getQueryFromOnto2ToOnto1(Object referer) {
         return getQuery(referer, 0);
     }
-    
+
     protected String createPrefixList() {
         String result = "";
         for (String k : prefixList.keySet()) {
@@ -673,7 +672,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
                     if (size == 1 && valueRestriction != null && !inClassRestriction) {
                         obj = valueRestriction.toString();
                     } else {
-                        if (this.getClass() == SPARQLConstructRendererVisitor.class) {
+                        if (this.getClass() == SPARQLConstructRendererVisitor.class || this.getClass() == SPARQLSelectRendererVisitor.class) {
                             createVarName();
                         }
                         objectsRestriction.add(obj);

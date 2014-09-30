@@ -37,7 +37,6 @@ import static fr.inrialpes.exmo.align.impl.renderer.GraphPatternRendererVisitor.
 
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -163,11 +162,11 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
     public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
         //Main part for selection
 //        resetVariables("?s1", "?o1");
-        resetS1("?o1");
+//        resetS1("?o1");
         Expression expr1 = linkkeyEquals.getExpression1();
         expr1.accept(this);
 //        resetVariables("?s2", "?o2");
-        resetS2("?o2");
+//        resetS2("?o2");
         Expression expr2 = linkkeyEquals.getExpression2();
         expr2.accept(this);
         //Retrieving intersect elements
@@ -176,17 +175,17 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
                 + "WHERE " + NL
                 + "{ " + NL);
 //        resetVariables("?s1", "?o1");
-        resetS1("?o1");
+//        resetS1("?o1");
         expr1.accept(this);
 //        resetVariables("?s1", "?o2");
-        resetS1("?o2");
+//        resetS1("?o2");
         expr1.accept(this);
 //        resetVariables("?s2", "?o3");
-        resetS2("?o3");
+//        resetS2("?o3");
         expr2.accept(this);
         addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o1 && ?o3 = ?o1 && NOT EXISTS {" + NL);
 //        resetVariables("?s2", "?o2");
-        resetS2("?o2");
+//        resetS2("?o2");
         expr2.accept(this);
         addToGP("}) " + NL);
         addToGP("} " + NL);
@@ -197,17 +196,17 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
                 + "WHERE " + NL
                 + "{ " + NL);
 //        resetVariables("?s1", "?o1");
-        resetS1("?o1");
+//        resetS1("?o1");
         expr1.accept(this);
 //        resetVariables("?s2", "?o2");
-        resetS2("?o2");
+//        resetS2("?o2");
         expr2.accept(this);
 //        resetVariables("?s2", "?o3");
-        resetS2("?o3");
+//        resetS2("?o3");
         expr2.accept(this);
         addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o3 && ?o2 = ?o1 && NOT EXISTS {" + NL);
 //        resetVariables("?s1", "?o3");
-        resetS1("?o3");
+//        resetS1("?o3");
         expr1.accept(this);
         addToGP("})" + NL);
         addToGP("}" + NL);
@@ -221,11 +220,9 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
      * @throws AlignmentException
      */
     public void visit(final LinkkeyIntersects linkkeyIntersects) throws AlignmentException {
-//        resetVariables("?s1", "?o1");
         resetS1("?o1");
         Expression expr1 = linkkeyIntersects.getExpression1();
         expr1.accept(this);
-//        resetVariables("?s2", "?o2");
         resetS2("?o2");
         Expression expr2 = linkkeyIntersects.getExpression2();
         expr2.accept(this);
@@ -236,18 +233,18 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         List<String> listGP = new LinkedList();
         blanks = false;
         fromOnto1ToOnto2 = from1To2;
-        // :-( should find something better !!
-        if (fromOnto1ToOnto2) {
+//         :-( should find something better !!
+        if (from1To2) {
             resetVariables(expr1, "s1", "o");
         } else {
             resetVariables(expr1, "s2", "o");
         }
         expr1.accept(this);
         listGP.add(getGP());
-        if (fromOnto1ToOnto2) {
+        if (from1To2) {
             resetVariables(expr2, "s2", "o");
         } else {
-            resetVariables(expr1, "s1", "o");
+            resetVariables(expr2, "s1", "o");
         }
         expr2.accept(this);
         listGP.add(getGP());
@@ -264,8 +261,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         if (hasLinkeys) {
             filter = "FILTER(?s1 != ?s2 && ?o2 = ?o1)";
             listGP.add(getGP());
-        }
-        // End of global variables
+        }        
         String query = createSelect(listGP, filter);
         if (corese) {
             throw new AlignmentException("corese case NOT IMPLEMENTED for SPARQLSelectRendererVisitor !!");
