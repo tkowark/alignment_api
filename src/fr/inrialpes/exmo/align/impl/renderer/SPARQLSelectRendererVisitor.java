@@ -223,7 +223,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         resetS1("?o1");
         Expression expr1 = linkkeyIntersects.getExpression1();
         expr1.accept(this);
-        resetS2("?o2");
+        resetS2("?o1");
         Expression expr2 = linkkeyIntersects.getExpression2();
         expr2.accept(this);
     }
@@ -249,19 +249,14 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
         expr2.accept(this);
         listGP.add(getGP());
         initStructure();
-        boolean hasLinkeys = false;
         String filter = "FILTER(?s1 != ?s2)";
         Set<Linkkey> linkkeys = ((EDOALCell) cell).linkkeys();
         if (linkkeys != null) {
-            hasLinkeys = true;
             for (Linkkey linkkey : linkkeys) {
                 linkkey.accept(this);
             }
-        }
-        if (hasLinkeys) {
-            filter = "FILTER(?s1 != ?s2 && ?o2 = ?o1)";
             listGP.add(getGP());
-        }        
+        }      
         String query = createSelect(listGP, filter);
         if (corese) {
             throw new AlignmentException("corese case NOT IMPLEMENTED for SPARQLSelectRendererVisitor !!");

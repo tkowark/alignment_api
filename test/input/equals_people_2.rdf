@@ -33,8 +33,8 @@
         <foaf:givenName>AliceC2</foaf:givenName>
         <foaf:givenName>AliceC2_1</foaf:givenName>
         <foaf:givenName>AliceC2_2_diff</foaf:givenName>
-        <foaf:knows rdf:resource="http://exmo.inrialpes.fr/connectors-data/people#dave_c1_2" />
-        <foaf:knows rdf:resource="http://exmo.inrialpes.fr/connectors-data/people#carol_c1_2" />
+        <!--<foaf:knows rdf:resource="http://exmo.inrialpes.fr/connectors-data/people#dave_c1_2" />
+        <foaf:knows rdf:resource="http://exmo.inrialpes.fr/connectors-data/people#carol_c1_2" />-->
         <foaf:knows rdf:resource="http://exmo.inrialpes.fr/connectors-data/people#ivan_2" />
         <foaf:mbox>alice2@gmail.com</foaf:mbox>
         <foaf:mbox>alice2@msn.com</foaf:mbox>

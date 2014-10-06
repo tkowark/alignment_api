@@ -19,7 +19,7 @@
         <owl:imports rdf:resource="http://xmlns.com/foaf/0.1/"/>
     </owl:Ontology>
 
-    <!-- EQUALS for (nom, givenName) / Intersects for (connait, knows)-->
+    <!-- INTERSECTS + EQUALS for (nom, givenName) / Intersects for (connait, knows)-->
     <rdf:Description rdf:about="http://exmo.inrialpes.fr/connectors-data/people#alice_c1_1">
         <rdf:type rdf:resource="&exmo;Personne"/>
         <exmo:nom>AliceC1</exmo:nom>
@@ -31,7 +31,7 @@
         <exmo:boitemel>alice1@msn.com</exmo:boitemel>
     </rdf:Description>
     
-    <!-- INTERSECTS on AliceC2 for (nom, givenName) / Equals for (connait, knows)-->
+    <!-- INTERSECTS on AliceC2 for (nom, givenName) / Equals + INTERSECTS for (connait, knows)-->
     <rdf:Description rdf:about="http://exmo.inrialpes.fr/connectors-data/people#alice_c2_1">
         <rdf:type rdf:resource="&exmo;Personne"/>
         <exmo:nom>AliceC2</exmo:nom>

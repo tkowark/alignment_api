@@ -18,7 +18,7 @@
     </owl:Ontology>
 
 
-    <!-- EQUALS for (nom, givenName) / Intersects for (connait, knows) -->
+    <!-- EQUALS + Intersects for (nom, givenName) / Intersects for (connait, knows) -->
     <rdf:Description rdf:about="http://exmo.inrialpes.fr/connectors-data/people#alice_c1_2">
         <rdf:type rdf:resource="&foaf;Person"/>
         <foaf:givenName>AliceC1</foaf:givenName>
@@ -30,7 +30,7 @@
         <foaf:mbox>alice2@msn.com</foaf:mbox>
     </rdf:Description>
 
-    <!-- INTERSECTS on AliceC2 for (nom, givenName) / Equals for (connait, knows)-->
+    <!-- INTERSECTS on AliceC2 for (nom, givenName) / Equals + Intersects for (connait, knows)-->
     <rdf:Description rdf:about="http://exmo.inrialpes.fr/connectors-data/people#alice_c2_2">
         <rdf:type rdf:resource="&foaf;Person"/>
         <foaf:givenName>AliceC2</foaf:givenName>
