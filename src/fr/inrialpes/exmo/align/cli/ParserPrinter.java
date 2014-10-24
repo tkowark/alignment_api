@@ -133,7 +133,7 @@ public class ParserPrinter extends CommonCLI {
 	    System.exit(-1);
 	}
 
-	//logger.trace("Filename: {}", initName);
+	logger.trace("Filename: {}", initName);
 
 	try {
 	    // Create parser

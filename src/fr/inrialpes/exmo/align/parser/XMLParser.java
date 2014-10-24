@@ -39,6 +39,8 @@ import java.io.InputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.lang.Integer;
 import java.lang.Double;
 import java.util.Hashtable;
@@ -198,10 +200,16 @@ public class XMLParser extends DefaultHandler {
      * If the current process has links (import or include) to others documents then they are 
      * parsed.
      * @param uri URI of the document to parse
+     * Note: SAXParser has a parse( String uri ) method but it does not do content negotiation
+     * Hence we have to reimplement it (2014)
      */
     public Alignment parse( String uri ) throws AlignmentException {
 	try {
-	    parser.parse( uri, this );
+	    // Reimplemented URI parsing because this does not do content negotiation
+	    //parser.parse( uri, this );
+	    URLConnection connection = new URL( uri ).openConnection();
+	    connection.setRequestProperty( "Accept", "text/xml, application/rdf+xml" );
+	    parser.parse( connection.getInputStream(), this );
 	} catch ( SAXException sex ) {
 	    throw new AlignmentException( "Parsing error", sex );
 	} catch ( IOException ioex ) {

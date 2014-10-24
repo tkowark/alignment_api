@@ -116,6 +116,11 @@ The utility may be invoked in the following way:
 <div class="terminal">
 $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter file:examples/rdf/newsample.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor
 </div>
+It should work with files and with URIs, dereferenceable or not:
+<div class="terminal">
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter http://alignapi.gforge.inria.fr//tutorial/refalign.rdf
+$ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter http://aserv.inrialpes.fr/alid/1317289904908/444
+</div>
 </p>
 
 <h3>Translating queries</h3>
