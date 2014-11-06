@@ -230,7 +230,7 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
 
     protected void generateSelect(Cell cell, Expression expr1, Expression expr2, boolean from1To2) throws AlignmentException {
         // Here the generation is dependent on global variables
-        List<String> listGP = new LinkedList();
+        List<String> listGP = new LinkedList<String>();
         blanks = false;
         fromOnto1ToOnto2 = from1To2;
 //         :-( should find something better !!

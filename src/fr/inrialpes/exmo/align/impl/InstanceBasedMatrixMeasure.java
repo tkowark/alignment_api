@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010, 2013
+ * Copyright (C) INRIA, 2010, 2013-2014
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -72,8 +72,8 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
     };
 
     
-    @SuppressWarnings({"unchecked"})
-	    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ) {
+    @SuppressWarnings("unchecked")
+    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ) {
 	// create the matrices and all structures
 	super.initialize( onto1, onto2, align );
 	try {
@@ -86,11 +86,11 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
 	    // Normalise class comparators (which instance belongs to which class)
 	    classinst1 = new Set[nbclass1];
 	    for( Object cl1 : ontology1.getClasses() ) {
-		classinst1[ classlist1.get( cl1 ).intValue() ] = ontology1.getInstances( cl1, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
+		classinst1[ classlist1.get( cl1 ).intValue() ] = (Set<Object>)ontology1.getInstances( cl1, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
 	    }
 	    classinst2 = new Set[nbclass2];
 	    for( Object cl2 : ontology2.getClasses() ) {
-		classinst2[ classlist2.get( cl2 ).intValue() ] = ontology2.getInstances( cl2, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
+		classinst2[ classlist2.get( cl2 ).intValue() ] = (Set<Object>)ontology2.getInstances( cl2, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
 	    }
 	} catch (OntowrapException owex) {
 	    logger.debug( "IGNORED Exception", owex );
