@@ -24,6 +24,7 @@ package fr.inrialpes.exmo.align.impl;
 import java.lang.Iterable;
 import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Collections;
@@ -92,7 +93,7 @@ public class BasicAlignment implements Alignment, Extensible {
 	hash2 = new Hashtable<Object,Set<Cell>>();
 	extensions = new Extensions();
 	namespaces = new Properties();
-	if ( this instanceof AlignmentProcess ) setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, getClass().getName() );
+	if ( this instanceof AlignmentProcess ) setExtension( Namespace.EXT.uri, Annotations.METHOD, getClass().getName() );
 	onto1 = new BasicOntology<Object>();
 	onto2 = new BasicOntology<Object>();
     }
@@ -106,7 +107,8 @@ public class BasicAlignment implements Alignment, Extensible {
      */
     public void init( Object onto1, Object onto2, Object cache ) throws AlignmentException {
 	init( onto1, onto2 );
-	// Should return it
+	// Should be interesting to set the pretty to: ontology names onto1-onto2
+	//setExtension( Namespace.EXT.uri, Annotations.PRETTY, getClass().getName() );
     }
 
     @SuppressWarnings( "unchecked" )
@@ -585,6 +587,94 @@ public class BasicAlignment implements Alignment, Extensible {
     }
 
    /**
+     * Aggregating several alignments with aggregator modality applied on confidence
+     * For any set (o, o', n, r) in O and (o, o', n', r) in O' the resulting
+     * alignment will contain:
+     * ( o, o', meet(n,n'), r)
+     * any pair which is in only one alignment is preserved.
+     */
+    public static Alignment aggregate( String modality, Set<BasicAlignment> aligns ) throws AlignmentException {
+	// Could also test: onto1 == getOntologyObject1();
+	logger.debug(" Call {} with {}", modality, aligns );
+	int size = aligns.size();
+	if ( size == 0 ) return (Alignment)null;
+	BasicAlignment first = aligns.iterator().next();
+	logger.debug(" Size: {}, Alignment {}", size, first );
+	Ontology<Object> onto1 = (Ontology<Object>)first.getOntologyObject1();
+	Ontology<Object> onto2 = (Ontology<Object>)first.getOntologyObject2();
+	logger.debug(" Onto1: {}, Onto2 {}", onto1, onto2 );
+	for ( Alignment al : aligns ) {
+	    if ( !onto1.getURI().equals(al.getOntology1URI()) )
+		throw new AlignmentException( "Can only meet alignments with same ontologies" + onto1.getURI() + " <> " + al.getOntology1URI() );
+	    if ( !onto2.getURI().equals(al.getOntology2URI()) )
+		throw new AlignmentException( "Can only meet alignments with same ontologies" + onto2.getURI() + " <> " + al.getOntology2URI() );
+	}
+	BasicAlignment result = new BasicAlignment();
+	result.init( onto1, onto2 );
+	Hashtable<Object,Hashtable<Object,Set<Cell>>> lcells = new Hashtable<Object,Hashtable<Object,Set<Cell>>>();
+	// Collect all alignments...
+	logger.debug( "Collect all alignments..." );
+	for ( Alignment al : aligns ) {
+	    for ( Cell c : al ) {
+		Hashtable<Object,Set<Cell>> h = lcells.get( c.getObject1() );
+		if ( h == null ) {
+		    h = new Hashtable<Object,Set<Cell>>();
+		    lcells.put( c.getObject1(), h );
+		}
+		Set<Cell> s = h.get( c.getObject2() );
+		if ( s == null ) {
+		    s = new HashSet<Cell>();
+		    h.put( c.getObject2(), s );
+		}
+		s.add( c );
+	    }
+	}
+	// iterate on all cells
+	logger.debug( "Iterate on all cells" );
+	for ( Hashtable<Object,Set<Cell>> h: lcells.values() ) {
+	    for ( Set<Cell> s: h.values() ) {
+		Cell cell = s.iterator().next(); // yes dangerous
+		Object o1 = cell.getObject1();
+		Object o2 = cell.getObject2();
+		Relation rel = cell.getRelation();
+		// Aggregate them depending on iterator
+		double val = 0.;
+		if ( modality.equals("min") ) {
+		    if ( size <= s.size() ) {
+			val = 1.;
+			for ( Cell c: s ) if ( c.getStrength() < val ) val = c.getStrength();
+		    }
+		} else if ( modality.equals("max") ) {
+		    for ( Cell c: s ) if ( c.getStrength() > val ) val = c.getStrength();
+		} else if ( modality.equals("avg") ) {
+		    for ( Cell c: s ) val += c.getStrength();
+		    val = val/(double)size;
+		} else if ( modality.equals("pool") ) {
+		    int vote = 0;
+		    for ( Cell c: s ) vote++;
+		    val = (double)vote/(double)size;
+		}
+		if ( val > 0. ) result.addAlignCell( null, o1, o2, rel, val );
+	    }
+	}
+	return result;
+    }
+
+    /**
+     * Generates a sorted iterator for the alignment
+     * WARNING: this is quite expensive since it allocates and sort a structure each time
+     */
+    public TreeSet<Cell> getSortedIterator() {
+	TreeSet<Cell> result = new TreeSet<Cell>();
+	for ( Collection<Cell> cc : hash1.values() ) {
+	    for ( Cell c : cc ) {
+		result.add( c );
+	    }
+	}
+	return result;
+    }
+
+   /**
      * The second alignment is meet with the first one meaning that for
      * any pair (o, o', n, r) in O and (o, o', n', r) in O' the resulting
      * alignment will contain:
@@ -762,7 +852,7 @@ public class BasicAlignment implements Alignment, Extensible {
      * Caveats:
      * - This does only work for alignments with =
      * - This does not care for the *:x status of alignments
-     * - This does work from ontology1 to ontology2, not the otherway round
+     * - This does work from ontology1 to ontology2, not the other way around
      *    (use invert() in this case).
      */    
     public String rewriteQuery( String aQuery ) throws AlignmentException {

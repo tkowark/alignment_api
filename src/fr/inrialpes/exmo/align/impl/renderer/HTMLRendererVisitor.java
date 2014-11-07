@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010, 2012
+ * Copyright (C) INRIA, 2006-2010, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -99,9 +99,9 @@ public class HTMLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	    String k = (String)e.nextElement();
 	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
 	}
-	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
+	writer.print(">\n<head><title>Alignment</title><style type=\"text/css\">body {font-family: sans-serif}</style></head>\n<body>\n");
 	alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	String pid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pid = align.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( alid == null ) alid = "Anonymous alignment";
 	if ( pid == null ) {
 	    writer.print("<h1>"+alid+"</h1>\n");
@@ -134,10 +134,16 @@ public class HTMLRendererVisitor extends GenericReflectiveVisitor implements Ali
 	    writer.print("<tr><td>"+ext[0]+" : "+ext[1]+"</td><td property=\""+nslist.get(ext[0])+":"+ext[1]+"\">"+ext[2]+"</td></tr>\n");
 	}
 	writer.print("</table>\n");
-	writer.print("<h2>Correspondences</h2>\n");
+	writer.print("<h2>Correspondences ("+align.nbCells()+")</h2>\n");
 	writer.print("<div rel=\"align:map\"><table><tr><td>object1</td><td>relation</td><td>strength</td><td>object2</td><td>Id</td></tr>\n");
-	for( Cell c : align ){
-	    c.accept( this );
+	if ( align instanceof BasicAlignment ) {
+	    for( Cell c : ((BasicAlignment)align).getSortedIterator() ) {
+		c.accept( this );
+	    }
+	} else {
+	    for( Cell c : align ){
+		c.accept( this );
+	    }
 	} //end for
 	writer.print("</table>\n");
 	writer.print("</div></div>\n");
