@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010, 2013
+ * Copyright (C) INRIA, 2008-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,7 @@ import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.Alignment;
 import fr.inrialpes.exmo.align.impl.Namespace;
+import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
@@ -69,7 +70,7 @@ public class AlgTest {
 	// does createNewAlignment is able to return the correct method
 	Alignment al = (Alignment)((BasicAlignment)align1).clone();
 	assertTrue( al instanceof ObjectAlignment );
-	assertTrue( al.getExtension( Namespace.ALIGNMENT.uri, "method" ).equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment#clone") );
+	assertTrue( al.getExtension( Namespace.EXT.uri, Annotations.METHOD ).equals("fr.inrialpes.exmo.align.impl.method.StringDistAlignment#clone") );
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"genericityTest"})

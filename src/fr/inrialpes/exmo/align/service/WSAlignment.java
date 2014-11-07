@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011, 2013
+ * Copyright (C) INRIA, 2008-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -205,12 +205,12 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	for ( String[] ext : extensions.getValues() ){
 	    align.setExtension( ext[0], ext[1], ext[2] );
 	    }
-	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, "id" );
+	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( oldid != null && !oldid.equals("") ) {
-	    align.setExtension( Namespace.ALIGNMENT.uri, "derivedFrom", oldid );
-	    align.setExtension( Namespace.ALIGNMENT.uri, "id", (String)null );
+	    align.setExtension( Namespace.EXT.uri, Annotations.DERIVEDFROM, oldid );
+	    align.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, (String)null );
 	}
-	align.setExtension( Namespace.ALIGNMENT.uri, "method", "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
+	align.setExtension( Namespace.EXT.uri, Annotations.METHOD, "http://exmo.inrialpes.fr/align/impl/URIAlignment#clone" );
 	try {
 	    align.ingest( this );
 	} catch (AlignmentException ex) { 

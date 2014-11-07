@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
 <rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
+         xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/#'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
 	 xmlns:kha='http://www.example.com/newTagnamespace#'
@@ -9,9 +10,9 @@
   <xml>yes</xml>
   <level>0</level>
   <type>**</type>
-  <time>7</time>
-  <pretty>SDNAlignment between onto1 and onto2</pretty>
-  <method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</method>
+  <alext:time>7</alext:time>
+  <alext:pretty>SDNAlignment between onto1 and onto2</alext:pretty>
+  <alext:method>fr.inrialpes.exmo.align.impl.method.StringDistAlignment</alext:method>
   <kha:myTag>Testing extension tags in alignments</kha:myTag>
   <onto1>
     <Ontology rdf:about="http://www.example.org/ontology1">

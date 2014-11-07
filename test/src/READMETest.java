@@ -116,7 +116,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.ParserPrinter examples/
 	result.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( ( 1973 <= stream.toString().length() ) && ( stream.toString().length() <= 1974 ), "Rendered differently: expected "+1974+" but was "+stream.toString().length() );
+	assertTrue( ( 2074 <= stream.toString().length() ) && ( stream.toString().length() <= 2075 ), "Rendered differently: expected "+2074+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" }, dependsOnMethods = {"routineTest3"})

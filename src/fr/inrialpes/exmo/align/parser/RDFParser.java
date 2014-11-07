@@ -336,8 +336,7 @@ public class RDFParser {
 		    //System.err.println( prefix + " :: "+ name + " == " +content );
 		    ext.setExtension( prefix, name, content );
 		} catch (LiteralRequiredException lrex) {
-		    // Could also be just a warning
-		    throw new AlignmentException( "Extension "+stmt.getPredicate()+" should contain a literal" );
+		    logger.warn( "IGNORED: Extension "+stmt.getPredicate()+" should contain a literal" );
 		}
 	    }
 	}

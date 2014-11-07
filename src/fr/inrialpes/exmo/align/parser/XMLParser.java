@@ -270,7 +270,7 @@ public class XMLParser extends DefaultHandler {
    * @param qname					The name of the current element 
    * @param atts 					The attributes name of the current element 
    */
-    public void startElement(String namespaceURI, String pName, String qname, Attributes atts) throws SAXException {
+    public void startElement( String namespaceURI, String pName, String qname, Attributes atts ) throws SAXException {
 	logger.debug( "startElement XMLParser : {}", pName );
 	parseLevel++;
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
@@ -350,8 +350,13 @@ public class XMLParser extends DefaultHandler {
 		};
 	    } else {
 		// This should avoid all the stuff before
-		if ( SyntaxElement.getSyntaxElement( Namespace.ALIGNMENT, pName ) == null )
+		if ( SyntaxElement.getSyntaxElement( Namespace.ALIGNMENT, pName ) == null &&
+		     // Deals with legacy extensions (have changed prefix)
+		     !pName.equals( Annotations.TIME ) && 
+		     !pName.equals( Annotations.METHOD ) && 
+		     !pName.equals( Annotations.PRETTY ) ) {
 		    logger.warn( "Unknown element name : {}", pName );
+		}
 	    };
 	} else if ( namespaceURI.equals( Namespace.SOAP_ENV.prefix )) { //"http://schemas.xmlsoap.org/soap/envelope/"))  {
 	    // Ignore SOAP namespace
@@ -485,6 +490,12 @@ public class XMLParser extends DefaultHandler {
 		    alignLevel = -1;
 		} else {
 		    if ( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" ) ) namespaceURI = Namespace.ALIGNMENT.uri;
+		    // For trapping those past URIs
+		    if ( namespaceURI == Namespace.ALIGNMENT.uri &&
+			 SyntaxElement.getSyntaxElement( Namespace.ALIGNMENT, pName ) == null &&
+			 ( pName.equals( Annotations.TIME ) || pName.equals( Annotations.METHOD ) || pName.equals( Annotations.PRETTY ) ) ) {
+			namespaceURI = Namespace.EXT.uri;
+		    }
 		    if ( parseLevel == 3 ){
 			alignment.setExtension( namespaceURI, pName, content );
 		    } else if ( parseLevel == 5 ) {

@@ -188,7 +188,7 @@ public class WeightedPREvaluator extends BasicEvaluator implements Evaluator {
 	    overall = recall * (2 - (1 / precision));
 	    result = recall / precision;
 	} else { result = 0.; }
-	String timeExt = align2.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME );
+	String timeExt = align2.getExtension( Namespace.EXT.uri, Annotations.TIME );
 	if ( timeExt != null ) time = Long.parseLong(timeExt);
 	//logger.trace(">>>> {} : {} : {}", nbcorrect, nbfound, nbexpected);
 	return (result);

@@ -80,7 +80,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 //	System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 11563 ), "Rendered differently: expected "+11563+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 11696 ), "Rendered differently: expected "+11696+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
     }
@@ -201,7 +201,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 15881 ), "Rendered differently: expected "+15881+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 15918 ), "Rendered differently: expected "+15918+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -215,7 +215,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 9487 ), "Rendered differently: expected "+9487+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 9540 ), "Rendered differently: expected "+9540+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
@@ -228,7 +228,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 764 ), "Rendered differently: expected "+764+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 898 ), "Rendered differently: expected "+898+" but was "+stream.toString().length() );
     }
 
 

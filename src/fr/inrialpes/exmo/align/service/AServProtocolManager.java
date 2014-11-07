@@ -229,26 +229,6 @@ public class AServProtocolManager implements Service {
 	return alignmentCache.ontologies();
     }
     
-    public Collection<URI> networkOntologyUri(String uri) {
-    	OntologyNetwork noo = null;
-	try {
-	    noo = alignmentCache.getOntologyNetwork(uri);
-	} catch (AlignmentException e) {
-	    e.printStackTrace();
-	}
-	return ((BasicOntologyNetwork) noo).getOntologies();
-    }
-    
-    public Set<Alignment> networkAlignmentUri(String uri) {
-    	OntologyNetwork noo = null;
-	try {
-	    noo = alignmentCache.getOntologyNetwork(uri);
-	} catch (AlignmentException e) {
-	    e.printStackTrace();
-	}
-	return ((BasicOntologyNetwork) noo).getAlignments();
-    }
-    
     public Collection<Alignment> alignments( URI uri1, URI uri2 ) {
 	return alignmentCache.alignments( uri1, uri2 );
     }
@@ -299,10 +279,10 @@ public class AServProtocolManager implements Service {
 	    return new UnreachableAlignment( params, newId(), serverId,name );
 	}
 	// We preserve the pretty tag within the loaded ontology
-	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pretty = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( pretty == null ) pretty = params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
-	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    al.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// register it
 	String id = alignmentCache.recordNewAlignment( al, true );
@@ -374,11 +354,11 @@ public class AServProtocolManager implements Service {
 	Set<Alignment> alignments = alignmentCache.getAlignments( uri1, uri2 );
 	if ( alignments != null && params.getProperty("force") == null ) {
 	    for ( Alignment al: alignments ){
-		String meth2 = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD );
+		String meth2 = al.getExtension( Namespace.EXT.uri, Annotations.METHOD );
 		if ( meth2 != null && meth2.equals(method) ) {
 		    return new AlignmentId( params, newId(), serverId,
 					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) ,
-					   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) );
+					   al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) );
 		}
 	    }
 	}
@@ -409,7 +389,7 @@ public class AServProtocolManager implements Service {
 	String prettys = "";
 	for ( Alignment al : alignments ) {
 	    msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
-	    prettys += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY )+ ":";
+	    prettys += al.getExtension( Namespace.EXT.uri, Annotations.PRETTY )+ ":";
 	}
 	return new AlignmentIds( params, newId(), serverId, msg, prettys );
     }
@@ -576,7 +556,7 @@ public class AServProtocolManager implements Service {
 	    // register by them
 	    // Could also be an AlreadyStoredAlignment error
 	    return new AlignmentId( params, newId(), serverId, id,
-				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				   al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
 	} catch (Exception e) {
 	    return new UnknownAlignment( params, newId(), serverId,id );
 	}
@@ -603,7 +583,7 @@ public class AServProtocolManager implements Service {
 	    }
 	    // Should be a SuppressedAlignment
 	    return new AlignmentId( params, newId(), serverId, id ,
-				   al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				   al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
 	} catch ( Exception ex ) {
 	    return new UnknownAlignment( params, newId(), serverId,id );
 	}
@@ -660,13 +640,13 @@ public class AServProtocolManager implements Service {
 	catch (AlignmentException e) {
 	    return new ErrorMsg( params, newId(), serverId,e.toString() );
 	}
-	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pretty = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
-	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/trimmed "+threshold );
+	    al.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty+"/trimmed "+threshold );
 	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId( params, newId(), serverId, newId,
-			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+			       al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message harden( Properties params ){
@@ -688,13 +668,13 @@ public class AServProtocolManager implements Service {
 	catch (AlignmentException e) {
 	    return new ErrorMsg( params, newId(), serverId,e.toString() );
 	}
-	String pretty = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pretty = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
-	    al.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/inverted" );
+	    al.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty+"/inverted" );
 	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId( params, newId(), serverId, newId,
-			       al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+			       al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message meet( Properties params ){
@@ -853,21 +833,15 @@ public class AServProtocolManager implements Service {
 	    return new UnreachableOntologyNetwork( params, newId(), serverId, name );
 	}
 	// We preserve the pretty tag within the loaded ontology network
-	String pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ); 
+	String pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ); 
 	if ( pretty == null ) pretty = params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// register it
-	String id = alignmentCache.recordNewNetwork( noo, true );
+	String id = registerNetwork( noo, null );
 	logger.debug(" Ontology network loaded, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
-
-	//=== The alignment has the id of the source file (e.g. file:///path/FileName.rdf)
-	Set<Alignment> networkAlignments = networkAlignmentUri(id);
-	for (Alignment al : networkAlignments) {
-	    String idAl = alignmentCache.recordNewAlignment( al, true );
-	}
-	return new OntologyNetworkId( params, newId(), serverId, id ,pretty );
+	return new OntologyNetworkId( params, newId(), serverId, id, pretty );
     }
 
     
@@ -914,7 +888,7 @@ public class AServProtocolManager implements Service {
     	    logger.trace("Network sought for {}", id);
     	    noo = (BasicOntologyNetwork) alignmentCache.getOntologyNetwork(id);
     	    idON = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	    pidON = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    pidON = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
     	    logger.trace("Network found");
     	} catch (Exception e) {
     	    return new UnknownOntologyNetwork( params, newId(), serverId,id );
@@ -922,7 +896,7 @@ public class AServProtocolManager implements Service {
 	result = "<h1>" + id+ " ("+pidON+")" +"</h1>";
 	result += "<table border=\"0\">\n";
 	result += "<h2>Ontologies</h2>\n";
-    	Collection<URI> networkOntology = networkOntologyUri(id);
+    	Collection<URI> networkOntology = noo.getOntologies();
 	result += "<p><tr><th><b>Total ontologies: </b>" + networkOntology.size() + "</th></tr></p>";
 	result += "<table>\n";
 	result += "<ul>";
@@ -933,13 +907,13 @@ public class AServProtocolManager implements Service {
 	result += "</table>\n";
 	
     	result += "<h2>Alignments</h2>\n"; 
-	Set<Alignment> networkAlignments = networkAlignmentUri(id);
+	Set<Alignment> networkAlignments = noo.getAlignments();
 	result += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
 	result += "<table>\n";
 	result += "<ul>";
 	for (Alignment al : networkAlignments) {	
 	    String idAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	    String pidAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    String pidAl = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	    if ( pidAl == null ) pidAl = idAl; else pidAl = idAl+" ("+pidAl+")";
 	    result += "<li><a href=\""+idAl+"\">"+pidAl+"</a></li>";
 	}
@@ -974,7 +948,7 @@ public class AServProtocolManager implements Service {
 		    return new UnknownOntologyNetwork( params, newId(), serverId,id );
 		}
 		return new OntologyNetworkId( params, newId(), serverId, id,
-					      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+					      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     	    } else {
     	    	return new ErrorMsg( params, newId(), serverId,"Network already stored" );
     	    }
@@ -1001,25 +975,21 @@ public class AServProtocolManager implements Service {
 	// always clone
 	String pretty = params.getProperty("pretty");
 	if ( pretty == null || pretty.equals("") ) {
-	    pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/matched";
+	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/matched";
 	}
 	noo = ((BasicOntologyNetwork) noo).clone();
-	noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// match
     	try { 
 	    noo.match( method, reflexive, symmetric, params );
 	} catch ( AlignmentException alex ) {
 	    return new ErrorMsg( params, newId(), serverId, "Network alignment error" );
 	}
-    	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
 	// register
-	String newid = alignmentCache.recordNewNetwork( noo, true );
-    	for ( Alignment al : networkAlignmentUri( newid ) ) {
-	    alignmentCache.recordNewAlignment( al, true );
-    	}
-    	
+	String newid = registerNetwork( noo, null );
+    	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
     	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
     
     public Message trimOntologyNetwork( Properties params ) {
@@ -1036,10 +1006,10 @@ public class AServProtocolManager implements Service {
 	// clone
     	String pretty = params.getProperty("pretty");
 	if ( pretty == null || pretty.equals("") ) {
-	    pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/trimmed";
+	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/trimmed";
 	}
 	noo = (BasicOntologyNetwork)noo.clone();
-	noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// trim
     	try {
 	    noo.trim( method, threshold );
@@ -1047,13 +1017,10 @@ public class AServProtocolManager implements Service {
     	    return new ErrorMsg( params, newId(), serverId,"Network alignment error" );
     	}
 	// register
-	String newid = alignmentCache.recordNewNetwork( noo, true );
-	for (Alignment al : networkAlignmentUri( newid ) ) {
-	    alignmentCache.recordNewAlignment( al, true );
-	}
+	String newid = registerNetwork( noo, null );
     	logger.debug(" Ontology network trimmed from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
     	return new OntologyNetworkId( params, newId(), serverId, newid,
-				   ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				   ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
    
     public Message closeOntologyNetwork( Properties params ) {
@@ -1077,10 +1044,10 @@ public class AServProtocolManager implements Service {
 	if ( newnet ) {
 	    String pretty = params.getProperty("pretty");
 	    if ( pretty == null || pretty.equals("") ) {
-		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/closed";
+		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/closed";
 	    }
 	    noo = ((BasicOntologyNetwork) noo).clone();
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// close
 	try {
@@ -1089,14 +1056,10 @@ public class AServProtocolManager implements Service {
 	    return new ErrorMsg( params, newId(), serverId,"Invert network alignment error" );
 	}
 	// register
-	String newid = id;
-	if ( newnet) newid = alignmentCache.recordNewNetwork( noo, true );
-	for (Alignment al : networkAlignmentUri( newid ) ) {
-	alignmentCache.recordNewAlignment( al, true );
-	}
+	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network inverted from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message normOntologyNetwork( Properties params ) {
@@ -1114,10 +1077,10 @@ public class AServProtocolManager implements Service {
 	if ( newnet ) {
 	    String pretty = params.getProperty("pretty");
 	    if ( pretty == null || pretty.equals("") ) {
-		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/normalized";
+		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/normalized";
 	    }
 	    noo = ((BasicOntologyNetwork) noo).clone();
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// normalize
 	try {
@@ -1126,15 +1089,10 @@ public class AServProtocolManager implements Service {
 	    return new ErrorMsg( params, newId(), serverId,"Network normalization error" );
 	}
 	// register it
-	String newid = id;
-	if ( newnet ) newid = alignmentCache.recordNewNetwork( noo, true );
-	// Generate new ids to normalized alignments
-	for ( Alignment al :  networkAlignmentUri( newid ) ) {
-	    alignmentCache.recordNewAlignment( al, true );
-	}
+	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network normalized from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message denormOntologyNetwork( Properties params ) {
@@ -1152,10 +1110,10 @@ public class AServProtocolManager implements Service {
 	if ( newnet ) {
 	    String pretty = params.getProperty("pretty");
 	    if ( pretty == null || pretty.equals("") ) {
-		pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/denormalized";
+		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/denormalized";
 	    }
 	    noo = ((BasicOntologyNetwork) noo).clone();
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// denormalize
 	try {
@@ -1164,11 +1122,10 @@ public class AServProtocolManager implements Service {
 	    return new ErrorMsg( params, newId(), serverId,"Network denormalization error" );
 	}
 	// register it
-	String newid = id;
-	if ( newnet ) newid = alignmentCache.recordNewNetwork( noo, true );
+	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network normalized from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message invertOntologyNetwork( Properties params ) {
@@ -1183,10 +1140,10 @@ public class AServProtocolManager implements Service {
 	// clone
    	String pretty = params.getProperty("pretty");
 	if ( pretty == null || pretty.equals("") ) {
-	    pretty = noo.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ) + "/normalized";
+	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/normalized";
 	}
 	noo = (BasicOntologyNetwork)noo.clone();
-	noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// invert
 	try {
 	    noo.invert();
@@ -1194,14 +1151,10 @@ public class AServProtocolManager implements Service {
 	    return new ErrorMsg( params, newId(), serverId,"Network invert error" );
 	}
 	// register it
-	String newid = alignmentCache.recordNewNetwork( noo, true );
-	// Generate new ids to normalized alignments
-	for ( Alignment al :  networkAlignmentUri( newid ) ) {
-	    alignmentCache.recordNewAlignment( al, true );
-	}
+	String newid = registerNetwork( noo, null );
 	logger.debug(" Ontology network inverted from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message setopOntologyNetwork( Properties params ) {
@@ -1234,21 +1187,28 @@ public class AServProtocolManager implements Service {
 	}
 	String pretty = params.getProperty("pretty");
 	if ( pretty != null && !pretty.equals("") ) {
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	} else {
-	    pretty = noo1.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	    pretty = noo1.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	    pretty += "_"+op+"_";
-	    pretty += noo2.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
-	    noo.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty ); 
+	    pretty += noo2.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
+	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty ); 
 	}
 	// register
-	String newid = alignmentCache.recordNewNetwork( noo, true );
-	for (Alignment al : networkAlignmentUri( newid ) ) {
-	    alignmentCache.recordNewAlignment( al, true );
-	}
+	String newid = registerNetwork( noo, null );
 	logger.debug(" Ontology network operation set from id1: {}, id2: {} to new id: {}total ontologies: {} total alignments: {}",id1, id2, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+    }
+
+    // If id != null, a new network has been created
+    protected String registerNetwork( BasicOntologyNetwork noo, String id ) {
+	String newid = id;
+	if ( id == null ) newid = alignmentCache.recordNewNetwork( noo, true );
+	for (Alignment al : noo.getAlignments() ) {
+	    alignmentCache.recordNewAlignment( al, true );
+	}
+	return newid;
     }
 
     /*********************************************************************
@@ -1615,11 +1575,11 @@ public class AServProtocolManager implements Service {
 		    long time = System.currentTimeMillis();
 		    aresult.align( init, params ); // add opts
 		    long newTime = System.currentTimeMillis();
-		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
-		    aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+		    aresult.setExtension( Namespace.EXT.uri, Annotations.TIME, Long.toString(newTime - time) );
+		    aresult.setExtension( Namespace.EXT.uri, Annotations.TIME, Long.toString(newTime - time) );
 		    String pretty = params.getProperty( "pretty" );
 		    if ( pretty != null && !pretty.equals("") )
-			aresult.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty );
+			aresult.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 		} catch (AlignmentException e) {
 		    // The unreachability test has already been done
 		    // JE 15/1/2009: commented the unreachability test
@@ -1635,7 +1595,7 @@ public class AServProtocolManager implements Service {
 		// ask to store A'
 		alignmentCache.recordNewAlignment( id, aresult, true );
 		result = new AlignmentId( params, newId(), serverId, id,
-			       aresult.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY ));
+			       aresult.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
 	    } catch ( ClassNotFoundException cnfex ) {
 		logger.error( "Unknown method", cnfex );
 		result = new UnknownMethod( params, newId(), serverId,method );

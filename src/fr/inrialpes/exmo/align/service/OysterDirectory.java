@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2011, 2013
+ * Copyright (C) INRIA, 2007-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -77,13 +77,13 @@ public class OysterDirectory implements Directory {
 	align.setURI( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) );
 	align.setLevel( al.getLevel() );
 	align.setType( al.getType() );
-	if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME ) != null ) 
-	    align.setProcessingTime( new Double( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.TIME ) ) );
+	if ( al.getExtension( Namespace.EXT.uri, Annotations.TIME ) != null ) 
+	    align.setProcessingTime( new Double( al.getExtension( Namespace.EXT.uri, Annotations.TIME ) ) );
 	align.setHasSourceOntology( onto1 );
 	align.setHasTargetOntology( onto2 );
-	if ( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ) != null ) {
+	if ( al.getExtension( Namespace.EXT.uri, Annotations.METHOD ) != null ) {
 	    OMVMappingMethod meth = new OMVMappingMethod();
-	    meth.setID( al.getExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD ) );
+	    meth.setID( al.getExtension( Namespace.EXT.uri, Annotations.METHOD ) );
 	    align.setUsedMethod( meth );
 	    oyster2Conn.replace( meth );
 	}

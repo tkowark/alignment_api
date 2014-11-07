@@ -338,7 +338,7 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 		    long time = System.currentTimeMillis();
 		    ap.align( init, params ); // or params?
 		    long newTime = System.currentTimeMillis();
-		    ap.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+		    ap.setExtension( Namespace.EXT.uri, Annotations.TIME, Long.toString(newTime - time) );
 		    // replace
 		    addAlignment( ap );
 		}
@@ -435,6 +435,7 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 	writer.print(NL+INDENT+INDENT+" xml:base='"+Namespace.ALIGNMENT.prefix+"'");
 	writer.print(NL+INDENT+INDENT+" xmlns:"+Namespace.RDF.shortCut+"='"+Namespace.RDF.prefix+"'");
 	writer.print(NL+INDENT+INDENT+" xmlns:"+Namespace.ALIGNMENT.shortCut+"='"+Namespace.ALIGNMENT.prefix+"'");
+	writer.print(NL+INDENT+INDENT+" xmlns:"+Namespace.EXT.shortCut+"='"+Namespace.EXT.prefix+"'");
 	writer.print(NL+INDENT+INDENT+" xmlns:"+Namespace.XSD.shortCut+"='"+Namespace.XSD.prefix+"'");
 	String idext = getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	writer.print(">"+NL+INDENT+"<"+SyntaxElement.ONTOLOGYNETWORK.print(DEF));
@@ -445,6 +446,7 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 	for( URI u : ontologies.keySet() ) {
 	    writer.print(INDENT+INDENT+"<"+SyntaxElement.ONONTOLOGY.print(DEF)+" rdf:resource=\'"+u+"'/>"+NL);
 	}
+	writer.print(NL);
 	for( Alignment al : alignments ) {
 	    String aluri = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	    if ( aluri != null ) {

@@ -65,7 +65,7 @@ public class SQLCache extends VolatilCache implements Cache {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    final int VERSION = 464; // Version of the API to be stored in the database
+    final int VERSION = 465; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -86,7 +86,9 @@ public class SQLCache extends VolatilCache implements Cache {
             ADDED networkalignment join table
        463: ADDED FOREIGN KEY CONSTRAINTS
        // URIINdex:
-       464: ADDED multiple uris for alignments
+       464: ADDED multiple uris for alignments (?)
+       // ALEX
+       465: CHANGED the alext namespace
      */
 
     DBService service = null;
@@ -1058,7 +1060,16 @@ public class SQLCache extends VolatilCache implements Cache {
 		    logger.info("Creating dependency table");
 		    st.executeUpdate("CREATE TABLE dependency (id VARCHAR(255), dependsOn VARCHAR(255))");
 		    logger.info("Fixing legacy errors in cached/stored");
-		    st.executeUpdate( "UPDATE extension SET val=( SELECT e2.val FROM extension e2 WHERE e2.tag='cached' AND e2.id=extension.id ) WHERE tag='stored' AND val=''" );
+		    rse = st.executeQuery("SELECT id FROM extension WHERE tag='stored' AND val=''");
+		    Statement st2 = createStatement();
+		    while ( rse.next() ) {
+			ResultSet rse2 = st2.executeQuery("SELECT val FROM extension WHERE tag='stored' AND id='"+rse.getString("id")+"'");
+			if ( rse2.next() ) {
+			    st2.executeUpdate( "UPDATE extension SET val='"+rse2.getString("val")+"' WHERE tag='stored' AND id='"+rse.getString("id")+"'" );
+			}
+		    }
+		    // This did not worked!
+		    //st.executeUpdate( "UPDATE extension SET val=( SELECT e2.val FROM extension e2 WHERE e2.tag='cached' AND e2.id=extension.id ) WHERE tag='stored' AND val=''" );
 		    // We should also implement a clean up (suppress all starting with http://)
 		}
 		if ( version < 462 ) {
@@ -1076,9 +1087,10 @@ public class SQLCache extends VolatilCache implements Cache {
 			}
 		    }
 		    logger.info("Cleaning up ontology table");
-		    st.executeUpdate("RENAME TABLE ontology TO oldont;");
+		    st.executeUpdate("ALTER TABLE ontology RENAME TO oldont;");
 		    st.executeUpdate("CREATE TABLE ontology (uri VARCHAR(255), formname VARCHAR(50), formuri VARCHAR(255), file VARCHAR(255), PRIMARY KEY (uri))");
-		    st.executeUpdate("INSERT INTO ontology SELECT DISTINCT uri, formname, formuri, file FROM oldont;");
+		    st.executeUpdate("INSERT INTO ontology SELECT DISTINCT uri FROM oldont;");
+		    st.executeUpdate("UPDATE ontology SET formname=oldont.formname, formuri=oldont.formuri, file=oldont.file FROM oldont WHERE ontology.uri = oldont.uri");
 		    st.executeUpdate("DROP TABLE oldont;");
 		    logger.info("Creating network tables");
 		    st.executeUpdate("CREATE TABLE network (id VARCHAR(100), PRIMARY KEY (id))");
@@ -1087,19 +1099,32 @@ public class SQLCache extends VolatilCache implements Cache {
 		}
 		if ( version < 463 ) {
 		    // CREATE PRIMARY AND FOREIGN KEYS
-		    st.executeUpdate("ALTER TABLE cell ADD CONSTRAINT FOREIGN KEY (id) REFERENCES alignment (id);");
-		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT PRIMARY KEY (id,dependsOn);");
-		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT FOREIGN KEY (id) REFERENCES alignment (id);");
-		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT FOREIGN KEY (dependsOn) REFERENCES alignment (id);");
-		    st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT FOREIGN KEY (onto1) REFERENCES ontology (uri);");
-		    st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT FOREIGN KEY (onto2) REFERENCES ontology (uri);");
+		    logger.info("Adding foreign keys");
+		    // suppress orphean cells (the reciprocal would delete empty alignments)
+		    st.executeUpdate("DELETE FROM cell WHERE id NOT IN (SELECT al.id FROM alignment al)");
+		    st.executeUpdate("ALTER TABLE cell ADD CONSTRAINT cellid FOREIGN KEY (id) REFERENCES alignment (id);");
+		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT deppk PRIMARY KEY (id,dependsOn);");
+		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT depalfk FOREIGN KEY (id) REFERENCES alignment (id);");
+		    st.executeUpdate("ALTER TABLE dependency ADD CONSTRAINT aldepfk FOREIGN KEY (dependsOn) REFERENCES alignment (id);");
+		    st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT alon1fk FOREIGN KEY (onto1) REFERENCES ontology (uri);");
+		    st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT alon2fk FOREIGN KEY (onto2) REFERENCES ontology (uri);");
 		    //This was already the primary key
 		    //st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT PRIMARY KEY (id);");
 		}
 		if ( version < 464 ) {
 		    // ADDED TABLE FOR MULTIPLE URIs
 		    // URIINdex:
+		    logger.info("Creating URI index table");
 		    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(255), prefered boolean);");
+		}
+		if ( version < 465 ) {
+		    // CHANGE EXTENSION NAMESPACE
+		    // ALEXT
+		    logger.info("Changing extension namespaces");
+		    Statement st2 = createStatement();
+		    // Normalise
+		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.ALIGNMENT.uri+"#' WHERE uri='"+Namespace.ALIGNMENT.uri+"'");
+		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.EXT.uri+"' WHERE uri='"+Namespace.ALIGNMENT.uri+"#' AND (tag='time' OR tag='method' OR tag='pretty')");
 		}
 		// EDOAL
 		// ALTER version

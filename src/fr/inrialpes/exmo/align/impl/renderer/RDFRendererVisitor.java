@@ -125,6 +125,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         alignment = align;
         nslist = new Hashtable<String, String>();
         nslist.put(Namespace.ALIGNMENT.prefix, Namespace.ALIGNMENT.shortCut);
+        nslist.put(Namespace.EXT.prefix, Namespace.EXT.shortCut);
         nslist.put(Namespace.RDF.prefix, Namespace.RDF.shortCut);
         nslist.put(Namespace.XSD.prefix, Namespace.XSD.shortCut);
         // Get the keys of the parameter

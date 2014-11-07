@@ -70,15 +70,17 @@ with a warning:
 
 <p>The Alignment API is now compiled in Java 1.7.</p>
 
-<!--h2>Version 4.9 (1xxx): ??/??/201X - Al pesto</h2-->
+<!--h2>Version 4.9 (1xxx): ??/??/201X - Letraset</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
-<!--h2>Version 4.7 (19xx): ??/0?/2014 - Letraset</h2-->
+<!--h2>Version 4.7 (19xx): ??/11/2014 - Al pesto</h2-->
 <p><ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>, use <tt>remCell()</tt> instead (impl)</tt>
 <li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>, from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
+<li><span style="color: red;">Changed</span> standard extension namespace to http://exmo.inrialpes.fr/align/ext/1.0/# (impl)</tt>
 <li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
 <li>Fixed a few mistakes in <tt>SilkRendererVisitor</tt> (impl)</li>
 <li>Fixed several bugs in <tt>GraphPatternRendererVisitor</tt> (impl)</li>
+<li>Fixed a bug in server updating (impl)</li>
 <li>Implemented linkkeys in EDOAL (edoal)</li>
 <li>Implemented (fully) extension parsing in RDFParser (parser)</li>
 <li>Reorganised AlignmentServices into transport (HTTP) and service (HTML/Web service) (serv)</li>
@@ -86,14 +88,17 @@ with a warning:
 <li>Added ontology network support in server (serv)</li>
 <li>Added JSON interface for server (serv)</li>
 <li>Added a command-line utility for query translation (cli)</li>
+<li>Added a command-line utility for alignment aggregation (cli)</li>
 <li>Added a guard forbiding to create a <tt>BasicCell</tt> with null objects (impl)</li>
 <li>Added httpcore library necessary for tutorial4 (tutorial/lib)</li>
+<li>Added sorted iterator to <tt>BasicAlignment</tt> (impl)</li>
+<li>Added <tt>aggregate</tt> method to <tt>BasicAlignment</tt> (impl)</li>
 <li>Added extensions to <tt>BasicOntologyNetwork</tt> (impl)</li>
 <li>Added read/write to <tt>BasicOntologyNetwork</tt> (impl)</li>
 <li>Added algebraic manipulation of <tt>BasicOntologyNetwork</tt> (impl)</li>
 <li>Added storage support for networks of ontologies (serv)</li>
 <li>Genericised storage <tt>Cache</tt> and implemented <tt>VolatilCache</tt> which contains a full Cache implementation without storage (serv)</li>
-<li>Managed alignment upload via <span style="color: green">Commons fileupload 1.3.1</span> and <span style="color: green">io 2.4</span> instead of Jetty (lib)</li>
+<li>Managed upload via <span style="color: green">Commons fileupload 1.3.1</span> and <span style="color: green">io 2.4</span> instead of Jetty (serv)</li>
 <li>Upgraded to <span style="color: green">Servlet API 3.1</span> (lib)</li>
 <li>Upgraded to <span style="color: green">Jetty 9.1.4</span> (lib)</li>
 </ul></p>

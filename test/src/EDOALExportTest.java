@@ -169,7 +169,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 11747); // was: 11623
+        assertEquals(str1.length(), 11845);
     }
 
     // Use an alignment converted from URI
@@ -193,7 +193,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 1315);
+        assertEquals(str1.length(), 1404);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"testOWLRendering0"})
@@ -212,7 +212,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         String str1 = stream.toString();
-        assertEquals(str1.length(), 37175);
+        assertEquals(str1.length(), 37287);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
@@ -566,6 +566,7 @@ public class EDOALExportTest {
         stream.close();
         String stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
+                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>" 
@@ -592,6 +593,7 @@ public class EDOALExportTest {
         stream.close();
         stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
+                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>"

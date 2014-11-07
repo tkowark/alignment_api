@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007, 2009-2010, 2012
+ * Copyright (C) INRIA, 2007, 2009-2010, 2012, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -66,10 +66,10 @@ public class XMLMetadataRendererVisitor extends GenericReflectiveVisitor impleme
 	String extensionString = "";
 	alignment = align;
 	nslist = new Hashtable<String,String>();
-	nslist.put(Namespace.ALIGNMENT.uri,"align");
-	nslist.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf");
-	nslist.put("http://www.w3.org/2001/XMLSchema#","xsd");
-	//nslist.put("http://www.omwg.org/TR/d7/ontology/alignment","omwg");
+        nslist.put(Namespace.ALIGNMENT.prefix, Namespace.ALIGNMENT.shortCut);
+        nslist.put(Namespace.EXT.prefix, Namespace.EXT.shortCut);
+        nslist.put(Namespace.RDF.prefix, Namespace.RDF.shortCut);
+        nslist.put(Namespace.XSD.prefix, Namespace.XSD.shortCut);
 	// Get the keys of the parameter
 	int gen = 0;
 	for ( String[] ext : align.getExtensions() ){

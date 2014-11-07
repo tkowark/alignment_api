@@ -72,22 +72,23 @@ public class Extensions {
 	return table.values();
     }
 
+    // JE2014: ideally we should conver them all, except those we do not...
     public Extensions convertExtension( String label, String method ) {
 	Extensions newext = (Extensions)clone();
 	String oldid = getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( oldid != null && !oldid.equals("") ) {
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.DERIVEDFROM, oldid );
+	    newext.setExtension( Namespace.EXT.uri, Annotations.DERIVEDFROM, oldid );
 	    newext.unsetExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	}
-	String pretty = getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pretty = getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( pretty != null ){
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY, pretty+"/"+label );
+	    newext.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty+"/"+label );
 	};
-	if ( getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) != null ) {
-	    newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE,
-				 getExtension( Namespace.ALIGNMENT.uri, Annotations.PROVENANCE ) );
+	if ( getExtension( Namespace.EXT.uri, Annotations.PROVENANCE ) != null ) {
+	    newext.setExtension( Namespace.EXT.uri, Annotations.PROVENANCE,
+				 getExtension( Namespace.EXT.uri, Annotations.PROVENANCE ) );
 	}
-	newext.setExtension( Namespace.ALIGNMENT.uri, Annotations.METHOD, method );
+	newext.setExtension( Namespace.EXT.uri, Annotations.METHOD, method );
 	return newext;
     }
 

@@ -85,10 +85,22 @@ public class BasicCell implements Cell, Comparable<Cell>, Extensible {
      * -- this > c iff this.getStrength() < c.getStrength() --
      */
     public int compareTo( Cell c ){
+	if ( this == c ) return 0; // compatible with equals!
 	//if ( ! (c instanceof Cell) ) return 1;
 	if ( c.getStrength() > getStrength() ) return 1;
 	if ( getStrength() > c.getStrength() ) return -1;
-	return 0;
+	/*
+	  // Impossible to compare objects!
+	int result = 0;
+	result = object1.compareTo( ((BasicCell)c).getObject1() );
+	if ( result != 0 ) return result;
+	result = object2.compareTo( ((BasicCell)c).getObject2() );
+	if ( result != 0 ) return result;
+	result = relation.compareTo( ((BasicCell)c).getRelation() );
+	return result; // compatible with equals!
+	*/
+	if ( equals( c ) ) return 0; // compatible with equals!
+	else return 1; // arbitrary order
     }
 
     public String getId(){ return id; };

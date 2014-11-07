@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2006-2010, 2012-2013
+ * Copyright (C) INRIA, 2006-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -98,7 +98,7 @@ public class HTMLMetadataRendererVisitor extends GenericReflectiveVisitor implem
 	}
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
 	String alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	String pid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.PRETTY );
+	String pid = align.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
 	if ( alid == null ) alid = "Anonymous alignment";
 	if ( pid == null ) {
 	    writer.print("<h1>"+alid+"</h1>\n");

@@ -431,14 +431,19 @@ public class VolatilCache implements Cache {
      * records a newly created network
      */
     public String recordNewNetwork( OntologyNetwork network, boolean force ) {
-	try { return recordNewNetwork( generateOntologyNetworkUri(), network, force );
-	} catch ( AlignmentException ae ) { return (String)null; }
+	try { 
+	    return recordNewNetwork( generateOntologyNetworkUri(), network, force );
+	} catch ( AlignmentException alex ) {
+	    logger.debug( "IGNORED: error recording network", alex );
+	    return (String)null; 
+	}
     }
 
     /**
      * records alignment identified by id
      */
     public String recordNewNetwork( String uri, OntologyNetwork network, boolean force ) throws AlignmentException {
+	logger.debug( "Recording network with URI {}", uri );
 	// Index
 	recordNetwork( uri, network, force );
 	// Not yet stored
