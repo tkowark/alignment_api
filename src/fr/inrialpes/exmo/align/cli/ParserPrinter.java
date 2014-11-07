@@ -47,33 +47,33 @@ import fr.inrialpes.exmo.align.impl.renderer.RDFRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
 /** A really simple utility that loads and alignment and prints it.
-    A basic class for ontology alignment processing.
-    Command synopsis is as follows:
-    
-    <pre>
-    java fr.inrialpes.exmo.align.util.ParserPrinter [options] input [output]
-    </pre>
-
-    where the options are:
-    <pre>
-	--renderer=className -r className  Use the given class for output.
-	--parser=className -p className  Use the given class for input.
-        --inverse -i              Inverse first and second ontology
-	--threshold=threshold -t threshold      Trim the alugnment with regard to threshold
-	--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span      Method to use for triming
-        --output=filename -o filename Output the alignment in filename
-        --help -h                       Print this message
-    </pre>
-
-    The <CODE>input</CODE> is a filename. If output is
-    requested (<CODE>-o</CODE> flags), then output will be written to
-    <CODE>output</CODE> if present, stdout by default.
-
-<pre>
-$Id$
-</pre>
-
-    */
+ * A basic class for ontology alignment processing.
+ *   Command synopsis is as follows:
+ *   
+ *   <pre>
+ *   java fr.inrialpes.exmo.align.util.ParserPrinter [options] input [output]
+ *   </pre>
+ *
+ *   where the options are:
+ *   <pre>
+ *	--renderer=className -r className  Use the given class for output.
+ *	--parser=className -p className  Use the given class for input.
+ *      --inverse -i              Inverse first and second ontology
+ *	--threshold=threshold -t threshold      Trim the alugnment with regard to threshold
+ *	--cutmethod=hard|perc|prop|best|span -T hard|perc|prop|best|span      Method to use for triming
+ *      --output=filename -o filename Output the alignment in filename
+ *      --help -h                       Print this message
+ *   </pre>
+ *
+ *   The <CODE>input</CODE> is a filename. If output is
+ *   requested (<CODE>-o</CODE> flags), then output will be written to
+ *   <CODE>output</CODE> if present, stdout by default.
+ *
+ * <pre>
+ * $Id$
+ * </pre>
+ *
+ */
 
 public class ParserPrinter extends CommonCLI {
     final static Logger logger = LoggerFactory.getLogger( ParserPrinter.class );

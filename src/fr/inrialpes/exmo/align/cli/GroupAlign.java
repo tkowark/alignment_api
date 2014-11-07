@@ -220,7 +220,7 @@ public class GroupAlign extends CommonCLI {
 	    long time = System.currentTimeMillis();
 	    result.align( init, parameters );
 	    long newTime = System.currentTimeMillis();
-	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+	    result.setExtension( Namespace.EXT.uri, Annotations.TIME, Long.toString(newTime - time) );
 	    
 	    logger.debug(" Alignment performed");
 	    

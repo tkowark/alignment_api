@@ -59,37 +59,49 @@ import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 
-/** A basic class for synthesizing the results of a set of alignments provided by
-    different algorithms. The output is a table showing various classical measures
-    for each test and for each algorithm. Average is also computed as Harmonic means.
-    
-    <pre>
-    java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupEval [options]
-    </pre>
-
-    where the options are:
-    <pre>
-    -o filename --output=filename
-    -e classname --evaluator=classname
-    -f format = prfot (precision/recall/f-measure/overall/time) --format=prfot
-    -r filename --reference=filename
-    -s algo/measure
-    -l list of compared algorithms
-    -t output --type=output: xml/tex/html/ascii
-   </pre>
-
-   The input is taken in the current directory in a set of subdirectories (one per
-   test which will be rendered by a line) each directory contains a number of
-   alignment files (one per algorithms which will be renderer as a column).
-
-    If output is requested (<CODE>-o</CODE> flags), then output will be written to
-    <CODE>output</CODE> if present, stdout by default.
-
-<pre>
-$Id$
-</pre>
-
-    */
+/**
+ * A basic class for synthesizing the results of a set of alignments provided by
+ *  different algorithms. The output is a table showing various classical measures
+ *  for each test and for each algorithm. Average is also computed as Harmonic means.
+ *  
+ *  <pre>
+ *  java -cp procalign.jar fr.inrialpes.exmo.align.util.GroupEval [options]
+ *  </pre>
+ *
+ *  where the options are:
+ *  <pre>
+ * -c,--color &lt;COLOR>       Color even lines of the output in COLOR (default:
+ *                         lightblue)
+ * -D &lt;NAME=VALUE>          Use value for given property
+ * -d,--debug &lt;LEVEL>       debug argument is deprecated, use logging instead
+ *                          See http://alignapi.gforge.inria.fr/logging.html
+ * -e,--evaluator &lt;CLASS>   Use CLASS as evaluation plotter
+ * -f,--format &lt;MEAS>       Used MEASures and order
+ *                         (precision/recall/f-measure/overall/time)  (default:
+ *                         pr)
+ * -h,--help                Print this page
+ * -l,--list &lt;FILE>         List of FILEs to be included in the results (required)
+ * -o,--output &lt;FILE>       Send output to FILE
+ * -P,--params &lt;FILE>       Read parameters from FILE
+ * -r,--reference &lt;FILE>    Name of the reference alignment FILE (default:
+ *                         refalign.rdf)
+ * -t,--type &lt;TYPE>         Output TYPE (html|xml|tex|ascii|triangle; default:
+ *                         html)
+ * -w,--directory &lt;DIR>     The DIRectory containing the data to evaluate
+ * </pre>
+ *
+ * The input is taken in the current directory in a set of subdirectories (one per
+ * test which will be rendered by a line) each directory contains a number of
+ * alignment files (one per algorithms which will be renderer as a column).
+ *
+ *  If output is requested (<CODE>-o</CODE> flags), then output will be written to
+ *  <CODE>output</CODE> if present, stdout by default.
+ *
+ * <pre>
+ * $Id$
+ * </pre>
+ *
+ */
 
 public class GroupEval extends CommonCLI {
     final static Logger logger = LoggerFactory.getLogger( GroupEval.class );

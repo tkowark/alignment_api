@@ -182,7 +182,7 @@ public class Procalign extends CommonCLI {
 	    long time = System.currentTimeMillis();
 	    result.align(  init, parameters ); // add opts
 	    long newTime = System.currentTimeMillis();
-	    result.setExtension( Namespace.ALIGNMENT.uri, Annotations.TIME, Long.toString(newTime - time) );
+	    result.setExtension( Namespace.EXT.uri, Annotations.TIME, Long.toString(newTime - time) );
 
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
