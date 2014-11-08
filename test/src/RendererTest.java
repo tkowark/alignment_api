@@ -201,7 +201,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 	//System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 15918 ), "Rendered differently: expected "+15918+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 15984 ), "Rendered differently: expected "+15984+" but was "+stream.toString().length() );
     }
 
     @Test(groups = { "full", "impl", "raw" })
