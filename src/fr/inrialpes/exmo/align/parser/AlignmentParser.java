@@ -62,11 +62,6 @@ public class AlignmentParser {
     final static Logger logger = LoggerFactory.getLogger( AlignmentParser.class );
 
     /**
-     * a URI to a process
-     */
-    protected String uri = null;
-    
-    /**
      * the alignment that is parsed
      * We always create a URIAlignment (we could also use a BasicAlignment).
      * This is a pitty but the idea of creating a particular alignment
@@ -195,10 +190,9 @@ public class AlignmentParser {
      * This is only here for compatibility purposes
      */
     public Alignment parse( String uri ) throws AlignmentException {
-	this.uri = uri; // should be obsoloted
 	try {
 	    callParser( new URI( uri ) );
-	} catch (URISyntaxException urisex) {
+	} catch ( URISyntaxException urisex ) {
 	    throw new AlignmentException( "Invalid URI : "+uri, urisex );
 	}
 	return alignment;
@@ -209,7 +203,6 @@ public class AlignmentParser {
      * @param uri the URI
      */
     public Alignment parse( URI uri ) throws AlignmentException {
-	this.uri = uri.toString();
 	callParser( uri );
 	return alignment;
     }
