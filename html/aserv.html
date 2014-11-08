@@ -10,14 +10,17 @@
 <h1 class="titre">Setting up an Alignment Server</h1>
 
 <p>An extensive presentation of the Alignment API can be
-  found at <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a>. We also have
+  found
+  at <a href="http://alignapi.gforge.inria.fr">http://alignapi.gforge.inria.fr</a>
+  including a description of the <a href="server.html">Alignment server</a>. We also have
   an on-line <a href="tutorial/tutorial1/server.html">tutorial</a> on
   using it through the server.</p>
 
 <h2>Requirements</h2>
 
 <p>Using the Alignment server requires an SQL database server.
-We see here how to use <a href="http://dev.mysql.com/doc/refman">mysql</a> or Postgres.</p>
+We see here how to
+  use <a href="http://dev.mysql.com/doc/refman">mysql</a> or <a href="https://www.postgresql.org/">Postgres</a>.</p>
 
 <h3>Creating the database for MySQL</h3>
 
@@ -35,34 +38,34 @@ sql> quit
 The database schema will be created upon the first launch of the
 server.
 </p>
+
+<h3>Creating the database for Postgres</h3>
+
+<p>
+This can be achieved similarly:
+<div class="terminal">
+$ psql -U postgres
+postgres# CREATE DATABASE AServDB;
+postgres# CREATE USER adminAServ WITH PASSWORD 'aaa345';
+postgres# GRANT ALL PRIVILEGES ON DATABASE AServDB TO adminAServ;
+postgres# \q
+</div>
+Or alternatively:
+<div class="terminal">
+$ su - postgres
+postgres@host:~$ createuser -P adminAServ
+postgres@host:~$ createdb -O adminAServ AServDB
+</div>
+Enter password, e.g., aaa345, when prompted by createuser command (and answer 'n' to other questions).
+</p>
+
 <p>
 Of course, you are advised to use different user, password and
 database name. This can be achieved either:
 <ul>
 <li>by changing values of DBMSBASE, DBMSUSER and DBMSPASS in <tt>AlignmentServer.java</tt> and recompiling;</li>
-<li>by passing parameters dbmsbase, dbmsuser and dbmspass to
-  <tt>AlignmentServer</tt>.</li>
+<li>by passing parameters dbmsbase, dbmsuser and dbmspass to <tt>AlignmentServer</tt>.</li>
 </ul>
-</p>
-
-<h3>Creating the database for Postgres</h3>
-
-<p>
-Tentative by JE:
-<div class="terminal">
-$ psql -U postgres
-postgres# CREATE DATABASE AServDB;
-postgres# CREATE USER adminAServ PASSWORD 'aaa345';
-postgres# ALTER DATABASE AServDB OWNER TO adminAServ;
-postgres# quit
-</div>
-Tentative by JD:
-<div class="terminal">
-su postgres
-createuser -P adminAServ
-createdb -O adminAServ AServDB
-</div>
-Choose password 'aaa345' when prompted by createuser command.
 </p>
 
 <h2>Launching the Alignment server</h2>
@@ -72,6 +75,16 @@ The Alignment server requires that the corresponding database management system 
 <div class="terminal">
 $ sudo /usr/local/mysql/bin/mysqld_safe --user=mysql &
 </div>
+or for more modern distributions:
+<div class="terminal">
+$ service mysql start
+</div>
+or
+<div class="terminal">
+$ service postgresql start
+</div>
+</p>
+<p>
 Running the Alignment server is achieved through (use the corresponding options):
 <div class="terminal">
 $ java -jar lib/alignsvc.jar -H
@@ -112,6 +125,7 @@ Options:
 
 Alignment server 4.6 (1934M)
 </div>
+See also comments about using the <a href="logging.html">logging mechanisms</a> for detecting errors.
 </p>
 
 <h3>Embedding more methods in the Alignment Server</h3>
@@ -180,8 +194,9 @@ for the firewalls to open these ports:
 <center>
 <table>
 <th><td>default</td><td>option</td><td>open?</td></th>
-<tr><td>HTTP</td><td>8089</td><td>-H</td><td>Y</td></tr>
+<tr><td>HTTP/REST</td><td>8089</td><td>-H</td><td>Y</td></tr>
 <tr><td>MySQL</td><td>3306</td><td>--dbmsport</td><td>N (if on the same machine)</td></tr>
+<tr><td>PostGres</td><td>5432</td><td>--dbmsport</td><td>N (if on the same machine)</td></tr>
 <tr><td>Jade</td><td>8888</td><td>-A</td></tr>
 <tr><td>//</td><td>1099</td><td></td><td>? (RMI)</td></tr>
 <tr><td></td><td>7778</td><td></td><td>Y (MTP HTTP)</td></tr>
@@ -219,22 +234,22 @@ $ service apache2 restart
 
 <p>Sample backup of the server content (MySQL):
 <div class="terminal">
-$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > toto.sql
+$ /usr/local/mysql/bin/mysqldump -u adminAServ -paaa345 AServDB > AServBackup.sql
 </div>
 And restoring:
 <div class="terminal">
 $ /usr/local/mysql/bin/mysql -u adminAServ -paaa345 AServDB
-sql> source toto.sql;
+sql> source AServBackup.sql;
 </div>
 </p>
 <p>
 For Postgres:
 <div class="terminal">
-$ pg_dump  -W -U adminAServ > AServBackup
+$ pg_dump [-W -U adminAServ] AServDB -f AServBackup.sql
 </div>
 And restoring:
 <div class="terminal">
-$ psql -W -U adminAServ < AServBackup
+$ psql [-W -U adminAServ] < AServBackup.sql
 </div>
 
 </p>

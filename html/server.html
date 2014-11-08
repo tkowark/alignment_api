@@ -11,7 +11,7 @@
 <h1 class="titre">Alignment Server</h1>
 
 <p>
-The goal of the Alignment server is that different actors can share available alignments and methods for finding alignments. Such a server will enable to match ontologies, store the resulting alignment, store manually provided alignments, extract merger, transformer, mediators from those alignments.
+The goal of the Alignment server is that different actors can share available alignments and methods for finding alignments. Such a server enables to match ontologies, store the resulting alignment, store manually provided alignments, extract merger, transformer, mediators from those alignments.
 </p>
 <p>
 We present here the architecture of the Alignment server and its first
@@ -130,7 +130,7 @@ These tasks are summarised in the following table:
 <tr><td>Match two ontologies</td><td><i>A'</i> &lArr; Align(<i>O</i>, <i>O'</i>, <i>A</i>, <i>p</i>)</td></tr>
 <tr><td>Trimming</td><td><i>A'</i> &lArr; Threshold(<i>A</i>, <i>V</i>)</td></tr>
 <tr><td>Generating code</td><td><i>P</i> &lArr; Render(<i>A</i>,<i>language</i>)</td></tr>
-<tr><td>Translating a message</td><td><i>m'</i> &lArr; Translate(<i>m</i>, <i>A</i>)</td></tr>
+<tr><td>Translating a query</td><td><i>q'</i> &lArr; Translate(<i>q</i>, <i>A</i>)</td></tr>
 <tr><td>Storing alignment</td><td><i>n</i> &lArr; Store(<i>A</i>,<i>O</i>,<i>O'</i>)</td></tr>
 <!--tr><td>Suppressing alignment</td><td><i>Delete(n)</i></td></tr-->
 <tr><td>Finding (stored) alignments</td><td>{<i>n</i>} &lArr; Find(<i>O</i>,<i>O'</i>)</td></tr>
@@ -143,6 +143,10 @@ These tasks are summarised in the following table:
 <p>
 Most of these services correspond to what is provided by any implementation of the Alignment API.
 The main principle of the Alignment API is that it can always be extended. In particular, it is possible to add new matching algorithms and mediator generators that will be accessible through the API. They will also be accessible through the Alignment servers. They can thus be extended to new needs without breaking the infrastructure. 
+</p>
+<p>
+The Alignment server can also deal with networks of alignments as
+implemented in our API implementation.
 </p>
 <p>
 A detailed presentation of how to access these functions is available
