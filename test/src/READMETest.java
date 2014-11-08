@@ -228,10 +228,10 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	*/
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "file:test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
-	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	Alignment align2 = aparser1.parse( "file:test/output/bibref.rdf" );
 	assertNotNull( align2 );
 	Properties params = new Properties();
 	assertNotNull( params );
@@ -261,7 +261,7 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
 	*/
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "file:test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
 	Alignment align2 = new ObjectAlignment();
@@ -284,10 +284,10 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
     public void routineErrorEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "file:test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
-	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	Alignment align2 = aparser1.parse( "file:test/output/bibref.rdf" );
 	assertNotNull( align2 );
 	Properties params = new Properties();
 	assertNotNull( params );
@@ -302,10 +302,10 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
     public void semanticEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "file:test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
-	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	Alignment align2 = aparser1.parse( "file:test/output/bibref.rdf" );
 	assertNotNull( align2 );
 	Properties params = new Properties();
 	assertNotNull( params );
@@ -372,10 +372,10 @@ $ java -cp lib/procalign.jar fr.inrialpes.exmo.align.cli.EvalAlign -i fr.inrialp
     public void weightedEvalTest() throws Exception {
 	AlignmentParser aparser1 = new AlignmentParser( 0 );
 	assertNotNull( aparser1 );
-	Alignment align1 = aparser1.parse( "test/output/bibref2.rdf" );
+	Alignment align1 = aparser1.parse( "file:test/output/bibref2.rdf" );
 	assertNotNull( align1 );
 	aparser1.initAlignment( null );
-	Alignment align2 = aparser1.parse( "test/output/bibref.rdf" );
+	Alignment align2 = aparser1.parse( "file:test/output/bibref.rdf" );
 	assertNotNull( align2 );
 	Properties params = new Properties();
 	assertNotNull( params );

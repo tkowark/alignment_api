@@ -60,7 +60,7 @@ public class IOTest {
     public void loadSOAPTest() throws Exception {
 	aparser.initAlignment( null );
 	aparser.setEmbedded( true );
-	alignment = aparser.parse( "test/input/soap.xml" );
+	alignment = aparser.parse( "file:test/input/soap.xml" );
 	assertNotNull( alignment );
 	assertTrue( alignment instanceof URIAlignment );
 	assertEquals( alignment.getOntology2URI().toString(), "http://alignapi.gforge.inria.fr/tutorial/edu.mit.visus.bibtex.owl" );
