@@ -636,8 +636,8 @@ public class BasicAlignment implements Alignment, Extensible {
 		Cell cell = s.iterator().next(); // yes dangerous
 		Object o1 = cell.getObject1();
 		Object o2 = cell.getObject2();
-		Relation rel = cell.getRelation();
-		// Aggregate them depending on iterator
+		Relation rel = cell.getRelation(); // This assumes that the relation is the same.
+		// Aggregate them depending on modality
 		double val = 0.;
 		if ( modality.equals("min") ) {
 		    if ( size <= s.size() ) {
@@ -711,7 +711,7 @@ public class BasicAlignment implements Alignment, Extensible {
      * ( o, o", join(n,n'), r)
      * any pair which is in only one alignment is discarded.
      */
-    public Alignment join(Alignment align) throws AlignmentException {
+    public Alignment join( Alignment align ) throws AlignmentException {
 	// Could also test: onto1 == getOntologyObject1();
 	if ( onto1.getURI() != align.getOntology1URI() )
 	    throw new AlignmentException("Can only join alignments with same ontologies");
@@ -747,12 +747,10 @@ public class BasicAlignment implements Alignment, Extensible {
 	BasicAlignment result = createNewAlignment( onto1, ((BasicAlignment)align).getOntologyObject2() );
 	for ( Cell c1 : this ) {
 	    Set<Cell> cells2 = align.getAlignCells1(c1.getObject2());
-	    if (cells2 !=null) {
-		for (Cell c2 : cells2) {
+	    if ( cells2 != null ) {
+		for ( Cell c2 : cells2 ) {
 		    Cell newCell = c1.compose(c2);
-		    if (newCell != null) {
-			result.addCell(newCell);
-		    }
+		    if ( newCell != null ) result.addCell( newCell );
 		}
 	    }
 	}

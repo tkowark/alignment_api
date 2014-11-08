@@ -73,6 +73,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 
     private AServProtocolManager manager;
 
+    private Properties parameters = null;
+
     private String serverURL;
     private int localId = 0;
 
@@ -81,6 +83,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     public static final String HEADER = "<style type=\"text/css\">body { font-family: sans-serif } button {background-color: #DDEEFF; margin-left: 1%; border: #CCC 1px solid;}</style>";
 
     public void init( Properties params, AServProtocolManager manager ) throws AServException {
+	parameters = params;
 	this.manager = manager;
 	serverURL = manager.serverURL()+"/html/";
     }
@@ -108,11 +111,18 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // ==================================================
 
     protected static String about() {
-	return "<h1>Alignment server</h1><center>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"<br />"
-	    + "<center><a href=\"html/\">Access</a></center>"
-	    + "(C) INRIA, 2006-2014<br />"
+	String result = "<h1>Alignment server</h1><center><div>"+AlignmentService.class.getPackage().getImplementationTitle()+" "+AlignmentService.class.getPackage().getImplementationVersion()+"</div>"
+	    //+ "<center><a href=\"html/\">Access</a></center>"
+	    + "<div style=\"align: center;\"><br />"
+	    + "<form style=\"height: 15px; width: 150px; position: relative;\" action=\"html/\"><button style=\"background-color: lightblue;\" title=\"Alignment menu\" type=\"submit\">Alignments</button></form>"
+	    + "<form style=\"height: 15px; width: 150px; margin-left: 5px; position: relative;\" action=\"noo/\"><button style=\"background-color: lightgreen;\" title=\"Network of ontologies menu\" type=\"submit\">Ontology networks</button></form>"
+	    + "<form style=\"height: 15px; width: 150px; margin-left: 5px; position: relative;\" action=\"../admin/\"><button style=\"background-color: lightpink;\" title=\"Server management functions\" type=\"submit\">Server management</button></form>"
+	    + "</div>"
+	    + "<div style=\"align: center;\"><br />(C) INRIA, 2006-2014<br />"
 	    + "<a href=\"http://alignapi.gforge.inria.fr\">http://alignapi.gforge.inria.fr</a><br />"
-	    + "</center>";
+	    + "</div></center>";
+	// reading parameters here will raise static problem
+	return result;
     }
 
     /**

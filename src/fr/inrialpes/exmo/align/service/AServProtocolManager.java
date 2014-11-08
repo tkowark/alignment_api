@@ -895,21 +895,16 @@ public class AServProtocolManager implements Service {
 	}
 	result = "<h1>" + id+ " ("+pidON+")" +"</h1>";
 	result += "<table border=\"0\">\n";
-	result += "<h2>Ontologies</h2>\n";
     	Collection<URI> networkOntology = noo.getOntologies();
-	result += "<p><tr><th><b>Total ontologies: </b>" + networkOntology.size() + "</th></tr></p>";
-	result += "<table>\n";
+	result += "<h2>Ontologies ("+networkOntology.size()+")</h2>\n";
 	result += "<ul>";
 	for ( URI onto : networkOntology ) {
 	    result += "<li><a href=\"" + onto.toString() +"\">"+ onto.toString() + "</a></li>";
 	}
 	result += "</ul>";
-	result += "</table>\n";
 	
-    	result += "<h2>Alignments</h2>\n"; 
 	Set<Alignment> networkAlignments = noo.getAlignments();
-	result += "<p><tr><th><b>Total alignments: </b>" + networkAlignments.size() + "</th></tr></p>";
-	result += "<table>\n";
+    	result += "<h2>Alignments ("+networkAlignments.size()+")</h2>\n"; 
 	result += "<ul>";
 	for (Alignment al : networkAlignments) {	
 	    String idAl = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
@@ -918,8 +913,8 @@ public class AServProtocolManager implements Service {
 	    result += "<li><a href=\""+idAl+"\">"+pidAl+"</a></li>";
 	}
 	result += "</ul>";
-	result += "</table>\n";
-    	return new RenderedAlignment( params, newId(), serverId, result );
+	// was renderedAlignement!
+    	return new RenderedNetwork( params, newId(), serverId, result );
     }
     
     /*
