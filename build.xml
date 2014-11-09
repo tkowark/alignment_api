@@ -109,7 +109,7 @@
   <target name="lint" depends="bind" description="Check sources for warnings">
     <echo message="Setting property..."/>
     <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
-    <!--property name="javacargs" value="-Xlint:cast" /-->
+    <!--property name="javacargs" value="-Xlint:unchecked" /-->
     <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>
   </target>

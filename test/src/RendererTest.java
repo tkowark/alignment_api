@@ -80,7 +80,7 @@ public class RendererTest {
 	writer.flush();
 	writer.close();
 //	System.err.println( stream.toString() );
-	assertTrue( valueSimilarTo( stream.toString().length(), 11696 ), "Rendered differently: expected "+11696+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 11638 ), "Rendered differently: expected "+11638+" but was "+stream.toString().length() );
 	Properties params = new Properties();
 	params.setProperty( "embedded", "1");
     }
@@ -228,7 +228,7 @@ public class RendererTest {
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertTrue( valueSimilarTo( stream.toString().length(), 898 ), "Rendered differently: expected "+898+" but was "+stream.toString().length() );
+	assertTrue( valueSimilarTo( stream.toString().length(), 840 ), "Rendered differently: expected "+840+" but was "+stream.toString().length() );
     }
 
 

@@ -193,7 +193,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 1404);
+        assertEquals(str1.length(), 1315);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"testOWLRendering0"})
@@ -212,7 +212,7 @@ public class EDOALExportTest {
         writer.flush();
         writer.close();
         String str1 = stream.toString();
-        assertEquals(str1.length(), 37287);
+        assertEquals(str1.length(), 37286);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
@@ -566,8 +566,8 @@ public class EDOALExportTest {
         stream.close();
         String stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
-                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
+                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>" 
                 + "<Alignment rdf:about=\"http://asdf\"><xml>yes</xml><level>2EDOAL</level><type>**</type><id>http://asdf</id>"
@@ -593,8 +593,8 @@ public class EDOALExportTest {
         stream.close();
         stringToTest = "<?xml version='1.0' encoding='utf-8' standalone='no'?><rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'"
-                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/#'"
                 + " xmlns:xsd='http://www.w3.org/2001/XMLSchema#'"
+                + " xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/'"
                 + " xmlns:align='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'"
                 + " xmlns:edoal='http://ns.inria.org/edoal/1.0/#'>"
                 + "<Alignment rdf:about=\"http://asdf\"><xml>yes</xml><level>2EDOAL</level><type>1*</type><id>http://asdf</id>"

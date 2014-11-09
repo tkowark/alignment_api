@@ -1,13 +1,15 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
 <rdf:RDF xmlns='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
          xml:base='http://knowledgeweb.semanticweb.org/heterogeneity/alignment#'
+         xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
 <Alignment>
   <xml>yes</xml>
   <level>0</level>
   <type>11</type>
-  <method>Manually generated</method>
+  <alext:method>Manually generated</alext:method>
+  <alext:pretty>Reference alignment for Alignment API tutorial</alext:pretty>
   <onto1>file://localhost/JAVA/alignapi/html/tutorial/myOnto.owl</onto1>
   <onto2>file://localhost/JAVA/alignapi/html/tutorial/edu.mit.visus.bibtex.owl</onto2>
   <uri1>http://alignapi.gforge.inria.fr/tutorial/myOnto.owl</uri1>

@@ -127,7 +127,7 @@ public class EDOALTest {
         // This tests the round triping
         assertEquals(wine2.length(), stream.toString().length());
         // This provides an absolute value
-        assertEquals(wine2.length(), 4961);
+        assertEquals(wine2.length(), 5014);
         // This does not work because (at least) the order of correspondences is never the same...
         //assertEquals( wine2, stream.toString() );
     }

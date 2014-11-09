@@ -76,7 +76,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 459937, "Rendered differently" );
+	assertEquals( stream.toString().length(), 459879, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 122 );
 
@@ -101,7 +101,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 2220, "Rendered differently" );
+	assertEquals( stream.toString().length(), 2162, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 3 );
     }
@@ -125,7 +125,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 4524, "Rendered differently" );
+	assertEquals( stream.toString().length(), 4466, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 10 );
     }
@@ -149,7 +149,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 14648, "Rendered differently" );
+	assertEquals( stream.toString().length(), 14590, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 35 );
     }
@@ -173,7 +173,7 @@ $ java -jar lib/procalign.jar -Dwndict=$WNDIR file://$CWD/examples/rdf/edu.umbc.
 	alignment.render( renderer );
 	writer.flush();
 	writer.close();
-	assertEquals( stream.toString().length(), 12039, "Rendered differently" );
+	assertEquals( stream.toString().length(), 11981, "Rendered differently" );
 	alignment.cut( "hard", 0.4 );
 	assertEquals( alignment.nbCells(), 10 );
     }

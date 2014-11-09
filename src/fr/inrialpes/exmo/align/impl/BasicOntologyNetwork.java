@@ -443,6 +443,17 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 	    writer.print(" "+SyntaxElement.RDF_ABOUT.print(DEF)+"='"+idext+"'");
 	}
 	writer.print(">"+NL);
+        for ( String[] ext : getExtensions() ) {
+            String prefix = ext[0];
+            String name = ext[1];
+	    String tag;
+	    if ( prefix.equals( Namespace.EXT.prefix ) ) {
+                tag = Namespace.EXT.shortCut+":"+name;
+            } else {
+                tag = prefix+"#"+name;
+            }
+	    writer.print(INDENT+"<"+tag+">"+ext[2]+"</"+tag+">"+NL);
+	}
 	for( URI u : ontologies.keySet() ) {
 	    writer.print(INDENT+INDENT+"<"+SyntaxElement.ONONTOLOGY.print(DEF)+" rdf:resource=\'"+u+"'/>"+NL);
 	}
@@ -482,7 +493,7 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
     }
 
     public static OntologyNetwork read( InputStream is ) throws AlignmentException {
-	if (is == null) throw new AlignmentException("The inputstream must not be null");
+	if ( is == null ) throw new AlignmentException("The inputstream must not be null");
 	// Initialize the syntax description (could be restricted)
 	Model rdfModel = ModelFactory.createDefaultModel();
 	for ( SyntaxElement el : SyntaxElement.values() ) {

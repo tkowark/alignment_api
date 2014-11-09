@@ -124,20 +124,20 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         String extensionString = "";
         alignment = align;
         nslist = new Hashtable<String, String>();
-        nslist.put(Namespace.ALIGNMENT.prefix, Namespace.ALIGNMENT.shortCut);
-        nslist.put(Namespace.EXT.prefix, Namespace.EXT.shortCut);
-        nslist.put(Namespace.RDF.prefix, Namespace.RDF.shortCut);
-        nslist.put(Namespace.XSD.prefix, Namespace.XSD.shortCut);
+        nslist.put( Namespace.ALIGNMENT.prefix, Namespace.ALIGNMENT.shortCut);
+        nslist.put( Namespace.EXT.prefix, Namespace.EXT.shortCut);
+        nslist.put( Namespace.RDF.prefix, Namespace.RDF.shortCut);
+        nslist.put( Namespace.XSD.prefix, Namespace.XSD.shortCut);
         // Get the keys of the parameter
         int gen = 0;
-        for (String[] ext : align.getExtensions()) {
+        for ( String[] ext : align.getExtensions() ) {
             String prefix = ext[0];
             String name = ext[1];
-            String tag = nslist.get(prefix);
-            if (prefix.equals(Namespace.ALIGNMENT.uri)) {
+            String tag = nslist.get( prefix );
+            if ( prefix.equals( Namespace.ALIGNMENT.uri ) ) { // only because of id!
                 tag = name;
             } else {
-                if (tag == null) {
+                if ( tag == null ) {
                     tag = "ns" + gen++;
                     nslist.put(prefix, tag);
                 }

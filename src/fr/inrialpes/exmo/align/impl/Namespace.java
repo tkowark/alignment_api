@@ -35,7 +35,7 @@ public enum Namespace {
     ALIGNMENT("http://knowledgeweb.semanticweb.org/heterogeneity/alignment", "align", true),
     ALIGNSVC("http://exmo.inrialpes.fr/align/service","alignsvc",true),
     EDOAL("http://ns.inria.org/edoal/1.0/", "edoal", true),
-    EXT("http://exmo.inrialpes.fr/align/ext/1.0/", "alext", true),
+    EXT("http://exmo.inrialpes.fr/align/ext/1.0/", "alext", false),
     DUBLIN_CORE("http://purl.org/dc/elements/1.1/", "dc", false),
     RDF_SCHEMA("http://www.w3.org/2000/01/rdf-schema#", "rdfs", false),
     SOAP_ENV("http://schemas.xmlsoap.org/soap/envelope/", "SOAP-ENV", false),
