@@ -151,6 +151,14 @@ public class GroupAggreg extends CommonCLI {
 	    System.exit( -1 );
 	}
 
+	// check that dirName exist and is writable
+	File outDir = new File( dirName );
+	if ( !outDir.isDirectory() || !outDir.canWrite() ) {
+	    logger.error( "Directory {} must exist and be writable", dirName );
+	    throw new AlignmentException( "Cannot output to "+dirName );
+	}
+
+	// Run it
 	iterateDirectories();
     }
 
@@ -215,9 +223,10 @@ public class GroupAggreg extends CommonCLI {
     }
 
     /**
-     * This does not only print the results but compute the average as well
+     * Print the aggregated alignment, it is not void...
      */
     public void print( Alignment al, String outputfilename ) {
+	if ( al == null ) return;
 	PrintWriter writer = null;
 	try {
 	    writer = new PrintWriter (
