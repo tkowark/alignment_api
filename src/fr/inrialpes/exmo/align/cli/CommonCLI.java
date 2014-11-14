@@ -26,6 +26,7 @@
 package fr.inrialpes.exmo.align.cli;
 
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.io.FileInputStream;
 
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
-//import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
@@ -87,8 +87,8 @@ public abstract class CommonCLI {
 	    for ( Object o : line.getArgList() ) {
 		logger.info( " Arg: {}", o );
 	    }
-	    for ( String k : parameters.stringPropertyNames() ) {
-		logger.info( " Param: {} = {}", k, parameters.getProperty( k ) );
+	    for ( Entry<Object,Object> m : parameters.entrySet() ) {
+		logger.info( " Param: {} = {}", m.getKey(), m.getValue() );
 	    }
 	} catch( ParseException exp ) {
 	    logger.error( exp.getMessage() );

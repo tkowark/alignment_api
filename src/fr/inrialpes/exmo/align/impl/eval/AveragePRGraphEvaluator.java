@@ -1,7 +1,7 @@
 /*
  * $Id: AveragePRGraphEvaluator.java 1196 2010-01-10 19:58:52Z euzenat $
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,7 +25,6 @@ import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Iterator;
 import java.util.TreeSet;

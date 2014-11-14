@@ -20,8 +20,8 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.io.PrintWriter;
 
@@ -89,15 +89,15 @@ public class XMLMetadataRendererVisitor extends GenericReflectiveVisitor impleme
 	    writer.print("' standalone='no'?>\n");
 	}
 	writer.print("<rdf:RDF xmlns='"+Namespace.ALIGNMENT.uri+"'");
-	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
-	    String k = (String)e.nextElement();
-	    writer.print("\n         xmlns:"+nslist.get(k)+"='"+k+"'");
+	for ( Entry<String,String> e : nslist.entrySet() ) {
+	    writer.print("\n         xmlns:"+e.getValue()+"='"+e.getKey()+"'");
 	}
 	if ( align instanceof BasicAlignment ) {
-	    for ( String label : ((BasicAlignment)align).getXNamespaces().stringPropertyNames() ) {
+	    for ( Entry<Object,Object> e : ((BasicAlignment)align).getXNamespaces().entrySet() ) {
+		String label = (String)e.getKey();
 		if ( !label.equals("rdf") && !label.equals("xsd")
 		     && !label.equals("<default>") )
-		    writer.print("\n         xmlns:"+label+"='"+((BasicAlignment)align).getXNamespace( label )+"'");
+		    writer.print("\n         xmlns:"+label+"='"+e.getValue()+"'");
 	    }
 	}
 	writer.print(">\n");

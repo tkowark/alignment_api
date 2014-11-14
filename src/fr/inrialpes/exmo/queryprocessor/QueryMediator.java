@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.io.IOException;

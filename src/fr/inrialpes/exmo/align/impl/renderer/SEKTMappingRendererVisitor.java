@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;
 import java.io.PrintWriter;

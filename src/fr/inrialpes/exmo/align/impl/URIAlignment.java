@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2008, 2010
+ * Copyright (C) INRIA, 2003-2008, 2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,8 +23,6 @@ package fr.inrialpes.exmo.align.impl;
 import java.lang.ClassNotFoundException;
 import java.util.Hashtable;
 import java.util.HashSet;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

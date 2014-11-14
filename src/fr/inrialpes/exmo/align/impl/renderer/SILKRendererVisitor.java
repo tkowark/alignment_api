@@ -39,8 +39,8 @@ import fr.inrialpes.exmo.align.impl.edoal.LinkkeyEquals;
 import fr.inrialpes.exmo.align.impl.edoal.LinkkeyIntersects;
 
 import java.net.URI;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 
@@ -121,8 +121,8 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
 	// JE2014: BUG
 	// These prefix are usually added by the GraphPatternGenerator after the patterns are generated...
 	// So, now they are empty...
-	for ( String k : prefixList.keySet() ) {
-	    indentedOutputln("<Prefix id=\""+k+" namespace=\""+prefixList.get(k)+"\" />");
+	for ( Entry<String,String> e : prefixList.entrySet() ) {
+	    indentedOutputln("<Prefix id=\""+e.getKey()+" namespace=\""+e.getValue()+"\" />");
 	}
 	decreaseIndent();
     	indentedOutputln("</Prefixes>"+NL);

@@ -21,7 +21,6 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Collection;
 import java.util.Set;
@@ -230,8 +229,7 @@ public class EDOALAlignment extends BasicAlignment {
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
 	align.setExtensions( extensions.convertExtension( "EDOALURIConverted", "http://exmo.inrialpes.fr/align/impl/edoal/EDOALAlignment#toURI" ) );
-	for (Enumeration e = getElements(); e.hasMoreElements();) {
-	    Cell c = (Cell)e.nextElement();
+	for ( Cell c : this ) {
 	    try {
 		align.addAlignCell( c.getId(), c.getObject1AsURI(this), c.getObject2AsURI(this), c.getRelation(), c.getStrength() );
 	    } catch (AlignmentException aex) {

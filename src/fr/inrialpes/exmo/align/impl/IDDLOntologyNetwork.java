@@ -1,7 +1,7 @@
 /*
  * $Id: IDDLOntologyNetwork.java 987 2009-05-27 13:48:33Z euzenat $
  *
- * Copyright (C) INRIA, 2009-2010, 2013
+ * Copyright (C) INRIA, 2009-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,9 +21,6 @@
 package fr.inrialpes.exmo.align.impl; 
 
 import java.lang.Cloneable;
-import java.lang.Iterable;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;

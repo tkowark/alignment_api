@@ -31,9 +31,7 @@ import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.Annotations;
 
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.Set;
 import java.io.PrintWriter;
 import java.net.URI;

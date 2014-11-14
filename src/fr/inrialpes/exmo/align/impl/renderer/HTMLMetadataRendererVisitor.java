@@ -20,9 +20,9 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -92,9 +92,8 @@ public class HTMLMetadataRendererVisitor extends GenericReflectiveVisitor implem
 	    writer.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">\n");
 	}
 	writer.print("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"");
-	for ( Enumeration e = nslist.keys() ; e.hasMoreElements(); ) {
-	    String k = (String)e.nextElement();
-	    writer.print("\n       xmlns:"+nslist.get(k)+"='"+k+"'");
+	for ( Entry<String,String> e : nslist.entrySet() ) {
+	    writer.print("\n       xmlns:"+e.getValue()+"='"+e.getKey()+"'");
 	}
 	writer.print(">\n<head><title>Alignment</title></head>\n<body>\n");
 	String alid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008, 2010-2013
+ * Copyright (C) INRIA, 2008, 2010-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -110,9 +110,9 @@ public abstract class OntologyFactory {
 	if ( of != null ) return of;
 	try {
 	    // This should also be a static getInstance!
-	    Class<?> ofClass = Class.forName(apiName);
+	    Class<?> ofClass = Class.forName( apiName );
 	    Class[] cparams = {};
-	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor(cparams);
+	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor( cparams );
 	    Object[] mparams = {};
 	    of = (OntologyFactory)ofConstructor.newInstance(mparams);
 	} catch ( ClassNotFoundException cnfex ) {

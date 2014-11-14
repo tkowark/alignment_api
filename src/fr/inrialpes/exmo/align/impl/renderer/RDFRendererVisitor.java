@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 package fr.inrialpes.exmo.align.impl.renderer;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -152,15 +153,14 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         writer.print("<" + SyntaxElement.RDF.print(DEF) + " xmlns='" + Namespace.ALIGNMENT.prefix + "'");
         // JE2009: (1) I must use xml:base
         //writer.print(NL+"         xml:base='"+Namespace.ALIGNMENT.uri+"'");
-        for (Enumeration e = nslist.keys(); e.hasMoreElements();) {
-            String k = (String) e.nextElement();
-            writer.print(NL + INDENT + INDENT + INDENT + INDENT + " xmlns:" + nslist.get(k) + "='" + k + "'");
+	for ( Entry<String,String> e : nslist.entrySet() ) {
+            writer.print(NL + INDENT + INDENT + INDENT + INDENT + " xmlns:" + e.getValue() + "='" + e.getKey() + "'");
         }
-        if (align instanceof BasicAlignment) {
-            for (String label : ((BasicAlignment) align).getXNamespaces().stringPropertyNames()) {
-                if (!label.equals("rdf") && !label.equals("xsd")
-                        && !label.equals("<default>")) {
-                    writer.print(NL + INDENT + INDENT + INDENT + INDENT + " xmlns:" + label + "='" + ((BasicAlignment) align).getXNamespace(label) + "'");
+        if ( align instanceof BasicAlignment ) {
+	    for ( Entry<Object,Object> e : ((BasicAlignment) align).getXNamespaces().entrySet() ) {
+		String label = (String)e.getKey();
+                if ( !label.equals("rdf") && !label.equals("xsd")  && !label.equals("<default>") ) {
+                    writer.print(NL + INDENT + INDENT + INDENT + INDENT + " xmlns:" + label + "='" + e.getValue() + "'");
                 }
             }
         }

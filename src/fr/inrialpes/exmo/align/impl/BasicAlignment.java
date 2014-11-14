@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.net.URI;
 
@@ -129,8 +129,8 @@ public class BasicAlignment implements Alignment, Extensible {
 
     public int nbCells() {
 	int sum = 0;
-	for ( Enumeration e = hash1.elements(); e.hasMoreElements(); ) {
-	    sum += ((Set)e.nextElement()).size();
+	for ( Set<Cell> s : hash1.values() ) {
+	    sum += s.size();
 	}
 	return sum;
     }
@@ -290,13 +290,17 @@ public class BasicAlignment implements Alignment, Extensible {
 	return (Cell)new BasicCell( id, ob1, ob2, relation, measure);
     }
 
+    // JE2014: Check the alternative
+    // for ( Cell c1 : s1 ) {
+    //		if ( c.equals( c1 ) ) { found = true; break; }
+    //	    }
     protected void addCell( Cell c ) throws AlignmentException {
 	boolean found = false;
 	Set<Cell> s1 = hash1.get(c.getObject1());
 	if ( s1 != null ) {
 	    // I must check that there is no one here
 	    for ( Iterator<Cell> i = s1.iterator(); !found && i.hasNext(); ) {
-		if ( c.equals( i.next() ) ) found = true;
+		if ( c.equals( i.next() ) ) { found = true; break; }
 	    }
 	    if (!found) s1.add( c );
 	    found = false;
@@ -771,13 +775,11 @@ public class BasicAlignment implements Alignment, Extensible {
 	result.setType( getType() );
 	result.setLevel( getLevel() );
 	result.setExtensions( extensions.convertExtension( "inverted", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" ) );
-	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
-	//    String label = (String)e.nextElement();
-	for ( String label : namespaces.stringPropertyNames() ) {
-	    result.setXNamespace( label, getXNamespace( label ) );
+	for ( Entry<Object,Object> e : namespaces.entrySet() ) {
+	    result.setXNamespace( (String)e.getKey(), (String)e.getValue() );
 	}
-	for ( Enumeration e = getElements() ; e.hasMoreElements(); ){
-	    result.addCell(((Cell)e.nextElement()).inverse());
+	for ( Cell c : this ) {
+	    result.addCell( c.inverse() );
 	}
 	return (Alignment)result;
     };
@@ -793,7 +795,7 @@ public class BasicAlignment implements Alignment, Extensible {
      * JE: May be a "force" boolean for really ingesting or copying may be
      *     useful
      */
-    public void ingest(Alignment alignment) throws AlignmentException {
+    public void ingest( Alignment alignment ) throws AlignmentException {
 	if ( alignment != null )
 	    for ( Cell c : alignment ) 
 		addCell( c );
@@ -815,10 +817,8 @@ public class BasicAlignment implements Alignment, Extensible {
 	align.setFile1( getFile1() );
 	align.setFile2( getFile2() );
 	align.setExtensions( extensions.convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
-	//for ( Enumeration e = namespaces.getNames() ; e.hasMoreElements(); ){
-	//    String label = (String)e.nextElement();
-	for ( String label : namespaces.stringPropertyNames() ) {
-	    align.setXNamespace( label, getXNamespace( label ) );
+	for ( Entry<Object,Object> e : namespaces.entrySet() ) {
+	    align.setXNamespace( (String)e.getKey(), (String)e.getValue() );
 	}
 	try { align.ingest( this ); }
 	catch (AlignmentException ex) { 
@@ -898,7 +898,7 @@ public class BasicAlignment implements Alignment, Extensible {
 	mainQuery = translateMessage( mainQuery );
 
 	// Post process prefix
-	for ( Map.Entry<Object,Object> m : prefix.entrySet() ) {
+	for ( Entry<Object,Object> m : prefix.entrySet() ) {
 	    if ( m.getKey() != null ) {
 		mainQuery = Pattern.compile("<"+m.getValue()+"([A-Za-z0-9_-]+)>").matcher(mainQuery).replaceAll( m.getKey()+":$1" );
 		mainQuery = "PREFIX "+m.getKey()+": <"+m.getValue()+"> \n" + mainQuery;

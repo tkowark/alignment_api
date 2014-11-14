@@ -21,6 +21,8 @@
 package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Contains the messages that should be sent according to the protocol
@@ -40,8 +42,8 @@ public class ErrorMsg extends Message {
 	String message = "Generic error: "+content;
 	if ( parameters != null ) {
 	    message += "<ul>";
-	    for ( String key : parameters.stringPropertyNames()) {
-		message += "<li>"+key+" = "+parameters.getProperty( key )+"</li>";
+	    for ( Entry<Object,Object> m : parameters.entrySet()) {
+		message += "<li>"+m.getKey()+" = "+m.getValue()+"</li>";
 	    }
 	    message += "/<ul>";
 	}

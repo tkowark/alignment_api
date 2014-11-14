@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2010, 2013
+ * Copyright (C) INRIA, 2003-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@ package fr.inrialpes.exmo.align.impl;
 
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.text.NumberFormat;
@@ -237,20 +238,20 @@ public abstract class MatrixMeasure implements Similarity {
 	for ( int i = 0; i < nb1 ; i++ ) System.out.print("c");
 	System.out.println("}");
 	try {
-	    Set<Object> key1 = ent1.keySet();
-	    for( Object ob1 : key1 ){
-		System.out.print(" & \\rotatebox{90}{"+onto1.getEntityName( ob1 )+"}");
+	    Set<Entry<Object,Integer>> key1 = ent1.entrySet();
+	    for( Entry<Object,Integer> e1 : key1 ){
+		System.out.print(" & \\rotatebox{90}{"+onto1.getEntityName( e1.getKey() )+"}");
 	    }
 	    System.out.println(" \\\\ \\hline");
-	    for ( Object ob2 : ent2.keySet() ){
-		System.out.print( onto2.getEntityName( ob2 ) );
-		for ( Object ob1 : key1 ){
-		    System.out.print(" & "+numFormat.format(matrix[ent1.get(ob1).intValue()][ent2.get(ob2).intValue()]));
+	    for ( Entry<Object,Integer> e2 : ent2.entrySet() ) {
+		System.out.print( onto2.getEntityName( e2.getKey() ) );
+		for ( Entry<Object,Integer> e1  : key1 ){
+		    System.out.print(" & "+numFormat.format(matrix[e1.getValue().intValue()][e2.getValue().intValue()]));
 		}
 		System.out.println("\\\\");
 	    }
-	} catch (OntowrapException e) { 
-	    logger.debug( "IGNORED Exception", e );
+	} catch ( OntowrapException owex ) { 
+	    logger.debug( "IGNORED Exception", owex );
 	};
 	System.out.println("\n\\end{tabular}");
     }

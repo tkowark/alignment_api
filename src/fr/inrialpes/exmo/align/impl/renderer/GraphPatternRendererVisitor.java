@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -283,8 +284,8 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
 
     protected String createPrefixList() {
         String result = "";
-        for (String k : prefixList.keySet()) {
-            result += "PREFIX " + prefixList.get(k) + ":<" + k + ">" + NL;
+	for ( Entry<String,String> e : prefixList.entrySet() ) {
+            result += "PREFIX " + e.getValue() + ":<" + e.getKey() + ">" + NL;
         }
         return result;
     }

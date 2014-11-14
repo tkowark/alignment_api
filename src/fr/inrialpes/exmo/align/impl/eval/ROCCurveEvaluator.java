@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2005, 2007-2010
+ * Copyright (C) INRIA, 2004-2005, 2007-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,9 +28,7 @@ import org.semanticweb.owl.align.Cell;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Set;
 import java.util.SortedSet;

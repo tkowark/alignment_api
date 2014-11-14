@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.io.PrintStream;
 import java.io.File;
 
@@ -74,11 +75,9 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 
     public BasicParameters() {}
 
-    @SuppressWarnings( "unchecked" )
     public BasicParameters( Properties prop ) {
-	for ( Enumeration<String> e = (Enumeration<String>)prop.propertyNames(); e.hasMoreElements(); ) { //[W:unchecked]
-	    String k = e.nextElement();
-	    setProperty( k, prop.getProperty(k) );
+	for ( Entry<Object,Object> e : prop.entrySet() ) {
+	    setProperty( (String)e.getKey(), (String)e.getValue() );
 	}
     }
   
@@ -109,13 +108,11 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
      * and p.loadFromXML( new FileInputStream( filename ) )
      * which are natural implementers for this.
      */
-    @SuppressWarnings( "unchecked" )
     public void write(){
 	System.out.println("<?xml version='1.0' ?>");
 	System.out.println("<Parameters>");
-	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements(); ) { //[W:unchecked]
-	    String k = e.nextElement();
-	    System.out.println("  <param name='"+k+"'>"+getProperty(k)+"</param>");
+	for ( Entry<Object,Object> e : entrySet() ) {
+	    System.out.println("  <param name='"+e.getKey()+"'>"+e.getValue()+"</param>");
 	}
 	System.out.println("</Parameters>");
     }
@@ -123,12 +120,10 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
     /**
      * displays the current parameters (debugging)
      */
-    @SuppressWarnings( "unchecked" )
     public void displayParameters( PrintStream stream ){
 	stream.println("Parameters:");
-	for ( Enumeration<String> e = (Enumeration<String>)propertyNames(); e.hasMoreElements();) { //[W:unchecked]
-	    String k = e.nextElement();
-	    stream.println("  "+k+" = "+getProperty(k));
+	for ( Entry<Object,Object> e : entrySet() ) {
+	    stream.println("  "+e.getKey()+" = "+e.getValue());
 	}
     }
 

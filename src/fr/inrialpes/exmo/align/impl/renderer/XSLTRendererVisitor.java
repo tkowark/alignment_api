@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012-2013
+ * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,7 @@
 package fr.inrialpes.exmo.align.impl.renderer; 
 
 import java.util.Hashtable;
-import java.util.Enumeration;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -85,9 +85,8 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 	if ( embedded == false )
 	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	writer.println("<xsl:stylesheet version=\"1.0\"");
-	for ( Enumeration e = namespaces.keys(); e.hasMoreElements(); ){
-	    Object ns = e.nextElement();
-	    writer.println("    xmlns:"+namespaces.get(ns)+"=\""+ns+"\"");
+	for ( Entry<String,String> e : namespaces.entrySet() ) {
+	    writer.println("    xmlns:"+e.getValue()+"=\""+e.getKey()+"\"");
 	}
 	writer.println("  >\n");
 
@@ -98,10 +97,7 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 	}
 	writer.print("\n");
 
-	for ( Enumeration e = alignment.getElements() ; e.hasMoreElements(); ){
-	    Cell c = (Cell)e.nextElement();
-	    c.accept( this );
-	}
+	for ( Cell c : alignment ) { c.accept( this ); }
 
 	writer.println("  <!-- Copying the root -->");
 	writer.println("  <xsl:template match=\"/\">");

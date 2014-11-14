@@ -96,7 +96,7 @@ public enum Namespace {
 	Namespace result = null;
 	if (register.size() <= 0) {
 	    for ( Namespace ns : Namespace.values() ) {
-		register.put(ns.getUri(), ns);
+		register.put( ns.getUri(), ns );
 		if ( ns.getUri().equals( url ) ) result = ns;
 	    }
 	} else { result = register.get(url); }

@@ -21,6 +21,8 @@
 package fr.inrialpes.exmo.align.service.msg;
 
 import java.util.Properties;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Contains the messages that should be sent according to the protocol
@@ -43,8 +45,8 @@ public class EvalResult extends Success {
 	    results += getContent();
 	} else {
 	    results += "Alignment method: "+getContent()+"\n<ul>\n";
-	    for ( String key : getParameters().stringPropertyNames() ) {
-		results += "<li>"+key+" : "+getParameters().getProperty( key )+"</li>\n";
+	    for ( Entry<Object,Object> m : getParameters().entrySet() ) {
+		results += "<li>"+m.getKey()+" : "+m.getValue()+"</li>\n";
 	    }
 	    results += "</ul>\n";
 	}
@@ -54,16 +56,16 @@ public class EvalResult extends Success {
     // A diff will never be rendered outside of HTML
     public String RESTString(){
 	String results = "<EvaluationResults>";
-	for ( String key : getParameters().stringPropertyNames() ) {
-	    results += "<"+key+">"+getParameters().getProperty( key )+"</"+key+">";
+	for ( Entry<Object,Object> m : getParameters().entrySet() ) {
+	    results += "<"+m.getKey()+">"+m.getValue()+"</"+m.getKey()+">";
 	}
 	results += "</EvaluationResults>";
 	return results;	
     }
     public String JSONString(){
 	String results = "{ \"type\" : \"EvaluationResult\"";
-	for ( String key : getParameters().stringPropertyNames() ) {
-	    results += ",\n  \""+key+"\" : \""+getParameters().getProperty( key )+"\"";
+	for ( Entry<Object,Object> m : getParameters().entrySet() ) {
+	    results += ",\n  \""+m.getKey()+"\" : \""+m.getValue()+"\"";
 	}
 	results += "\n}";
 	return results;	

@@ -257,9 +257,11 @@ public class JadeFIPAAServiceAgent extends Agent {
     private Properties decodeMessage(ContentElement ce, Properties param) {
 	Properties toReturn = param;
 	Action action= (Action)ce;
+	// Not iterable in this version
+	//for ( Parameter ontoParam : action.getAllHasParameter() ) {
 	for( Iterator<Parameter> iter = action.getAllHasParameter(); iter.hasNext(); ) {
-	    Parameter OntoParam = iter.next();
-	    toReturn.setProperty( OntoParam.getName(), OntoParam.getValue() ); 
+	    Parameter ontoParam = iter.next();
+	    toReturn.setProperty( ontoParam.getName(), ontoParam.getValue() ); 
 	}
 	return toReturn;
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2013, INRIA
+ * Copyright (C) 2011-2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -39,6 +39,7 @@ package fr.inrialpes.exmo.align.gen;
 import java.util.Properties;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.HashSet;
 
 import org.slf4j.Logger;
@@ -144,8 +145,8 @@ public abstract class TestSet {
     public void printTestHierarchy( TestCase c, int level ) {
 	for ( int i = 0; i < level; i++ ) System.out.print( "  " );
 	System.out.print( c.name+" [" );
-	for ( Object k : c.cumulated.keySet() ) {
-	    System.out.print( " "+k+"="+c.cumulated.getProperty( (String)k )+";" );
+	for ( Entry<Object,Object> m : c.cumulated.entrySet() ) {
+	    System.out.print( " "+m.getKey()+"="+m.getValue()+";" );
 	}
 	System.out.println( " ]" );
 	for ( TestCase sub : c.subTests ) printTestHierarchy( sub, level+1 );
@@ -182,6 +183,9 @@ class TestCase {
 	t.cumulated = (Properties)cumulated.clone();
 	for ( Object k : params.keySet() ) {
 	    t.cumulated.setProperty( (String)k, params.getProperty( (String)k ) );
+	}
+	for ( Entry<Object,Object> m : params.entrySet() ) {
+	    t.cumulated.setProperty( (String)m.getKey(), (String)m.getValue() );
 	}
 	return t;
     }

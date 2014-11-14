@@ -19,9 +19,9 @@
  */
 package fr.inrialpes.exmo.align.impl.renderer;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -124,7 +124,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
         nslist.put(Namespace.EDOAL.prefix, Namespace.EDOAL.shortCut);
         // Get the keys of the parameter
         int gen = 0;
-        for (String[] ext : align.getExtensions()) {
+        for ( String[] ext : align.getExtensions() ) {
             String prefix = ext[0];
             String name = ext[1];
             if (!(prefix.endsWith("#") || prefix.endsWith("/"))) {
@@ -138,11 +138,11 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
             tag += ":" + name;
             extensionString += INDENT + "\"" + tag + "\" : \"" + ext[2] + "\"," + NL;
         }
-        if (align instanceof BasicAlignment) {
-            for (String label : ((BasicAlignment) align).getXNamespaces().stringPropertyNames()) {
-                if (!label.equals("rdf") && !label.equals("xsd")
-                        && !label.equals("<default>")) {
-                    extensionString += INDENT + "\"" + label + "\" : \"" + ((BasicAlignment) align).getXNamespace(label) + "\"," + NL;
+        if ( align instanceof BasicAlignment ) {
+            for ( Entry<Object,Object> e : ((BasicAlignment)align).getXNamespaces().entrySet() ) {
+		String label = (String)e.getKey();
+                if ( !label.equals("rdf") && !label.equals("xsd") && !label.equals("<default>") ) {
+                    extensionString += INDENT + "\"" + label + "\" : \"" + e.getValue() + "\"," + NL;
                 }
             }
         }
@@ -150,9 +150,8 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
         increaseIndent();
         indentedOutputln("\"@context\" : {");
         increaseIndent();
-        for (Enumeration e = nslist.keys(); e.hasMoreElements();) {
-            String k = (String) e.nextElement();
-            indentedOutputln("\"" + nslist.get(k) + "\" : \"" + k + "\",");
+	for ( Entry<String,String> e : nslist.entrySet() ) {
+            indentedOutputln("\"" + e.getValue() + "\" : \"" + e.getKey() + "\",");
         }
         // Not sure that this is fully correct
         indentedOutputln("\"" + SyntaxElement.MEASURE.print(DEF) + "\" : { \"@type\" : \"xsd:float\" }");
@@ -231,7 +230,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
         } else {
             indentedOutput("\"" + SyntaxElement.LOCATION.print(DEF) + "\" : \"" + u + "\"");
         }
-        if (onto.getFormalism() != null) {
+        if ( onto.getFormalism() != null ) {
             writer.print("," + NL);
             indentedOutputln("\"" + SyntaxElement.FORMATT.print(DEF) + "\" : ");
             increaseIndent();
@@ -296,7 +295,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
 		    indentedOutputln("\"" + SyntaxElement.LINKKEYS.print(DEF) + "\" : [");
 		    increaseIndent();
 		    boolean first = true;
-		    for (Linkkey linkkey : linkeys) {
+		    for ( Linkkey linkkey : linkeys ) {
 			if (first) {
 			    first = false;
 			} else {
@@ -313,7 +312,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
 		    writer.print("," + NL);
 		    indentedOutputln("\"" + SyntaxElement.TRANSFORMATION.print(DEF) + "\" : [");
 		    increaseIndent();
-		    for (Transformation transf : transfs) {
+		    for ( Transformation transf : transfs ) {
 			transf.accept(this);
 		    }
 		    writer.print(NL);

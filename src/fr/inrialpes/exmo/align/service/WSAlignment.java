@@ -23,11 +23,10 @@ package fr.inrialpes.exmo.align.service;
 import java.lang.ClassNotFoundException;
 import java.util.Hashtable;
 import java.util.HashSet;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.io.File;
@@ -117,12 +116,11 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	 }
 	 message += "    <url1>"+uri1+"</url1>\n    <url2>"+uri2+"</url2>\n";
 	 // Parameter encoding
-	 for (Enumeration e = params.propertyNames(); e.hasMoreElements();) {
-	     String k = (String)e.nextElement();
+	 for ( Entry<Object,Object> e : params.entrySet() ) {
+	     String k = (String)e.getKey();
              if ( k != null && !k.equals("") )
-	        message += "    <param name=\""+k+"\">"+params.getProperty(k)+"</param>\n";
+		 message += "    <param name=\""+k+"\">"+e.getValue()+"</param>\n";
 	 }
-
 	 message += "  </"+Namespace.SOAP_ENV.shortCut+":Body>\n"+
 	     "</"+Namespace.SOAP_ENV.shortCut+":Envelope>\n";
 	 byte[] byteMess = message.getBytes();
@@ -204,7 +202,7 @@ public class WSAlignment extends URIAlignment implements AlignmentProcess {
 	align.setFile2( getFile2() );
 	for ( String[] ext : extensions.getValues() ){
 	    align.setExtension( ext[0], ext[1], ext[2] );
-	    }
+	}
 	String oldid = align.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
 	if ( oldid != null && !oldid.equals("") ) {
 	    align.setExtension( Namespace.EXT.uri, Annotations.DERIVEDFROM, oldid );

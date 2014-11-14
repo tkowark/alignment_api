@@ -1,7 +1,7 @@
 /**
  * $Id$
  *
- * Copyright (C) 2011-2013, INRIA
+ * Copyright (C) 2011-2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -36,12 +36,11 @@ package fr.inrialpes.exmo.align.gen.alt;
 //Java classes
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Enumeration;
 
 import java.lang.StringBuffer;
 import java.io.ByteArrayInputStream;
@@ -245,11 +244,9 @@ public abstract class BasicAlterator implements Alterator {
     // JE: this is usually not efficient, since these lists will likely be used for iterating
 
     //gets the Ontology classes
-    @SuppressWarnings("unchecked")
     public List<OntClass> getOntologyClasses() {
         List<OntClass> classes = new ArrayList<OntClass>();
-        for ( Iterator it = modifiedModel.listNamedClasses(); it.hasNext(); ) {
-            OntClass aux = (OntClass)it.next();
+	for ( OntClass aux : modifiedModel.listNamedClasses().toList() ) {
 	    // JE: why not startsWith ?
             if ( getNameSpace( aux.getURI() ).equals( modifiedOntologyNS ) ) {
                 classes.add( aux );
@@ -259,11 +256,9 @@ public abstract class BasicAlterator implements Alterator {
     }
 
     //gets the Ontology properties
-    @SuppressWarnings("unchecked")
     public List<OntProperty> getOntologyProperties() {
         List<OntProperty> properties = new ArrayList<OntProperty>();
-        for ( Iterator it = modifiedModel.listAllOntProperties(); it.hasNext(); ) {
-            OntProperty prop = (OntProperty)it.next();
+        for ( OntProperty prop : modifiedModel.listAllOntProperties().toList() ) {
 	    // JE: why not startsWith ?
             if ( getNameSpace( prop.getURI() ).equals( modifiedOntologyNS ) )
                 properties.add( prop );
@@ -313,11 +308,9 @@ public abstract class BasicAlterator implements Alterator {
 
     //check if the removed class appears as AllValueFrom or SomeValueFrom in a restriction
     // JE2012: This should be replaced by all parentclasses
-    @SuppressWarnings("unchecked")
     public void checkClassesRestrictions ( OntClass childClass, OntClass parentClass )  {
 	String uri = childClass.getURI();
-        for ( Iterator it = modifiedModel.listRestrictions(); it.hasNext(); ) {
-            Restriction restr = (Restriction)it.next();					//get the restriction
+        for ( Restriction restr : modifiedModel.listRestrictions().toList() ) {
             /* isAllValuesFromRestriction */
             if ( restr.isAllValuesFromRestriction() )  {
                 AllValuesFromRestriction av = restr.asAllValuesFromRestriction();
@@ -334,20 +327,19 @@ public abstract class BasicAlterator implements Alterator {
     }
 
     //removes a class, returns the uri of his parent
-    @SuppressWarnings("unchecked")
     public String removeClass( OntClass cls ) {
         ArrayList<OntClass> subClasses = new ArrayList<OntClass>();		//the list of all the subclasses of the class
         OntClass thing = modifiedModel.createClass( OWL.Thing.getURI() );	//Thing class
         buildClassHierarchy();							//build the class hierarchy if necessary
         OntClass parentClass = classHierarchy.removeClass( modifiedModel, cls );//get the parent of the class
 
-        for (Iterator it = cls.listSubClasses(); it.hasNext(); ) {            //build the list of subclasses
+        for ( OntClass cl : cls.listSubClasses().toList() ) {            //build the list of subclasses
 	    //because we can't change the
-            subClasses.add( (OntClass)it.next() );						//model while we are iterating
+            subClasses.add( cl );						//model while we are iterating
         }
 
         if ( parentClass != thing )						//now we change the superclass of classes
-            for (OntClass clss : subClasses) 					//new superclass =>
+            for ( OntClass clss : subClasses ) 					//new superclass =>
                 clss.setSuperClass( parentClass );				//=>the superclass of the node
 
 	checkClassesRestrictions( cls, parentClass );
@@ -379,7 +371,6 @@ public abstract class BasicAlterator implements Alterator {
 	modifiedOntologyNS = base2;
     }
 
-    @SuppressWarnings("unchecked")
     public Alignment extractAlignment( String base1, String base2 ) {
         Alignment extractedAlignment  = new URIAlignment();
         
@@ -395,11 +386,11 @@ public abstract class BasicAlterator implements Alterator {
             extractedAlignment.setFile1( onto1 );
             extractedAlignment.setFile2( onto2 );
             
-            for ( String key : alignment.stringPropertyNames() ) {
+            for ( Entry<Object,Object> e : alignment.entrySet() ) {
+		String key = (String)e.getKey();
 		if ( !key.equals("##") ) {
-		    String value = alignment.getProperty(key);
 		    //logger.trace( "[{} --> {}]", source, target );
-		    extractedAlignment.addAlignCell( URI.create( base1+key ), URI.create( base2+value ) );
+		    extractedAlignment.addAlignCell( URI.create( base1+key ), URI.create( base2+e.getValue() ) );
 		}
             }
 	    alignment.setProperty( "##", base1 );

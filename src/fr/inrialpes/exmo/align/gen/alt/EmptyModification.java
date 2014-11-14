@@ -28,7 +28,6 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.Ontology;
 
 import java.util.Properties;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;

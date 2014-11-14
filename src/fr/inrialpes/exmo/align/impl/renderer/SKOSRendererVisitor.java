@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012
+ * Copyright (C) INRIA, 2003-2004, 2006-2010, 2012, 2014
  * Copyright (C) Quentin Reul, 2008
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 package fr.inrialpes.exmo.align.impl.renderer; 
 
-import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintWriter;
 import java.net.URI;

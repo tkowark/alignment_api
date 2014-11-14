@@ -103,6 +103,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -303,28 +304,20 @@ public class AServProtocolManager implements Service {
     public Message align( Properties params ){
 	Message result = null;
 	// These are added to the parameters wich are in the message
-	//for ( String key : commandLineParams ) {
-	// Unfortunately non iterable
-	for ( Enumeration<String> e = (Enumeration<String>)commandLineParams.propertyNames(); e.hasMoreElements();) { //[W:unchecked]
-	    String key = e.nextElement();
-	    if ( params.getProperty( key ) == null ){
-		params.setProperty( key , commandLineParams.getProperty( key ) );
-	    }
+	for ( Entry<Object,Object> e : commandLineParams.entrySet() ) {
+	    if ( params.getProperty( (String)e.getKey() ) == null ) params.setProperty( (String)e.getKey(), (String)e.getValue() );
 	}
 	// Do the fast part (retrieve)
 	result = retrieveAlignment( params );
 	if ( result != null ) return result;
-	// [JE2013:ID]
 	String uri = alignmentCache.generateAlignmentUri();
 
-	// [JE2013:ID]
 	Aligner althread = new Aligner( params, uri );
 	Thread th = new Thread(althread);
 	// Do the slow part (align)
 	if ( params.getProperty("async") != null ) {
 	    th.start();
 	    // Parameters are used
-	    // [JE2013:ID]
 	    return new AlignmentId( params, newId(), serverId, uri );
 	} else {
 	    th.start();
@@ -1576,8 +1569,6 @@ public class AServProtocolManager implements Service {
 		    if ( pretty != null && !pretty.equals("") )
 			aresult.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 		} catch (AlignmentException e) {
-		    // The unreachability test has already been done
-		    // JE 15/1/2009: commented the unreachability test
 		    if ( reachable( uri1 ) == null ){
 			result = new UnreachableOntology( params, newId(), serverId,params.getProperty("onto1") );
 		    } else if ( reachable( uri2 ) == null ){

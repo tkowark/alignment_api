@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2004-2010, 2012-2013
+ * Copyright (C) INRIA, 2004-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,9 +34,7 @@ import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.PrintWriter;

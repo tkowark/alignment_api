@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2010, 2012-2013
+ * Copyright (C) INRIA, 2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,9 +31,7 @@ import fr.inrialpes.exmo.align.impl.BasicEvaluator;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.Annotations;
 
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.io.PrintWriter;

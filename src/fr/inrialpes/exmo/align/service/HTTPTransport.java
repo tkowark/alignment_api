@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 
 import java.util.Vector;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Enumeration;
 
@@ -257,16 +258,16 @@ public class HTTPTransport {
 
 	// Convert parms to parameters
 	Properties params = new Properties();
-	for ( String key : parms.stringPropertyNames() ) {
-	    //logger.trace( "  PRM: '{}' = '{}'", key, parms.getProperty( key ) );
+	for ( Entry<Object,Object> e : parms.entrySet() ) {
+	    //logger.trace( "  PRM: '{}' = '{}'", e.getKey(), e.getValue() );
+	    String key = (String)e.getKey();
 	    if ( key.startsWith( "paramn" ) ){
-		params.setProperty( parms.getProperty( key ),
-				     parms.getProperty( "paramv"+key.substring( 6 ) ) );
+		params.setProperty( (String)e.getValue(),
+				    parms.getProperty( "paramv"+key.substring( 6 ) ) );
 	    } else if ( !key.startsWith( "paramv" ) ) {
-		params.setProperty( key, parms.getProperty( key ) );
+		params.setProperty( (String)key, (String)e.getValue() );
 	    }
 	}
-	
 	int start = 0;
 	while ( start < uri.length() && uri.charAt(start) == '/' ) start++;
 	int end = uri.indexOf( '/', start+1 );

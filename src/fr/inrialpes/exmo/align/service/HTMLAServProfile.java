@@ -54,8 +54,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Map;
 import java.net.URI;
 import java.net.URISyntaxException;

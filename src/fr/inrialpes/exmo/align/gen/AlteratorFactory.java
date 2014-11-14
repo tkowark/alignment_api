@@ -1,7 +1,7 @@
 /**
  * $Id$
  *
- * Copyright (C) INRIA, 2011, 2013
+ * Copyright (C) INRIA, 2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -152,10 +152,9 @@ public class AlteratorFactory {
 	    modifier.modify( params );
 	}
 	/*
-        for( String key : params.stringPropertyNames() ) {
-            String value = params.getProperty(key);
-	    //logger.trace( "[{}] = [{}]", key, value );
-	    modifier.modifyOntology( key, value );					//modify the ontology according to it
+        for( Entry<Object,Object> m : params.entrySet() ) {
+	    //logger.trace( "[{}] = [{}]", m.getKey(), m.getValue );
+	    modifier.modifyOntology( m.getKey(), m.getValue );					//modify the ontology according to it
         }
 	*/
 	return modifier;

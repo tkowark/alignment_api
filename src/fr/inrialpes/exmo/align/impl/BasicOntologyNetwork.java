@@ -20,12 +20,9 @@
 
 package fr.inrialpes.exmo.align.impl; 
 
-import java.lang.Iterable;
 import java.util.Collections;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
@@ -50,8 +47,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.vocabulary.RDF;
-
-//import fr.inrialpes.exmo.ontowrap.Ontology;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
