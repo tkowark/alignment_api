@@ -42,6 +42,7 @@ public enum Namespace {
     XSD("http://www.w3.org/2001/XMLSchema", "xsd", true),
     XSI("http://www.w3.org/1999/XMLSchema-instance", "xsi", false),
     RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf", false),
+    OWL("http://www.w3.org/2002/07/owl#", "owl", false),
     NONE("", "fake", false),
     ATLMAP("http://www.atl.external.lmco.com/projects/ontology/ResultsOntology.n3#", "map", false);
 

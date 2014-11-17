@@ -601,8 +601,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmfind") ) {
 	    msg ="<h1>Find alignments between ontologies</h1><form action=\"find\">Ontology 1: <input type=\"text\" name=\"onto1\" size=\"80\"/> (uri)<br />Ontology 2: <input type=\"text\" name=\"onto2\" size=\"80\"/> (uri)<br /><small>These are the URI identifying the ontologies. Not those of places where to upload them.</small><br /><input type=\"submit\" name=\"action\" value=\"Find\"/></form>";
+	    msg += "<h1>Find alignments by URIs</h1><form action=\"get\">URI: <input type=\"text\" name=\"uri\" size=\"80\"/> (uri)<br />Description: <input type=\"text\" name=\"desc\" size=\"80\"/> (found in pretty)<br /><input type=\"submit\" name=\"action\" value=\"Get\"/></form>";
 	} else if ( perf.equals("find") ) {
 	    Message answer = manager.existingAlignments( params );
+	    if ( answer instanceof ErrorMsg ) {
+		msg = testErrorMessages( answer, params, eSource );
+	    } else {
+		msg = "<h1>Found alignments</h1>";
+		msg += displayAnswer( answer, params );
+	    }
+	} else if ( perf.equals("get") ) {
+	    Message answer = manager.getAlignments( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params, eSource );
 	    } else {
@@ -658,13 +667,16 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    // Alignment in HTML can be rendre or metadata+tuples
 	} else if ( perf.equals("prmload") ) {
 	    // Should certainly be good to offer store as well
-	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br />Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br /><input type=\"submit\" value=\"Load\"/></form>";
+	    msg = "<h1>Load an alignment</h1><form action=\"load\">Alignment URL: <input type=\"text\" name=\"url\" size=\"80\"/> (uri)<br /><small>This is the URL of the place where to find this alignment. It must be reachable by the server (i.e., file:// URI is acceptable if it is on the server).</small><br />Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
+	    msg += "<input type=\"checkbox\" name=\"force\" /> Force <br />";
+	    msg += "<input type=\"submit\" value=\"Load\"/></form>";
 	    //msg += "Alignment file: <form ENCTYPE=\"text/xml; charset=utf-8\" action=\"loadfile\" method=\"POST\">";
 	    msg += "Alignment file: <form enctype=\"multipart/form-data\" action=\"load\" method=\"POST\">";
 	    msg += "<input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\""+MAX_FILE_SIZE+"\"/>";
 	    msg += "<input name=\"content\" type=\"file\" size=\"35\">";
 	    msg += "<br /><small>NOTE: Max file size is "+(MAX_FILE_SIZE/1024)+"KB; this is experimental but works</small><br />";
 	    msg += "Pretty name: <input type=\"text\" name=\"pretty\" size=\"80\"/><br />";
+	    msg += "<input type=\"checkbox\" name=\"force\" /> Force <br />";
 	    msg += "<input type=\"submit\" Value=\"Upload\">";
 	    msg +=  " </form>";
 	} else if ( perf.equals("load") ) {

@@ -66,6 +66,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Evaluator;
 import org.semanticweb.owl.align.OntologyNetwork;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,8 +286,11 @@ public class AServProtocolManager implements Service {
 	if ( pretty != null && !pretty.equals("") ) {
 	    al.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
+	boolean force = false;
+	String rewrite = params.getProperty("force");
+	if ( rewrite != null && !rewrite.equals("") ) force = true;
 	// register it
-	String id = alignmentCache.recordNewAlignment( al, true );
+	String id = alignmentCache.recordNewAlignment( al, force );
 	// if the file has been uploaded: discard it
 	if ( params.getProperty("todiscard") != null ) {
 	    try {
@@ -366,7 +370,7 @@ public class AServProtocolManager implements Service {
 	String onto2 = params.getProperty("onto2");
 	URI uri1 = null;
 	URI uri2 = null;
-	Set<Alignment> alignments = new HashSet<Alignment>();
+	Set<Alignment> alignments = null;
 	try {
 	    if( onto1 != null && !onto1.equals("") ) {
 		uri1 = new URI( onto1 );
@@ -378,11 +382,38 @@ public class AServProtocolManager implements Service {
 	} catch (Exception e) {
 	    return new ErrorMsg( params, newId(), serverId,"MalformedURI problem" );
 	}; //done below
-	String msg = "";
-	String prettys = "";
-	for ( Alignment al : alignments ) {
-	    msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
-	    prettys += al.getExtension( Namespace.EXT.uri, Annotations.PRETTY )+ ":";
+	String msg = " ";
+	String prettys = ":";
+	if ( alignments != null ) {
+	    for ( Alignment al : alignments ) {
+		msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
+		prettys += al.getExtension( Namespace.EXT.uri, Annotations.PRETTY )+ ":";
+	    }
+	}
+	return new AlignmentIds( params, newId(), serverId, msg, prettys );
+    }
+
+    // DONE
+    // Implements: query-aligned
+    public Message getAlignments( Properties params ){
+	String uri = params.getProperty("uri");
+	String desc = params.getProperty("desc");
+	Set<Alignment> alignments = null;
+	try {
+	    if ( uri != null && !uri.equals("") ) alignments = alignmentCache.getAlignmentByURI( uri );
+	    if ( desc != null && alignments == null && !desc.equals("") ) { // Then try the description
+		alignments = alignmentCache.getAlignmentsByDescription( desc );
+	    }
+	} catch ( Exception ex ) {
+	    return new ErrorMsg( params, newId(), serverId, "Exception raised" );
+	}; //done below
+	String msg = " ";
+	String prettys = ":";
+	if ( alignments != null ) {
+	    for ( Alignment al : alignments ) {
+		msg += al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID )+" ";
+		prettys += al.getExtension( Namespace.EXT.uri, Annotations.PRETTY )+ ":";
+	    }
 	}
 	return new AlignmentIds( params, newId(), serverId, msg, prettys );
     }
@@ -1193,8 +1224,8 @@ public class AServProtocolManager implements Service {
     protected String registerNetwork( BasicOntologyNetwork noo, String id ) {
 	String newid = id;
 	if ( id == null ) newid = alignmentCache.recordNewNetwork( noo, true );
-	for (Alignment al : noo.getAlignments() ) {
-	    alignmentCache.recordNewAlignment( al, true );
+	for ( Alignment al : noo.getAlignments() ) {
+	    alignmentCache.recordNewAlignment( al, false );
 	}
 	return newid;
     }

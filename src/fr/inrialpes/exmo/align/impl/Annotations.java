@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2009
+ * Copyright (C) INRIA, 2008-2009, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,6 +32,7 @@ public class Annotations {
     public static String PROPERTIES = "properties";
     public static String PRETTY = "pretty";
     public static String PROVENANCE = "provenance";
+    public static String SAMEAS = "sameAs";
 
     /* Set to true for rejecting the use of deprecated (non deterministic) primitives */
     // JE2009: Unrelated to Annotations...

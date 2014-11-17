@@ -37,10 +37,10 @@ The development of 4 versions continues.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Provide several URIs for the same alignment (serv)</li>
+<li>Complete tutorial4 (doc).</li>
+<li>Implement correspondence selection (serv)</li>
 <li>Implement database store for EDOAL (serv)</li>
 <li>Implementation of a provenance metadata tag (serv/impl)</li>
-<li>Complete tutorial4 (doc).</li>
 <li>Implement metadata edition (serv)</li>
 <li>Add simple "harder" test generator (gen)</li>
 <li>Add simple "hidden" test generator (gen)</li>
@@ -53,7 +53,6 @@ The development of 4 versions continues.
 <li>Replace <tt>DistanceAlignment</tt> and <tt>Similarity</tt> with a version more in line with <a href="http://ontosim.gforge.inria.fr">OntoSim</a> (impl)</tt>
 <li>Implement transformations in EDOAL (edoal)</li>
 <li>Improve HTML interface layout and usability (serv)</li>
-<li>Implement correspondence selection (serv)</li>
 <li>Automatically switch to correct <tt>ontowrap</tt> implementation in parsers (parser)</li>
 <li>Render alignments as module descriptions (impl)</li>
 <li>Implement extensive evaluation framework (impl)</li>
@@ -71,12 +70,12 @@ with a warning:
 <p>The Alignment API is now compiled in Java 1.7.</p>
 
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Letraset</h2-->
-<!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
+<!--h2>Version 4.8 (1xxx): ??/??/201x - AntÃ©sine</h2-->
 <!--h2>Version 4.7 (19xx): ??/11/2014 - Al pesto</h2-->
 <p><ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>, use <tt>remCell()</tt> instead (impl)</tt>
 <li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>, from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
-<li><span style="color: red;">Changed</span> standard extension namespace to http://exmo.inrialpes.fr/align/ext/1.0/# (impl)</tt>
+<li><span style="color: red;">Changed</span> standard extension namespace to http://exmo.inrialpes.fr/align/ext/1.0/ (impl)</tt>
 <li>Fixed a bug in <tt>QueryMediator</tt> which doubled '#' (serv)</li>
 <li>Fixed a few mistakes in <tt>SilkRendererVisitor</tt> (impl)</li>
 <li>Fixed several bugs in <tt>GraphPatternRendererVisitor</tt> (impl)</li>
@@ -85,7 +84,9 @@ with a warning:
 <li>Implemented (fully) extension parsing in RDFParser (parser)</li>
 <li>Reorganised AlignmentServices into transport (HTTP) and service (HTML/Web service) (serv)</li>
 <li>Enabled query translation in interface and web service (serv)</li>
+<li>Enabled multiple URIs for the same alignment (serv)</li>
 <li>Added ontology network support in server (serv)</li>
+<li>Added get alignments by URI in server (serv)</li>
 <li>Added JSON interface for server (serv)</li>
 <li>Added a command-line utility for query translation (cli)</li>
 <li>Added a command-line utility for alignment aggregation (cli)</li>
@@ -101,6 +102,7 @@ with a warning:
 <li>Managed upload via <span style="color: green">Commons fileupload 1.3.1</span> and <span style="color: green">io 2.4</span> instead of Jetty (serv)</li>
 <li>Upgraded to <span style="color: green">Servlet API 3.1</span> (lib)</li>
 <li>Upgraded to <span style="color: green">Jetty 9.1.4</span> (lib)</li>
+<li>Upgraded to <span style="color: green">OWL API 3.5.0</span> (lib)</li>
 </ul></p>
 
 <h2>Version 4.6 (1875): 22/01/2014 - Da lec'h all</h2>

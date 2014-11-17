@@ -20,7 +20,6 @@
 
 package fr.inrialpes.exmo.align.service;
 
-import java.util.Enumeration;
 import java.util.Collection;
 import java.util.Set;
 import java.util.Properties;
@@ -76,6 +75,12 @@ public interface Cache {
      * retrieve full alignment from id (and cache it)
      */
     public Alignment getAlignment( String uri ) throws AlignmentException;
+	
+    /**
+     * retrieve full alignment from URI or description
+     */
+    public Set<Alignment> getAlignmentByURI( String uri ) throws AlignmentException;
+    public Set<Alignment> getAlignmentsByDescription( String desc ) throws AlignmentException;
 	
     /**
      * retrieve network of ontologies from id

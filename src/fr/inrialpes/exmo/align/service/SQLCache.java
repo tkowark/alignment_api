@@ -24,6 +24,7 @@ package fr.inrialpes.exmo.align.service;
 import java.util.Vector;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -564,10 +565,12 @@ public class SQLCache extends VolatilCache implements Cache {
 			}
 		    }
 		    // URIINdex: store alternative URIs
-		    // For all alt URIs stored who knows where
-		    // Deal with prefs
-		    //query = "INSERT INTO alignmenturis "+"(id, uri) VALUES ("+quote(id)+","+quote(turi)+");";
-		    //st.executeUpdate(query);
+		    for ( Entry<String,Alignment> entry : alignmentURITable.entrySet() ) {
+			if ( entry.getValue() == alignment ) {
+			    query = "INSERT INTO alignmenturis "+"(id, uri,prefered) VALUES ("+quote(entry.getKey())+","+quote(id)+",false);";
+			    st.executeUpdate(query);
+			}
+		    }
 		    st.close();
 		} catch ( SQLException sqlex ) {
 		    logger.warn( "SQLError", sqlex );

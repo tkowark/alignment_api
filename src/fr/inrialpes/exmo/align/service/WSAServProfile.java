@@ -502,6 +502,13 @@ public class WSAServProfile implements AlignmentServiceProfile {
 		answer = manager.existingAlignments( newparameters );
             }
 	    msg += render( "findResponse", answer, param.getProperty("returnType"), newparameters);
+	} else if ( method.equals("getRequest") || method.equals("get") ) { // URI | String -> List of URI
+	    if ( newparameters.getProperty( "uri" ) == null || newparameters.getProperty( "desc" ) == null ) {
+		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);
+	    } else {
+		answer = manager.getAlignments( newparameters );
+            }
+	    msg += render( "getResponse", answer, param.getProperty("returnType"), newparameters);
 	} else if ( method.equals("evalRequest") || method.equals("eval") ) { // URI * URI -> List of URI
 	    if ( newparameters.getProperty( "id" ) == null ) {
 		answer = new NonConformParameters(0,(Message)null,myId,"",message,(Properties)null);

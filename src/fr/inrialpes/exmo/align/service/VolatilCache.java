@@ -22,7 +22,6 @@ package fr.inrialpes.exmo.align.service;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.Collection;
@@ -128,7 +127,32 @@ public class VolatilCache implements Cache {
     public Collection<OntologyNetwork> ontologyNetworks() {
     	return onetworkTable.values();
     }
-        
+
+    /**
+     * Find alignments by URI
+     */
+    public Set<Alignment> getAlignmentByURI( String uri ) {
+	Set<Alignment> result = null;
+	Alignment al = alignmentTable.get( uri );
+	if ( al == null ) al = alignmentURITable.get( uri );
+	if ( al != null ) {
+	    result = new HashSet<Alignment>();
+	    result.add( al );
+	}
+	return result;
+    }
+
+    /**
+     * Find alignments by pretty
+     * NOT IMPLEMENTED YET
+     */
+    public Set<Alignment> getAlignmentsByDescription( String desc ) {
+	return null;
+    }
+
+    /**
+     * Find alignments by ontology URIs
+     */
     public Set<Alignment> getAlignments( URI uri ) {
 	return ontologyTable.get( uri );
     }
@@ -269,17 +293,6 @@ public class VolatilCache implements Cache {
 	return result;
     }
 
-    // URIINdex:
-    public Alignment findAlignment( String uri ) throws AlignmentException {
-	Alignment result = null;
-	try {
-	    result = getAlignment( uri );
-	} catch (AlignmentException alex) {
-	    result = alignmentURITable.get( uri );
-	}
-	return result;
-    }
-
     /**
      * retrieve full alignment from id (and cache it)
      */
@@ -375,9 +388,21 @@ public class VolatilCache implements Cache {
 
     /**
      * records alignment identified by id
+     * force will register the new alignment even if it is already registered
      */
     public String recordAlignment( String uri, Alignment alignment, boolean force ) {
 	// URIINdex: if this guy already has a URI, record in table
+	String uriref = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+	if ( uriref != null && !uriref.equals("") ) {
+	    Alignment altal = alignmentURITable.get( uriref );
+	    if ( altal == null || force ) {
+		alignmentURITable.put( uriref, alignment );
+		alignment.setExtension( Namespace.OWL.uri, Annotations.SAMEAS, uriref );
+	    } else { // An alignment carrying this URI is already here
+		String olduri = altal.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		return olduri;
+	    }
+	}
 	// record the Alignment at the corresponding Uri in tables!
 	alignment.setExtension( Namespace.ALIGNMENT.uri, Annotations.ID, uri );
 
@@ -422,6 +447,11 @@ public class VolatilCache implements Cache {
 	}
 	alignmentTable.remove( id );
 	// URIINdex: should remove all entries pointing to it
+	Set<String> toDelete = new HashSet<String>();
+	for ( Entry<String,Alignment> entry : alignmentURITable.entrySet() ) {
+	    if ( entry.getValue() == alignment ) toDelete.add( entry.getKey() );
+	}
+	for ( String u : toDelete ) alignmentURITable.remove( u );
     }
 
     //**********************************************************************

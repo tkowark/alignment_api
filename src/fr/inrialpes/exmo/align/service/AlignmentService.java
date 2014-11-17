@@ -36,7 +36,6 @@ import org.apache.commons.cli.ParseException;
 
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.io.PrintStream;
 import java.io.File;
