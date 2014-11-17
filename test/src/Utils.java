@@ -1,4 +1,27 @@
-package fr.inrialpes.exmo.align.test;
+/*
+ * $Id: READMETest.java 1985 2014-11-09 16:50:18Z euzenat $
+ *
+ * Copyright (C) INRIA, 2014
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
+
+
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.parser.AlignmentParser;
+import fr.inrialpes.exmo.align.parser.RDFParser;
 
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.Dataset;
@@ -7,9 +30,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
-import fr.inrialpes.exmo.align.parser.AlignmentParser;
-import fr.inrialpes.exmo.align.parser.RDFParser;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Collection;
@@ -17,11 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author Nicolas Guillouet <nicolas@meaningengines.com>
@@ -60,10 +76,10 @@ public class Utils {
      * @return
      */
     public static HashMap<String, Collection<String>> getResultValues(ResultSet resultSet) {
-        HashMap<String, Collection<String>> toReturn = new HashMap();
+        HashMap<String, Collection<String>> toReturn = new HashMap<String, Collection<String>>();
         List<String> varsNames = resultSet.getResultVars();
         for (String varName : varsNames) {
-            toReturn.put(varName, new TreeSet());
+            toReturn.put(varName, new TreeSet<String>());
         }
         while (resultSet.hasNext()) {
             QuerySolution querySolution = resultSet.nextSolution();
