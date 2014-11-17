@@ -53,27 +53,24 @@ public class AlignmentIds extends Success {
     }
 
     public String HTMLString(){
-	String id[] = content.split(" ");
-	String pid[] = pretty.split(":");
+	String id[] = content.split(" ", 0);
+	String pid[] = pretty.split(":", 0);
 	String result = "No alignment.";
 
 	if ( id.length >= 1 ) {
 	    result = "Alignment Ids: <ul>";
-	    for ( int i = id.length-1; i >= 0; i-- ){
+	    for ( int i = id.length-1; i >= 1; i-- ){
 		// logger.trace("id[{}]{}", i, id[i] );
 		// result += "<li><a href=\"../html/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">";
 		result += "<li><a href=\""+id[i]+"\">";
 		result += id[i];
 		String pp = null;
 		if ( pid != null ) {
-		    try {
-			pp = pid[i];
-	    	        if (pp != null && !pp.equals("") && !pp.equals("null"))  {		
-			    result += " ("+pp+")";
-			}
-			// logger.trace( "pid[{}]={}", i, pp );
-		    } catch(Exception ex) { 
+		    pp = pid[i];
+		    if (pp != null && !pp.equals("") && !pp.equals("null"))  {		
+			result += " ("+pp+")";
 		    }
+		    // logger.trace( "pid[{}]={}", i, pp );
 		} 
 		result += "</a></li>";
 	    }
@@ -84,11 +81,11 @@ public class AlignmentIds extends Success {
 
     public String HTMLRESTString(){
 	String result = "No alignment.";
-	String id[] = content.split(" ");
+	String id[] = content.split(" ", 0);
 
 	if ( id.length >= 1 ) {
 	    result = "Alignment Ids: <ul>";
-	    for ( int i = id.length-1; i >= 0; i-- ){
+	    for ( int i = id.length-1; i >= 1; i-- ){
 		result += "<li><a href=\"../rest/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor&id="+id[i]+"\">"+id[i]+"</a>";
 		result += "<table><tr>";
 		result += "<td><form action=\"getID\"><input type=\"hidden\" name=\"id\" value=\""+id[i]+"\"/><input type=\"submit\" name=\"action\" value=\"GetID\"  disabled=\"disabled\"/></form></td>";
@@ -102,20 +99,20 @@ public class AlignmentIds extends Success {
 
     public String RESTString(){
 	String msg = "<alignmentList>\n";
-	String id[] = content.split(" ");
-	for ( int i = id.length-1; i >= 0; i-- ){
+	String id[] = content.split(" ", 0);
+	for ( int i = id.length-1; i >= 1; i-- ){
 	    if ( id[i].trim() != "" ) {
 		msg += "        <alid>"+id[i].trim()+"</alid>\n";
 	    }
-	}	
+	}
 	msg += "      </alignmentList>";
 	return msg;
     }
 
     public String JSONString(){
 	String msg = "[";
-	String id[] = content.split(" ");
-	for ( int i = id.length-1; i >= 0; i-- ){
+	String id[] = content.split(" ", 0);
+	for ( int i = id.length-1; i >= 1; i-- ){
 	    if ( id[i].trim() != "" ) {
 		msg += "    \""+id[i].trim()+"\",\n";
 	    }
