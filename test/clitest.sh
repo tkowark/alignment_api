@@ -45,33 +45,33 @@ if [ -s $RESDIR/proc-diff-h.txt ]; then echo error with PROC-HELP2; fi
 echo "\t-o,--output <FILE>"
 java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -o $RESDIR/proc-o1.rdf
 java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --output $RESDIR/proc-output1.rdf
-sed "s:<time>[^<]*</time>::" $RESDIR/proc-o1.rdf > $RESDIR/proc-o.rdf
-sed "s:<time>[^<]*</time>::" $RESDIR/proc-output1.rdf > $RESDIR/proc-output.rdf
+sed "s:<alext\:time>[^<]*</alext\:time>::" $RESDIR/proc-o1.rdf > $RESDIR/proc-o.rdf
+sed "s:<alext\:time>[^<]*</alext\:time>::" $RESDIR/proc-output1.rdf > $RESDIR/proc-output.rdf
 if [ -s  $RESDIR/proc-o.rdf ]; then diff $RESDIR/proc-o.rdf $RESDIR/proc-output.rdf; else echo error with PROC-OUTPUT1; fi
 
 #-------------------
 echo "\t-a,--alignment <FILE>"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a examples/rdf/newsample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-a.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --alignment examples/rdf/newsample.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-align.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -a file:examples/rdf/newsample.rdf | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-a.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --alignment file:examples/rdf/newsample.rdf | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-align.rdf
 if [ -s  $RESDIR/proc-a.rdf ]; then diff $RESDIR/proc-a.rdf $RESDIR/proc-align.rdf; else echo error with PROC-ALIGN1; fi
 
 #-------------------
 echo "\t-i <C>, --impl <C>"
 #JE: A random distance available (could try with others)
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-i.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --impl fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-impl.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-i.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --impl fr.inrialpes.exmo.align.impl.method.StrucSubsDistAlignment | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-impl.rdf
 if [ -s  $RESDIR/proc-i.rdf ]; then diff $RESDIR/proc-i.rdf $RESDIR/proc-impl.rdf; else echo error with PROC-IMPL1; fi
 
 #-------------------
 echo "\t-Dn=v"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-id.rdf
-if [ -s $RESDIR/proc-id.rdf ]; then diff $RESDIR/proc-i.rdf $RESDIR/proc-id.rdf | sed "s:<time>[^<]*</time>::" > $RESDIR/diff-proc.txt; else echo error with PROC-PARAM1; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-id.rdf
+if [ -s $RESDIR/proc-id.rdf ]; then diff $RESDIR/proc-i.rdf $RESDIR/proc-id.rdf | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/diff-proc.txt; else echo error with PROC-PARAM1; fi
 if [ ! -s $RESDIR/diff-proc.txt ]; then echo error with PROC-PARAM2; fi
 
 #-------------------
 echo "\t-t,--threshold <DOUBLE>"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-t.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance --threshold 0.4 | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-threshold.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-t.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance --threshold 0.4 | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-threshold.rdf
 if [ -s $RESDIR/proc-t.rdf ]; then diff $RESDIR/proc-t.rdf $RESDIR/proc-threshold.rdf; else echo error with PROC-THRES1; fi
 # test diff from previous
 diff $RESDIR/proc-t.rdf $RESDIR/proc-id.rdf > $RESDIR/diff-proc.txt
@@ -79,8 +79,8 @@ if [ ! -s $RESDIR/diff-proc.txt ]; then echo error with PROC-THRES2; fi
 
 #-------------------
 echo "\t-T,--cutmethod <METHOD>"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -T perc | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-C.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --impl fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 --cutmethod perc | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-cutmethod.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 -T perc | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-C.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --impl fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -t 0.4 --cutmethod perc | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-cutmethod.rdf
 if [ -s $RESDIR/proc-C.rdf ]; then diff $RESDIR/proc-C.rdf $RESDIR/proc-cutmethod.rdf; else echo error with PROC-CUT1; fi
 # test diff from previous
 diff $RESDIR/proc-C.rdf $RESDIR/proc-t.rdf > $RESDIR/diff-proc.txt
@@ -88,8 +88,8 @@ if [ ! -s $RESDIR/diff-proc.txt ]; then echo error with PROC-CUT2; fi
 
 #-------------------
 echo "\t-r,--renderer <CLASS>"
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor | sed "s/time: [0-9]*/time: 0/" > $RESDIR/proc-r.rdf
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --renderer fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor | sed "s/time: [0-9]*/time: 0/" > $RESDIR/proc-render.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor | sed "s/alext\:time: [0-9]*/alext\:time: 0/" > $RESDIR/proc-r.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --renderer fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor | sed "s/alext\:time: [0-9]*/alext\:time: 0/" > $RESDIR/proc-render.rdf
 if [ -s $RESDIR/proc-r.rdf ]; then diff $RESDIR/proc-r.rdf $RESDIR/proc-render.rdf; else echo error with PROC-RENDER1; fi
 
 #-------------------
@@ -100,11 +100,11 @@ echo "<?xml version='1.0' encoding='utf-8' standalone='no'?>
 <entry key=\"impl\">fr.inrialpes.exmo.align.impl.method.StringDistAlignment</entry>
 <entry key=\"stringFunction\">levenshteinDistance</entry>
 </properties>" > $RESDIR/params.xml
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -P $RESDIR/params.xml | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-p.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl -P $RESDIR/params.xml | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-p.rdf
 #Will not work because we use loadFromXML
 #echo "impl=fr.inrialpes.exmo.align.impl.method.StringDistAlignment
 #stringFunction=levenshteinDistance" > $RESDIR/params.prop
-java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --params $RESDIR/params.xml | sed "s:<time>[^<]*</time>::" > $RESDIR/proc-params.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.Procalign file://$CWD/examples/rdf/onto1.owl file://$CWD/examples/rdf/onto2.owl --params $RESDIR/params.xml | sed "s:<alext\:time>[^<]*</alext\:time>::" > $RESDIR/proc-params.rdf
 if [ -s  $RESDIR/proc-p.rdf ]; then diff $RESDIR/proc-p.rdf $RESDIR/proc-params.rdf; else echo error with PROC-PARAMS1; fi
 diff $RESDIR/proc-p.rdf $RESDIR/proc-id.rdf
 
@@ -201,6 +201,7 @@ echo "\t(same as Procalign)"
 #-------------------
 echo "\t-P,--params <FILE>"
 echo "\t(same as Procalign)"
+
 
 ########################################################################
 # EvalAlign
@@ -387,19 +388,19 @@ echo "\t-w,--directory <DIR>"
 echo "\t-o <F>, --output <F>"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -w $RESDIR/smalltest -o streq1.rdf
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --directory $RESDIR/smalltest --output streq2.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq1.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq2.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq1.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq2.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/streq1.rdf ]; then diff $RESDIR/smalltest/gentestempty1/streq1.rdf $RESDIR/smalltest/gentestempty1/streq2.rdf > $RESDIR/smalltest/diffstreq.txt ; else echo error with GRAL-DIR1; fi
 if [ -s $RESDIR/smalltest/diffstreq.txt ]; then echo error with GRAL-DIR2; fi
 
 #-------------------
 echo "\t-i <C>, --impl <C>"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -i fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -w $RESDIR/smalltest -o edna1.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/edna1.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/edna1.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/edna1.rdf ]; then diff $RESDIR/smalltest/gentestempty1/edna1.rdf $RESDIR/smalltest/gentestempty1/streq2.rdf > $RESDIR/smalltest/diffstredna.txt ; else echo error with GRAL-IMPL1; fi
 if [ ! -s $RESDIR/smalltest/diffstredna.txt ]; then echo error with GRAL-IMPL2; fi
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --impl fr.inrialpes.exmo.align.impl.method.EditDistNameAlignment -w $RESDIR/smalltest -o edna2.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/edna2.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/edna2.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/edna2.rdf ]; then diff $RESDIR/smalltest/gentestempty1/edna1.rdf $RESDIR/smalltest/gentestempty1/edna2.rdf > $RESDIR/smalltest/diffedna.txt ; else echo error with GRAL-IMPL3; fi
 if [ -s $RESDIR/smalltest/diffedna.txt ]; then echo error with GRAL-IMPL4; fi
 
@@ -409,7 +410,7 @@ if [ -s $RESDIR/smalltest/diffedna.txt ]; then echo error with GRAL-IMPL4; fi
 echo "\t-Dn=v"
 
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -w $RESDIR/smalltest -o lev1.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/lev1.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/lev1.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/lev1.rdf ]; then diff $RESDIR/smalltest/gentestempty1/edna1.rdf $RESDIR/smalltest/gentestempty1/lev1.rdf > $RESDIR/smalltest/diffstredna.txt ; else echo error with GRAL-DV1; fi
 if [ ! -s $RESDIR/smalltest/diffstredna.txt ]; then echo error with GRAL-DV2; fi
 
@@ -418,8 +419,8 @@ if [ ! -s $RESDIR/smalltest/diffstredna.txt ]; then echo error with GRAL-DV2; fi
 echo "\t-a,--alignment <FILE> "
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -a refalign.rdf -w $RESDIR/smalltest -o streq1a.rdf
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --alignment refalign.rdf --directory $RESDIR/smalltest --output streq2a.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq1a.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq2a.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq1a.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq2a.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/streq1a.rdf ]; then diff $RESDIR/smalltest/gentestempty1/streq1a.rdf $RESDIR/smalltest/gentestempty1/streq2a.rdf > $RESDIR/smalltest/diffstreqa.txt ; else echo error with GRAL-AL1; fi
 if [ -s $RESDIR/smalltest/diffstreqa.txt ]; then echo error with GRAL-AL2; fi
 
@@ -427,8 +428,8 @@ if [ -s $RESDIR/smalltest/diffstreqa.txt ]; then echo error with GRAL-AL2; fi
 echo "\t-n,--name <URI>"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -n file://$RESDIR/outtestdir/101/onto.rdf -w $RESDIR/smalltest -o streq1n.rdf
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --name file://$RESDIR/outtestdir/101/onto.rdf --directory $RESDIR/smalltest --output streq2n.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq1n.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq2n.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq1n.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq2n.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/streq1n.rdf ]; then diff $RESDIR/smalltest/gentestempty1/streq1n.rdf $RESDIR/smalltest/gentestempty1/streq2n.rdf > $RESDIR/smalltest/diffstreqn.txt ; else echo error with GRAL-NAME1; fi
 if [ -s $RESDIR/smalltest/diffstreqn.txt ]; then echo error with GRAL-NAME2; fi
 
@@ -436,19 +437,19 @@ if [ -s $RESDIR/smalltest/diffstreqn.txt ]; then echo error with GRAL-NAME2; fi
 echo "\t-r,--renderer <CLASS>"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -r fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor -w $RESDIR/smalltest -o streq1.html
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --renderer fr.inrialpes.exmo.align.impl.renderer.HTMLRendererVisitor --directory $RESDIR/smalltest --output streq2.html
-sed -i '' "s;time</td><td property=\"align:time\">[^<]*;;g" $RESDIR/smalltest/gentestempty1/streq1.html
-sed -i '' "s;time</td><td property=\"align:time\">[^<]*;;g" $RESDIR/smalltest/gentestempty1/streq2.html
+sed -i '' "s;alext\:time</td><td property=\"align:alext\:time\">[^<]*;;g" $RESDIR/smalltest/gentestempty1/streq1.html
+sed -i '' "s;alext\:time</td><td property=\"align:alext\:time\">[^<]*;;g" $RESDIR/smalltest/gentestempty1/streq2.html
 if [ -s $RESDIR/smalltest/gentestempty1/streq1.html ]; then diff $RESDIR/smalltest/gentestempty1/streq1.html $RESDIR/smalltest/gentestempty1/streq2.html ; else echo error with GRAL-RENDER1; fi
 
 #-------------------
 echo "\t-s,--source <FILE>"
 echo "\t-t,--target <FILE>"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -s onto.rdf -t onto1.rdf -w $RESDIR/smalltest -o streq1x.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq1x.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq1x.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/streq1x.rdf ]; then diff $RESDIR/smalltest/gentestempty1/streq1x.rdf $RESDIR/smalltest/gentestempty1/streq2n.rdf > $RESDIR/smalltest/diffstreqxn.txt ; else echo error with GRAL-ST1; fi
 if [ ! -s $RESDIR/smalltest/diffstreqxn.txt ]; then echo error with GRAL-ST2; fi
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --source onto.rdf --target onto1.rdf --directory $RESDIR/smalltest --output streq2x.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/streq2x.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/streq2x.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/streq1x.rdf ]; then diff $RESDIR/smalltest/gentestempty1/streq1x.rdf $RESDIR/smalltest/gentestempty1/streq2x.rdf ; else echo error with GRAL-ST3; fi
 
 #-------------------
@@ -458,8 +459,8 @@ ln -s /tmp/clitest/smalltest /tmp/clitest/preftest
 
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -w $RESDIR/smalltest -u file:///tmp/clitest/preftest -o strpr1.rdf
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign --directory $RESDIR/smalltest --uriprefix file:///tmp/clitest/preftest --output strpr2.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/strpr1.rdf
-sed -i '' "s;<time>[^<]*</time>;;g" $RESDIR/smalltest/gentestempty1/strpr2.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/strpr1.rdf
+sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/strpr2.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/strpr1.rdf ]; then diff $RESDIR/smalltest/gentestempty1/strpr1.rdf $RESDIR/smalltest/gentestempty1/strpr2.rdf > $RESDIR/smalltest/diffpref.txt ; else echo error with GRAL-PR1; fi
 if [ -s $RESDIR/smalltest/diffpref.txt ]; then echo error with GRAL-PR2; fi
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -w $RESDIR/smalltest -u file:///tmp/clitest/dummy -o strpr3.rdf
