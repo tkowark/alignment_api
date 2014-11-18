@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.HelpFormatter;
 
@@ -64,11 +64,52 @@ public abstract class CommonCLI {
     public CommonCLI() {
 	parameters = new Properties();
 	options = new Options();
+	options.addOption( createOption( "h", "help", "Print this page" ) );
+	options.addOption( createRequiredOption( "o", "output", "Send output to FILE", "FILE" ) );
+	options.addOption( createOptionalOption( "d", "debug", "debug argument is deprecated, use logging instead\nSee http://alignapi.gforge.inria.fr/logging.html", "LEVEL") );
+	options.addOption( createRequiredOption( "P", "params", "Read parameters from FILE", "FILE" ) );
+	// Special one
+	Option opt = new Option( "D", "Use value for given property" );
+	opt.setArgs(2);
+	opt.setValueSeparator('=');
+	opt.setArgName( "NAME=VALUE" );
+	options.addOption( opt );
+	/*
 	options.addOption( "h", "help", false, "Print this page" );
 	options.addOption( OptionBuilder.withLongOpt( "output" ).hasArg().withDescription( "Send output to FILE" ).withArgName("FILE").create( 'o' ) );
 	options.addOption( OptionBuilder.withLongOpt( "debug" ).hasOptionalArg().withDescription( "debug argument is deprecated, use logging instead\nSee http://alignapi.gforge.inria.fr/logging.html" ).withArgName("LEVEL").create( 'd' ) );
 	options.addOption( OptionBuilder.withLongOpt( "params" ).hasArg().withDescription( "Read parameters from FILE" ).withArgName("FILE").create( 'P' ) );
 	options.addOption( OptionBuilder.withArgName( "NAME=VALUE" ).hasArgs(2).withValueSeparator().withDescription( "Use value for given property" ).create( 'D' ) );
+	*/
+    }
+
+    protected Option createOption( String name, String longName, String desc ) {
+	Option opt = new Option( name, desc );
+	opt.setLongOpt( longName );
+	return opt;
+    }
+
+    protected Option createRequiredOption( String name, String longName, String desc, String argName ) {
+	Option opt = createOption( name, longName, desc );
+	opt.setArgs( 1 );
+	opt.setArgName( argName );
+	return opt;
+    }
+
+    protected Option createOptionalOption( String name, String longName, String desc, String argName ) {
+	Option opt = createOption( name, longName, desc );
+	opt.setOptionalArg( true );
+	opt.setArgName( argName );
+	return opt;
+    }
+
+    protected Option createListOption( String name, String longName, String desc, String argName, char sep ) {
+	Option opt = createOption( name, longName, desc );
+	opt.setArgName( argName );
+	opt.setValueSeparator( sep );
+	opt.setRequired( true );
+	opt.setArgs( -2 ); // Nicely undocumented!
+	return opt;
     }
 
     // This is an example of using the interface

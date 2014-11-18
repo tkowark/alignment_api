@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 /**
@@ -113,7 +112,14 @@ public class GroupAggreg extends CommonCLI {
 
     public GroupAggreg() {
 	super();
-	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
+	options.addOption( createListOption( "l", "list", "List of FILEs to be included in the results (required)", "FILE", ',' ) );
+	options.addOption( createRequiredOption( "m", "aggmethod", "METHOD to use for aggregating (min|max|avg|pool)", "METHOD" ) );
+	options.addOption( createRequiredOption( "t", "threshold", "Trim the alignment with regard to threshold", "DOUBLE" ) );
+	options.addOption( createRequiredOption( "T", "cutmethod", "METHOD to use for triming (hard|perc|prop|best|span)", "METHOD" ) );
+	options.addOption( createRequiredOption( "o", "outputDir", "The DIRectory where to output results", "DIR" ) );
+	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to evaluate", "DIR" ) );
+	/*
+	  options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "workDir" ).hasOptionalArg().withDescription( "The DIRectory containing the data to evaluate" ).withArgName("DIR").create( 'w' ) );
 	options.addOption( OptionBuilder.withLongOpt( "aggmethod" ).hasArg().withDescription( "Method to use for aggregating (min|max|avg|pool)" ).withArgName("METHOD").create( 'm' ) );
 	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
@@ -122,6 +128,7 @@ public class GroupAggreg extends CommonCLI {
 	// .setRequired( true )
 	Option opt = options.getOption( "list" );
 	if ( opt != null ) opt.setRequired( true );
+	*/
     }
 
     public static void main(String[] args) {

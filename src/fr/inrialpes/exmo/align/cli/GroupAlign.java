@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 /** A batch class for an OWL ontology alignment processing.
@@ -92,6 +91,15 @@ public class GroupAlign extends CommonCLI {
 
     public GroupAlign() {
 	super();
+	options.addOption( createRequiredOption( "a", "alignment", "Use an initial alignment FILE", "FILE" ) );
+	options.addOption( createRequiredOption( "r", "renderer", "Use the given CLASS for rendering", "CLASS" ) );
+	options.addOption( createRequiredOption( "i", "impl", "Use the given AlignmentProcess implementation", "CLASS" ) );
+	options.addOption( createRequiredOption( "n", "name", "Use the given URI as common source ontology", "URI" ) );
+	options.addOption( createRequiredOption( "u", "uriprefix", "URI prefix of the target", "URI" ) );
+	options.addOption( createRequiredOption( "s", "source", "Source ontology FILEname (default "+source+")", "FILE" ) );
+	options.addOption( createRequiredOption( "t", "target", "Target ontology FILEname (default "+target+")", "FILE" ) );
+	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to match", "DIR" ) );
+	/*
 	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use an initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
 	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for rendering" ).withArgName("CLASS").create( 'r' ) );
 	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given Alignment implementation" ).withArgName("CLASS").create( 'i' ) );
@@ -100,6 +108,7 @@ public class GroupAlign extends CommonCLI {
 	options.addOption( OptionBuilder.withLongOpt( "source" ).hasArg().withDescription( "Source ontology FILEname (default "+source+")" ).withArgName("FILE").create( 's' ) );
 	options.addOption( OptionBuilder.withLongOpt( "target" ).hasArg().withDescription( "Target ontology FILEname (default "+target+")" ).withArgName("FILE").create( 't' ) );
 	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
+	*/
     }
 
     public static void main(String[] args) {
@@ -206,7 +215,7 @@ public class GroupAlign extends CommonCLI {
 		Object[] mparams = {};
 		Class[] cparams = {};
 		Class<?> alignmentClass = Class.forName( alignmentClassName );
-		Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+		Constructor<?> alignmentConstructor = alignmentClass.getConstructor(cparams);
 		result = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 		result.init( uri1, uri2 );
 	    } catch (Exception ex) {
@@ -233,7 +242,7 @@ public class GroupAlign extends CommonCLI {
 
 	    try {
 		Class[] cparams = { PrintWriter.class };
-		Constructor rendererConstructor =
+		Constructor<?> rendererConstructor =
 		    Class.forName(rendererClass).getConstructor(cparams);
 		Object[] mparams = { (Object)writer };
 		renderer = (AlignmentVisitor)rendererConstructor.newInstance(mparams);

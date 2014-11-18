@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import org.semanticweb.owl.align.Alignment;
@@ -80,6 +80,15 @@ public class ParserPrinter extends CommonCLI {
 
     public ParserPrinter() {
 	super();
+	options.addOption( createOption( "i", "inverse", "Inverse first and second ontology" ) );
+	options.addOption( createOption( "e", "embedded", "Read the alignment as embedded in a XML file" ) );
+	options.addOption( createRequiredOption( "r", "renderer", "Use the given CLASS for rendering", "CLASS" ) );
+	options.addOption( createRequiredOption( "p", "parser", "Use the given CLASS for parsing", "CLASS" ) );
+	options.addOption( createRequiredOption( "t", "threshold", "Trim the alignment with regard to threshold", "DOUBLE" ) );
+	options.addOption( createRequiredOption( "T", "cutmethod", "METHOD to use for triming (hard|perc|prop|best|span)", "METHOD" ) );
+	options.addOption( createRequiredOption( "f", "format", "Display MEASure (prof; default: f)", "MEAS (prof)" ) );
+	options.addOption( createRequiredOption( "w", "outputDir", "Split the output in a DIRectory (for SPARQL)", "DIR" ) );
+	/*
 	options.addOption( "i", "inverse", false, "Inverse first and second ontology" );
 	options.addOption( "e", "embedded", false, "Read the alignment as embedded in a XML file" );
 	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for rendering" ).withArgName("CLASS").create( 'r' ) );
@@ -87,6 +96,7 @@ public class ParserPrinter extends CommonCLI {
 	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
 	options.addOption( OptionBuilder.withLongOpt( "cutmethod" ).hasArg().withDescription( "Method to use for triming (hard|perc|prop|best|span)" ).withArgName("METHOD").create( 'T' ) );
 	options.addOption( OptionBuilder.withLongOpt( "outputDir" ).hasArg().withDescription( "Split the output in a DIRectory (SPARQL)" ).withArgName("DIR").create( 'w' ) );
+	*/
     }
 
     public static void main(String[] args) {
@@ -142,7 +152,7 @@ public class ParserPrinter extends CommonCLI {
 	    else {
 		try {
 		    Class[] cparams = {};
-		    Constructor parserConstructor =
+		    Constructor<?> parserConstructor =
 			Class.forName(parserClass).getConstructor(cparams);
 		    Object[] mparams = {};
 		    aparser = (AlignmentParser) parserConstructor.newInstance(mparams);
@@ -185,7 +195,7 @@ public class ParserPrinter extends CommonCLI {
 	    else {
 		try {
 		    Class[] cparams = { PrintWriter.class };
-		    Constructor rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
+		    Constructor<?> rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
 		    Object[] mparams = { (Object)writer };
 		    renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 		} catch (Exception ex) {

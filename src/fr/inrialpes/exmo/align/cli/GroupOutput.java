@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -159,6 +159,14 @@ public class GroupOutput extends CommonCLI {
 
     public GroupOutput() {
 	super();
+	options.addOption( createListOption( "l", "list", "List of FILEs to be included in the results (required)", "FILE", ',' ) );
+	options.addOption( createOption( "v", "values", "Displays the values" ) );
+	options.addOption( createOption( "e", "labels", "Displays graph labels" ) );
+	options.addOption( createRequiredOption( "c", "color", "Use COLOR to fill cells (default: "+color+")", "COLOR" ) );
+	options.addOption( createRequiredOption( "t", "type", "Output TYPE (html|tex; default: "+type+")", "TYPE" ) );
+	options.addOption( createRequiredOption( "f", "format", "Display MEASure (prof; default: f)", "MEAS (prof)" ) );
+	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to match", "DIR" ) );
+	/*
 	options.addOption( "v", "values", false, "Displays the values" );
 	options.addOption( "e", "labels", false, "Displays graph labels" );
 	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Use COLOR to fill cells (default: "+color+")" ).withArgName("COLOR").create( 'c' ) );
@@ -166,6 +174,7 @@ public class GroupOutput extends CommonCLI {
 	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "Consider this list of FILEs for inclusion in the results" ).withArgName("FILE").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Display MEASure (prof; default: f)" ).withArgName("MEAS").create( 'f' ) );
 	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
+	*/
     }
     public static void main(String[] args) {
 	try { new GroupOutput().run( args ); }

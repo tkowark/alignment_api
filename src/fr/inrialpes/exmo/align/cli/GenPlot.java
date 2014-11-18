@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -104,8 +103,8 @@ public class GenPlot extends CommonCLI {
     String[] listAlgo = null;
     Vector<GraphEvaluator> listEvaluators;
     String fileNames = "";
-    Constructor evalConstructor = null;
-    Constructor graphConstructor = null;
+    Constructor<?> evalConstructor = null;
+    Constructor<?> graphConstructor = null;
     String xlabel;
     String ylabel;
     String type = "tex";
@@ -114,8 +113,15 @@ public class GenPlot extends CommonCLI {
 
     public GenPlot() {
 	super();
-	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output in the specified FORMAT (values" ).withArgName("tsv|tex|html(|xml)").create( 't' ) );
+	options.addOption( createListOption( "l", "list", "List of FILEs to be included in the results (required)", "FILE", ',' ) );
+	options.addOption( createRequiredOption( "t", "type", "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")", "TYPE" ) );
+	options.addOption( createRequiredOption( "e", "evaluator", "Use CLASS as evaluation plotter", "CLASS" ) );
+	options.addOption( createRequiredOption( "g", "grapher", "Use CLASS as graph generator", "CLASS" ) );
+	//options.addOption( createRequiredOption( "s", "step", "" ) );
+	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to plot", "DIR" ) );
+	/*
+	  options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
+	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output in the specified FORMAT (values)" ).withArgName("tsv|tex|html(|xml)").create( 't' ) );
 	options.addOption( OptionBuilder.withLongOpt( "evaluator" ).hasArg().withDescription( "Use CLASS as evaluation plotter" ).withArgName("CLASS").create( 'e' ) );
 	options.addOption( OptionBuilder.withLongOpt( "grapher" ).hasArg().withDescription( "Use CLASS as graph generator" ).withArgName("CLASS").create( 'g' ) );
 	//options.addOption( OptionBuilder.withLongOpt( "step" ).hasArg().withDescription( "" ).withArgName("").create( 's' ) );
@@ -123,6 +129,7 @@ public class GenPlot extends CommonCLI {
 	// .setRequired( true )
 	Option opt = options.getOption( "list" );
 	if ( opt != null ) opt.setRequired( true );
+	*/
     }
 
     public static void main(String[] args) {

@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -103,6 +102,15 @@ public class WGroupEval extends CommonCLI {
 
     public WGroupEval() {
 	super();
+	options.addOption( createListOption( "l", "list", "List of FILEs to be included in the results (required)", "FILE", ',' ) );
+	options.addOption( createOptionalOption( "c", "color", "Color even lines of the output in COLOR (default: lightblue)", "COLOR" ) );
+	//options.addOption( createRequiredOption( "e", "evaluator", "Use CLASS as evaluation plotter", "CLASS" ) );
+	options.addOption( createRequiredOption( "f", "format", "Used (weighted) MEASures and order (precision/recall/f-measure/overall/time) (default: "+format+")", "MEAS (prfot)" ) );
+	options.addOption( createRequiredOption( "t", "type", "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")", "TYPE" ) );
+	//options.addOption( createRequiredOption( "s", "sup", "Specifies if dominant columns are algorithms or measure (default: s)", "ALGO" ) );
+	options.addOption( createRequiredOption( "r", "reference", "Name of the reference alignment FILE (default: "+reference+")", "FILE" ) );
+	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to evaluate", "DIR" ) );
+	/*
 	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
 	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Used (weighted) MEASures and order (precision/recall/f-measure/overall/time)  (default: "+format+")" ).withArgName("MEAS (prfot)").create( 'f' ) );
@@ -113,6 +121,7 @@ public class WGroupEval extends CommonCLI {
 	// .setRequired( true )
 	Option opt = options.getOption( "list" );
 	if ( opt != null ) opt.setRequired( true );
+	*/
     }
 
 
@@ -147,8 +156,8 @@ public class WGroupEval extends CommonCLI {
 	print( iterateDirectories() );
     }
 
-    public Vector<Vector> iterateDirectories (){
-	Vector<Vector> result = null;
+    public Vector<Vector<Object>> iterateDirectories (){
+	Vector<Vector<Object>> result = null;
 	File [] subdir = null;
 	try {
 		if (ontoDir == null) {
@@ -163,14 +172,14 @@ public class WGroupEval extends CommonCLI {
 	}
 	int size = subdir.length;
         Arrays.sort(subdir);
-	result = new Vector<Vector>(size);
+	result = new Vector<Vector<Object>>(size);
 	int i = 0;
 	for ( int j=0 ; j < size; j++ ) {
 	    if( subdir[j].isDirectory() ) {
 		//logger.trace("Entering directory {}", subdir[j]);
 		// eval the alignments in a subdirectory
 		// store the result
-		Vector vect = iterateAlignments( subdir[j] );
+		Vector<Object> vect = iterateAlignments( subdir[j] );
 		if ( vect != null ){
 		    result.add(i, vect);
 		    i++;
@@ -236,7 +245,7 @@ public class WGroupEval extends CommonCLI {
     /**
      * This does not only print the results but compute the average as well
      */
-    public void print( Vector<Vector> result ) {
+    public void print( Vector<Vector<Object>> result ) {
 	PrintStream writer = null;
 	try {
 	    if ( outputfilename == null ) {
@@ -255,7 +264,7 @@ public class WGroupEval extends CommonCLI {
 	}
     }
 
-    public void printTRIANGLE( Vector<Vector> result, PrintStream writer ) {
+    public void printTRIANGLE( Vector<Vector<Object>> result, PrintStream writer ) {
 	// variables for computing iterative harmonic means
 	double expected = 0.; // expected so far
 	double foundVect[]; // found so far
@@ -272,9 +281,9 @@ public class WGroupEval extends CommonCLI {
 	    correctExpVect[k] = 0.;
 	    timeVect[k] = 0;
 	}
-	for ( Vector test : result ) {
+	for ( Vector<Object> test : result ) {
 	    double newexpected = -1.;
-	    Enumeration f = test.elements();
+	    Enumeration<Object> f = test.elements();
 	    // Too bad the first element must be skipped
 	    f.nextElement();
 	    for( int k = 0 ; f.hasMoreElements() ; k++) {
@@ -333,7 +342,7 @@ public class WGroupEval extends CommonCLI {
 	writer.println("\\end{document}");
     }
 
-    public void printLATEX( Vector result, PrintStream writer ) {
+    public void printLATEX( Vector<Vector<Object>> result, PrintStream writer ) {
     }
 
     /* A few comments on how and why computing "weighted harmonic means"
@@ -382,7 +391,7 @@ and
 
 which the program does...
     */
-    public void printHTML( Vector<Vector> result, PrintStream writer ) {
+    public void printHTML( Vector<Vector<Object>> result, PrintStream writer ) {
 	// variables for computing iterative harmonic means
 	int expected = 0; // expected so far
 	int foundVect[]; // found so far
@@ -442,7 +451,7 @@ which the program does...
 	// </tr>
 	// For each directory <tr>
 	boolean colored = false;
-	for ( Vector test : result ) {
+	for ( Vector<Object> test : result ) {
 	    double newexpected = -1.;
 	    if ( colored == true && color != null ){
 		colored = false;
@@ -454,7 +463,7 @@ which the program does...
 	    // Print the directory <td>bla</td>
 	    writer.println("<td>"+(String)test.get(0)+"</td>");
 	    // For each record print the values <td>bla</td>
-	    Enumeration f = test.elements();
+	    Enumeration<Object> f = test.elements();
 	    f.nextElement();
 	    for( int k = 0 ; f.hasMoreElements() ; k++) {
 		WeightedPREvaluator eval = (WeightedPREvaluator)f.nextElement();

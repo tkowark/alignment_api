@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2013, INRIA
+ * Copyright (C) 2011-2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.gen.TestGenerator;
@@ -60,6 +59,14 @@ public class TestGen extends CommonCLI {
 
     public TestGen() {
 	super();
+	options.addOption( createRequiredOption( "u", "uriprefix", "URI prefix of the target", "URI" ) );
+	options.getOption( "uriprefix" ).setRequired( true );
+	options.addOption( createRequiredOption( "t", "testset", "Use CLASS for generating the test set", "CLASS" ) );
+	options.addOption( createRequiredOption( "w", "outdir", "Output DIRectory (default: current)", "DIR" ) );
+	options.addOption( createRequiredOption( "a", "alignname", "FILEname of generated alignment (default: refalign.rdf)", "FILE" ) );
+	// We redefine the message for -o
+	options.getOption( "output" ).setDescription( "FILEname of the generated ontology (default: "+fileName+")" );
+	/*
 	options.addOption( OptionBuilder.withLongOpt( "testset" ).hasArg().withDescription( "Use CLASS for generating the test set" ).withArgName("CLASS").create( 't' ) );
 	options.addOption( OptionBuilder.withLongOpt( "outdir" ).hasArg().withDescription( "Output DIRectory (default: current)" ).withArgName("DIR").create( 'w' ) );
 	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "URI prefix of the seed ontology (REQUIRED)" ).withArgName("URI").create( 'u' ) );
@@ -70,6 +77,7 @@ public class TestGen extends CommonCLI {
 	// We redefine the message for -o
 	opt = options.getOption( "output" );
 	if ( opt != null ) opt.setDescription( "FILEname of the generated ontology (default: "+fileName+")" );
+	*/
     }
 
     public static void main(String[] args) {
@@ -126,7 +134,7 @@ public class TestGen extends CommonCLI {
 	    try {
 		Class<?> testSetClass = Class.forName( methodName );
 		Class[] cparams = {};
-		Constructor testSetConstructor = testSetClass.getConstructor(cparams);
+		Constructor<?> testSetConstructor = testSetClass.getConstructor(cparams);
 		Object[] mparams = {};
 		tset = (TestSet)testSetConstructor.newInstance( mparams );
 	    } catch (Exception ex) {

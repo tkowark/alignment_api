@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -94,11 +94,18 @@ public class Procalign extends CommonCLI {
 
     public Procalign() {
 	super();
+	options.addOption( createRequiredOption( "i", "impl", "Use the given CLASS for matcher", "CLASS" ) );
+	options.addOption( createRequiredOption( "r", "renderer", "Use the given CLASS for rendering", "CLASS" ) );
+	options.addOption( createRequiredOption( "a", "alignment", "Use an initial alignment FILE", "FILE" ) );
+	options.addOption( createRequiredOption( "t", "threshold", "Trim the alignment with regard to threshold", "DOUBLE" ) );
+	options.addOption( createRequiredOption( "T", "cutmethod", "METHOD to use for triming (hard|perc|prop|best|span)", "METHOD" ) );
+	/*
 	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for output" ).withArgName("CLASS").create( 'r' ) );
 	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given CLASS for matcher" ).withArgName("CLASS").create( 'i' ) );
 	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
 	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
 	options.addOption( OptionBuilder.withLongOpt( "cutmethod" ).hasArg().withDescription( "Method to use for triming (hard|perc|prop|best|span)" ).withArgName("METHOD").create( 'T' ) );
+	*/
     }
 
     public static void main( String[] args ) {
@@ -165,7 +172,7 @@ public class Procalign extends CommonCLI {
 	    // Create alignment object
 	    Class<?> alignmentClass = Class.forName( alignmentClassName );
 	    Class[] cparams = {};
-	    Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+	    Constructor<?> alignmentConstructor = alignmentClass.getConstructor(cparams);
 	    Object[] mparams = {};
 	    result = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 	    result.init( onto1, onto2 );
@@ -203,7 +210,7 @@ public class Procalign extends CommonCLI {
 	    // Result printing (to be reimplemented with a default value)
 	    try {
 		Class[] cparams = { PrintWriter.class };
-		Constructor rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
+		Constructor<?> rendererConstructor = Class.forName(rendererClass).getConstructor( cparams );
 		    Object[] mparams = { (Object)writer };
 		    renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 	    } catch (Exception ex) {

@@ -85,7 +85,8 @@ public class EvalAlign extends CommonCLI {
 
     public EvalAlign() {
 	super();
-	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withType(Class.class).withDescription( "Use the given CLASS for evaluator" ).withArgName("CLASS").create( 'i' ) );
+	options.addOption( createRequiredOption( "i", "impl", "Use the given CLASS for evaluator", "CLASS" ) );
+	// .withType(Class.class)
     }
 
     public static void main(String[] args) {
@@ -135,15 +136,15 @@ public class EvalAlign extends CommonCLI {
 	    ex.printStackTrace(); 
 	}
 
-	boolean totry = true; // 2013: This should not be necessary anymore
+	boolean totry = true; // JE2013: This should not be necessary anymore
 	while ( totry ) {
 	    totry = false;
 	    if ( evaluatorClass != null ) {
 		// Create evaluator object
 		try {
 		    Class[] cparams = { Alignment.class, Alignment.class };
-		    Constructor evaluatorConstructor = evaluatorClass.getConstructor(cparams);
-		    Object [] mparams = {(Object)align1, (Object)align2};
+		    Constructor<?> evaluatorConstructor = evaluatorClass.getConstructor(cparams);
+		    Object [] mparams = { align1, align2};
 		    eval = (Evaluator)evaluatorConstructor.newInstance(mparams);
 		} catch (InstantiationException ex) {
 		    logger.debug( "IGNORED Exception", ex );
