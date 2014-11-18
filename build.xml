@@ -27,6 +27,7 @@
       lint: compiles all sources with bug flags on
       jar: archives compiled code
       test: performs unit tests
+      aserv: creates an empty jar file for launching servers
       zip: creates a new zip file
       javadoc: generates documentation
       release: releases a new version
@@ -277,40 +278,42 @@
     <delete file="lib/ontowrap.jar"/>
     <delete file="lib/alignsvc.jar"/>
     <delete file="lib/procalign.jar"/>
+    <delete file="lib/aserv.jar"/>
   </target>
 
   <!-- tested -->
+  <!-- This generate a server jar with a class path containing all
+       libs in the lib directory. Useful for servers -->
   <target name="aserv" depends="bind">
-    <echo message="Setting property..."/>
-    <jar jarfile="lib/aserv.jar">
+    <echo message="Generating aserv jar..."/>
+    <delete file="lib/aserv.jar" />
+    <pathconvert property="aserv.classpath" pathsep=" ">
+      <map from="${user.dir}/${libdir}/" to=""/>
+      <path>
+	<fileset dir="./lib">
+	  <include name="**/*.jar"/>
+	  <include name="*.jar"/>
+	  <!-- several useless (and may be harmful) things at the moment -->
+	  <!--exclude name="seals/seals-omt-client.jar" /-->
+	</fileset>
+      </path>
+      <!--flattenmapper /-->
+    </pathconvert>    
+    <echo message="path: ${aserv.classpath}" />
+    <jar jarfile="aserv.jar">
       <manifest>
 	<attribute name="Built-Date" value="${date}"/>
         <attribute name="Main-Class" value="fr.inrialpes.exmo.align.service.AlignmentService"/>
 	<!-- usually each MANIFEST knows what it needs, add here -->
 	<!--  semanticmapper-0.2.jar jwnl.jar sboa.jar TaxoMap.jar AROMA_aserv.jar oyster2.jar, semanticmapper-0.2.jar, sboalgorithms.jar -->
 	<!-- others should be there naturally -->
-        <attribute name="Class-Path" value="alignsvc.jar"/>
+        <attribute name="Class-Path" value="${aserv.classpath}"/>
 	<attribute name="Implementation-Title" value="Alignment server custom launcher"/>
 	<attribute name="Implementation-Version" value="${version} (${svn.rev})"/> 
       </manifest>
     </jar>
+    <move file="aserv.jar" tofile="lib/aserv.jar" />
   </target>
-<!-- JE: May also be done this way... bundles all the necessary jars...
-<jar destfile="build/main/checksites.jar">
-    <fileset dir="build/main/classes"/>
-    <restrict>
-     <name name="**/*.class"/>
-     <archives>
-       <zips>
-         <fileset dir="lib/main" includes="**/*.jar"/>
-       </zips>
-     </archives>
-    </restrict>
-    <manifest>
-      <attribute name="Main-Class"
-            value="com.acme.checksites.Main"/>
-    </manifest>
-  </jar-->
 
   <!-- tested -->
   <target name="test" depends="bind" description="Unit test code">
