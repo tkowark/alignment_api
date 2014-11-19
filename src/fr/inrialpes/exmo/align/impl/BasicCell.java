@@ -99,8 +99,12 @@ public class BasicCell implements Cell, Comparable<Cell>, Extensible {
 	result = relation.compareTo( ((BasicCell)c).getRelation() );
 	return result; // compatible with equals!
 	*/
+	// same strength
 	if ( equals( c ) ) return 0; // compatible with equals!
-	else return 1; // arbitrary order
+	// Now: if they are different, we do not want to say that they are equal
+	// But the compareTo contract says that the resut should be compatible
+	if ( hashCode() > c.hashCode() ) return 1;
+	else return -1; // (hoping hashCode will be different in all cases)
     }
 
     public String getId(){ return id; };
