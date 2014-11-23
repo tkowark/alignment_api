@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA Rhône-Alpes, 2006, 2008
+ * Copyright (C) INRIA Rhône-Alpes, 2006, 2008, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 package fr.inrialpes.exmo.queryprocessor;
 
 import java.util.Collection;
+import java.util.Vector;
 
 /**
  *
@@ -42,7 +43,7 @@ public interface Result {
     
     /**@return a collection set for SELECT queries
      */
-    public Collection getSelectResult() throws QueryTypeMismatchException;
+    public Collection<Vector<Object>> getSelectResult() throws QueryTypeMismatchException;
 
     /**@return an XML string for the SELECT queries
      */

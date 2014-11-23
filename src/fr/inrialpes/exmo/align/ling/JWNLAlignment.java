@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010, 2013
+ * Copyright (C) INRIA, 2003-2005, 2007, 2009-2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -73,8 +73,8 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	    method = simFunction;
 	}
 	public double measure( Object o1, Object o2 ) throws Exception {
-	    String s1 = ontology1().getEntityName( o1 );
-	    String s2 = ontology2().getEntityName( o2 );
+	    String s1 = getOntologyObject1().getEntityName( o1 );
+	    String s2 = getOntologyObject2().getEntityName( o2 );
 	    if ( s1 == null || s2 == null ) return 1.;
 	    switch ( method ) {
 	    case BASICSYNDIST:
@@ -124,7 +124,7 @@ public class JWNLAlignment extends DistanceAlignment implements AlignmentProcess
 	    else if ( function.equals("glossOverlapSimilarity") ) method = GLOSSOV;
 	}
 	sim.init( prop.getProperty("wndict"), wnvers, method );
-	sim.initialize( ontology1(), ontology2(), alignment );
+	sim.initialize( getOntologyObject1(), getOntologyObject2(), alignment );
 	// Prepare the cache
 	sim.Dist.initPreCache();
 	sim.compute( prop );

@@ -146,8 +146,8 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
 	    if ( params.getProperty( "noconfidence" ) != null ) withConfidence = false;
 	    if ( params.getProperty( "relations" ) != null ) relsensitive = true;
 	}
-	LoadedOntology<Object> o1 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject1();
-	LoadedOntology<Object> o2 = (LoadedOntology<Object>)((ObjectAlignment)align1).getOntologyObject2();
+	LoadedOntology<Object> o1 = ((ObjectAlignment)align1).getOntologyObject1();
+	LoadedOntology<Object> o2 = ((ObjectAlignment)align1).getOntologyObject2();
 	if ( !( o1 instanceof HeavyLoadedOntology ) || !( o2 instanceof HeavyLoadedOntology ) )
 	    throw new AlignmentException( "ExtPREvaluation: requires HeavyLoadedOntology" );
 	onto1 = (HeavyLoadedOntology<Object>)o1;
@@ -437,11 +437,11 @@ public class ExtPREvaluator extends BasicEvaluator implements Evaluator {
      * This would require computing the transitive reduction of the superClass
      * relation which is currently returned by HeavyLoadedOntology.
      */
+    @SuppressWarnings({"unchecked"})
     public int isSuperClass( Object class1, Object class2, HeavyLoadedOntology<Object> ontology ) throws AlignmentException {
 	try {
 	    URI uri1 = ontology.getEntityURI( class1 );
-	    Set<?> bufferedSuperClasses = null;
-	    @SuppressWarnings("unchecked")
+	    Set<Object> bufferedSuperClasses = null;
 	    Set<Object> superclasses = (Set<Object>)ontology.getSuperClasses( class2, OntologyFactory.DIRECT, OntologyFactory.ANY, OntologyFactory.ANY );
 	    int level = 0;
 	    int foundlevel = 0;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2011, 2013
+ * Copyright (C) INRIA, 2008-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,7 +78,7 @@ public class OWLAPI3OntologyFactory extends OntologyFactory {
     }
 
     @Override
-    public HeavyLoadedOntology loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException {
+    public HeavyLoadedOntology<? extends Object> loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException {
 	OWLAPI3Ontology onto = null;
 	// logger.trace( " Loading ontology {}", uri );
 	// Cache seems to be implemented in API 3.0 anyway

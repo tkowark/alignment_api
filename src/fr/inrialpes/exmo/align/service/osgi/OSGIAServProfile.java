@@ -83,7 +83,8 @@ public class OSGIAServProfile implements AlignmentServiceProfile, BundleActivato
 	//manager = new AServProtocolManager();
 	Hashtable<String,String> serviceProperties = new Hashtable<String,String>();
 	serviceProperties.put( "lang", "EN-uk" ); // an example
-	ServiceRegistration reg = ctxt.registerService( Service.class.getName(), manager, serviceProperties );
+	//ServiceRegistration<?> reg = 
+	ctxt.registerService( Service.class.getName(), manager, serviceProperties );
     }
 
     /**

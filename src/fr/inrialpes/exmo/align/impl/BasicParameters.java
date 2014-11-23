@@ -98,7 +98,7 @@ public class BasicParameters extends Properties implements Parameters, Cloneable
 	return (Enumeration<String>)propertyNames(); //[W:unchecked]
     }
 
-    public Collection getValues(){
+    public Collection<Object> getValues(){
 	return values();
     }
 

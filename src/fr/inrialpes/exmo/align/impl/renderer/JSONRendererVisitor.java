@@ -218,7 +218,7 @@ public class JSONRendererVisitor extends IndentedRendererVisitor implements Alig
         indentedOutput("}");
     }
 
-    public void printOntology(Ontology onto) {
+    public void printOntology( Ontology<?> onto ) {
         URI u = onto.getURI();
         URI f = onto.getFile();
         indentedOutputln("{ \"@type\" : \"" + SyntaxElement.ONTOLOGY.print(DEF) + "\",");

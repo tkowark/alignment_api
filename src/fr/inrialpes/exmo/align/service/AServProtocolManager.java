@@ -441,7 +441,7 @@ public class AServProtocolManager implements Service {
 	try {
 	    Set<Cell> cells = null;
 	    if ( al instanceof ObjectAlignment ) {
-		LoadedOntology<Object> onto = ((ObjectAlignment)al).ontology1();
+		LoadedOntology<Object> onto = ((ObjectAlignment)al).getOntologyObject1();
 		Object obj1 = onto.getEntity( uri );
 		cells = al.getAlignCells1( obj1 );
 	    } else if ( al instanceof URIAlignment ) {
@@ -521,7 +521,7 @@ public class AServProtocolManager implements Service {
 	    AlignmentVisitor renderer = null;
 	    try {
 		Class[] cparams = { PrintWriter.class };
-		Constructor rendererConstructor = Class.forName( method ).getConstructor( cparams );
+		Constructor<?> rendererConstructor = Class.forName( method ).getConstructor( cparams );
 		Object[] mparams = { (Object)writer };
 		renderer = (AlignmentVisitor) rendererConstructor.newInstance( mparams );
 	    } catch ( ClassNotFoundException cnfex ) {
@@ -692,10 +692,6 @@ public class AServProtocolManager implements Service {
 	catch (AlignmentException e) {
 	    return new ErrorMsg( params, newId(), serverId,e.toString() );
 	}
-	String pretty = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
-	if ( pretty != null ){
-	    al.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty+"/inverted" );
-	};
 	String newId = alignmentCache.recordNewAlignment( al, true );
 	return new AlignmentId( params, newId(), serverId, newId,
 			       al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
@@ -740,7 +736,7 @@ public class AServProtocolManager implements Service {
 	try {
 	    Class[] cparams = { Alignment.class, Alignment.class };
 	    Class<?> evaluatorClass = Class.forName( classname );
-	    Constructor evaluatorConstructor = evaluatorClass.getConstructor( cparams );
+	    Constructor<?> evaluatorConstructor = evaluatorClass.getConstructor( cparams );
 	    Object [] mparams = { (Object)ref, (Object)al };
 	    eval = (Evaluator)evaluatorConstructor.newInstance( mparams );
 	} catch ( ClassNotFoundException cnfex ) {
@@ -996,7 +992,7 @@ public class AServProtocolManager implements Service {
 	if ( pretty == null || pretty.equals("") ) {
 	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/matched";
 	}
-	noo = ((BasicOntologyNetwork) noo).clone();
+	noo = noo.clone();
 	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// match
     	try { 
@@ -1008,7 +1004,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, null );
     	logger.debug(" Network alignments results, id: {} total ontologies: {} total alignments: {}",id, noo.getOntologies().size(),noo.getAlignments().size());
     	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
     
     public Message trimOntologyNetwork( Properties params ) {
@@ -1027,7 +1023,7 @@ public class AServProtocolManager implements Service {
 	if ( pretty == null || pretty.equals("") ) {
 	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/trimmed";
 	}
-	noo = (BasicOntologyNetwork)noo.clone();
+	noo = noo.clone();
 	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// trim
     	try {
@@ -1039,7 +1035,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, null );
     	logger.debug(" Ontology network trimmed from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
     	return new OntologyNetworkId( params, newId(), serverId, newid,
-				   ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				   noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
    
     public Message closeOntologyNetwork( Properties params ) {
@@ -1065,7 +1061,7 @@ public class AServProtocolManager implements Service {
 	    if ( pretty == null || pretty.equals("") ) {
 		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/closed";
 	    }
-	    noo = ((BasicOntologyNetwork) noo).clone();
+	    noo = noo.clone();
 	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// close
@@ -1078,7 +1074,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network inverted from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message normOntologyNetwork( Properties params ) {
@@ -1098,7 +1094,7 @@ public class AServProtocolManager implements Service {
 	    if ( pretty == null || pretty.equals("") ) {
 		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/normalized";
 	    }
-	    noo = ((BasicOntologyNetwork) noo).clone();
+	    noo = noo.clone();
 	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// normalize
@@ -1111,7 +1107,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network normalized from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message denormOntologyNetwork( Properties params ) {
@@ -1131,7 +1127,7 @@ public class AServProtocolManager implements Service {
 	    if ( pretty == null || pretty.equals("") ) {
 		pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/denormalized";
 	    }
-	    noo = ((BasicOntologyNetwork) noo).clone();
+	    noo = noo.clone();
 	    noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	}
 	// denormalize
@@ -1144,7 +1140,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, newnet?null:id );
 	logger.debug(" Ontology network normalized from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message invertOntologyNetwork( Properties params ) {
@@ -1161,7 +1157,7 @@ public class AServProtocolManager implements Service {
 	if ( pretty == null || pretty.equals("") ) {
 	    pretty = noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ) + "/normalized";
 	}
-	noo = (BasicOntologyNetwork)noo.clone();
+	noo = noo.clone();
 	noo.setExtension( Namespace.EXT.uri, Annotations.PRETTY, pretty );
 	// invert
 	try {
@@ -1173,7 +1169,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, null );
 	logger.debug(" Ontology network inverted from id: {}, to new id: {} total ontologies: {} total alignments: {}",id, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     public Message setopOntologyNetwork( Properties params ) {
@@ -1217,7 +1213,7 @@ public class AServProtocolManager implements Service {
 	String newid = registerNetwork( noo, null );
 	logger.debug(" Ontology network operation set from id1: {}, id2: {} to new id: {}total ontologies: {} total alignments: {}",id1, id2, newid, noo.getOntologies().size(),noo.getAlignments().size());	
 	return new OntologyNetworkId( params, newId(), serverId, newid,
-				      ((BasicOntologyNetwork) noo).getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
+				      noo.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
     }
 
     // If id != null, a new network has been created
@@ -1294,11 +1290,11 @@ public class AServProtocolManager implements Service {
      * Utilities: reaching and loading ontologies
      *********************************************************************/
 
-    public LoadedOntology reachable( URI uri ){
+    public LoadedOntology<? extends Object> reachable( URI uri ){
 	try { 
 	    OntologyFactory factory = OntologyFactory.getFactory();
 	    return factory.loadOntology( uri );
-	} catch (Exception e) { return null; }
+	} catch ( Exception e ) { return null; }
     }
 
     /*********************************************************************
@@ -1337,7 +1333,7 @@ public class AServProtocolManager implements Service {
     public Set<String> implementations( String interfaceName ) {
 	Set<String> list = new HashSet<String>();
 	try {
-	    Class toclass = Class.forName(interfaceName);
+	    Class<?> toclass = Class.forName(interfaceName);
 	    implementations( toclass, list );
 	} catch (ClassNotFoundException ex) {
 	    logger.debug( "IGNORED Class {} not found!", interfaceName );
@@ -1345,7 +1341,7 @@ public class AServProtocolManager implements Service {
 	return list;
     }
 
-    public void implementations( Class tosubclass, Set<String> list ){
+    public void implementations( Class<?> tosubclass, Set<String> list ){
 	Set<String> visited = new HashSet<String>();
 	//visited.add();
 	String classPath = System.getProperty("java.class.path",".");
@@ -1425,10 +1421,10 @@ public class AServProtocolManager implements Service {
 	}
     }
     
-    public void exploreJar( Set<String> list, Set<String> visited, Class tosubclass, JarFile jar ) {
-	Enumeration enumeration = jar.entries();
+    public void exploreJar( Set<String> list, Set<String> visited, Class<?> tosubclass, JarFile jar ) {
+	Enumeration<JarEntry> enumeration = jar.entries();
 	while( enumeration != null && enumeration.hasMoreElements() ){
-	    JarEntry entry = (JarEntry)enumeration.nextElement();
+	    JarEntry entry = enumeration.nextElement();
 	    String entryName = entry.toString();
 	    //logger.trace("    {}", entryName);
 	    int len = entryName.length()-6;
@@ -1473,14 +1469,16 @@ public class AServProtocolManager implements Service {
 			    jarSt.close();
 			    out.close();
 			    f.delete();
-			} catch (Exception ex) {};
+			} catch ( Exception ex ) {
+			    logger.debug( "IGNORED Exception on close", ex );
+			};
 		    }
 		}
 	    } 
 	}
     }
 
-    public boolean implementsInterface( String classname, Class tosubclass ) {
+    public boolean implementsInterface( String classname, Class<?> tosubclass ) {
 	try {
 	    // This was used to ban classes with weird behaviour
 	    // This is not needed anymore (kept as an example)
@@ -1514,7 +1512,7 @@ public class AServProtocolManager implements Service {
 	    // This is really stupid but that's life
 	    // So it is compulsory that AlignmentProcess be declared 
 	    // as implemented
-	    Class cl = Class.forName(classname);
+	    Class<?> cl = Class.forName(classname);
 	    // It is possible to suppress here abstract classes by:
 	    if ( java.lang.reflect.Modifier.isAbstract( cl.getModifiers() ) ) return false;
 	    Class[] interfaces = cl.getInterfaces();
@@ -1586,7 +1584,7 @@ public class AServProtocolManager implements Service {
 		    method = "fr.inrialpes.exmo.align.impl.method.StringDistAlignment";
 		Class<?> alignmentClass = Class.forName(method);
 		Class[] cparams = {};
-		Constructor alignmentConstructor = alignmentClass.getConstructor( cparams );
+		Constructor<?> alignmentConstructor = alignmentClass.getConstructor( cparams );
 		Object[] mparams = {};
 		AlignmentProcess aresult = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 		try {

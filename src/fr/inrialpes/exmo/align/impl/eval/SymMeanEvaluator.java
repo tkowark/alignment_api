@@ -75,8 +75,8 @@ public class SymMeanEvaluator extends BasicEvaluator implements Evaluator {
 	propScore = 0.;
 	indScore = 0.;
 	// This seems to be correct
-	LoadedOntology onto1 = (LoadedOntology)((ObjectAlignment)align1).getOntologyObject1();
-	LoadedOntology onto2 = (LoadedOntology)((ObjectAlignment)align2).getOntologyObject1();
+	LoadedOntology<Object> onto1 = ((ObjectAlignment)align1).getOntologyObject1();
+	LoadedOntology<Object> onto2 = ((ObjectAlignment)align2).getOntologyObject1();
 	
 	try {
 	    for ( Cell c1 : align1 ){

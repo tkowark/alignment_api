@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2011, 2013
+ * Copyright (C) INRIA, 2003-2011, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,6 @@ import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentException;
 import org.semanticweb.owl.align.Cell;
 
-import fr.inrialpes.exmo.ontowrap.LoadedOntology;
 import fr.inrialpes.exmo.ontowrap.OntowrapException;
 
 import fr.inrialpes.exmo.ontosim.util.HungarianAlgorithm;
@@ -71,14 +70,14 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      **/
     public void align( Alignment alignment, Properties params ) throws AlignmentException {
 	loadInit( alignment );
-	if (  params.getProperty("type") != null ) 
+	if ( params.getProperty("type") != null ) 
 	    setType( params.getProperty("type") );
 	// This is a 1:1 alignment in fact
 	else setType("11");
 	if ( sim == null )
 	    throw new AlignmentException("DistanceAlignment: requires a similarity measure");
 
-	sim.initialize( ontology1(), ontology2(), init );
+	sim.initialize( getOntologyObject1(), getOntologyObject2(), init );
 	sim.compute( params );
 	if ( params.getProperty("printMatrix") != null ) printDistanceMatrix(params);
 	extract( getType(), params );
@@ -155,7 +154,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      * Non symmetric: for each entity of onto1, take the highest if superior to threshold
      * Complexity: O(n^2)
      */
-    @SuppressWarnings("unchecked") //ConcatenatedIterator
+    @SuppressWarnings({"unchecked","rawTypes"}) //ConcatenatedIterator
     public Alignment extractqs( double threshold, Properties params) {
       double max = 0.;
       boolean found = false;
@@ -163,15 +162,15 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 
       try {
 	  // Extract for properties
-	  ConcatenatedIterator pit1 = new 
-	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-				   ontology1().getDataProperties().iterator());
+	  ConcatenatedIterator<Object> pit1 = new 
+	      ConcatenatedIterator<Object>(getOntologyObject1().getObjectProperties().iterator(),
+				   getOntologyObject1().getDataProperties().iterator());
 	  for( Object prop1 : pit1 ){
 	      found = false; max = threshold; val = 0.;
 	      Object prop2 = null;
-	      ConcatenatedIterator pit2 = new 
-		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-				       ontology2().getDataProperties().iterator());
+	      ConcatenatedIterator<Object> pit2 = new 
+		  ConcatenatedIterator<Object>(getOntologyObject2().getObjectProperties().iterator(),
+				       getOntologyObject2().getDataProperties().iterator());
 	      for ( Object current : pit2 ){
 		  if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1,current);
 		  else val =  1. - sim.getPropertySimilarity(prop1,current);
@@ -182,10 +181,10 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	      if ( found ) addAlignCell(prop1,prop2, "=", max);
 	  }
 	  // Extract for classes
-	  for ( Object class1 : ontology1().getClasses() ) {
+	  for ( Object class1 : getOntologyObject1().getClasses() ) {
 	      found = false; max = threshold; val = 0;
 	      Object class2 = null;
-	      for ( Object current : ontology2().getClasses() ) {
+	      for ( Object current : getOntologyObject2().getClasses() ) {
 		  if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1,current);
 		  else val = 1. - sim.getClassSimilarity(class1,current);
 		  if (val > max) {
@@ -196,12 +195,12 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	  }
 	  // Extract for individuals
 	  if (  params.getProperty("noinst") == null ){
-	      for ( Object ind1 : ontology1().getIndividuals() ) {
-		  if ( ontology1().getEntityURI( ind1 ) != null ) {
+	      for ( Object ind1 : getOntologyObject1().getIndividuals() ) {
+		  if ( getOntologyObject1().getEntityURI( ind1 ) != null ) {
 		      found = false; max = threshold; val = 0;
 		      Object ind2 = null;
-		      for ( Object current : ontology2().getIndividuals() ) {
-			  if ( ontology2().getEntityURI( current ) != null ) {
+		      for ( Object current : getOntologyObject2().getIndividuals() ) {
+			  if ( getOntologyObject2().getEntityURI( current ) != null ) {
 			      if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ind1, current );
 			      else val = 1 - sim.getIndividualSimilarity( ind1, current );
 			      if (val > max) {
@@ -226,18 +225,18 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      * Symmetric: return all elements above threshold
      * Complexity: O(n^2)
      */
-    @SuppressWarnings("unchecked") //ConcatenatedIterator
+    @SuppressWarnings({"unchecked","rawTypes"}) //ConcatenatedIterator
     public Alignment extractss( double threshold, Properties params) {
 	double val = 0.;
 	try {
 	    // Extract for properties
-	    ConcatenatedIterator pit1 = new 
-		ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-				     ontology1().getDataProperties().iterator());
+	    ConcatenatedIterator<Object> pit1 = new 
+		ConcatenatedIterator<Object>(getOntologyObject1().getObjectProperties().iterator(),
+				     getOntologyObject1().getDataProperties().iterator());
 	    for( Object prop1 : pit1 ){
-		ConcatenatedIterator pit2 = new 
-		    ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-					 ontology2().getDataProperties().iterator());
+		ConcatenatedIterator<Object> pit2 = new 
+		    ConcatenatedIterator<Object>(getOntologyObject2().getObjectProperties().iterator(),
+					 getOntologyObject2().getDataProperties().iterator());
 		for ( Object prop2 : pit2 ){
 		    if ( sim.getSimilarity() ) val = sim.getPropertySimilarity(prop1,prop2);
 		    else val =  1. - sim.getPropertySimilarity(prop1,prop2);
@@ -245,8 +244,8 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 		}
 	    }
 	    // Extract for classes
-	    for ( Object class1 : ontology1().getClasses() ) {
-		for ( Object class2 : ontology2().getClasses() ) {
+	    for ( Object class1 : getOntologyObject1().getClasses() ) {
+		for ( Object class2 : getOntologyObject2().getClasses() ) {
 		    if ( sim.getSimilarity() ) val = sim.getClassSimilarity(class1,class2);
 		    else val = 1. - sim.getClassSimilarity(class1,class2);
 		    if (val > threshold ) addAlignCell(class1, class2, "=", val);
@@ -254,10 +253,10 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	    }
 	    // Extract for individuals
 	    if (  params.getProperty("noinst") == null ){
-		for ( Object ind1 : ontology1().getIndividuals() ) {
-		    if ( ontology1().getEntityURI( ind1 ) != null ) {
-			for ( Object ind2 : ontology2().getIndividuals() ) {
-			    if ( ontology2().getEntityURI( ind2 ) != null ) {
+		for ( Object ind1 : getOntologyObject1().getIndividuals() ) {
+		    if ( getOntologyObject1().getEntityURI( ind1 ) != null ) {
+			for ( Object ind2 : getOntologyObject2().getIndividuals() ) {
+			    if ( getOntologyObject2().getEntityURI( ind2 ) != null ) {
 				if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ind1, ind2 );
 				else val = 1 - sim.getIndividualSimilarity( ind1, ind2 );
 				if ( val > threshold ) addAlignCell(ind1,ind2, "=", val);
@@ -283,25 +282,25 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      * - It invert column and rows when nbrows > nbcol (Hungarian loops)
      * - It prevents to generate alignments when one category has no elements.
      */
-    @SuppressWarnings("unchecked") //ConcatenatedIterator
+    @SuppressWarnings({"unchecked","rawTypes"}) //ConcatenatedIterator
     public Alignment extractqq( double threshold, Properties params) {
 	try {
 	    // A STRAIGHTFORWARD IMPLEMENTATION
 	    // (redoing the matrix instead of getting it)
 	    // For each kind of stuff (cl, pr, ind)
 	    // Create a matrix
-	    int nbclasses1 = ontology1().nbClasses();
-	    int nbclasses2 = ontology2().nbClasses();
+	    int nbclasses1 = getOntologyObject1().nbClasses();
+	    int nbclasses2 = getOntologyObject2().nbClasses();
 	    if ( nbclasses1 != 0 && nbclasses2 != 0 ) {
 		double[][] matrix = new double[nbclasses1][nbclasses2];
 		Object[] class1 = new Object[nbclasses1];
 		Object[] class2 = new Object[nbclasses2];
 		int i = 0;
-		for ( Object ob : ontology1().getClasses() ) {
+		for ( Object ob : getOntologyObject1().getClasses() ) {
 		    class1[i++] = ob;
 		}
 		int j = 0;
-		for ( Object ob : ontology2().getClasses() ) {
+		for ( Object ob : getOntologyObject2().getClasses() ) {
 		    class2[j++] = ob;
 		}
 		for( i = 0; i < nbclasses1; i++ ){
@@ -333,21 +332,21 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	}
 	// For properties
 	try{
-	    int nbprop1 = ontology1().nbProperties();
-	    int nbprop2 = ontology2().nbProperties();
+	    int nbprop1 = getOntologyObject1().nbProperties();
+	    int nbprop2 = getOntologyObject2().nbProperties();
 	    if ( nbprop1 != 0 && nbprop2 != 0 ) {
 		double[][] matrix = new double[nbprop1][nbprop2];
 		Object[] prop1 = new Object[nbprop1];
 		Object[] prop2 = new Object[nbprop2];
 		int i = 0;
-		ConcatenatedIterator pit1 = new 
-		    ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-					 ontology1().getDataProperties().iterator());
+		ConcatenatedIterator<Object> pit1 = new 
+		    ConcatenatedIterator<Object>(getOntologyObject1().getObjectProperties().iterator(),
+					 getOntologyObject1().getDataProperties().iterator());
 		for ( Object ob: pit1 ) prop1[i++] = ob;
 		int j = 0;
-		ConcatenatedIterator pit2 = new 
-		    ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-					 ontology2().getDataProperties().iterator());
+		ConcatenatedIterator<Object> pit2 = new 
+		    ConcatenatedIterator<Object>(getOntologyObject2().getObjectProperties().iterator(),
+					 getOntologyObject2().getDataProperties().iterator());
 		for ( Object ob: pit2 ) prop2[j++] = ob;
 		for( i = 0; i < nbprop1; i++ ){
 		    for( j = 0; j < nbprop2; j++ ){
@@ -380,19 +379,19 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	if (  params.getProperty("noinst") == null ){
 	    try {
 		// Create individual lists
-		Object[] ind1 = new Object[ontology1().nbIndividuals()];
-		Object[] ind2 = new Object[ontology2().nbIndividuals()];
+		Object[] ind1 = new Object[getOntologyObject1().nbIndividuals()];
+		Object[] ind2 = new Object[getOntologyObject2().nbIndividuals()];
 		int nbind1 = 0;
 		int nbind2 = 0;
-		for( Object ob : ontology2().getIndividuals() ){
+		for( Object ob : getOntologyObject2().getIndividuals() ){
 		    // We suppress anonymous individuals... this is not legitimate
-		    if ( ontology2().getEntityURI( ob ) != null ) {
+		    if ( getOntologyObject2().getEntityURI( ob ) != null ) {
 			ind2[nbind2++] = ob;
 		    }
 		}
-		for( Object ob : ontology1().getIndividuals() ){
+		for( Object ob : getOntologyObject1().getIndividuals() ){
 		    // We suppress anonymous individuals... this is not legitimate
-		    if ( ontology1().getEntityURI( ob ) != null ) {
+		    if ( getOntologyObject1().getEntityURI( ob ) != null ) {
 			ind1[nbind1++] = ob;
 		    }
 		}
@@ -460,7 +459,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      * overall similarity 1.1, while the optimum is the second solution
      * with overall of 1.8.
      */
-    @SuppressWarnings("unchecked") //ConcatenatedIterator
+    @SuppressWarnings({"unchecked","rawTypes"}) //ConcatenatedIterator
     public Alignment extractqqgreedy( double threshold, Properties params) {
 	double val = 0;
 	//TreeSet could be replaced by something else
@@ -475,17 +474,17 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 					    return -1;
 					} else if ( o1.getStrength() < o2.getStrength() ){
 					    return 1;
-					} else if ( ontology1().getEntityName( o1.getObject1() ) == null
-						    || ontology2().getEntityName( o2.getObject1() ) == null ) {
+					} else if ( getOntologyObject1().getEntityName( o1.getObject1() ) == null
+						    || getOntologyObject2().getEntityName( o2.getObject1() ) == null ) {
 					    return -1;
-					} else if ( ontology1().getEntityName( o1.getObject1()).compareTo( ontology2().getEntityName( o2.getObject1() ) ) > 0 ) {
+					} else if ( getOntologyObject1().getEntityName( o1.getObject1()).compareTo( getOntologyObject2().getEntityName( o2.getObject1() ) ) > 0 ) {
 					    return -1;
-					} else if ( ontology1().getEntityName( o1.getObject1()).compareTo( ontology2().getEntityName( o2.getObject1() ) ) < 0 ) {
+					} else if ( getOntologyObject1().getEntityName( o1.getObject1()).compareTo( getOntologyObject2().getEntityName( o2.getObject1() ) ) < 0 ) {
 					    return 1;
-					} else if ( ontology1().getEntityName( o1.getObject2() ) == null
-						    || ontology2().getEntityName( o2.getObject2() ) == null ) {
+					} else if ( getOntologyObject1().getEntityName( o1.getObject2() ) == null
+						    || getOntologyObject2().getEntityName( o2.getObject2() ) == null ) {
 					    return -1;
-					} else if ( ontology1().getEntityName( o1.getObject2()).compareTo( ontology2().getEntityName( o2.getObject2() ) ) > 0 ) {
+					} else if ( getOntologyObject1().getEntityName( o1.getObject2()).compareTo( getOntologyObject2().getEntityName( o2.getObject2() ) ) > 0 ) {
 					    return -1;
 					// Assume they have different names
 					} else { return 1; }
@@ -499,8 +498,8 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	  // Plus a map from the objects to the cells
 	  // O(n^2.log n)
 	  // for classes
-	  for ( Object ent1: ontology1().getClasses() ) {
-	      for ( Object ent2: ontology2().getClasses() ) {
+	  for ( Object ent1: getOntologyObject1().getClasses() ) {
+	      for ( Object ent2: getOntologyObject2().getClasses() ) {
 		  if ( sim.getSimilarity() ) val = sim.getClassSimilarity( ent1, ent2 );
 		  else val = 1 - sim.getClassSimilarity( ent1, ent2 );
 		  if ( val > threshold ){
@@ -509,13 +508,13 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	      }
 	  }
 	  // for properties
-	  ConcatenatedIterator pit1 = new 
-	      ConcatenatedIterator(ontology1().getObjectProperties().iterator(),
-				   ontology1().getDataProperties().iterator());
+	  ConcatenatedIterator<Object> pit1 = new 
+	      ConcatenatedIterator<Object>(getOntologyObject1().getObjectProperties().iterator(),
+				   getOntologyObject1().getDataProperties().iterator());
 	  for ( Object ent1: pit1 ) {
-	      ConcatenatedIterator pit2 = new 
-		  ConcatenatedIterator(ontology2().getObjectProperties().iterator(),
-					ontology2().getDataProperties().iterator());
+	      ConcatenatedIterator<Object> pit2 = new 
+		  ConcatenatedIterator<Object>(getOntologyObject2().getObjectProperties().iterator(),
+					getOntologyObject2().getDataProperties().iterator());
 	      for ( Object ent2: pit2 ) {
 		  if ( sim.getSimilarity() ) val = sim.getPropertySimilarity( ent1, ent2 );
 		  else val = 1 - sim.getPropertySimilarity( ent1, ent2 );
@@ -526,11 +525,11 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	  }
 	  // for individuals
 	  if (  params.getProperty("noinst") == null ){
-	      for( Object ent1: ontology1().getIndividuals() ) {
-		  if ( ontology1().getEntityURI( ent1 ) != null ) {
+	      for( Object ent1: getOntologyObject1().getIndividuals() ) {
+		  if ( getOntologyObject1().getEntityURI( ent1 ) != null ) {
 
-		      for( Object ent2: ontology2().getIndividuals() ) {
-			  if ( ontology2().getEntityURI( ent2 ) != null ) {
+		      for( Object ent2: getOntologyObject2().getIndividuals() ) {
+			  if ( getOntologyObject2().getEntityURI( ent2 ) != null ) {
 			      if ( sim.getSimilarity() ) val = sim.getIndividualSimilarity( ent1, ent2 );
 			      else val = 1 - sim.getIndividualSimilarity( ent1, ent2 );
 			      if ( val > threshold ){

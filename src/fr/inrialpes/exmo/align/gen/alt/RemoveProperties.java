@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2013, INRIA
+ * Copyright (C) 2011-2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -50,7 +51,6 @@ public class RemoveProperties extends BasicAlterator {
 	initModel( om );
     };
 
-    //@SuppressWarnings("unchecked")
     public Alterator modify( Properties params ) {
 	String p = params.getProperty( ParametersIds.REMOVE_PROPERTIES );
 	if ( p == null ) return null;
@@ -76,8 +76,8 @@ public class RemoveProperties extends BasicAlterator {
 
             //alignment.remove( p.getURI() );
 	    //get the restrictions of that property
-            for ( Iterator it = property.listReferringRestrictions(); it.hasNext();  ) {
-                restrictions.add( (Restriction)it.next() );
+	    for ( ExtendedIterator<Restriction> it = property.listReferringRestrictions(); it.hasNext();  ) {
+                restrictions.add( it.next() );
             }
 	    //delete all the restrictions
             for ( Restriction r : restrictions ) r.remove();

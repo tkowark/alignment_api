@@ -55,6 +55,11 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 public class ObjectAlignment extends BasicAlignment {
     final static Logger logger = LoggerFactory.getLogger( ObjectAlignment.class );
 
+    // Overloaded
+    //protected LoadedOntology<Object> onto1 = null;
+    //protected LoadedOntology<Object> onto2 = null;
+
+    // This is used for factorising loadInit()
     protected ObjectAlignment init = null;
 
     public ObjectAlignment() {}
@@ -70,11 +75,25 @@ public class ObjectAlignment extends BasicAlignment {
 	};
     }
 
+    /*
+     * @deprecated
+     */
     public LoadedOntology<Object> ontology1(){
 	return (LoadedOntology<Object>)onto1;
     }
 
+    /*
+     * @deprecated
+     */
     public LoadedOntology<Object> ontology2(){
+	return (LoadedOntology<Object>)onto2;
+    }
+
+    public LoadedOntology<Object> getOntologyObject1(){
+	return (LoadedOntology<Object>)onto1;
+    }
+
+    public LoadedOntology<Object> getOntologyObject2(){
 	return (LoadedOntology<Object>)onto2;
     }
 
@@ -145,8 +164,8 @@ public class ObjectAlignment extends BasicAlignment {
 	alignment.setType( al.getType() );
 	alignment.setLevel( al.getLevel() );
 	alignment.setExtensions( al.extensions.convertExtension( "ObjectURIConverted", "fr.inrialpes.exmo.align.ObjectAlignment#toObject" ) );
-	LoadedOntology<Object> o1 = (LoadedOntology<Object>)alignment.getOntologyObject1(); // [W:unchecked]
-	LoadedOntology<Object> o2 = (LoadedOntology<Object>)alignment.getOntologyObject2(); // [W:unchecked]
+	LoadedOntology<Object> o1 = alignment.getOntologyObject1();
+	LoadedOntology<Object> o2 = alignment.getOntologyObject2();
 	Object obj1 = null;
 	Object obj2 = null;
 
@@ -180,7 +199,7 @@ public class ObjectAlignment extends BasicAlignment {
 	return alignment;
     }
 
-    static LoadedOntology loadOntology( URI ref ) throws AlignmentException {
+    static LoadedOntology<?> loadOntology( URI ref ) throws AlignmentException {
 	OntologyFactory factory = OntologyFactory.getFactory();
 	try {
 	    return factory.loadOntology( ref );

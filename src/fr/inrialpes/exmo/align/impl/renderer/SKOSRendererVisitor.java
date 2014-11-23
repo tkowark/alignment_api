@@ -47,8 +47,8 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 public class SKOSRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<Object> onto1 = null;
+    LoadedOntology<Object> onto2 = null;
     Cell cell = null;
     boolean embedded = false; // if the output is XML embeded in a structure
     boolean pre2008 = false; // compatibility mode with SKOS early drafts
@@ -69,8 +69,8 @@ public class SKOSRendererVisitor extends GenericReflectiveVisitor implements Ali
 	// default behaviour
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
-	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
-	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
+	    onto1 = ((ObjectAlignment)align).getOntologyObject1();
+	    onto2 = ((ObjectAlignment)align).getOntologyObject2();
 	}
 	if ( embedded == false ) {
 	    writer.print("<?xml version='1.0' encoding='utf-8");

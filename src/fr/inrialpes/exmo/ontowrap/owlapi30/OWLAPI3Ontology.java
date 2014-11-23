@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2008-2010, 2012-2013
+ * Copyright (C) INRIA, 2008-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -506,7 +506,7 @@ public class OWLAPI3Ontology extends BasicOntology<OWLOntology> implements Heavy
 	    //getProperties( (OWLNaryBooleanClassExpression)desc, list, visited );
 	}
     }
-    public void getProperties( OWLRestriction rest, Set<Object> list, Set<Object> visited ) throws OWLException {
+    public void getProperties( OWLRestriction<?,? extends Object,?> rest, Set<Object> list, Set<Object> visited ) throws OWLException {
 	list.add( (Object)rest.getProperty() );
     }
     public void getProperties( OWLNaryBooleanClassExpression d, Set<Object> list, Set<Object> visited ) throws OWLException {

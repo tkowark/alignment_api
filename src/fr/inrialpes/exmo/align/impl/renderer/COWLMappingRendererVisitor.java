@@ -48,8 +48,8 @@ public class COWLMappingRendererVisitor extends GenericReflectiveVisitor impleme
 
     PrintWriter writer = null;
     Alignment alignment = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<?> onto1 = null;
+    LoadedOntology<?> onto2 = null;
     Cell cell = null;
 
     public COWLMappingRendererVisitor( PrintWriter writer ){
@@ -70,8 +70,8 @@ public class COWLMappingRendererVisitor extends GenericReflectiveVisitor impleme
 		throw new AlignmentException("COWLMappingRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
 	    }
 	}
-	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	onto1 = (LoadedOntology<?>)((ObjectAlignment)alignment).getOntologyObject1();
+	onto2 = (LoadedOntology<?>)((ObjectAlignment)alignment).getOntologyObject2();
 	writer.print("<rdf:RDF\n");
 	writer.print("    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n");
 	writer.print("    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
@@ -154,7 +154,7 @@ public class COWLMappingRendererVisitor extends GenericReflectiveVisitor impleme
 	throw new AlignmentException( "Cannot render generic Relation" );
     }
 
-    public void printObject( Object ob, LoadedOntology onto ) throws AlignmentException {
+    public void printObject( Object ob, LoadedOntology<?> onto ) throws AlignmentException {
 	try {
 	    if ( onto.isClass( ob )  ) {
 		writer.print("         <owl:Class rdf:about=\""+onto.getEntityURI(ob)+"\"/>\n");

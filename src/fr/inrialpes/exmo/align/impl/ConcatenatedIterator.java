@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA 2003-2005, 2009
+ * Copyright (C) INRIA 2003-2005, 2009, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,23 +36,29 @@ import java.lang.UnsupportedOperationException;
  */
 
 public final class ConcatenatedIterator<O> implements Iterator<O>, Iterable<O> {
-    private Iterator<O> it1 = null;
-    private Iterator<O> it2 = null;
-    public ConcatenatedIterator ( Iterator<O> i1, Iterator<O> i2 ){
+
+    private Iterator<? extends O> it1 = null;
+    private Iterator<? extends O> it2 = null;
+
+    public ConcatenatedIterator ( Iterator<? extends O> i1, Iterator<? extends O> i2 ){
 	it1 = i1;
 	it2 = i2;
     }
+
     public boolean hasNext() {
 	if ( it1.hasNext() || it2.hasNext() ) return true;
 	else return false;
     }
+
     public O next() throws NoSuchElementException {
-	if ( it1.hasNext() ) return it1.next();
-	else return it2.next();
+	if ( it1.hasNext() ) return (O)it1.next();
+	else return (O)it2.next();
     }
+
     public void remove() throws UnsupportedOperationException {
 	throw new UnsupportedOperationException();
     }
+
     public Iterator<O> iterator(){
 	return this;
     }

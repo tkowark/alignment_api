@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2013
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -110,7 +110,7 @@ public class AlignmentParser {
      * @deprecated use parse( URI ) instead
      */
     @Deprecated
-    public Alignment parse( String uri, Hashtable loaded ) throws AlignmentException {
+    public Alignment parse( String uri, Hashtable<?,?> loaded ) throws AlignmentException {
 	return parse( uri );
     }
 

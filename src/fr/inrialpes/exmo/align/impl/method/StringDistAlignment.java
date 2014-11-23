@@ -116,7 +116,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	loadInit( alignment );
 
 	// Initialize matrix
-	getSimilarity().initialize( ontology1(), ontology2(), alignment );
+	getSimilarity().initialize( getOntologyObject1(), getOntologyObject2(), alignment );
 
 	// Compute similarity/dissimilarity
 	getSimilarity().compute( params );

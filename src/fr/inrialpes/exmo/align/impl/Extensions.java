@@ -63,8 +63,7 @@ public class Extensions {
 	return table.get( ns+label );
     }
     
-    // JE: why can't I type this Set<String>
-    public Set keySet() {
+    public Set<String> keySet() {
 	return table.keySet();
     }
 
@@ -72,7 +71,7 @@ public class Extensions {
 	return table.values();
     }
 
-    // JE2014: ideally we should conver them all, except those we do not...
+    // JE2014: ideally we should convert them all, except those we do not...
     public Extensions convertExtension( String label, String method ) {
 	Extensions newext = (Extensions)clone();
 	String oldid = getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );

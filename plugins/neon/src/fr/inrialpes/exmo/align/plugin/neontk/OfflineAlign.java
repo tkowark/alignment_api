@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2010
+ * Copyright (C) INRIA, 2007-2010, 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,12 +31,19 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import java.lang.reflect.Constructor;
+
 import org.semanticweb.owl.align.Alignment;
 import org.semanticweb.owl.align.AlignmentProcess;
 import org.semanticweb.owl.align.AlignmentVisitor;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
 import fr.inrialpes.exmo.ontowrap.LoadedOntology;
+
+import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology;
+import fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory;
+
+import org.semanticweb.owlapi.model.OWLOntology;
 
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
 import fr.inrialpes.exmo.align.impl.BasicAlignment;
@@ -76,13 +83,13 @@ public class OfflineAlign {
 	    Object[] mparams = {};
 	    Class<?> alignmentClass = Class.forName(method);
 	    Class[] cparams = {};
-	    java.lang.reflect.Constructor alignmentConstructor = alignmentClass.getConstructor( cparams );
+	    Constructor<?> alignmentConstructor = alignmentClass.getConstructor( cparams );
 	    A1 = (AlignmentProcess)alignmentConstructor.newInstance(mparams);
 	    OntologyFactory factory = null; 
 	    // This should also be a static getInstance!
 	    factory = OntologyFactory.getFactory();
-	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto1 = loadOntology( factory, proj1, selectedNeOnOnto1 );
-	    fr.inrialpes.exmo.ontowrap.LoadedOntology onto2 = loadOntology( factory, proj2, selectedNeOnOnto2 );
+	    LoadedOntology<OWLOntology> onto1 = loadOntology( factory, proj1, selectedNeOnOnto1 );
+	    LoadedOntology<OWLOntology> onto2 = loadOntology( factory, proj2, selectedNeOnOnto2 );
 	    A1.init( onto1, onto2 );
 	    //	    A1.init( (URI)uris.get(0), (URI)uris.get(1) );
 	    A1.align( (Alignment)null, p );
@@ -110,10 +117,9 @@ public class OfflineAlign {
        return alignFolder.getAbsolutePath() + File.separator + name.toString();
     }
    
-
-    public LoadedOntology loadOntology( OntologyFactory factory, String project, String ontoURI ) throws org.semanticweb.owlapi.model.OWLOntologyCreationException {
-	fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology onto = null;
-	org.semanticweb.owlapi.model.OWLOntology ontology = null;
+    public LoadedOntology<OWLOntology> loadOntology( OntologyFactory factory, String project, String ontoURI ) throws org.semanticweb.owlapi.model.OWLOntologyCreationException {
+	OWLAPI3Ontology onto = null;
+	OWLOntology ontology = null;
 
 	try { // Try to get the local ontology object
 	    com.ontoprise.ontostudio.owl.model.OWLModel model = com.ontoprise.ontostudio.owl.model.OWLModelFactory.getOWLModel( ontoURI, project );
@@ -124,9 +130,9 @@ public class OfflineAlign {
 	    // Let's try to load it from the web...
 	}
 	if ( ontology == null ) { // try to upload
-	    ontology = ((fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3OntologyFactory)factory).getManager().loadOntology( org.semanticweb.owlapi.model.IRI.create( ontoURI ) );
+	    ontology = ((OWLAPI3OntologyFactory)factory).getManager().loadOntology( org.semanticweb.owlapi.model.IRI.create( ontoURI ) );
 	}
-	onto = new fr.inrialpes.exmo.ontowrap.owlapi30.OWLAPI3Ontology();
+	onto = new OWLAPI3Ontology();
 	onto.setFormalism( "OWL 2.0" );
 	try {
 	    onto.setFormURI( new URI("http://www.w3.org/2002/07/owl#") );
@@ -135,9 +141,8 @@ public class OfflineAlign {
 	onto.setOntology( ontology );
 	//onto.setURI( ontology.getURI() );
 	onto.setURI( ontology.getOntologyID().getOntologyIRI().toURI() );
-
-    return onto;
-}
+	return (LoadedOntology<OWLOntology>)onto;
+    }
    
     String trimAndExportAlign (Double thres, String id) {	 
 	Integer name = new Integer(AlignView.getNewAlignId());
@@ -184,8 +189,8 @@ public class OfflineAlign {
        if (AlignView.alignmentTable.keys() == null) return null;
        Vector<String> v = new Vector<String>();
 	   
-       for (Enumeration e = AlignView.alignmentTable.keys() ; e.hasMoreElements() ;) {
-	   v.add((String)e.nextElement()); 
+       for ( Enumeration<String> e = AlignView.alignmentTable.keys() ; e.hasMoreElements() ;) {
+	   v.add(e.nextElement()); 
        }
 	   
        String[] ls = new String[v.size()];

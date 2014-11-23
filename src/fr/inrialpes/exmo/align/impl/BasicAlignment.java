@@ -113,7 +113,7 @@ public class BasicAlignment implements Alignment, Extensible {
 
     @SuppressWarnings( "unchecked" )
     public void init( Object onto1, Object onto2 ) throws AlignmentException {
-	if ( onto1 instanceof Ontology ) {
+	if ( onto1 instanceof Ontology<?> ) {
 	    this.onto1 = (Ontology<Object>)onto1; // [W:unchecked]
 	    this.onto2 = (Ontology<Object>)onto2; // [W:unchecked]
 	} else {
@@ -194,17 +194,25 @@ public class BasicAlignment implements Alignment, Extensible {
 	return onto2.getURI();
     };
 
-    public void setOntology1(Object ontology) throws AlignmentException {
+    public void setOntology1( Object ontology ) throws AlignmentException {
 	onto1.setOntology( ontology );
     };
 
-    public void setOntology2(Object ontology) throws AlignmentException {
+    public void setOntology2( Object ontology ) throws AlignmentException {
 	onto2.setOntology( ontology );
     };
 
-    public void setType(String type) { this.type = type; };
+    public void setType( String type ) { this.type = type; };
 
     public String getType() { return type; };
+    public String invertType() {
+	if ( type != null && type.length() > 1 ) {
+	    char txt[] = { type.charAt(1), type.charAt(0) };
+	    return new String( txt );
+	} else {
+	    return "**";
+	}
+    };
 
     public void setLevel(String level) { this.level = level; };
 
@@ -604,8 +612,8 @@ public class BasicAlignment implements Alignment, Extensible {
 	if ( size == 0 ) return (Alignment)null;
 	BasicAlignment first = aligns.iterator().next();
 	logger.debug(" Size: {}, Alignment {}", size, first );
-	Ontology<Object> onto1 = (Ontology<Object>)first.getOntologyObject1();
-	Ontology<Object> onto2 = (Ontology<Object>)first.getOntologyObject2();
+	Ontology<? extends Object> onto1 = first.getOntologyObject1();
+	Ontology<? extends Object> onto2 = first.getOntologyObject2();
 	logger.debug(" Onto1: {}, Onto2 {}", onto1, onto2 );
 	for ( Alignment al : aligns ) {
 	    if ( !onto1.getURI().equals(al.getOntology1URI()) )
@@ -771,8 +779,7 @@ public class BasicAlignment implements Alignment, Extensible {
 	BasicAlignment result = createNewAlignment( onto2, onto1 );
 	result.setFile1( getFile2() );
 	result.setFile2( getFile1() );
-	// We must inverse getType
-	result.setType( getType() );
+	result.setType( invertType() );
 	result.setLevel( getLevel() );
 	result.setExtensions( extensions.convertExtension( "inverted", "http://exmo.inrialpes.fr/align/impl/BasicAlignment#inverse" ) );
 	for ( Entry<Object,Object> e : namespaces.entrySet() ) {

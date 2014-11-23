@@ -589,7 +589,7 @@ public class SQLCache extends VolatilCache implements Cache {
     }
 
     // Do not add transaction here: this is handled by caller
-    public void	recordOntology( Statement st, URI uri, URI file, Ontology onto ) throws SQLException {
+    public void	recordOntology( Statement st, URI uri, URI file, Ontology<Object> onto ) throws SQLException {
     // modify to use queryStatement.setNull for sformalism and sformuri
 	String suri = uri.toString();
 	String sfile = "";

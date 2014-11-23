@@ -112,7 +112,7 @@ public abstract class OntologyFactory {
 	    // This should also be a static getInstance!
 	    Class<?> ofClass = Class.forName( apiName );
 	    Class[] cparams = {};
-	    java.lang.reflect.Constructor ofConstructor = ofClass.getConstructor( cparams );
+	    java.lang.reflect.Constructor<?> ofConstructor = ofClass.getConstructor( cparams );
 	    Object[] mparams = {};
 	    of = (OntologyFactory)ofConstructor.newInstance(mparams);
 	} catch ( ClassNotFoundException cnfex ) {
@@ -148,9 +148,9 @@ public abstract class OntologyFactory {
      * Encapsulate an ontology already in the environment
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology newOntology( Object onto , boolean onlyLocalEntities ) throws OntowrapException;
+    public abstract LoadedOntology<? extends Object> newOntology( Object onto , boolean onlyLocalEntities ) throws OntowrapException;
     
-    public  LoadedOntology newOntology( Object onto ) throws OntowrapException {
+    public  LoadedOntology<? extends Object> newOntology( Object onto ) throws OntowrapException {
 	return newOntology( onto, false );
     }
 
@@ -158,7 +158,7 @@ public abstract class OntologyFactory {
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public LoadedOntology loadOntology( URI uri ) throws OntowrapException {
+    public LoadedOntology<? extends Object> loadOntology( URI uri ) throws OntowrapException {
 	// logger.trace( "loading URI: {}", uri );
 	return loadOntology( uri, true );
     }
@@ -166,7 +166,7 @@ public abstract class OntologyFactory {
     /*
      * Loads and ontology which is not loaded yet
      */
-    public LoadedOntology loadOntology( Ontology onto ) throws OntowrapException {
+    public LoadedOntology<? extends Object> loadOntology( Ontology<? extends Object> onto ) throws OntowrapException {
 	// logger.trace( "loading Ontology: {}", onto );
 	try { // Try with file
 	    return loadOntology( onto.getFile() );
@@ -183,7 +183,7 @@ public abstract class OntologyFactory {
      * Load an ontology, cache enabled
      * These methods should rather be in a LoadableOntologyFactory
      */
-    public abstract LoadedOntology loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException;
+    public abstract LoadedOntology<? extends Object> loadOntology( URI uri, boolean onlyLocalEntities ) throws OntowrapException;
 
     /**
      * Load an ontology, cache enabled if true, disabled otherwise

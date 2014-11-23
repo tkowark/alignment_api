@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
 
 public class AlteratorFactory {
     final static Logger logger = LoggerFactory.getLogger( AlteratorFactory.class );
@@ -47,7 +48,7 @@ public class AlteratorFactory {
 		// This should also be a static getInstance!
 		Class<?> altClass = Class.forName(classname);
 		Class[] cparams = {Class.forName("fr.inrialpes.exmo.align.gen.Alterator")};
-		java.lang.reflect.Constructor altConstructor = altClass.getConstructor(cparams);
+		Constructor<?> altConstructor = altClass.getConstructor(cparams);
 		Object[] mparams = { om };
 		alt = (Alterator)altConstructor.newInstance(mparams);
 	    } catch (ClassNotFoundException cnfex ) {

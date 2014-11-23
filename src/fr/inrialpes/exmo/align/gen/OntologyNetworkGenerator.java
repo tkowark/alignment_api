@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2011
+ * Copyright (C) INRIA, 2011, 2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -41,7 +41,7 @@ public interface OntologyNetworkGenerator {
      * starting from an ontology o.
      * Parameters may further specify the requirements.
      */
-    public OntologyNetwork generate( int n, Ontology o, Properties params );
+    public OntologyNetwork generate( int n, Ontology<Object> o, Properties params );
 
     /**
      * Returns an ontology network of size n (the number of ontologies)

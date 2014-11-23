@@ -50,8 +50,8 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
     PrintWriter writer = null;
     Alignment alignment = null;
     Cell cell = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<Object> onto1 = null;
+    LoadedOntology<Object> onto2 = null;
     Hashtable<String,String> namespaces = null;
     int nsrank = 0;
     boolean embedded = false; // if the output is XML embeded in a structure
@@ -75,8 +75,8 @@ public class XSLTRendererVisitor extends GenericReflectiveVisitor implements Ali
 	// default behaviour
 	alignment = align;
 	if ( align instanceof ObjectAlignment ) {
-	    onto1 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject1();
-	    onto2 = (LoadedOntology)((ObjectAlignment)align).getOntologyObject2();
+	    onto1 = ((ObjectAlignment)align).getOntologyObject1();
+	    onto2 = ((ObjectAlignment)align).getOntologyObject2();
 	}
 	for( Cell c : alignment ){
 	    collectURIs( c );

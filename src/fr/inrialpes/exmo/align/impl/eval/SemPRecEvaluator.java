@@ -372,8 +372,8 @@ public class SemPRecEvaluator extends PRecEvaluator implements Evaluator {
     public OWLAxiom correspToAxiom( ObjectAlignment al, ObjectCell corresp ) throws AlignmentException {
 	OWLDataFactory owlfactory = manager.getOWLDataFactory();
 
-	LoadedOntology onto1 = al.ontology1();
-	LoadedOntology onto2 = al.ontology2();
+	LoadedOntology<Object> onto1 = al.getOntologyObject1();
+	LoadedOntology<Object> onto2 = al.getOntologyObject2();
 	// retrieve entity1 and entity2
 	// create the axiom in function of their labels
 	Object e1 = corresp.getObject1();

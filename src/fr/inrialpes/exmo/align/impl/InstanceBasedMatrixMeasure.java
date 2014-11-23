@@ -72,23 +72,23 @@ public abstract class InstanceBasedMatrixMeasure extends MatrixMeasure {
     };
 
     
-    @SuppressWarnings("unchecked")
-    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ) {
+    @SuppressWarnings({"unchecked","rawtypes"})
+    public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align ) {
 	// create the matrices and all structures
 	super.initialize( onto1, onto2, align );
 	try {
 	    if ( !(onto1 instanceof HeavyLoadedOntology) 
 		 || !(onto2 instanceof HeavyLoadedOntology) )
 		throw new AlignmentException( "InstanceBasedMatrixMeasure requires HeavyLoadedOntology");
-	    HeavyLoadedOntology ontology1 = (HeavyLoadedOntology)onto1;
-	    HeavyLoadedOntology ontology2 = (HeavyLoadedOntology)onto2;
+	    HeavyLoadedOntology<Object> ontology1 = (HeavyLoadedOntology<Object>)onto1;
+	    HeavyLoadedOntology<Object> ontology2 = (HeavyLoadedOntology<Object>)onto2;
 
 	    // Normalise class comparators (which instance belongs to which class)
-	    classinst1 = new Set[nbclass1];
+	    classinst1 = new Set[nbclass1]; // W:[rawtypes]
 	    for( Object cl1 : ontology1.getClasses() ) {
 		classinst1[ classlist1.get( cl1 ).intValue() ] = (Set<Object>)ontology1.getInstances( cl1, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
 	    }
-	    classinst2 = new Set[nbclass2];
+	    classinst2 = new Set[nbclass2]; // W:[rawtypes]
 	    for( Object cl2 : ontology2.getClasses() ) {
 		classinst2[ classlist2.get( cl2 ).intValue() ] = (Set<Object>)ontology2.getInstances( cl2, OntologyFactory.LOCAL, OntologyFactory.FULL, OntologyFactory.NAMED );
 	    }

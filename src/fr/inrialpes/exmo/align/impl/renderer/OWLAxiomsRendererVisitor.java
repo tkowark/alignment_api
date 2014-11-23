@@ -96,8 +96,8 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     boolean heterogeneous = false;
     boolean edoal = false;
     Alignment alignment = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<? extends Object> onto1 = null;
+    LoadedOntology<? extends Object> onto2 = null;
     Cell cell = null;
     Relation toProcess = null;
 
@@ -117,16 +117,16 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	//logger.trace( "Alignment: {}", align );
 	if ( align instanceof ObjectAlignment ) {
 	    alignment = align;
-	    onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	    onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	    onto1 = ((ObjectAlignment)alignment).getOntologyObject1();
+	    onto2 = ((ObjectAlignment)alignment).getOntologyObject2();
 	} else if ( align instanceof EDOALAlignment ) {
 	    alignment = align;
 	    edoal = true;
 	} else {
 	    try {
 		alignment = ObjectAlignment.toObjectAlignment( (URIAlignment)align );
-		onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-		onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+		onto1 = ((ObjectAlignment)alignment).getOntologyObject1();
+		onto2 = ((ObjectAlignment)alignment).getOntologyObject2();
 	    } catch ( AlignmentException alex ) {
 		throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
 	    }
@@ -253,7 +253,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	}
     }
 
-    public void printRel( Object ob, LoadedOntology onto, Relation rel ) throws AlignmentException {
+    public void printRel( Object ob, LoadedOntology<? extends Object> onto, Relation rel ) throws AlignmentException {
 	if ( !edoal ) {
 	    String owlrel = getRelationName( onto, rel, ob );
 	    if ( owlrel == null ) throw new AlignmentException( "Cannot express relation "+rel );
@@ -327,7 +327,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
     /**
      * Regular: relation name depends on loaded ontology
      */
-    public String getRelationName( LoadedOntology onto, Relation rel, Object ob ) {
+    public String getRelationName( LoadedOntology<? extends Object> onto, Relation rel, Object ob ) {
 	try {
 	    if ( rel instanceof EquivRelation ) {
 		if ( onto.isClass( ob ) ) {

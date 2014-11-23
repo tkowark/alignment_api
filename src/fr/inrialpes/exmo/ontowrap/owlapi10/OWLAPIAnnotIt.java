@@ -1,7 +1,7 @@
 /*
  * $Id: OWLAPIAnnotIt.java 896 2008-11-25 14:45:46Z jdavid $
  *
- * Copyright (C) INRIA, 2007-2008, 2010, 2013
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,59 +41,60 @@ import org.semanticweb.owl.model.OWLOntology;
 public class OWLAPIAnnotIt implements Iterator<String> {
     final static Logger logger = LoggerFactory.getLogger( OWLAPIAnnotIt.class );
 
-	/*private OWLOntology o;
-	private OWLEntity e;*/
-	private String lang;
-	private String typeAnnot;
-
-	private Iterator it;
-
-	private String currentElem=null;
-
-	public OWLAPIAnnotIt(OWLOntology o, OWLEntity e , String lang , String typeAnnot) throws OWLException {
-	    /*this.o=o; this.e=e; */ this.lang=lang; this.typeAnnot=typeAnnot;
-	    it = e.getAnnotations(o).iterator();
-	}
-
-	public boolean hasNext() {
-	    try {
-		setNext();
-		return currentElem != null;
-	    }
-	    catch (NoSuchElementException e) {
-		return false;
-	    }
-	}
-
-	public String next() {
-	    setNext();
-	    String returnVal = currentElem;
-	    currentElem=null;
-	    return returnVal;
-	}
-
-	private void setNext() throws NoSuchElementException {
-	    while (currentElem==null) {
-        	    OWLAnnotationInstance annot = (OWLAnnotationInstance) it.next();
-        	    try {
-        		String annotUri = annot.getProperty().getURI().toString();
-        		if (annotUri.equals(typeAnnot) || typeAnnot==null) {
-        		    if ( annot.getContent() instanceof OWLDataValue &&
-            			( lang==null || ((OWLDataValue) annot.getContent()).getLang().equals(lang)) ) {
-        			currentElem = ((OWLDataValue) annot.getContent()).getValue().toString();
-            			}
-        		}
-        	    } catch (OWLException e) {
-        		logger.debug( "IGNORED Exception", e );
-        		currentElem=null;
-        	    }
-	    }
-
-	}
-
-	public void remove() {
-	    throw new UnsupportedOperationException();
-	}
-
+    /*private OWLOntology o;
+      private OWLEntity e;*/
+    private String lang;
+    private String typeAnnot;
+    
+    private Iterator<OWLAnnotationInstance> it;
+    
+    private String currentElem=null;
+    
+    @SuppressWarnings({"unchecked"})
+    public OWLAPIAnnotIt( OWLOntology o, OWLEntity e, String lang, String typeAnnot ) throws OWLException {
+	/*this.o=o; this.e=e; */
+	this.lang=lang; 
+	this.typeAnnot=typeAnnot;
+	it = (Iterator<OWLAnnotationInstance>)e.getAnnotations(o).iterator(); // W:[unchecked]
     }
+
+    public boolean hasNext() {
+	try {
+	    setNext();
+	    return currentElem != null;
+	} catch (NoSuchElementException e) {
+	    return false;
+	}
+    }
+
+    public String next() {
+	setNext();
+	String returnVal = currentElem;
+	currentElem=null;
+	return returnVal;
+    }
+    
+    private void setNext() throws NoSuchElementException {
+	while ( currentElem == null ) {
+	    OWLAnnotationInstance annot = it.next();
+	    try {
+		String annotUri = annot.getProperty().getURI().toString();
+		if ( annotUri.equals( typeAnnot ) || typeAnnot == null ) {
+		    if ( annot.getContent() instanceof OWLDataValue &&
+			 ( lang == null || ((OWLDataValue) annot.getContent()).getLang().equals(lang)) ) {
+			currentElem = ((OWLDataValue) annot.getContent()).getValue().toString();
+		    }
+		}
+	    } catch ( OWLException e ) {
+		logger.debug( "IGNORED Exception", e );
+		currentElem = null;
+	    }
+	}
+    }
+
+    public void remove() {
+	throw new UnsupportedOperationException();
+    }
+    
+}
 

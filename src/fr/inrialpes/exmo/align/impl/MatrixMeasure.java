@@ -56,8 +56,8 @@ public abstract class MatrixMeasure implements Similarity {
     public boolean similarity = true;
 
     //Momentaneously public
-    public LoadedOntology onto1 = null;
-    public LoadedOntology onto2 = null;
+    public LoadedOntology<Object> onto1 = null;
+    public LoadedOntology<Object> onto2 = null;
     public int nbclass1 = 0; // number of classes in onto1
     public int nbclass2 = 0; // number of classes in onto2
     public int nbprop1 = 0; // number of classes in onto1
@@ -79,9 +79,10 @@ public abstract class MatrixMeasure implements Similarity {
     public double prmatrix[][];   // distance matrix
     public double indmatrix[][];   // distance matrix
 	
-    public void initialize( LoadedOntology onto1, LoadedOntology onto2, Alignment align ){
+    public void initialize( LoadedOntology<Object> onto1, LoadedOntology<Object> onto2, Alignment align ){
 	initialize( onto1, onto2 );
 	// Set the values of the initial alignment in the cells
+	if ( align == null ) return;
 	try {
 	    ObjectAlignment oalign;
 	    if ( align instanceof URIAlignment ){
@@ -89,7 +90,7 @@ public abstract class MatrixMeasure implements Similarity {
 	    } else if ( align instanceof ObjectAlignment ) {
 		oalign = (ObjectAlignment)align;
 	    } else {
-		throw new AlignmentException(""); 
+		throw new AlignmentException("Cannot cast alignment to ObjectAlignment"); 
 	    };
 	    for ( Cell c : oalign ){
 		Object o1 = c.getObject1();
@@ -119,12 +120,15 @@ public abstract class MatrixMeasure implements Similarity {
 		    }
 		}
 	    }
-	} catch (Exception ex) {}; // ignore silently
+	} catch ( Exception ex ) {
+	    logger.debug( "IGNORED exception (cannot initialize int alignment)", ex ); // ignore silently
+	}; 
     }
 
-    public void initialize( LoadedOntology o1, LoadedOntology o2 ){
+    public void initialize( LoadedOntology<Object> o1, LoadedOntology<Object> o2 ){
 	onto1 = o1;
 	onto2 = o2;
+
 	classlist2 = new HashMap<Object,Integer>(); // onto2 classes
 	classlist1 = new HashMap<Object,Integer>(); // onto1 classes
 	proplist2 = new HashMap<Object,Integer>(); // onto2 properties
@@ -201,12 +205,12 @@ public abstract class MatrixMeasure implements Similarity {
 		}
 	    }
 	    // Compute distances on properties
-	    ConcatenatedIterator it2 = new
-		ConcatenatedIterator(onto2.getObjectProperties().iterator(),
+	    ConcatenatedIterator<Object> it2 = new
+		ConcatenatedIterator<Object>(onto2.getObjectProperties().iterator(),
 				     onto2.getDataProperties().iterator());
 	    for ( Object pr2: it2 ){
-		ConcatenatedIterator it1 = new
-		    ConcatenatedIterator(onto1.getObjectProperties().iterator(),
+		ConcatenatedIterator<Object> it1 = new
+		    ConcatenatedIterator<Object>(onto1.getObjectProperties().iterator(),
 					 onto1.getDataProperties().iterator());
 		for ( Object pr1: it1 ){
 		    prmatrix[proplist1.get(pr1).intValue()][proplist2.get(pr2).intValue()] = propertyMeasure( pr1, pr2 );

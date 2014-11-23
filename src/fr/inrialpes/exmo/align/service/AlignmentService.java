@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import java.util.Hashtable;
@@ -96,6 +96,26 @@ public class AlignmentService extends CommonCLI {
 
     public AlignmentService() {
 	super();
+	options.addOption( createOption( "O", "oyster", "Register to Oyster directory" ) );
+	//options.addOption( createOption( "U", "uddi", "Register to UDDI directory" ) );
+
+	//options.addOption( createRequiredOption( "l", "load", "Load previous database image from FILE", "FILE" ) );
+	options.addOption( createRequiredOption( "i", "impl", "Launch service corresponding to CLASS", "CLASS" ) );
+	options.addOption( createRequiredOption( "u", "uriprefix", "Set alignment URIs with prefix URI", "URI" ) );
+	options.addOption( createRequiredOption( "S", "host", "Set the HOSTNAME of the server", "HOSTNAME" ) );
+
+	options.addOption( createRequiredOption( "B", "dbms", "Use DBMS system (mysql,postgres; default: mysql)", "DBMS" ) );
+	options.addOption( createRequiredOption( "m", "dbmshost", "Use DBMS HOST (default: "+DBHOST+")", "HOST" ) );
+	options.addOption( createRequiredOption( "s", "dbmsport", "Use DBMS PORT (default: "+DBPORT+")", "PORT" ) );
+	options.addOption( createRequiredOption( "l", "dbmsuser", "Use DBMS USER (default: scott)", "USER" ) );
+	options.addOption( createRequiredOption( "p", "dbmspass", "Use DBMS PASSword (default: tiger)", "PASS" ) );
+	options.addOption( createRequiredOption( "b", "dbmsbase", "Use DBMS BASE (default: "+DBBASE+")", "BASE" ) );
+
+	options.addOption( createOptionalOption( "H", "http", "Launch HTTP service (with port PORT; default "+HTML+")", "PORT" ) );
+	options.addOption( createOptionalOption( "A", "jade", "Launch JADE service (with port PORT; default "+JADE+")", "PORT" ) );
+	options.addOption( createOptionalOption( "W", "wsdl", "Launch Web service (with port PORT; default "+WSDL+")", "PORT" ) );
+	options.addOption( createOptionalOption( "X", "jxta", "Launch JXTA service (with port PORT; default "+JXTA+")", "PORT" ) );
+	/*
 	//options.addOption( OptionBuilder.withLongOpt( "load" ).hasArg().withDescription( "Load previous database image from FILE" ).withArgName("FILE").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Launch service corresponding to CLASS" ).withArgName("CLASS").create( 'i' ) );
 	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "Set alignment URIs with prefix URI" ).withArgName("URI").create( 'u' ) );
@@ -107,8 +127,7 @@ public class AlignmentService extends CommonCLI {
 	options.addOption( OptionBuilder.withLongOpt( "jxta" ).hasOptionalArg().withDescription( "Launch JXTA service (with port PORT; default "+JXTA+")" ).withArgName("PORT").create( 'X' ) );
 
 	options.addOption( "O", "oyster", false, "Register to Oyster directory" );
-	//options.addOption( "U", "uddi", false, "Register to Oyster directory" );
-	//options.addOption( OptionBuilder.withLongOpt( "params" ).hasArg().withDescription( "Read parameters from FILE" ).withArgName("FILE").create( 'p' ) );
+	//options.addOption( "U", "uddi", false, "Register to UDDI directory" );
 
 	options.addOption( OptionBuilder.withLongOpt( "dbms" ).hasArg().withDescription( "Use DBMS system (mysql,postgres; default: mysql)" ).withArgName("DBMS").create( 'B' ) );
 	options.addOption( OptionBuilder.withLongOpt( "dbmshost" ).hasArg().withDescription( "Use DBMS HOST (default: "+DBHOST+")" ).withArgName("HOST").create( 'm' ) );
@@ -116,6 +135,7 @@ public class AlignmentService extends CommonCLI {
 	options.addOption( OptionBuilder.withLongOpt( "dbmsuser" ).hasArg().withDescription( "Use DBMS USER (default: scott)" ).withArgName("USER").create( 'l' ) );
 	options.addOption( OptionBuilder.withLongOpt( "dbmspass" ).hasArg().withDescription( "Use DBMS PASSword (default: tiger)" ).withArgName("PASS").create( 'p' ) );
 	options.addOption( OptionBuilder.withLongOpt( "dbmsbase" ).hasArg().withDescription( "Use DBMS BASE (default: "+DBBASE+")" ).withArgName("BASE").create( 'b' ) );
+	*/
 
     }
 
@@ -258,7 +278,7 @@ public class AlignmentService extends CommonCLI {
 
     protected Object loadInstance( String className ) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 	Class<?> cl = Class.forName( className );
-	java.lang.reflect.Constructor constructor = cl.getConstructor( (Class[])null );
+	java.lang.reflect.Constructor<?> constructor = cl.getConstructor( (Class[])null );
 	return constructor.newInstance( (Object[])null );
     }
 

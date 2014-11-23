@@ -54,7 +54,7 @@ public class JENAOntologyFactory extends OntologyFactory {
 	} // should not happen
     }
 
-    public JENAOntology newOntology( Object ontology , boolean onlyLocalEntities ) throws OntowrapException {
+    public JENAOntology newOntology( Object ontology, boolean onlyLocalEntities ) throws OntowrapException {
 	if ( ontology instanceof OntModel ) {
 	    JENAOntology onto = new JENAOntology(onlyLocalEntities);
 	    onto.setFormalism( formalismId );

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2012-2013
+ * Copyright (C) INRIA, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,14 +45,14 @@ public class GenericReflectiveVisitor {
      * If not found, look it up in the implemented interface
      * (there may be such a method for interfaces)
      */
-    protected Method getMethod( Class c, Class root ) {
-	Class  newc = c;
+    protected Method getMethod( Class<?> c, Class<?> root ) {
+	Class<?> newc = c;
 	Method m    = null;
 	while ( m == null  &&  newc != root && newc != null ) { // null father of Object.class?
 	    String method = newc.getName();
 	    method = "visit";// + method.substring( method.lastIndexOf('.') + 1 );
 	    try {
-		m = getClass().getMethod( method, new Class[] { newc } );
+		m = getClass().getMethod( method, new Class<?>[] { newc } );
 	    } catch ( NoSuchMethodException ex ) {
 		newc = newc.getSuperclass();
 	    }
@@ -65,7 +65,7 @@ public class GenericReflectiveVisitor {
 		    String method = interfaces[i].getName();
 		    //method = "visit" + method.substring( method.lastIndexOf('.') + 1 );
 		    try {
-			m = getClass().getMethod( method, new Class[] { interfaces[i] } );
+			m = getClass().getMethod( method, new Class<?>[] { interfaces[i] } );
 		    } catch ( NoSuchMethodException ex ) { }
 		}
 	    }
@@ -80,7 +80,7 @@ public class GenericReflectiveVisitor {
 	return m;
     }
 
-    public boolean subsumedInvocableMethod( Object visitor, Object o, Class cl ) throws AlignmentException {
+    public boolean subsumedInvocableMethod( Object visitor, Object o, Class<?> cl ) throws AlignmentException {
 	Method method = getMethod( o.getClass(), cl );
 	if ( method != null ) {
 	    try {

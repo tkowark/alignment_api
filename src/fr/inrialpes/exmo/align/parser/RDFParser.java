@@ -235,8 +235,8 @@ public class RDFParser {
             throw new NullPointerException("Alignment must not be null");
         }
         try {
-            Ontology source = null;
-            Ontology target = null;
+            Ontology<Object> source = null;
+            Ontology<Object> target = null;
 
             // getting the id of the document
             final URI id = getNodeId(node);
@@ -351,7 +351,7 @@ public class RDFParser {
      * @return the Ontology object
      * @throws NullPointerException if the node is null
      */
-    protected Ontology parseOntology(final Resource node) throws AlignmentException {
+    protected Ontology<Object> parseOntology(final Resource node) throws AlignmentException {
         if (node == null) {
             throw new AlignmentException("The Ontology node must not be null");
         }
@@ -360,7 +360,7 @@ public class RDFParser {
             final String formalismName = formu.getProperty((Property) SyntaxElement.NAME.resource).getString();
             final String formalismUri = formu.getProperty((Property) SyntaxElement.URI.resource).getString();
             final Statement location = node.getProperty((Property) SyntaxElement.LOCATION.resource);
-            Ontology onto = new BasicOntology();
+            Ontology<Object> onto = new BasicOntology<Object>();
             onto.setURI(new URI(node.getURI()));
             onto.setFormURI(new URI(formalismUri));
             onto.setFormalism(formalismName);

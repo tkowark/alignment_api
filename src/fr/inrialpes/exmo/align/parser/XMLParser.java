@@ -43,7 +43,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.lang.Integer;
 import java.lang.Double;
-import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,13 +83,13 @@ public class XMLParser extends DefaultHandler {
     /**
      * the first Ontology 
      */
-    Ontology onto1 = null;
-    Ontology curronto = null;
+    Ontology<Object> onto1 = null;
+    Ontology<Object> curronto = null;
     
     /**
      * the second Ontology 
      */
-    Ontology onto2 = null;
+    Ontology<Object> onto2 = null;
 
     /**
      * the alignment that is parsed

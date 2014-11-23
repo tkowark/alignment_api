@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011-2013, INRIA
+ * Copyright (C) 2011-2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -156,7 +156,7 @@ public class ClassHierarchy {
 
     //builds the class hierarchy
     public void buildClassHierarchy(OntModel model) {
-        Iterator i =  model.listHierarchyRootClasses();
+        //Iterator i =  model.listHierarchyRootClasses();
         root = new URITree( "Thing" );					//the root of the hierarchy is always owl:Thing
 
         //get the list of root classes
@@ -170,22 +170,21 @@ public class ClassHierarchy {
 
         for ( OntClass rootClass : rootClasses ) {
             if ( !rootClass.isAnon() )                                          //if a root class is not an anonymous class
-                getClass( rootClass, new ArrayList(), 0 ) ;
+                getClass( rootClass, new ArrayList<OntClass>(), 0 ) ;
             else {
-                for ( Iterator it = rootClass.listSubClasses(); it.hasNext(); ) {
-                    getClass ( (OntClass)it.next(), new ArrayList(), 1 );
+                for ( Iterator<OntClass> it = rootClass.listSubClasses(); it.hasNext(); ) {
+                    getClass ( it.next(), new ArrayList<OntClass>(), 1 );
                 }
             }
         }
     }
 
-    @SuppressWarnings("unchecked") // JE: Strange unchecked certainly fixable
-    public void getClass ( OntClass cls, List occurs, int depth ) {
+    public void getClass ( OntClass cls, List<OntClass> occurs, int depth ) {
         renderClassDescription( cls, depth );
 
         if ( cls.canAs( OntClass.class ) && !occurs.contains( cls ) ) {	// recurse to the next level down
-            for ( Iterator it = cls.listSubClasses( true ); it.hasNext(); ) {
-                OntClass sub = (OntClass)it.next();
+            for ( Iterator<OntClass> it = cls.listSubClasses( true ); it.hasNext(); ) {
+                OntClass sub = it.next();
                 occurs.add( cls );						// we push this expression on the occurs list before we recurse
                 getClass( sub, occurs, depth + 1 );
                 occurs.remove( cls );
@@ -216,8 +215,8 @@ public class ClassHierarchy {
                 OntClass aux = null;
                 uri = c.getURI();
 
-                for ( Iterator it = c.listSuperClasses(  ); it.hasNext(); ) {     //search to see if the class has a superclass which is not anonymous
-                    aux = (OntClass)it.next();
+                for ( Iterator<OntClass> it = c.listSuperClasses(  ); it.hasNext(); ) {     //search to see if the class has a superclass which is not anonymous
+                    aux = it.next();
                     if ( !aux.isAnon() ) {					//is not an anonymous class
                         found = 1;						//got the parent
                         parentURI = aux.getURI();

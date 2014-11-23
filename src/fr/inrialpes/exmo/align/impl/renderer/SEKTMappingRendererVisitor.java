@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2013
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -48,8 +48,8 @@ import fr.inrialpes.exmo.ontowrap.OntowrapException;
 public class SEKTMappingRendererVisitor extends GenericReflectiveVisitor implements AlignmentVisitor {
     PrintWriter writer = null;
     Alignment alignment = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<Object> onto1 = null;
+    LoadedOntology<Object> onto2 = null;
     Cell cell = null;
     // I hate using random generator for generating symbols (address would be better)
     Random generator = null;
@@ -73,8 +73,8 @@ public class SEKTMappingRendererVisitor extends GenericReflectiveVisitor impleme
 		throw new AlignmentException("SEKTMappingRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
 	    }
 	}
-	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	onto1 = ((ObjectAlignment)alignment).getOntologyObject1();
+	onto2 = ((ObjectAlignment)alignment).getOntologyObject2();
 	writer.print("MappingDocument(<\""+"\">\n");
 	writer.print("  source(<\""+onto1.getURI()+"\">)\n");
 	writer.print("  target(<\""+onto2.getURI()+"\">)\n");

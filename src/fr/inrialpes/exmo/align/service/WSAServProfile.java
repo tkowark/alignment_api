@@ -143,9 +143,9 @@ public class WSAServProfile implements AlignmentServiceProfile {
 			visited.add( file.toString() );
 			try { 
 			    JarFile jar = new JarFile( file );
-			    Enumeration enumeration = jar.entries();
+			    Enumeration<JarEntry> enumeration = jar.entries();
 			    while( enumeration != null && enumeration.hasMoreElements() ){
-				JarEntry entry = (JarEntry)enumeration.nextElement();
+				JarEntry entry = enumeration.nextElement();
 				String classname = entry.toString();
 				if ( classname.equals("fr/inrialpes/exmo/align/service/aserv.wsdl") ){
 				    // Parse it

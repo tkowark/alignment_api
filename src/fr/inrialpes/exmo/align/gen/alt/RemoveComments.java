@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011, INRIA
+ * Copyright (C) 2011, 2014, INRIA
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntProperty;
@@ -57,7 +58,6 @@ public class RemoveComments extends BasicAlterator {
     };
 
     //remove classes comments
-    @SuppressWarnings("unchecked")
     public void removeClassesComments ( float percentage ) {
         ArrayList<Literal> comments = new ArrayList<Literal>();
         List<OntClass> classes = modifiedModel.listNamedClasses().toList();
@@ -72,16 +72,15 @@ public class RemoveComments extends BasicAlterator {
         }
 
         for ( OntClass c : classesTo ) {
-            for (Iterator it2 = c.listComments(null); it2.hasNext();)
-                comments.add(((Literal) it2.next()));
-            for (Literal lit : comments)                                        // remove comments
+            for ( ExtendedIterator<RDFNode> it2 = c.listComments(null); it2.hasNext(); )
+                comments.add( (Literal)it2.next() );
+            for ( Literal lit : comments )                                        // remove comments
                 c.removeComment( lit );
             comments.clear();
         }
     }
 
     //remove properties comments
-    @SuppressWarnings("unchecked")
     public void removePropertiesComments ( float percentage ) {
         ArrayList<Literal> comments = new ArrayList<Literal>();                 // an array list to hold all the comments
         List<OntProperty> properties = modifiedModel.listAllOntProperties().toList();
@@ -96,8 +95,8 @@ public class RemoveComments extends BasicAlterator {
         }
 
         for ( OntProperty prop : propertiesTo ) {
-            for (Iterator it2 = prop.listComments(null); it2.hasNext();)        // get all comments
-                comments.add(((Literal) it2.next()));
+            for (ExtendedIterator<RDFNode> it2 = prop.listComments(null); it2.hasNext();)        // get all comments
+                comments.add((Literal) it2.next());
             for (Literal lit : comments) 					//remove comments
                 prop.removeComment( lit );
             comments.clear();
@@ -105,7 +104,6 @@ public class RemoveComments extends BasicAlterator {
     }
 
     //remove individuals comments
-    @SuppressWarnings("unchecked")
     public void removeIndividualsComments ( float percentage ) {
         ArrayList<Literal> comments = new ArrayList<Literal>();                 // an array list to hold all the comments
         List<Individual> individuals = modifiedModel.listIndividuals().toList();
@@ -119,8 +117,8 @@ public class RemoveComments extends BasicAlterator {
             individualsTo.add( indiv );
         }
         for ( Individual indiv : individuals ) {
-            for (Iterator it2 = indiv.listComments(null); it2.hasNext(); )      //get all comments
-                comments.add( ((Literal) it2.next()) );
+            for (ExtendedIterator<RDFNode> it2 = indiv.listComments(null); it2.hasNext(); )      //get all comments
+                comments.add( (Literal) it2.next() );
             for (Literal lit : comments )					//remove comments
                 indiv.removeComment( lit );
             comments.clear();
@@ -128,7 +126,6 @@ public class RemoveComments extends BasicAlterator {
     }
 
     //remove Ontologies comments
-    @SuppressWarnings("unchecked")
     public void removeOntologiesComments ( float percentage ) {
         ArrayList<Literal> comments = new ArrayList<Literal>();                 // an array list to hold all the comments
         List<Ontology> ontologies = modifiedModel.listOntologies().toList();
@@ -143,8 +140,8 @@ public class RemoveComments extends BasicAlterator {
         }
 
         for ( Ontology onto : ontologies ) {
-            for (Iterator it2 = onto.listComments(null); it2.hasNext(); )       // get all comments
-                comments.add(((Literal) it2.next()));
+            for (ExtendedIterator<RDFNode> it2 = onto.listComments(null); it2.hasNext(); )       // get all comments
+                comments.add((Literal) it2.next());
             for ( Literal lit : comments )					//remove all comments
                 onto.removeComment( lit );
             comments.clear();

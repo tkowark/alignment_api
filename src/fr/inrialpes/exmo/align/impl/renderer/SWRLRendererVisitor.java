@@ -52,8 +52,8 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
     final static Logger logger = LoggerFactory.getLogger( SWRLRendererVisitor.class );
     PrintWriter writer = null;
     Alignment alignment = null;
-    LoadedOntology onto1 = null;
-    LoadedOntology onto2 = null;
+    LoadedOntology<Object> onto1 = null;
+    LoadedOntology<Object> onto2 = null;
     Cell cell = null;
     boolean embedded = false; // if the output is XML embeded in a structure
 
@@ -78,8 +78,8 @@ public class SWRLRendererVisitor extends GenericReflectiveVisitor implements Ali
 		throw new AlignmentException("SWRLRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
 	    }
 	}
-	onto1 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject1();
-	onto2 = (LoadedOntology)((ObjectAlignment)alignment).getOntologyObject2();
+	onto1 = ((ObjectAlignment)alignment).getOntologyObject1();
+	onto2 = ((ObjectAlignment)alignment).getOntologyObject2();
 	if ( embedded == false )
 	    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	writer.println("<swrlx:Ontology swrlx:name=\"generatedAl\"");

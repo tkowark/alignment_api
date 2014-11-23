@@ -146,7 +146,7 @@ public class BasicRelation implements Relation {
 	}
 	try { // Create a relation from classname
 	    relationClass = Class.forName(rel);
-	    Constructor relationConstructor = relationClass.getConstructor((Class[])null);
+	    Constructor<?> relationConstructor = relationClass.getConstructor((Class[])null);
 	    return (Relation)relationConstructor.newInstance((Object[])null);
 	} catch ( Exception ex ) {
 	    logger.debug( "IGNORED Exception: created Basic Relation)", ex );

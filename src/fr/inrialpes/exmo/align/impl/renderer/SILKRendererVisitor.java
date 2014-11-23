@@ -164,7 +164,7 @@ public class SILKRendererVisitor extends GraphPatternRendererVisitor implements 
     	indentedOutputln("</DataSource>");
     }
 
-    public void printOntology( Ontology onto, String function ) {
+    public void printOntology( Ontology<Object> onto, String function ) {
 	URI u = onto.getURI();
 	URI f = onto.getFile();
 	printBasicOntology( u, f, function );

@@ -91,7 +91,7 @@ public class OysterDirectory implements Directory {
     }
 
     // Certainly return 
-    public void getAlignmentReferences( Ontology o1, Ontology o2 ){
+    public void getAlignmentReferences( Ontology<Object> o1, Ontology<Object> o2 ){
     }
 
     /**

@@ -265,7 +265,7 @@ public class HTTPTransport {
 		params.setProperty( (String)e.getValue(),
 				    parms.getProperty( "paramv"+key.substring( 6 ) ) );
 	    } else if ( !key.startsWith( "paramv" ) ) {
-		params.setProperty( (String)key, (String)e.getValue() );
+		params.setProperty( key, (String)e.getValue() );
 	    }
 	}
 	int start = 0;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2007-2008, 2010, 2013
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * This class should be parameterized by O subClassOf LoadedOntology 
  */
 
-public class OntologyCache <O extends LoadedOntology> {
+public class OntologyCache <O extends LoadedOntology<? extends Object>> {
     final static Logger logger = LoggerFactory.getLogger( OntologyCache.class );
 
   /** The list of currently loaded ontologies as a function:
@@ -81,7 +81,7 @@ public class OntologyCache <O extends LoadedOntology> {
 	//for ( URI u : ontologies.keys() ){
 	for( Enumeration<URI> e = ontologies.keys(); e.hasMoreElements(); ){
 	    URI u = e.nextElement();
-	    LoadedOntology o = ontologies.get( u );
+	    O o = ontologies.get( u );
 	    logger.trace( "      {}", u );
 	    logger.trace( "      {}", o.getURI() );
 	    logger.trace( "  --> {} ({})", o, o.getOntology() );
@@ -89,7 +89,7 @@ public class OntologyCache <O extends LoadedOntology> {
     };
 
     public void clear() throws OntowrapException {
-	for ( LoadedOntology o : ontologies.values() ){
+	for ( O o : ontologies.values() ){
 	    o.unload();
 	}
 	ontologyUris.clear();

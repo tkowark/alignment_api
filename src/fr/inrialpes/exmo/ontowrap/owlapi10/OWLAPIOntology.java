@@ -1,7 +1,7 @@
 /*
  * $Id: OWLAPIOntology.java 896 2008-11-25 14:45:46Z jdavid $
  *
- * Copyright (C) INRIA, 2007-2008, 2010, 2013
+ * Copyright (C) INRIA, 2007-2008, 2010, 2013-2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -567,14 +567,18 @@ public class OWLAPIOntology extends BasicOntology<OWLOntology> implements HeavyL
 	    //getProperties( (OWLNaryBooleanDescription)desc, list );
 	}
     }
+
     public void getProperties( OWLRestriction rest, Set<Object> list) throws OWLException {
 	list.add( (Object)rest.getProperty() );
     }
+
+    @SuppressWarnings({"unchecked"})
     public void getProperties( OWLNaryBooleanDescription d, Set<Object> list) throws OWLException {
-	for ( Iterator it = d.getOperands().iterator(); it.hasNext() ;){
-	    getProperties( (OWLDescription)it.next(), list );
+	for ( Iterator<OWLDescription> it = (Iterator<OWLDescription>)d.getOperands().iterator(); it.hasNext() ;){
+	    getProperties( it.next(), list );
 	}
     }
+
     public void getProperties( OWLClass cl, Set<Object> list) throws OWLException {
 	for ( Object desc : cl.getSuperClasses( getOntology() ) ){
 	    getProperties( (OWLDescription)desc, list );

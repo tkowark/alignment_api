@@ -996,7 +996,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
      *  This function is taken from Alignment Server with processing Jar in Jar
      */
 		
-    public static void implementations( Class tosubclass, Set<String> list , String cp,  boolean debug ){
+    public static void implementations( Class<?> tosubclass, Set<String> list , String cp,  boolean debug ){
 	Set<String> visited = new HashSet<String>();
 	//String classPath = System.getProperty("java.class.path",".");
 	String classPath = cp;
@@ -1061,9 +1061,9 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 			visited.add( file.toString() );
 			try { 
 			    JarFile jar = new JarFile( file );
-			    Enumeration enumeration = jar.entries();
+			    Enumeration<JarEntry> enumeration = jar.entries();
 			    while( enumeration != null && enumeration.hasMoreElements() ) {
-				JarEntry je = (JarEntry)enumeration.nextElement();
+				JarEntry je = enumeration.nextElement();
 				String classname = je.toString();
 						 
 				int len = classname.length()-6;
@@ -1079,7 +1079,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 						    
 				    try {
 					if ( classname.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
-					Class cl = Class.forName(classname);
+					Class<?> cl = Class.forName(classname);
 					Class[] ints = cl.getInterfaces();
 					for ( int i=0; i < ints.length ; i++ ){
 					    if ( ints[i] == tosubclass ) {
@@ -1117,10 +1117,10 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 				    }
 						    
 				    JarFile inJar = new JarFile( f );
-				    Enumeration enumeration2 = inJar.entries();
+				    Enumeration<JarEntry> enumeration2 = inJar.entries();
 							
 				    while( enumeration2.hasMoreElements() ) {
-					JarEntry je2 = (JarEntry)enumeration2.nextElement();
+					JarEntry je2 = enumeration2.nextElement();
 					String classname2 = je2.toString();
 							 
 					int len3 = classname2.length()-6;
@@ -1136,7 +1136,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 							    
 					    try {
 						if ( classname2.equals("org.apache.xalan.extensions.ExtensionHandlerGeneral") ) throw new ClassNotFoundException( "Stupid JAVA/Xalan bug");
-						Class cl = Class.forName(classname2);
+						Class<?> cl = Class.forName(classname2);
 						Class[] ints = cl.getInterfaces();
 						for ( int i=0; i < ints.length ; i++ ){
 						    if ( ints[i] == tosubclass ) {
@@ -1200,7 +1200,7 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	Set<String> list = new HashSet<String>();
 		 
 	try {
-	    Class toclass = Class.forName(interfaceName);    
+	    Class<?> toclass = Class.forName(interfaceName);    
 	    implementations( toclass, list, cp, false );
 	} catch (ClassNotFoundException ex) {
 	    System.err.println("Class "+interfaceName+" not found!");
@@ -1224,9 +1224,8 @@ MessageDialog.openError(this.getSite().getShell(), "Error message",
 	
 	Bundle bundle = AlignmentPlugin.getDefault().getBundle();
 	
-	Dictionary dic = bundle.getHeaders();
 	Set<String> ms = new HashSet<String>();
-	String classpath = dic.get("Bundle-ClassPath").toString();
+	String classpath = bundle.getHeaders().get("Bundle-ClassPath").toString();
 	//System.out.println("classpath="+  classpath);
 	
 	URL url = FileLocator.find( AlignmentPlugin.getDefault().getBundle(), new Path(""), null );

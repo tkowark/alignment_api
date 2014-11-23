@@ -48,12 +48,10 @@ import fr.inrialpes.exmo.align.impl.Extensions;
 import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor;
 
 /**
- * <p>This class is an encapsulation of BasicAlignement so that
- * it creates the structures required by the MappingDocument within
- * the BasicAlignment</p>
- * JE 2009: Maybe ObjectAlignment could even be better
- * 
+ * An alignment between complex expressions built from the elements of two ontologies
+ * JE2014: Should be better an extension of ObjectAlignment (so far breaks tests)
  */
+
 public class EDOALAlignment extends BasicAlignment {
     final static Logger logger = LoggerFactory.getLogger( EDOALAlignment.class );
 
@@ -82,12 +80,12 @@ public class EDOALAlignment extends BasicAlignment {
     public void init( Object onto1, Object onto2 ) throws AlignmentException {
     	if ( (onto1 == null) || (onto2 == null) )
 	    throw new AlignmentException("The source and target ontologies must not be null");
-	Ontology o1 = null;
-	if ( onto1 instanceof Ontology ) o1 = (Ontology)onto1;
-	else o1 = loadOntology( (URI)onto1 );
-	Ontology o2 = null;
-	if ( onto2 instanceof Ontology ) o2 = (Ontology)onto2;
-	else o2 = loadOntology( (URI)onto2 );
+	Object o1 = null;
+	if ( onto1 instanceof Ontology<?> ) o1 = onto1;
+	else o1 = loadOntology( (URI)onto1 ); // W:[unchecked]
+	Object o2 = null;
+	if ( onto2 instanceof Ontology<?> ) o2 = onto2;
+	else o2 = loadOntology( (URI)onto2 ); // W:[unchecked]
 	super.init( o1, o2 );
     }
 
@@ -255,7 +253,7 @@ public class EDOALAlignment extends BasicAlignment {
     // Basic -> URI
     //       -> Object
     //       -> EDOAL
-    public static LoadedOntology loadOntology( URI onto ) throws AlignmentException {
+    public static LoadedOntology<? extends Object> loadOntology( URI onto ) throws AlignmentException {
 	if ( onto == null ) throw new AlignmentException("The source and target ontologies must not be null");
 	try {
 	    OntologyFactory fact = OntologyFactory.getFactory();
@@ -264,9 +262,9 @@ public class EDOALAlignment extends BasicAlignment {
 	    throw new AlignmentException( "Cannot load ontologies", owex );
 	}
     }
-    public static LoadedOntology loadOntology( Ontology onto ) throws AlignmentException {
+    public static LoadedOntology<? extends Object> loadOntology( Ontology<Object> onto ) throws AlignmentException {
 	if ( onto == null ) throw new AlignmentException("The source and target ontologies must not be null");
-	if ( onto instanceof LoadedOntology ) return (LoadedOntology)onto;
+	if ( onto instanceof LoadedOntology<?> ) return (LoadedOntology<? extends Object>)onto;
 	try {
 	    OntologyFactory fact = OntologyFactory.getFactory();
 	    return fact.loadOntology( onto );
@@ -278,7 +276,8 @@ public class EDOALAlignment extends BasicAlignment {
     public static EDOALAlignment toEDOALAlignment( URIAlignment al ) throws AlignmentException {
 	return toEDOALAlignment( (BasicAlignment)al );
     }
-    public static EDOALAlignment toEDOALAlignment( ObjectAlignment al ) throws AlignmentException {
+
+     public static EDOALAlignment toEDOALAlignment( ObjectAlignment al ) throws AlignmentException {
 	logger.debug( "Converting ObjectAlignment to EDOALAlignment" );
 	EDOALAlignment alignment = new EDOALAlignment();
 	// They are obviously loaded
@@ -286,12 +285,13 @@ public class EDOALAlignment extends BasicAlignment {
 	alignment.convertToEDOAL( al );
 	return alignment;
     }
+
     public static EDOALAlignment toEDOALAlignment( BasicAlignment al ) throws AlignmentException {
 	logger.debug( "Converting BasicAlignment to EDOALAlignment" );
 	EDOALAlignment alignment = new EDOALAlignment();
-	LoadedOntology onto1 = loadOntology( al.getOntologyObject1() );
-	LoadedOntology onto2 = loadOntology( al.getOntologyObject2() );
-	alignment.init( onto1, onto2 );
+	LoadedOntology<? extends Object> o1 = loadOntology( al.getOntologyObject1() );
+	LoadedOntology<? extends Object> o2 = loadOntology( al.getOntologyObject2() );
+	alignment.init( o1, o2 );
 	alignment.convertToEDOAL( al );
 	return alignment;
     }

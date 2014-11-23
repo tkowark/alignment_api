@@ -321,7 +321,7 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 			// Create alignment object
 			Class<?> alignmentClass = Class.forName( method );
 			Class[] cparams = {};
-			Constructor alignmentConstructor = alignmentClass.getConstructor(cparams);
+			Constructor<?> alignmentConstructor = alignmentClass.getConstructor(cparams);
 			Object[] mparams = {};
 			ap = (AlignmentProcess)alignmentConstructor.newInstance( mparams );
 			ap.init( ot1.onto, ot2.onto );

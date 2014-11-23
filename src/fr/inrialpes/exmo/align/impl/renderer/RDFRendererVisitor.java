@@ -219,7 +219,7 @@ public class RDFRendererVisitor extends IndentedRendererVisitor implements Align
         indentedOutput("</" + SyntaxElement.ONTOLOGY.print(DEF) + ">" + NL);
     }
 
-    public void printOntology(Ontology onto) {
+    public void printOntology( Ontology<Object> onto ) {
         URI u = onto.getURI();
         URI f = onto.getFile();
         indentedOutput("<" + SyntaxElement.ONTOLOGY.print(DEF) + " " + SyntaxElement.RDF_ABOUT.print(DEF) + "=\"" + u + "\">" + NL);
