@@ -109,8 +109,8 @@
   <!-- tested -->
   <target name="lint" depends="bind" description="Check sources for warnings">
     <echo message="Setting property..."/>
-    <!-- values: cast,deprecation,divzero,empty,unchecked[3],fallthrough,path[5],serial,finally,overrides,all,none -->
-    <!--property name="javacargs" value="-Xlint:unchecked" /-->
+    <!-- values: all,cast,classfile,deprecation,dep-ann,divzero,empty,fallthrough,finally,options,overrides,path,processing,rawtypes,serial,static,try,unchecked,varargs,-cast,-classfile,-deprecation,-dep-ann,-divzero,-empty,-fallthrough,-finally,-options,-overrides,-path,-processing,-rawtypes,-serial,-static,-try,-unchecked,-varargs,none -->
+    <!--property name="javacargs" value="-Xlint:" /-->
     <property name="javacargs" value="-Xlint:all" />
     <antcall target="compileall"/>
   </target>

@@ -405,11 +405,9 @@ if [ -s $RESDIR/smalltest/gentestempty1/edna2.rdf ]; then diff $RESDIR/smalltest
 if [ -s $RESDIR/smalltest/diffedna.txt ]; then echo error with GRAL-IMPL4; fi
 
 #-------------------
-# This test in fact does not work because there are too many 1. values.
-# I have checked that it works independently (add a bad distance name!)
 echo "\t-Dn=v"
 
-java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -w $RESDIR/smalltest -o lev1.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAlign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=levenshteinDistance -w $RESDIR/smalltest -Dtype=\*\* -o lev1.rdf
 sed -i '' "s;<alext\:time>[^<]*</alext\:time>;;g" $RESDIR/smalltest/gentestempty1/lev1.rdf
 if [ -s $RESDIR/smalltest/gentestempty1/lev1.rdf ]; then diff $RESDIR/smalltest/gentestempty1/edna1.rdf $RESDIR/smalltest/gentestempty1/lev1.rdf > $RESDIR/smalltest/diffstredna.txt ; else echo error with GRAL-DV1; fi
 if [ ! -s $RESDIR/smalltest/diffstredna.txt ]; then echo error with GRAL-DV2; fi
@@ -469,6 +467,108 @@ if [ -s $RESDIR/smalltest/gentestempty1/strpr3.rdf ]; then echo error with GRAL-
 #-------------------
 echo "\t-P,--params <FILE>"
 echo "\t(same as Procalign)"
+
+########################################################################
+# GroupAggreg
+########################################################################
+
+echo "\t\t *** Testing GroupAggreg ***"
+
+#-------------------
+echo "\tEMPTY"
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg  &> $RESDIR/groupagg-empty.txt
+if [ ! -s $RESDIR/groupagg-empty.txt ]; then echo error with GRAG-EMPTY1; fi
+
+#-------------------
+echo "\t-z, -zzz"
+
+java -Dlog.level=INFO -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -z &> $RESDIR/zerr.txt
+grep "Unrecognized option: -z" $RESDIR/zerr.txt > $RESDIR/err.txt
+if [ ! -s $RESDIR/err.txt ]; then echo error with GRAG-ERR1; fi
+java -Dlog.level=INFO -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --zzz &> $RESDIR/zzzerr.txt
+grep "Unrecognized option: --zzz" $RESDIR/zzzerr.txt > $RESDIR/err.txt
+if [ ! -s $RESDIR/err.txt ]; then echo error with GRAG-ERR2; fi
+
+#-------------------
+echo "\t-h, --help"
+
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -h &> $RESDIR/groupagg-h.txt
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --help &> $RESDIR/groupagg-help.txt
+if [ -s  $RESDIR/groupagg-h.txt ]; then diff $RESDIR/groupagg-h.txt $RESDIR/groupagg-help.txt; else echo error with GRAGAL-HELP; fi
+
+#-------------------
+echo "\t-l,--list <FILE>"
+
+#refalign,lev1,streq1
+
+cd $RESDIR/smalltest/
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1"
+if [ ! -s gentestempty1.rdf ]; then echo error with GRAG-LIST1; fi
+mv gentestempty1.rdf oldgentestempty1.rdf
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1"
+if [ -s gentestempty1.rdf ]; then diff gentestempty1.rdf oldgentestempty1.rdf ; else echo error with GRAG-LIST2; fi
+
+#-------------------
+echo "\t-o <D>, --outputDir <D>"
+
+mkdir $RESDIR/aggreg1a $RESDIR/aggreg1b
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1" -o $RESDIR/aggreg1a
+if [ -s $RESDIR/aggreg1a/gentestempty1.rdf ]; then diff $RESDIR/aggreg1a/gentestempty1.rdf $RESDIR/smalltest/gentestempty1.rdf ; else echo error with GRAG-OUT1; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1" --output $RESDIR/aggreg1b
+if [ -s $RESDIR/aggreg1b/gentestempty1.rdf ]; then diff $RESDIR/aggreg1a/gentestempty1.rdf $RESDIR/aggreg1b/gentestempty1.rdf ; else echo error with GRAG-OUT3; fi
+
+cd $CWD
+
+#-------------------
+echo "\t-w,--directory <DIR>"
+
+mkdir $RESDIR/aggreg2a $RESDIR/aggreg2b
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1" -w $RESDIR/smalltest -o $RESDIR/aggreg2a
+if [ -s $RESDIR/aggreg2a/gentestempty1.rdf ]; then diff $RESDIR/aggreg1a/gentestempty1.rdf $RESDIR/aggreg2a/gentestempty1.rdf > $RESDIR/smalltest/diffgrag-w1.txt ; else echo error with GRAG-DIR1; fi
+if [ -s $RESDIR/smalltest/diffgrag-w1.txt ]; then echo error with GRAG-DIR2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1" --directory $RESDIR/smalltest --output $RESDIR/aggreg2b
+if [ -s $RESDIR/aggreg2b/gentestempty1.rdf ]; then diff $RESDIR/aggreg2a/gentestempty1.rdf $RESDIR/aggreg2b/gentestempty1.rdf ; else echo error with GRAG-DIR3; fi
+
+#-------------------
+echo "\t-m,--aggmethod <METHOD>"
+# -m min/max
+
+mkdir $RESDIR/aggreg3a $RESDIR/aggreg3b
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1" -w $RESDIR/smalltest -o $RESDIR/aggreg3a -m max
+if [ -s $RESDIR/aggreg3a/gentestempty1.rdf ]; then diff $RESDIR/aggreg1a/gentestempty1.rdf $RESDIR/aggreg3a/gentestempty1.rdf > $RESDIR/smalltest/diffgrag-m1.txt ; else echo error with GRAG-METH1; fi
+if [ ! -s $RESDIR/smalltest/diffgrag-m1.txt ]; then echo error with GRAG-METH2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1" --directory $RESDIR/smalltest --output $RESDIR/aggreg3b --aggmethod max
+if [ -s $RESDIR/aggreg3b/gentestempty1.rdf ]; then diff $RESDIR/aggreg3a/gentestempty1.rdf $RESDIR/aggreg3b/gentestempty1.rdf ; else echo error with GRAG-METH3; fi
+
+#-------------------
+echo "\t-t,--threshold <DOUBLE>"
+
+mkdir $RESDIR/aggreg4a $RESDIR/aggreg4b
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1" -w $RESDIR/smalltest -o $RESDIR/aggreg4a -m max -t 0.6
+if [ -s $RESDIR/aggreg4a/gentestempty1.rdf ]; then diff $RESDIR/aggreg1a/gentestempty1.rdf $RESDIR/aggreg4a/gentestempty1.rdf > $RESDIR/smalltest/diffgrag-t1.txt ; else echo error with GRAG-THRES1; fi
+if [ ! -s $RESDIR/smalltest/diffgrag-t1.txt ]; then echo error with GRAG-THRES2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1" --directory $RESDIR/smalltest --output $RESDIR/aggreg4b --aggmethod max --threshold 0.6
+if [ -s $RESDIR/aggreg4b/gentestempty1.rdf ]; then diff $RESDIR/aggreg4a/gentestempty1.rdf $RESDIR/aggreg4b/gentestempty1.rdf ; else echo error with GRAG-THRES3; fi
+
+#-------------------
+echo "\t-T,--cutmethod <METHOD>"
+# -c hard (with default 0.)
+
+mkdir $RESDIR/aggreg5a $RESDIR/aggreg5b
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg -l "lev1,streq1" -w $RESDIR/smalltest -o $RESDIR/aggreg5a -m max -t 0.6 -T perc
+if [ -s $RESDIR/aggreg5a/gentestempty1.rdf ]; then diff $RESDIR/aggreg4a/gentestempty1.rdf $RESDIR/aggreg5a/gentestempty1.rdf > $RESDIR/smalltest/diffgrag-tt1.txt ; else echo error with GRAG-CUT1; fi
+if [ ! -s $RESDIR/smalltest/diffgrag-tt1.txt ]; then echo error with GRAG-CUT2; fi
+java -cp $CP fr.inrialpes.exmo.align.cli.GroupAggreg --list "lev1,streq1" --directory $RESDIR/smalltest --output $RESDIR/aggreg5b --aggmethod max --threshold 0.6 --cutmethod perc
+if [ -s $RESDIR/aggreg5b/gentestempty1.rdf ]; then diff $RESDIR/aggreg5a/gentestempty1.rdf $RESDIR/aggreg5b/gentestempty1.rdf ; else echo error with GRAG-CUT3; fi
+
+#-------------------
+echo "\t-Dn=v"
+echo "\t(same as Procalign; useless: no parameters involved so far)"
+
+#-------------------
+echo "\t-P,--params <FILE>"
+echo "\t(same as Procalign; useless: no parameters involved so far)"
+
 
 ########################################################################
 # GroupEval
@@ -547,7 +647,7 @@ java -cp $CP fr.inrialpes.exmo.align.cli.GroupEval --reference lev1.rdf -l "refa
 if [ -s $RESDIR/groupeval-r2.html ]; then diff $RESDIR/groupeval-r1.html $RESDIR/groupeval-r2.html ; else echo error with GREV-REF3; fi
 
 #-------------------
-echo "\t-t,--type <TYPE>         Output TYPE (html|xml|tex|ascii|triangle"
+echo "\t-t,--type <TYPE>         Output TYPE (html|xml|tex|ascii|triangle)"
 java -cp $CP fr.inrialpes.exmo.align.cli.GroupEval -t triangle -l "refalign,edna1,streq1,streq1n,streq1x,streq2,streq2n,streq2x,lev1" -w $RESDIR/smalltest -o $RESDIR/groupeval-ttr1.tex
 if [ -s $RESDIR/groupeval-ttr1.tex ]; then diff $RESDIR/groupeval-w1.html $RESDIR/groupeval-ttr1.tex > $RESDIR/smalltest/diffgrev-t1.txt ; else echo error with GREV-TYP1; fi
 if [ ! -s $RESDIR/smalltest/diffgrev-t1.txt ]; then echo error with GREV-TYP2; fi
@@ -1061,7 +1161,6 @@ java -cp $CP fr.inrialpes.exmo.align.cli.TransformQuery -P $RESDIR/params.xml -a
 if [ -s $RESDIR/queryt-P1.rdf ]; then diff $RESDIR/queryt-P1.rdf $RESDIR/queryt-d1.rdf > $RESDIR/diff-prefix2.txt; else echo error with TRANSQ-PREFIX3; fi
 if [ -s $RESDIR/diff-prefix2.txt ]; then echo error with TRANSQ-PREFIX4; fi
 
-exit
 ########################################################################
 # AlignmentService
 ########################################################################
@@ -1102,12 +1201,12 @@ kill -TERM $!
 
 #-------------------
 echo "\t-i,--impl <CLASS>"
-java -Dlog.level=WARN -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -i fr.inrialpes.exmo.align.cli.GenPlot &> $Resdir/err.txt &
+java -Dlog.level=WARN -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -i fr.inrialpes.exmo.align.cli.GenPlot &> $RESDIR/err.txt &
 sleep 5;
 if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-IMPL1; else grep "Cannot create service for fr.inrialpes.exmo.align.cli.GenPlot" $RESDIR/err.txt > $RESDIR/ierr.txt; fi
 if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-IMPL2; fi
 kill -TERM $!
-java -Dlog.level=WARN -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --impl fr.inrialpes.exmo.align.cli.GenPlot2 &> $Resdir/err.txt &
+java -Dlog.level=WARN -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --impl fr.inrialpes.exmo.align.cli.GenPlot2 &> $RESDIR/err.txt &
 sleep 5;
 if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-IMPL3; else grep "Cannot create service for fr.inrialpes.exmo.align.cli.GenPlot2" $RESDIR/err.txt > $RESDIR/ierr.txt; fi
 if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-IMPL4; fi
@@ -1145,7 +1244,7 @@ java -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -
 sleep 5;
 kill -TERM $!
 if [ -s $RESDIR/err.txt ]; then echo error with ASERV-HTTP1; fi
-java -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --http 5555 &> $Resdir/err.txt &
+java -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --http 5555 &> $RESDIR/err.txt &
 sleep 5;
 kill -TERM $!
 if [ -s $RESDIR/err.txt ]; then echo error with ASERV-HTTP2; fi
@@ -1198,10 +1297,10 @@ if [ -s $RESDIR/err.txt ]; then echo error with ASERV-URIP2; fi
 #-------------------
 echo "\t-B,--dbms <DBMS>"
 java -Dlog.level=ERROR -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService -B postgres &> $RESDIR/err.txt
-if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-DBMS1; else grep "Connection refused." $RESDIR/err.txt > $RESDIR/dberr.txt; fi
+if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-DBMS1; else grep "Cannot connect to database" $RESDIR/err.txt > $RESDIR/dberr.txt; fi
 if [ ! -s $RESDIR/dberr.txt ]; then echo error with ASERV-DBMS2; fi
 java -Dlog.level=ERROR -cp $CP:lib/alignsvc.jar fr.inrialpes.exmo.align.service.AlignmentService --dbms postgres &> $RESDIR/err.txt
-if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-DBMS3; else grep "Connection refused." $RESDIR/err.txt > $RESDIR/dberr.txt; fi
+if [ ! -s $RESDIR/err.txt ]; then echo error with ASERV-DBMS3; else grep "Cannot connect to database" $RESDIR/err.txt > $RESDIR/dberr.txt; fi
 if [ ! -s $RESDIR/dberr.txt ]; then echo error with ASERV-DBMS4; fi
 
 #-------------------
@@ -1258,7 +1357,7 @@ echo "\t-P,--params <FILE>"
 echo "\t(same as Procalign)"
 
 ########################################################################
-echo Evrything is fine
+echo Here I reach the end
 
 
 
