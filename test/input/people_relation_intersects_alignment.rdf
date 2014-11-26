@@ -33,7 +33,7 @@
                 </formalism>
             </Ontology>
         </onto2>
-        <map>
+          <map>
             <Cell rdf:about="http://exmo.inrialpes.fr/connectors#cell1">
                 <entity1>
                     <edoal:Class rdf:about="http://exmo.inrialpes.fr/connectors-core/Personne"/>
@@ -43,7 +43,7 @@
                 </entity2>
                 <relation>=</relation>
                 <measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>1.0</measure>
-                <edoal:linkkey> 
+                <edoal:linkkey>
                     <edoal:Linkkey>
                         <edoal:binding>
                             <edoal:Intersects>
@@ -54,14 +54,14 @@
                                     <edoal:Property>
                                         <edoal:compose rdf:parseType="Collection">
                                             <edoal:Relation>
-                                                <edoal:compose rdf:parseType="Collection">
+                                                <edoal:and rdf:parseType="Collection">
                                                     <edoal:RelationCoDomainRestriction>
                                                         <edoal:class>
                                                             <edoal:Class rdf:about="http://xmlns.com/foaf/0.1/Person"/>
                                                         </edoal:class>
                                                     </edoal:RelationCoDomainRestriction>
                                                     <edoal:Relation rdf:about="http://xmlns.com/foaf/0.1/knows" />
-                                                </edoal:compose>
+                                                </edoal:and>
                                             </edoal:Relation>
                                             <edoal:Property rdf:about="http://xmlns.com/foaf/0.1/givenName" />
                                         </edoal:compose>

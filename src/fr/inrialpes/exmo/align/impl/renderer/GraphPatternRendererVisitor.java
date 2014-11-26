@@ -110,7 +110,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
     private Set<String> objectsRestriction = null;
     protected Hashtable<String, String> prefixList = null;
 
-    private int varsIndexcount = 1;
+    protected int varsIndexcount = 1;
 
     private boolean split = false;                                  // split each query in a file, not on the writer
     private String splitdir = "";                                   // directory where to put query files
@@ -133,7 +133,7 @@ public abstract class GraphPatternRendererVisitor extends IndentedRendererVisito
         objectsRestriction.clear();
         flagRestriction = false;
     }
-
+    
     protected void resetVariables(Expression expr, String s, String o) throws AlignmentException {
         if (expr instanceof ClassExpression) {
             resetVariables((ClassExpression) expr, s, o);

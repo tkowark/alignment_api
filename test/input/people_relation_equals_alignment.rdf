@@ -54,14 +54,14 @@
                                     <edoal:Property>
                                         <edoal:compose rdf:parseType="Collection">
                                             <edoal:Relation>
-                                                <edoal:compose rdf:parseType="Collection">
+                                                <edoal:and rdf:parseType="Collection">
                                                     <edoal:RelationCoDomainRestriction>
                                                         <edoal:class>
                                                             <edoal:Class rdf:about="http://xmlns.com/foaf/0.1/Person"/>
                                                         </edoal:class>
                                                     </edoal:RelationCoDomainRestriction>
                                                     <edoal:Relation rdf:about="http://xmlns.com/foaf/0.1/knows" />
-                                                </edoal:compose>
+                                                </edoal:and>
                                             </edoal:Relation>
                                             <edoal:Property rdf:about="http://xmlns.com/foaf/0.1/givenName" />
                                         </edoal:compose>

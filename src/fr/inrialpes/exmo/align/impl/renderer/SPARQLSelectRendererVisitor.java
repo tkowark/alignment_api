@@ -161,56 +161,38 @@ public class SPARQLSelectRendererVisitor extends GraphPatternRendererVisitor imp
      */
     public void visit(final LinkkeyEquals linkkeyEquals) throws AlignmentException {
         //Main part for selection
-//        resetVariables("?s1", "?o1");
-//        resetS1("?o1");
+        resetS1("?o1");
         Expression expr1 = linkkeyEquals.getExpression1();
         expr1.accept(this);
-//        resetVariables("?s2", "?o2");
-//        resetS2("?o2");
+        resetS2("?o1");
         Expression expr2 = linkkeyEquals.getExpression2();
         expr2.accept(this);
-        //Retrieving intersect elements
-        addToGP("MINUS { " + NL
-                + "SELECT DISTINCT ?s1 ?s2 " + NL
-                + "WHERE " + NL
-                + "{ " + NL);
-//        resetVariables("?s1", "?o1");
-//        resetS1("?o1");
+        //First part 
+        addToGP("MINUS { " + NL);
+        resetS1("?o1");
         expr1.accept(this);
-//        resetVariables("?s1", "?o2");
-//        resetS1("?o2");
+        resetS1("?o2");
         expr1.accept(this);
-//        resetVariables("?s2", "?o3");
-//        resetS2("?o3");
+        resetS2("?o1");
         expr2.accept(this);
-        addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o1 && ?o3 = ?o1 && NOT EXISTS {" + NL);
-//        resetVariables("?s2", "?o2");
-//        resetS2("?o2");
+        addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o1 && NOT EXISTS {" + NL);
+        resetS2("?o2");
         expr2.accept(this);
         addToGP("}) " + NL);
         addToGP("} " + NL);
-        addToGP("} " + NL);
         //Second part
-        addToGP("MINUS {" + NL
-                + "SELECT DISTINCT ?s1 ?s2 " + NL
-                + "WHERE " + NL
-                + "{ " + NL);
-//        resetVariables("?s1", "?o1");
-//        resetS1("?o1");
+        addToGP("MINUS {" + NL);
+        resetS1("?o1");
         expr1.accept(this);
-//        resetVariables("?s2", "?o2");
-//        resetS2("?o2");
+        resetS2("?o1");
         expr2.accept(this);
-//        resetVariables("?s2", "?o3");
-//        resetS2("?o3");
+        resetS2("?o2");
         expr2.accept(this);
-        addToGP("FILTER(?s1 != ?s2 && ?o2 != ?o3 && ?o2 = ?o1 && NOT EXISTS {" + NL);
-//        resetVariables("?s1", "?o3");
-//        resetS1("?o3");
+        addToGP("FILTER(?s1 != ?s2 && ?o1 != ?o2 && NOT EXISTS {" + NL);
+        resetS1("?o2");
         expr1.accept(this);
-        addToGP("})" + NL);
-        addToGP("}" + NL);
-        addToGP("}" + NL);
+        addToGP("}) " + NL);
+        addToGP("} " + NL);
     }
 
     /**
