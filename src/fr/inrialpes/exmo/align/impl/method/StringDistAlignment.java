@@ -95,7 +95,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
     public StringDistAlignment() {
 	setSimilarity( new StringDistMatrixMeasure() );
 	setType("?*");
-	//setType("11");
+	//setType("**");
     }
 
     /* Processing */
@@ -110,23 +110,7 @@ public class StringDistAlignment extends DistanceAlignment implements AlignmentP
 	    throw new AlignmentException( "Unknown method for StringDistAlignment : "+params.getProperty("stringFunction"), e );
 	}
 
-	// JE2010: Strange: why is it not equivalent to call
-	// super.align( alignment, params )
-	// Load initial alignment
-	loadInit( alignment );
-
-	// Initialize matrix
-	getSimilarity().initialize( getOntologyObject1(), getOntologyObject2(), alignment );
-
-	// Compute similarity/dissimilarity
-	getSimilarity().compute( params );
-
-	// Print matrix if asked
-	params.setProperty( "algName", getClass()+"/"+methodName );
-	if ( params.getProperty("printMatrix") != null ) printDistanceMatrix( params );
-
-	// Extract alignment
-	extract( type, params );
+	super.align( alignment, params );
     }
 
 }
