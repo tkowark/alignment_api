@@ -166,15 +166,6 @@ public class GroupOutput extends CommonCLI {
 	options.addOption( createRequiredOption( "t", "type", "Output TYPE (html|tex; default: "+type+")", "TYPE" ) );
 	options.addOption( createRequiredOption( "f", "format", "Display MEASure (prof; default: f)", "MEAS (prof)" ) );
 	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to match", "DIR" ) );
-	/*
-	options.addOption( "v", "values", false, "Displays the values" );
-	options.addOption( "e", "labels", false, "Displays graph labels" );
-	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Use COLOR to fill cells (default: "+color+")" ).withArgName("COLOR").create( 'c' ) );
-	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Specifies the output TYPE (html|tex; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "Consider this list of FILEs for inclusion in the results" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Display MEASure (prof; default: f)" ).withArgName("MEAS").create( 'f' ) );
-	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
-	*/
     }
     public static void main(String[] args) {
 	try { new GroupOutput().run( args ); }

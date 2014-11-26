@@ -99,16 +99,6 @@ public class GroupAlign extends CommonCLI {
 	options.addOption( createRequiredOption( "s", "source", "Source ontology FILEname (default "+source+")", "FILE" ) );
 	options.addOption( createRequiredOption( "t", "target", "Target ontology FILEname (default "+target+")", "FILE" ) );
 	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to match", "DIR" ) );
-	/*
-	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use an initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
-	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for rendering" ).withArgName("CLASS").create( 'r' ) );
-	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given Alignment implementation" ).withArgName("CLASS").create( 'i' ) );
-	options.addOption( OptionBuilder.withLongOpt( "name" ).hasArg().withDescription( "Use the given URI as common source ontology" ).withArgName("URI").create( 'n' ) );
-	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "URI prefix of the target" ).withArgName("URI").create( 'u' ) );
-	options.addOption( OptionBuilder.withLongOpt( "source" ).hasArg().withDescription( "Source ontology FILEname (default "+source+")" ).withArgName("FILE").create( 's' ) );
-	options.addOption( OptionBuilder.withLongOpt( "target" ).hasArg().withDescription( "Target ontology FILEname (default "+target+")" ).withArgName("FILE").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
-	*/
     }
 
     public static void main(String[] args) {

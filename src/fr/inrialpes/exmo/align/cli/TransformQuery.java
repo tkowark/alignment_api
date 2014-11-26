@@ -64,12 +64,6 @@ public class TransformQuery extends CommonCLI {
 	//options.addOption( createRequiredOption( "p", "process", "Process the query against a particular CLASS", "CLASS" ) );
 	options.addOption( createRequiredOption( "q", "query", "get the query from the corresponding FILE", "FILE" ) );
 	options.addOption( createRequiredOption( "a", "alignment", "Use the alignment identified by URI", "URI" ) );
-	/*
-	options.addOption( "e", "echo", false, "Echo the input query" );
-	//options.addOption( OptionBuilder.withLongOpt( "process" ).hasArg().withDescription( "Process the query against a particular CLASS" ).withArgName("CLASS").create( 'p' ) );
-	options.addOption( OptionBuilder.withLongOpt( "query" ).hasArg().withType(File.class).withDescription( "get the query from the corresponding FILE" ).withArgName("FILE").create( 'q' ) );
-	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use the alignment identified by URI" ).withArgName("URI").create( 'a' ) );
-	*/
     }
 
     public static void main(String[] args) {

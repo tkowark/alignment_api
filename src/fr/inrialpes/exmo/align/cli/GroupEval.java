@@ -128,20 +128,6 @@ public class GroupEval extends CommonCLI {
 	//options.addOption( createRequiredOption( "s", "sup", "Specifies if dominant columns are algorithms or measure (default: s)", "ALGO" ) );
 	options.addOption( createRequiredOption( "r", "reference", "Name of the reference alignment FILE (default: "+reference+")", "FILE" ) );
 	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to evaluate", "DIR" ) );
-
-	/*
-	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
-	options.addOption( OptionBuilder.withLongOpt( "evaluator" ).hasArg().withDescription( "Use CLASS as evaluation plotter" ).withArgName("CLASS").create( 'e' ) );
-	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Used MEASures and order (precision/recall/f-measure/overall/time)  (default: "+format+")" ).withArgName("MEAS").create( 'f' ) );
-	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
-	//options.addOption( OptionBuilder.withLongOpt( "sup" ).hasArg().withDescription( "Specifies if dominant columns are algorithms or measure" ).withArgName("algo").create( 's' ) );
-	options.addOption( OptionBuilder.withLongOpt( "reference" ).hasArg().withDescription( "Name of the reference alignment FILE (default: "+reference+")" ).withArgName("FILE").create( 'r' ) );
-	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to evaluate" ).withArgName("DIR").create( 'w' ) );
-	// .setRequired( true )
-	Option opt = options.getOption( "list" );
-	if ( opt != null ) opt.setRequired( true );
-	*/
     }
 
 

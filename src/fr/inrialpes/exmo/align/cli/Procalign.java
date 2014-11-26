@@ -99,13 +99,6 @@ public class Procalign extends CommonCLI {
 	options.addOption( createRequiredOption( "a", "alignment", "Use an initial alignment FILE", "FILE" ) );
 	options.addOption( createRequiredOption( "t", "threshold", "Trim the alignment with regard to threshold", "DOUBLE" ) );
 	options.addOption( createRequiredOption( "T", "cutmethod", "METHOD to use for triming (hard|perc|prop|best|span)", "METHOD" ) );
-	/*
-	options.addOption( OptionBuilder.withLongOpt( "renderer" ).hasArg().withDescription( "Use the given CLASS for output" ).withArgName("CLASS").create( 'r' ) );
-	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Use the given CLASS for matcher" ).withArgName("CLASS").create( 'i' ) );
-	options.addOption( OptionBuilder.withLongOpt( "alignment" ).hasArg().withDescription( "Use initial alignment FILE" ).withArgName("FILE").create( 'a' ) );
-	options.addOption( OptionBuilder.withLongOpt( "threshold" ).hasArg().withDescription( "Trim the alignment with regard to threshold" ).withArgName("DOUBLE").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "cutmethod" ).hasArg().withDescription( "Method to use for triming (hard|perc|prop|best|span)" ).withArgName("METHOD").create( 'T' ) );
-	*/
     }
 
     public static void main( String[] args ) {

@@ -115,19 +115,6 @@ public class ExtGroupEval extends CommonCLI {
 	//options.addOption( createRequiredOption( "s", "sup", "Are dominant columns algorithms or measure (default: s)", "ALGO" ) );
 	options.addOption( createRequiredOption( "r", "reference", "Name of the reference alignment FILE (default: "+reference+")", "FILE" ) );
 	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to evaluate", "DIR" ) );
-	/*
-	options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "color" ).hasOptionalArg().withDescription( "Color even lines of the output in COLOR (default: lightblue)" ).withArgName("COLOR").create( 'c' ) );
-	options.addOption( OptionBuilder.withLongOpt( "format" ).hasArg().withDescription( "Extended MEASures and order (symetric/effort-based/precision-oriented/recall-oriented)  (default: "+format+")" ).withArgName("MEAS (sepr)").create( 'f' ) );
-	//options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (html|xml|tex|ascii|triangle; default: "+type+")" ).withArgName("TYPE").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output TYPE (only html available so far)" ).withArgName("TYPE").create( 't' ) );
-	//options.addOption( OptionBuilder.withLongOpt( "sup" ).hasArg().withDescription( "Are dominant columns algorithms or measure (default: s)" ).withArgName("algo").create( 's' ) );
-	options.addOption( OptionBuilder.withLongOpt( "reference" ).hasArg().withDescription( "Name of the reference alignment FILE (default: "+reference+")" ).withArgName("FILE").create( 'r' ) );
-	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to evaluate" ).withArgName("DIR").create( 'w' ) );
-	// .setRequired( true )
-	Option opt = options.getOption( "list" );
-	if ( opt != null ) opt.setRequired( true );
-	*/
     }
 
     public static void main(String[] args) {

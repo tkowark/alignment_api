@@ -66,18 +66,6 @@ public class TestGen extends CommonCLI {
 	options.addOption( createRequiredOption( "a", "alignname", "FILEname of generated alignment (default: refalign.rdf)", "FILE" ) );
 	// We redefine the message for -o
 	options.getOption( "output" ).setDescription( "FILEname of the generated ontology (default: "+fileName+")" );
-	/*
-	options.addOption( OptionBuilder.withLongOpt( "testset" ).hasArg().withDescription( "Use CLASS for generating the test set" ).withArgName("CLASS").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "outdir" ).hasArg().withDescription( "Output DIRectory (default: current)" ).withArgName("DIR").create( 'w' ) );
-	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "URI prefix of the seed ontology (REQUIRED)" ).withArgName("URI").create( 'u' ) );
-	options.addOption( OptionBuilder.withLongOpt( "alignname" ).hasArg().withDescription( "FILEname of generated alignment (default: refalign.rdf)" ).withArgName("FILE").create( 'a' ) );
-	// .setRequired( true )
-	Option opt = options.getOption( "uriprefix" );
-	if ( opt != null ) opt.setRequired( true );
-	// We redefine the message for -o
-	opt = options.getOption( "output" );
-	if ( opt != null ) opt.setDescription( "FILEname of the generated ontology (default: "+fileName+")" );
-	*/
     }
 
     public static void main(String[] args) {

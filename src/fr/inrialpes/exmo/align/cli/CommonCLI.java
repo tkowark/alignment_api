@@ -74,13 +74,6 @@ public abstract class CommonCLI {
 	opt.setValueSeparator('=');
 	opt.setArgName( "NAME=VALUE" );
 	options.addOption( opt );
-	/*
-	options.addOption( "h", "help", false, "Print this page" );
-	options.addOption( OptionBuilder.withLongOpt( "output" ).hasArg().withDescription( "Send output to FILE" ).withArgName("FILE").create( 'o' ) );
-	options.addOption( OptionBuilder.withLongOpt( "debug" ).hasOptionalArg().withDescription( "debug argument is deprecated, use logging instead\nSee http://alignapi.gforge.inria.fr/logging.html" ).withArgName("LEVEL").create( 'd' ) );
-	options.addOption( OptionBuilder.withLongOpt( "params" ).hasArg().withDescription( "Read parameters from FILE" ).withArgName("FILE").create( 'P' ) );
-	options.addOption( OptionBuilder.withArgName( "NAME=VALUE" ).hasArgs(2).withValueSeparator().withDescription( "Use value for given property" ).create( 'D' ) );
-	*/
     }
 
     protected Option createOption( String name, String longName, String desc ) {

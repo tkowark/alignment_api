@@ -119,17 +119,6 @@ public class GenPlot extends CommonCLI {
 	options.addOption( createRequiredOption( "g", "grapher", "Use CLASS as graph generator", "CLASS" ) );
 	//options.addOption( createRequiredOption( "s", "step", "" ) );
 	options.addOption( createRequiredOption( "w", "directory", "The DIRectory containing the data to plot", "DIR" ) );
-	/*
-	  options.addOption( OptionBuilder.withLongOpt( "list" ).hasArgs().withValueSeparator(',').withDescription( "List of FILEs to be included in the results (required)" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "type" ).hasArg().withDescription( "Output in the specified FORMAT (values)" ).withArgName("tsv|tex|html(|xml)").create( 't' ) );
-	options.addOption( OptionBuilder.withLongOpt( "evaluator" ).hasArg().withDescription( "Use CLASS as evaluation plotter" ).withArgName("CLASS").create( 'e' ) );
-	options.addOption( OptionBuilder.withLongOpt( "grapher" ).hasArg().withDescription( "Use CLASS as graph generator" ).withArgName("CLASS").create( 'g' ) );
-	//options.addOption( OptionBuilder.withLongOpt( "step" ).hasArg().withDescription( "" ).withArgName("").create( 's' ) );
-	options.addOption( OptionBuilder.withLongOpt( "directory" ).hasOptionalArg().withDescription( "The DIRectory containing the data to match" ).withArgName("DIR").create( 'w' ) );
-	// .setRequired( true )
-	Option opt = options.getOption( "list" );
-	if ( opt != null ) opt.setRequired( true );
-	*/
     }
 
     public static void main(String[] args) {
