@@ -73,7 +73,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	if ( params.getProperty("type") != null ) 
 	    setType( params.getProperty("type") );
 	// This is a 1:1 alignment in fact
-	else setType("11");
+	else if ( type == null ) setType("11");
 	if ( sim == null )
 	    throw new AlignmentException("DistanceAlignment: requires a similarity measure");
 
@@ -140,7 +140,7 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
 	//logger.trace("The type is {} with length = {}", type, type.length() );
 	if ( type.equals("?*") || type.equals("1*") || type.equals("?+") || type.equals("1+") ) return extractqs( threshold, params );
 	else if ( type.equals("??") || type.equals("1?") || type.equals("?1") || type.equals("11") ) return extractqq( threshold, params );
-	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractqs( threshold, params );
+	else if ( type.equals("*?") || type.equals("+?") || type.equals("*1") || type.equals("+1") ) return extractsq( threshold, params );
 	else if ( type.equals("**") || type.equals("+*") || type.equals("*+") || type.equals("++") ) return extractss( threshold, params );
 	// The else should be an error message
 	else throw new AlignmentException("Unknown alignment type: "+type);
@@ -154,6 +154,10 @@ public abstract class DistanceAlignment extends ObjectAlignment implements Align
      * Non symmetric: for each entity of onto1, take the highest if superior to threshold
      * Complexity: O(n^2)
      */
+    // JE: Yes, could only be implemented by copying the code...
+    public Alignment extractsq( double threshold, Properties params) {
+	return extractqs( threshold, params);
+    }
     @SuppressWarnings({"unchecked","rawTypes"}) //ConcatenatedIterator
     public Alignment extractqs( double threshold, Properties params) {
       double max = 0.;
