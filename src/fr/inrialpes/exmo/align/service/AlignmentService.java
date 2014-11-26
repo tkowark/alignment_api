@@ -115,28 +115,6 @@ public class AlignmentService extends CommonCLI {
 	options.addOption( createOptionalOption( "A", "jade", "Launch JADE service (with port PORT; default "+JADE+")", "PORT" ) );
 	options.addOption( createOptionalOption( "W", "wsdl", "Launch Web service (with port PORT; default "+WSDL+")", "PORT" ) );
 	options.addOption( createOptionalOption( "X", "jxta", "Launch JXTA service (with port PORT; default "+JXTA+")", "PORT" ) );
-	/*
-	//options.addOption( OptionBuilder.withLongOpt( "load" ).hasArg().withDescription( "Load previous database image from FILE" ).withArgName("FILE").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "impl" ).hasArg().withDescription( "Launch service corresponding to CLASS" ).withArgName("CLASS").create( 'i' ) );
-	options.addOption( OptionBuilder.withLongOpt( "uriprefix" ).hasArg().withDescription( "Set alignment URIs with prefix URI" ).withArgName("URI").create( 'u' ) );
-	options.addOption( OptionBuilder.withLongOpt( "host" ).hasArg().withDescription( "Set the HOSTNAME of the server" ).withArgName("HOSTNAME").create( 'S' ) );
-
-	options.addOption( OptionBuilder.withLongOpt( "http" ).hasOptionalArg().withDescription( "Launch HTTP service (with port PORT; default "+HTML+")" ).withArgName("PORT").create( 'H' ) );
-	options.addOption( OptionBuilder.withLongOpt( "jade" ).hasOptionalArg().withDescription( "Launch JADE service (with port PORT; default "+JADE+")" ).withArgName("PORT").create( 'A' ) );
-	options.addOption( OptionBuilder.withLongOpt( "wsdl" ).hasOptionalArg().withDescription( "Launch Web service (with port PORT; default "+WSDL+")" ).withArgName("PORT").create( 'W' ) );
-	options.addOption( OptionBuilder.withLongOpt( "jxta" ).hasOptionalArg().withDescription( "Launch JXTA service (with port PORT; default "+JXTA+")" ).withArgName("PORT").create( 'X' ) );
-
-	options.addOption( "O", "oyster", false, "Register to Oyster directory" );
-	//options.addOption( "U", "uddi", false, "Register to UDDI directory" );
-
-	options.addOption( OptionBuilder.withLongOpt( "dbms" ).hasArg().withDescription( "Use DBMS system (mysql,postgres; default: mysql)" ).withArgName("DBMS").create( 'B' ) );
-	options.addOption( OptionBuilder.withLongOpt( "dbmshost" ).hasArg().withDescription( "Use DBMS HOST (default: "+DBHOST+")" ).withArgName("HOST").create( 'm' ) );
-	options.addOption( OptionBuilder.withLongOpt( "dbmsport" ).hasArg().withDescription( "Use DBMS PORT (default: "+DBPORT+")" ).withArgName("PORT").create( 's' ) );
-	options.addOption( OptionBuilder.withLongOpt( "dbmsuser" ).hasArg().withDescription( "Use DBMS USER (default: scott)" ).withArgName("USER").create( 'l' ) );
-	options.addOption( OptionBuilder.withLongOpt( "dbmspass" ).hasArg().withDescription( "Use DBMS PASSword (default: tiger)" ).withArgName("PASS").create( 'p' ) );
-	options.addOption( OptionBuilder.withLongOpt( "dbmsbase" ).hasArg().withDescription( "Use DBMS BASE (default: "+DBBASE+")" ).withArgName("BASE").create( 'b' ) );
-	*/
-
     }
 
     public static void main( String[] args ) {
@@ -220,16 +198,18 @@ public class AlignmentService extends CommonCLI {
 	init( parameters );
 
 	// Enables transports (here only HTTP)
-	try {
-	    transport = new HTTPTransport();
-	    transport.init( parameters, manager, services );
-	} catch ( AServException ex ) {
-	    logger.error( "Cannot start HTTP transport on {}:{}", parameters.getProperty( "host" ), parameters.getProperty( "http" ) );
-	    usage();
-	    System.exit(-1);
+	if ( parameters.getProperty( "http" ) != null ) { // Possible to have http-less server
+	    try {
+		transport = new HTTPTransport();
+		transport.init( parameters, manager, services );
+	    } catch ( AServException ex ) {
+		logger.error( "Cannot start HTTP transport on {}:{}", parameters.getProperty( "host" ), parameters.getProperty( "http" ) );
+		usage();
+		System.exit(-1);
+	    }
+	    logger.debug("Transport enabled");
 	}
-	logger.debug("Transport enabled");
-
+	    
 	// Wait loop
 	logger.info("Alignment server running");
 	while ( true ) {
