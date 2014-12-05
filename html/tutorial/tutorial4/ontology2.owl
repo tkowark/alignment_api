@@ -5,30 +5,16 @@
 	  <!ENTITY rdf		"http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
 	  <!ENTITY rdfs		"http://www.w3.org/2000/01/rdf-schema#" >
 	  <!ENTITY dc		"http://purl.org/dc/elements/1.1/" > 
-	  <!ENTITY owl		"http://www.w3.org/2002/07/owl#" >
-	  <!ENTITY units	"http://visus.mit.edu/fontomri/0.01/units.owl#" >
-	  <!ENTITY bibtex	"http://purl.org/net/nknouf/ns/bibtex#">
-	  <!ENTITY dcterms 	"http://purl.org/dc/terms/">
-	  <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
+	  <!ENTITY owl		"http://www.w3.org/2002/07/owl#" > ]>
 
-<!--
-   xmlns="http://xmlns.com/foaf/0.1/#"
-   xml:base="http://xmlns.com/foaf/0.1/#"
--->
 <rdf:RDF
  xmlns="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#"
  xml:base="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#"
- xmlns:units	="&units;"
- xmlns:foaf	="http://xmlns.com/foaf/0.1/"
  xmlns:rdf	="&rdf;"
  xmlns:xsd	="&xsd;"
  xmlns:rdfs	="&rdfs;"
- xmlns:owl	="http://www.w3.org/2002/07/owl#"
- xmlns:wot	="http://xmlns.com/wot/0.1/"
- xmlns:dc	="&dc;"
- xmlns:dcterms	="&dcterms;"
- xmlns:dctype	="&dctype;"
- xmlns:bibtex	="&bibtex;">
+ xmlns:owl	="&owl;"
+ xmlns:dc	="&dc;">
   
   <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl">
     <dc:creator>Jérôme Euzenat</dc:creator>
@@ -40,8 +26,60 @@
   </owl:Ontology>
 
   <owl:Class rdf:ID="Student">
+    <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:label xml:lang="en">Student</rdfs:label>
   </owl:Class>
+
+  <owl:Class rdf:ID="Professor">
+    <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <owl:disjointFrom rdf:resource="#Student" />
+    <rdfs:label xml:lang="en">Staff</rdfs:label>
+  </owl:Class>
+
+  <owl:DataProperty rdf:about="#name">
+    <rdf:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#first-name">
+    <rdf:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#gender">
+    <rdf:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#institution">
+    <rdf:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#city-of-study">
+    <rdf:domain rdf:resource="#Student" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#country-of-study">
+    <rdf:domain rdf:resource="#Student" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#year-in-phd">
+    <rdf:domain rdf:resource="#Student" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#topic-of-interest">
+    <rdf:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#phd-advisor">
+    <rdf:domain rdf:resource="#Student" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
 
 <Student rdf:about="#dkral">
   <name>Krall</name>

@@ -5,39 +5,91 @@
 	  <!ENTITY rdf		"http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
 	  <!ENTITY rdfs		"http://www.w3.org/2000/01/rdf-schema#" >
 	  <!ENTITY dc		"http://purl.org/dc/elements/1.1/" > 
-	  <!ENTITY owl		"http://www.w3.org/2002/07/owl#" >
-	  <!ENTITY units	"http://visus.mit.edu/fontomri/0.01/units.owl#" >
-	  <!ENTITY bibtex	"http://purl.org/net/nknouf/ns/bibtex#">
-	  <!ENTITY dcterms 	"http://purl.org/dc/terms/">
-	  <!ENTITY dctype 	"http://purl.org/dc/dcmitype/"> ]>
+	  <!ENTITY owl		"http://www.w3.org/2002/07/owl#" > ]>
 
 <rdf:RDF
  xmlns="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#"
  xml:base="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#"
- xmlns:units	="&units;"
- xmlns:foaf	="http://xmlns.com/foaf/0.1/"
  xmlns:rdf	="&rdf;"
  xmlns:xsd	="&xsd;"
  xmlns:rdfs	="&rdfs;"
- xmlns:owl	="http://www.w3.org/2002/07/owl#"
- xmlns:wot	="http://xmlns.com/wot/0.1/"
- xmlns:dc	="&dc;"
- xmlns:dcterms	="&dcterms;"
- xmlns:dctype	="&dctype;"
- xmlns:bibtex	="&bibtex;">
+ xmlns:owl	="&owl;"
+ xmlns:dc	="&dc;">
   
   <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl">
     <dc:creator>Jérôme Euzenat</dc:creator>
     <dc:description>Example for Alignment API advanced turorial</dc:description>
     <dc:date>2009-07-06</dc:date>
     <rdfs:label>First ontology</rdfs:label>
-    <dc:title>ontology1.owl: an fake list of students</dc:title>
+    <dc:title>ontology1.owl: a fake list of students</dc:title>
     <dc:identifier rdf:datatype="&xsd;anyURI">http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl</dc:identifier>
   </owl:Ontology>
 
-  <owl:Class rdf:ID="Estudiante">
-    <rdfs:label xml:lang="en">Estudiante</rdfs:label>
+  <owl:Class rdf:ID="Participante">
+    <rdfs:label xml:lang="es">Participante</rdfs:label>
   </owl:Class>
+
+  <owl:Class rdf:ID="Estudiante">
+    <rdfs:subClassOf rdf:resource="#Participante" />
+    <rdfs:label xml:lang="es">Estudiante</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:ID="Tutor">
+    <rdfs:subClassOf rdf:resource="#Participante" />
+    <rdfs:label xml:lang="es">Professor</rdfs:label>
+  </owl:Class>
+
+  <owl:DataProperty rdf:about="#lastname">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+    <rdfs:label xml:lang="es">appelido</rdfs:label>
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#firstname">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+    <rdfs:label xml:lang="es">nombre</rdfs:label>
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#gender">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#affiliation">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#city">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#country">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#year">
+    <rdf:domain rdf:resource="#Estudiante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#topic">
+    <rdf:domain rdf:resource="#Participante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
+
+  <owl:DataProperty rdf:about="#supervisor">
+    <rdf:domain rdf:resource="#Estudiante" />
+    <rdf:range rdf:resource="&xsd;string" />
+  </owl:DataProperty>
 
 <Estudiante rdf:about="#Fitzgerald">
   <lastname>Fitzgerald</lastname>
@@ -253,6 +305,7 @@
 </Estudiante>
 
 <Estudiante rdf:about="#Zorn">
+  <rdf:type resource="#Tutor" />
   <lastname>Zorn</lastname>
   <firstname>John</firstname>
   <gender>Male</gender>
