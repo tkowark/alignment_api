@@ -39,6 +39,12 @@
     <rdfs:label xml:lang="es">Professor</rdfs:label>
   </owl:Class>
 
+  <owl:Class rdf:ID="TutorEstudiante">
+    <rdfs:subClassOf rdf:resource="#Estudiante" />
+    <rdfs:subClassOf rdf:resource="#Tutor" />
+    <rdfs:label xml:lang="es">Professor</rdfs:label>
+  </owl:Class>
+
   <owl:DatatypeProperty rdf:ID="lastname">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
@@ -304,8 +310,7 @@
   <supervisor>Prof. Pierpaolo Polenta</supervisor>
 </Estudiante>
 
-<Estudiante rdf:about="#Zorn">
-  <rdf:type rdf:resource="#Tutor" />
+<TutorEstudiante rdf:about="#Zorn">
   <lastname>Zorn</lastname>
   <firstname>John</firstname>
   <gender>Male</gender>
@@ -315,7 +320,7 @@
   <year>1</year>
   <topic>Complex Event Processing</topic>
   <supervisor>Prof. Pierpaolo Polenta</supervisor>
-</Estudiante>
+</TutorEstudiante>
 
 <Estudiante rdf:about="#Tyner">
   <lastname>Tyner</lastname>

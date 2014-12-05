@@ -31,7 +31,7 @@
     <rdfs:label xml:lang="en">Student</rdfs:label>
   </owl:Class>
 
-  <owl:Class rdf:ID="Professor">
+  <owl:Class rdf:ID="Teacher">
     <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <owl:disjointWith rdf:resource="#Student" />
     <rdfs:label xml:lang="en">Staff</rdfs:label>

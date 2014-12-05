@@ -64,7 +64,8 @@ related APIs.
 Other tutorials are <a href="../index.html">available</a>.</p>
 <p  style="border-top: 2px solid #AAAAAA;">
 <small>This tutorial has been initially designed for the Alignment API 4.0 using Jena, Pellet and IDDL. 
-It has been reengineered in the Alignment API 4.5 to use Jena, HermiT and IDDL 1.4.</small></p>
+It has been reengineered in the Alignment API 4.5 to use Jena, HermiT
+  1.3.8, IDDL (now DRaon) 1.4 and LogMap 2.</small></p>
 	
 <h2>Preparation</h2>
 	
@@ -124,21 +125,47 @@ This can be achieved:
 </ul>
 </p>
 
-<p>
-Write a program that does try to find an alignment on the alignment
-server <a href="http://aserv.inrialpes.fr">http://aserv.inrialpes.fr</a>
-and, if none is found, computes one.
-</p>
+<h3>by finding an alignment from the web/server</h3>
+
 <div class="button">
-  <input type="button" onclick="show('qu0')" value="Various variables"/>
-  <input type="button" onclick="show('qu1')" value="Show server searching"/>
-  <input type="button" onclick="show('qu2')" value="Show local matching"/>
-  <input type="button" onclick="show('qu3')" value="Show server matching"/>
-  <input type="button" onclick="hide('qu0');hide('qu1');hide('qu2');hide('qu3');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu0cli')" value="Command line"/>
+  <input type="button" onclick="show('qu0java')" value="Java"/>
+  <!--input type="button" onclick="show('qu0serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu0cli');hide('qu0java');hide('qu0serv');" value="Hide solutions"/>
 </div>
-<div class="explain" id="qu0">
+<div class="explain" id="qu0cli">
+<p>After introducing the main variables:</p>
+<div class="terminal">
+RESTSERV=http://aserv.inrialpes.fr/rest
+U1=http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl
+U2=http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
+CWD=`pwd`
+</div>
+<p></p>
+<div class="terminal">
+$ curl -L -H "Accept:application/rdf+xml" ${RESTSERV}'/find?onto1='${U1}'&onto2='${U2}
+</div>
+resulting in something like:
+<div class="result">
+    &lt;findResponse 
+       xml:base='http://exmo.inrialpes.fr/align/service#'
+       xmlns='http://exmo.inrialpes.fr/align/service#'>
+      &lt;id>274&lt;/id>
+      &lt;sender>http://aserv.inrialpes.fr&lt;/sender>
+      &lt;alignmentList>
+        &lt;alid>http://aserv.inrialpes.fr/alid/1417700303045/7849&lt;/alid>
+      &lt;/alignmentList>
+    &lt;/findResponse>
+</div>
+which can always been retrieved in RDF/XML by
+<div class="terminal">
+$ curl -L -H "Accept:application/rdf+xml" http://aserv.inrialpes.fr/alid/1417700303045/7849
+</div>
+</div>
+<div class="explain" id="qu0java">
 <p>After introducing the main variables:</p>
 <div class="java">
+String RESTServ = "http://aserv.inrialpes.fr/rest/";
 String myId = "Test";
 Alignment al = null;
 URI uri1 = null;
@@ -152,8 +179,6 @@ try {
   uri2 = new URI( u2 );
 } catch (URISyntaxException use) { use.printStackTrace(); }
 </div>
-</div>
-<div class="explain" id="qu1">
 <p>The programme will invoke the alignment server:</p>
 <div class="java">
 // (Sol1) Try to find an alignment between two ontologies from the server
@@ -174,7 +199,34 @@ Alignment alu = aparser.parseString( xmlString );
 al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
 </div>
 </div>
-<div class="explain" id="qu2">
+<!--div class="explain" id="qu0serv">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div>
+</div-->
+<div class="explain" id="qu0cli">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div>
+</div>
+
+<h3>by running a matcher locally</h3>
+<div class="button">
+  <input type="button" onclick="show('qu2cli')" value="Command line"/>
+  <input type="button" onclick="show('qu2java')" value="Java"/>
+  <!--input type="button" onclick="show('qu2serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu2cli');hide('qu2java');hide('qu2serv');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu2cli">
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
+</div>
+or:
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 file:ontology1.owl file:ontology2.owl
+</div>
+</div>
+<div class="explain" id="qu2java">
 <p>Just create an instance of AlignmentProcess and call it:</p>
 <div class="java">
 // (Sol2) Match the ontologies with a local algorithm
@@ -188,7 +240,35 @@ if ( al == null ){ // Unfortunatelly no alignment was available
 }
 </div>
 </div>
-<div class="explain" id="qu3"><p>Match on the server:</p>
+<!--div class="explain" id="qu2serv">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div-->
+</div>
+
+<h3>by running a matcher on the alignment server</h3>
+
+<p>
+Write a program that does try to find an alignment on the alignment
+server <a href="http://aserv.inrialpes.fr">http://aserv.inrialpes.fr</a>
+and, if none is found, computes one.
+</p>
+
+<div class="button">
+  <input type="button" onclick="show('qu3cli')" value="Command line"/>
+  <input type="button" onclick="show('qu3java')" value="Java"/>
+  <!--input type="button" onclick="show('qu3serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu3cli');hide('qu3java');hide('qu3serv');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu3cli">
+<p>After introducing the main variables:</p>
+<div class="terminal">
+$ curl -L -H "Accept:application/rdf+xml" ${RESTSERV}'/match?method=fr.inrialpes.exmo.align.impl.method.StringDistAlignment&stringFunction=smoaDistance&noinst=1&onto1='${U1}'&onto2='${U2}
+</div>
+returning the URL:
+</div>
+<div class="explain" id="qu3java">
+<p>Match on the server:</p>
 <div class="java">
 // (Sol3) Match the ontologies on the server
 if ( alset.getLength() == 0 ) {
@@ -196,6 +276,23 @@ if ( alset.getLength() == 0 ) {
   String match = getFromURLString( RESTServ+"match?onto1="+u1+"&onto2="+u2+"&method="+method+"&pretty="+myId+"&action=Match", true );
 }
 </div>
+</div>
+</div>
+<!--div class="explain" id="qu3serv">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div>
+</div-->
+<div class="explain" id="qu3cli">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div>
+</div>
+
+<!--h3>by finding a chain of alignments from the web/server</h3>
+
+<p>Not yet ready</p-->
+
 <p>The remainder is the same as in the first solution.</p>
 </div>
 <div class="note">
@@ -211,25 +308,30 @@ if ( alset.getLength() == 0 ) {
 </pre>
 </div>
 
-<h2>Manipulating data</h2>
+<h2>Merge ontologies and test consistency</h2>
+<h3>Generating an OWL ontology merging the two ontologies</h3>
 
 <p>
-Again, this is either:
-<ul>
-<li>generating OWL axioms from the alignments and merge the ontologies</li>
-<li>transforming data from one ontology to another</li>
-</ul>
+Generating OWL axioms from the alignments and merge the ontologies can be done with the alignment API support.
 </p>
-<p>
-This can be done with the alignment API support.
-</p>
-
 <div class="button">
-  <input type="button" onclick="show('qu5')" value="Show generating OWL"/>
-  <!--input type="button" onclick="show('qu6')" value="Show solution 2"/-->
-  <input type="button" onclick="hide('qu5');hide('qu6');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu5cli')" value="Command line"/>
+  <input type="button" onclick="show('qu5java')" value="Java"/>
+  <!--input type="button" onclick="show('qu5serv')" value="Show solution 2"/-->
+  <input type="button" onclick="hide('qu5cli');hide('qu5java');hide('qu5serv');" value="Hide solutions"/>
 </div>
-<div class="explain" id="qu5">
+<div class="explain" id="qu5cli">
+<p>Considering that the alignment has been stored in a file:
+  alignment.rdf, this can be obtained locally:</p>
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.ParserPrinter file:alignment.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -o result/alignment.owl
+</div>
+or from the server:
+<div class="terminal">
+$ curl -L -H "Accept:application/rdf+xml" ${RESTSERV}'/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor&id=http://aserv.inrialpes.fr/alid/1417700303045/7849' > result/alignment.owl
+</div>
+</div>
+<div class="explain" id="qu5java">
 <p>In fact everything is done in one step:</p>
 <div class="java">
 // (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
@@ -240,77 +342,46 @@ al.render(renderer);
 writer.flush();
 writer.close();
 </div>
-<p>You can look at the result in <a href="results/myresult.owl">results/myresult.owl</a>.</p>
+<p>You can look at the result in <a href="results/alignment.owl">results/alignment.owl</a>.</p>
 </div>
 <div class="explain" id="qu6"><p>Not ready yet</p>
 <pre>
 </pre>
 </div>
 
-<h2>Generating answers</h2>
+<h3>Testing ontology consistency with HermiT</h3>
 
-<p>
-This can be done in three ways:
-<ul>
-<li>using SPARQL</li>
-<li>using an OWLReasoner such as HermiT to answer these queries against
-  the merged ontologies.</li>
-<li>using a "distributed" reasoner, in our case IDDL, to answer these
-  queries against non merged aligned ontologies.</li>
-</ul>
-</p>
-<p>
-In case you go for SPARQL please, take care of the inference regime
-and observe what are the differences in this case. You can of course
-run various queries and start by running them in one of the initial
-ontologies instead of the merged one.
-</p>
-</p>
 <div class="button">
-  <input type="button" onclick="show('qu7')" value="Show SPARQL solution"/>
-  <input type="button" onclick="show('qu8')" value="Show HermiT solution"/>
-  <input type="button" onclick="show('qu9')" value="Show IDDL solution"/>
-  <input type="button" onclick="hide('qu7');hide('qu8');hide('qu9');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu8cli')" value="Command line with HermiT"/>
+  <input type="button" onclick="show('qu8java')" value="Java with HermiT"/>
+  <input type="button" onclick="show('qu9java')" value="Java with Draon"/>
+  <!--input type="button" onclick="show('qu8serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu8cli');hide('qu8java');hide('qu9java');" value="Hide solutions"/>
 </div>
-<div class="explain" id="qu7">
-<p>Prepare the system:</p>
-<div class="java">
-// (Sol1) Use SPARQL to answer queries (at the data level)
-InputStream in = new FileInputStream( merged );
-Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
-model.read( in, "file:"+merged.getPath() );
-in.close();
-</div>	
-<p>Query (please play by changing the query)</p>
-<div class="java">
-// Create a new query
-String queryString = 
-		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
-		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> " +
-		"SELECT ?fn ?ln ?t ?s " +
-		"WHERE {" +
-                "      ?student rdf:type aa:Estudiante . " +
-		"      ?student aa:firstname  ?fn. " +
-		"      ?student aa:lastname  ?ln. " +
-		"OPTIONAL   {   ?student aa:affiliation ?t . } " +
-		"OPTIONAL   {   ?student aa:supervisor ?s . } " +
-		"      }";
-
-Query query = QueryFactory.create(queryString);
-
-</div>	
-<p>Evaluation:</p>
-<div class="java">
-// Execute the query and obtain results
-QueryExecution qe = QueryExecutionFactory.create(query, model);
-ResultSet results = qe.execSelect();
-
-// Output query results	
-ResultSetFormatter.out(System.out, results, query);
+<div class="explain" id="qu8cli">
+<p>Considering that the merged ontologies in a file: results/alignment.owl,
+  and that you have <a href="http://hermit-reasoner.com/">downloaded HermiT</a> (the Command line version of
+  hermit requires gnu getopt which is not shipped anymore with the
+  Alignment API):</p>
+<!--div class="terminal">
+$ java -jar HermiT.jar -l result/alignment.owl -k
+http://www.w3.org/2002/07/owl#Thing is satisfiable.
+</div>
+another option is:-->
+<div class="terminal">
+$ java -jar HermiT.jar results/alignment.owl -U
+</div>
+<p>which displays</p>
+<div class="result">
+Exception in thread "main" org.semanticweb.owlapi.reasoner.InconsistentOntologyException: Inconsistent ontology
+	at org.semanticweb.HermiT.Reasoner.throwInconsistentOntologyExceptionIfNecessary(Unknown Source)
+	at org.semanticweb.HermiT.Reasoner.checkPreConditions(Unknown Source)
+	at org.semanticweb.HermiT.Reasoner.isSatisfiable(Unknown Source)
+	at org.semanticweb.HermiT.cli.CommandLine$SatisfiabilityAction.run(Unknown Source)
+	at org.semanticweb.HermiT.cli.CommandLine.main(Unknown Source)
 </div>
 </div>
-<div class="explain" id="qu8">
+<div class="explain" id="qu8java">
 <p>Create Reasoner instance and load the merged ontologies:</p>
 <div class="java">
 OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
@@ -318,16 +389,129 @@ OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
 OWLReasoner reasoner = new Reasoner( ontology );
 </div>
-<p>Get the instances of "Estudiantes":</p>
+<p>Test consistency:</p>
 <div class="java">
-// get the instances of a class
-OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
-OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
-OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
-Set&lt;OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students ("+clname(estud)+")");
+// Test consistency
+if ( reasoner.isConsistent() ) {
+    System.out.println( " *** The aligned ontologies are consistent" );
+} else {
+    System.out.println( " *** The aligned ontologies are inconsistent" );
+    return;
+}
 </div>
-<p>Some subsumption tests:</p>
+<p>It is even possible to test the satisfiability of classes:</p>
+<div class="java">
+// Test coherence
+for ( OWLClass cl : ontology.getClassesInSignature( true ) ) {
+    if ( !reasoner.isSatisfiable( cl ) ) {
+    System.out.println( cl+" is incoherent" );
+    }
+}
+</div>
+</div>
+<div class="explain" id="qu9java">
+<p>Load the two ontologies and the alignment in the IDDL reasoner:</p>
+<div class="java">
+ArrayList<Alignment> allist = new ArrayList<Alignment>();
+allist.add( al );
+IDDLReasoner dreasoner = new IDDLReasoner( allist, Semantics.DL );
+</div>
+<p>Test consistency and check if a particular correspondence is a consequence:</p>
+<div class="java">
+if ( dreasoner.isConsistent() ) {
+    System.out.println( "IDDL: the alignment network is consistent");
+} else {
+    System.out.println( "IDDL: the alignment network is inconsistent");
+}
+</div>
+</div>
+
+<h3>Repairing an alignment with LogMap repair</h3>
+<div class="button">
+  <input type="button" onclick="show('qu10cli')" value="Command line"/>
+  <!--input type="button" onclick="show('qu10java')" value="Java"/-->
+  <input type="button" onclick="hide('qu10cli');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu10cli">
+<p>Assuming
+  that <a href="https://code.google.com/p/logmap-matcher/">LogMap has
+    been downloaded</a> (it takes directly the Alignment format as input):
+<div class="terminal">
+$ java -jar logmap2_standalone.jar DEBUGGER http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl RDF $CWD/alignment.rdf $CWD/results false false
+</div>
+this displays the following output:
+<div class="result">
+Loading ontologies...
+IRI: http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl
+IRI: http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
+...Done
+Read RDF Align mapping objects: 1
+Num original mappings: 1
+Num repaired mappings: 1
+TOTAL REPAIR TIME (s): 0.164
+</div>
+obviously it had nothing to do since the aligned ontologies are consistent.
+</div>
+
+<!--h3>Repairing an alignment with Alcomo</h3>
+<div class="button">
+  <input type="button" onclick="show('qu11cli')" value="Command line"/>
+  <input type="button" onclick="show('qu11java')" value="Java"/>
+  <input type="button" onclick="hide('qu11cli');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu11cli">
+<p>Assuming that <a href="http://web.informatik.uni-mannheim.de/alcomo/">Alcomo has been downloaded</a> as well
+<div class="terminal">
+$ 
+</div>
+</div-->
+
+<h3>Testing subsumption</h3>
+
+<p>
+It is now possible to check that the newly generated alignment is
+consistent. Hence we can check some entailment results.
+</p>
+
+<div class="button">
+  <input type="button" onclick="show('qu11cli')" value="Command line with HermiT"/>
+  <input type="button" onclick="show('qu11java')" value="Java with HermiT"/>
+  <input type="button" onclick="show('qu11iddljava')" value="Java with DRaon"/>
+  <!--input type="button" onclick="show('qu11serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu11cli');hide('qu11java');hide('qu11iddljava');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu11cli">
+<p>Considering that the merged ontologies in a file: result/alignment.owl,
+  and that you have uploaded HermiT (the Command line version of
+  hermit requires gnu getopt which is not shipped anymore with the
+  Alignment API):</p>
+<div class="terminal">
+$ java -jar HermiT.jar results/alignment.owl -s http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante -e http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante
+</div>
+<p>which displays</p>
+<div class="result">
+All sub-classes of 'http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante':
+	owl:Nothing
+Classes equivalent to '&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>':
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>
+</div>
+and
+<div class="terminal">
+$ java -jar HermiT.jar results/alignment.owl -s http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student -e http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student
+</div>
+<p>which displays</p>
+<div class="result">
+All sub-classes of 'http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student':
+	owl:Nothing
+Classes equivalent to '&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>':
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>
+</div>
+</div>
+<div class="explain" id="qu11java">
+<p>Create Reasoner instance and load the merged ontologies as before
+  and perform some subsumption tests:</p>
 <div class="java">
 testOWLReasonerSubClass( manager, reasoner, estud, person );
 testOWLReasonerSubClass( manager, reasoner, estud, student );
@@ -347,23 +531,17 @@ public void testOWLReasonerSubClass( OWLOntologyManager manager, OWLReasoner rea
   }
 }
 </div>
+The answer should be:
+<div class="result">
+OWLReasoner(Merged): Estudiante is not necessarily subclass of Person
+OWLReasoner(Merged): Estudiante is subclass of Student
 </div>
-<div class="explain" id="qu9">
-<p>Load the two ontologies and the alignment in the IDDL reasoner:</p>
-<div class="java">
-	ArrayList<Alignment> allist = new ArrayList<Alignment>();
-	allist.add( al );
-	IDDLReasoner dreasoner = new IDDLReasoner( allist, Semantics.DL );
 </div>
-<p>Test consistency and check if a particular correspondence is a consequence:</p>
+<div class="explain" id="qu11iddljava">
+<p>Check if a particular correspondence is a consequence:</p>
 <div class="java">
-	if ( dreasoner.isConsistent() ) {
-	    System.out.println( "IDDL: the alignment network is consistent");
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
-         } else {
-	    System.out.println( "IDDL: the alignment network is inconsistent");
-	}
+    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
+    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
 </div>
 <p>Such that:</p>
 <div class="java">
@@ -381,9 +559,135 @@ public void testOWLReasonerSubClass( OWLOntologyManager manager, OWLReasoner rea
 	}
     }
 </div>
+the result should be:
+<div class="result">
+IDDL: Estudiante <= Person is not entailed
+IDDL: Estudiante <= Student is entailed
 </div>
-The results for these execution are, for SPARQL:
-<pre>
+</div>
+
+<h2>SPARQL querying with an alignment</h2>
+
+<p>Our final goal is to get that list of students.
+For that purpose, several strategies may be adopted:
+<ul>
+<li><a href="inst">Using a reasonner for retrieving all instances of the
+    aligned classes;</a></li>
+<li><a href="transf">Using a SPARQL query against one data set and
+    transforming the query to apply it to the other dataset;</a></li>
+<li><a href="merged">Using this same query against the merged data sets;</a></li>
+<li><a href="construct">Generating a SPARQL CONSTRUCT query from the alignment
+    to merge the instances of both data sets.</a></li>
+</ul>
+Let explore them.
+</p>
+
+<h3><a name="inst"></a>Instance reasoning</h3>
+
+<div class="button">
+  <input type="button" onclick="show('qu13java')" value="Java"/>
+  <!--input type="button" onclick="show('qu14serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu13java')" value="Hide solution"/>
+</div>
+<div class="explain" id="qu13java">
+<p>Starting from where we were with the HermiT reasonner, it is
+  possible to retrive the instances of "Estudiantes" and to
+  manipulate them:</p>
+<div class="java">
+// get the instances of a class
+OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
+OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
+OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
+Set&lt;OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
+System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students ("+clname(estud)+")");
+</div>
+This should output:
+<div class="result">
+OWLReasoner(Merged): There are 47 students (Estudiante)
+</div>
+</div>
+
+<h3><a name="transf"></a>Transforming queries</h3>
+
+<p>The following solutions use the query in the file <a href="query.sparql">query.sparql</a>.</p>
+
+<div class="button">
+  <input type="button" onclick="show('qu14cli')" value="Command line"/>
+  <input type="button" onclick="show('qu14java')" value="Java"/>
+  <!--input type="button" onclick="show('qu14serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu14cli');hide('qu14java');hide('qu14serv');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu14cli">
+The query can be transformed on command line through:
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.TransformQuery -a file:alignment.rdf -q query.sparql -Donto2=http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#
+</div>
+The result will be:
+<div class="result">
+PREFIX onto2: &lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#> 
+PREFIX aa: &lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> 
+PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/> 
+
+
+SELECT ?fn ?ln ?t ?s
+WHERE {
+      ?student rdf:type onto2:Student .
+      ?student onto2:first-name  ?fn.
+      ?student onto2:name  ?ln.
+OPTIONAL   {   ?student onto2:institution ?t . }
+OPTIONAL   {   ?student onto2:phd-advisor ?s . }
+}
+</div>
+</div>
+<div class="explain" id="qu14java">
+<p>In fact everything is done in one step:</p>
+<div class="java">
+Not ready yet... USE MY TRANSFORM + USE THE EVALUATION AGAINST A DATA SET.
+</div>
+</div>
+
+<h3><a name="merged"></a>Querying with the merged ontology</h3>
+
+<p>
+In case you go for SPARQL please, take care of the inference regime
+and observe what are the differences in this case. You can of course
+run various queries and start by running them in one of the initial
+ontologies instead of the merged one.
+</p>
+<div class="button">
+  <!--input type="button" onclick="show('qu7cli')" value="Command line"/-->
+  <input type="button" onclick="show('qu7java')" value="Java"/>
+  <!--input type="button" onclick="show('qu7serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu7java')" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu7java">
+<p>Load the merged ontology under Jena:</p>
+<div class="java">
+// (Sol1) Use SPARQL to answer queries (at the data level)
+InputStream in = new FileInputStream( merged );
+Model model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF,null);
+model.read( in, "file:"+merged.getPath() );
+in.close();
+</div>	
+<p>Read the query (please play by changing the query)</p>
+<div class="java">
+// Create a new query
+<!--String queryString = readFile( "query.sparql", Charset.defaultCharset() );
+create(queryString);-->
+Query query = QueryFactory.read( "file:query.sparql" );
+</div>	
+<p>Evaluation:</p>
+<div class="java">
+// Execute the query and obtain results
+QueryExecution qe = QueryExecutionFactory.create(query, model);
+ResultSet results = qe.execSelect();
+
+// Output query results	
+ResultSetFormatter.out(System.out, results, query);
+</div>
+The results for this evaluation is:
+<div class="result">
 ---------------------------------------------------------------------------------------
 | fn      | ln      | t                            | s                                |
 =======================================================================================
@@ -391,20 +695,122 @@ The results for these execution are, for SPARQL:
 | "Chet"  | "Baker" | "University Pie XXIII"       |                                  |
 | "McCoy" | "Tyner" | "University of Soupaloignon" | "Dr Nanni Girasole"              |
 ...
-</pre>
-for OWLReasoner:
-<pre>
-OWLReasoner(Merged): There are 47 students (Estudiante)
-OWLReasoner(Merged): Estudiante is not necessarily subclass of Person
-OWLReasoner(Merged): Estudiante is subclass of Student
-</pre>
-and for IDDL:
-<pre>
-IDDL: the alignment network is consistent
-IDDL: Estudiante <= Person is not entailed
-IDDL: Estudiante <= Student is entailed
-</pre>
-	
+</div>
+</div>
+
+<h3><a name="construct"></a>Generating SPARQL constructs</h3>
+
+<p>
+A SPARQL construct query may be use for extracting data expressed
+in one ontology and generate this data with respect to the other
+ontology.
+It is possible to generate such constructs from 
+
+
+<div class="button">
+  <input type="button" onclick="show('qu15cli')" value="Command line"/>
+  <!--input type="button" onclick="show('qu15java')" value="Java"/-->
+  <!--input type="button" onclick="show('qu15serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu15cli')" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu15cli">
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.ParserPrinter file:alignment.rdf -r fr.inrialpes.exmo.align.impl.renderer.SPARQLConstructRendererVisitor
+</div>
+which generates a set of queries containing at least this:
+<div class="result">
+PREFIX ns1:&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#>
+PREFIX ns0:&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#>
+PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+?s rdf:type ns0:Estudiante .
+}
+WHERE {
+?s rdf:type ns1:Student .
+}
+
+CONSTRUCT {
+?s ns0:supervisor ?o .
+}
+WHERE {
+?s ns1:phd-advisor ?o .
+}
+
+[...]
+
+CONSTRUCT {
+?s rdf:type ns0:Tutor .
+}
+WHERE {
+?s rdf:type ns1:Professor .
+}
+
+[...]
+
+CONSTRUCT {
+?s ns0:lastname ?o .
+}
+WHERE {
+?s ns1:name ?o .
+}
+
+[...]
+
+CONSTRUCT {
+?s ns0:year ?o .
+}
+WHERE {
+?s ns1:year-in-phd ?o .
+}
+
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+?s ns0:country ?o .
+}
+WHERE {
+?s ns1:country-of-study ?o .
+}
+
+CONSTRUCT {
+?s ns0:gender ?o .
+}
+WHERE {
+?s ns1:gender ?o .
+}
+
+CONSTRUCT {
+?s ns0:firstname ?o .
+}
+WHERE {
+?s ns1:first-name ?o .
+}
+
+CONSTRUCT {
+?s ns0:city ?o .
+}
+WHERE {
+?s ns1:city-of-study ?o .
+}
+
+CONSTRUCT {
+?s ns0:topic ?o .
+}
+WHERE {
+?s ns1:topics-of-interest ?o .
+}
+
+CONSTRUCT {
+?s ns0:affiliation ?o .
+}
+WHERE {
+?s ns1:institution ?o .
+}
+</div>
+These queries may be applied to the entries of ontology2.owl and
+generates triples using ontology1.
+</div>
+
 <h2>Full solution</h2>
 	
 <p>Do you want to see a possible solution?</p>
