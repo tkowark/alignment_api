@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!DOCTYPE rdf:RDF [
           <!ENTITY xsd		"http://www.w3.org/2001/XMLSchema#" >
 	  <!ENTITY rdf		"http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
@@ -20,6 +19,7 @@
     <dc:creator>Jérôme Euzenat</dc:creator>
     <dc:description>Example for Alignment API advanced turorial</dc:description>
     <dc:date>2009-07-06</dc:date>
+    <dc:date>2009-07-06</dc:date>
     <rdfs:label>First ontology</rdfs:label>
     <dc:title>ontology1.owl: a fake list of students</dc:title>
     <dc:identifier rdf:datatype="&xsd;anyURI">http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl</dc:identifier>
@@ -39,57 +39,57 @@
     <rdfs:label xml:lang="es">Professor</rdfs:label>
   </owl:Class>
 
-  <owl:DataProperty rdf:about="#lastname">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
+  <owl:DatatypeProperty rdf:ID="lastname">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
     <rdfs:label xml:lang="es">appelido</rdfs:label>
-  </owl:DataProperty>
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#firstname">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
+  <owl:DatatypeProperty rdf:ID="firstname">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
     <rdfs:label xml:lang="es">nombre</rdfs:label>
-  </owl:DataProperty>
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#gender">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="gender">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#affiliation">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="affiliation">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#city">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="city">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#country">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="country">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#year">
-    <rdf:domain rdf:resource="#Estudiante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="year">
+    <rdfs:domain rdf:resource="#Estudiante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#topic">
-    <rdf:domain rdf:resource="#Participante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="topic">
+    <rdfs:domain rdf:resource="#Participante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
-  <owl:DataProperty rdf:about="#supervisor">
-    <rdf:domain rdf:resource="#Estudiante" />
-    <rdf:range rdf:resource="&xsd;string" />
-  </owl:DataProperty>
+  <owl:DatatypeProperty rdf:ID="supervisor">
+    <rdfs:domain rdf:resource="#Estudiante" />
+    <rdfs:range rdf:resource="&xsd;string" />
+  </owl:DatatypeProperty>
 
 <Estudiante rdf:about="#Fitzgerald">
   <lastname>Fitzgerald</lastname>
@@ -305,7 +305,7 @@
 </Estudiante>
 
 <Estudiante rdf:about="#Zorn">
-  <rdf:type resource="#Tutor" />
+  <rdf:type rdf:resource="#Tutor" />
   <lastname>Zorn</lastname>
   <firstname>John</firstname>
   <gender>Male</gender>
