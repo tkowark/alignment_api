@@ -33,7 +33,7 @@
 
   <owl:Class rdf:ID="Professor">
     <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
-    <owl:disjointFrom rdf:resource="#Student" />
+    <owl:disjointWith rdf:resource="#Student" />
     <rdfs:label xml:lang="en">Staff</rdfs:label>
   </owl:Class>
 
@@ -72,7 +72,7 @@
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="topic-of-interest">
+  <owl:DatatypeProperty rdf:ID="topics-of-interest">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
