@@ -113,7 +113,6 @@ public class TransformQuery extends CommonCLI {
 		} catch (IOException x) {
 		    System.err.println(x);
 		    System.exit( -1 );
-		    //} finally {
 		}
 	    }
 

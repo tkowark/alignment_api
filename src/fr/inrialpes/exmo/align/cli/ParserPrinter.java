@@ -92,7 +92,7 @@ public class ParserPrinter extends CommonCLI {
 
     public static void main(String[] args) {
 	try { new ParserPrinter().run( args ); }
-	catch (Exception ex) { ex.printStackTrace(); };
+	catch ( Exception ex ) { ex.printStackTrace(); };
     }
 
     public void run(String[] args) throws Exception {
@@ -175,8 +175,12 @@ public class ParserPrinter extends CommonCLI {
 	    writer = new PrintWriter (
 			  new BufferedWriter(
 			       new OutputStreamWriter( stream, "UTF-8" )), true);
+	    logger.debug(" Writer ready");
 
-	    if ( inverse ) result = result.inverse();
+	    if ( inverse ) {
+		result = result.inverse();
+		logger.debug(" Alignment inverted");
+	    }
 	    
 	    // Thresholding
 	    if (threshold != 0) result.cut( cutMethod, threshold );
@@ -195,12 +199,15 @@ public class ParserPrinter extends CommonCLI {
 		    return;
 		}
 	    }
+	    logger.debug(" Renderer created");
 
 	    renderer.init( parameters );
+	    logger.debug(" Renderer inited");
 
 	    // Render the alignment
 	    try {
 		result.render( renderer );
+		logger.debug(" Renderered");
 	    } catch ( AlignmentException aex ) {
 		throw aex;
 	    } finally {

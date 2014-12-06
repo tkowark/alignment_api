@@ -128,6 +128,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 		onto1 = ((ObjectAlignment)alignment).getOntologyObject1();
 		onto2 = ((ObjectAlignment)alignment).getOntologyObject2();
 	    } catch ( AlignmentException alex ) {
+		logger.debug( "Cannot convert to ObjectAlignment", alex );
 		throw new AlignmentException("OWLAxiomsRenderer: cannot render simple alignment. Need an ObjectAlignment", alex );
 	    }
 	}
@@ -147,10 +148,12 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	writer.print("  </owl:Ontology>"+NL+NL);
 	
 	try {
+	    logger.debug( "Alignment with {} cells", alignment.nbCells() );
 	    for( Cell c : alignment ){
 		Object ob1 = c.getObject1();
 		Object ob2 = c.getObject2();
 		//logger.trace( "Rendering {} -- {}", ob1, ob2 );
+		//logger.trace( "OB1: {}, OB2: {}", ob1.getClass(), ob2.getClass() );
 		if ( heterogeneous || edoal ||
 		     ( onto1.isClass( ob1 ) && onto2.isClass( ob2 ) ) ||
 		     ( onto1.isDataProperty( ob1 ) && onto2.isDataProperty( ob2 ) ) ||
@@ -179,6 +182,7 @@ public class OWLAxiomsRendererVisitor extends IndentedRendererVisitor implements
 	    this.cell = cell;
 	    Object ob1 = cell.getObject1();
 	    Object ob2 = cell.getObject2();
+	    //logger.trace( " {} <-> {} ", ob1,  ob2 );
 	    URI u1;
 	    try {
 		Relation rel = cell.getRelation();
