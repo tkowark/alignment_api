@@ -16,7 +16,7 @@
  xmlns:owl	="&owl;"
  xmlns:dc	="&dc;">
   
-  <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl">
+  <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#">
     <dc:creator>Jérôme Euzenat</dc:creator>
     <dc:description>Example for Alignment API advanced turorial</dc:description>
     <dc:date>2009-07-06</dc:date>
@@ -26,58 +26,58 @@
     <dc:identifier rdf:datatype="&xsd;anyURI">http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl</dc:identifier>
   </owl:Ontology>
 
-  <owl:Class rdf:ID="Student">
+  <owl:Class rdf:about="#Student">
     <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:label xml:lang="en">Student</rdfs:label>
   </owl:Class>
 
-  <owl:Class rdf:ID="Teacher">
+  <owl:Class rdf:about="#Teacher">
     <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <owl:disjointWith rdf:resource="#Student" />
     <rdfs:label xml:lang="en">Staff</rdfs:label>
   </owl:Class>
 
-  <owl:DatatypeProperty rdf:ID="name">
+  <owl:DatatypeProperty rdf:about="#name">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="first-name">
+  <owl:DatatypeProperty rdf:about="#first-name">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="gender">
+  <owl:DatatypeProperty rdf:about="#gender">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="institution">
+  <owl:DatatypeProperty rdf:about="#institution">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="city-of-study">
+  <owl:DatatypeProperty rdf:about="#city-of-study">
     <rdfs:domain rdf:resource="#Student" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="country-of-study">
+  <owl:DatatypeProperty rdf:about="#country-of-study">
     <rdfs:domain rdf:resource="#Student" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="year-in-phd">
+  <owl:DatatypeProperty rdf:about="#year-in-phd">
     <rdfs:domain rdf:resource="#Student" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="topics-of-interest">
+  <owl:DatatypeProperty rdf:about="#topics-of-interest">
     <rdfs:domain rdf:resource="http://xmlns.com/foaf/0.1/Person" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="phd-advisor">
+  <owl:DatatypeProperty rdf:about="#phd-advisor">
     <rdfs:domain rdf:resource="#Student" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>

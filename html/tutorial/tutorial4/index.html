@@ -51,14 +51,13 @@ alignment <abbr>API</abbr> which explains how to interface the API
 with other components.
 This tutorial will show how to:
 <ul>
-<li>communicate the alignment server
-through its REST web service API,</li>
-<li>manipulate alignments with the Alignment API in Java,</li>
-<li>perform OWL reasoning on aligned ontologies and compose
-  alignments.</li>
+<li>generate and manipulate alignments,</li>
+<li>perform OWL reasoning on alignments,</li>
+<li>querying data expressed in both ontologies through SPARQL.</li>
 </ul>
-This time, the tutorial is based on Java programming and using various
-related APIs.
+Whenever possible, we try to provide the answers
+through <a href="../../rest.html">REST</a>, in <a href="../../cli.html">command-line</a>, Java
+programs (and later <a href="../tutorial1/server.html">Alignment server</a> interface).
 </p>
 <p>
 Other tutorials are <a href="../index.html">available</a>.</p>
@@ -638,7 +637,8 @@ OWLReasoner(Merged): There are 47 students (Estudiante)
 
 <h3><a name="transf"></a>Transforming queries</h3>
 
-<p>The following solutions use the query in the file <a href="query.sparql">query.sparql</a>.</p>
+<p>The following solutions use the query in the
+  file <a href="query.sparql">query.sparql</a> which is expressed with respect to ontology1.owl.</p>
 
 <div class="button">
   <input type="button" onclick="show('qu14cli')" value="Command line"/>
@@ -649,24 +649,45 @@ OWLReasoner(Merged): There are 47 students (Estudiante)
 <div class="explain" id="qu14cli">
 The query can be transformed on command line through:
 <div class="terminal">
-$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.TransformQuery -a file:alignment.rdf -q query.sparql -Donto2=http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.TransformQuery -a file:alignment.rdf -q query.sparql -Donto2=http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl# -o results/query2.sparql
+$ cp ontology2.owl results/ontology2.rdf # because arq does not owl as input
+$ java -cp $CLASSPATH arq.query --query results/query2.sparql --data results/ontology2.rdf
 </div>
 The result will be:
 <div class="result">
-PREFIX onto2: &lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#> 
-PREFIX aa: &lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> 
-PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/> 
-
-
-SELECT ?fn ?ln ?t ?s
-WHERE {
-      ?student rdf:type onto2:Student .
-      ?student onto2:first-name  ?fn.
-      ?student onto2:name  ?ln.
-OPTIONAL   {   ?student onto2:institution ?t . }
-OPTIONAL   {   ?student onto2:phd-advisor ?s . }
-}
+--------------------------------------------------------------------------------------------------------------
+| fn           | ln          | t                                            | s                              |
+==============================================================================================================
+| "Archie"     | "Shepp"     | "Occarina University"                        |                                |
+| "Sonny"      | "Rollins"   | "Universita di Miggliore"                    | "M. Pecorino"                  |
+| "Astrud"     | "Gilberto"  | "Universität der Gemütlichkeit"              | "Pr. Dr. M. Coppa"             |
+| "Peggy"      | "Lee"       | "University des Mitteleuropa"                | "a.Univ.Prof.DI.Dr. Z. Melone" |
+| "Glenn"      | "Miller"    | "University of Shepperington"                | "Professor G. Limone"          |
+| "Rickie Lee" | "Jones"     | "Philip Vanderbilt Universiteit"             | "A. Lambretta"                 |
+| "Rickie Lee" | "Jones"     | "Velo Research"                              | "A. Lambretta"                 |
+| "Lionel"     | "Hampton"   | "Politecnico di Madalena"                    | "O. Mascarponne"               |
+| "Lionel"     | "Hampton"   | "Politecnico di Madalena"                    | "A. Gorgonzola"                |
+| "Eleonore"   | "Rigby"     | "Politecnico di Bermudas"                    |                                |
+| "Diana"      | "Krall"     | "Royal University of Worchester sauce"       | "Dr. A. Verdura"               |
+| "Diana"      | "Krall"     | "Royal University of Worchester sauce"       | "C. Fragola"                   |
+| "Dave"       | "Brubeck"   | "University of Namibia"                      | "P. Tiramissu"                 |
+| "Dave"       | "Brubeck"   | "University of Namibia"                      | "G. Belladonna"                |
+| "Milt"       | "Jackson"   | "Escena"                                     |                                |
+| "Julian"     | "Aldderley" | "Politecnico di Madalena"                    |                                |
+| "Betty"      | "Sinclair"  | "Institute for Social Coworkers"             |                                |
+| "Cilla"      | "Black"     | "University of Shepperington"                | "Prof. G. Limone"              |
+| "Natalie"    | "Merchant"  | "JOHANNISBEER RESEARCH"                      |                                |
+| "Django"     | "Reinhardt" | "IRIA Saskatchevan"                          | "Prof. Chr. Melocoton"         |
+| "Django"     | "Reinhardt" | "University Pie XXIII"                       | "Prof. Chr. Melocoton"         |
+| "Ray"        | "Bryant"    | "Handshuh University"                        |                                |
+| "Jackie"     | "McLean"    | "Polytechnic of Madeira"                     | "S. Zucchini"                  |
+| "Art"        | "Tatum"     | "National Kapodistrian University of Athens" | "B. Tiramisu"                  |
+| "Duke"       | "Ellington" | "Vanilla University of Technology"           | "Prof. G. Cetriolo"            |
+| "Chick"      | "Corea"     | "University of Ausblick"                     | "Prof. Dr. A. Belladonna"      |
+| "Kenny"      | "Burrell"   | "Politecnico di Belladona"                   | "S. Proscuitto"                |
+| "Joe"        | "Zawinul"   | "Institute for Social Coworkers"             |                                |
+| "Dexter"     | "Gordon"    | "Eelberg University"                         | "C. Pannacotta"                |
+--------------------------------------------------------------------------------------------------------------
 </div>
 </div>
 <div class="explain" id="qu14java">
@@ -789,11 +810,29 @@ and observe what are the differences in this case. You can of course
 run various queries and start by running them in one of the initial
 ontologies instead of the merged one.
 </p>
+<p style="background-color: red;">
+This does not work, either in command line or in Java, though it has
+worked in the past. Apparently, Jena does not properly load the
+imported ontologies. Anyone knowing the solution will be 
+</p>
 <div class="button">
-  <!--input type="button" onclick="show('qu7cli')" value="Command line"/-->
+  <input type="button" onclick="show('qu7cli')" value="Command line"/>
   <input type="button" onclick="show('qu7java')" value="Java"/>
   <!--input type="button" onclick="show('qu7serv')" value="Browser"/-->
-  <input type="button" onclick="hide('qu7java')" value="Hide solutions"/>
+  <input type="button" onclick="hide('qu7java');hide('qu7cli');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu7cli">
+<div class="terminal">
+$ cp results/alignment.owl results/alignment.rdf
+$ java -cp $CLASSPATH arq.query --query query.sparql --data results/alignment.rdf
+</div>
+Which give the result: (INCORRECT)
+<div class="result">
+-------------------
+| fn | ln | t | s |
+===================
+-------------------
+</div>
 </div>
 <div class="explain" id="qu7java">
 <p>Load the merged ontology under Jena:</p>
@@ -818,7 +857,7 @@ ResultSet results = qe.execSelect();
 // Output query results	
 ResultSetFormatter.out(System.out, results, query);
 </div>
-The results for this evaluation is:
+The results for this evaluation is: (SHOULD BE)
 <div class="result">
 ---------------------------------------------------------------------------------------
 | fn      | ln      | t                            | s                                |
@@ -946,7 +985,18 @@ generates triples using ontology1.
 <h2>Full solution</h2>
 	
 <p>Do you want to see a possible solution?</p>
-<p>A full working solution is <a href="MyApp.java">MyApp.java</a>.</p>
+<p>A full working solution
+  is <a href="MyApp.java">MyApp.java</a> which can be activated
+  by:</p>
+<div class="terminal">
+$ javac -cp $CLASSPATH -d results MyApp.java 
+$ java -cp $CLASSPATH:results MyApp
+</div>
+<p>
+This is without the recourse to LogMap. The (two) LogMap parts may be
+uncommented from the code and the instructions above run again with
+logmap2_standalone.jar in the classpath.
+</p>
 
 <hr />
 <small>

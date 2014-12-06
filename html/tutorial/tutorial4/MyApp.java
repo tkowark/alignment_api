@@ -418,28 +418,24 @@ public class MyApp {
 	    model.loadImports();
 
 	    // Not better
-	    //InputStream in = com.hp.hpl.jena.util.FileManager.get().open( merged.getPath() );
-	    InputStream in = com.hp.hpl.jena.util.FileManager.get().open( "toto.owl" );
+	    InputStream in = com.hp.hpl.jena.util.FileManager.get().open( merged.getPath() );
 	    model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
 	    OntDocumentManager odm = model.getDocumentManager();
 	    FileManager fm = odm.getFileManager();
-	    //model.read( in, "file:"+merged.getPath() );
-	    model.read( in, "file:toto.owl" );
+	    model.read( in, "file:"+merged.getPath() );
 	    model.loadImports();
 
+	    // Neither
 	    odm = new OntDocumentManager();
 	    OntModelSpec s = new OntModelSpec( OntModelSpec.OWL_DL_MEM_RULE_INF );
 	    s.setDocumentManager( odm );
 	    odm.setProcessImports( true );
-	    OntModel mm = ModelFactory.createOntologyModel( s );
-	    mm.read( FileManager.get().open( "toto.owl"), "file:toto.owl" );
-	    System.out.println( "NB Modles= "+mm.countSubModels()+" ~~ "+mm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
-	    mm.loadImports();
-	    System.out.println( "NB Modles= "+mm.countSubModels()+" ~~ "+mm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
-	    OntModel mmm = mm.getImportedModel( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" );
-	    System.out.println( "NB Modles= "+mmm.countSubModels()+" ~~ "+mmm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
+	    model = ModelFactory.createOntologyModel( s );
+	    model.read( FileManager.get().open( merged.getPath() ), "file:"+merged.getPath() );
+	    System.out.println( "NB Modles= "+model.countSubModels()+" ~~ "+model.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
+	    model.loadImports();
 
-	    OntClass cl = mmm.getOntClass( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) ;
+	    OntClass cl = model.getOntClass( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) ;
 	    if ( cl != null ) {
 		System.err.println( "Class found" );
 		com.hp.hpl.jena.util.iterator.ExtendedIterator<? extends com.hp.hpl.jena.ontology.OntResource> it = cl.listInstances();
@@ -451,7 +447,6 @@ public class MyApp {
 	    }
 		in.close();
 	    displayQueryAnswer( model, QueryFactory.read( "file:query.sparql" ) );
-	    displayQueryAnswer( mmm, QueryFactory.read( "file:query.sparql" ) );
 	} catch (FileNotFoundException fnfe) {
 	    fnfe.printStackTrace();
 	} catch (IOException ioe) {
