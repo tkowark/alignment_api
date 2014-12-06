@@ -375,16 +375,23 @@ public class GenPlot extends CommonCLI {
 	writer.println();
 	writer.println("\\end{document}");
 
+	File dir = null;
+	if ( outputfilename == null ) {
+	    dir = new File(".");
+	} else {
+	    dir = (new File(outputfilename)).getParentFile();
+	}
 	i = 0;
 	for( Vector<Pair> table : result ) {
 	    String algo = listAlgo[i];
 	    // Open one file
 	    PrintWriter auxwriter = null;
 	    try {
+		// Here, if -o is used, every file should go there
 		auxwriter = new PrintWriter (
 				    new BufferedWriter(
                                        new OutputStreamWriter(
-                                            new FileOutputStream(algo+".table"), "UTF-8" )), true);
+					  new FileOutputStream(new File(dir,algo+".table")), "UTF-8" )), true);
 		// Print header
 		auxwriter.println("#Curve 0, "+(STEP+1)+" points");
 		auxwriter.println("#x y type");
