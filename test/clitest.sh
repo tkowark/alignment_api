@@ -1006,9 +1006,9 @@ if [ -s $RESDIR/genplot-w2.tex ]; then diff $RESDIR/genplot-o1.tex $RESDIR/genpl
 #-------------------
 echo "\t-e,--evaluator <CLASS>"
 
-mv lev1.table $RESDIR/lev1-init.table
+mv $RESDIR/lev1.table $RESDIR/lev1-init.table
 java -cp $CP fr.inrialpes.exmo.align.cli.GenPlot -e fr.inrialpes.exmo.align.impl.eval.WeightedPREvaluator -l "refalign,edna1,streq1,lev1" -w $RESDIR/smalltest -o $RESDIR/genplot-e1.tex
-if [ -s lev1.table ]; then diff $RESDIR/lev1-init.table lev1.table > $RESDIR/smalltest/diffgrev-e1.txt; else echo error with GENPLOT-EVA1; fi
+if [ -s $RESDIR/lev1.table ]; then diff $RESDIR/lev1-init.table $RESDIR/lev1.table > $RESDIR/smalltest/diffgrev-e1.txt; else echo error with GENPLOT-EVA1; fi
 echo "--> This is not used yet!"
 if [ ! -s $RESDIR/smalltest/diffgrev-e1.txt ]; then echo error with GENPLOT-EVA2; fi
 java -cp $CP fr.inrialpes.exmo.align.cli.GenPlot --evaluator fr.inrialpes.exmo.align.impl.eval.WeightedPREvaluator -l "refalign,edna1,streq1,lev1" -w $RESDIR/smalltest -o $RESDIR/genplot-e2.tex
