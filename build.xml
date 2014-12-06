@@ -55,7 +55,7 @@
   <target name="versionnumber" depends="bind" description="Establishes the version number">
     <tstamp><format locale="fr,fr" pattern="dd/MM/yyyy" property="date"/></tstamp>
     <property name="version.major" value="4"/>
-    <property name="version.minor" value="6"/>
+    <property name="version.minor" value="7"/>
     <property name="copyyear" value="2003-2014"/>
     <!-- first attempt -->
     <exec executable="svnversion" outputproperty="svn.rev" failifexecutionfails="false"/>
@@ -327,7 +327,7 @@
     </javac>
     <!-- possible groups: raw=impl+serv+io+onto+omwg, full=raw+ling+sem -->
     <!-- ling requires WordNet and takes ages initialising it -->
-    <testng groups="full"
+    <testng groups="raw"
 	    outputDir="test/html" verbose="1"
 	    haltOnFailure="false" failureProperty="failed">
       <!-- if ones uses logback -->

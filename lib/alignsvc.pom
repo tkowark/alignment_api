@@ -16,8 +16,8 @@
 
   <groupId>fr.inrialpes.exmo.align</groupId>
   <artifactId>alignsvc</artifactId>
-  <version>4.6</version>
-  <!-- Rev 2002M 26/11/2014 -->
+  <version>4.7</version>
+  <!-- Rev 2004:2013M 06/12/2014 -->
   <name>Alignment server</name>
   <description>A server for storing and sharing ontology alignments.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -32,7 +32,7 @@
       <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
     </license>
     <license>
-      <name>CeCILL-C Licence française de logiciel libre</name>
+      <name>CeCILL-C Licence fran??aise de logiciel libre</name>
       <url>http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.txt</url>
     </license>
   </licenses>
@@ -42,19 +42,19 @@
     <dependency>
       <groupId>org.semanticweb.owl</groupId>
       <artifactId>align</artifactId>
-      <version>4.6</version>
+      <version>4.7</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo</groupId>
       <artifactId>ontowrap</artifactId>
-      <version>4.6</version>
+      <version>4.7</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>fr.inrialpes.exmo.align</groupId>
       <artifactId>procalign</artifactId>
-      <version>4.6</version>
+      <version>4.7</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -94,7 +94,7 @@
   <developers>
     <developer>
       <id>JeromE</id>
-      <name>Jérôme Euzenat</name>
+      <name>J??r??me Euzenat</name>
       <organization>INRIA</organization>
       <email>Jerome.Euzenat@acm.org</email>
       <roles>

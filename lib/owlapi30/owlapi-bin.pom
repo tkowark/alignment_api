@@ -3,8 +3,8 @@
 
   <groupId>org.semanticweb</groupId>
   <artifactId>owlapi</artifactId>
-  <version>3.4.8</version>
-  <!-- version 3.4.9 is incomplete: jump to 3.4.10 -->
+  <version>3.5.0</version>
+  <!-- version 3.5.1 does not work strangely -->
   <name>OWL API</name>
   <description>API and implementation for OWL</description>
   <licenses>

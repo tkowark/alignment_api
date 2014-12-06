@@ -16,8 +16,8 @@
 
   <groupId>fr.inrialpes.exmo</groupId>
   <artifactId>ontowrap</artifactId>
-  <version>4.6</version>
-  <!-- Rev 2002M 26/11/2014 -->
+  <version>4.7</version>
+  <!-- Rev 2004:2013M 06/12/2014 -->
   <name>Ontology wrapping API</name>
   <description>An ontology wrapping API and library.</description>
   <url>http://alignapi.gforge.inria.fr</url>
@@ -32,7 +32,7 @@
       <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
     </license>
     <license>
-      <name>CeCILL-C Licence française de logiciel libre</name>
+      <name>CeCILL-C Licence fran??aise de logiciel libre</name>
       <url>http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.txt</url>
     </license>
   </licenses>
@@ -68,8 +68,8 @@
   <developers>
     <developer>
       <id>Jerome DAVID</id>
-      <name>Jérôme David</name>
-      <organization>Université Pierre Mendès-France</organization>
+      <name>J??r??me David</name>
+      <organization>Universit?? Pierre Mend??s-France</organization>
       <email>Jerome.David@upmf-grenoble.fr</email>
       <roles>
         <role>Main developer</role>
