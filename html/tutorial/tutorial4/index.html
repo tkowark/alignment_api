@@ -64,7 +64,7 @@ Other tutorials are <a href="../index.html">available</a>.</p>
 <p  style="border-top: 2px solid #AAAAAA;">
 <small>This tutorial has been initially designed for the Alignment API 4.0 using Jena, Pellet and IDDL. 
 It has been reengineered in the Alignment API 4.5 to use Jena, HermiT
-  1.3.8, IDDL (now DRaon) 1.4 and LogMap 2.</small></p>
+  1.3.8, IDDL (now DRAon) 1.4 and LogMap 2.</small></p>
 	
 <h2>Preparation</h2>
 	
@@ -353,7 +353,7 @@ writer.close();
 <div class="button">
   <input type="button" onclick="show('qu8cli')" value="Command line with HermiT"/>
   <input type="button" onclick="show('qu8java')" value="Java with HermiT"/>
-  <input type="button" onclick="show('qu9java')" value="Java with Draon"/>
+  <input type="button" onclick="show('qu9java')" value="Java with DRAon"/>
   <!--input type="button" onclick="show('qu8serv')" value="Browser"/-->
   <input type="button" onclick="hide('qu8cli');hide('qu8java');hide('qu9java');" value="Hide solutions"/>
 </div>
@@ -425,11 +425,13 @@ if ( dreasoner.isConsistent() ) {
 </div>
 </div>
 
-<h3>Repairing an alignment with LogMap repair</h3>
+<h3>Repairing an alignment with Alcomo or LogMap repair</h3>
+
 <div class="button">
-  <input type="button" onclick="show('qu10cli')" value="Command line"/>
-  <input type="button" onclick="show('qu10java')" value="Java"/>
-  <input type="button" onclick="hide('qu10cli');hide('qu10java');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu10cli')" value="Command line with LogMap"/>
+  <input type="button" onclick="show('qu10alcomo')" value="Java with Alcomo"/>
+  <input type="button" onclick="show('qu10java')" value="Java with LogMap"/>
+  <input type="button" onclick="hide('qu10cli');hide('qu10alcomo');hide('qu10java');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu10cli">
 <p>Assuming
@@ -466,6 +468,37 @@ Classes equivalent to 'owl:Nothing':
 	owl:Nothing
 </div>
 </div>
+<div class="explain" id="qu10alcomo">
+<p>This also assumes that <a href="http://web.informatik.uni-mannheim.de/alcomo/">Alcomo</a>
+ has been downloaded and is added to the path.
+<div class="java">
+Settings.BLACKBOX_REASONER = Settings.BlackBoxReasoner.HERMIT;
+IOntology sourceOnt = new IOntology( "ontology1.owl" );
+IOntology targetOnt = new IOntology( "ontology2.owl" );
+Mapping mapping = new Mapping( "alignment.rdf");
+
+// Find the optimal repair
+ExtractionProblem ep = new
+  ExtractionProblem( ExtractionProblem.ENTITIES_CONCEPTSPROPERTIES,
+                     ExtractionProblem.METHOD_OPTIMAL,
+                     ExtractionProblem.REASONING_COMPLETE );
+ep.bindSourceOntology( sourceOnt );
+ep.bindTargetOntology( targetOnt );
+ep.bindMapping( mapping );
+ep.init();
+ep.solve();
+
+System.out.println("Num discarded correspondences using Alcomo: " + (mapping.size() - ep.getExtractedMapping().size()));
+
+MappingWriterXml alcomoWriter = new MappingWriterXml();
+alcomoWriter.writeMapping( "results/alcomo-alignment.rdf", ep.getExtractedMapping() );
+</div>
+Should display:
+<div class="result">
+Num dicarded correspondences using Alcomo: 1
+</div>
+and have saved the result in <a href="results/alcomo-alignment.rdf">results/alcomo-alignment.rdf</a>.
+</div>
 <div class="explain" id="qu10java">
 <div class="java">
 OWLOntology onto1 = manager.loadOntology(IRI.create("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl"));
@@ -485,8 +518,7 @@ Should return similar output as the command line.
   <input type="button" onclick="show('qu11java')" value="Java"/>
   <input type="button" onclick="hide('qu11cli');" value="Hide solutions"/>
 </div>
-<div class="explain" id="qu11cli">
-<p>Assuming that <a href="http://web.informatik.uni-mannheim.de/alcomo/">Alcomo has been downloaded</a> as well
+<p>Assuming
 <div class="terminal">
 $ 
 </div>
@@ -502,7 +534,7 @@ consistent. Hence we can check some entailment results.
 <div class="button">
   <input type="button" onclick="show('qu11cli')" value="Command line with HermiT"/>
   <input type="button" onclick="show('qu11java')" value="Java with HermiT"/>
-  <input type="button" onclick="show('qu11iddljava')" value="Java with DRaon"/>
+  <input type="button" onclick="show('qu11iddljava')" value="Java with DRAon"/>
   <!--input type="button" onclick="show('qu11serv')" value="Browser"/-->
   <input type="button" onclick="hide('qu11cli');hide('qu11java');hide('qu11iddljava');" value="Hide solutions"/>
 </div>
