@@ -53,6 +53,18 @@ div.fragment, div.java, div.code, div.n3 {
     overflow: auto;
 }
 
+/* Result description */
+
+div.result {
+    font-family: monospace;
+    white-space: pre;
+    overflow: auto;
+  background: lightgreen;
+  margin: 3mm;
+  //border:1pt solid;
+  padding: 2px;
+}
+
 /* For notes */
 
 div.logic, div.note {

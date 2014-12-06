@@ -410,13 +410,11 @@ public class MyApp {
 	displayQueryAnswer( model, QueryFactory.create( transformedQuery ) );
 
 	System.out.println( " ***** SPARQL Query answering in the merged ontology ***** " );
+	model = (OntModel)ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+	model.read( "file:"+merged.getPath() );
+	model.loadImports();
+	/*
 	try {
-	    model = (OntModel)ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
-	    //InputStream in = new FileInputStream( merged );
-	    //model.read( in, "file:"+merged.getPath() );
-	    model.read( "file:"+merged.getPath() );
-	    model.loadImports();
-
 	    // Not better
 	    InputStream in = com.hp.hpl.jena.util.FileManager.get().open( merged.getPath() );
 	    model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
@@ -446,12 +444,14 @@ public class MyApp {
 		System.err.println( "Cannot find class" );
 	    }
 		in.close();
-	    displayQueryAnswer( model, QueryFactory.read( "file:query.sparql" ) );
 	} catch (FileNotFoundException fnfe) {
 	    fnfe.printStackTrace();
 	} catch (IOException ioe) {
 	    ioe.printStackTrace();
 	}
+	*/
+
+	displayQueryAnswer( model, QueryFactory.read( "file:query.sparql" ) );
 
 	System.out.println( " ***** Import data across ontologies ***** " );
 	System.out.println( " Not yet ready " );

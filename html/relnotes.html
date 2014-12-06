@@ -37,7 +37,6 @@ The development of 4 versions continues.
 <h2>Under development (you can contribute)</h2>
 
 <p><ul compact="1">
-<li>Complete tutorial4 (doc).</li>
 <li>Implement correspondence selection (serv)</li>
 <li>Implement database store for EDOAL (serv)</li>
 <li>Implementation of a provenance metadata tag (serv/impl)</li>
@@ -60,18 +59,18 @@ The development of 4 versions continues.
 <li>Add more tests</li>
 </ul></p>
 
+<h2>Current SVN trunk version</h2>
+
 <!-- NOTE FOR VERSION 5
 The default type of StringDistAlignment should be reverted to "**"
 with a warning: 
 -->
 
-<h2>Current SVN trunk version</h2>
-
 <p>The Alignment API is now compiled in Java 1.7.</p>
 
 <!--h2>Version 4.9 (1xxx): ??/??/201X - Letraset</h2-->
 <!--h2>Version 4.8 (1xxx): ??/??/201x - Antésine</h2-->
-<!--h2>Version 4.7 (19xx): ??/11/2014 - Al pesto</h2-->
+<!--h2>Version 4.7 (20xx): ??/11/2014 - Al pesto</h2-->
 <p><ul compact="1">
 <li><span style="color: red;">Deprecated</span> <tt>BasicAlignment.removeAlignCell()</tt>, use <tt>remCell()</tt> instead (impl)</tt>
 <li><span style="color: red;">Moved</span> <tt>QueryMediator</tt>, from <tt>service</tt> to <tt>queryprocessor</tt> (impl)</tt>
@@ -101,6 +100,7 @@ with a warning:
 <li>Added algebraic manipulation of <tt>BasicOntologyNetwork</tt> (impl)</li>
 <li>Added storage support for networks of ontologies (serv)</li>
 <li>Genericised storage <tt>Cache</tt> and implemented <tt>VolatilCache</tt> which contains a full Cache implementation without storage (serv)</li>
+<li>Completed tutorial4 (tutorial)</li>
 <li>Managed upload via <span style="color: green">Commons fileupload 1.3.1</span> and <span style="color: green">io 2.4</span> instead of Jetty (serv)</li>
 <li>Upgraded to <span style="color: green">Servlet API 3.1</span> (lib)</li>
 <li>Upgraded to <span style="color: green">Jetty 9.1.4</span> (lib)</li>
@@ -153,7 +153,7 @@ with a warning:
 <li>Fixed a bug in displaying evaluation tables (cli)</li>
 <li>Fixed a bug with subsumption statements in <tt>OWLAxiomsRendererVisitor</tt> (impl)</li>
 <li>Simplified and rewritten <tt>SemPRecEvaluator</tt> (impl)</li>
-<li>Fixed all issues but IDDL in <a href="tutorial/tutorial4/index.html">tutorial4</a> (impl)</li>
+<li>Fixed all issues but IDDL in <a href="tutorial/tutorial4/index.html">tutorial4</a> (tutorial)</li>
 <li>Fixed display bug in <tt>HTMLMetadataRenderer</tt> (impl)</li>
 <li>Upgraded to <span style="color: green">IDDL 1.5</span> (lib)</li>
 <li>Upgraded to <span style="color: green">OWL API 3.4.2</span> (lib)</li>
@@ -294,7 +294,7 @@ with a warning:
 <li>Migrated to <span style="color: green">OWL API 3</span> as the default Ontology implementation (ontowrap)</li>
 <li>Lifted OWL API 3 as <tt>HeavyLoadedOntology</tt> (ontowrap)</li>
 <li>Added cache management to <tt>JENAOntology</tt> (ontowrap)</li>
-<li>Addition of advanced tutorial and <a href="tutorial">reengineered tutorials</a> (doc)</li>
+<li>Addition of advanced tutorial and <a href="tutorial">reengineered tutorials</a> (tutorial)</li>
 <li>Implemented semantic precision and recall (impl)</li>
 <li>Implemented ROC curve computing and reimplemented the plotting
   structure. Now they are based on harmonic means instead of average. (eval)</li>

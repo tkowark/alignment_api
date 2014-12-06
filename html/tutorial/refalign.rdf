@@ -4,7 +4,7 @@
          xmlns:alext='http://exmo.inrialpes.fr/align/ext/1.0/'
          xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
          xmlns:xsd='http://www.w3.org/2001/XMLSchema#'>
-<Alignment>
+<Alignment rdf:about="http://alignapi.gforge.inria.fr/tutorial/refalign.rdf">
   <xml>yes</xml>
   <level>0</level>
   <type>11</type>

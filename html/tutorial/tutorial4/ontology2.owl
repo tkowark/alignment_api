@@ -16,7 +16,7 @@
  xmlns:owl	="&owl;"
  xmlns:dc	="&dc;">
   
-  <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#">
+  <owl:Ontology rdf:about="http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl">
     <dc:creator>Jérôme Euzenat</dc:creator>
     <dc:description>Example for Alignment API advanced turorial</dc:description>
     <dc:date>2009-07-06</dc:date>
