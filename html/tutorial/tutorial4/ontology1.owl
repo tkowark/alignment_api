@@ -25,74 +25,74 @@
     <dc:identifier rdf:datatype="&xsd;anyURI">http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl</dc:identifier>
   </owl:Ontology>
 
-  <owl:Class rdf:ID="Participante">
+  <owl:Class rdf:about="#Participante">
     <rdfs:label xml:lang="es">Participante</rdfs:label>
   </owl:Class>
 
-  <owl:Class rdf:ID="Estudiante">
+  <owl:Class rdf:about="#Estudiante">
     <rdfs:subClassOf rdf:resource="#Participante" />
     <rdfs:label xml:lang="es">Estudiante</rdfs:label>
   </owl:Class>
 
-  <owl:Class rdf:ID="Tutor">
+  <owl:Class rdf:about="#Tutor">
     <rdfs:subClassOf rdf:resource="#Participante" />
     <rdfs:label xml:lang="es">Professor</rdfs:label>
   </owl:Class>
 
-  <owl:Class rdf:ID="TutorEstudiante">
+  <owl:Class rdf:about="#TutorEstudiante">
     <rdfs:subClassOf rdf:resource="#Estudiante" />
     <rdfs:subClassOf rdf:resource="#Tutor" />
     <rdfs:label xml:lang="es">Professor</rdfs:label>
   </owl:Class>
 
-  <owl:DatatypeProperty rdf:ID="lastname">
+  <owl:DatatypeProperty rdf:about="#lastname">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
     <rdfs:label xml:lang="es">appelido</rdfs:label>
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="firstname">
+  <owl:DatatypeProperty rdf:about="#firstname">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
     <rdfs:label xml:lang="es">nombre</rdfs:label>
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="gender">
+  <owl:DatatypeProperty rdf:about="#gender">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="affiliation">
+  <owl:DatatypeProperty rdf:about="#affiliation">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="city">
+  <owl:DatatypeProperty rdf:about="#city">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="country">
+  <owl:DatatypeProperty rdf:about="#country">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="">
+  <owl:DatatypeProperty rdf:about="#">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="year">
+  <owl:DatatypeProperty rdf:about="#year">
     <rdfs:domain rdf:resource="#Estudiante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="topic">
+  <owl:DatatypeProperty rdf:about="#topic">
     <rdfs:domain rdf:resource="#Participante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:ID="supervisor">
+  <owl:DatatypeProperty rdf:about="#supervisor">
     <rdfs:domain rdf:resource="#Estudiante" />
     <rdfs:range rdf:resource="&xsd;string" />
   </owl:DatatypeProperty>

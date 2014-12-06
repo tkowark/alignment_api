@@ -33,6 +33,7 @@ import org.semanticweb.owl.align.AlignmentVisitor;
 // Alignment API implementation classes
 import fr.inrialpes.exmo.align.impl.ObjectAlignment;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.BasicAlignment;
 import fr.inrialpes.exmo.align.impl.method.StringDistAlignment;
 import fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor;
 import fr.inrialpes.exmo.align.parser.AlignmentParser;
@@ -40,7 +41,11 @@ import fr.inrialpes.exmo.align.parser.AlignmentParser;
 // Jena
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.ResultSet;
@@ -62,6 +67,13 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 // HermiT
 import org.semanticweb.HermiT.Reasoner;
+
+// LogMap repair (uncomment to use: need library)
+/*
+import uk.ac.ox.krr.logmap2.LogMap2_RepairFacility;
+import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+import uk.ac.ox.krr.logmap2.oaei.reader.MappingsReaderManager;
+*/
 
 // IDDL
 import fr.paris8.iut.info.iddl.IDDLReasoner;
@@ -119,7 +131,7 @@ import java.net.URISyntaxException;
 
 public class MyApp {
 
-    String RESTServ = "http://aserv.inrialpes.fr/rest/";
+    static String RESTServ = "http://aserv.inrialpes.fr/rest/";
 
     public static void main( String[] args ) {
 	try {
@@ -143,15 +155,18 @@ public class MyApp {
 	    uri2 = new URI( u2 );
 	} catch (URISyntaxException use) { use.printStackTrace(); }
 
-	// ***** First exercise: matching *****
-	// (Sol1) Try to find an alignment between two ontologies from the server
+	System.out.println( "\n\n ########## MATCHING ########## " );
+
+	System.out.println( " ***** Looking for alignment on the server ***** " );
 	// ask for it
 	String found = getFromURLString( RESTServ+"find?onto1="+u1+"&onto2="+u2, false );
+	System.out.println( found );
 	// retrieve it
 	// If there exists alignments, ask for the first one
 	NodeList alset = extractFromResult( found, "//findResponse/alignmentList/alid[1]/text()", false );
+	System.out.println( alset );
 
-	// (Sol3) Match the ontologies on the server
+	System.out.println( " ***** Matching ontologies on the server ***** " );
 	if ( alset.getLength() == 0 ) {
 	    // call for matching
 	    // * tested (must add force = true)
@@ -193,8 +208,13 @@ public class MyApp {
 		ae.printStackTrace();
 	    }
 	}
+	if ( al != null ) {
+	    System.out.println( " Matched ontologies in "+al+" containing "+al.nbCells()+" correspondences" );
+	} else {
+	    System.out.println( " Obtained no alignment..." );
+	}
 
-	// (Sol2) Match the ontologies with a local algorithm
+	System.out.println( " ***** Matching ontologies locally ***** " );
 	if ( al == null ){ // Unfortunatelly no alignment was available
 	    AlignmentProcess ap = new StringDistAlignment();
 	    try {
@@ -208,6 +228,7 @@ public class MyApp {
 		// store it
 	    } catch (AlignmentException ae) { ae.printStackTrace(); }
 	}
+	System.out.println( " Matched ontologies in "+al+" containing "+al.nbCells()+" correspondences" );
 
 	// Alternative: find an intermediate ontology between which there are alignments
 	// find (basically a graph traversal operation)
@@ -215,16 +236,16 @@ public class MyApp {
 	// parse them
 	// compose them
 
-	// ***** Second exercise: merging/transforming *****
+	System.out.println( "\n\n ########## REASONING ########## " );
 
-	// (Sol1) generate a merged ontology between the ontologies (OWLAxioms)
+	System.out.println( " ***** Merging ontologies ***** " );
 	PrintWriter writer = null;
 	File merged = null;
 	try {
 	    merged = File.createTempFile( "MyApp-results",".owl");
 	    merged.deleteOnExit();
 	    writer = new PrintWriter ( new FileWriter( merged, false ), true );
-	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor(writer);
+	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
 	    al.render(renderer);
 	} catch (UnsupportedEncodingException uee) {
 	    uee.printStackTrace();
@@ -239,61 +260,16 @@ public class MyApp {
 	    }
 	}
 	// If merged is empty then destroy the file + exit
+	System.out.println( "Merged file in "+merged );
 
-	// (Sol2) import the data from one ontology into the other
-
-	// ***** Third exercise: querying and reasoning *****
-
-	// (Sol1) Use SPARQL to answer queries (at the data level)
-	InputStream in = null;
-	QueryExecution qe = null;
-	try {
-	    in = new FileInputStream( merged );
-	    //OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
-	    Model model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
-	    model.read( in, "file:"+merged.getPath() );
-	    in.close();
-	
-	    // Create a new query
-	    // Could also be selected by supervisor ???
-	    String queryString = 
-		"PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
-		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-		"PREFIX aa: <http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#> " +
-		"SELECT ?fn ?ln ?t ?s " +
-		//"SELECT ?fn ?ln " +
-		"WHERE {" +
-                "      ?student rdf:type aa:Estudiante . " +
-		"      ?student aa:firstname  ?fn. " +
-		"      ?student aa:lastname  ?ln. " +
-		"OPTIONAL   {   ?student aa:affiliation ?t . } " +
-		"OPTIONAL   {   ?student aa:supervisor ?s . } " +
-		"      }";
-
-	    Query query = QueryFactory.create(queryString);
-
-	    // Execute the query and obtain results
-	    qe = QueryExecutionFactory.create(query, model);
-	    ResultSet results = qe.execSelect();
-
-	    // Output query results	
-	    ResultSetFormatter.out(System.out, results, query);
-	} catch (FileNotFoundException fnfe) {
-	    fnfe.printStackTrace();
-	} catch (IOException ioe) {
-	    ioe.printStackTrace();
-	} finally {
-	    // Important - free up resources used running the query
-	    if ( qe != null ) qe.close();
-	    }
-
-	// (Sol2) Use the OWLReasoner to answer queries (at the ontology level)
+	System.out.println( " ***** Testing consistency (and coherency) with HermiT ***** " );
 	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	OWLReasoner reasoner = null;
+	OWLOntology ontology = null;
 
 	// Load the ontology 
 	try {
-	    OWLOntology ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
+	    ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
 	    reasoner = new Reasoner( ontology );
 	} catch (OWLOntologyCreationException ooce) {
 	    ooce.printStackTrace(); 
@@ -304,17 +280,8 @@ public class MyApp {
 	} else {
 	    System.err.println( "The aligned ontologies are inconsistent" );
 	}
-	// get the instances of a class
-	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
-	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
-	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
-	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
-	System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students ("+clname(estud)+")");
 
-	testOWLReasonerSubClass( manager, reasoner, estud, person );
-	testOWLReasonerSubClass( manager, reasoner, estud, student );
-
-	// (Sol3) reasoning with distributed semantics (IDDL)
+	System.out.println( " ***** Testing consistency with DRAon ***** " );
 	// test consistency of aligned ontologies
 	ArrayList<Alignment> allist = new ArrayList<Alignment>();
 	allist.add( al );
@@ -322,11 +289,187 @@ public class MyApp {
 	// Try Semantics.IDDL instead!
 	if ( dreasoner.isConsistent() ) {
 	    System.out.println( "IDDL: the alignment network is consistent");
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
-	    testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
          } else {
 	    System.out.println( "IDDL: the alignment network is inconsistent");
 	}
+
+	// repairing with Logmap (uncomment to use logmap - library needed)
+	/*
+	System.out.println( " ***** Repairing with LogMap ***** " );
+	try {
+	    OWLOntology onto1 = manager.loadOntology(IRI.create("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl"));
+	    OWLOntology onto2 = manager.loadOntology(IRI.create("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl"));
+	    MappingsReaderManager readermanager = new MappingsReaderManager( "alignment.rdf", "RDF");
+	    Set<MappingObjectStr> input_mappings = readermanager.getMappingObjects();
+	    LogMap2_RepairFacility logmap2_repair = new LogMap2_RepairFacility( onto1, onto2, input_mappings, false, false);
+	    //Set of mappings repaired by LogMap
+	    Set<MappingObjectStr> repaired_mappings = logmap2_repair.getCleanMappings();
+	    System.out.println("Num repaired mappings using LogMap: " + repaired_mappings.size());
+	} catch ( Exception ex ) {
+	    ex.printStackTrace();
+	}
+	*/
+
+	// Reload an alignment which should be the one returned by LogMap
+	try {
+	    AlignmentParser aparser = new AlignmentParser(0);
+	    Alignment alu = aparser.parse( "file:alignment2.rdf" );
+	    al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
+	    merged = File.createTempFile( "MyApp-results2",".owl");
+	    merged.deleteOnExit();
+	    writer = new PrintWriter ( new FileWriter( merged, false ), true );
+	    AlignmentVisitor renderer = new OWLAxiomsRendererVisitor( writer );
+	    al.render(renderer);
+	} catch (UnsupportedEncodingException uee) {
+	    uee.printStackTrace();
+	} catch (AlignmentException ae) {
+	    ae.printStackTrace();
+	} catch (IOException ioe) { 
+	    ioe.printStackTrace();
+	} finally {
+	    if ( writer != null ) {
+		writer.flush();
+		writer.close();
+	    }
+	}
+	System.out.println( " ***** Test consistency and coherence of revised alignment ***** " );
+	try {
+	    ontology = manager.loadOntology( IRI.create( "file:"+merged.getPath() ) );
+	    reasoner = new Reasoner( ontology );
+	} catch (OWLOntologyCreationException ooce) {
+	    ooce.printStackTrace(); 
+	}
+
+	if ( reasoner.isConsistent() ) {
+	    System.err.println( "The aligned ontologies are consistent" );
+	} else {
+	    System.err.println( "The aligned ontologies are inconsistent" );
+	}
+	// Test coherence
+	for ( OWLClass cl : ontology.getClassesInSignature( true ) ) {
+	    if ( !reasoner.isSatisfiable( cl ) ) {
+		System.out.println( cl+" is incoherent" );
+	    }
+	}
+
+	// test consistency with DRAon
+	allist = new ArrayList<Alignment>();
+	allist.add( al );
+	dreasoner = new IDDLReasoner( allist, Semantics.DL );
+	// Try Semantics.IDDL instead!
+	if ( dreasoner.isConsistent() ) {
+	    System.out.println( "IDDL: the alignment network is consistent");
+         } else {
+	    System.out.println( "IDDL: the alignment network is inconsistent");
+	}
+
+	System.out.println( " ***** Test subsumption with HermiT ***** " );
+	// get the instances of a class
+	OWLClass estud = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) );   
+	OWLClass person = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Person" ) );   
+	OWLClass student = manager.getOWLDataFactory().getOWLClass( IRI.create( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student" ) );   
+
+	testOWLReasonerSubClass( manager, reasoner, estud, person );
+	testOWLReasonerSubClass( manager, reasoner, estud, student );
+
+	System.out.println( " ***** Testing subsumption with DRAon ***** " );
+	testIDDLSubClass( dreasoner, uri1, uri2, estud, person );
+	testIDDLSubClass( dreasoner, uri1, uri2, estud, student );
+
+	System.out.println( "\n\n ########## QUERYING ########## " );
+
+	System.out.println( " ***** Simple instance reasoning with HermiT ***** " );
+
+	Set<OWLNamedIndividual> instances  = reasoner.getInstances( estud, false ).getFlattened();
+	System.err.println("OWLReasoner(Merged): There are "+instances.size()+" students ("+clname(estud)+")");
+
+	System.out.println( " ***** SPARQL Query answering by transforming query ***** " );
+	OntModel model = (OntModel)ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+	// Load ontology 1
+	//OntModelSpec.OWL_MEM_RDFS_INF or no arguments to see the difference...
+	model.read( "file:ontology1.owl" );
+	// Query in ontology 1
+	displayQueryAnswer( model, QueryFactory.read( "file:query.sparql" ) );
+	// Load ontology 2
+	model = (OntModel)ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+	model.read( "file:ontology2.owl" );
+	// Transform query
+	String transformedQuery = null;
+	try {
+	    InputStream in = new FileInputStream( "query.sparql" );
+	    BufferedReader reader = new BufferedReader( new InputStreamReader(in) );
+	    String line = null;
+	    String queryString = "";
+	    while ((line = reader.readLine()) != null) {
+		queryString += line + "\n";
+	    }
+	    Properties parameters = new Properties();
+	    transformedQuery = ((BasicAlignment)al).rewriteQuery( queryString, parameters );
+	} catch ( Exception ex ) { ex.printStackTrace(); }
+	// Query ontology 2
+	displayQueryAnswer( model, QueryFactory.create( transformedQuery ) );
+
+	System.out.println( " ***** SPARQL Query answering in the merged ontology ***** " );
+	try {
+	    model = (OntModel)ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+	    //InputStream in = new FileInputStream( merged );
+	    //model.read( in, "file:"+merged.getPath() );
+	    model.read( "file:"+merged.getPath() );
+	    model.loadImports();
+
+	    // Not better
+	    //InputStream in = com.hp.hpl.jena.util.FileManager.get().open( merged.getPath() );
+	    InputStream in = com.hp.hpl.jena.util.FileManager.get().open( "toto.owl" );
+	    model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+	    OntDocumentManager odm = model.getDocumentManager();
+	    FileManager fm = odm.getFileManager();
+	    //model.read( in, "file:"+merged.getPath() );
+	    model.read( in, "file:toto.owl" );
+	    model.loadImports();
+
+	    odm = new OntDocumentManager();
+	    OntModelSpec s = new OntModelSpec( OntModelSpec.OWL_DL_MEM_RULE_INF );
+	    s.setDocumentManager( odm );
+	    odm.setProcessImports( true );
+	    OntModel mm = ModelFactory.createOntologyModel( s );
+	    mm.read( FileManager.get().open( "toto.owl"), "file:toto.owl" );
+	    System.out.println( "NB Modles= "+mm.countSubModels()+" ~~ "+mm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
+	    mm.loadImports();
+	    System.out.println( "NB Modles= "+mm.countSubModels()+" ~~ "+mm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
+	    OntModel mmm = mm.getImportedModel( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" );
+	    System.out.println( "NB Modles= "+mmm.countSubModels()+" ~~ "+mmm.hasLoadedImport( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl" ));
+
+	    OntClass cl = mmm.getOntClass( "http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante" ) ;
+	    if ( cl != null ) {
+		System.err.println( "Class found" );
+		com.hp.hpl.jena.util.iterator.ExtendedIterator<? extends com.hp.hpl.jena.ontology.OntResource> it = cl.listInstances();
+		int i = 0;
+		while ( it.hasNext() ) { i++; it.next(); }
+		System.err.println( " It has "+i+" instances" );
+	    } else {
+		System.err.println( "Cannot find class" );
+	    }
+		in.close();
+	    displayQueryAnswer( model, QueryFactory.read( "file:query.sparql" ) );
+	    displayQueryAnswer( mmm, QueryFactory.read( "file:query.sparql" ) );
+	} catch (FileNotFoundException fnfe) {
+	    fnfe.printStackTrace();
+	} catch (IOException ioe) {
+	    ioe.printStackTrace();
+	}
+
+	System.out.println( " ***** Import data across ontologies ***** " );
+	System.out.println( " Not yet ready " );
+
+    }
+
+    public void displayQueryAnswer( Model model, Query query ) {
+	// Execute the query and obtain results
+	QueryExecution qe = QueryExecutionFactory.create( query, model );
+	ResultSet results = qe.execSelect();
+	// Output query results	
+	ResultSetFormatter.out(System.out, results, query);
+	if ( qe != null ) qe.close();
     }
 
     private String clname( OWLClassExpression cl ) {

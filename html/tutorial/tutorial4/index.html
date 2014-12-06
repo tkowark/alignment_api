@@ -103,12 +103,12 @@ The list of jars is long, but at least it is explicit and you
 should be safe with this one.
 This programme can be compiled by:
 <div class="terminal">
-$ javac -d results Skeleton.java
+$ javac -cp $CLASSPATH -d results Skeleton.java
 </div>
 </p>
 <p>This programme can be run by:
 <div class="terminal">
-$ java Skeleton
+$ java -cp $CLASSPATH:Skeleton Skeleton
 </div>
 It provides no output for the moment.
 </p>
@@ -120,8 +120,8 @@ This can be achieved:
 <ul>
 <li>by finding an alignment from the web/server</li>
 <li>by running a matcher locally</li>
-<li>by running a matcher on the alignment server</li>
-<li>by finding a chain of alignments from the web/server</li>
+<li>by using a matcher on the alignment server</li>
+<!--li>by finding a chain of alignments from the web/server</li-->
 </ul>
 </p>
 
@@ -210,43 +210,7 @@ al = ObjectAlignment.toObjectAlignment((URIAlignment)alu);
 </div>
 </div>
 
-<h3>by running a matcher locally</h3>
-<div class="button">
-  <input type="button" onclick="show('qu2cli')" value="Command line"/>
-  <input type="button" onclick="show('qu2java')" value="Java"/>
-  <!--input type="button" onclick="show('qu2serv')" value="Browser"/-->
-  <input type="button" onclick="hide('qu2cli');hide('qu2java');hide('qu2serv');" value="Hide solutions"/>
-</div>
-<div class="explain" id="qu2cli">
-<div class="terminal">
-$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
-</div>
-or:
-<div class="terminal">
-$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 file:ontology1.owl file:ontology2.owl
-</div>
-</div>
-<div class="explain" id="qu2java">
-<p>Just create an instance of AlignmentProcess and call it:</p>
-<div class="java">
-// (Sol2) Match the ontologies with a local algorithm
-if ( al == null ){ // Unfortunatelly no alignment was available
-  AlignmentProcess ap = new StringDistAlignment();
-  ap.init( uri1, uri2 );
-  params.setProperty("stringFunction","smoaDistance");
-  params.setProperty("noinst","1");
-  ap.align( (Alignment)null, params );
-  al = ap;
-}
-</div>
-</div>
-<!--div class="explain" id="qu2serv">
-<p>After introducing the main variables:</p>
-<div class="java">
-</div-->
-</div>
-
-<h3>by running a matcher on the alignment server</h3>
+<h3>using a matcher on the alignment server</h3>
 
 <p>
 Write a program that does try to find an alignment on the alignment
@@ -287,6 +251,42 @@ if ( alset.getLength() == 0 ) {
 <p>After introducing the main variables:</p>
 <div class="java">
 </div>
+</div>
+
+<h3>by running a matcher locally</h3>
+<div class="button">
+  <input type="button" onclick="show('qu2cli')" value="Command line"/>
+  <input type="button" onclick="show('qu2java')" value="Java"/>
+  <!--input type="button" onclick="show('qu2serv')" value="Browser"/-->
+  <input type="button" onclick="hide('qu2cli');hide('qu2java');hide('qu2serv');" value="Hide solutions"/>
+</div>
+<div class="explain" id="qu2cli">
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
+</div>
+or:
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.Procalign -i fr.inrialpes.exmo.align.impl.method.StringDistAlignment -DstringFunction=smoaDistance -Dnoinst=1 file:ontology1.owl file:ontology2.owl
+</div>
+</div>
+<div class="explain" id="qu2java">
+<p>Just create an instance of AlignmentProcess and call it:</p>
+<div class="java">
+// (Sol2) Match the ontologies with a local algorithm
+if ( al == null ){ // Unfortunatelly no alignment was available
+  AlignmentProcess ap = new StringDistAlignment();
+  ap.init( uri1, uri2 );
+  params.setProperty("stringFunction","smoaDistance");
+  params.setProperty("noinst","1");
+  ap.align( (Alignment)null, params );
+  al = ap;
+}
+</div>
+</div>
+<!--div class="explain" id="qu2serv">
+<p>After introducing the main variables:</p>
+<div class="java">
+</div-->
 </div>
 
 <!--h3>by finding a chain of alignments from the web/server</h3>
@@ -429,15 +429,15 @@ if ( dreasoner.isConsistent() ) {
 <h3>Repairing an alignment with LogMap repair</h3>
 <div class="button">
   <input type="button" onclick="show('qu10cli')" value="Command line"/>
-  <!--input type="button" onclick="show('qu10java')" value="Java"/-->
-  <input type="button" onclick="hide('qu10cli');" value="Hide solutions"/>
+  <input type="button" onclick="show('qu10java')" value="Java"/>
+  <input type="button" onclick="hide('qu10cli');hide('qu10java');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu10cli">
 <p>Assuming
   that <a href="https://code.google.com/p/logmap-matcher/">LogMap has
     been downloaded</a> (it takes directly the Alignment format as input):
 <div class="terminal">
-$ java -jar logmap2_standalone.jar DEBUGGER http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl RDF $CWD/alignment.rdf $CWD/results false false
+$ java -jar logmap2_standalone.jar DEBUGGER http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl RDF alignment.rdf $CWD/results false false
 </div>
 this displays the following output:
 <div class="result">
@@ -445,12 +445,39 @@ Loading ontologies...
 IRI: http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl
 IRI: http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl
 ...Done
-Read RDF Align mapping objects: 1
-Num original mappings: 1
-Num repaired mappings: 1
-TOTAL REPAIR TIME (s): 0.164
+Read RDF Align mapping objects: 11
+Num original mappings: 11
+Error keeping mappings...
+Num repaired mappings: 10
+TOTAL REPAIR TIME (s): 0.505
 </div>
-obviously it had nothing to do since the aligned ontologies are consistent.
+The result can be found in <a href="results/mappings_repaired_with_LogMap.rdf">results/mappings_repaired_with_LogMap.rdf</a>.
+It contains only 10 of the initial correspondences.
+<br />
+Unfortunately, LogMap outputs wrong alignments (two occurence of
+ontology1 in the header must be replaced by ontology2). Once this
+fixed, it is possible to perform again:
+<div class="terminal">
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.ParserPrinter file:results/mappings_repaired_with_LogMap.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -o results/alignment.owl
+$ java -jar HermiT.jar results/alignment.owl -U
+</div>
+<p>yielding</p>
+<div class="result">
+Classes equivalent to 'owl:Nothing':
+	owl:Nothing
+</div>
+</div>
+<div class="explain" id="qu10java">
+<div class="java">
+OWLOntology onto1 = manager.loadOntology(IRI.create("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl"));
+OWLOntology onto2 = manager.loadOntology(IRI.create("http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl"));
+MappingsReaderManager readermanager = new MappingsReaderManager( "alignment.rdf", "RDF");
+Set&ly;MappingObjectStr> input_mappings = readermanager.getMappingObjects();
+LogMap2_RepairFacility logmap2_repair = new LogMap2_RepairFacility( onto1, onto2, input_mappings, false, false);
+//Set of mappings repaired by LogMap
+Set&lt;MappingObjectStr> repaired_mappings = logmap2_repair.getCleanMappings();
+</div>
+Should return similar output as the command line.
 </div>
 
 <!--h3>Repairing an alignment with Alcomo</h3>
@@ -492,6 +519,7 @@ $ java -jar HermiT.jar results/alignment.owl -s http://alignapi.gforge.inria.fr/
 <div class="result">
 All sub-classes of 'http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante':
 	owl:Nothing
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#TutorEstudiante>
 Classes equivalent to '&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>':
 	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>
 	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>
@@ -504,6 +532,7 @@ $ java -jar HermiT.jar results/alignment.owl -s http://alignapi.gforge.inria.fr/
 <div class="result">
 All sub-classes of 'http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student':
 	owl:Nothing
+	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#TutorEstudiante>
 Classes equivalent to '&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>':
 	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology1.owl#Estudiante>
 	&lt;http://alignapi.gforge.inria.fr/tutorial/tutorial4/ontology2.owl#Student>
@@ -641,10 +670,115 @@ OPTIONAL   {   ?student onto2:phd-advisor ?s . }
 </div>
 </div>
 <div class="explain" id="qu14java">
-<p>In fact everything is done in one step:</p>
+<p>This can be achieved by using Jena ARQ query evaluator:</p>
 <div class="java">
-Not ready yet... USE MY TRANSFORM + USE THE EVALUATION AGAINST A DATA SET.
+Model model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+
+// Load ontology 1
+model.read( "file:ontology1.owl" );
+
+// Query in ontology 1
+QueryExecution qe = QueryExecutionFactory.create( QueryFactory.read( "file:query.sparql" ), model );
+ResultSet results = qe.execSelect();
+// Output query results	
+ResultSetFormatter.out(System.out, results, query);
+
+// Load ontology 2
+model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RULE_INF, null );
+model.read( "file:ontology2.owl" );
+	
+// Transform query
+String transformedQuery = null;
+try {
+    InputStream in = new FileInputStream( "query.sparql" );
+    BufferedReader reader = new BufferedReader( new InputStreamReader(in) );
+    String line = null;
+    String queryString = "";
+    while ((line = reader.readLine()) != null) {
+	queryString += line + "\n";
+    }
+    Properties parameters = new Properties();
+    transformedQuery = ((BasicAlignment)al).rewriteQuery( queryString, parameters );
+} catch ( Exception ex ) { ex.printStackTrace(); }
+
+// Query ontology 2
+displayQueryAnswer( model, QueryFactory.create( transformedQuery ) );
+qe = QueryExecutionFactory.create( QueryFactory.create( transformedQuery ), model );
+results = qe.execSelect();
+// Output query results	
+ResultSetFormatter.out(System.out, results, query);
+
 </div>
+This gives the result:
+<div class="result">
+-------------------------------------------------------------------------------------------------------
+| fn           | ln           | t                                  | s                                |
+=======================================================================================================
+| "Miles"      | "Davis"      | "JOHANNISBEER RESEARCH"            | "Univ.-Prof. Dr. Paolo Carciofo" |
+| "Chet"       | "Baker"      | "University Pie XXIII"             |                                  |
+| "McCoy"      | "Tyner"      | "University of Soupaloignon"       | "Dr Nanni Girasole"              |
+| "Laurent"    | "De Wilde"   | "University of Sussex"             | "Ugo Calamari"                   |
+| "Laurent"    | "De Wilde"   | "University of Sussex"             | "Simona Riccota"                 |
+| "Charlie"    | "Parker"     | "Institut Von Humboldt"            | "Cecilia Parmiggiano"            |
+| "Carmen"     | "McRae"      | "University of the Rainforest"     | "Mario Staggioni"                |
+| "Benny"      | "Goodman"    | "The Univesity of the true way"    | "Prof. Dr. Riccardo Peperoni"    |
+| "Thelonious" | "Monk"       | "Madeira Instutute of Technology"  | "Stefano Zucchini"               |
+| "Ella"       | "Fitzgerald" | "Vanilla University of Technology" | "Prof. Giancarlo Cetriolo"       |
+| "Janis"      | "Joplin"     | "University of Zoulouland"         | "Fiorenta Pescadore"             |
+| "Janis"      | "Joplin"     | "University of Zoulouland"         | "Medusa Pesto"                   |
+| "Bud"        | "Powell"     | "Cogebom"                          | "Giovanni Dolomitti"             |
+| "Bud"        | "Powell"     | "SPAM"                             | "Giovanni Dolomitti"             |
+| "John"       | "Coltrane"   | "Estrellas"                        |                                  |
+| "Aretha"     | "Franklin"   | "University of Huelva"             |                                  |
+| "Carla"      | "Bley"       | "none"                             | "Christina Melocoton"            |
+| "Cab"        | "Calloway"   | "University of Shepperington"      |                                  |
+| "Stan"       | "Getz"       | "Altacola research centre"         | "Prof. Pierpaolo Polenta"        |
+| "Art"        | "Blackey"    | "University of Albatra"            | "Pierluiggi Pomodoro"            |
+| "Art"        | "Blackey"    | "University of Albatra"            | "Paola Pomodoro"                 |
+| "Nina"       | "Simone"     | "Research Center of the Americas"  | "Domenica Melanzana"             |
+| "Ornette"    | "Coleman"    | "Trinidad College Dubrovnik"       | "Carla Cipolla"                  |
+| "Billie"     | "Holliday"   | "University of Soupaloignon"       | "Mr. Laurenzo Girafiore"         |
+| "Billie"     | "Holliday"   | "University of Soupaloignon"       | "Dr.Federico diGuava"            |
+| "Oscar"      | "Peterson"   | "Institute for Applied Boxology"   | "Dott. Antolio Bresaola"         |
+| "Coleman"    | "Hawkins"    | "University of South Poland"       | "Pepe Frutti di Mare"            |
+| "John"       | "Zorn"       | "Altacola research centre"         | "Prof. Pierpaolo Polenta"        |
+-------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+| fn           | ln          | t                                            | s                              |
+==============================================================================================================
+| "Archie"     | "Shepp"     | "Occarina University"                        |                                |
+| "Sonny"      | "Rollins"   | "Universita di Miggliore"                    | "M. Pecorino"                  |
+| "Astrud"     | "Gilberto"  | "Universität der Gemütlichkeit"              | "Pr. Dr. M. Coppa"             |
+| "Peggy"      | "Lee"       | "University des Mitteleuropa"                | "a.Univ.Prof.DI.Dr. Z. Melone" |
+| "Glenn"      | "Miller"    | "University of Shepperington"                | "Professor G. Limone"          |
+| "Rickie Lee" | "Jones"     | "Philip Vanderbilt Universiteit"             | "A. Lambretta"                 |
+| "Rickie Lee" | "Jones"     | "Velo Research"                              | "A. Lambretta"                 |
+| "Lionel"     | "Hampton"   | "Politecnico di Madalena"                    | "O. Mascarponne"               |
+| "Lionel"     | "Hampton"   | "Politecnico di Madalena"                    | "A. Gorgonzola"                |
+| "Eleonore"   | "Rigby"     | "Politecnico di Bermudas"                    |                                |
+| "Diana"      | "Krall"     | "Royal University of Worchester sauce"       | "Dr. A. Verdura"               |
+| "Diana"      | "Krall"     | "Royal University of Worchester sauce"       | "C. Fragola"                   |
+| "Dave"       | "Brubeck"   | "University of Namibia"                      | "P. Tiramissu"                 |
+| "Dave"       | "Brubeck"   | "University of Namibia"                      | "G. Belladonna"                |
+| "Milt"       | "Jackson"   | "Escena"                                     |                                |
+| "Julian"     | "Aldderley" | "Politecnico di Madalena"                    |                                |
+| "Betty"      | "Sinclair"  | "Institute for Social Coworkers"             |                                |
+| "Cilla"      | "Black"     | "University of Shepperington"                | "Prof. G. Limone"              |
+| "Natalie"    | "Merchant"  | "JOHANNISBEER RESEARCH"                      |                                |
+| "Django"     | "Reinhardt" | "IRIA Saskatchevan"                          | "Prof. Chr. Melocoton"         |
+| "Django"     | "Reinhardt" | "University Pie XXIII"                       | "Prof. Chr. Melocoton"         |
+| "Ray"        | "Bryant"    | "Handshuh University"                        |                                |
+| "Jackie"     | "McLean"    | "Polytechnic of Madeira"                     | "S. Zucchini"                  |
+| "Art"        | "Tatum"     | "National Kapodistrian University of Athens" | "B. Tiramisu"                  |
+| "Duke"       | "Ellington" | "Vanilla University of Technology"           | "Prof. G. Cetriolo"            |
+| "Chick"      | "Corea"     | "University of Ausblick"                     | "Prof. Dr. A. Belladonna"      |
+| "Kenny"      | "Burrell"   | "Politecnico di Belladona"                   | "S. Proscuitto"                |
+| "Joe"        | "Zawinul"   | "Institute for Social Coworkers"             |                                |
+| "Dexter"     | "Gordon"    | "Eelberg University"                         | "C. Pannacotta"                |
+--------------------------------------------------------------------------------------------------------------
+</div>
+There are indeed 47 individuals (but more occurences in the table due
+to multiple supervisors).
 </div>
 
 <h3><a name="merged"></a>Querying with the merged ontology</h3>
@@ -673,8 +807,6 @@ in.close();
 <p>Read the query (please play by changing the query)</p>
 <div class="java">
 // Create a new query
-<!--String queryString = readFile( "query.sparql", Charset.defaultCharset() );
-create(queryString);-->
 Query query = QueryFactory.read( "file:query.sparql" );
 </div>	
 <p>Evaluation:</p>
