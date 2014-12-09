@@ -832,7 +832,7 @@ public class RDFParser {
             ValueExpression v = parseValue(stmt.getObject());
             return new PropertyValueRestriction(comp, v);
         } else {
-            throw new AlignmentException("There is no pasrser for entity " + rdfType.getLocalName());
+            throw new AlignmentException("parseProperty : There is no parser for entity " + rdfType.getLocalName());
         }
     }
 
@@ -946,7 +946,7 @@ public class RDFParser {
                 throw new AlignmentException("Incorrect class expression " + nn);
             }
         } else {
-            throw new AlignmentException("There is no pasrser for entity " + rdfType.getLocalName());
+            throw new AlignmentException("parseRelation : There is no parser for entity " + rdfType.getLocalName());
         }
     }
 
@@ -962,7 +962,7 @@ public class RDFParser {
         } else if (isPattern) { // not necessarily with a variable (real patterns)
             return new InstanceId();
         } else {
-            throw new AlignmentException("There is no pasrser for entity " + rdfType.getLocalName());
+            throw new AlignmentException("parseInstance : There is no parser for entity " + rdfType.getLocalName());
         }
     }
 

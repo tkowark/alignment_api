@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -45,7 +44,7 @@ import org.testng.annotations.Test;
 public class SPARQLSelectRendererVisitorTest {
 
     @Test(groups = {"full", "impl", "raw"})
-    public void QueryFromWithoutLinkkey() throws Exception {
+    public void QueryWithoutLinkkey() throws Exception {
         String alignmentFileName = "alignment3.rdf";
         EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
         StringWriter stringWriter = new StringWriter();
@@ -81,7 +80,94 @@ public class SPARQLSelectRendererVisitorTest {
         assertEquals(renderer.getQueryFromOnto2ToOnto1(cell), expectedQuery);
     }
 
-    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryFromWithoutLinkkey"})
+//    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryWithoutLinkkey"})
+//    public void QueryFromAndProperty() throws Exception {
+//        String alignmentFileName = "alignment_with_and_property.rdf";
+//        EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
+//        StringWriter stringWriter = new StringWriter();
+//        PrintWriter writer = new PrintWriter(stringWriter);
+//        SPARQLSelectRendererVisitor renderer = new SPARQLSelectRendererVisitor(writer);
+//        Properties properties = new Properties();
+//        renderer.init(properties);
+//        alignment.render(renderer);
+//        assertEquals(alignment.nbCells(), 2);
+//        Enumeration<Cell> cells = alignment.getElements();
+//
+//        Cell cell1 = null;
+//        Cell cell2 = null;
+//        while (cells.hasMoreElements()) {
+//            Cell cell = cells.nextElement();
+//            if (cell.getId().equals("http://exmo.inrialpes.fr/connectors-core#cell1")) {
+//                cell1 = cell;
+//            } else {
+//                cell2 = cell;
+//            }
+//        }
+//        //First test : with "and" property on linkkey 
+//        String expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "SELECT DISTINCT ?s1 ?s2 \n"
+//                + "WHERE {\n"
+//                + "?s1 rdf:type ns0:RootElement .\n"
+//                + "?s2 rdf:type ns1:MusicalWork .\n"
+//                + "?s1 ns2:tonalite ?o1 .\n"
+//                + "?s2 rdf:type ns3:Key .\n"
+//                + "?s2 ns4:label ?o1 .\n"//@ Jérôme : we have ?o2 instead of ?o1
+//                + "FILTER(?s1 != ?s2)\n"
+//                + "}\n";
+//        assertEquals(renderer.getQueryFromOnto1ToOnto2(cell1), expectedQuery);
+//        expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "SELECT DISTINCT ?s1 ?s2 \n"
+//                + "WHERE {\n"
+//                + "?s2 rdf:type ns0:RootElement .\n"
+//                + "?s1 rdf:type ns1:MusicalWork .\n"
+//                + "?s2 ns2:tonalite ?o1 .\n"
+//                + "?s1 rdf:type ns3:Key .\n"
+//                + "?s1 ns4:label ?o1 .\n"//@ Jérôme : we have ?o2 instead of ?o1
+//                + "FILTER(?s1 != ?s2)\n"
+//                + "}\n";
+//        assertEquals(renderer.getQueryFromOnto2ToOnto1(cell1), expectedQuery);
+//        //Second test : with "and" property on entity
+//        expectedQuery = "SELECT QUERY 1 : PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "SELECT DISTINCT ?s1 ?s2 \n"
+//                + "WHERE {\n"
+//                + "?s1 ns2:tonalite ?o .\n"
+//                + "?s2 rdf:type ns3:Key .\n"
+//                + "?s2 ns4:label ?o .\n"//@ Jérôme : we have ?o2 instead of ?o
+//                + "FILTER(?s1 != ?s2)\n"
+//                + "}\n";
+//        assertEquals(renderer.getQueryFromOnto1ToOnto2(cell2), expectedQuery);
+//        expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "SELECT DISTINCT ?s1 ?s2 \n"
+//                + "WHERE {\n"
+//                + "?s2 ns2:tonalite ?o .\n"
+//                + "?s1 rdf:type ns3:Key .\n"
+//                + "?s1 ns4:label ?o .\n"//@ Jérôme : we have ?o2 instead of ?o
+//                + "FILTER(?s1 != ?s2)\n"
+//                + "}\n";
+//        assertEquals(renderer.getQueryFromOnto2ToOnto1(cell2), expectedQuery);
+//    }
+
+    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryWithoutLinkkey"})
     public void QueryFromSimpleLinkkeyAndIntersects() throws Exception {
         String alignmentFileName = "people_intersects_alignment.rdf";
         EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
@@ -153,7 +239,7 @@ public class SPARQLSelectRendererVisitorTest {
         }
     }
 
-    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryFromWithoutLinkkey", "QueryFromSimpleLinkkeyAndIntersects"})
+    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryWithoutLinkkey", "QueryFromSimpleLinkkeyAndIntersects"})
     public void QueryFromSimpleLinkkeyAndEquals() throws Exception {
         String alignmentFileName = "people_equals_alignment.rdf";
         EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
@@ -237,6 +323,7 @@ public class SPARQLSelectRendererVisitorTest {
             assertTrue(resultValues.contains(expected), "For expected : " + expected);
         }
     }
+
     @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryFromSimpleLinkkeyAndIntersects"})
     public void QueryFromRelationLinkkeyAndIntersects() throws Exception {
         String alignmentFileName = "people_relation_intersects_alignment.rdf";
@@ -414,7 +501,7 @@ public class SPARQLSelectRendererVisitorTest {
 //
 //    }
 
-//    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryFromWithoutLinkkey", "QueryFromSimpleLinkkeyFromEquals"})
+//    @Test(groups = {"full", "impl", "raw"}, dependsOnMethods = {"QueryWithoutLinkkey", "QueryFromSimpleLinkkeyFromEquals"})
 //    public void QueryFromSimpleLinkkeyFromIntersectsAndRelation() throws Exception {
 //        fail("HAVE TODO : with (in + eq) => OPTIONAL (with SERVICE call on remote) / many correspondances / With transformations / On local (FROM ...) or remote sparql endpoint (SERVICE) ");
 //    }

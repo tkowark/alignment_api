@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
-
-
 import fr.inrialpes.exmo.align.impl.edoal.ClassId;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
 import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
@@ -84,7 +82,7 @@ public class SPARQLConstructVisitorTest {
                 + "WHERE {\n"
                 + "?s ns0:opus ?o .\n"
                 + "}\n";
-        
+
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
@@ -95,12 +93,10 @@ public class SPARQLConstructVisitorTest {
                 + "?s ns1:opus ?o .\n"
                 + "}\n";
 
-        
         assertEquals(renderer.getQueryFromOnto1ToOnto2(opusCell), expectedQuery1);
         assertEquals(renderer.getQueryFromOnto2ToOnto1(opusCell), expectedQuery2);
-        
+
         //For remote sparql endpoint : 
-        
 //        String remoteServiceURIName = "http://example.org/remoteSparql";
 //        URI remoteServiceURI = new URI(remoteServiceURIName);
 //
@@ -153,7 +149,6 @@ public class SPARQLConstructVisitorTest {
         renderer.init(properties);
         alignment.render(renderer);
 
-
         String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
@@ -163,7 +158,7 @@ public class SPARQLConstructVisitorTest {
                 + "WHERE {\n"
                 + "?s rdf:type ns0:RootElement .\n"
                 + "}\n";
-        
+
         String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
                 + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
                 + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
@@ -173,57 +168,132 @@ public class SPARQLConstructVisitorTest {
                 + "WHERE {\n"
                 + "?s rdf:type ns1:MusicalWork .\n"
                 + "}\n";
-        
+
         assertEquals(renderer.getQueryFromOnto1ToOnto2(classCell), expectedQuery1);
         assertEquals(renderer.getQueryFromOnto2ToOnto1(classCell), expectedQuery2);
     }
 
     @Test(groups = {"full", "impl", "raw"})
     public void ConstructComposePropertyRelation() throws Exception {
-        String[] alignmentFilesNames = {"alignment1.rdf"};
-        for (String alignmentFileName : alignmentFilesNames) {
-            EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter writer = new PrintWriter(stringWriter);
-            SPARQLConstructRendererVisitor renderer = new SPARQLConstructRendererVisitor(writer);
-            Properties properties = new Properties();
-            renderer.init(properties);
-            alignment.render(renderer);
-            assertEquals(alignment.nbCells(), 1);
-            Enumeration<Cell> cells = alignment.getElements();
-            Cell cell = cells.nextElement();
+        String alignmentFileName = "alignment1.rdf";
+        EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        SPARQLConstructRendererVisitor renderer = new SPARQLConstructRendererVisitor(writer);
+        Properties properties = new Properties();
+        renderer.init(properties);
+        alignment.render(renderer);
+        assertEquals(alignment.nbCells(), 1);
+        Enumeration<Cell> cells = alignment.getElements();
+        Cell cell = cells.nextElement();
 
+        String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+                + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
+                + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
+                + "CONSTRUCT {\n"
+                + "_:o3 rdf:type ns1:Key .\n"
+                + "_:o3 ns2:key _:o4 .\n"
+                + "_:o4 ns3:label ?o .\n"
+                + "}\n"
+                + "WHERE {\n"
+                + "?s ns0:key ?o .\n"
+                + "}\n";
 
-            String expectedQuery1 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                    + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
-                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
-                    + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
-                    + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
-                    + "CONSTRUCT {\n"
-                    + "_:o3 rdf:type ns1:Key .\n"
-                    + "_:o3 ns2:key _:o4 .\n"
-                    + "_:o4 ns3:label ?o .\n"
-                    + "}\n"
-                    + "WHERE {\n"
-                    + "?s ns0:key ?o .\n"
-                    + "}\n";
-            
-            String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                    + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
-                    + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
-                    + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
-                    + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
-                    + "CONSTRUCT {\n"
-                    + "?s ns0:key ?o .\n"
-                    + "}\n"
-                    + "WHERE {\n"
-                    + "?o3 rdf:type ns1:Key .\n"
-                    + "?o3 ns2:key ?o4 .\n"
-                    + "?o4 ns3:label ?o .\n"
-                    + "}\n";
-            assertEquals(renderer.getQueryFromOnto1ToOnto2(cell), expectedQuery1, "FOR alignment file " + alignmentFileName);
-            assertEquals(renderer.getQueryFromOnto2ToOnto1(cell), expectedQuery2, "FOR alignment file " + alignmentFileName);
-        }
+        String expectedQuery2 = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                + "PREFIX ns1:<http://purl.org/NET/c4dm/keys.owl#>\n"
+                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors#>\n"
+                + "PREFIX ns3:<http://www.w3.org/2000/01/rdf-schema#>\n"
+                + "PREFIX ns2:<http://purl.org/ontology/mo/>\n"
+                + "CONSTRUCT {\n"
+                + "?s ns0:key ?o .\n"
+                + "}\n"
+                + "WHERE {\n"
+                + "?o3 rdf:type ns1:Key .\n"
+                + "?o3 ns2:key ?o4 .\n"
+                + "?o4 ns3:label ?o .\n"
+                + "}\n";
+        assertEquals(renderer.getQueryFromOnto1ToOnto2(cell), expectedQuery1, "FOR alignment file " + alignmentFileName);
+        assertEquals(renderer.getQueryFromOnto2ToOnto1(cell), expectedQuery2, "FOR alignment file " + alignmentFileName);
     }
 
+//    @Test(groups = {"full", "impl", "raw"})
+//    public void ConstructFromAndProperty() throws Exception {
+//        String alignmentFileName = "alignment_with_and_property.rdf";
+//        EDOALAlignment alignment = Utils.loadAlignement(alignmentFileName);
+//        StringWriter stringWriter = new StringWriter();
+//        PrintWriter writer = new PrintWriter(stringWriter);
+//        SPARQLConstructRendererVisitor renderer = new SPARQLConstructRendererVisitor(writer);
+//        Properties properties = new Properties();
+//        renderer.init(properties);
+//        alignment.render(renderer);
+//        assertEquals(alignment.nbCells(), 2);
+//        Enumeration<Cell> cells = alignment.getElements();
+//
+//        Cell cell1 = null;
+//        Cell cell2 = null;
+//        while (cells.hasMoreElements()) {
+//            Cell cell = cells.nextElement();
+//            if (cell.getId().equals("http://exmo.inrialpes.fr/connectors-core#cell1")) {
+//                cell1 = cell;
+//            } else {
+//                cell2 = cell;
+//            }
+//        }
+//        //First test : with "and" property on linkkey 
+//        String expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s rdf:type ns1:MusicalWork .\n"
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "?s rdf:type ns0:RootElement .\n"
+//                + "}\n";
+//        String realQuery = renderer.getQueryFromOnto1ToOnto2(cell1);
+//        assertEquals(realQuery, expectedQuery);
+//        expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s rdf:type ns0:RootElement .\n"
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "?s rdf:type ns1:MusicalWork .\n"
+//                + "}\n";
+//        realQuery = renderer.getQueryFromOnto2ToOnto1(cell1);
+//        assertEquals(realQuery, expectedQuery);
+//        //Second test : with "and" property on entity
+//        expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s rdf:type ns3:Key .\n"
+//                + "?s ns4:label ?o .\n"//@ Jérôme : we have ?o2 instead of ?o
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "?s ns2:tonalite ?o .\n"
+//                + "}\n";
+//        realQuery = renderer.getQueryFromOnto1ToOnto2(cell2);
+//        assertEquals(realQuery, expectedQuery);
+//        expectedQuery = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+//                + "PREFIX ns2:<http://exmo.inrialpes.fr/connectors-data#>\n"
+//                + "PREFIX ns0:<http://exmo.inrialpes.fr/connectors-core#>\n"
+//                + "PREFIX ns3:<http://purl.org/NET/c4dm/keys.owl#>\n"
+//                + "PREFIX ns4:<http://www.w3.org/2000/01/rdf-schema#>\n"
+//                + "PREFIX ns1:<http://purl.org/ontology/mo/>\n"
+//                + "CONSTRUCT {\n"
+//                + "?s ns2:tonalite ?o .\n"
+//                + "}\n"
+//                + "WHERE {\n"
+//                + "?s rdf:type ns3:Key .\n"
+//                + "?s ns4:label ?o .\n"//@ Jérôme : we have ?o2 instead of ?o
+//                + "}\n";
+//        realQuery = renderer.getQueryFromOnto2ToOnto1(cell2);
+//        assertEquals(realQuery, expectedQuery);
+//    }
 }
