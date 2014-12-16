@@ -163,16 +163,14 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 	return Collections.emptySet();
     }
 
-
     /**
      * Clone does some deeper cloning
      * It has the same content but a different id (no id indeed)
      */
     public BasicOntologyNetwork clone() {
 	//public Object clone() {
-	BasicOntologyNetwork network = new BasicOntologyNetwork();
+	BasicOntologyNetwork network = copyOnto();
 	network.setExtensions( extensions.convertExtension( "cloned", this.getClass().getName()+"#clone" ) );
-	for ( URI onto : ontologies.keySet() ) network.addOntology( onto );
 	for ( Alignment al : alignments ) {
 	    try { 
 		network.addAlignment( al );
@@ -180,6 +178,17 @@ public class BasicOntologyNetwork implements OntologyNetwork, Extensible {
 		logger.debug( "IGNORED Exception : should not happen {}", al );
 	    }
 	}
+	return network;
+    }
+
+    /**
+     * Clone does some deeper cloning
+     * It has the same content but a different id (no id indeed)
+     */
+    public BasicOntologyNetwork copyOnto() {
+	//public Object clone() {
+	BasicOntologyNetwork network = new BasicOntologyNetwork();
+	for ( URI onto : ontologies.keySet() ) network.addOntology( onto );
 	return network;
     }
 
