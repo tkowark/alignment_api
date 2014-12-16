@@ -363,6 +363,7 @@
       destdir="javadoc"
       author="true"
       version="true"
+      encoding="iso8859-15"
       Use="true" Splitindex="true" private="true"
       Windowtitle="Alignment API and Server"
       doctitle="Alignment API and Server ${version}" 
