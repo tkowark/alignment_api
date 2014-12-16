@@ -323,11 +323,11 @@ Generating OWL axioms from the alignments and merge the ontologies can be done w
 <p>Considering that the alignment has been stored in a file:
   alignment.rdf, this can be obtained locally:</p>
 <div class="terminal">
-$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.ParserPrinter file:alignment.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -o result/alignment.owl
+$ java -cp $CLASSPATH fr.inrialpes.exmo.align.cli.ParserPrinter file:alignment.rdf -r fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor -o results/alignment.owl
 </div>
 or from the server:
 <div class="terminal">
-$ curl -L -H "Accept:application/rdf+xml" ${RESTSERV}'/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor&id=http://aserv.inrialpes.fr/alid/1417700303045/7849' > result/alignment.owl
+$ curl -L -H "Accept:application/rdf+xml" ${RESTSERV}'/retrieve?method=fr.inrialpes.exmo.align.impl.renderer.OWLAxiomsRendererVisitor&id=http://aserv.inrialpes.fr/alid/1417700303045/7849' > results/alignment.owl
 </div>
 </div>
 <div class="explain" id="qu5java">
@@ -363,7 +363,7 @@ writer.close();
   hermit requires gnu getopt which is not shipped anymore with the
   Alignment API):</p>
 <!--div class="terminal">
-$ java -jar HermiT.jar -l result/alignment.owl -k
+$ java -jar HermiT.jar -l results/alignment.owl -k
 http://www.w3.org/2002/07/owl#Thing is satisfiable.
 </div>
 another option is:-->
@@ -468,6 +468,10 @@ Classes equivalent to 'owl:Nothing':
 	owl:Nothing
 </div>
 </div>
+
+
+java -jar AgreementMakerLightCLI.jar -r -s ontology1.owl -t ontology2.owl -i alignment.rdf -o results/aml-alignment.rdf
+
 <div class="explain" id="qu10alcomo">
 <p>This also assumes that <a href="http://web.informatik.uni-mannheim.de/alcomo/">Alcomo</a>
  has been downloaded and is added to the path.
@@ -539,7 +543,7 @@ consistent. Hence we can check some entailment results.
   <input type="button" onclick="hide('qu11cli');hide('qu11java');hide('qu11iddljava');" value="Hide solutions"/>
 </div>
 <div class="explain" id="qu11cli">
-<p>Considering that the merged ontologies in a file: result/alignment.owl,
+<p>Considering that the merged ontologies in a file: results/alignment.owl,
   and that you have uploaded HermiT (the Command line version of
   hermit requires gnu getopt which is not shipped anymore with the
   Alignment API):</p>
