@@ -240,11 +240,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     	    }
 	} else if ( perf.equals("prmstore") ){
 	    msg = "<h1>Store a network of ontologies</h1><form action=\"store\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), true )+"<br />";
 	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
 	} else if ( perf.equals("store") ){
-	    // JE 2014: why???
-	    // here should be done the switch between store and load/store
 	    String id = params.getProperty("id");
 	    String url = params.getProperty("url");
 	    if ( url != null && !url.equals("") ) {
@@ -261,13 +259,13 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		    msg = testErrorMessages( answer, params, eSource );
 		} else {
 		    msg = "<h1>Ontology Network stored</h1>";
-		    msg += displayAnswerON( answer, params ); //it was msg += displayAnswer( answer, params );
+		    msg += displayAnswerON( answer, params );
 		}
 	    }	
 	} else if ( perf.equals("list") ){
 	} else if ( perf.equals("prmtrim") ){
 	    msg ="<h1>Trim networks</h1><form action=\"trim\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
 	} else if ( perf.equals("trim") ){
 	    Message answer = manager.trimOntologyNetwork( params );
@@ -279,7 +277,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }  
 	} else if ( perf.equals("prmmatch") ){
 	    msg = "<h1>Match a network of ontologies</h1><form action=\"match\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<br />Methods: <select name=\"method\">";
 	    for( String idMethod : manager.listmethods() ) {
 		msg += "<option value=\""+idMethod+"\">"+idMethod+"</option>"; 
@@ -293,8 +291,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    msg += "<br /><br /><input type=\"submit\" name=\"action\" value=\"Match\"/> ";
 	    msg += "</form>";
 	} else if ( perf.equals("match") ) {
-	    //String idON = params.getProperty("id");
-	    //logger.debug("Matching network {}", idON);
+	    //logger.debug("Matching network {}", params.getProperty("id"));
 	    Message answer = manager.matchOntologyNetwork( params );
 	    if ( answer instanceof ErrorMsg ) {
 		msg = testErrorMessages( answer, params, eSource );
@@ -304,7 +301,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }	    
 	} else if ( perf.equals("prmretrieve") ){
 	    msg = "<h1>Retrieve a network of ontology</h1><form action=\"retrieve\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<br /><input type=\"submit\" value=\"Retrieve\"/></form>";
 	} else if ( perf.equals("retrieve") ) {
 	    Message answer = manager.renderOntologyNetwork( params );
@@ -316,7 +313,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prminvert") ) {
 	    msg = "<h1>Invert a network of ontologies</h1><form action=\"invert\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<input type=\"submit\" name=\"invert\" value=\"Invert\" /> ";
 	    msg += "</form>";
 	} else if ( perf.equals("invert") ){
@@ -329,7 +326,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }  
 	} else if ( perf.equals("prmclose") ){
 	    msg = "<h1>Close a network of ontologies</h1><form action=\"close\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<input type=\"checkbox\" name=\"symmetric\" value=\"Symmetric\"/> Symmetric ";
 	    msg += "<input type=\"checkbox\" name=\"transitive\" value=\"Transitive\"/> Transitive ";
 	    msg += "<input type=\"checkbox\" name=\"reflexive\" value=\"Reflexive\"/> Reflexive ";
@@ -346,7 +343,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }  
 	} else if ( perf.equals("prmnormalize") ){
 	    msg = "<h1>Normalize/denormalize a network of ontologies</h1><form action=\"norm\">";
-	    msg += networkChooser( "Network id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += networkChooser( "Network id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<input type=\"checkbox\" name=\"new\" /> New ";
 	    msg += "<input type=\"submit\" name=\"oper\" value=\"Normalize\" /> ";
 	    msg += "<input type=\"submit\" name=\"oper\" value=\"Denormalize\" /> ";
@@ -366,9 +363,9 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmoperset") ){
 	    msg = "<h1>Algebraic operations on ontology networks</h1><form action=\"opset\">";
-	    msg += networkChooser( "Network 1: ", "id1", params.getProperty("id1") );
+	    msg += networkChooser( "Network 1: ", "id1", params.getProperty("id1"), false );
 	    msg +="<select name=\"oper\"><option value=\"meet\"><option value=\"join\"><option value=\"diff\"></select>";
-	    msg += networkChooser( "Network 2: ", "id2", params.getProperty("id2") )+"<br />";
+	    msg += networkChooser( "Network 2: ", "id2", params.getProperty("id2"), false )+"<br />";
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Execute\"/> ";
 	    msg += "</form>";
 	} else if ( perf.equals("opset") ){
@@ -399,15 +396,17 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	return "<html><head>"+HEADER+"</head><body>"+msg+"<hr /><center><small><a href=\".\">Network management</a></small></center></body></html>";
     }
 
-    public String networkChooser( String header, String label, String selected ) {
+    public String networkChooser( String header, String label, String selected, boolean stored ) {
 	String msg = header+"<select name=\""+label+"\">";
 	for ( OntologyNetwork on : manager.ontologyNetworks() ) {		    	
-	    String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
-	    String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.EXT.uri, Annotations.PRETTY );
-	    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-	    if ( selected != null && selected.equals( id ) ){
-		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
-	    } else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    if ( !stored || !manager.storedNetwork( on ) ){
+		String id = ((BasicOntologyNetwork)on).getExtension( Namespace.ALIGNMENT.uri, Annotations.ID );
+		String pid = ((BasicOntologyNetwork)on).getExtension( Namespace.EXT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		if ( selected != null && selected.equals( id ) ){
+		    msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
+	    }
 	}
 	return msg+"</select>";
     }
@@ -498,18 +497,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else 	if ( perf.equals("prmstore") ) {
 	    msg = "<h1>Store an alignment</h1><form action=\"store\">";
-	    msg += "Alignment id:  <select name=\"id\">";
-	    // JE: only those non stored please (retrieve metadata + stored)
-	    for ( Alignment al : manager.alignments() ) {
-		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-		params.setProperty("id", id);
-		if ( !manager.storedAlignment( params ) ){
-		    String pid = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
-		    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-		    msg += "<option value=\""+id+"\">"+pid+"</option>";
-		}
-	    }
-	    msg += "</select><br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", null, true )+"<br />";
 	    msg += "<input type=\"submit\" value=\"Store\"/></form>";
 	} else if ( perf.equals("store") ) {
 	    // here should be done the switch between store and load/store
@@ -534,7 +522,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmtrim") ) {
 	    msg ="<h1>Trim alignments</h1><form action=\"trim\">";
-	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "Type: <select name=\"type\"><option value=\"hard\">hard</option><option value=\"perc\">perc</option><option value=\"best\">best</option><option value=\"span\">span</option><option value=\"prop\">prop</option></select><br />Threshold: <input type=\"text\" name=\"threshold\" size=\"4\"/> <small>A value between 0. and 1. with 2 digits</small><br /><input type=\"submit\" name=\"action\" value=\"Trim\"/><br /></form>";
 	} else if ( perf.equals("trim") ) {
 	    String id = params.getProperty("id");
@@ -550,7 +538,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prminv") ) {
 	    msg ="<h1>Invert alignment</h1><form action=\"inv\">";
-	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<input type=\"submit\" name=\"action\" value=\"Invert\"/><br /></form>";
 	} else if ( perf.equals("inv") ) {
 	    String id = params.getProperty("id");
@@ -580,6 +568,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 		msg += "<option value=\""+id+"\">"+id+"</option>";
 	    }
 	    msg += "</select><br />Initial alignment id:  <select name=\"id\"><option value=\"\" selected=\"1\"></option>";
+	    // Not used because empty should be first (and selected)
+	    //alignmentChooser( "Initial alignment id: ", "id", null, true );
 	    for( Alignment al: manager.alignments() ){
 		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
 		String pid = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
@@ -628,7 +618,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmretrieve") ) {
 	    msg = "<h1>Retrieve alignment</h1><form action=\"retrieve\">";
-	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "Rendering: <select name=\"method\">";
 	    for( String id : manager.listrenderers() ) {
 		msg += "<option value=\""+id+"\">"+id+"</option>";
@@ -648,7 +638,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	// Metadata not done yet
 	} else if ( perf.equals("prmmetadata") ) {
 	    msg = "<h1>Retrieve alignment metadata</h1><form action=\"metadata\">";
-	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "<input type=\"submit\" value=\"Get metadata\"/></form>";
 	} else if ( perf.equals("metadata") ) {
 	    if( params.getProperty("renderer") == null || (params.getProperty("renderer")).equals("HTML") )
@@ -690,7 +680,7 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmtranslate") ) {
 	    msg = "<h1>Translate query</h1><form action=\"translate\">";
-	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id") )+"<br />";
+	    msg += alignmentChooser( "Alignment id: ", "id", params.getProperty("id"), false )+"<br />";
 	    msg += "PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .<br /><br />SPARQL query:<br /> <textarea name=\"query\" rows=\"20\" cols=\"80\">PREFIX foaf: <http://xmlns.com/foaf/0.1/>\nSELECT *\nFROM <>\nWHERE {\n\n}</textarea> (SPARQL)<br /><small>A SPARQL query (PREFIX prefix: &lt;uri&gt; SELECT variables FROM &lt;url&gt; WHERE { triples })</small><br /><input type=\"submit\" value=\"Translate\"/></form>";
 	} else if ( perf.equals("translate") ) {
 	    Message answer = manager.translate( params );
@@ -705,8 +695,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	    }
 	} else if ( perf.equals("prmeval") ) {
 	    msg ="<h1>Evaluate alignment</h1><form action=\"eval\">";
-	    msg += alignmentChooser( "Alignment to evaluate: ", "id", params.getProperty("id") )+"<br />";
-	    msg += alignmentChooser( "Reference alignment: ", "ref", params.getProperty("ref") )+"<br />";
+	    msg += alignmentChooser( "Alignment to evaluate: ", "id", params.getProperty("id"), false )+"<br />";
+	    msg += alignmentChooser( "Reference alignment: ", "ref", params.getProperty("ref"), false )+"<br />";
 	    msg += "Evaluator: ";
 	    msg += "<select name=\"method\">";
 	    for( String id : manager.listevaluators() ) {
@@ -730,8 +720,8 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
 	} else if ( perf.equals("getresults") ) {
 	} else if ( perf.equals("prmdiff") ) {
 	    msg ="<h1>Compare alignments</h1><form action=\"diff\">";
-	    msg += alignmentChooser( "First alignment: ", "id1", params.getProperty("id1") )+"<br />";
-	    msg += alignmentChooser( "Second alignment: ", "id2", params.getProperty("id2") )+"<br />";
+	    msg += alignmentChooser( "First alignment: ", "id1", params.getProperty("id1"), false )+"<br />";
+	    msg += alignmentChooser( "Second alignment: ", "id2", params.getProperty("id2"), false )+"<br />";
 	    msg += "<br /><input type=\"submit\" name=\"action\" value=\"Compare\"/>\n";
 	    msg += "</form>\n";
 	} else if ( perf.equals("diff") ) {
@@ -766,19 +756,20 @@ public class HTMLAServProfile implements AlignmentServiceProfile {
     // ===============================================
     // Util
 
-    public String alignmentChooser( String header, String label, String selected ) {
+    public String alignmentChooser( String header, String label, String selected, boolean stored ) {
 	String msg = header+"<select name=\""+label+"\">";
-	for( Alignment al: manager.alignments() ){
-	    String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
-	    String pid = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
-	    if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
-	    if ( selected != null && selected.equals( id ) ){
-		msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
-	    } else {
-		msg += "<option value=\""+id+"\">"+pid+"</option>";
+	for ( Alignment al : manager.alignments() ) {
+	    // display only those non stored
+	    if ( !stored || !manager.storedAlignment( al ) ){
+		String id = al.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID);
+		String pid = al.getExtension( Namespace.EXT.uri, Annotations.PRETTY );
+		if ( pid == null ) pid = id; else pid = id+" ("+pid+")";
+		if ( selected != null && selected.equals( id ) ){
+		    msg += "<option selected=\"1\" value=\""+id+"\">"+pid+"</option>";
+		} else { msg += "<option value=\""+id+"\">"+pid+"</option>";}
 	    }
 	}
-	return msg+"</select>";
+	return msg + "</select><br />";
     }
 
     private String testErrorMessages( Message answer, Properties param, String source ) {
