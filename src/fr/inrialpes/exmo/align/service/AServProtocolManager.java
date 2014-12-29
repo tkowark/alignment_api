@@ -819,7 +819,8 @@ public class AServProtocolManager implements Service {
 	return new ErrorMsg( params, newId(), serverId,"Not yet implemented" );
     }
 
-    public boolean storedAlignment( Properties params ) {
+    /*
+      public boolean storedAlignment( Properties params ) {
 	// Retrieve the alignment
 	String id = params.getProperty("id");
 	Alignment al = null;
@@ -829,6 +830,15 @@ public class AServProtocolManager implements Service {
 	    return false;
 	}
 	return alignmentCache.isAlignmentStored( al );
+	}*/
+
+    // This only an indirection
+    public boolean storedAlignment( Alignment al ) {
+	return alignmentCache.isAlignmentStored( al );
+    }
+
+    public boolean storedNetwork( OntologyNetwork on ) {
+	return alignmentCache.isNetworkStored( on );
     }
 
 

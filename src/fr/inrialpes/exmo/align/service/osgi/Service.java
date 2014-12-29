@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2013
+ * Copyright (C) INRIA, 2013-2014
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.net.URI;
 
 import org.semanticweb.owl.align.Alignment;
+import org.semanticweb.owl.align.OntologyNetwork;
 
 import fr.inrialpes.exmo.align.service.msg.Message;
 
@@ -35,7 +36,9 @@ import fr.inrialpes.exmo.align.service.msg.Message;
  * However, it may be more useful to provide an implementation that
  * decodes all messages in Java objects.
  * This may be necessary as a second step.
+ *
  */
+
 public interface Service {
 
     public Set<String> listmethods ();
@@ -109,15 +112,39 @@ public interface Service {
 
     public Message diff( Properties mess );
 
-    public boolean storedAlignment( Properties mess );
-
     /*********************************************************************
      * Network of alignment server implementation
      *********************************************************************/
 
+    public Message loadOntologyNetwork( Properties params );
+
+    public Message renderOntologyNetwork( Properties params );
+
+    public Message renderHTMLNetwork( Properties params );
+
+    public Message storeOntologyNetwork( Properties params );
+
+    public Message matchOntologyNetwork( Properties params );
+
+    public Message trimOntologyNetwork( Properties params );
+
+    public Message closeOntologyNetwork( Properties params );
+
+    public Message normOntologyNetwork( Properties params );
+
+    public Message denormOntologyNetwork( Properties params );
+
+    public Message invertOntologyNetwork( Properties params );
+
+    public Message setopOntologyNetwork( Properties params );
+
     /*********************************************************************
      * Utilities: reaching and loading ontologies
      *********************************************************************/
+
+    public boolean storedAlignment( Alignment al );
+
+    public boolean storedNetwork( OntologyNetwork on );
 
     //public LoadedOntology reachable( URI uri );
 
