@@ -66,7 +66,7 @@ public class SQLCache extends VolatilCache implements Cache {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    final int VERSION = 465; // Version of the API to be stored in the database
+    final int VERSION = 470; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -79,17 +79,17 @@ public class SQLCache extends VolatilCache implements Cache {
        450: ADDED ontology table / reduced alignment table
 	    ADDED prefix in server
             ADDED dependency database (no action)
-       462: CHANGED THE STICKER BECAUSE OF IMPLEMENTATION
+       470: CHANGED THE STICKER BECAUSE OF IMPLEMENTATION
             SUPPRESSED alignment information (id,source) from ontology
             ADDED ontology ids to alignments (onto1, onto2)
             ADDED network table
             ADDED networkontology join table
             ADDED networkalignment join table
-       463: ADDED FOREIGN KEY CONSTRAINTS
-       // URIINdex:
-       464: ADDED multiple uris for alignments (?)
-       // ALEX
-       465: CHANGED the alext namespace
+            ADDED FOREIGN KEY CONSTRAINTS
+            // URIINdex:
+            ADDED multiple uris for alignments (?)
+            CHANGED the alext namespace
+       471: -- nothing for the moment --
      */
 
     DBService service = null;
@@ -1075,7 +1075,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		    //st.executeUpdate( "UPDATE extension SET val=( SELECT e2.val FROM extension e2 WHERE e2.tag='cached' AND e2.id=extension.id ) WHERE tag='stored' AND val=''" );
 		    // We should also implement a clean up (suppress all starting with http://)
 		}
-		if ( version < 462 ) {
+		if ( version < 465 ) { // Unfortunately 4.7 was released with 465 tag...
 		    logger.info("Upgrading to version 4.7");
 		    logger.info("Updating Alignment table");
 		    st.executeUpdate("ALTER TABLE alignment ADD onto1 VARCHAR(255);");
@@ -1099,8 +1099,6 @@ public class SQLCache extends VolatilCache implements Cache {
 		    st.executeUpdate("CREATE TABLE network (id VARCHAR(100), PRIMARY KEY (id))");
 		    st.executeUpdate("CREATE TABLE networkontology (network VARCHAR(100), onto VARCHAR(255), FOREIGN KEY (network) REFERENCES network (id), FOREIGN KEY (onto) REFERENCES ontology (uri), PRIMARY KEY (network,onto))");
 		    st.executeUpdate("CREATE TABLE networkalignment (network VARCHAR(100), align VARCHAR(100), FOREIGN KEY (network) REFERENCES network (id), FOREIGN KEY (align) REFERENCES alignment (id), PRIMARY KEY (network,align))");
-		}
-		if ( version < 463 ) {
 		    // CREATE PRIMARY AND FOREIGN KEYS
 		    logger.info("Adding foreign keys");
 		    // suppress orphean cells (the reciprocal would delete empty alignments)
@@ -1113,23 +1111,19 @@ public class SQLCache extends VolatilCache implements Cache {
 		    st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT alon2fk FOREIGN KEY (onto2) REFERENCES ontology (uri);");
 		    //This was already the primary key
 		    //st.executeUpdate("ALTER TABLE alignment ADD CONSTRAINT PRIMARY KEY (id);");
-		}
-		if ( version < 464 ) {
 		    // ADDED TABLE FOR MULTIPLE URIs
 		    // URIINdex:
 		    logger.info("Creating URI index table");
 		    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(255), prefered boolean);");
-		}
-		if ( version < 465 ) {
 		    // CHANGE EXTENSION NAMESPACE
-		    // ALEXT
 		    logger.info("Changing extension namespaces");
-		    Statement st2 = createStatement();
 		    // Normalise
 		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.ALIGNMENT.uri+"#' WHERE uri='"+Namespace.ALIGNMENT.uri+"'");
 		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.EXT.uri+"' WHERE uri='"+Namespace.ALIGNMENT.uri+"#' AND (tag='time' OR tag='method' OR tag='pretty')");
 		}
-		// EDOAL
+		if ( version < 471 ) {
+		    // EDOAL: usually add tables
+		}
 		// ALTER version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"'");
 	    } else {
