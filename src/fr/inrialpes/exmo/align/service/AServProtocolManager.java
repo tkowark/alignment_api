@@ -1,7 +1,7 @@
 /*
  * $id: AServProtocolManager.java 1902 2014-03-17 19:39:04Z euzenat $
  *
- * Copyright (C) INRIA, 2006-2014
+ * Copyright (C) INRIA, 2006-2015
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -925,8 +925,12 @@ public class AServProtocolManager implements Service {
 	}
 	result = "<h1>" + id+ " ("+pidON+")" +"</h1>";
 	result += "<table border=\"0\">\n";
+	result += "<h2>Network metadata</h2>\n<table border=\"0\">\n";
+	for ( String[] ext : noo.getExtensions() ){
+	    result += "<tr><td>"+ext[0]+" : "+ext[1]+"</td><td>"+ext[2]+"</td></tr>\n";
+	}
     	Collection<URI> networkOntology = noo.getOntologies();
-	result += "<h2>Ontologies ("+networkOntology.size()+")</h2>\n";
+	result += "</table>\n<h2>Ontologies ("+networkOntology.size()+")</h2>\n";
 	result += "<ul>";
 	for ( URI onto : networkOntology ) {
 	    result += "<li><a href=\"" + onto.toString() +"\">"+ onto.toString() + "</a></li>";
@@ -947,19 +951,6 @@ public class AServProtocolManager implements Service {
     	return new RenderedNetwork( params, newId(), serverId, result );
     }
     
-    /*
-    public boolean storedOntologyNetwork( Properties params ) {
-    	// Retrieve the ontology network
-    	String id = params.getProperty("id");
-    	OntologyNetwork noo = null;
-    	try {
-    	    noo = alignmentCache.getOntologyNetwork( id );
-    	} catch (Exception e) {
-    	    return false;
-    	}
-    	return alignmentCache.isNetworkStored( noo );
-	}*/
- 
     public Message storeOntologyNetwork( Properties params ) {
     	String id = params.getProperty("id");
       	OntologyNetwork noo = null;
