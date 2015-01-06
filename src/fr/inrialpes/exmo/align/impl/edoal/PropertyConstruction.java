@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006 - was PropertyExpr
- * Copyright (C) INRIA, 2009-2010, 2012
+ * Copyright (C) INRIA, 2009-2010, 2012, 2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,8 +22,8 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
@@ -46,39 +46,46 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 public class PropertyConstruction extends PropertyExpression {
 
-    /** Holds all expressions. */
-    private Collection<PathExpression> components;
+    /** Holds all expressions: ordered for comp */
+    private List<PathExpression> components;
     
     /** Operator of this complex expression. */
     private Constructor operator;
     
     public PropertyConstruction() {
 	super();
-	components = new HashSet<PathExpression>();
+	components = new Vector<PathExpression>();
     }
 
-    public PropertyConstruction( Constructor op, Collection<PathExpression> expressions ) {
-	if ((expressions == null) || (op == null)) {
+    public PropertyConstruction( Constructor op, List<PathExpression> expressions ) {
+	operator = op;
+	components = expressions;
+	if ( (expressions == null) || (op == null) ) {
 	    throw new NullPointerException("The subexpressions and the operator must not be null");
 	}
-	if (expressions.contains(null)) {
-	    throw new IllegalArgumentException("The subexpressions must not contain null");
-	}
-	// The collection should have only relations and end in a property
-	// It should be ordered with comp: implement List
-	this.components = expressions;
-	if ( op != SyntaxElement.AND.getOperator() &&
-	     op != SyntaxElement.OR.getOperator() &&
-	     op != SyntaxElement.NOT.getOperator() &&
-	     op != SyntaxElement.COMPOSE.getOperator() ) {
-	    throw new IllegalArgumentException( "Incorrect operator for property : "+op );
-	}
-	this.operator = op;
+	if ( op == SyntaxElement.COMPOSE.getOperator() ) {
+	    // In case of COMPOSE, the list should have only relations and end in a property
+	    for ( PathExpression pe : components.subList( 0, components.size()-1 ) ) {
+		if ( ! ( pe instanceof RelationExpression ) ) 
+		    throw new IllegalArgumentException( "Property composition must be based on relation expressions" );
+	    }
+	    if ( ! ( components.get( components.size()-1 ) instanceof PropertyExpression ) ) 
+		    throw new IllegalArgumentException( "Property composition must end by a property expressions" );
+	} else if ( op == SyntaxElement.AND.getOperator() ||
+		    op == SyntaxElement.OR.getOperator() ||
+		    op == SyntaxElement.NOT.getOperator() ) {
+	    // Otherwise it must only contain PropertyExpressions
+	    for ( PathExpression pe : components ) {
+		if ( ! ( pe instanceof PropertyExpression ) ) 
+		    throw new IllegalArgumentException( "Property construction with "+op+" must only contain property expressions" );
+	    }
+	} else throw new IllegalArgumentException( "Incorrect operator for property : "+op );
     }
 
     public void accept( EDOALVisitor visitor ) throws AlignmentException {
 	visitor.visit( this );
     }
+
     public TYPE accept(TypeCheckingVisitor visitor) throws AlignmentException {
 	return visitor.visit(this);
     }
@@ -87,15 +94,18 @@ public class PropertyConstruction extends PropertyExpression {
 	return operator;
     }
 
+    // Bypasses type checking!
     public void setOperator( Constructor op ) {
 	operator = op;
     }
 
-    public Collection<PathExpression> getComponents() {
+    public List<PathExpression> getComponents() {
 	return components;
     }
 
-    public void addComponents( PathExpression exp ) {
+    public void addComponent( PropertyExpression exp ) throws AlignmentException {
+	if ( operator == SyntaxElement.COMPOSE.getOperator() )
+	    throw new AlignmentException( "Cannot add component to a property composition path" );
 	components.add( exp );
     }
 

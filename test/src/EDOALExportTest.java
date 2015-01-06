@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.3 -- 2007
- * Copyright (C) INRIA, 2009-2014
+ * Copyright (C) INRIA, 2009-2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -46,6 +46,7 @@ import java.io.OutputStreamWriter;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Vector;
 import java.util.Set;
 import java.net.URI;
 
@@ -222,19 +223,23 @@ public class EDOALExportTest {
          "<edoal:Property rdf:about=\"http://my.beauty.url\"/>");
          assertEquals( render( Path.EMPTY ),"<edoal:Path rdf:resource=\"http://ns.inria.fr/edoal#emptyPath\"/>");
          */
-        final LinkedHashSet<PathExpression> expressions = new LinkedHashSet<PathExpression>(3);
+        final Vector<RelationExpression> expressions = new Vector<RelationExpression>();
         expressions.add(new RelationId(new URI("http://my.beauty.url")));
         expressions.add(new RelationId(new URI("http://my.nasty.url")));
         expressions.add(new RelationId(new URI("http://my.richi.url")));
-        assertEquals(render(new RelationConstruction(Constructor.COMP, expressions)),
+        assertEquals(render(new RelationConstruction(Constructor.COMP, (Vector<RelationExpression>)expressions)),
                 "<edoal:Relation><edoal:compose rdf:parseType=\"Collection\">"
                 + "<edoal:Relation rdf:about=\"http://my.beauty.url\"/>"
                 + "<edoal:Relation rdf:about=\"http://my.nasty.url\"/>"
                 + "<edoal:Relation rdf:about=\"http://my.richi.url\"/>"
                 + "</edoal:compose></edoal:Relation>");
 
-        expressions.add(new PropertyId(new URI("http://my.final.url")));
-        assertEquals(render(new PropertyConstruction(Constructor.COMP, expressions)),
+	final Vector<PathExpression> expr2 = new Vector<PathExpression>();
+	for ( PathExpression pe : expressions ) {
+	    expr2.add( (RelationExpression)pe );
+	}
+        expr2.add(new PropertyId(new URI("http://my.final.url")));
+        assertEquals(render(new PropertyConstruction(Constructor.COMP, expr2)),
                 "<edoal:Property><edoal:compose rdf:parseType=\"Collection\">"
                 + "<edoal:Relation rdf:about=\"http://my.beauty.url\"/>"
                 + "<edoal:Relation rdf:about=\"http://my.nasty.url\"/>"
@@ -367,7 +372,7 @@ public class EDOALExportTest {
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})
     public void testExportPropertyExpr() throws Exception {
-        final Set<PathExpression> expressions = new LinkedHashSet<PathExpression>(2);
+        final Vector<PathExpression> expressions = new Vector<PathExpression>();
         expressions.add(new PropertyId(new URI("http://mein/super/property0")));
         expressions.add(new PropertyId(new URI("http://mein/super/property1")));
         final PropertyId single = new PropertyId(new URI("http://mein/super/property"));
@@ -380,7 +385,7 @@ public class EDOALExportTest {
                 + "<edoal:Property rdf:about=\"http://mein/super/property1\"/>"
                 + "</edoal:and></edoal:Property>");
 
-        final Set<PathExpression> expressions2 = new LinkedHashSet<PathExpression>(2);
+        final Vector<PathExpression> expressions2 = new Vector<PathExpression>();
         expressions2.add(new PropertyConstruction(Constructor.OR, expressions));
         expressions2.add(new PropertyValueRestriction(Comparator.EQUAL, new Value("5")));
         toExport = new PropertyConstruction(Constructor.AND, expressions2);
@@ -392,7 +397,7 @@ public class EDOALExportTest {
                 + "<edoal:comparator rdf:resource=\"http://ns.inria.org/edoal/1.0/#equals\"/>"
                 + "<edoal:value><edoal:Literal edoal:string=\"5\"/></edoal:value></edoal:PropertyValueRestriction>"
                 + "</edoal:and></edoal:Property>");
-        toExport = new PropertyConstruction(Constructor.NOT, Collections.singleton((PathExpression) new PropertyId(new URI("http://mein/super/property"))));
+        toExport = new PropertyConstruction(Constructor.NOT, new Vector<PathExpression>(Collections.singleton((PathExpression) new PropertyId(new URI("http://mein/super/property")))));
     }
 
     // ------
@@ -418,7 +423,7 @@ public class EDOALExportTest {
         // JE 2010: I could export it as well
         RelationExpression relexp = new RelationDomainRestriction(new ClassId("http://my/super/class"));
 
-        final Set<PathExpression> expressions = new LinkedHashSet<PathExpression>(2);
+        final Vector<RelationExpression> expressions = new Vector<RelationExpression>();
         expressions.add(new RelationId("http://my/super/relation0"));
         expressions.add(new RelationId("http://my/super/relation1"));
         expressions.add(relexp);
@@ -444,8 +449,8 @@ public class EDOALExportTest {
                 + "</edoal:class></edoal:RelationDomainRestriction>"
                 + "</edoal:or>" + "</edoal:Relation>");
 
-        final Set<PathExpression> expressions2 = new LinkedHashSet<PathExpression>();
-        expressions2.add(new RelationConstruction(Constructor.NOT, Collections.singleton((PathExpression) new RelationId("http://my/super/relation"))));
+        final Vector<RelationExpression> expressions2 = new Vector<RelationExpression>();
+        expressions2.add(new RelationConstruction(Constructor.NOT, new Vector<RelationExpression>(Collections.singleton((RelationExpression) new RelationId("http://my/super/relation")))));
         expressions2.add(new RelationCoDomainRestriction(new ClassId("http://my/super/class")));
 
         toExport = new RelationConstruction(Constructor.AND, expressions2);
@@ -459,25 +464,25 @@ public class EDOALExportTest {
                 + "<edoal:Class rdf:about=\"http://my/super/class\"/>"
                 + "</edoal:class></edoal:RelationCoDomainRestriction>"
                 + "</edoal:and>" + "</edoal:Relation>");
-        toExport = new RelationConstruction(Constructor.INVERSE, Collections.singleton((PathExpression) new RelationId("http://my/super/relation")));
+        toExport = new RelationConstruction(Constructor.INVERSE, new Vector<RelationExpression>(Collections.singleton((RelationExpression) new RelationId("http://my/super/relation"))));
         assertEquals(render(toExport),
                 "<edoal:Relation>"
                 + "<edoal:inverse>"
                 + "<edoal:Relation rdf:about=\"http://my/super/relation\"/>"
                 + "</edoal:inverse>" + "</edoal:Relation>");
-        toExport = new RelationConstruction(Constructor.SYMMETRIC, Collections.singleton((PathExpression) new RelationId("http://my/super/relation")));
+        toExport = new RelationConstruction(Constructor.SYMMETRIC, new Vector<RelationExpression>(Collections.singleton((RelationExpression) new RelationId("http://my/super/relation"))));
         assertEquals(render(toExport),
                 "<edoal:Relation>"
                 + "<edoal:symmetric>"
                 + "<edoal:Relation rdf:about=\"http://my/super/relation\"/>"
                 + "</edoal:symmetric>" + "</edoal:Relation>");
-        toExport = new RelationConstruction(Constructor.TRANSITIVE, Collections.singleton((PathExpression) new RelationId("http://my/super/relation")));
+        toExport = new RelationConstruction(Constructor.TRANSITIVE, new Vector<RelationExpression>(Collections.singleton((RelationExpression) new RelationId("http://my/super/relation"))));
         assertEquals(render(toExport),
                 "<edoal:Relation>"
                 + "<edoal:transitive>"
                 + "<edoal:Relation rdf:about=\"http://my/super/relation\"/>"
                 + "</edoal:transitive>" + "</edoal:Relation>");
-        toExport = new RelationConstruction(Constructor.REFLEXIVE, Collections.singleton((PathExpression) new RelationId("http://my/super/relation")));
+        toExport = new RelationConstruction(Constructor.REFLEXIVE, new Vector<RelationExpression>(Collections.singleton((RelationExpression) new RelationId("http://my/super/relation"))));
         assertEquals(render(toExport),
                 "<edoal:Relation>"
                 + "<edoal:reflexive>"

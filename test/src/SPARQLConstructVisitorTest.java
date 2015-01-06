@@ -1,7 +1,7 @@
 /*
  * $Id: READMETest.java 1985 2014-11-09 16:50:18Z euzenat $
  *
- * Copyright (C) INRIA, 2014
+ * Copyright (C) INRIA, 2014-2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by

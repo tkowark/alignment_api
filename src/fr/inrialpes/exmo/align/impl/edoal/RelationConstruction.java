@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.5 - 2006 - was RelationExpr
- * Copyright (C) INRIA, 2009-2010, 2012
+ * Copyright (C) INRIA, 2009-2010, 2012, 2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,8 +22,8 @@
 
 package fr.inrialpes.exmo.align.impl.edoal;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import fr.inrialpes.exmo.align.parser.SyntaxElement.Constructor;
 import fr.inrialpes.exmo.align.parser.SyntaxElement;
@@ -45,26 +45,24 @@ import fr.inrialpes.exmo.align.parser.TypeCheckingVisitor.TYPE;
 
 public class RelationConstruction extends RelationExpression {
 
-    /** Holds all expressions. */
-    private Collection<PathExpression> components;
+    /** Holds all expressions: ordered for composition */
+    private List<RelationExpression> components;
     
     /** Operator of this complex expression. */
     private Constructor operator;
     
     public RelationConstruction() {
 	super();
-	components = new HashSet<PathExpression>();
+	components = new Vector<RelationExpression>();
     }
 
-    public RelationConstruction( Constructor op, Collection<PathExpression> expressions ) {
+    public RelationConstruction( Constructor op, List<RelationExpression> expressions ) {
 	if ((expressions == null) || (op == null)) {
 	    throw new NullPointerException("The subexpressions and the operator must not be null");
 	}
 	if (expressions.contains(null)) {
 	    throw new IllegalArgumentException("The subexpressions must not contain null");
 	}
-	// The collection should have only relations
-	// It should be ordered: implement List
 	this.components = expressions;
 	if ( op != SyntaxElement.AND.getOperator() &&
 	     op != SyntaxElement.OR.getOperator() &&
@@ -94,11 +92,11 @@ public class RelationConstruction extends RelationExpression {
 	operator = op;
     }
 
-    public Collection<PathExpression> getComponents() {
+    public List<RelationExpression> getComponents() {
 	return components;
     }
 
-    public void addComponents( PathExpression exp ) {
+    public void addComponent( RelationExpression exp ) {
 	components.add( exp );
     }
 

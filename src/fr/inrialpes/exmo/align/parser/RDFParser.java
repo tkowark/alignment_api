@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006 Digital Enterprise Research Insitute (DERI) Innsbruck
  * Sourceforge version 1.7 - 2008
- * Copyright (C) INRIA, 2008-2010, 2012-2014
+ * Copyright (C) INRIA, 2008-2010, 2012-2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -853,17 +853,17 @@ public class RDFParser {
         return new Datatype(uri);
     }
 
-    protected RelationExpression parseRelation(final Resource node) throws AlignmentException {
+    protected RelationExpression parseRelation( final Resource node ) throws AlignmentException {
         Resource rdfType = node.getProperty(RDF.type).getResource();
         Statement stmt = null;
-        if (rdfType.equals(SyntaxElement.RELATION_EXPR.resource)) {
-            URI id = getNodeId(node);
-            if (id != null) {
+        if ( rdfType.equals( SyntaxElement.RELATION_EXPR.resource ) ) {
+            URI id = getNodeId( node );
+            if ( id != null ) {
                 return new RelationId(id);
             } else {
                 Constructor op = null;
                 // Remains a PathExpression (that this is a relation is checked by typing)
-                List<PathExpression> clexpr = new LinkedList<PathExpression>();
+                List<RelationExpression> clexpr = new LinkedList<RelationExpression>();
                 if (node.hasProperty((Property) SyntaxElement.AND.resource)) {
                     op = SyntaxElement.AND.getOperator();
                     stmt = node.getProperty((Property) SyntaxElement.AND.resource);
