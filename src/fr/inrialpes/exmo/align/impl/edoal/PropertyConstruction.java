@@ -65,12 +65,15 @@ public class PropertyConstruction extends PropertyExpression {
 	}
 	if ( op == SyntaxElement.COMPOSE.getOperator() ) {
 	    // In case of COMPOSE, the list should have only relations and end in a property
-	    for ( PathExpression pe : components.subList( 0, components.size()-1 ) ) {
-		if ( ! ( pe instanceof RelationExpression ) ) 
-		    throw new IllegalArgumentException( "Property composition must be based on relation expressions" );
+	    // Or, it can be empty! If it is a path starting from a property! (see total.xml)
+	    if ( !expressions.isEmpty() ) {
+		for ( PathExpression pe : components.subList( 0, components.size()-1 ) ) {
+		    if ( ! ( pe instanceof RelationExpression ) ) 
+			throw new IllegalArgumentException( "Property composition must be based on relation expressions" );
+		}
+		if ( ! ( components.get( components.size()-1 ) instanceof PropertyExpression ) ) 
+		    throw new IllegalArgumentException( "Property composition must end by a property expression" );
 	    }
-	    if ( ! ( components.get( components.size()-1 ) instanceof PropertyExpression ) ) 
-		    throw new IllegalArgumentException( "Property composition must end by a property expressions" );
 	} else if ( op == SyntaxElement.AND.getOperator() ||
 		    op == SyntaxElement.OR.getOperator() ||
 		    op == SyntaxElement.NOT.getOperator() ) {

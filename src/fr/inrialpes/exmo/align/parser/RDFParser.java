@@ -774,9 +774,10 @@ public class RDFParser {
                     }
                     clexpr.add(parseProperty(coll));
                 } else if (op == SyntaxElement.COMPOSE.getOperator()) {
-                    if (coll == null) {
-                        throw new AlignmentException("COMPOSE constructor for properties cannot be empty : " + node);
-                    }
+		    // It can: see total.xml/TransformationTest
+		    //if ( coll == null || RDF.nil.getURI().equals( coll.getURI() ) ) {
+                    //    throw new AlignmentException("COMPOSE constructor cannot be empty : " + node);
+		    //}
                     while (!RDF.nil.getURI().equals(coll.getURI())) {
                         // In this present case, it is a series of Relations followed by a Property
                         Resource newcoll = coll.getProperty(RDF.rest).getResource(); // MUSTCHECK
