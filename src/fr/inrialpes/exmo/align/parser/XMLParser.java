@@ -270,7 +270,7 @@ public class XMLParser extends DefaultHandler {
    * @param atts 					The attributes name of the current element 
    */
     public void startElement( String namespaceURI, String pName, String qname, Attributes atts ) throws SAXException {
-	logger.debug( "startElement XMLParser : {}", pName );
+	logger.trace( "startElement XMLParser : {}", pName );
 	parseLevel++;
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
@@ -392,7 +392,7 @@ public class XMLParser extends DefaultHandler {
 	} else {
 	    content = newContent; 
 	}
-	logger.debug( "content XMLParser : {}", content );
+	logger.trace( "content XMLParser : {}", content );
     }
 
     /** 
@@ -403,7 +403,7 @@ public class XMLParser extends DefaultHandler {
      * @param qName					The name of the current element 
      */
     public  void endElement(String namespaceURI, String pName, String qName ) throws SAXException {
-	logger.debug( "endElement XMLParser : {}", pName );
+	logger.trace( "endElement XMLParser : {}", pName );
 	if( namespaceURI.equals( Namespace.ALIGNMENT.uri+"#" )
 	    || namespaceURI.equals( Namespace.ALIGNMENT.uri ) )  {
 	    try {

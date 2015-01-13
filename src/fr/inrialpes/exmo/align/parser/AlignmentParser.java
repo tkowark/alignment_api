@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2014
+ * Copyright (C) INRIA, 2003-2005, 2007-2010, 2012-2015
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -128,19 +128,23 @@ public class AlignmentParser {
 	    //alignment = parser.parse( o );
 	    alignment = callParser( parser, o );
 	} catch ( Exception e ) {
-	    logger.debug( "XMLParser failed to parse alignment (INFO)", e );
-	    logger.debug( "Using RDFParser instead" );
+	    logger.debug( "XMLParser failed to parse alignment (INFO)" );
 	    try {
 		if ( !embedded ) {
+		    logger.debug( "Using RDFParser instead (log=TRACE to see exception)" );
 		    RDFParser rparser = new RDFParser();
 		    alignment = callParser( rparser, o );
 		} else {
+		    logger.debug( "Cannot parse further" );
 		    throw new AlignmentException( "Cannot parse "+o+" (use logging for more info)", e );
 		}
 	    } catch ( Exception ex ) {
 		// JE: should contain both ex and e
+		logger.debug( "XMLParser throw exception", e );
+		logger.debug( "RDFParser throw exception", ex );
 		throw new AlignmentException( "Cannot parse "+o, ex );
 	    }
+	    logger.trace( "This exception was caught and is not critical", e );
 	}
 	return alignment;
     }
