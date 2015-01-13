@@ -170,7 +170,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 11845);
+        assertEquals(str1.length(), 11888);
     }
 
     // Use an alignment converted from URI
@@ -214,7 +214,7 @@ public class EDOALExportTest {
         writer.close();
         String str1 = stream.toString();
         //System.err.println(str1);
-        assertEquals(str1.length(), 37286);
+        assertEquals(str1.length(), 37407);
     }
 
     @Test(groups = {"full", "omwg", "raw"}, dependsOnMethods = {"setUp"})

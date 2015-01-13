@@ -5,6 +5,8 @@
 <!ENTITY vin "http://ontology.deri.org/vin#">
 <!ENTITY proton "http://proton.semanticweb.org/">
 <!ENTITY edoal "http://ns.inria.org/edoal/1.0/#">
+<!ENTITY foaf "http://xmlns.com/foaf/">
+<!ENTITY vcard "http://www.w3.org/2006/vcard/ns#">
 ]>
 
 <rdf:RDF xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment#" 
@@ -401,10 +403,10 @@
     <map>
       <Cell rdf:about="TransformationTest">
 	<entity1>
-	  <edoal:Property rdf:about="foaf:name"/>
+	  <edoal:Property rdf:about="&foaf;name"/>
 	</entity1>
 	<entity2>
-	  <edoal:Relation rdf:about="vcard:name"/>
+	  <edoal:Relation rdf:about="&vcard;name"/>
 	</entity2>
         <measure rdf:datatype='&xsd;float'>1.</measure>
         <relation>SubsumedBy</relation>
@@ -416,12 +418,12 @@
 	    <edoal:entity2>
 	      <edoal:Apply edoal:operator="&edoal;concat">
 		<edoal:arguments rdf:parseType="Collection">
-		  <edoal:Property rdf:about="vcard:firstname"/>
+		  <edoal:Property rdf:about="&vcard;firstname"/>
 		  <edoal:Literal edoal:string=" "/>
 		  <!-- or even compute middle initial from middlename -->
-		  <edoal:Property rdf:about="vcard:middleinitial"/>
+		  <edoal:Property rdf:about="&vcard;middleinitial"/>
 		  <edoal:Literal edoal:string=". "/>
-		  <edoal:Property rdf:about="vcard:lastname"/>
+		  <edoal:Property rdf:about="&vcard;lastname"/>
 		</edoal:arguments>
 	      </edoal:Apply>
 	    </edoal:entity2>

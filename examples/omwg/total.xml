@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE rdf:RDF [
 <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+<!ENTITY edoal "http://ns.inria.org/edoal/1.0/#">
 <!ENTITY wine "http://www.w3.org/TR/2003/CR-owl-guide-20030818/wine#">
 <!ENTITY vin "http://ontology.deri.org/vin#">
 <!ENTITY proton "http://proton.semanticweb.org/">
-<!ENTITY edoal "http://ns.inria.org/edoal/1.0/#">
+<!ENTITY foaf "http://xmlns.com/foaf/">
+<!ENTITY vcard "http://www.w3.org/2006/vcard/ns#">
 ]>
 
 <!-- JE2010: With the "#" in the end, this is parsed (by the RDF parser...)
@@ -747,10 +749,10 @@ without it, this is not! -->
         <map>
             <Cell rdf:about="TransformationTest">
                 <entity1>
-                    <edoal:Property rdf:about="foaf:name"/>
+                    <edoal:Property rdf:about="&foaf;name"/>
                 </entity1>
                 <entity2>
-                    <edoal:Relation rdf:about="vcard:name"/>
+                    <edoal:Relation rdf:about="&vcard;name"/>
                 </entity2>
                 <measure rdf:datatype='&xsd;float'>1.</measure>
                 <relation>SubsumedBy</relation>
@@ -764,12 +766,12 @@ without it, this is not! -->
                         <edoal:entity2>
                             <edoal:Apply edoal:operator="&edoal;concat">
                                 <edoal:arguments rdf:parseType="Collection">
-                                    <edoal:Property rdf:about="vcard:firstname"/>
+                                    <edoal:Property rdf:about="&vcard;firstname"/>
                                     <edoal:Literal edoal:type="&xsd;string" edoal:string=" "/>
                                     <!-- or even compute middle initial from middlename -->
-                                    <edoal:Property rdf:about="vcard:middleinitial"/>
+                                    <edoal:Property rdf:about="&vcard;middleinitial"/>
                                     <edoal:Literal edoal:string=". "/>
-                                    <edoal:Property rdf:about="vcard:lastname"/>
+                                    <edoal:Property rdf:about="&vcard;lastname"/>
                                 </edoal:arguments>
                             </edoal:Apply>
                         </edoal:entity2>
