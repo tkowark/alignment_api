@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) INRIA, 2009-2010, 2012
+ * Copyright (C) INRIA, 2009-2010, 2012, 2015
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,7 +29,6 @@ public class Comparator {
 
     URI uri = null;
 
-    // This replaces the Comparator class
     // SHOULD CERTAINLY BE AN ENUM
     public static Comparator EQUAL = initComparator( Namespace.EDOAL.prefix+"equals", 0 );
     public static Comparator LOWER = initComparator( Namespace.EDOAL.prefix+"lower-than", -1 );
@@ -64,6 +63,12 @@ public class Comparator {
     
     public URI getURI() {
 	return uri;
+    }
+
+    public boolean equals ( Object ob ) {
+	if ( ob == this ) return true;
+	else if ( !(ob instanceof Comparator)  ) return false;
+	else return uri.equals( ((Comparator)ob).getURI() );
     }
 
 }

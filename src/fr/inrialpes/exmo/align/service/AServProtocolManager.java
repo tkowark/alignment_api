@@ -52,6 +52,7 @@ import fr.inrialpes.exmo.align.service.msg.UnknownOntologyNetwork;
 import fr.inrialpes.exmo.align.service.msg.UnreachableAlignment;
 import fr.inrialpes.exmo.align.service.msg.UnreachableOntology;
 import fr.inrialpes.exmo.align.service.msg.CannotRenderAlignment;
+import fr.inrialpes.exmo.align.service.msg.CannotStoreAlignment;
 import fr.inrialpes.exmo.align.service.msg.UnreachableOntologyNetwork;
 
 import fr.inrialpes.exmo.ontowrap.OntologyFactory;
@@ -507,6 +508,7 @@ public class AServProtocolManager implements Service {
 	    al = alignmentCache.getAlignment( id );
 	    logger.trace("Alignment found");
 	} catch (Exception e) {
+	    logger.debug( "Alignment {} not found", id, e );
 	    return new UnknownAlignment( params, newId(), serverId,id );
 	}
 	// Render it
@@ -554,18 +556,16 @@ public class AServProtocolManager implements Service {
     public Message store( Properties params ) {
 	String id = params.getProperty("id");
 	Alignment al = null;
-	 
 	try {
 	    try {
 	    	al = alignmentCache.getAlignment( id );
-	    } catch(Exception ex) {
+	    } catch( Exception ex ) {
 	    	logger.warn( "Unknown Id {} in Store", id );
+		return new UnknownAlignment( params, newId(), serverId, id );
 	    }
 	    // Be sure it is not already stored
 	    if ( !alignmentCache.isAlignmentStored( al ) ) {
-
 		alignmentCache.storeAlignment( id );
-		 
 		// Retrieve the alignment again
 		al = alignmentCache.getAlignment( id );
 		// for all directories...
@@ -581,8 +581,9 @@ public class AServProtocolManager implements Service {
 	    // Could also be an AlreadyStoredAlignment error
 	    return new AlignmentId( params, newId(), serverId, id,
 				   al.getExtension( Namespace.EXT.uri, Annotations.PRETTY ));
-	} catch (Exception e) {
-	    return new UnknownAlignment( params, newId(), serverId,id );
+	} catch ( Exception ex ) {
+	    logger.debug( "Impossible storage ", ex );
+	    return new CannotStoreAlignment( params, newId(), serverId, id );
 	}
     }
 

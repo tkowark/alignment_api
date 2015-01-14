@@ -2,7 +2,7 @@
  * $Id$
  *
  * Copyright (C) Seungkeun Lee, 2006
- * Copyright (C) INRIA, 2006-2014
+ * Copyright (C) INRIA, 2006-2015
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -42,6 +42,11 @@ import fr.inrialpes.exmo.align.impl.BasicOntologyNetwork;
 import fr.inrialpes.exmo.align.impl.Annotations;
 import fr.inrialpes.exmo.align.impl.Namespace;
 import fr.inrialpes.exmo.align.impl.URIAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALAlignment;
+import fr.inrialpes.exmo.align.impl.edoal.EDOALCell;
+import fr.inrialpes.exmo.align.impl.edoal.Expression;
+import fr.inrialpes.exmo.align.impl.edoal.Linkkey;
+import fr.inrialpes.exmo.align.impl.edoal.Transformation;
 
 import fr.inrialpes.exmo.ontowrap.Ontology;
 
@@ -66,7 +71,7 @@ public class SQLCache extends VolatilCache implements Cache {
     String port = null;
     int rights = 1; // writing rights in the database (default is 1)
 
-    final int VERSION = 470; // Version of the API to be stored in the database
+    final int VERSION = 471; // Version of the API to be stored in the database
     /* 300: initial database format
        301: ADDED alignment id as primary key
        302: ALTERd cached/stored/ouri tag forms
@@ -89,7 +94,8 @@ public class SQLCache extends VolatilCache implements Cache {
             // URIINdex:
             ADDED multiple uris for alignments (?)
             CHANGED the alext namespace
-       471: -- nothing for the moment --
+       // EDOAL2015:
+       471: ADDED management of EDOAL alignments
      */
 
     DBService service = null;
@@ -233,21 +239,32 @@ public class SQLCache extends VolatilCache implements Cache {
 	String value;
 
 	logger.debug( "Loading alignment {}", id );
-	URIAlignment result = new URIAlignment();
+	BasicAlignment result;
 	Statement st = null;
 	try {
 	    st = createStatement();
 	    String onto1 = "", onto2 = "";
 	    // Get basic ontology metadata
 	    rs = st.executeQuery( "SELECT * FROM alignment WHERE id = '" + id  +"'" );
-	    while( rs.next() ) {
-		result.setLevel(rs.getString("level"));
-		result.setType(rs.getString("type"));
-		onto1 = rs.getString("onto1");
-		onto2 = rs.getString("onto2");
+	    if ( ! rs.next() ) logger.debug( "IGNORED cannot find retrieve "+id );
+	    // EDOAL2015: detect by 2EDOAL as level (beforehand)
+	    String level = rs.getString("level");
+	    if ( level.contains( "2EDOAL" ) ) {
+		result = new EDOALAlignment();
+	    } else {
+		result = new URIAlignment();
 	    }
+	    result.setLevel( level );
+	    result.setType( rs.getString("type") );
+	    onto1 = rs.getString( "onto1" );
+	    onto2 = rs.getString( "onto2" );
 
-	    // Get ontologies (could be better)
+	    // Get the ontolologies
+	    retrieveOntology( onto1, result.getOntologyObject1() );
+	    result.setExtension( SVCNS, OURI1, onto1 );
+	    retrieveOntology( onto2, result.getOntologyObject2() );
+	    result.setExtension( SVCNS, OURI2, onto2 );
+	    /* JE 2015: EOAL
 	    rs = st.executeQuery( "SELECT * FROM ontology WHERE uri = '" + onto1  +"'" );
 	    if ( rs.next() ) {
 		result.getOntologyObject1().setURI( new URI(rs.getString("uri"))  );
@@ -270,9 +287,10 @@ public class SQLCache extends VolatilCache implements Cache {
 		    result.getOntologyObject2().setFormalism( rs.getString("formname")  );
 		result.setExtension( SVCNS, OURI2, rs.getString("uri") );
 	    }
+	    */
 
 	    // Get dependencies if necessary
-
+	    
 	    // Get extension metadata
 	    rs = st.executeQuery( "SELECT * FROM extension WHERE id = '" + id + "'" );
 	    while(rs.next()) {
@@ -280,17 +298,29 @@ public class SQLCache extends VolatilCache implements Cache {
 		value = rs.getString("val");
 		result.setExtension( rs.getString("uri"), tag, value);
 	    }
+	    // has been extracted from the database
+	    //result.setExtension( SVCNS, STORED, "DATE");
+	    // not yet cached (this instruction should be useless)
+	    result.setExtension( SVCNS, CACHED, (String)null );
+	    return result;
 	} catch (Exception e) { // URI exception that should not occur
 	    logger.debug( "IGNORED unlikely URI exception", e);
 	    return null;
 	} finally {
 	    try { st.close(); } catch (Exception ex) {};
 	}
-	// has been extracted from the database
-	//result.setExtension( SVCNS, STORED, "DATE");
-	// not yet cached (this instruction should be useless)
-	result.setExtension( SVCNS, CACHED, (String)null );
-	return result;
+    }
+
+    public void retrieveOntology( String uri, Ontology ob ) throws SQLException, AlignmentException, URISyntaxException {
+	Statement st = createStatement();
+	ResultSet rs = st.executeQuery( "SELECT * FROM ontology WHERE uri = '" + uri  +"'" );
+	if ( rs.next() ) {
+	    ob.setURI( new URI(rs.getString("uri"))  );
+	    // I am really surprised by this
+	    if ( rs.getString("file") != null ) ob.setFile( new URI( rs.getString("file") ) );
+	    if ( rs.getString("formuri") != null ) ob.setFormURI( new URI( rs.getString("formuri") ) );
+	    if ( rs.getString("formname") != null ) ob.setFormalism( rs.getString("formname") );
+	} else throw new AlignmentException( "Unknown ontology : "+uri );
     }
 
     /**
@@ -304,42 +334,61 @@ public class SQLCache extends VolatilCache implements Cache {
      */
     protected Alignment retrieveAlignment( String uri, Alignment alignment ) throws SQLException, AlignmentException, URISyntaxException {
 	String id = stripAlignmentUri( uri );
-	URI ent1 = null, ent2 = null;
 
-	alignment.setOntology1( new URI( alignment.getExtension( SVCNS, OURI1 ) ) );
-	alignment.setOntology2( new URI( alignment.getExtension( SVCNS, OURI2 ) ) );
+	// JE2015 EDOAL
+	//alignment.setOntology1( new URI( alignment.getExtension( SVCNS, OURI1 ) ) );
+	//alignment.setOntology2( new URI( alignment.getExtension( SVCNS, OURI2 ) ) );
 
 	// Get cells
 	Statement st = createStatement();
 	Statement st2 = createStatement();
+	EDOALSQLCache esrv = null;
 	ResultSet rs = st.executeQuery( "SELECT * FROM cell WHERE id = '" + id + "'" );
 	while( rs.next() ) {
-	    ent1 = new URI( rs.getString("uri1") );
-	    ent2 = new URI( rs.getString("uri2") );
-	    if ( ent1 == null || ent2 == null ) break;
-	    Cell cell = alignment.addAlignCell(ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")));
+	    logger.trace( "Loading cell {}", rs.getString( "cell_id" ) );
+	    try { // To suppress
+	    Cell cell;
+	    if ( alignment instanceof URIAlignment ) {
+		URI ent1 = new URI( rs.getString("uri1") );
+		URI ent2 = new URI( rs.getString("uri2") );
+		if ( ent1 == null || ent2 == null ) break;
+		cell = ((URIAlignment)alignment).addAlignCell( ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")) );
+	    } else { // EDOAL2015: load the cell
+		esrv = new EDOALSQLCache( service );
+		esrv.init();
+		Object ent1 = esrv.extractExpression( Long.parseLong( rs.getString("uri1") ) );
+		Object ent2 = esrv.extractExpression( Long.parseLong( rs.getString("uri2") ) );
+		if ( ent1 == null || ent2 == null ) break;
+		cell = ((EDOALAlignment)alignment).addAlignCell( ent1, ent2, rs.getString("relation"), Double.parseDouble(rs.getString("measure")) );
+	    }
 	    String cid = rs.getString( "cell_id" );
 	    if ( cid != null && !cid.equals("") ) {
 		if ( !cid.startsWith("##") ) {
 		    cell.setId( cid );
 		}
+		if ( cell instanceof EDOALCell ) { // EDOAL2015: load linkkeys and transformations
+		    esrv.extractTransformations( cid, ((EDOALCell)cell) );
+		    esrv.extractLinkkeys( cid, ((EDOALCell)cell) );
+		}
 		ResultSet rse2 = st2.executeQuery("SELECT * FROM extension WHERE id = '" + cid + "'");
-		while ( rse2.next() ){
+		while ( rse2.next() ) {
 		    cell.setExtension( rse2.getString("uri"), 
 				       rse2.getString("tag"), 
 				       rse2.getString("val") );
 		}
 	    }
 	    cell.setSemantics( rs.getString( "semantics" ) );
+	    // To suppress
+	    } catch (Exception toto) { toto.printStackTrace(); }
 	}
-
+	
 	// reset
 	resetCacheStamp(alignment);
 	st.close();
 	return alignment;
     }
 
-    // ONETW: Load an ontology network
+    // Load an ontology network
     protected OntologyNetwork retrieveOntologyNetwork( String id ) {
 	logger.debug( "Loading network of ontology {}", id );
 	BasicOntologyNetwork network = new BasicOntologyNetwork();
@@ -358,8 +407,8 @@ public class SQLCache extends VolatilCache implements Cache {
 	    }
 	    rs = st.executeQuery( "SELECT * FROM networkalignment WHERE network = '" + id  +"'" );
 	    while ( rs.next() ) {
-		// get the alignment with that URI and set it
-		network.addAlignment( getAlignment( recoverAlignmentUri( rs.getString("align") ) ) );
+		// get the alignment with that URI and set it (only the description of the alignment)
+		network.addAlignment( getMetadata( recoverAlignmentUri( rs.getString("align") ) ) );
 	    }
 
 	    // Get extension metadata (including URI)
@@ -401,6 +450,7 @@ public class SQLCache extends VolatilCache implements Cache {
 	try { 
 	    return retrieveAlignment( uri, result );
 	} catch ( SQLException sqlex ) {
+	    logger.trace( "Cache: cannot read from DB", sqlex );
 	    throw new AlignmentException( "getAlignment: SQL exception", sqlex );
 	} catch ( URISyntaxException urisex ) {
 	    logger.trace( "Cache: cannot read from DB", urisex );
@@ -419,7 +469,7 @@ public class SQLCache extends VolatilCache implements Cache {
      * This function is used here for protecting everything to be entered in
      * the database
      */
-    public String quote( String s ) {
+    public static String quote( String s ) {
 	if ( s == null ) return "NULL";
 	String result = "'";
 	char[] chars = s.toCharArray();
@@ -447,6 +497,7 @@ public class SQLCache extends VolatilCache implements Cache {
     }
 
     // Suppress it from the cache...
+    // EDOAL2015: That will be likely more complex for EDOAL
     public void unstoreAlignment( String uri, Alignment alignment ) throws AlignmentException {
 	try {
 	    Statement st = createStatement();
@@ -461,6 +512,7 @@ public class SQLCache extends VolatilCache implements Cache {
 			st.executeUpdate( "DELETE FROM extension WHERE id='"+cid+"'" );
 		    }
 		}
+		unstoreEDOALAlignment( id, alignment ); // EDOAL2015
 		st.executeUpdate("DELETE FROM cell WHERE id='"+id+"'");
 		st.executeUpdate("DELETE FROM extension WHERE id='"+id+"'");
 		//ontologies do not depend on alignments
@@ -482,21 +534,39 @@ public class SQLCache extends VolatilCache implements Cache {
 	}
     }
 
+    public void unstoreEDOALAlignment( String id, Alignment alignment ) throws AlignmentException {
+	// should seriously think of making it static?
+	EDOALSQLCache esrv = new EDOALSQLCache( service );
+	esrv.init();
+	for ( Cell c : alignment ) {
+	    if ( c instanceof EDOALCell ) esrv.erase( (EDOALCell)c );
+	}
+    }
+
+    // EDOAL2015
     public void storeAlignment( String uri ) throws AlignmentException {
+	logger.trace( "Storing alignment "+uri );
 	String query = null;
 	BasicAlignment alignment = (BasicAlignment)getAlignment( uri );
 	String id = stripAlignmentUri( uri );
 	Statement st = null;
-	// We store stored date
+	// We store stored date (this is done now for being registered in the database)
 	alignment.setExtension( SVCNS, STORED, new Date().toString());
 	// We empty cached date
 	alignment.setExtension( SVCNS, CACHED, (String)null );
 
+	EDOALSQLCache esrv = null;
+	if ( alignment instanceof EDOALAlignment ) {
+	    esrv = new EDOALSQLCache( service );
+	    esrv.init();
+	    logger.trace( "EDOAL Alignment: created object" );
+	}
 	try {
 	    // Try to store at most 3 times.
 	    // Otherwise, an exception EOFException will be thrown (relation with Jetty???)
 	    // [JE2013: Can we check this?]
 	    for( int i=0; i < 3 ; i++ ) {
+		logger.trace( "Trying to store : "+i );
 		try {
 		    st = createStatement();
 		    logger.debug( "Storing alignment {} as {}", uri, id );
@@ -509,6 +579,7 @@ public class SQLCache extends VolatilCache implements Cache {
 				    alignment.getOntology2URI(),
 				    alignment.getFile2(), 
 				    alignment.getOntologyObject2() );
+		    // This cannot be done in the end because of foreign keys, rollback takes care of it
 		    query = "INSERT INTO alignment " + 
 			"(id, type, level, onto1, onto2) " +
 			"VALUES (" +quote(id)+","+quote(alignment.getType())+","+quote(alignment.getLevel())+","+quote(alignment.getOntology1URI().toString())+","+quote(alignment.getOntology2URI().toString())+")";
@@ -525,6 +596,7 @@ public class SQLCache extends VolatilCache implements Cache {
 			st.executeUpdate(query);
 		    }
 		    // Store cells
+		    logger.trace( "Storing cells" );
 		    for( Cell c : alignment ) {
 			String cellid = null;
 			if ( c.getObject1() != null && c.getObject2() != null ){
@@ -533,13 +605,22 @@ public class SQLCache extends VolatilCache implements Cache {
 				if ( cellid.startsWith("#") ) {
 				    cellid = alignment.getExtension( Namespace.ALIGNMENT.uri, Annotations.ID ) + cellid;
 				}
-			    } else if ( c.getExtensions() != null ) {
-				// JE: In case of extensions create an ID
+			    } else if ( ( c.getExtensions() != null ) ||
+					( ((EDOALCell)c).transformations() != null && !((EDOALCell)c).transformations().isEmpty() ) ||
+					( ((EDOALCell)c).linkkeys() != null  && !((EDOALCell)c).linkkeys().isEmpty() ) ) {
+				// if no id => generate one.
 				cellid = generateCellId();
 			    }
 			    else cellid = "";
-			    String uri1 = c.getObject1AsURI(alignment).toString();
-			    String uri2 = c.getObject2AsURI(alignment).toString();
+			    logger.trace( "Storing cell: "+cellid );
+			    String uri1, uri2;
+			    if ( c instanceof EDOALCell ) { // EDOAL2015: 
+				uri1 = String.valueOf( esrv.visit( (Expression)((EDOALCell)c).getObject1() ) );
+				uri2 = String.valueOf( esrv.visit( (Expression)((EDOALCell)c).getObject2() ) );
+			    } else {
+				uri1 = c.getObject1AsURI(alignment).toString();
+				uri2 = c.getObject2AsURI(alignment).toString();
+			    }
 			    String strength = c.getStrength() + ""; // crazy Java
 			    String sem;
 			    if ( !c.getSemantics().equals("first-order") )
@@ -551,6 +632,7 @@ public class SQLCache extends VolatilCache implements Cache {
 				"VALUES (" + quote(id) + "," + quote(cellid) + "," + quote(uri1) + "," + quote(uri2) + "," + quote(strength) + "," + quote(sem) + "," + quote(rel) + ")";
 			    st.executeUpdate(query);
 			}
+			// Store extensions
 			if ( cellid != null && !cellid.equals("") && c.getExtensions() != null ) {
 			    // Store extensions
 			    for ( String[] ext : c.getExtensions() ) {
@@ -563,6 +645,21 @@ public class SQLCache extends VolatilCache implements Cache {
 				st.executeUpdate(query);
 			    }
 			}
+			logger.trace( "Stored cell: "+cellid );
+			// Store transformations and linkkeys
+			if ( c instanceof EDOALCell ) { // EDOAL2015: store linkkeys and transformations if any
+			    if ( ((EDOALCell)c).transformations() != null && !((EDOALCell)c).transformations().isEmpty() ) {
+				for ( Transformation transf : ((EDOALCell)c).transformations() ) {
+				    esrv.visit( transf, cellid );
+				}
+			    }
+			    if ( ((EDOALCell)c).linkkeys() != null  && !((EDOALCell)c).linkkeys().isEmpty() ) {
+				for ( Linkkey lk : ((EDOALCell)c).linkkeys() ) {
+				    esrv.visit( lk, cellid );
+				}
+			    }
+			}
+			logger.trace( "Stored trsnformations and linkleys: "+cellid );
 		    }
 		    // URIINdex: store alternative URIs
 		    for ( Entry<String,Alignment> entry : alignmentURITable.entrySet() ) {
@@ -573,15 +670,18 @@ public class SQLCache extends VolatilCache implements Cache {
 		    }
 		    st.close();
 		} catch ( SQLException sqlex ) {
+		    // Unstore the date
+		    alignment.setExtension( SVCNS, STORED, "");
 		    logger.warn( "SQLError", sqlex );
-		    conn.rollback();
+		    conn.rollback(); // seems to work well!
 		    throw new AlignmentException( "SQLException", sqlex );
 		} finally {
 		    conn.setAutoCommit( true );
 		}
-		break;
+		break; // succeeded
 	    }
 	} catch (SQLException sqlex) {
+	    logger.trace( "SQLError", sqlex );
 	    throw new AlignmentException( "SQLRollBack issue", sqlex );
 	}
 	// We reset cached date
@@ -623,7 +723,6 @@ public class SQLCache extends VolatilCache implements Cache {
 	}
     }
 
-    // ONETW
     public void storeOntologyNetwork( String uri ) throws AlignmentException {
 	String query = null;
 	BasicOntologyNetwork network = (BasicOntologyNetwork)getOntologyNetwork( uri );
@@ -726,11 +825,10 @@ public class SQLCache extends VolatilCache implements Cache {
       host varchar(50),
       port varchar(5),
       prefix varchar(50),
-      edit varchar(5),
+      edit varchar(5), 
       version VARCHAR(5)
       );
    
-
       # ontology info
 
       create table ontology (
@@ -752,6 +850,34 @@ public class SQLCache extends VolatilCache implements Cache {
       FOREIGN KEY (onto2) REFERENCES ontology (uri)
       PRIMARY KEY (id));
 
+      # cell info
+
+      create table cell(
+      id varchar(100),
+      cell_id varchar(255),
+      uri1 varchar(255),
+      uri2 varchar(255),
+      semantics varchar(30),
+      measure varchar(20),
+      relation varchar(255),
+      FOREIGN KEY (id) REFERENCES alignment (id));
+
+      # extension info
+      
+      CREATE TABLE extension (
+      id varchar(100),
+      uri varchar(200),
+      tag varchar(50),
+      val varchar(500));
+      
+      # extension info
+      
+      CREATE TABLE alignmenturis (
+      id varchar(100),
+      uri varchar(255),
+      prefered boolean);
+      // Implicit constraint, for each id, there is at most one prefered set to true
+      
       # network info
 
       create table network (
@@ -785,34 +911,134 @@ public class SQLCache extends VolatilCache implements Cache {
       FOREIGN KEY (dependsOn) REFERENCES alignment (id),
       PRIMARY KEY (id, dependsOn));
 
-      # cell info
+      // EDOAL2015:
 
-      create table cell(
-      id varchar(100),
-      cell_id varchar(255),
-      uri1 varchar(255),
-      uri2 varchar(255),
-      semantics varchar(30),
-      measure varchar(20),
-      relation varchar(255),
-      FOREIGN KEY (id) REFERENCES alignment (id));
+      
+      # dependencies info
 
-      # extension info
-      
-      CREATE TABLE extension (
-      id varchar(100),
-      uri varchar(200),
-      tag varchar(50),
-      val varchar(500));
-      
-      # extension info
-      
-      CREATE TABLE alignmenturis (
-      id varchar(100),
-      uri varchar(255),
-      prefered boolean);
-      // Implicit constraint, for each id, there is at most one prefered set to true
-      
+      st.executeUpdate("CREATE TABLE edoalexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+
+      # dependencies info
+
+      st.executeUpdate("CREATE TABLE valueexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+
+
+      # dependencies info
+
+      // EDOAL-INST
+      //-// types id = URI
+      st.executeUpdate("CREATE TABLE instexpr (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), var VARCHAR(250), PRIMARY KEY (intid))");
+      //-// UNUSED
+      //st.executeUpdate("CREATE TABLE instlist (listid INT NOT NULL, id BIGINT NOT NULL)");
+
+      # dependencies info
+
+	    // EDOAL-LITERAL
+	    st.executeUpdate("CREATE TABLE literal (intid BIGINT NOT NULL AUTO_INCREMENT, type BIGINT, value VARCHAR(500), PRIMARY KEY (intid))")
+
+      # dependencies info
+
+	    //-//
+	    st.executeUpdate("CREATE TABLE typeexpr (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE apply (intid BIGINT NOT NULL AUTO_INCREMENT, operation VARCHAR(255), PRIMARY KEY (intid))");
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE arglist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+
+	    // EDOAL-CLASS
+      # dependencies info
+
+	    //-// type = id [ classid ] / and [ classlist] / or [ classlist] / not [ classexpr] / occ-sup / occ-inf / occ-eq / dom / type / value [ classrest ]
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE classexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	    //-//
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE classid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	    //-// id in classexpr
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE classlist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	    //-// type = occ-sup [ int ] / occ-inf [ int ] / occ-eq [ int ] / type [ classexpr ] / val [ litteral ]
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE classrest (intid BIGINT NOT NULL AUTO_INCREMENT, path BIGINT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+
+	    // EDOAL-PATH
+      # dependencies info
+
+	    //-// type = val [ literal ] / prop [ propexpr ] / rel [ relexpr ]
+	    st.executeUpdate("CREATE TABLE pathexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+
+	    // EDOAL-PROP
+      # dependencies info
+
+	    // type = id [ propid ] / and [ proplist] / or [ proplist] / comp [ proplist, relrest ] / not [ propexpr] / dom / type / val [ proprest ]
+	    st.executeUpdate("CREATE TABLE propexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+
+      # dependencies info
+
+	    //-//
+	    st.executeUpdate("CREATE TABLE propid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+
+      # dependencies info
+
+	    //-// id in propexpr
+	    st.executeUpdate("CREATE TABLE proplist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+
+      # dependencies info
+
+	    //-// type = dom [ classexpr ] / type [ typeexpr ] / val [ litteral ]
+	    st.executeUpdate("CREATE TABLE valuerest (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, path BIGINT, comp VARCHAR(250), joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+
+	    // EDOAL-REL
+      # dependencies info
+
+	    //-// type = id [ relid ] / and [ rellist] / comp [ rellist ] / or [ rellist] / not [ relexpr] / sym [ relexpr] / trans [ relexpr] / refl [ relexpr] / inv [ relexpr ] / dom / cod / val [ relrest ]
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE relexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	    //-//
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE relid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	    //-// id in relexpr
+
+      # dependencies info
+
+	    st.executeUpdate("CREATE TABLE rellist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	    //-// type = dom [ classexpr ] / cod [ classexpr ] / val [ instexpr ] OBSOLETE
+	    //st.executeUpdate("CREATE TABLE relrest (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+
+	    // EDOAL-TRANSF
+      # dependencies info
+
+	    // type = o- / -o, looks like the id goes to path?
+	    st.executeUpdate("CREATE TABLE transf (intid BIGINT NOT NULL AUTO_INCREMENT, cellid VARCHAR(255), type INT, joinid1 BIGINT, joinid2 BIGINT, PRIMARY KEY (intid))");
+
+	    // EDOAL-LINKKEY
+      # dependencies info
+
+	    //       FOREIGN KEY (cellid) REFERENCES cell (cell_id),
+	    st.executeUpdate("CREATE TABLE linkkey (intid BIGINT NOT NULL AUTO_INCREMENT, cellid VARCHAR(255), PRIMARY KEY (intid))");
+
+      # dependencies info
+
+	    //-// type = equal / intersect; bind are from path
+	    //       FOREIGN KEY (keyid) REFERENCES linkkey (intid),
+	    st.executeUpdate("CREATE TABLE binding (keyid BIGINT, type INT, joinid1 BIGINT, joinid2 BIGINT)");
+
     */
 
     public void initDatabase() throws SQLException {
@@ -831,20 +1057,8 @@ public class SQLCache extends VolatilCache implements Cache {
 	    st.executeUpdate("CREATE TABLE cell (id VARCHAR(100), cell_id VARCHAR(255), uri1 VARCHAR(255), uri2 VARCHAR(255), semantics VARCHAR(30), measure VARCHAR(20), relation VARCHAR(255), FOREIGN KEY (id) REFERENCES alignment (id))");
 	    st.executeUpdate("CREATE TABLE extension (id VARCHAR(100), uri VARCHAR(200), tag VARCHAR(50), val VARCHAR(500))");
 	    st.executeUpdate("CREATE TABLE alignmenturis (id varchar(100), uri varchar(255), prefered boolean);");
-
-	    /*
-	    // EDOAL
-	    st.executeUpdate("CREATE TABLE instexpr (intid VARCHAR(50), id VARCHAR(250), var VARCHAR(250))");
-	    st.executeUpdate("CREATE TABLE instlist (joinid VARCHAR(50), intid VARCHAR(250))"); //intid in instexpr
-
-	    st.executeUpdate("CREATE TABLE classexpr (intid VARCHAR(50), type VARCHAR(10), joinid VARCHAR(250), var VARCHAR(250))");
-	    // type=uri: joinid = uri
-	    // type=id:  joinid = uri
-	    // type\in classconst: joinid = joinid in classlist
-	    // type\in classrest: joinid = id in classrest
-	    st.executeUpdate("CREATE TABLE classlist (joinid VARCHAR(50), intid VARCHAR(250))"); //intid in classexpr
-	    st.executeUpdate("CREATE TABLE classrest (joinid VARCHAR(50), arg1 VARCHAR(250), arg2 VARCHAR(250))");
-	    */
+	    // EDOAL2015:
+	    initEDOALTables( st );
 
 	    st.close();
 
@@ -857,6 +1071,31 @@ public class SQLCache extends VolatilCache implements Cache {
 	} finally {
 	    conn.setAutoCommit( true );
 	}
+    }
+
+    public void initEDOALTables( Statement st ) throws SQLException {
+	st.executeUpdate("CREATE TABLE edoalexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE valueexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE instexpr (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE literal (intid BIGINT NOT NULL AUTO_INCREMENT, type BIGINT, value VARCHAR(500), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE typeexpr (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE apply (intid BIGINT NOT NULL AUTO_INCREMENT, operation VARCHAR(255), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE arglist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	st.executeUpdate("CREATE TABLE classexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE classid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE classlist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	st.executeUpdate("CREATE TABLE classrest (intid BIGINT NOT NULL AUTO_INCREMENT, path BIGINT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE pathexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE propexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE propid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE proplist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	st.executeUpdate("CREATE TABLE valuerest (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, path BIGINT, comp VARCHAR(250), joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE relexpr (intid BIGINT NOT NULL AUTO_INCREMENT, type INT, joinid BIGINT, var VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE relid (intid BIGINT NOT NULL AUTO_INCREMENT, uri VARCHAR(250), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE rellist (intid BIGINT NOT NULL, id BIGINT NOT NULL)");
+	st.executeUpdate("CREATE TABLE transf (intid BIGINT NOT NULL AUTO_INCREMENT, cellid VARCHAR(255), type INT, joinid1 BIGINT, joinid2 BIGINT, PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE linkkey (intid BIGINT NOT NULL AUTO_INCREMENT, cellid VARCHAR(255), PRIMARY KEY (intid))");
+	st.executeUpdate("CREATE TABLE binding (keyid BIGINT NOT NULL, type INT, joinid1 BIGINT, joinid2 BIGINT)");
     }
 
     public void resetDatabase( boolean force ) throws SQLException, AlignmentException {
@@ -873,7 +1112,7 @@ public class SQLCache extends VolatilCache implements Cache {
 		    throw new AlignmentException("Cannot init database: other processes use it");
 		}
 	    }
-	    // Suppress old database if exists
+	    // Suppress old databases if exists
 	    st.executeUpdate("DROP TABLE IF EXISTS alignmenturis");
 	    st.executeUpdate("DROP TABLE IF EXISTS extension");
 	    st.executeUpdate("DROP TABLE IF EXISTS cell");
@@ -884,6 +1123,29 @@ public class SQLCache extends VolatilCache implements Cache {
 	    st.executeUpdate("DROP TABLE IF EXISTS alignment");
 	    st.executeUpdate("DROP TABLE IF EXISTS ontology");
 	    st.executeUpdate("DROP TABLE IF EXISTS server");
+	    // EDOAL2015
+	    st.executeUpdate("DROP TABLE IF EXISTS edoalexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS valueexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS instexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS literal");
+	    st.executeUpdate("DROP TABLE IF EXISTS typeexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS apply");
+	    st.executeUpdate("DROP TABLE IF EXISTS arglist");
+	    st.executeUpdate("DROP TABLE IF EXISTS classexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS classid");
+	    st.executeUpdate("DROP TABLE IF EXISTS classlist");
+	    st.executeUpdate("DROP TABLE IF EXISTS classrest");
+	    st.executeUpdate("DROP TABLE IF EXISTS pathexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS propexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS propid");
+	    st.executeUpdate("DROP TABLE IF EXISTS proplist");
+	    st.executeUpdate("DROP TABLE IF EXISTS valuerest");
+	    st.executeUpdate("DROP TABLE IF EXISTS relexpr");
+	    st.executeUpdate("DROP TABLE IF EXISTS relid");
+	    st.executeUpdate("DROP TABLE IF EXISTS rellist");
+	    st.executeUpdate("DROP TABLE IF EXISTS transf");
+	    st.executeUpdate("DROP TABLE IF EXISTS linkkey");
+	    st.executeUpdate("DROP TABLE IF EXISTS binding");
 	    // Redo it
 	    initDatabase();
 	  
@@ -1121,8 +1383,10 @@ public class SQLCache extends VolatilCache implements Cache {
 		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.ALIGNMENT.uri+"#' WHERE uri='"+Namespace.ALIGNMENT.uri+"'");
 		    st2.executeUpdate("UPDATE extension SET uri='"+Namespace.EXT.uri+"' WHERE uri='"+Namespace.ALIGNMENT.uri+"#' AND (tag='time' OR tag='method' OR tag='pretty')");
 		}
-		if ( version < 471 ) {
-		    // EDOAL: usually add tables
+		if ( version < 471 ) { // EDOAL2015:
+		    logger.info("Upgrading to version 4.71");
+		    logger.info("Creating EDOAL tables");
+		    initEDOALTables( createStatement() );
 		}
 		// ALTER version
 		st.executeUpdate("UPDATE server SET version='"+VERSION+"'");
